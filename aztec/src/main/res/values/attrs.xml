@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <declare-styleable name="AztecText">
+        <attr name="pudu" format="reference|color" />
+        <attr name="bulletColor" format="reference|color" />
+        <attr name="bulletRadius" format="reference|dimension" />
+        <attr name="bulletGapWidth" format="reference|dimension" />
+        <attr name="historyEnable" format="reference|boolean" />
+        <attr name="historySize" format="reference|integer" />
+        <attr name="linkColor" format="reference|color" />
+        <attr name="linkUnderline" format="reference|boolean" />
+        <attr name="quoteColor" format="reference|color" />
+        <attr name="quoteStripeWidth" format="reference|dimension" />
+        <attr name="quoteCapWidth" format="reference|dimension" />
+    </declare-styleable>
+</resources>

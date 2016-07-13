@@ -1,5 +1,8 @@
 # Aztec
 
+
+[![Build Status](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android)
+
 Note: this project was forked from https://github.com/mthli/Knife but has
 been converted to Kotlin and will be deeply modified.
 

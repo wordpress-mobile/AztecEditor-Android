@@ -451,6 +451,9 @@ class HtmlToSpannedConverter implements ContentHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
+            if (obj[i] instanceof UnknownHtmlSpan) {
+                continue;
+            }
             int start = mSpannableStringBuilder.getSpanStart(obj[i]);
             int end = mSpannableStringBuilder.getSpanEnd(obj[i]);
 
@@ -474,6 +477,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
     private void handleStartTag(String tag, Attributes attributes) {
         if (mUnknownTagLevel != 0) {
+            // Swallow opening tag and attributes in current Unknown element
             mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
             mUnknownTagLevel += 1;
             return;
@@ -525,15 +529,13 @@ class HtmlToSpannedConverter implements ContentHandler {
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else { // TODO: keep the Tag handler here
-            // TODO: list these tags somewhere
-            if (!tag.toLowerCase().equals("html") && !tag.toLowerCase().equals("body")) {
+            if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
                 // Initialize a new "Unknown" node
                 if (mUnknownTagLevel == 0) {
                     mUnknownTagLevel = 1;
                     mUnknown = new Unknown();
                     mUnknown.rawHtml = new StringBuilder();
-                    mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes))
-                            .append('>');
+                    mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
                     start(mSpannableStringBuilder, mUnknown);
                 }
             }
@@ -551,10 +553,15 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     private void handleEndTag(String tag) {
-        if (mUnknownTagLevel != 0) { // Unknown tag previously detected
+        // Unknown tag previously detected
+        if (mUnknownTagLevel != 0) {
+
+            // Swallow closing tag in current Unknown element
             mUnknown.rawHtml.append("</").append(tag).append(">");
             mUnknownTagLevel -= 1;
             if (mUnknownTagLevel == 0) {
+                // Time to wrap up our unknown tag in a Span
+                mSpannableStringBuilder.append("\\uFFFC"); // placeholder character
                 end(mSpannableStringBuilder, Unknown.class, new UnknownHtmlSpan(mUnknown.rawHtml));
             }
             return;

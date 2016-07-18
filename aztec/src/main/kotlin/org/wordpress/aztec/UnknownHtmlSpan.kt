@@ -4,14 +4,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ParagraphStyle
 import android.text.style.ReplacementSpan
-import android.view.View
-import android.widget.Toast
 
-class UnknownHtmlSpan(private val rawHtml: StringBuilder) : ReplacementSpan(), ParagraphStyle {
+class UnknownHtmlSpan(rawHtml: StringBuilder) : ReplacementSpan(), ParagraphStyle {
     val mRawHtml: StringBuilder = rawHtml
 
     override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt): Int {
-        //return text with relative to the Paint
         return 200
     }
 
@@ -24,11 +21,8 @@ class UnknownHtmlSpan(private val rawHtml: StringBuilder) : ReplacementSpan(), P
         return mRawHtml
     }
 
-    fun onClick(view: View) {
-        Toast.makeText(view.getContext(), "<tag> clicked", Toast.LENGTH_SHORT).show()
-    }
-
     companion object {
-        val TEXT = "Unknown"
+        // Following tags are ignored
+        val KNOWN_TAGS = setOf<String>("html", "body")
     }
 }

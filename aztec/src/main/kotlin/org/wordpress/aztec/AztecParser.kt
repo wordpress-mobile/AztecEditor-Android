@@ -19,7 +19,6 @@
 package org.wordpress.aztec
 
 import android.graphics.Typeface
-import android.text.Html
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*

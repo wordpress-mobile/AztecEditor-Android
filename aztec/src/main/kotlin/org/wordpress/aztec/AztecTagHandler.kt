@@ -22,7 +22,6 @@
 package org.wordpress.aztec
 
 import android.text.Editable
-import android.text.Html
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.BulletSpan

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
@@ -44,6 +45,7 @@ class MainActivity : Activity() {
         setupQuote()
         setupLink()
         setupClear()
+        setupHtml()
     }
 
     private fun setupBold() {
@@ -131,6 +133,17 @@ class MainActivity : Activity() {
 
         clear.setOnLongClickListener {
             Toast.makeText(this@MainActivity, R.string.toast_format_clear, Toast.LENGTH_SHORT).show()
+            true
+        }
+    }
+
+    private fun setupHtml() {
+        val clear = findViewById(R.id.html) as ImageButton
+
+        clear.setOnClickListener { aztec.setText(aztec.toHtml()) }
+
+        clear.setOnLongClickListener {
+            Toast.makeText(this@MainActivity, R.string.toast_html, Toast.LENGTH_SHORT).show()
             true
         }
     }

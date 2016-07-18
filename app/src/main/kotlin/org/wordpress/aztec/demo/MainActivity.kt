@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -17,7 +18,7 @@ class MainActivity : Activity() {
         private val BOLD = "<b>Bold</b><br><br>"
         private val ITALIC = "<i>Italic</i><br><br>"
         private val UNDERLINE = "<u>Underline</u><br><br>"
-        private val STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
+        private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br><br>" // <s> or <strike> or <del>
         private val BULLET = "<ul><li>asdfg</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
@@ -33,6 +34,8 @@ class MainActivity : Activity() {
         aztec = findViewById(R.id.aztec) as AztecText
         // ImageGetter coming soon...
         aztec.fromHtml(EXAMPLE)
+        Log.d("FIXME", EXAMPLE)
+        Log.d("FIXME", aztec.toHtml())
         aztec.setSelection(aztec.editableText.length)
 
         setupBold()

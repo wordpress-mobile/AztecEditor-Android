@@ -35,38 +35,27 @@ class AztecTagHandler : Html.TagHandler {
     private class Strike
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) : Boolean {
-        if (opening) {
-            if (tag.equals(BULLET_LI, ignoreCase = true)) {
+        when (tag.toLowerCase()) {
+            BULLET_LI -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
                     output.append("\n")
                 }
-                start(output, Li())
-                return true
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true)
-                    || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true)
-                    || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
-                start(output, Strike())
-                return true
-            } else if (tag.equals(BULLET_UL, ignoreCase = true)) {
-                // no op
-                return true
-            }
-        } else {
-            if (tag.equals(BULLET_LI, ignoreCase = true)) {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n")
+                if (opening) {
+                    start(output, Li())
+                } else {
+                    end(output, Li::class.java, BulletSpan())
                 }
-                end(output, Li::class.java, BulletSpan())
-                return true
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true)
-                    || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true)
-                    || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
-                end(output, Strike::class.java, StrikethroughSpan())
-                return true
-            } else if (tag.equals(BULLET_UL, ignoreCase = true)) {
-                // no op
                 return true
             }
+            STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
+                if (opening) {
+                    start(output, Strike())
+                } else {
+                    end(output, Strike::class.java, StrikethroughSpan())
+                }
+                return true
+            }
+            BULLET_UL -> return true // no op
         }
         return false
     }

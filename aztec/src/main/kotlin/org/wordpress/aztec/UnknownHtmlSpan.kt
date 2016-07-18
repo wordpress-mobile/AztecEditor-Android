@@ -23,6 +23,6 @@ class UnknownHtmlSpan(rawHtml: StringBuilder) : ReplacementSpan(), ParagraphStyl
 
     companion object {
         // Following tags are ignored
-        val KNOWN_TAGS = setOf<String>("html", "body")
+        val KNOWN_TAGS = setOf("html", "body")
     }
 }

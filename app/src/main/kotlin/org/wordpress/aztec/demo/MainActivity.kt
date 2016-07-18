@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -34,8 +33,6 @@ class MainActivity : Activity() {
         aztec = findViewById(R.id.aztec) as AztecText
         // ImageGetter coming soon...
         aztec.fromHtml(EXAMPLE)
-        Log.d("FIXME", EXAMPLE)
-        Log.d("FIXME", aztec.toHtml())
         aztec.setSelection(aztec.editableText.length)
 
         setupBold()

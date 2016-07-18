@@ -52,6 +52,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -412,7 +413,7 @@ public class Html {
     }
 }
 
-class HtmlToSpannedConverter implements ContentHandler {
+class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static final float[] HEADER_SIZES = {
             1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f,
@@ -438,6 +439,7 @@ class HtmlToSpannedConverter implements ContentHandler {
 
         mReader.setContentHandler(this);
         try {
+            mReader.setProperty(Parser.lexicalHandlerProperty, this);
             mReader.parse(new InputSource(new StringReader(mSource)));
         } catch (IOException e) {
             // We are reading from a string. There should not be IO problems.
@@ -810,6 +812,45 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     public void skippedEntity(String name) throws SAXException {
+    }
+
+    @Override
+    public void startDTD(String s, String s1, String s2) throws SAXException {
+
+    }
+
+    @Override
+    public void endDTD() throws SAXException {
+
+    }
+
+    @Override
+    public void startEntity(String s) throws SAXException {
+
+    }
+
+    @Override
+    public void endEntity(String s) throws SAXException {
+
+    }
+
+    @Override
+    public void startCDATA() throws SAXException {
+
+    }
+
+    @Override
+    public void endCDATA() throws SAXException {
+
+    }
+
+    @Override
+    public void comment(char[] chars, int start, int length) throws SAXException {
+        String comment = new String(chars, start, length);
+        int spanStart = mSpannableStringBuilder.length();
+        mSpannableStringBuilder.append(comment);
+        mSpannableStringBuilder.setSpan(new CommentSpan(),
+                spanStart, mSpannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private static class Bold {

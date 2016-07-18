@@ -190,9 +190,14 @@ object AztecParser {
                         // Don't output the dummy character underlying the image.
                         i = next
                     }
+
+                    if (spans[j] is CommentSpan) {
+                        out.append("<!--")
+                    }
                 }
 
                 withinStyle(out, text, i, next)
+
                 for (j in spans.indices.reversed()) {
                     if (spans[j] is URLSpan) {
                         out.append("</a>")
@@ -216,6 +221,10 @@ object AztecParser {
                         if (style and Typeface.ITALIC != 0) {
                             out.append("</i>")
                         }
+                    }
+
+                    if (spans[j] is CommentSpan) {
+                        out.append("-->")
                     }
                 }
                 i = next

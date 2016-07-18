@@ -34,15 +34,22 @@ class AztecTagHandler : Html.TagHandler {
     private class Li
     private class Strike
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) : Boolean {
         if (opening) {
             if (tag.equals(BULLET_LI, ignoreCase = true)) {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
                     output.append("\n")
                 }
                 start(output, Li())
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true) || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true) || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
+                return true
+            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true)
+                    || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true)
+                    || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
                 start(output, Strike())
+                return true
+            } else if (tag.equals(BULLET_UL, ignoreCase = true)) {
+                // no op
+                return true
             }
         } else {
             if (tag.equals(BULLET_LI, ignoreCase = true)) {
@@ -50,10 +57,18 @@ class AztecTagHandler : Html.TagHandler {
                     output.append("\n")
                 }
                 end(output, Li::class.java, BulletSpan())
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true) || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true) || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
+                return true
+            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true)
+                    || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true)
+                    || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
                 end(output, Strike::class.java, StrikethroughSpan())
+                return true
+            } else if (tag.equals(BULLET_UL, ignoreCase = true)) {
+                // no op
+                return true
             }
         }
+        return false
     }
 
     private fun start(output: Editable, mark: Any) {
@@ -75,6 +90,7 @@ class AztecTagHandler : Html.TagHandler {
 
     companion object {
         private val BULLET_LI = "li"
+        private val BULLET_UL = "ul"
         private val STRIKETHROUGH_S = "s"
         private val STRIKETHROUGH_STRIKE = "strike"
         private val STRIKETHROUGH_DEL = "del"

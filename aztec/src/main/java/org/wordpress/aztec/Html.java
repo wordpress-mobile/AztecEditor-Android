@@ -89,8 +89,7 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        public void handleTag(boolean opening, String tag,
-                              Editable output, XMLReader xmlReader);
+        public boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader);
     }
 
     private Html() {
@@ -528,7 +527,14 @@ class HtmlToSpannedConverter implements ContentHandler {
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
-        } else { // TODO: keep the Tag handler here
+        } else {
+            if (mTagHandler != null) {
+                boolean tagHandled = mTagHandler.handleTag(true, tag, mSpannableStringBuilder, mReader);
+                if (tagHandled) {
+                    return;
+                }
+            }
+
             if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
                 // Initialize a new "Unknown" node
                 if (mUnknownTagLevel == 0) {
@@ -555,7 +561,6 @@ class HtmlToSpannedConverter implements ContentHandler {
     private void handleEndTag(String tag) {
         // Unknown tag previously detected
         if (mUnknownTagLevel != 0) {
-
             // Swallow closing tag in current Unknown element
             mUnknown.rawHtml.append("</").append(tag).append(">");
             mUnknownTagLevel -= 1;

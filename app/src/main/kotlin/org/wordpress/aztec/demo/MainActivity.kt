@@ -21,7 +21,8 @@ class MainActivity : Activity() {
         private val BULLET = "<ul><li>asdfg</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK
+        private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe>"
+        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN
     }
 
     private lateinit var aztec: AztecText

@@ -603,6 +603,8 @@ class HtmlToSpannedConverter implements ContentHandler {
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             handleP(mSpannableStringBuilder);
             endHeader(mSpannableStringBuilder);
+        } else if (mTagHandler != null) {
+            mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader);
         }
     }
 
@@ -706,7 +708,7 @@ class HtmlToSpannedConverter implements ContentHandler {
                     String name = f.mColor.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
-                        ColorStateList colors = res.getColorStateList(colorRes, null);
+                        ColorStateList colors = res.getColorStateList(colorRes);
                         text.setSpan(new TextAppearanceSpan(null, 0, 0, colors, null),
                                 where, len,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

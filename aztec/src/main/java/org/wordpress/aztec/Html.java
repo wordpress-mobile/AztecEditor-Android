@@ -413,6 +413,8 @@ public class Html {
 }
 
 class HtmlToSpannedConverter implements ContentHandler {
+    public int mUnknownTagLevel = 0;
+    public Unknown mUnknown;
 
     private static final float[] HEADER_SIZES = {
             1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f,
@@ -435,7 +437,6 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     public Spanned convert() {
-
         mReader.setContentHandler(this);
         try {
             mReader.parse(new InputSource(new StringReader(mSource)));
@@ -472,6 +473,12 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     private void handleStartTag(String tag, Attributes attributes) {
+        if (mUnknownTagLevel != 0) {
+            mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
+            mUnknownTagLevel += 1;
+            return;
+        }
+
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
@@ -517,12 +524,42 @@ class HtmlToSpannedConverter implements ContentHandler {
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
-        } else if (mTagHandler != null) {
-            mTagHandler.handleTag(true, tag, mSpannableStringBuilder, mReader);
+        } else { // TODO: keep the Tag handler here
+            // TODO: list these tags somewhere
+            if (!tag.toLowerCase().equals("html") && !tag.toLowerCase().equals("body")) {
+                // Initialize a new "Unknown" node
+                if (mUnknownTagLevel == 0) {
+                    mUnknownTagLevel = 1;
+                    mUnknown = new Unknown();
+                    mUnknown.rawHtml = new StringBuilder();
+                    mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes))
+                            .append('>');
+                    start(mSpannableStringBuilder, mUnknown);
+                }
+            }
         }
     }
 
+    private StringBuilder stringifyAttributes(Attributes attributes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            // separate attributes by a space character
+            sb.append(' ');
+            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+        }
+        return sb;
+    }
+
     private void handleEndTag(String tag) {
+        if (mUnknownTagLevel != 0) { // Unknown tag previously detected
+            mUnknown.rawHtml.append("</").append(tag).append(">");
+            mUnknownTagLevel -= 1;
+            if (mUnknownTagLevel == 0) {
+                end(mSpannableStringBuilder, Unknown.class, new UnknownHtmlSpan(mUnknown.rawHtml));
+            }
+            return;
+        }
+
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("p")) {
@@ -566,8 +603,6 @@ class HtmlToSpannedConverter implements ContentHandler {
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             handleP(mSpannableStringBuilder);
             endHeader(mSpannableStringBuilder);
-        } else if (mTagHandler != null) {
-            mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader);
         }
     }
 
@@ -766,6 +801,14 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {
+        // If unknown tag, then swallow everything
+        if (mUnknownTagLevel != 0) {
+            for (int i = 0; i < length; i++) {
+                mUnknown.rawHtml.append(ch[i + start]);
+            }
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         /*
@@ -810,6 +853,13 @@ class HtmlToSpannedConverter implements ContentHandler {
     }
 
     public void skippedEntity(String name) throws SAXException {
+    }
+
+    private static class Unknown {
+        public StringBuilder rawHtml;
+
+        public Unknown() {
+        }
     }
 
     private static class Bold {

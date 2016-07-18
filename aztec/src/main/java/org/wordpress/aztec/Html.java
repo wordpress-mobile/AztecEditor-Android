@@ -566,7 +566,7 @@ class HtmlToSpannedConverter implements ContentHandler {
             mUnknownTagLevel -= 1;
             if (mUnknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
-                mSpannableStringBuilder.append("\\uFFFC"); // placeholder character
+                mSpannableStringBuilder.append("\uFFFC"); // placeholder character
                 end(mSpannableStringBuilder, Unknown.class, new UnknownHtmlSpan(mUnknown.rawHtml));
             }
             return;

@@ -132,6 +132,7 @@ public class Html {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
+            parser.setFeature(Parser.rootBogonsFeature, false); //allows the unknown tags to exist without root element
         } catch (org.xml.sax.SAXNotRecognizedException e) {
             // Should not happen.
             throw new RuntimeException(e);
@@ -414,6 +415,8 @@ public class Html {
 }
 
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
+    public int mUnknownTagLevel = 0;
+    public Unknown mUnknown;
 
     private static final float[] HEADER_SIZES = {
             1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f,
@@ -436,7 +439,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     public Spanned convert() {
-
         mReader.setContentHandler(this);
         try {
             mReader.setProperty(Parser.lexicalHandlerProperty, this);
@@ -452,6 +454,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
+            if (obj[i] instanceof UnknownHtmlSpan) {
+                continue;
+            }
             int start = mSpannableStringBuilder.getSpanStart(obj[i]);
             int end = mSpannableStringBuilder.getSpanEnd(obj[i]);
 
@@ -474,6 +479,13 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private void handleStartTag(String tag, Attributes attributes) {
+        if (mUnknownTagLevel != 0) {
+            // Swallow opening tag and attributes in current Unknown element
+            mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
+            mUnknownTagLevel += 1;
+            return;
+        }
+
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
@@ -519,12 +531,45 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
-        } else if (mTagHandler != null) {
-            mTagHandler.handleTag(true, tag, mSpannableStringBuilder, mReader);
+        } else { // TODO: keep the Tag handler here
+            if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
+                // Initialize a new "Unknown" node
+                if (mUnknownTagLevel == 0) {
+                    mUnknownTagLevel = 1;
+                    mUnknown = new Unknown();
+                    mUnknown.rawHtml = new StringBuilder();
+                    mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
+                    start(mSpannableStringBuilder, mUnknown);
+                }
+            }
         }
     }
 
+    private StringBuilder stringifyAttributes(Attributes attributes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            // separate attributes by a space character
+            sb.append(' ');
+            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+        }
+        return sb;
+    }
+
     private void handleEndTag(String tag) {
+        // Unknown tag previously detected
+        if (mUnknownTagLevel != 0) {
+
+            // Swallow closing tag in current Unknown element
+            mUnknown.rawHtml.append("</").append(tag).append(">");
+            mUnknownTagLevel -= 1;
+            if (mUnknownTagLevel == 0) {
+                // Time to wrap up our unknown tag in a Span
+                mSpannableStringBuilder.append("\\uFFFC"); // placeholder character
+                end(mSpannableStringBuilder, Unknown.class, new UnknownHtmlSpan(mUnknown.rawHtml));
+            }
+            return;
+        }
+
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("p")) {
@@ -673,7 +718,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     String name = f.mColor.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
-                        ColorStateList colors = res.getColorStateList(colorRes, null);
+                        ColorStateList colors = res.getColorStateList(colorRes);
                         text.setSpan(new TextAppearanceSpan(null, 0, 0, colors, null),
                                 where, len,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -768,6 +813,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {
+        // If unknown tag, then swallow everything
+        if (mUnknownTagLevel != 0) {
+            for (int i = 0; i < length; i++) {
+                mUnknown.rawHtml.append(ch[i + start]);
+            }
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
 
         /*
@@ -851,6 +904,13 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         mSpannableStringBuilder.append(comment);
         mSpannableStringBuilder.setSpan(new CommentSpan(),
                 spanStart, mSpannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    private static class Unknown {
+        public StringBuilder rawHtml;
+
+        public Unknown() {
+        }
     }
 
     private static class Bold {

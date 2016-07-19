@@ -54,8 +54,10 @@ object AztecParser {
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
                     withinBullet(out, text, i, next++)
-                } else if (styles[0] is QuoteSpan) {
+                } else if (styles[0] is AztecQuoteSpan) {
                     withinQuote(out, text, i, next++)
+                } else if (styles[0] is UnknownHtmlSpan) {
+                    withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -64,6 +66,10 @@ object AztecParser {
             }
             i = next
         }
+    }
+
+    private fun withinUnknown(unknownHtmlSpan: UnknownHtmlSpan, out: StringBuilder) {
+        out.append(unknownHtmlSpan.getRawHtml())
     }
 
     private fun withinBulletThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {

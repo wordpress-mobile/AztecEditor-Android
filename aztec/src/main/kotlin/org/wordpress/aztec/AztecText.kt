@@ -77,7 +77,7 @@ class AztecText : EditText, TextWatcher {
             throw IllegalArgumentException("historySize must > 0")
         }
 
-        // allows for custom ClickableSpan onClick() triggering
+        // triggers ClickableSpan onClick() events
         movementMethod = LinkMovementMethod.getInstance()
     }
 

@@ -34,26 +34,30 @@ class AztecTagHandler : Html.TagHandler {
     private class Li
     private class Strike
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
-        if (opening) {
-            if (tag.equals(BULLET_LI, ignoreCase = true)) {
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) : Boolean {
+        when (tag.toLowerCase()) {
+            BULLET_LI -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
                     output.append("\n")
                 }
-                start(output, Li())
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true) || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true) || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
-                start(output, Strike())
-            }
-        } else {
-            if (tag.equals(BULLET_LI, ignoreCase = true)) {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n")
+                if (opening) {
+                    start(output, Li())
+                } else {
+                    end(output, Li::class.java, BulletSpan())
                 }
-                end(output, Li::class.java, BulletSpan())
-            } else if (tag.equals(STRIKETHROUGH_S, ignoreCase = true) || tag.equals(STRIKETHROUGH_STRIKE, ignoreCase = true) || tag.equals(STRIKETHROUGH_DEL, ignoreCase = true)) {
-                end(output, Strike::class.java, StrikethroughSpan())
+                return true
             }
+            STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
+                if (opening) {
+                    start(output, Strike())
+                } else {
+                    end(output, Strike::class.java, StrikethroughSpan())
+                }
+                return true
+            }
+            BULLET_UL -> return true // no op
         }
+        return false
     }
 
     private fun start(output: Editable, mark: Any) {
@@ -75,6 +79,7 @@ class AztecTagHandler : Html.TagHandler {
 
     companion object {
         private val BULLET_LI = "li"
+        private val BULLET_UL = "ul"
         private val STRIKETHROUGH_S = "s"
         private val STRIKETHROUGH_STRIKE = "strike"
         private val STRIKETHROUGH_DEL = "del"

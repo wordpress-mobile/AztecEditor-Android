@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -22,7 +21,8 @@ class MainActivity : Activity() {
         private val BULLET = "<ul><li>asdfg</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK
+        private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe>"
+        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN
     }
 
     private lateinit var aztec: AztecText
@@ -34,8 +34,6 @@ class MainActivity : Activity() {
         aztec = findViewById(R.id.aztec) as AztecText
         // ImageGetter coming soon...
         aztec.fromHtml(EXAMPLE)
-        Log.d("FIXME", EXAMPLE)
-        Log.d("FIXME", aztec.toHtml())
         aztec.setSelection(aztec.editableText.length)
 
         setupBold()

@@ -18,14 +18,15 @@
 
 package org.wordpress.aztec
 
+import android.content.Context
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
 
 object AztecParser {
-    fun fromHtml(source: String): Spanned {
-        return Html.fromHtml(source, null, AztecTagHandler())
+    fun fromHtml(source: String, context: Context): Spanned {
+        return Html.fromHtml(source, null, AztecTagHandler(), context)
     }
 
     fun toHtml(text: Spanned): String {

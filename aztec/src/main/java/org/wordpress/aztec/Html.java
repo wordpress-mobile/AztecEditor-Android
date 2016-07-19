@@ -131,6 +131,7 @@ public class Html {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
+            parser.setFeature(Parser.rootBogonsFeature, false); //allows the unknown tags to exist without root element
         } catch (org.xml.sax.SAXNotRecognizedException e) {
             // Should not happen.
             throw new RuntimeException(e);

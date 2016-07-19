@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
@@ -138,11 +139,11 @@ class MainActivity : Activity() {
     }
 
     private fun setupHtml() {
-        val clear = findViewById(R.id.html) as ImageButton
+        val html = findViewById(R.id.html) as Button
 
-        clear.setOnClickListener { aztec.setText(aztec.toHtml()) }
+        html.setOnClickListener { aztec.setText(aztec.toHtml()) }
 
-        clear.setOnLongClickListener {
+        html.setOnLongClickListener {
             Toast.makeText(this@MainActivity, R.string.toast_html, Toast.LENGTH_SHORT).show()
             true
         }

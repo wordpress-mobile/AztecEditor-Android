@@ -4,6 +4,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ParagraphStyle
 import android.text.style.ReplacementSpan
+import android.view.View
+import android.widget.Toast
 
 class UnknownHtmlSpan(rawHtml: StringBuilder) : ReplacementSpan(), ParagraphStyle {
     val mRawHtml: StringBuilder = rawHtml
@@ -19,6 +21,10 @@ class UnknownHtmlSpan(rawHtml: StringBuilder) : ReplacementSpan(), ParagraphStyl
 
     fun getRawHtml() : StringBuilder {
         return mRawHtml
+    }
+
+    fun onClick(view: View) {
+        Toast.makeText(view.context, mRawHtml.toString(), Toast.LENGTH_SHORT).show()
     }
 
     companion object {

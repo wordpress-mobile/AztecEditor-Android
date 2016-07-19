@@ -15,14 +15,14 @@
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content">
 
-            <ImageButton android:id="@+id/html"
+            <Button android:id="@+id/html"
                 android:contentDescription="@null"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_slideshow"
                 android:scaleType="center"
-                android:background="?android:selectableItemBackground">
-            </ImageButton>
+                android:text="@string/toast_html"
+                android:textColor="@color/blue_200"
+                android:background="?android:selectableItemBackground" />
 
             <ImageButton android:id="@+id/bold"
                          android:contentDescription="@null"

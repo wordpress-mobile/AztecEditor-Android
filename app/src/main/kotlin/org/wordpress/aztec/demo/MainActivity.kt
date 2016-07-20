@@ -7,13 +7,16 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.toolbar.FormatToolbar
+import org.wordpress.aztec.toolbar.ToolbarAction
+import java.util.*
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
+
+
     companion object {
         private val BOLD = "<b>Bold</b><br><br>"
         private val ITALIC = "<i>Italic</i><br><br>"
@@ -28,124 +31,63 @@ class MainActivity : Activity() {
     }
 
     private lateinit var aztec: AztecText
+    private lateinit var mToolbar: FormatToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+        mToolbar = findViewById(R.id.toolbar) as FormatToolbar
+
+
+        //highlight toolbar buttons based on what styles are applied to the text beneath cursor
+        aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
+            override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+                val toolbarActions = ArrayList<ToolbarAction>()
+
+                for (textFormat: AztecText.TextFormat in AztecText.TextFormat.values()) {
+                    if (aztec.contains(textFormat)) {
+                        val correspondingAction = getToolbarActionForTextFormat(textFormat)
+                        if (correspondingAction != null) {
+                            toolbarActions.add(correspondingAction)
+                        }
+                    }
+                }
+
+                mToolbar.highlightActionButtons(toolbarActions)
+
+            }
+        })
+
         // ImageGetter coming soon...
         aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
 
-        setupBold()
-        setupItalic()
-        setupUnderline()
-        setupStrikethrough()
-        setupBullet()
-        setupQuote()
-        setupLink()
-        setupClear()
-        setupHtml()
+        mToolbar.setToolbarActionListener(this)
     }
 
-    private fun setupBold() {
-        val bold = findViewById(R.id.bold) as ImageButton
-
-        bold.setOnClickListener { aztec.bold(!aztec.contains(AztecText.FORMAT_BOLD)) }
-
-        bold.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_bold, Toast.LENGTH_SHORT).show()
-            true
+    override fun onToolbarAction(action: ToolbarAction) {
+        when (action) {
+            ToolbarAction.BOLD -> aztec.bold(!aztec.contains(AztecText.TextFormat.FORMAT_BOLD))
+            ToolbarAction.ITALIC -> aztec.italic(!aztec.contains(AztecText.TextFormat.FORMAT_ITALIC))
+            ToolbarAction.BULLET_LIST -> aztec.bullet(!aztec.contains(AztecText.TextFormat.FORMAT_BULLET))
+            ToolbarAction.LINK -> showLinkDialog()
+            ToolbarAction.BLOCKQUOTE -> aztec.quote(!aztec.contains(AztecText.TextFormat.FORMAT_QUOTE))
+            else -> {
+                Toast.makeText(this@MainActivity, "Unsupported action", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun setupItalic() {
-        val italic = findViewById(R.id.italic) as ImageButton
-
-        italic.setOnClickListener { aztec.italic(!aztec.contains(AztecText.FORMAT_ITALIC)) }
-
-        italic.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_italic, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupUnderline() {
-        val underline = findViewById(R.id.underline) as ImageButton
-
-        underline.setOnClickListener { aztec.underline(!aztec.contains(AztecText.FORMAT_UNDERLINED)) }
-
-        underline.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_underline, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupStrikethrough() {
-        val strikethrough = findViewById(R.id.strikethrough) as ImageButton
-
-        strikethrough.setOnClickListener { aztec.strikethrough(!aztec.contains(AztecText.FORMAT_STRIKETHROUGH)) }
-
-        strikethrough.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_strikethrough, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupBullet() {
-        val bullet = findViewById(R.id.bullet) as ImageButton
-
-        bullet.setOnClickListener { aztec.bullet(!aztec.contains(AztecText.FORMAT_BULLET)) }
-
-
-        bullet.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_bullet, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupQuote() {
-        val quote = findViewById(R.id.quote) as ImageButton
-
-        quote.setOnClickListener { aztec.quote(!aztec.contains(AztecText.FORMAT_QUOTE)) }
-
-        quote.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_quote, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupLink() {
-        val link = findViewById(R.id.link) as ImageButton
-
-        link.setOnClickListener { showLinkDialog() }
-
-        link.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_insert_link, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupClear() {
-        val clear = findViewById(R.id.clear) as ImageButton
-
-        clear.setOnClickListener { aztec.clearFormats() }
-
-        clear.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_format_clear, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupHtml() {
-        val html = findViewById(R.id.html) as Button
-
-        html.setOnClickListener { aztec.setText(aztec.toHtml()) }
-
-        html.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_html, Toast.LENGTH_SHORT).show()
-            true
+    fun getToolbarActionForTextFormat(textFormat: AztecText.TextFormat): ToolbarAction? {
+        when (textFormat) {
+            AztecText.TextFormat.FORMAT_BOLD -> return ToolbarAction.BOLD
+            AztecText.TextFormat.FORMAT_ITALIC -> return ToolbarAction.ITALIC
+            AztecText.TextFormat.FORMAT_BULLET -> return ToolbarAction.BULLET_LIST
+            AztecText.TextFormat.FORMAT_QUOTE -> return ToolbarAction.BLOCKQUOTE
+            AztecText.TextFormat.FORMAT_LINK -> return ToolbarAction.LINK
+            else -> return null
         }
     }
 

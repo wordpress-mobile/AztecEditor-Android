@@ -46,6 +46,12 @@ class AztecText : EditText, TextWatcher {
     private lateinit var inputBefore: SpannableStringBuilder
     private lateinit var inputLast: Editable
 
+    private var mOnSelectionChangedListener: AztecText.OnSelectionChangedListener? = null
+
+    interface OnSelectionChangedListener {
+        fun onSelectionChanged(selStart: Int, selEnd: Int)
+    }
+
     constructor(context: Context) : super(context) {
         init(null)
     }
@@ -86,6 +92,16 @@ class AztecText : EditText, TextWatcher {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         removeTextChangedListener(this)
+    }
+
+
+    fun setOnSelectionChangedListener(onSelectionChangedListener: AztecText.OnSelectionChangedListener) {
+        mOnSelectionChangedListener = onSelectionChangedListener
+    }
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        super.onSelectionChanged(selStart, selEnd)
+        mOnSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
     }
 
     // StyleSpan ===================================================================================
@@ -743,15 +759,15 @@ class AztecText : EditText, TextWatcher {
 
     // Helper ======================================================================================
 
-    operator fun contains(format: Int): Boolean {
+    operator fun contains(format: TextFormat): Boolean {
         when (format) {
-            FORMAT_BOLD -> return containStyle(Typeface.BOLD, selectionStart, selectionEnd)
-            FORMAT_ITALIC -> return containStyle(Typeface.ITALIC, selectionStart, selectionEnd)
-            FORMAT_UNDERLINED -> return containUnderline(selectionStart, selectionEnd)
-            FORMAT_STRIKETHROUGH -> return containStrikethrough(selectionStart, selectionEnd)
-            FORMAT_BULLET -> return containBullet()
-            FORMAT_QUOTE -> return containQuote()
-            FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
+            TextFormat.FORMAT_BOLD -> return containStyle(Typeface.BOLD, selectionStart, selectionEnd)
+            TextFormat.FORMAT_ITALIC -> return containStyle(Typeface.ITALIC, selectionStart, selectionEnd)
+            TextFormat.FORMAT_UNDERLINED -> return containUnderline(selectionStart, selectionEnd)
+            TextFormat.FORMAT_STRIKETHROUGH -> return containStrikethrough(selectionStart, selectionEnd)
+            TextFormat.FORMAT_BULLET -> return containBullet()
+            TextFormat.FORMAT_QUOTE -> return containQuote()
+            TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
             else -> return false
         }
     }
@@ -812,13 +828,14 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    companion object {
-        val FORMAT_BOLD = 0x01
-        val FORMAT_ITALIC = 0x02
-        val FORMAT_UNDERLINED = 0x03
-        val FORMAT_STRIKETHROUGH = 0x04
-        val FORMAT_BULLET = 0x05
-        val FORMAT_QUOTE = 0x06
-        val FORMAT_LINK = 0x07
+    enum class TextFormat {
+        FORMAT_BOLD,
+        FORMAT_ITALIC,
+        FORMAT_UNDERLINED,
+        FORMAT_STRIKETHROUGH,
+        FORMAT_BULLET,
+        FORMAT_QUOTE,
+        FORMAT_LINK
     }
+
 }// URLSpan =====================================================================================

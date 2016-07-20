@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="format_bar_height">44dp</dimen>
+    <dimen name="format_bar_height_tablet">49dp</dimen>
+    <dimen name="format_bar_left_margin">5dp</dimen>
+    <dimen name="format_bar_right_margin">2dp</dimen>
+    <dimen name="format_bar_html_button_left_margin">3dp</dimen>
+    <dimen name="format_bar_scroll_right_margin">-7dp</dimen>
+
+    <dimen name="format_bar_horizontal_divider_height">1dp</dimen>
+    <dimen name="format_bar_vertical_divider_width">0.6dp</dimen>
+    <dimen name="format_bar_vertical_divider_height">28dp</dimen>
+
+    <dimen name="margin_extra_small">2dp</dimen>
+    <dimen name="margin_small">4dp</dimen>
+    <dimen name="margin_medium">8dp</dimen>
+    <dimen name="margin_large">12dp</dimen>
+    <dimen name="margin_extra_large">16dp</dimen>
+
+</resources>

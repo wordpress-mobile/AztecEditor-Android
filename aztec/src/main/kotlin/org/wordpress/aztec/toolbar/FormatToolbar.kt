@@ -25,7 +25,6 @@ class FormatToolbar : FrameLayout {
         initView()
     }
 
-
     private fun initView() {
         View.inflate(context, R.layout.format_bar, this)
 
@@ -33,7 +32,6 @@ class FormatToolbar : FrameLayout {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { sendToolbarEvent(toolbarAction) }
         }
-
     }
 
     private fun sendToolbarEvent(toolbarAction: ToolbarAction) {
@@ -57,6 +55,19 @@ class FormatToolbar : FrameLayout {
             }
         }
     }
+
+    fun getSelectedActions() : ArrayList<ToolbarAction>{
+        val actions = ArrayList<ToolbarAction>()
+
+        for(action in ToolbarAction.values()){
+            val view = findViewById(action.buttonId) as ToggleButton
+            if(view.isChecked) actions.add(action)
+        }
+
+        return actions
+    }
+
+
 
     private fun checkButton(button: ToggleButton?) {
         button?.isChecked = true

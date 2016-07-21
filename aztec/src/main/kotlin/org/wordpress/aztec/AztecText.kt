@@ -48,6 +48,8 @@ class AztecText : EditText, TextWatcher {
 
     private var mOnSelectionChangedListener: AztecText.OnSelectionChangedListener? = null
 
+    private var mSelectedStyles: ArrayList<TextFormat>? = null
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -94,6 +96,9 @@ class AztecText : EditText, TextWatcher {
         removeTextChangedListener(this)
     }
 
+    fun setSelectedStyles(styles: ArrayList<TextFormat>){
+        mSelectedStyles = styles
+    }
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: AztecText.OnSelectionChangedListener) {
         mOnSelectionChangedListener = onSelectionChangedListener
@@ -114,11 +119,27 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun bold(valid: Boolean,start: Int,end: Int) {
+        if (valid) {
+            styleValid(Typeface.BOLD, start, end)
+        } else {
+            styleInvalid(Typeface.BOLD, start, end)
+        }
+    }
+
     fun italic(valid: Boolean) {
         if (valid) {
             styleValid(Typeface.ITALIC, selectionStart, selectionEnd)
         } else {
             styleInvalid(Typeface.ITALIC, selectionStart, selectionEnd)
+        }
+    }
+
+    fun italic(valid: Boolean,start: Int,end: Int) {
+        if (valid) {
+            styleValid(Typeface.ITALIC, start, end)
+        } else {
+            styleInvalid(Typeface.ITALIC, start, end)
         }
     }
 
@@ -678,8 +699,13 @@ class AztecText : EditText, TextWatcher {
         inputBefore = SpannableStringBuilder(text)
     }
 
+
+    var inputStart = -1
+    var inputEnd = -1
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        // DO NOTHING HERE
+        inputStart = start
+        inputEnd = start + count
     }
 
     override fun afterTextChanged(text: Editable?) {
@@ -698,6 +724,22 @@ class AztecText : EditText, TextWatcher {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
+
+
+        if(mSelectedStyles != null){
+            for (item in mSelectedStyles!!) {
+                when (item) {
+                    TextFormat.FORMAT_BOLD -> bold(!contains(AztecText.TextFormat.FORMAT_BOLD),inputStart,inputEnd)
+                    TextFormat.FORMAT_ITALIC -> italic(!contains(AztecText.TextFormat.FORMAT_ITALIC),inputStart,inputEnd)
+//                    TextFormat.FORMAT_BULLET -> bullet(!contains(AztecText.TextFormat.FORMAT_BULLET))
+//                    TextFormat.FORMAT_QUOTE -> quote(!contains(AztecText.TextFormat.FORMAT_QUOTE))
+                }
+            }
+        }
+
+
+        inputStart = -1
+        inputEnd = -1
     }
 
     fun redo() {
@@ -768,6 +810,20 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_BULLET -> return containBullet()
             TextFormat.FORMAT_QUOTE -> return containQuote()
             TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
+            else -> return false
+        }
+    }
+
+
+     fun contains(format: TextFormat,selStart: Int, selEnd: Int): Boolean {
+        when (format) {
+            TextFormat.FORMAT_BOLD -> return containStyle(Typeface.BOLD, selStart, selEnd)
+            TextFormat.FORMAT_ITALIC -> return containStyle(Typeface.ITALIC, selStart, selEnd)
+            TextFormat.FORMAT_UNDERLINED -> return containUnderline(selStart, selEnd)
+            TextFormat.FORMAT_STRIKETHROUGH -> return containStrikethrough(selStart, selEnd)
+            TextFormat.FORMAT_BULLET -> return containBullet()
+            TextFormat.FORMAT_QUOTE -> return containQuote()
+            TextFormat.FORMAT_LINK -> return containLink(selStart, selEnd)
             else -> return false
         }
     }

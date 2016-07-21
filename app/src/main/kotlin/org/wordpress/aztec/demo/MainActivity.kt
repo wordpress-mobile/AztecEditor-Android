@@ -16,7 +16,6 @@ import java.util.*
 
 class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
 
-
     companion object {
         private val BOLD = "<b>Bold</b><br><br>"
         private val ITALIC = "<i>Italic</i><br><br>"
@@ -33,6 +32,7 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
     private lateinit var aztec: AztecText
     private lateinit var mToolbar: FormatToolbar
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -44,30 +44,59 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
-                val toolbarActions = ArrayList<ToolbarAction>()
+                val activeToolbarActions = ArrayList<ToolbarAction>()
+                if (selStart != selEnd) {
+                    mToolbar.highlightActionButtons(activeToolbarActions)
+                    return
+                }
+
+                var newSelStart = selStart
+
+                if (selStart > 0) {
+                    newSelStart = selStart - 1
+                }
 
                 for (textFormat: AztecText.TextFormat in AztecText.TextFormat.values()) {
-                    if (aztec.contains(textFormat)) {
-                        val correspondingAction = getToolbarActionForTextFormat(textFormat)
-                        if (correspondingAction != null) {
-                            toolbarActions.add(correspondingAction)
+                    if (aztec.contains(textFormat, newSelStart, selEnd)) {
+                        val underlyingAction = getToolbarActionForTextFormat(textFormat)
+
+                        if (underlyingAction != null) {
+                            activeToolbarActions.add(underlyingAction)
                         }
                     }
                 }
 
-                mToolbar.highlightActionButtons(toolbarActions)
+                mToolbar.highlightActionButtons(activeToolbarActions)
 
-            }
-        })
+    }
+})
 
         // ImageGetter coming soon...
-        aztec.fromHtml(EXAMPLE)
+//        aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
 
         mToolbar.setToolbarActionListener(this)
     }
 
     override fun onToolbarAction(action: ToolbarAction) {
+        //we dont have anything selected
+        if (aztec.selectionStart == aztec.selectionEnd) {
+
+            val actions = mToolbar.getSelectedActions()
+            val textFormats = ArrayList<AztecText.TextFormat>()
+
+            actions.forEach { action ->
+                val textFormat = getTextFormatFromToolbarAction(action)
+
+                if(textFormat != null){
+                    textFormats.add(textFormat)
+                }
+            }
+
+            aztec.setSelectedStyles(textFormats)
+
+        }
+
         when (action) {
             ToolbarAction.BOLD -> aztec.bold(!aztec.contains(AztecText.TextFormat.FORMAT_BOLD))
             ToolbarAction.ITALIC -> aztec.italic(!aztec.contains(AztecText.TextFormat.FORMAT_ITALIC))
@@ -87,6 +116,17 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
             AztecText.TextFormat.FORMAT_BULLET -> return ToolbarAction.BULLET_LIST
             AztecText.TextFormat.FORMAT_QUOTE -> return ToolbarAction.BLOCKQUOTE
             AztecText.TextFormat.FORMAT_LINK -> return ToolbarAction.LINK
+            else -> return null
+        }
+    }
+
+    fun getTextFormatFromToolbarAction(textFormat: ToolbarAction): AztecText.TextFormat? {
+        when (textFormat) {
+            ToolbarAction.BOLD -> return AztecText.TextFormat.FORMAT_BOLD
+            ToolbarAction.ITALIC -> return AztecText.TextFormat.FORMAT_ITALIC
+            ToolbarAction.BULLET_LIST -> return AztecText.TextFormat.FORMAT_BULLET
+            ToolbarAction.BLOCKQUOTE -> return AztecText.TextFormat.FORMAT_QUOTE
+            ToolbarAction.LINK -> return AztecText.TextFormat.FORMAT_LINK
             else -> return null
         }
     }

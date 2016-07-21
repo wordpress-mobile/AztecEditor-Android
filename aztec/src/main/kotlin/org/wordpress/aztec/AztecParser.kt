@@ -200,6 +200,21 @@ object AztecParser {
                     if (spans[j] is CommentSpan) {
                         out.append("<!--")
                     }
+
+                    if (spans[j] is HiddenHtmlMark) {
+                        // only append a hidden tag if it starts at the beggining of current span
+                        if (text.getSpanStart(spans[j]) == i) {
+                            val span = spans[j]  as HiddenHtmlMark
+                            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
+                                out.append(span.startTag)
+                            }
+                            else if (!span.isParsed) {
+                                span.parse()
+                                out.append(span.startTag)
+                                out.append(span.endTag)
+                            }
+                        }
+                    }
                 }
 
                 withinStyle(out, text, i, next)
@@ -231,6 +246,21 @@ object AztecParser {
 
                     if (spans[j] is CommentSpan) {
                         out.append("-->")
+                    }
+
+                    if (spans[j] is HiddenHtmlMark) {
+                        // only end the hidden tag if it ends at the end of current span
+                        if (text.getSpanEnd(spans[j]) == next) {
+                            val span = spans[j] as HiddenHtmlMark
+                            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
+                                out.append(span.endTag)
+                            }
+                            else if (!span.isParsed) {
+                                span.parse()
+                                out.append(span.startTag)
+                                out.append(span.endTag)
+                            }
+                        }
                     }
                 }
                 i = next

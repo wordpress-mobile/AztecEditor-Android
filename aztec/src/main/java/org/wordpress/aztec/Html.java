@@ -90,7 +90,7 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        public boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader);
+        public boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader, Attributes attributes);
     }
 
     private Html() {
@@ -411,6 +411,17 @@ public class Html {
             }
         }
     }
+
+    public static StringBuilder stringifyAttributes(Attributes attributes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            // separate attributes by a space character
+            sb.append(' ');
+            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+        }
+        return sb;
+    }
+
 }
 
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
@@ -480,7 +491,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private void handleStartTag(String tag, Attributes attributes) {
         if (mUnknownTagLevel != 0) {
             // Swallow opening tag and attributes in current Unknown element
-            mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
+            mUnknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
             mUnknownTagLevel += 1;
             return;
         }
@@ -490,8 +501,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             // so we can safely emite the linebreaks when we handle the close tag.
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("div")) {
-            handleP(mSpannableStringBuilder);
+//        } else if (tag.equalsIgnoreCase("div")) {
+//            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold());
         } else if (tag.equalsIgnoreCase("b")) {
@@ -532,7 +543,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else {
             if (mTagHandler != null) {
-                boolean tagHandled = mTagHandler.handleTag(true, tag, mSpannableStringBuilder, mReader);
+                boolean tagHandled = mTagHandler.handleTag(true, tag, mSpannableStringBuilder, mReader, attributes);
                 if (tagHandled) {
                     return;
                 }
@@ -544,21 +555,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     mUnknownTagLevel = 1;
                     mUnknown = new Unknown();
                     mUnknown.rawHtml = new StringBuilder();
-                    mUnknown.rawHtml.append('<').append(tag).append(stringifyAttributes(attributes)).append('>');
+                    mUnknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
                     start(mSpannableStringBuilder, mUnknown);
                 }
             }
         }
-    }
-
-    private StringBuilder stringifyAttributes(Attributes attributes) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < attributes.getLength(); i++) {
-            // separate attributes by a space character
-            sb.append(' ');
-            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
-        }
-        return sb;
     }
 
     private void handleEndTag(String tag) {
@@ -579,8 +580,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             handleBr(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("div")) {
-            handleP(mSpannableStringBuilder);
+//        } else if (tag.equalsIgnoreCase("div")) {
+//            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
         } else if (tag.equalsIgnoreCase("b")) {
@@ -619,7 +620,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             handleP(mSpannableStringBuilder);
             endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
-            mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader);
+            mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
         }
     }
 

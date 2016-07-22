@@ -10,8 +10,10 @@ import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.toolbar.FormatToolbar
 import org.wordpress.aztec.toolbar.ToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarActionType
 import java.util.*
 
 class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
@@ -45,31 +47,37 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 val activeToolbarActions = ArrayList<ToolbarAction>()
-                if (selStart != selEnd) {
-                    mToolbar.highlightActionButtons(activeToolbarActions)
+
+                if (aztec.isTextSelected()) {
+                    mToolbar.uncheckSellectedButton()
                     return
                 }
 
                 var newSelStart = selStart
 
                 if (selStart > 0) {
-                    newSelStart = selStart - 1
+                    newSelStart = selStart -1
                 }
 
-                for (textFormat: AztecText.TextFormat in AztecText.TextFormat.values()) {
-                    if (aztec.contains(textFormat, newSelStart, selEnd)) {
-                        val underlyingAction = getToolbarActionForTextFormat(textFormat)
+                TextFormat.values().forEach { if(aztec.contains(it,newSelStart, selEnd)){
 
-                        if (underlyingAction != null) {
-                            activeToolbarActions.add(underlyingAction)
-                        }
+                    val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
+
+                    if(toolbarAction != null){
+                        activeToolbarActions.add(toolbarAction)
                     }
+
+                } }
+
+                if(styleChangedManually){
+                    mToolbar.highlightActionButtons(mToolbar.getSelectedActions())
+                    styleChangedManually = false
+                }else{
+                    mToolbar.highlightActionButtons(activeToolbarActions)
                 }
 
-                mToolbar.highlightActionButtons(activeToolbarActions)
-
-    }
-})
+            }
+        })
 
         // ImageGetter coming soon...
 //        aztec.fromHtml(EXAMPLE)
@@ -78,58 +86,37 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         mToolbar.setToolbarActionListener(this)
     }
 
+    var styleChangedManually = false
+
     override fun onToolbarAction(action: ToolbarAction) {
-        //we dont have anything selected
-        if (aztec.selectionStart == aztec.selectionEnd) {
-
+        //if noting is selected just activate style
+        if (!aztec.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = mToolbar.getSelectedActions()
-            val textFormats = ArrayList<AztecText.TextFormat>()
+            val textFormats = ArrayList<TextFormat>()
 
-            actions.forEach { action ->
-                val textFormat = getTextFormatFromToolbarAction(action)
-
-                if(textFormat != null){
-                    textFormats.add(textFormat)
-                }
-            }
-
+            actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
             aztec.setSelectedStyles(textFormats)
-
+            styleChangedManually = true
+            return
         }
 
+        //if text is selected and action is styling apply style to it
+        if(action.isStylingAction()){
+            aztec.applyTextStyle(action.textFormat!!)
+            return
+        }
+
+        //some other toolbar action
         when (action) {
-            ToolbarAction.BOLD -> aztec.bold(!aztec.contains(AztecText.TextFormat.FORMAT_BOLD))
-            ToolbarAction.ITALIC -> aztec.italic(!aztec.contains(AztecText.TextFormat.FORMAT_ITALIC))
-            ToolbarAction.BULLET_LIST -> aztec.bullet(!aztec.contains(AztecText.TextFormat.FORMAT_BULLET))
             ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.BLOCKQUOTE -> aztec.quote(!aztec.contains(AztecText.TextFormat.FORMAT_QUOTE))
+            ToolbarAction.HTML -> aztec.setText(aztec.toHtml())
             else -> {
                 Toast.makeText(this@MainActivity, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    fun getToolbarActionForTextFormat(textFormat: AztecText.TextFormat): ToolbarAction? {
-        when (textFormat) {
-            AztecText.TextFormat.FORMAT_BOLD -> return ToolbarAction.BOLD
-            AztecText.TextFormat.FORMAT_ITALIC -> return ToolbarAction.ITALIC
-            AztecText.TextFormat.FORMAT_BULLET -> return ToolbarAction.BULLET_LIST
-            AztecText.TextFormat.FORMAT_QUOTE -> return ToolbarAction.BLOCKQUOTE
-            AztecText.TextFormat.FORMAT_LINK -> return ToolbarAction.LINK
-            else -> return null
-        }
-    }
 
-    fun getTextFormatFromToolbarAction(textFormat: ToolbarAction): AztecText.TextFormat? {
-        when (textFormat) {
-            ToolbarAction.BOLD -> return AztecText.TextFormat.FORMAT_BOLD
-            ToolbarAction.ITALIC -> return AztecText.TextFormat.FORMAT_ITALIC
-            ToolbarAction.BULLET_LIST -> return AztecText.TextFormat.FORMAT_BULLET
-            ToolbarAction.BLOCKQUOTE -> return AztecText.TextFormat.FORMAT_QUOTE
-            ToolbarAction.LINK -> return AztecText.TextFormat.FORMAT_LINK
-            else -> return null
-        }
-    }
 
     private fun showLinkDialog() {
         val start = aztec.selectionStart

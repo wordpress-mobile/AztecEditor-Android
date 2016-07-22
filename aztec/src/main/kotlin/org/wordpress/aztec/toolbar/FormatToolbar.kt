@@ -46,9 +46,9 @@ class FormatToolbar : FrameLayout {
         fun onToolbarAction(action: ToolbarAction)
     }
 
-    fun highlightActionButtons(actions: ArrayList<ToolbarAction>) {
-        for (action in ToolbarAction.values()) {
-            if (actions.contains(action)) {
+    fun highlightActionButtons(toolbarActions: ArrayList<ToolbarAction>) {
+        ToolbarAction.values().forEach { action ->
+            if (toolbarActions.contains(action)) {
                 checkButton(findViewById(action.buttonId) as ToggleButton)
             } else {
                 uncheckButton(findViewById(action.buttonId) as ToggleButton)
@@ -56,17 +56,20 @@ class FormatToolbar : FrameLayout {
         }
     }
 
-    fun getSelectedActions() : ArrayList<ToolbarAction>{
+    fun uncheckSellectedButton() {
+        ToolbarAction.values().forEach { uncheckButton(findViewById(it.buttonId) as ToggleButton) }
+    }
+
+    fun getSelectedActions(): ArrayList<ToolbarAction> {
         val actions = ArrayList<ToolbarAction>()
 
-        for(action in ToolbarAction.values()){
+        for (action in ToolbarAction.values()) {
             val view = findViewById(action.buttonId) as ToggleButton
-            if(view.isChecked) actions.add(action)
+            if (view.isChecked) actions.add(action)
         }
 
         return actions
     }
-
 
 
     private fun checkButton(button: ToggleButton?) {

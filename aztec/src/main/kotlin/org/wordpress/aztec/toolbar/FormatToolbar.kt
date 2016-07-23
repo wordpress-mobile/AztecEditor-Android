@@ -56,10 +56,6 @@ class FormatToolbar : FrameLayout {
         }
     }
 
-    fun uncheckSellectedButton() {
-        ToolbarAction.values().forEach { uncheckButton(findViewById(it.buttonId) as ToggleButton) }
-    }
-
     fun getSelectedActions(): ArrayList<ToolbarAction> {
         val actions = ArrayList<ToolbarAction>()
 

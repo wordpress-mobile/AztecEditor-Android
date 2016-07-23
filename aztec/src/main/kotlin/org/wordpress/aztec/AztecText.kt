@@ -477,6 +477,8 @@ class AztecText : EditText, TextWatcher {
             }
         }
 
+        if(list.isEmpty()) return false
+
         for (i in list) {
             if (!containBullet(i)) {
                 return false

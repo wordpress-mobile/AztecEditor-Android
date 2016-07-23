@@ -47,34 +47,24 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 val activeToolbarActions = ArrayList<ToolbarAction>()
-
-                if (aztec.isTextSelected()) {
-                    mToolbar.uncheckSellectedButton()
-                    return
-                }
-
                 var newSelStart = selStart
 
-                if (selStart > 0) {
-                    newSelStart = selStart -1
+                if (selStart > 0 && !aztec.isTextSelected()) {
+                    newSelStart = selStart - 1
                 }
 
-                TextFormat.values().forEach { if(aztec.contains(it,newSelStart, selEnd)){
+                TextFormat.values().forEach {
+                    if (aztec.contains(it, newSelStart, selEnd)) {
 
-                    val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
+                        val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
 
-                    if(toolbarAction != null){
-                        activeToolbarActions.add(toolbarAction)
+                        if (toolbarAction != null) {
+                            activeToolbarActions.add(toolbarAction)
+                        }
                     }
-
-                } }
-
-                if(styleChangedManually){
-                    mToolbar.highlightActionButtons(mToolbar.getSelectedActions())
-                    styleChangedManually = false
-                }else{
-                    mToolbar.highlightActionButtons(activeToolbarActions)
                 }
+
+                mToolbar.highlightActionButtons(activeToolbarActions)
 
             }
         })
@@ -86,8 +76,6 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         mToolbar.setToolbarActionListener(this)
     }
 
-    var styleChangedManually = false
-
     override fun onToolbarAction(action: ToolbarAction) {
         //if noting is selected just activate style
         if (!aztec.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
@@ -96,12 +84,11 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
 
             actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
             aztec.setSelectedStyles(textFormats)
-            styleChangedManually = true
             return
         }
 
         //if text is selected and action is styling apply style to it
-        if(action.isStylingAction()){
+        if (action.isStylingAction()) {
             aztec.applyTextStyle(action.textFormat!!)
             return
         }
@@ -115,7 +102,6 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
             }
         }
     }
-
 
 
     private fun showLinkDialog() {

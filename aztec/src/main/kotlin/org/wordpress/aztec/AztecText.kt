@@ -542,7 +542,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                editableText.setSpan(AztecQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                editableText.setSpan(AztecQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -731,10 +731,10 @@ class AztecText : EditText, TextWatcher {
         historyCursor = historyList.size
 
 
+        //trailing styling
         if(!formattingHasChanged()) return
 
-        //trailing styling
-        if (formattingHasChanged()) {
+        if (formattingIsApplied()) {
             clearInlineStyles(inputStart,inputEnd)
 
             for (item in mSelectedStyles) {

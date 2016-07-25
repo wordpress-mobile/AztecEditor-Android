@@ -5,7 +5,7 @@ import android.text.style.CharacterStyle
 
 import org.xml.sax.Attributes
 
-class HiddenHtmlMark(tag: String, attributes: StringBuilder) : CharacterStyle() {
+class HiddenHtmlSpan(tag: String, attributes: StringBuilder) : CharacterStyle() {
 
     val startTag: StringBuilder
     val endTag: StringBuilder

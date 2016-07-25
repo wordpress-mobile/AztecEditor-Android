@@ -202,10 +202,10 @@ object AztecParser {
                         out.append("<!--")
                     }
 
-                    if (spans[j] is HiddenHtmlMark) {
+                    if (spans[j] is HiddenHtmlSpan) {
                         // only append a hidden tag if it starts at the beginning of current span
                         if (text.getSpanStart(spans[j]) == i) {
-                            val span = spans[j]  as HiddenHtmlMark
+                            val span = spans[j]  as HiddenHtmlSpan
                             if (text.getSpanStart(span) != text.getSpanEnd(span)) {
                                 out.append(span.startTag)
                             }
@@ -221,7 +221,7 @@ object AztecParser {
 
                 withinStyle(out, text, i, next)
 
-                val spanStack = Stack<HiddenHtmlMark>() // stack for correcting order of spans
+                val spanStack = Stack<HiddenHtmlSpan>() // stack for correcting order of spans
                 var nextEnd = 0 // next span index to be closed
 
                 for (j in spans.indices.reversed()) {
@@ -253,8 +253,8 @@ object AztecParser {
                         out.append("-->")
                     }
 
-                    if (spans[j] is HiddenHtmlMark) {
-                        val span = spans[j] as HiddenHtmlMark
+                    if (spans[j] is HiddenHtmlSpan) {
+                        val span = spans[j] as HiddenHtmlSpan
 
                         // check if we should end span from the stack
                         while (!spanStack.isEmpty() && spanStack.peek().endOrder == nextEnd) {
@@ -281,7 +281,7 @@ object AztecParser {
         }
     }
 
-    private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlMark, text: Spanned) {
+    private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
         // close a hidden tag only if it ends at the end of current span
         if (text.getSpanEnd(span) == next) {
             if (text.getSpanStart(span) != text.getSpanEnd(span)) {

@@ -61,7 +61,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             DIV -> {
                 if (opening) {
-                    start(output, HiddenHtmlMark(tag, Html.stringifyAttributes(attributes)))
+                    start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes)))
                 } else {
                     endHidden(output, tag, order)
                     order++
@@ -144,15 +144,15 @@ class AztecTagHandler : Html.TagHandler {
             }
         }
 
-        private fun getLastOpenHidden(text: Editable): HiddenHtmlMark? {
-            val spans = text.getSpans(0, text.length, HiddenHtmlMark::class.java)
+        private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {
+            val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
 
             if (spans.size == 0) {
                 return null
             } else {
                 for (i in spans.size downTo 1) {
                     if (text.getSpanFlags(spans[i - 1]) == Spannable.SPAN_MARK_MARK &&
-                            !(spans[i - 1] as HiddenHtmlMark).isClosed) {
+                            !(spans[i - 1] as HiddenHtmlSpan).isClosed) {
                         return spans[i - 1]
                     }
                 }

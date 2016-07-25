@@ -36,7 +36,7 @@ class AztecTagHandler : Html.TagHandler {
     private class Strike
     private class Hidden(internal var attributes: Attributes?)
 
-    private var level = 0
+    private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
         when (tag.toLowerCase()) {
@@ -59,12 +59,12 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
-            DIV  -> {
+            DIV -> {
                 if (opening) {
-                    start(output, HiddenHtmlMark(tag, Html.stringifyAttributes(attributes), level++))
+                    start(output, HiddenHtmlMark(tag, Html.stringifyAttributes(attributes)))
                 } else {
-                    level--
-                    endHidden(output, tag)
+                    endHidden(output, tag, order)
+                    order++
                 }
                 return true
             }
@@ -94,10 +94,10 @@ class AztecTagHandler : Html.TagHandler {
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
-    private fun endHidden(output: Editable, tag: String) {
+    private fun endHidden(output: Editable, tag: String, order: Int) {
         val last = getLastOpenHidden(output)
         if (last != null) {
-            last.close()
+            last.close(order)
             val start = output.getSpanStart(last)
             val end = output.length
 

@@ -22,6 +22,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
+import java.util.*
 
 object AztecParser {
     fun fromHtml(source: String): Spanned {
@@ -202,13 +203,14 @@ object AztecParser {
                     }
 
                     if (spans[j] is HiddenHtmlMark) {
-                        // only append a hidden tag if it starts at the beggining of current span
+                        // only append a hidden tag if it starts at the beginning of current span
                         if (text.getSpanStart(spans[j]) == i) {
                             val span = spans[j]  as HiddenHtmlMark
                             if (text.getSpanStart(span) != text.getSpanEnd(span)) {
                                 out.append(span.startTag)
                             }
                             else if (!span.isParsed) {
+                                // empty span, process it if not already parsed
                                 span.parse()
                                 out.append(span.startTag)
                                 out.append(span.endTag)
@@ -218,6 +220,9 @@ object AztecParser {
                 }
 
                 withinStyle(out, text, i, next)
+
+                val spanStack = Stack<HiddenHtmlMark>() // stack for correcting order of spans
+                var nextEnd = 0 // next span index to be closed
 
                 for (j in spans.indices.reversed()) {
                     if (spans[j] is URLSpan) {
@@ -249,17 +254,21 @@ object AztecParser {
                     }
 
                     if (spans[j] is HiddenHtmlMark) {
-                        // only end the hidden tag if it ends at the end of current span
-                        if (text.getSpanEnd(spans[j]) == next) {
-                            val span = spans[j] as HiddenHtmlMark
-                            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
-                                out.append(span.endTag)
-                            }
-                            else if (!span.isParsed) {
-                                span.parse()
-                                out.append(span.startTag)
-                                out.append(span.endTag)
-                            }
+                        val span = spans[j] as HiddenHtmlMark
+
+                        // check if we should end span from the stack
+                        while (!spanStack.isEmpty() && spanStack.peek().endOrder == nextEnd) {
+                            endSpan(next, out, spanStack.pop(), text)
+                            nextEnd++
+                        }
+
+                        // when span is out of order, push it to stack to wait for its turn
+                        // happens when multiple spans are opened & closed sequentially, i.e. not nested
+                        if (span.endOrder != nextEnd++) {
+                            spanStack.push(span)
+                        }
+                        else {
+                            endSpan(next, out, span, text)
                         }
                     }
                 }
@@ -269,6 +278,20 @@ object AztecParser {
 
         for (i in 0..nl - 1) {
             out.append("<br>")
+        }
+    }
+
+    private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlMark, text: Spanned) {
+        // close a hidden tag only if it ends at the end of current span
+        if (text.getSpanEnd(span) == next) {
+            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
+                out.append(span.endTag)
+            } else if (!span.isParsed) {
+                // empty span, process it if not already parsed
+                span.parse()
+                out.append(span.startTag)
+                out.append(span.endTag)
+            }
         }
     }
 

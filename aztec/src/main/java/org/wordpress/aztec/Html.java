@@ -501,8 +501,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             // so we can safely emite the linebreaks when we handle the close tag.
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
-//        } else if (tag.equalsIgnoreCase("div")) {
-//            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold());
         } else if (tag.equalsIgnoreCase("b")) {
@@ -580,8 +578,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             handleBr(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
-//        } else if (tag.equalsIgnoreCase("div")) {
-//            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
         } else if (tag.equalsIgnoreCase("b")) {

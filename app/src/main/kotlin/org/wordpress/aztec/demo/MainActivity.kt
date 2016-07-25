@@ -24,7 +24,7 @@ class MainActivity : Activity() {
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
         private val COMMENT = "<!--This is a comment--><br><br>"
-        private val DIV = "<div class=\"first\"><div class=\"second\" attr=\"outer\"><b>Bold inside div</b><div class=\"first\" attr=\"inner\">Inn<div></div>er</div><div class=\"second\" attr=\"inner\"></div></div></div><br><br>"
+        private val DIV = "<div></div><div class=\"first\"><div class=\"second\"><b>Bold</b><div class=\"third\">Inside<div></div>third</div><div class=\"fourth\"></div></div></div><br><br>"
         private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + DIV
     }
 

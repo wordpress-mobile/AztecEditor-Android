@@ -779,7 +779,7 @@ class AztecText : EditText, TextWatcher {
 
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(source))
+        builder.append(AztecParser.fromHtml(source, context))
         switchToAztecStyle(builder, 0, builder.length)
         text = builder
     }

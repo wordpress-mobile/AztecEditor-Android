@@ -16,6 +16,7 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -104,8 +105,8 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source) {
-        return fromHtml(source, null, null);
+    public static Spanned fromHtml(String source, Context context) {
+        return fromHtml(source, null, null, context);
     }
 
     /**
@@ -127,7 +128,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler) {
+                                   TagHandler tagHandler, Context context) {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -142,7 +143,7 @@ public class Html {
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, imageGetter, tagHandler,
-                        parser);
+                        parser, context);
         return converter.convert();
     }
 
@@ -426,15 +427,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private SpannableStringBuilder mSpannableStringBuilder;
     private Html.ImageGetter mImageGetter;
     private Html.TagHandler mTagHandler;
+    private Context mContext;
 
     public HtmlToSpannedConverter(
             String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
-            Parser parser) {
+            Parser parser, Context context) {
         mSource = source;
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
         mTagHandler = tagHandler;
         mReader = parser;
+        mContext = context;
     }
 
     public Spanned convert() {
@@ -570,7 +573,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (mUnknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
                 mSpannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(mSpannableStringBuilder, mUnknown.rawHtml);
+                endUnknown(mSpannableStringBuilder, mUnknown.rawHtml, mContext);
             }
             return;
         }
@@ -770,7 +773,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml) {
+    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context) {
         int len = text.length();
         Object obj = getLast(text, Unknown.class);
         int where = text.getSpanStart(obj);
@@ -778,7 +781,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.removeSpan(obj);
 
         if (where != len) {
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml);
+            // TODO: Replace this dummy drawable with something else
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.star_on);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);

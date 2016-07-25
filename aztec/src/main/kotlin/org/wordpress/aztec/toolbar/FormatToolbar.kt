@@ -49,9 +49,9 @@ class FormatToolbar : FrameLayout {
     fun highlightActionButtons(toolbarActions: ArrayList<ToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {
-                checkButton(findViewById(action.buttonId) as ToggleButton)
+                toggleButton(findViewById(action.buttonId), true)
             } else {
-                uncheckButton(findViewById(action.buttonId) as ToggleButton)
+                toggleButton(findViewById(action.buttonId), false)
             }
         }
     }
@@ -68,11 +68,10 @@ class FormatToolbar : FrameLayout {
     }
 
 
-    private fun checkButton(button: ToggleButton?) {
-        button?.isChecked = true
-    }
+    private fun toggleButton(button: View?, checked: Boolean) {
+        if (button != null && button is ToggleButton) {
+            button.isChecked = checked
+        }
 
-    private fun uncheckButton(button: ToggleButton?) {
-        button?.isChecked = false
     }
 }

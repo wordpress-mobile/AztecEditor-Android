@@ -116,7 +116,7 @@ class AztecText : EditText, TextWatcher {
     // StyleSpan ===================================================================================
 
     fun bold(valid: Boolean) {
-        bold(valid,selectionStart,selectionEnd)
+        bold(valid, selectionStart, selectionEnd)
     }
 
     fun bold(valid: Boolean, start: Int, end: Int) {
@@ -128,7 +128,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun italic(valid: Boolean) {
-        italic(valid,selectionStart,selectionEnd)
+        italic(valid, selectionStart, selectionEnd)
     }
 
     fun italic(valid: Boolean, start: Int, end: Int) {
@@ -150,7 +150,8 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                _INCLUSIVE)
     }
 
     private fun styleInvalid(style: Int, start: Int, end: Int) {
@@ -447,7 +448,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun containBullet(): Boolean {
-        return containBullet(selectionStart,selectionEnd)
+        return containBullet(selectionStart, selectionEnd)
     }
 
     fun containBullet(selStart: Int, selEnd: Int): Boolean {
@@ -732,22 +733,26 @@ class AztecText : EditText, TextWatcher {
 
 
         //trailing styling
-        if(!formattingHasChanged()) return
+        if (!formattingHasChanged()) return
 
         if (formattingIsApplied()) {
-            clearInlineStyles(inputStart,inputEnd)
+            clearInlineStyles(inputStart, inputEnd)
 
             for (item in mSelectedStyles) {
                 when (item) {
-                    TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD), inputStart, inputEnd)
-                    TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC), inputStart, inputEnd)
+                    TextFormat.FORMAT_BOLD -> if(!contains(TextFormat.FORMAT_BOLD,inputStart, inputEnd)){
+                        styleValid(Typeface.BOLD, inputStart, inputEnd)
+                    }
+                    TextFormat.FORMAT_ITALIC -> if(!contains(TextFormat.FORMAT_ITALIC,inputStart, inputEnd)){
+                        styleValid(Typeface.ITALIC, inputStart, inputEnd)
+                    }
                     else -> {
                         //do nothing
                     }
                 }
             }
-        }else{
-            clearInlineStyles(inputStart,inputEnd)
+        } else {
+            clearInlineStyles(inputStart, inputEnd)
         }
 
         setFormattingChangesApplied()
@@ -756,24 +761,47 @@ class AztecText : EditText, TextWatcher {
         inputEnd = -1
     }
 
-    fun formattingIsApplied(): Boolean{
+    fun formattingIsApplied(): Boolean {
         return !mSelectedStyles.isEmpty()
     }
 
-    fun formattingHasChanged(): Boolean{
+    fun formattingHasChanged(): Boolean {
         return mNewStyleSelected
     }
 
-    fun setFormattingChangesApplied(){
+    fun setFormattingChangesApplied() {
         mNewStyleSelected = false
     }
 
-    fun clearInlineStyles(start: Int, end: Int){
-        styleInvalid(Typeface.NORMAL,start,end)
-        styleInvalid(Typeface.BOLD,start,end)
-        styleInvalid(Typeface.ITALIC,start,end)
-        styleInvalid(Typeface.BOLD_ITALIC,start,end)
+    fun clearInlineStyles(start: Int, end: Int) {
+        val stylesToRemove = ArrayList<TextFormat>()
+
+        getAppliedStyles(start,end).forEach {
+            if(!mSelectedStyles.contains(it)){
+                stylesToRemove.add(it)
+            }
+        }
+        stylesToRemove.forEach {
+            when(it){
+                TextFormat.FORMAT_BOLD ->styleInvalid(Typeface.BOLD, start, end)
+                TextFormat.FORMAT_ITALIC ->styleInvalid(Typeface.ITALIC, start, end)
+                else -> {
+                    //do nothing
+                }
+            }
+        }
     }
+
+    fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
+        val styles = ArrayList<TextFormat>()
+        TextFormat.values().forEach {
+            if (contains(it, selectionStart, selectionEnd)) {
+                styles.add(it)
+            }
+        }
+        return styles
+    }
+
 
     fun redo() {
         if (!redoValid()) {
@@ -902,6 +930,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toHtml(): String {
+        clearComposingText() //EditText "auto suggest" feature underlines text which results in U tag in html
         return AztecParser.toHtml(editableText)
     }
 

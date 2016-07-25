@@ -53,14 +53,12 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
                     newSelStart = selStart - 1
                 }
 
-                TextFormat.values().forEach {
-                    if (aztec.contains(it, newSelStart, selEnd)) {
 
-                        val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
+                aztec.getAppliedStyles(newSelStart, selEnd).forEach {
+                    val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
 
-                        if (toolbarAction != null) {
-                            activeToolbarActions.add(toolbarAction)
-                        }
+                    if (toolbarAction != null) {
+                        activeToolbarActions.add(toolbarAction)
                     }
                 }
 

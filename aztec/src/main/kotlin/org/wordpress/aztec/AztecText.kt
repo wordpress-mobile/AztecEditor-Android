@@ -150,8 +150,7 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE
-                _INCLUSIVE)
+        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
     }
 
     private fun styleInvalid(style: Int, start: Int, end: Int) {

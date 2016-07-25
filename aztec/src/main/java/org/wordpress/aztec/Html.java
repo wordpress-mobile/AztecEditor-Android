@@ -573,9 +573,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (mUnknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
                 mSpannableStringBuilder.append("\uFFFC"); // placeholder character
-
-                // TODO: a dummy drawable which should probably be replaced with something else
-                end(mSpannableStringBuilder, Unknown.class, new UnknownHtmlSpan(mUnknown.rawHtml, mContext, android.R.drawable.star_on));
+                endUnknown(mSpannableStringBuilder, mUnknown.rawHtml, mContext);
             }
             return;
         }
@@ -772,6 +770,23 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 text.setSpan(new URLSpan(h.mHref), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+        }
+    }
+
+    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context) {
+        int len = text.length();
+        Object obj = getLast(text, Unknown.class);
+        int where = text.getSpanStart(obj);
+
+        text.removeSpan(obj);
+
+        if (where != len) {
+            // TODO: Replace this dummy drawable with something else
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.star_on);
+            text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
+            text.setSpan(unknownClickableSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 

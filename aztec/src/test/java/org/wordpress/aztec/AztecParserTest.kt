@@ -16,7 +16,7 @@ class AztecParserTest {
     companion object {
         private val HTML_BOLD = "<b>Bold</b><br><br>"
         private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
-        private val HTML_COMMENT = "<!--This is a comment--><br><br>"
+        private val HTML_COMMENT = "<!--Comment--><br><br>"
         private val HTML_ITALIC = "<i>Italic</i><br><br>"
         private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
         private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
@@ -25,7 +25,7 @@ class AztecParserTest {
         private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
         private val SPAN_BOLD = "Bold\n\n"
         private val SPAN_BULLET = "Bullet\n\n"
-        private val SPAN_COMMENT = "This is a comment\n\n"
+        private val SPAN_COMMENT = "Comment\n\n"
         private val SPAN_ITALIC = "Italic\n\n"
         private val SPAN_LINK = "Link\n\n"
         private val SPAN_QUOTE = "Quote\n\n"
@@ -60,6 +60,159 @@ class AztecParserTest {
     }
 
     /**
+     * Parse bold text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlBold_isEqual() {
+        val input =
+                HTML_BOLD
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse bullet text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlBullet_isEqual() {
+        val input =
+                HTML_BULLET
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse comment text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlComment_isEqual() {
+        val input =
+                HTML_COMMENT
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse italic text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlItalic_isEqual() {
+        val input =
+                HTML_ITALIC
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse link text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlLink_isEqual() {
+        val input =
+                HTML_LINK
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse quote text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlQuote_isEqual() {
+        val input =
+                HTML_QUOTE
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse strikethrough text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlStrikethrough_isEqual() {
+        val input =
+                HTML_STRIKETHROUGH
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse underline text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlUnderline_isEqual() {
+        val input =
+                HTML_UNDERLINE
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse unknown text from and to HTML.  If input and output are equal with the same length and
+     * corresponding characters, {@link AztecParser} is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseFromAndToHtmlUnknown_isEqual() {
+        val input =
+                HTML_UNKNOWN
+        val builder = SpannableStringBuilder()
+        builder.append(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(builder)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
      * Parse all text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -86,23 +239,6 @@ class AztecParserTest {
     }
 
     /**
-     * Parse bold text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlBold_isEqual() {
-        val input =
-                HTML_BOLD
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
      * Parse bold text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -117,23 +253,6 @@ class AztecParserTest {
         )
         val html = AztecParser.toHtml(input)
         val output = AztecParser.fromHtml(html)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
-     * Parse bullet text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlBullet_isEqual() {
-        val input =
-                HTML_BULLET
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
         Assert.assertEquals(input, output)
     }
 
@@ -156,23 +275,6 @@ class AztecParserTest {
     }
 
     /**
-     * Parse comment text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlComment_isEqual() {
-        val input =
-                HTML_COMMENT
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
      * Parse comment text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -187,23 +289,6 @@ class AztecParserTest {
         )
         val html = AztecParser.toHtml(input)
         val output = AztecParser.fromHtml(html)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
-     * Parse italic text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlItalic_isEqual() {
-        val input =
-                HTML_ITALIC
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
         Assert.assertEquals(input, output)
     }
 
@@ -226,23 +311,6 @@ class AztecParserTest {
     }
 
     /**
-     * Parse link text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlLink_isEqual() {
-        val input =
-                HTML_LINK
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
      * Parse link text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -257,23 +325,6 @@ class AztecParserTest {
         )
         val html = AztecParser.toHtml(input)
         val output = AztecParser.fromHtml(html)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
-     * Parse quote text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlQuote_isEqual() {
-        val input =
-                HTML_QUOTE
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
         Assert.assertEquals(input, output)
     }
 
@@ -296,23 +347,6 @@ class AztecParserTest {
     }
 
     /**
-     * Parse strikethrough text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlStrikethrough_isEqual() {
-        val input =
-                HTML_STRIKETHROUGH
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
      * Parse strikethrough text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -331,23 +365,6 @@ class AztecParserTest {
     }
 
     /**
-     * Parse underline text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlUnderline_isEqual() {
-        val input =
-                HTML_UNDERLINE
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
      * Parse underline text to and from HTML.  If input and output are equal with the same length and
      * corresponding characters, {@link AztecParser} is correct.
      *
@@ -362,23 +379,6 @@ class AztecParserTest {
         )
         val html = AztecParser.toHtml(input)
         val output = AztecParser.fromHtml(html)
-        Assert.assertEquals(input, output)
-    }
-
-    /**
-     * Parse unknown text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun parseFromAndToHtmlUnknown_isEqual() {
-        val input =
-                HTML_UNKNOWN
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
         Assert.assertEquals(input, output)
     }
 

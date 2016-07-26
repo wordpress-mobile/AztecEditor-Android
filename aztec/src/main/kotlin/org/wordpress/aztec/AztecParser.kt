@@ -25,6 +25,10 @@ import android.text.style.*
 import java.util.*
 
 object AztecParser {
+
+    internal var indexToBeClosed = 0 // next span index to be closed
+    internal var spanMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap() // ordered map of spans
+
     fun fromHtml(source: String): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler())
     }
@@ -39,6 +43,13 @@ object AztecParser {
         var next: Int
 
         var i = 0
+
+        // keeps track of the next span to be closed
+        indexToBeClosed = 0
+
+        // keeps the spans, which will be closed in the future, using the closing order index as key
+        spanMap = TreeMap()
+
         while (i < text.length) {
             next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
 
@@ -67,6 +78,8 @@ object AztecParser {
             }
             i = next
         }
+
+        spanMap.clear()
     }
 
     private fun withinUnknown(unknownHtmlSpan: UnknownHtmlSpan, out: StringBuilder) {
@@ -203,9 +216,9 @@ object AztecParser {
                     }
 
                     if (spans[j] is HiddenHtmlSpan) {
+                        val span = spans[j]  as HiddenHtmlSpan
                         // only append a hidden tag if it starts at the beginning of current span
-                        if (text.getSpanStart(spans[j]) == i) {
-                            val span = spans[j]  as HiddenHtmlSpan
+                        if (text.getSpanStart(span) == i) {
                             if (text.getSpanStart(span) != text.getSpanEnd(span)) {
                                 out.append(span.startTag)
                             }
@@ -214,15 +227,13 @@ object AztecParser {
                                 span.parse()
                                 out.append(span.startTag)
                                 out.append(span.endTag)
+                                indexToBeClosed++
                             }
                         }
                     }
                 }
 
                 withinStyle(out, text, i, next)
-
-                val spanStack = Stack<HiddenHtmlSpan>() // stack for correcting order of spans
-                var nextEnd = 0 // next span index to be closed
 
                 for (j in spans.indices.reversed()) {
                     if (spans[j] is URLSpan) {
@@ -255,20 +266,11 @@ object AztecParser {
 
                     if (spans[j] is HiddenHtmlSpan) {
                         val span = spans[j] as HiddenHtmlSpan
+                        spanMap.put(span.endOrder, span)
 
-                        // check if we should end span from the stack
-                        while (!spanStack.isEmpty() && spanStack.peek().endOrder == nextEnd) {
-                            endSpan(next, out, spanStack.pop(), text)
-                            nextEnd++
-                        }
-
-                        // when span is out of order, push it to stack to wait for its turn
-                        // happens when multiple spans are opened & closed sequentially, i.e. not nested
-                        if (span.endOrder != nextEnd++) {
-                            spanStack.push(span)
-                        }
-                        else {
-                            endSpan(next, out, span, text)
+                        // check if we have a span that needs to be closed
+                        while (spanMap.contains(indexToBeClosed) && text.getSpanEnd(spanMap[indexToBeClosed]!!) == next) {
+                            endSpan(next, out, spanMap[indexToBeClosed]!!, text)
                         }
                     }
                 }
@@ -282,16 +284,15 @@ object AztecParser {
     }
 
     private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
-        // close a hidden tag only if it ends at the end of current span
-        if (text.getSpanEnd(span) == next) {
-            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
-                out.append(span.endTag)
-            } else if (!span.isParsed) {
-                // empty span, process it if not already parsed
-                span.parse()
-                out.append(span.startTag)
-                out.append(span.endTag)
-            }
+        indexToBeClosed++
+
+        if (text.getSpanStart(span) != text.getSpanEnd(span)) {
+            out.append(span.endTag)
+        } else if (!span.isParsed) {
+            // empty span, process it if not already parsed
+            span.parse()
+            out.append(span.startTag)
+            out.append(span.endTag)
         }
     }
 

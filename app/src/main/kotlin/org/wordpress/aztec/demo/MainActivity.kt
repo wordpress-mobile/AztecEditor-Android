@@ -24,8 +24,9 @@ class MainActivity : Activity() {
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
         private val COMMENT = "<!--This is a comment--><br><br>"
-        private val DIV = "<div></div><div class=\"first\"><div class=\"second\"><b>Bold</b><div class=\"third\">Inside<div></div>third</div><div class=\"fourth\"></div></div></div><br><br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + DIV
+        private val HIDDEN = "<span></span><div class=\"first\"><div class=\"second\">" +
+                "<div class=\"third\">Div<br><span><b>Span</b></span>Hidden</div><div class=\"fourth\"></div></div></div><br><br>"
+        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 
     private lateinit var aztec: AztecText

@@ -26,8 +26,8 @@ import java.util.*
 
 object AztecParser {
 
-    internal var indexToBeClosed = 0 // next span index to be closed
-    internal var spanMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap() // ordered map of spans
+    internal var indexToBeClosed = 0
+    internal var spanMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
 
     fun fromHtml(source: String): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler())

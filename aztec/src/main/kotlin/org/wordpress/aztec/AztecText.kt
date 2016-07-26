@@ -115,11 +115,11 @@ class AztecText : EditText, TextWatcher {
 
     // StyleSpan ===================================================================================
 
-    fun bold(valid: Boolean) {
+    private fun bold(valid: Boolean) {
         bold(valid, selectionStart, selectionEnd)
     }
 
-    fun bold(valid: Boolean, start: Int, end: Int) {
+    private fun bold(valid: Boolean, start: Int, end: Int) {
         if (valid) {
             styleValid(Typeface.BOLD, start, end)
         } else {
@@ -127,11 +127,11 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun italic(valid: Boolean) {
+    private fun italic(valid: Boolean) {
         italic(valid, selectionStart, selectionEnd)
     }
 
-    fun italic(valid: Boolean, start: Int, end: Int) {
+    private fun italic(valid: Boolean, start: Int, end: Int) {
         if (valid) {
             styleValid(Typeface.ITALIC, start, end)
         } else {
@@ -150,7 +150,7 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
     }
 
     private fun styleInvalid(style: Int, start: Int, end: Int) {
@@ -226,7 +226,7 @@ class AztecText : EditText, TextWatcher {
 
     // UnderlineSpan ===============================================================================
 
-    fun underline(valid: Boolean) {
+    private fun underline(valid: Boolean) {
         if (valid) {
             underlineValid(selectionStart, selectionEnd)
         } else {
@@ -296,7 +296,7 @@ class AztecText : EditText, TextWatcher {
 
     // StrikethroughSpan ===========================================================================
 
-    fun strikethrough(valid: Boolean) {
+    private fun strikethrough(valid: Boolean) {
         if (valid) {
             strikethroughValid(selectionStart, selectionEnd)
         } else {
@@ -366,7 +366,7 @@ class AztecText : EditText, TextWatcher {
 
     // BulletSpan ==================================================================================
 
-    fun bullet(valid: Boolean) {
+    private fun bullet(valid: Boolean) {
         if (valid) {
             bulletValid()
         } else {
@@ -450,7 +450,7 @@ class AztecText : EditText, TextWatcher {
         return containBullet(selectionStart, selectionEnd)
     }
 
-    fun containBullet(selStart: Int, selEnd: Int): Boolean {
+    private fun containBullet(selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -505,7 +505,7 @@ class AztecText : EditText, TextWatcher {
 
     // QuoteSpan ===================================================================================
 
-    fun quote(valid: Boolean) {
+    private fun quote(valid: Boolean) {
         if (valid) {
             quoteValid()
         } else {
@@ -584,7 +584,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    private fun containQuote(): Boolean {
+    private fun containQuote(selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -599,9 +599,9 @@ class AztecText : EditText, TextWatcher {
                 continue
             }
 
-            if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
+            if (lineStart <= selStart && selEnd <= lineEnd) {
                 list.add(i)
-            } else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
+            } else if (selStart <= lineStart && lineEnd <= selEnd) {
                 list.add(i)
             }
         }
@@ -638,7 +638,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     // When AztecText lose focus, use this method
-    @JvmOverloads fun link(link: String?, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun link(link: String?, start: Int = selectionStart, end: Int = selectionEnd) {
         if (link != null && !TextUtils.isEmpty(link.trim { it <= ' ' })) {
             linkValid(link, start, end)
         } else {
@@ -731,18 +731,20 @@ class AztecText : EditText, TextWatcher {
         historyCursor = historyList.size
 
 
+        //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
+        //we need to make sure unselected styles are not applied
+        clearInlineStyles(inputStart, inputEnd)
+
         //trailing styling
         if (!formattingHasChanged()) return
 
         if (formattingIsApplied()) {
-            clearInlineStyles(inputStart, inputEnd)
-
             for (item in mSelectedStyles) {
                 when (item) {
-                    TextFormat.FORMAT_BOLD -> if(!contains(TextFormat.FORMAT_BOLD,inputStart, inputEnd)){
+                    TextFormat.FORMAT_BOLD -> if (!contains(TextFormat.FORMAT_BOLD, inputStart, inputEnd)) {
                         styleValid(Typeface.BOLD, inputStart, inputEnd)
                     }
-                    TextFormat.FORMAT_ITALIC -> if(!contains(TextFormat.FORMAT_ITALIC,inputStart, inputEnd)){
+                    TextFormat.FORMAT_ITALIC -> if (!contains(TextFormat.FORMAT_ITALIC, inputStart, inputEnd)) {
                         styleValid(Typeface.ITALIC, inputStart, inputEnd)
                     }
                     else -> {
@@ -750,8 +752,6 @@ class AztecText : EditText, TextWatcher {
                     }
                 }
             }
-        } else {
-            clearInlineStyles(inputStart, inputEnd)
         }
 
         setFormattingChangesApplied()
@@ -760,30 +760,34 @@ class AztecText : EditText, TextWatcher {
         inputEnd = -1
     }
 
-    fun formattingIsApplied(): Boolean {
+    fun isEmpty(): Boolean {
+        return text.isEmpty()
+    }
+
+    private fun formattingIsApplied(): Boolean {
         return !mSelectedStyles.isEmpty()
     }
 
-    fun formattingHasChanged(): Boolean {
+    private fun formattingHasChanged(): Boolean {
         return mNewStyleSelected
     }
 
-    fun setFormattingChangesApplied() {
+    private fun setFormattingChangesApplied() {
         mNewStyleSelected = false
     }
 
-    fun clearInlineStyles(start: Int, end: Int) {
+    private fun clearInlineStyles(start: Int, end: Int) {
         val stylesToRemove = ArrayList<TextFormat>()
 
-        getAppliedStyles(start,end).forEach {
-            if(!mSelectedStyles.contains(it)){
+        getAppliedStyles(start, end).forEach {
+            if (!mSelectedStyles.contains(it)) {
                 stylesToRemove.add(it)
             }
         }
         stylesToRemove.forEach {
-            when(it){
-                TextFormat.FORMAT_BOLD ->styleInvalid(Typeface.BOLD, start, end)
-                TextFormat.FORMAT_ITALIC ->styleInvalid(Typeface.ITALIC, start, end)
+            when (it) {
+                TextFormat.FORMAT_BOLD -> styleInvalid(Typeface.BOLD, start, end)
+                TextFormat.FORMAT_ITALIC -> styleInvalid(Typeface.ITALIC, start, end)
                 else -> {
                     //do nothing
                 }
@@ -865,7 +869,7 @@ class AztecText : EditText, TextWatcher {
         return selectionStart != selectionEnd
     }
 
-    fun applyTextStyle(textFormat: TextFormat) {
+    fun toggleFormatting(textFormat: TextFormat) {
         when (textFormat) {
             TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD))
             TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC))
@@ -883,8 +887,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ITALIC -> return containStyle(Typeface.ITALIC, selectionStart, selectionEnd)
             TextFormat.FORMAT_UNDERLINED -> return containUnderline(selectionStart, selectionEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return containStrikethrough(selectionStart, selectionEnd)
-            TextFormat.FORMAT_BULLET -> return containBullet()
-            TextFormat.FORMAT_QUOTE -> return containQuote()
+            TextFormat.FORMAT_BULLET -> return containBullet(selectionStart, selectionEnd)
+            TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
             else -> return false
         }
@@ -898,7 +902,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_UNDERLINED -> return containUnderline(selStart, selEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return containStrikethrough(selStart, selEnd)
             TextFormat.FORMAT_BULLET -> return containBullet(selStart, selEnd)
-            TextFormat.FORMAT_QUOTE -> return containQuote()
+            TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return containLink(selStart, selEnd)
             else -> return false
         }

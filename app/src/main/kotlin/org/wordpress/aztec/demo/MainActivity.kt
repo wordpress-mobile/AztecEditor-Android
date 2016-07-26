@@ -46,24 +46,19 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
-                val activeToolbarActions = ArrayList<ToolbarAction>()
                 var newSelStart = selStart
 
                 if (selStart > 0 && !aztec.isTextSelected()) {
                     newSelStart = selStart - 1
                 }
 
+                val appliedStyles = aztec.getAppliedStyles(newSelStart, selEnd)
 
-                aztec.getAppliedStyles(newSelStart, selEnd).forEach {
-                    val toolbarAction = ToolbarAction.getToolbarActionForStyle(it)
-
-                    if (toolbarAction != null) {
-                        activeToolbarActions.add(toolbarAction)
-                    }
+                //remember the last active style after emptying EditText manually
+                if (!aztec.isEmpty()) {
+                    aztec.setSelectedStyles(appliedStyles)
+                    mToolbar.highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
                 }
-
-                mToolbar.highlightActionButtons(activeToolbarActions)
-
             }
         })
 
@@ -81,17 +76,15 @@ class MainActivity : Activity(), FormatToolbar.OnToolbarActionListener {
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
-            aztec.setSelectedStyles(textFormats)
-            return
+            return aztec.setSelectedStyles(textFormats)
         }
 
-        //if text is selected and action is styling apply style to it
+        //if text is selected and action is styling toggle it's style
         if (action.isStylingAction()) {
-            aztec.applyTextStyle(action.textFormat!!)
-            return
+            return aztec.toggleFormatting(action.textFormat!!)
         }
 
-        //some other toolbar action
+        //other toolbar action
         when (action) {
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> aztec.setText(aztec.toHtml())

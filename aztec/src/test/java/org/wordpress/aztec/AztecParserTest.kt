@@ -35,14 +35,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse all text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse all text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlAll_isEqual() {
+    fun parseHtmlToSpanToHtmlAll_isEqual() {
         val input =
                 HTML_BOLD +
                 HTML_ITALIC +
@@ -60,14 +60,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse bold text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse bold text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlBold_isEqual() {
+    fun parseHtmlToSpanToHtmlBold_isEqual() {
         val input =
                 HTML_BOLD
         val builder = SpannableStringBuilder()
@@ -77,14 +77,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse bullet text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse bullet text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlBullet_isEqual() {
+    fun parseHtmlToSpanToHtmlBullet_isEqual() {
         val input =
                 HTML_BULLET
         val builder = SpannableStringBuilder()
@@ -94,14 +94,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse comment text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse comment text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlComment_isEqual() {
+    fun parseHtmlToSpanToHtmlComment_isEqual() {
         val input =
                 HTML_COMMENT
         val builder = SpannableStringBuilder()
@@ -111,14 +111,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse italic text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse italic text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlItalic_isEqual() {
+    fun parseHtmlToSpanToHtmlItalic_isEqual() {
         val input =
                 HTML_ITALIC
         val builder = SpannableStringBuilder()
@@ -128,14 +128,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse link text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse link text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlLink_isEqual() {
+    fun parseHtmlToSpanToHtmlLink_isEqual() {
         val input =
                 HTML_LINK
         val builder = SpannableStringBuilder()
@@ -145,14 +145,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse quote text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse quote text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlQuote_isEqual() {
+    fun parseHtmlToSpanToHtmlQuote_isEqual() {
         val input =
                 HTML_QUOTE
         val builder = SpannableStringBuilder()
@@ -162,14 +162,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse strikethrough text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse strikethrough text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlStrikethrough_isEqual() {
+    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
         val input =
                 HTML_STRIKETHROUGH
         val builder = SpannableStringBuilder()
@@ -179,14 +179,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse underline text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse underline text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlUnderline_isEqual() {
+    fun parseHtmlToSpanToHtmlUnderline_isEqual() {
         val input =
                 HTML_UNDERLINE
         val builder = SpannableStringBuilder()
@@ -196,14 +196,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse unknown text from and to HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse unknown text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseFromAndToHtmlUnknown_isEqual() {
+    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
         val input =
                 HTML_UNKNOWN
         val builder = SpannableStringBuilder()
@@ -213,14 +213,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse all text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse all text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlAll_isEqual() {
+    fun parseSpanToHtmlToSpanAll_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_BOLD +
@@ -239,14 +239,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse bold text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse bold text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlBold_isEqual() {
+    fun parseSpanToHtmlToSpanBold_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_BOLD
@@ -257,14 +257,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse bullet text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse bullet text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlBullet_isEqual() {
+    fun parseSpanToHtmlToSpanBullet_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_BULLET
@@ -275,14 +275,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse comment text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse comment text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlComment_isEqual() {
+    fun parseSpanToHtmlToSpanComment_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_COMMENT
@@ -293,14 +293,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse italic text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse italic text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlItalic_isEqual() {
+    fun parseSpanToHtmlToSpanItalic_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_ITALIC
@@ -311,14 +311,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse link text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse link text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlLink_isEqual() {
+    fun parseSpanToHtmlToSpanLink_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_LINK
@@ -329,14 +329,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse quote text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse quote text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlQuote_isEqual() {
+    fun parseSpanToHtmlToSpanQuote_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_QUOTE
@@ -347,14 +347,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse strikethrough text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse strikethrough text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlStrikethrough_isEqual() {
+    fun parseSpanToHtmlToSpanStrikethrough_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_STRIKETHROUGH
@@ -365,14 +365,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse underline text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse underline text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlUnderline_isEqual() {
+    fun parseSpanToHtmlToSpanUnderline_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_UNDERLINE
@@ -383,14 +383,14 @@ class AztecParserTest {
     }
 
     /**
-     * Parse unknown text to and from HTML.  If input and output are equal with the same length and
-     * corresponding characters, {@link AztecParser} is correct.
+     * Parse unknown text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, {@link AztecParser} is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseToAndFromHtmlUnknown_isEqual() {
+    fun parseSpanToHtmlToSpanUnknown_isEqual() {
         val input = SpannableStringBuilder()
         input.append(
                 SPAN_UNKNOWN

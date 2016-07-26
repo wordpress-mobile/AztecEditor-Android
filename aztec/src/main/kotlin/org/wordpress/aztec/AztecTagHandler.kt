@@ -59,7 +59,7 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
-            DIV -> {
+            DIV, SPAN -> {
                 if (opening) {
                     start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes)))
                 } else {
@@ -127,6 +127,7 @@ class AztecTagHandler : Html.TagHandler {
         private val STRIKETHROUGH_STRIKE = "strike"
         private val STRIKETHROUGH_DEL = "del"
         private val DIV = "div"
+        private val SPAN = "span"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)

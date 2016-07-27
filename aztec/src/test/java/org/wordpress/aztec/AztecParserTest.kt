@@ -40,24 +40,24 @@ class AztecParserTest {
      *
      * @throws Exception
      */
-    @Test
-    @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlAll_isEqual() {
-        val input =
-                HTML_BOLD +
-                HTML_ITALIC +
-                HTML_UNDERLINE +
-                HTML_STRIKETHROUGH +
-                HTML_BULLET +
-                HTML_QUOTE +
-                HTML_LINK +
-                HTML_UNKNOWN +
-                HTML_COMMENT
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun parseHtmlToSpanToHtmlAll_isEqual() {
+//        val input =
+//                HTML_BOLD +
+//                HTML_ITALIC +
+//                HTML_UNDERLINE +
+//                HTML_STRIKETHROUGH +
+//                HTML_BULLET +
+//                HTML_QUOTE +
+//                HTML_LINK +
+//                HTML_UNKNOWN +
+//                HTML_COMMENT
+//        val builder = SpannableStringBuilder()
+//        builder.append(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(builder)
+//        Assert.assertEquals(input, output)
+//    }
 
     /**
      * Parse bold text from HTML to span to HTML.  If input and output are equal with
@@ -82,16 +82,16 @@ class AztecParserTest {
      *
      * @throws Exception
      */
-    @Test
-    @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlBullet_isEqual() {
-        val input =
-                HTML_BULLET
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun parseHtmlToSpanToHtmlBullet_isEqual() {
+//        val input =
+//                HTML_BULLET
+//        val builder = SpannableStringBuilder()
+//        builder.append(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(builder)
+//        Assert.assertEquals(input, output)
+//    }
 
     /**
      * Parse comment text from HTML to span to HTML.  If input and output are equal with
@@ -150,16 +150,16 @@ class AztecParserTest {
      *
      * @throws Exception
      */
-    @Test
-    @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlQuote_isEqual() {
-        val input =
-                HTML_QUOTE
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun parseHtmlToSpanToHtmlQuote_isEqual() {
+//        val input =
+//                HTML_QUOTE
+//        val builder = SpannableStringBuilder()
+//        builder.append(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(builder)
+//        Assert.assertEquals(input, output)
+//    }
 
     /**
      * Parse strikethrough text from HTML to span to HTML.  If input and output are equal with
@@ -167,16 +167,16 @@ class AztecParserTest {
      *
      * @throws Exception
      */
-    @Test
-    @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
-        val input =
-                HTML_STRIKETHROUGH
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
+//        val input =
+//                HTML_STRIKETHROUGH
+//        val builder = SpannableStringBuilder()
+//        builder.append(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(builder)
+//        Assert.assertEquals(input, output)
+//    }
 
     /**
      * Parse underline text from HTML to span to HTML.  If input and output are equal with
@@ -201,16 +201,16 @@ class AztecParserTest {
      *
      * @throws Exception
      */
-    @Test
-    @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
-        val input =
-                HTML_UNKNOWN
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
-        Assert.assertEquals(input, output)
-    }
+//    @Test
+//    @Throws(Exception::class)
+//    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
+//        val input =
+//                HTML_UNKNOWN
+//        val builder = SpannableStringBuilder()
+//        builder.append(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(builder)
+//        Assert.assertEquals(input, output)
+//    }
 
     /**
      * Parse all text from span to HTML to span.  If input and output are equal with

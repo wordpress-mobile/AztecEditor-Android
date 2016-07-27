@@ -5,12 +5,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-
     <org.wordpress.aztec.AztecText
         android:id="@+id/aztec"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/toolbar"
+        android:layout_above="@+id/formatting_toolbar"
         android:layout_alignParentTop="true"
         android:background="@android:color/transparent"
         android:gravity="top|start"
@@ -34,7 +33,7 @@
 
 
     <org.wordpress.aztec.toolbar.FormatToolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/formatting_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/format_bar_height"
         android:layout_alignParentBottom="true"

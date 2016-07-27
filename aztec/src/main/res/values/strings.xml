@@ -22,4 +22,13 @@
     <string name="visual_editor">Visual toolbarActionListener</string>
     <string name="image_thumbnail">Image thumbnail</string>
 
+    <!-- link view -->
+    <string name="link_enter_url">URL</string>
+    <string name="link_enter_url_text">Link text (optional)</string>
+    <string name="create_a_link">Create a link</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+
 </resources>

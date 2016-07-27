@@ -11,6 +11,9 @@
     <dimen name="format_bar_vertical_divider_width">0.6dp</dimen>
     <dimen name="format_bar_vertical_divider_height">28dp</dimen>
 
+    <dimen name="link_dialog_margin_inner">4dp</dimen>
+    <dimen name="link_dialog_margin_outer">16dp</dimen>
+
     <dimen name="margin_extra_small">2dp</dimen>
     <dimen name="margin_small">4dp</dimen>
     <dimen name="margin_medium">8dp</dimen>

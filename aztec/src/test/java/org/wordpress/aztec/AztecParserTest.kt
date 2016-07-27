@@ -1,6 +1,6 @@
 package org.wordpress.aztec
 
-import android.text.SpannableStringBuilder
+import android.text.SpannableString
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,9 +53,8 @@ class AztecParserTest {
 //                HTML_LINK +
 //                HTML_UNKNOWN +
 //                HTML_COMMENT
-//        val builder = SpannableStringBuilder()
-//        builder.append(AztecParser.fromHtml(input))
-//        val output = AztecParser.toHtml(builder)
+//        val span = SpannableString(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -70,9 +69,8 @@ class AztecParserTest {
     fun parseHtmlToSpanToHtmlBold_isEqual() {
         val input =
                 HTML_BOLD
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
+        val span = SpannableString(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -87,9 +85,8 @@ class AztecParserTest {
 //    fun parseHtmlToSpanToHtmlBullet_isEqual() {
 //        val input =
 //                HTML_BULLET
-//        val builder = SpannableStringBuilder()
-//        builder.append(AztecParser.fromHtml(input))
-//        val output = AztecParser.toHtml(builder)
+//        val span = SpannableString(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -104,9 +101,8 @@ class AztecParserTest {
     fun parseHtmlToSpanToHtmlComment_isEqual() {
         val input =
                 HTML_COMMENT
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
+        val span = SpannableString(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -121,9 +117,8 @@ class AztecParserTest {
     fun parseHtmlToSpanToHtmlItalic_isEqual() {
         val input =
                 HTML_ITALIC
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
+        val span = SpannableString(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -138,9 +133,8 @@ class AztecParserTest {
     fun parseHtmlToSpanToHtmlLink_isEqual() {
         val input =
                 HTML_LINK
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
+        val span = SpannableString(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -155,9 +149,8 @@ class AztecParserTest {
 //    fun parseHtmlToSpanToHtmlQuote_isEqual() {
 //        val input =
 //                HTML_QUOTE
-//        val builder = SpannableStringBuilder()
-//        builder.append(AztecParser.fromHtml(input))
-//        val output = AztecParser.toHtml(builder)
+//        val span = SpannableString(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -172,9 +165,8 @@ class AztecParserTest {
 //    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
 //        val input =
 //                HTML_STRIKETHROUGH
-//        val builder = SpannableStringBuilder()
-//        builder.append(AztecParser.fromHtml(input))
-//        val output = AztecParser.toHtml(builder)
+//        val span = SpannableString(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -189,9 +181,8 @@ class AztecParserTest {
     fun parseHtmlToSpanToHtmlUnderline_isEqual() {
         val input =
                 HTML_UNDERLINE
-        val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(input))
-        val output = AztecParser.toHtml(builder)
+        val span = SpannableString(AztecParser.fromHtml(input))
+        val output = AztecParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -206,9 +197,8 @@ class AztecParserTest {
 //    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
 //        val input =
 //                HTML_UNKNOWN
-//        val builder = SpannableStringBuilder()
-//        builder.append(AztecParser.fromHtml(input))
-//        val output = AztecParser.toHtml(builder)
+//        val span = SpannableString(AztecParser.fromHtml(input))
+//        val output = AztecParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -221,8 +211,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanAll_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_BOLD +
                 SPAN_ITALIC +
                 SPAN_UNDERLINE +
@@ -247,8 +236,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanBold_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_BOLD
         )
         val html = AztecParser.toHtml(input)
@@ -265,8 +253,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanBullet_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_BULLET
         )
         val html = AztecParser.toHtml(input)
@@ -283,8 +270,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanComment_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_COMMENT
         )
         val html = AztecParser.toHtml(input)
@@ -301,8 +287,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanItalic_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_ITALIC
         )
         val html = AztecParser.toHtml(input)
@@ -319,8 +304,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanLink_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_LINK
         )
         val html = AztecParser.toHtml(input)
@@ -337,8 +321,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanQuote_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_QUOTE
         )
         val html = AztecParser.toHtml(input)
@@ -355,8 +338,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanStrikethrough_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_STRIKETHROUGH
         )
         val html = AztecParser.toHtml(input)
@@ -373,8 +355,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanUnderline_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_UNDERLINE
         )
         val html = AztecParser.toHtml(input)
@@ -391,8 +372,7 @@ class AztecParserTest {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanUnknown_isEqual() {
-        val input = SpannableStringBuilder()
-        input.append(
+        val input = SpannableString(
                 SPAN_UNKNOWN
         )
         val html = AztecParser.toHtml(input)

@@ -682,24 +682,7 @@ class AztecText : EditText, TextWatcher {
         linkInvalid(start, end)
     }
 
-    // When AztecText lose focus, use this method
-    fun link(link: String?, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
 
-//        if (!TextUtils.isEmpty(link)) {
-//
-//            val newAnchor: String
-//
-//            if (TextUtils.isEmpty(anchor)) {
-//                newAnchor = link!!
-//            } else {
-//                newAnchor = anchor!!
-//            }
-//
-//            linkValid(link!!, newAnchor, start, end)
-//        } else {
-//            linkInvalid(start, end)
-//        }
-    }
 
     private fun linkValid(link: String, start: Int, end: Int) {
         if (start >= end) {

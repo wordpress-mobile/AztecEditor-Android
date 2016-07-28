@@ -105,8 +105,8 @@ class MainActivity : AppCompatActivity(), FormatToolbar.OnToolbarActionListener 
 
 
     private fun showLinkDialog() {
-        val start = aztec.selectionStart
-        val end = aztec.selectionEnd
+        var start = aztec.selectionStart
+        var end = aztec.selectionEnd
 
         val urlSpans = aztec.text.getSpans(start, end, URLSpan::class.java)
 
@@ -125,12 +125,22 @@ class MainActivity : AppCompatActivity(), FormatToolbar.OnToolbarActionListener 
             spanStart = aztec.text.getSpanStart(urlSpan)
             spanEnd = aztec.text.getSpanEnd(urlSpan)
 
-            anchor = aztec.text.substring(spanStart, spanEnd)
-            url = urlSpan.url
+            if(start < spanStart || end > spanEnd){
+                //looks like some text that is not part of the url was included in selection
+                anchor = aztec.text.substring(start, end)
+                url = ""
+
+            }else{
+                anchor = aztec.text.substring(spanStart, spanEnd)
+                url = urlSpan.url
+                start = spanStart
+                end = spanEnd
+            }
 
             if(anchor.equals(url)){
                 anchor = ""
             }
+
 
             modifyingExistingLink = true
 
@@ -176,7 +186,7 @@ class MainActivity : AppCompatActivity(), FormatToolbar.OnToolbarActionListener 
             }
 
             if (modifyingExistingLink) {
-                aztec.editLink(link, anchorText, spanStart, spanEnd)
+                aztec.editLink(link, anchorText, start, end)
             } else {
                 aztec.addLink(link, anchorText, start, end)
             }

@@ -377,6 +377,11 @@ class AztecText : EditText, TextWatcher {
     private fun bulletValid() {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
+        if (lines.isEmpty()) {
+            editableText.append("\u200B")
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
         for (i in lines.indices) {
             if (containBullet(i)) {
                 continue
@@ -388,9 +393,10 @@ class AztecText : EditText, TextWatcher {
             }
 
             val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
+            if (lineStart > lineEnd) {
                 continue
             }
+
 
             // Find selection area inside
             var bulletStart = 0
@@ -398,12 +404,16 @@ class AztecText : EditText, TextWatcher {
             if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
                 bulletStart = lineStart
                 bulletEnd = lineEnd
-            } else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
-                bulletStart = lineStart
-                bulletEnd = lineEnd
+            } else {
+                continue
             }
 
-            if (bulletStart < bulletEnd) {
+            if (bulletStart <= bulletEnd) {
+                if (lineStart == lineEnd) {   //line is empy
+                    editableText.append("\u200B")
+                    bulletEnd += 1
+                }
+
                 editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
@@ -683,14 +693,13 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-
     private fun linkValid(link: String, start: Int, end: Int) {
         if (start >= end) {
             return
         }
         linkInvalid(start, end)
         editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        onSelectionChanged(end,end)
+        onSelectionChanged(end, end)
     }
 
     // Remove all span in selection, not like the boldInvalid()
@@ -745,19 +754,49 @@ class AztecText : EditText, TextWatcher {
     var inputStart = -1
     var inputEnd = -1
 
+    var consumeEvent: Boolean = false
+    var isBlockStyleFixRequired = false
+    var isNewlineInputed = false
+    var addnewBullet = false
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+        if (start >= 1) {
+            val char = text[start - 1]
+            if (char.toString().equals("\u200B")) {
+                isBlockStyleFixRequired = true
+            }
+        }
+
+        if (count == 1) {
+            val char = text[start]
+            if (char.toString().equals("\n")) {
+                isNewlineInputed = true
+                val paragraphSpans = getText().getSpans(start, start, LeadingMarginSpan::class.java)
+                if (!paragraphSpans.isEmpty()) {
+                    addnewBullet = true
+                }
+
+            }
+        }
+
         inputStart = start
         inputEnd = start + count
     }
 
-    override fun afterTextChanged(text: Editable?) {
+
+    override fun afterTextChanged(text: Editable) {
+        if (consumeEvent) {
+            consumeEvent = false
+            return
+        }
+
         //history
         if (!historyEnable || historyWorking) {
             return
         }
 
         inputLast = SpannableStringBuilder(text)
-        if (text != null && text.toString() == inputBefore.toString()) {
+        if (text.toString() == inputBefore.toString()) {
             return
         }
 
@@ -767,6 +806,25 @@ class AztecText : EditText, TextWatcher {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
+
+
+        if (isBlockStyleFixRequired && !isNewlineInputed) {
+            consumeEvent = true
+            isBlockStyleFixRequired = false
+            text.replace(inputStart - 1, inputStart, "")
+            bulletValid()
+        } else if (isBlockStyleFixRequired && isNewlineInputed) {
+            consumeEvent = true
+            isBlockStyleFixRequired = false
+            isNewlineInputed = false
+            addnewBullet = false
+            text.replace(inputStart-1, inputStart+1, "")
+            bulletInvalid()
+        } else if (!isBlockStyleFixRequired && addnewBullet) {
+            addnewBullet = false
+            isNewlineInputed = false
+            bulletValid()
+        }
 
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles

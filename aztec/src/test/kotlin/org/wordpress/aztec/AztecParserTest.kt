@@ -14,6 +14,7 @@ import org.robolectric.annotation.Config
 @Config(constants = BuildConfig::class)
 class AztecParserTest {
     companion object {
+        private val mParser = AztecParser()
         private val HTML_BOLD = "<b>Bold</b><br><br>"
         private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
         private val HTML_COMMENT = "<!--Comment--><br><br>"
@@ -54,7 +55,7 @@ class AztecParserTest {
 //                HTML_UNKNOWN +
 //                HTML_COMMENT
 //        val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-//        val output = AztecParser.toHtml(span)
+//        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -70,7 +71,7 @@ class AztecParserTest {
         val input =
                 HTML_BOLD
         val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-        val output = AztecParser.toHtml(span)
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -86,7 +87,7 @@ class AztecParserTest {
 //        val input =
 //                HTML_BULLET
 //        val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-//        val output = AztecParser.toHtml(span)
+//        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -102,7 +103,7 @@ class AztecParserTest {
         val input =
                 HTML_COMMENT
         val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-        val output = AztecParser.toHtml(span)
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -118,7 +119,7 @@ class AztecParserTest {
         val input =
                 HTML_ITALIC
         val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-        val output = AztecParser.toHtml(span)
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -134,7 +135,7 @@ class AztecParserTest {
         val input =
                 HTML_LINK
         val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-        val output = AztecParser.toHtml(span)
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -150,7 +151,7 @@ class AztecParserTest {
 //        val input =
 //                HTML_QUOTE
 //        val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-//        val output = AztecParser.toHtml(span)
+//        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -166,7 +167,7 @@ class AztecParserTest {
 //        val input =
 //                HTML_STRIKETHROUGH
 //        val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-//        val output = AztecParser.toHtml(span)
+//        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -182,7 +183,7 @@ class AztecParserTest {
         val input =
                 HTML_UNDERLINE
         val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-        val output = AztecParser.toHtml(span)
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
@@ -198,7 +199,7 @@ class AztecParserTest {
 //        val input =
 //                HTML_UNKNOWN
 //        val span = SpannableString(Html.fromHtml(input, null, AztecTagHandler()))
-//        val output = AztecParser.toHtml(span)
+//        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
 //    }
 
@@ -222,7 +223,7 @@ class AztecParserTest {
                 SPAN_UNKNOWN +
                 SPAN_COMMENT
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -239,7 +240,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_BOLD
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -256,7 +257,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_BULLET
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -273,7 +274,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_COMMENT
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -290,7 +291,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_ITALIC
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -307,7 +308,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_LINK
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -324,7 +325,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_QUOTE
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -341,7 +342,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_STRIKETHROUGH
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -358,7 +359,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_UNDERLINE
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }
@@ -375,7 +376,7 @@ class AztecParserTest {
         val input = SpannableString(
                 SPAN_UNKNOWN
         )
-        val html = AztecParser.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = Html.fromHtml(html, null, AztecTagHandler())
         Assert.assertEquals(input, output)
     }

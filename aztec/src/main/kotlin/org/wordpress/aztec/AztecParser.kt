@@ -24,7 +24,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
 
-object AztecParser {
+class AztecParser {
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
     }

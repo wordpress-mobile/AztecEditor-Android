@@ -779,13 +779,15 @@ class AztecText : EditText, TextWatcher {
 
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(source, context))
+        val parser = AztecParser()
+        builder.append(parser.fromHtml(source, context))
         switchToAztecStyle(builder, 0, builder.length)
         text = builder
     }
 
     fun toHtml(): String {
-        return AztecParser.toHtml(editableText)
+        val parser = AztecParser()
+        return parser.toHtml(editableText)
     }
 
     protected fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

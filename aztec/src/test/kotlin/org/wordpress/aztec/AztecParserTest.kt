@@ -368,7 +368,7 @@ class AztecParserTest : AndroidTestCase() {
         val input = SpannableString(
                 SPAN_UNDERLINE
         )
-        val html = mParser?.toHtml(input)
+        val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
     }

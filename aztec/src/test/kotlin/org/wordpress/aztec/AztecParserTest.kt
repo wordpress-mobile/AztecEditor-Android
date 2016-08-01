@@ -201,16 +201,16 @@ class AztecParserTest : AndroidTestCase() {
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
-//     */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
-//        val input =
-//                HTML_UNKNOWN
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
+        val input =
+                HTML_UNKNOWN
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse all text from span to HTML to span.  If input and output are equal with

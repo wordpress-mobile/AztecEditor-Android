@@ -115,7 +115,7 @@ public class Html {
      * necessary.
      */
     private static class HtmlParser {
-        private static final HTMLSchema schema = new HTMLSchema();
+        private static final HTMLSchema schema = new AztecHtmlSchema();
     }
 
     /**

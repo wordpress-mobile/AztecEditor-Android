@@ -375,11 +375,15 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun bulletValid() {
+        bulletValid(selectionStart,selectionEnd)
+    }
+
+    private fun bulletValid(start: Int,end: Int) {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (lines.isEmpty()) {
             editableText.append("\u200B")
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), 0, 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
         }
 
         for (i in lines.indices) {
@@ -401,10 +405,16 @@ class AztecText : EditText, TextWatcher {
             // Find selection area inside
             var bulletStart = 0
             var bulletEnd = 0
-            if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
+            if (lineStart <= start && end <= lineEnd) {
                 bulletStart = lineStart
                 bulletEnd = lineEnd
-            } else {
+            }
+//            else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
+//                bulletStart = lineStart
+//                bulletEnd = lineEnd
+//            }
+
+            else {
                 continue
             }
 
@@ -414,12 +424,16 @@ class AztecText : EditText, TextWatcher {
                     bulletEnd += 1
                 }
 
-                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
             }
         }
     }
 
     private fun bulletInvalid() {
+        bulletInvalid(selectionStart, selectionEnd)
+    }
+
+    private fun bulletInvalid(start: Int, end: Int) {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
@@ -433,21 +447,21 @@ class AztecText : EditText, TextWatcher {
             }
 
             val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
+            if (lineStart > lineEnd) {
                 continue
             }
 
             var bulletStart = 0
             var bulletEnd = 0
-            if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
+            if (lineStart <= start && end <= lineEnd) {
                 bulletStart = lineStart
                 bulletEnd = lineEnd
-            } else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
-                bulletStart = lineStart
-                bulletEnd = lineEnd
+            } else {
+                continue
+
             }
 
-            if (bulletStart < bulletEnd) {
+            if (bulletStart <= bulletEnd) {
                 val spans = editableText.getSpans(bulletStart, bulletEnd, BulletSpan::class.java)
                 for (span in spans) {
                     editableText.removeSpan(span)
@@ -759,25 +773,31 @@ class AztecText : EditText, TextWatcher {
     var isNewlineInputed = false
     var addnewBullet = false
 
+    var fixingNewBullet = false
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (start >= 1) {
-            val char = text[start - 1]
-            if (char.toString().equals("\u200B")) {
+            val previousCharacter = text[start - 1]
+            if (previousCharacter.toString().equals("\u200B")) {
                 isBlockStyleFixRequired = true
             }
-        }
 
-        if (count == 1) {
-            val char = text[start]
-            if (char.toString().equals("\n")) {
-                isNewlineInputed = true
-                val paragraphSpans = getText().getSpans(start, start, LeadingMarginSpan::class.java)
-                if (!paragraphSpans.isEmpty()) {
-                    addnewBullet = true
+
+            if (count == 1) {
+                val currentCharacter = text[start]
+                if (currentCharacter.toString().equals("\n") && !previousCharacter.toString().equals("\n")) {
+                    isNewlineInputed = true
+                    val paragraphSpans = getText().getSpans(start, start, LeadingMarginSpan::class.java)
+                    if (!paragraphSpans.isEmpty()) {
+                        addnewBullet = true
+                    }
+
                 }
-
             }
+
         }
+
+
 
         inputStart = start
         inputEnd = start + count
@@ -810,21 +830,46 @@ class AztecText : EditText, TextWatcher {
 
         if (isBlockStyleFixRequired && !isNewlineInputed) {
             consumeEvent = true
-            isBlockStyleFixRequired = false
-            text.replace(inputStart - 1, inputStart, "")
-            bulletValid()
+            if(fixingNewBullet){
+                fixingNewBullet = false
+                text.delete(inputStart, inputStart)
+            }else{
+                text.delete(inputStart -1, inputStart)
+            }
         } else if (isBlockStyleFixRequired && isNewlineInputed) {
             consumeEvent = true
-            isBlockStyleFixRequired = false
-            isNewlineInputed = false
-            addnewBullet = false
-            text.replace(inputStart-1, inputStart+1, "")
+            val spans = text.getSpans(inputStart, inputStart, BulletSpan::class.java)
+            if (!spans.isEmpty()) {
+                //get start and enf of previous bullet span
+                val spanStart = text.getSpanStart(spans[0])
+                val spanEnd = text.getSpanEnd(spans[0])
+                //remove the bullet span
+                text.removeSpan(spans[0])
+                //put exclusive bullet span on the place of removed one
+                text.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            text.delete(inputStart - 1, inputStart + 1)
             bulletInvalid()
         } else if (!isBlockStyleFixRequired && addnewBullet) {
-            addnewBullet = false
-            isNewlineInputed = false
+            consumeEvent = true
+            //get bullet span from the last character
+            val spans = text.getSpans(inputStart, inputStart, BulletSpan::class.java)
+            if (!spans.isEmpty()) {
+                //get start and enf of previous bullet span
+                val spanStart = text.getSpanStart(spans[0])
+                val spanEnd = text.getSpanEnd(spans[0])
+                //remove the bullet span
+                text.removeSpan(spans[0])
+                //put exclusive bullet span on the place of removed one
+                text.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd-1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
             bulletValid()
+//            fixingNewBullet = true
         }
+
+        addnewBullet = false
+        isNewlineInputed = false
+        isBlockStyleFixRequired = false
 
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles

@@ -179,8 +179,10 @@ class AztecParser {
                     }
 
                     // Use standard strikethrough tag <del> rather than <s> or <strike>
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("<del>")
+                    if (spans[j] is AztecStrikethroughSpan) {
+                        out.append("<")
+                        out.append((spans[j] as AztecStrikethroughSpan).getTag())
+                        out.append(">")
                     }
 
                     if (spans[j] is URLSpan) {
@@ -210,8 +212,10 @@ class AztecParser {
                         out.append("</a>")
                     }
 
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("</del>")
+                    if (spans[j] is AztecStrikethroughSpan) {
+                        out.append("</")
+                        out.append((spans[j] as AztecStrikethroughSpan).getTag())
+                        out.append(">")
                     }
 
                     if (spans[j] is UnderlineSpan) {

@@ -28,6 +28,7 @@ class AztecQuoteSpan : QuoteSpan {
     private var quoteColor: Int = 0
     private var quoteStripeWidth: Int = 0
     private var quoteGapWidth: Int = 0
+    private var extraBreaks: Int = 0
 
     constructor(quoteColor: Int, quoteStripeWidth: Int, quoteGapWidth: Int) {
         this.quoteColor = if (quoteColor != 0) quoteColor else DEFAULT_COLOR
@@ -39,6 +40,11 @@ class AztecQuoteSpan : QuoteSpan {
         this.quoteColor = src.readInt()
         this.quoteStripeWidth = src.readInt()
         this.quoteGapWidth = src.readInt()
+        this.extraBreaks = src.readInt()
+    }
+
+    constructor(extra: Int) {
+        extraBreaks = extra;
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -46,6 +52,7 @@ class AztecQuoteSpan : QuoteSpan {
         dest.writeInt(quoteColor)
         dest.writeInt(quoteStripeWidth)
         dest.writeInt(quoteGapWidth)
+        dest.writeInt(extraBreaks)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -65,6 +72,10 @@ class AztecQuoteSpan : QuoteSpan {
 
         p.style = style
         p.color = color
+    }
+
+    fun getExtraBreaks() : Int {
+        return extraBreaks
     }
 
     companion object {

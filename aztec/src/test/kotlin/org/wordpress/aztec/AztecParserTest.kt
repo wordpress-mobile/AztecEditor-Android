@@ -155,15 +155,15 @@ class AztecParserTest : AndroidTestCase() {
      *
      * @throws Exception
      */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlQuote_isEqual() {
-//        val input =
-//                HTML_QUOTE
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlQuote_isEqual() {
+        val input =
+                HTML_QUOTE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse strikethrough text from HTML to span to HTML.  If input and output are equal with

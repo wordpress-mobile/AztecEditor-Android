@@ -56,7 +56,8 @@ class AztecParser {
                 if (styles[0] is BulletSpan) {
                     withinBullet(out, text, i, next++)
                 } else if (styles[0] is AztecQuoteSpan) {
-                    withinQuote(out, text, i, next++)
+                    val end = next - (styles[0] as AztecQuoteSpan).getExtraBreaks()
+                    withinQuote(out, text, i, end)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else {
@@ -121,7 +122,8 @@ class AztecParser {
                 out.append("<blockquote>")
             }
 
-            withinContent(out, text, i, next)
+            withinContent(out, text, i, next + 1)
+
             for (quote in quotes) {
                 out.append("</blockquote>")
             }

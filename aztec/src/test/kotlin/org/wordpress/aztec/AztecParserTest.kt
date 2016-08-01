@@ -24,7 +24,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
-    private val HTML_STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br><br>" // <s> or <strike> or <del>
+    private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
     private val SPAN_BOLD = "Bold\n\n"
@@ -171,15 +171,15 @@ class AztecParserTest : AndroidTestCase() {
      *
      * @throws Exception
      */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
-//        val input =
-//                HTML_STRIKETHROUGH
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
+        val input =
+                HTML_STRIKETHROUGH
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse underline text from HTML to span to HTML.  If input and output are equal with

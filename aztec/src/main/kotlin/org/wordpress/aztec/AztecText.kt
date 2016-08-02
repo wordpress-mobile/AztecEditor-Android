@@ -23,6 +23,7 @@ import android.text.*
 import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import java.util.*
@@ -90,6 +91,16 @@ class AztecText : EditText, TextWatcher {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         removeTextChangedListener(this)
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        // simple workaround to https://code.google.com/p/android/issues/detail?id=191430
+        if (event.actionMasked === MotionEvent.ACTION_DOWN) {
+            val text = text
+            setText(null)
+            setText(text)
+        }
+        return super.dispatchTouchEvent(event)
     }
 
     // StyleSpan ===================================================================================

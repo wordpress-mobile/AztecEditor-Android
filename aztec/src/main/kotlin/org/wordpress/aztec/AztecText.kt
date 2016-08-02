@@ -375,10 +375,10 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun bulletValid() {
-        bulletValid(selectionStart,selectionEnd)
+        bulletValid(selectionStart, selectionEnd)
     }
 
-    private fun bulletValid(start: Int,end: Int) {
+    private fun bulletValid(start: Int, end: Int) {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (lines.isEmpty()) {
@@ -519,7 +519,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         val end = start + lines[index].length
-        if (start >= end) {
+        if (start > end) {
             return false
         }
 
@@ -772,8 +772,8 @@ class AztecText : EditText, TextWatcher {
     var isBlockStyleFixRequired = false
     var isNewlineInputed = false
     var addnewBullet = false
-
     var fixingNewBullet = false
+
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (start >= 1) {
@@ -797,18 +797,11 @@ class AztecText : EditText, TextWatcher {
 
         }
 
-
-
         inputStart = start
         inputEnd = start + count
     }
 
-
-    override fun afterTextChanged(text: Editable) {
-        if (consumeEvent) {
-            consumeEvent = false
-            return
-        }
+    fun handleHistory(text: Editable) {
 
         //history
         if (!historyEnable || historyWorking) {
@@ -826,46 +819,51 @@ class AztecText : EditText, TextWatcher {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
+    }
 
-
+    fun handleLists(text: Editable) {
         if (isBlockStyleFixRequired && !isNewlineInputed) {
             consumeEvent = true
-            if(fixingNewBullet){
+            if (fixingNewBullet) {
                 fixingNewBullet = false
-                text.delete(inputStart, inputStart)
-            }else{
-                text.delete(inputStart -1, inputStart)
+                text.delete(inputStart - 1, inputStart)
+            } else {
+                text.delete(inputStart - 1, inputStart)
             }
         } else if (isBlockStyleFixRequired && isNewlineInputed) {
             consumeEvent = true
-            val spans = text.getSpans(inputStart, inputStart, BulletSpan::class.java)
-            if (!spans.isEmpty()) {
-                //get start and enf of previous bullet span
-                val spanStart = text.getSpanStart(spans[0])
-                val spanEnd = text.getSpanEnd(spans[0])
-                //remove the bullet span
-                text.removeSpan(spans[0])
-                //put exclusive bullet span on the place of removed one
-                text.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
             text.delete(inputStart - 1, inputStart + 1)
+            consumeEvent = true
             bulletInvalid()
         } else if (!isBlockStyleFixRequired && addnewBullet) {
             consumeEvent = true
             //get bullet span from the last character
             val spans = text.getSpans(inputStart, inputStart, BulletSpan::class.java)
             if (!spans.isEmpty()) {
-                //get start and enf of previous bullet span
-                val spanStart = text.getSpanStart(spans[0])
-                val spanEnd = text.getSpanEnd(spans[0])
-                //remove the bullet span
-                text.removeSpan(spans[0])
-                //put exclusive bullet span on the place of removed one
-                text.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd-1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                text.setSpan(spans[0], text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
             bulletValid()
-//            fixingNewBullet = true
+            fixingNewBullet = true
         }
+    }
+
+
+    override fun afterTextChanged(text: Editable) {
+        if (consumeEvent) {
+            consumeEvent = false
+
+            addnewBullet = false
+            isNewlineInputed = false
+            isBlockStyleFixRequired = false
+            fixingNewBullet = false
+            return
+        }
+
+        handleHistory(text)
+
+        handleLists(text)
+
+
 
         addnewBullet = false
         isNewlineInputed = false
@@ -900,6 +898,9 @@ class AztecText : EditText, TextWatcher {
         inputStart = -1
         inputEnd = -1
     }
+
+
+    private val LOCKED = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
 
     fun isEmpty(): Boolean {
         return text.isEmpty()

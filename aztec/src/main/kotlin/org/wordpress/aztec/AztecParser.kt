@@ -175,8 +175,10 @@ object AztecParser {
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
-                    if (spans[j] is StyleSpan) {
-                        val style = (spans[j] as StyleSpan).style
+                    val span = spans[j]
+
+                    if (span is StyleSpan) {
+                        val style = span.style
 
                         if (style and Typeface.BOLD != 0) {
                             out.append("<b>")
@@ -187,36 +189,35 @@ object AztecParser {
                         }
                     }
 
-                    if (spans[j] is UnderlineSpan) {
+                    if (span is UnderlineSpan) {
                         out.append("<u>")
                     }
 
                     // Use standard strikethrough tag <del> rather than <s> or <strike>
-                    if (spans[j] is StrikethroughSpan) {
+                    if (span is StrikethroughSpan) {
                         out.append("<del>")
                     }
 
-                    if (spans[j] is URLSpan) {
+                    if (span is URLSpan) {
                         out.append("<a href=\"")
-                        out.append((spans[j] as URLSpan).url)
+                        out.append(span.url)
                         out.append("\">")
                     }
 
-                    if (spans[j] is ImageSpan) {
+                    if (span is ImageSpan) {
                         out.append("<img src=\"")
-                        out.append((spans[j] as ImageSpan).source)
+                        out.append(span.source)
                         out.append("\">")
 
                         // Don't output the dummy character underlying the image.
                         i = next
                     }
 
-                    if (spans[j] is CommentSpan) {
+                    if (span is CommentSpan) {
                         out.append("<!--")
                     }
 
-                    if (spans[j] is HiddenHtmlSpan) {
-                        val span = spans[j]  as HiddenHtmlSpan
+                    if (span is HiddenHtmlSpan) {
                         // only append a hidden tag if it starts at the beginning of current span
                         if (text.getSpanStart(span) == i) {
                             if (text.getSpanStart(span) != text.getSpanEnd(span)) {
@@ -236,20 +237,22 @@ object AztecParser {
                 withinStyle(out, text, i, next)
 
                 for (j in spans.indices.reversed()) {
-                    if (spans[j] is URLSpan) {
+                    val span = spans[j]
+
+                    if (span is URLSpan) {
                         out.append("</a>")
                     }
 
-                    if (spans[j] is StrikethroughSpan) {
+                    if (span is StrikethroughSpan) {
                         out.append("</del>")
                     }
 
-                    if (spans[j] is UnderlineSpan) {
+                    if (span is UnderlineSpan) {
                         out.append("</u>")
                     }
 
-                    if (spans[j] is StyleSpan) {
-                        val style = (spans[j] as StyleSpan).style
+                    if (span is StyleSpan) {
+                        val style = span.style
 
                         if (style and Typeface.BOLD != 0) {
                             out.append("</b>")
@@ -260,12 +263,11 @@ object AztecParser {
                         }
                     }
 
-                    if (spans[j] is CommentSpan) {
+                    if (span is CommentSpan) {
                         out.append("-->")
                     }
 
-                    if (spans[j] is HiddenHtmlSpan) {
-                        val span = spans[j] as HiddenHtmlSpan
+                    if (span is HiddenHtmlSpan) {
                         spanMap.put(span.endOrder, span)
 
                         // check if we have a span that needs to be closed

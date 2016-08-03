@@ -54,7 +54,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, Strike())
                 } else {
-                    end(output, Strike::class.java, StrikethroughSpan())
+                    end(output, Strike::class.java, AztecStrikethroughSpan(tag))
                 }
                 return true
             }

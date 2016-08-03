@@ -45,17 +45,4 @@ import android.widget.TextView
         return super.onTouchEvent(widget, buffer, event)
     }
 
-//    companion object {
-//
-//        private var sInstance: EnhancedMovementMethod? = null
-//
-//        val instance: MovementMethod
-//            get() {
-//                if (sInstance == null) {
-//                    sInstance = EnhancedMovementMethod()
-//                }
-//                return sInstance
-//            }
-//    }
-
 }

@@ -49,10 +49,12 @@ class AztecParserTest : AndroidTestCase() {
             "    <span class=\"second last\"></span>".trim() +
             "</div>" +
             "<br><br>"
-    private val HTML_NESTED_EMPTY = "<div><div><div><span></span></div></div></div>";
+    private val HTML_NESTED_EMPTY_END = "1<div><div><div><span></span></div></div></div>";
+    private val HTML_NESTED_EMPTY_START = "<div><div><div><span></span></div></div></div>1";
     private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>";
     private val HTML_NESTED_INTERLEAVING =
-            "<span></span><div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>";
+            "<div><div><div><span></span></div></div></div><br>" +
+            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>";
 
     /**
      * Initialize variables.
@@ -247,16 +249,32 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse empty nested blocks text from HTML to span to HTML.  If input and output are equal with
+     * Parse empty nested blocks at the end from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlNestedEmpty_isEqual() {
+    fun parseHtmlToSpanToHtmlNestedEmptyEnd_isEqual() {
         val input =
-                HTML_NESTED_EMPTY
+                HTML_NESTED_EMPTY_END
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse empty nested blocks at the beginning from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedEmptyStart_isEqual() {
+        val input =
+                HTML_NESTED_EMPTY_START
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

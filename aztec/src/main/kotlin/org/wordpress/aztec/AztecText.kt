@@ -20,7 +20,6 @@ package org.wordpress.aztec
 import android.content.Context
 import android.graphics.Typeface
 import android.text.*
-import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.util.AttributeSet
 import android.view.inputmethod.InputMethodManager
@@ -88,7 +87,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         // triggers ClickableSpan onClick() events
-        movementMethod = LinkMovementMethod.getInstance()
+        movementMethod = EnhancedMovementMethod
     }
 
     override fun onAttachedToWindow() {

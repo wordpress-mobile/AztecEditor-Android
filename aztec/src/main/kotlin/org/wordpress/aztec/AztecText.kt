@@ -114,7 +114,10 @@ class AztecText : EditText, TextWatcher {
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
-        mOnSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        if(selStart > 0 && selEnd > 0){
+            mOnSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        }
+
     }
 
     // StyleSpan ===================================================================================

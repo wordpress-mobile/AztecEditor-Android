@@ -26,6 +26,7 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.style.BulletSpan
 import android.text.style.StrikethroughSpan
+import org.xml.sax.Attributes
 
 import org.xml.sax.XMLReader
 
@@ -34,7 +35,9 @@ class AztecTagHandler : Html.TagHandler {
     private class Li
     private class Strike
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) : Boolean {
+    private var order = 0
+
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
         when (tag.toLowerCase()) {
             BULLET_LI -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
@@ -55,6 +58,15 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
+            DIV, SPAN -> {
+                if (opening) {
+                    start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes)))
+                } else {
+                    endHidden(output, order)
+                    order++
+                }
+                return true
+            }
             BULLET_UL -> return true // no op
         }
         return false
@@ -62,6 +74,19 @@ class AztecTagHandler : Html.TagHandler {
 
     private fun start(output: Editable, mark: Any) {
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
+    }
+
+    private fun endHidden(output: Editable, order: Int) {
+        val last = getLastOpenHidden(output)
+        if (last != null) {
+            last.close(order)
+            val start = output.getSpanStart(last)
+            val end = output.length
+
+            if (start != end) {
+                output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
     }
 
     private fun end(output: Editable, kind: Class<*>, vararg replaces: Any) {
@@ -83,6 +108,8 @@ class AztecTagHandler : Html.TagHandler {
         private val STRIKETHROUGH_S = "s"
         private val STRIKETHROUGH_STRIKE = "strike"
         private val STRIKETHROUGH_DEL = "del"
+        private val DIV = "div"
+        private val SPAN = "span"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)
@@ -92,6 +119,23 @@ class AztecTagHandler : Html.TagHandler {
             } else {
                 for (i in spans.size downTo 1) {
                     if (text.getSpanFlags(spans[i - 1]) == Spannable.SPAN_MARK_MARK) {
+                        return spans[i - 1]
+                    }
+                }
+
+                return null
+            }
+        }
+
+        private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {
+            val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
+
+            if (spans.size == 0) {
+                return null
+            } else {
+                for (i in spans.size downTo 1) {
+                    if (text.getSpanFlags(spans[i - 1]) == Spannable.SPAN_MARK_MARK &&
+                            !(spans[i - 1] as HiddenHtmlSpan).isClosed) {
                         return spans[i - 1]
                     }
                 }

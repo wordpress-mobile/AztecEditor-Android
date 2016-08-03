@@ -34,7 +34,6 @@ class AztecTagHandler : Html.TagHandler {
 
     private class Li
     private class Strike
-    private class Hidden(internal var attributes: Attributes?)
 
     private var order = 0
 
@@ -63,7 +62,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes)))
                 } else {
-                    endHidden(output, tag, order)
+                    endHidden(output, order)
                     order++
                 }
                 return true
@@ -73,28 +72,11 @@ class AztecTagHandler : Html.TagHandler {
         return false
     }
 
-    fun handleP(text: Editable) {
-        val len = text.length
-
-        if (len >= 1 && text[len - 1] == '\n') {
-            if (len >= 2 && text[len - 2] == '\n') {
-                return
-            }
-
-            text.append("\n")
-            return
-        }
-
-        if (len != 0) {
-            text.append("\n\n")
-        }
-    }
-
     private fun start(output: Editable, mark: Any) {
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
-    private fun endHidden(output: Editable, tag: String, order: Int) {
+    private fun endHidden(output: Editable, order: Int) {
         val last = getLastOpenHidden(output)
         if (last != null) {
             last.close(order)

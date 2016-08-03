@@ -39,6 +39,4 @@ class HiddenHtmlSpan(tag: String, attributes: StringBuilder) : CharacterStyle() 
     fun parse() {
         isParsed = true
     }
-
-    private class Hidden(internal var attributes: Attributes)
 }

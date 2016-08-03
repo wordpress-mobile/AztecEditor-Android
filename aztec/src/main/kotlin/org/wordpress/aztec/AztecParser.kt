@@ -18,14 +18,15 @@
 
 package org.wordpress.aztec
 
+import android.content.Context
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
 
-object AztecParser {
-    fun fromHtml(source: String): Spanned {
-        return Html.fromHtml(source, null, AztecTagHandler())
+class AztecParser {
+    fun fromHtml(source: String, context: Context): Spanned {
+        return Html.fromHtml(source, null, AztecTagHandler(), context)
     }
 
     fun toHtml(text: Spanned): String {
@@ -178,8 +179,10 @@ object AztecParser {
                     }
 
                     // Use standard strikethrough tag <del> rather than <s> or <strike>
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("<del>")
+                    if (spans[j] is AztecStrikethroughSpan) {
+                        out.append("<")
+                        out.append((spans[j] as AztecStrikethroughSpan).getTag())
+                        out.append(">")
                     }
 
                     if (spans[j] is URLSpan) {
@@ -209,8 +212,10 @@ object AztecParser {
                         out.append("</a>")
                     }
 
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("</del>")
+                    if (spans[j] is AztecStrikethroughSpan) {
+                        out.append("</")
+                        out.append((spans[j] as AztecStrikethroughSpan).getTag())
+                        out.append(">")
                     }
 
                     if (spans[j] is UnderlineSpan) {

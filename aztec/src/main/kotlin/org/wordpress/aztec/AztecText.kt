@@ -20,6 +20,7 @@ package org.wordpress.aztec
 import android.content.Context
 import android.graphics.Typeface
 import android.text.*
+import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.util.AttributeSet
 import android.view.inputmethod.InputMethodManager
@@ -85,6 +86,9 @@ class AztecText : EditText, TextWatcher {
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
         }
+
+        // triggers ClickableSpan onClick() events
+        movementMethod = LinkMovementMethod.getInstance()
     }
 
     override fun onAttachedToWindow() {
@@ -1069,14 +1073,16 @@ class AztecText : EditText, TextWatcher {
 
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
-        builder.append(AztecParser.fromHtml(source))
+        val parser = AztecParser()
+        builder.append(parser.fromHtml(source, context))
         switchToAztecStyle(builder, 0, builder.length)
         text = builder
     }
 
     fun toHtml(): String {
-        clearComposingText() //EditText "auto suggest" feature underlines text which results in U tag in html
-        return AztecParser.toHtml(editableText)
+        clearComposingText()
+        val parser = AztecParser()
+        return parser.toHtml(editableText)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

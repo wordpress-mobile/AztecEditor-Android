@@ -20,6 +20,8 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
@@ -27,7 +29,7 @@ import java.util.*
 
 class AztecParser {
 
-    internal var indexToBeClosed = 0
+    internal var hiddenIndex = 0
     internal var spanMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
 
     fun fromHtml(source: String, context: Context): Spanned {
@@ -36,7 +38,11 @@ class AztecParser {
 
     fun toHtml(text: Spanned): String {
         val out = StringBuilder()
-        withinHtml(out, text)
+
+        // add a marker to the end of the text to aid nested group parsing
+        val data = SpannableStringBuilder(text).append('\u200B')
+
+        withinHtml(out, data)
         return tidy(out.toString())
     }
 
@@ -46,7 +52,7 @@ class AztecParser {
         var i = 0
 
         // keeps track of the next span to be closed
-        indexToBeClosed = 0
+        hiddenIndex = 0
 
         // keeps the spans, which will be closed in the future, using the closing order index as key
         spanMap = TreeMap()
@@ -160,6 +166,7 @@ class AztecParser {
             }
 
             withinParagraph(out, text, i, next - nl, nl)
+
             i = next
         }
     }
@@ -171,7 +178,8 @@ class AztecParser {
 
         run {
             var i = start
-            while (i < end) {
+
+            while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
@@ -206,7 +214,7 @@ class AztecParser {
                         out.append("\">")
                     }
 
-                    if (span is ImageSpan) {
+                    if (span is ImageSpan && span !is UnknownHtmlSpan) {
                         out.append("<img src=\"")
                         out.append(span.source)
                         out.append("\">")
@@ -226,17 +234,26 @@ class AztecParser {
                                 out.append(span.startTag)
                             }
                             else if (!span.isParsed) {
-                                // empty span, process it if not already parsed
-                                span.parse()
                                 out.append(span.startTag)
-                                out.append(span.endTag)
-                                indexToBeClosed++
+
+                                // empty span, process it if not already parsed
+                                spanMap.put(span.endOrder, span)
+
+                                // check if we have a span that needs to be closed
+                                while (spanMap.contains(hiddenIndex)) {
+                                    val endSpan = spanMap[hiddenIndex]!!
+                                    out.append(endSpan.endTag)
+                                    hiddenIndex++
+                                    endSpan.parse()
+                                }
                             }
                         }
                     }
                 }
 
                 withinStyle(out, text, i, next)
+
+                val startPos = out.length
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
@@ -271,15 +288,42 @@ class AztecParser {
                         out.append("-->")
                     }
 
+//                    if (span is HiddenHtmlSpan) {
+//                        spanMap.put(span.endOrder, span)
+//
+//                        // check if we have a span that needs to be closed
+//                        while (spanMap.contains(hiddenIndex) && text.getSpanEnd(spanMap[hiddenIndex]!!) == next) {
+//                            endSpan(next, out, spanMap[hiddenIndex]!!, text)
+//                        }
+//                    }
+
                     if (span is HiddenHtmlSpan) {
+
                         spanMap.put(span.endOrder, span)
 
                         // check if we have a span that needs to be closed
-                        while (spanMap.contains(indexToBeClosed) && text.getSpanEnd(spanMap[indexToBeClosed]!!) == next) {
-                            endSpan(next, out, spanMap[indexToBeClosed]!!, text)
+                        while (spanMap.contains(hiddenIndex) && text.getSpanEnd(spanMap[hiddenIndex]!!) == next) {
+
+                            val found = spanMap[hiddenIndex]!!
+
+                            if (!found.isParsed) {
+                                if (text.getSpanStart(found) == text.getSpanEnd(found)) {
+                                    out.insert(startPos, found.startTag)
+//                                    out.append(found.startTag)
+                                }
+                            }
+
+                            found.parse()
+                            out.append(found.endTag)
+                            hiddenIndex++
                         }
                     }
+
                 }
+
+                if (start == end)
+                    break
+
                 i = next
             }
         }
@@ -290,7 +334,7 @@ class AztecParser {
     }
 
     private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
-        indexToBeClosed++
+        hiddenIndex++
 
         if (text.getSpanStart(span) != text.getSpanEnd(span)) {
             out.append(span.endTag)
@@ -306,6 +350,11 @@ class AztecParser {
         var i = start
         while (i < end) {
             val c = text[i]
+
+            if (c == '\u200B') {
+                i++
+                continue
+            }
 
             if (c == '<') {
                 out.append("&lt;")
@@ -339,6 +388,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
     }
 }

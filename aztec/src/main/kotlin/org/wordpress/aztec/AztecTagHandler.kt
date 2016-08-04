@@ -25,25 +25,18 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.BulletSpan
-import android.text.style.StrikethroughSpan
-
 import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
 
-    private class Li
+    private class Ul
     private class Strike
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) : Boolean {
         when (tag.toLowerCase()) {
             BULLET_LI -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n")
-                }
-                if (opening) {
-                    start(output, Li())
-                } else {
-                    end(output, Li::class.java, BulletSpan())
+                if (!opening) {
+                     output.append("\n")
                 }
                 return true
             }
@@ -55,7 +48,16 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
-            BULLET_UL -> return true // no op
+            BULLET_UL -> {
+                if(opening){
+                    start(output, Ul())
+                }else{
+                    //remove the trailing new line when the list is closing
+                    output.delete(output.length-1,output.length)
+                    end(output, Ul::class.java, BulletSpan())
+                }
+                return true
+            }
         }
         return false
     }
@@ -72,7 +74,7 @@ class AztecTagHandler : Html.TagHandler {
 
         if (start != end) {
             for (replace in replaces) {
-                output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
             }
         }
     }

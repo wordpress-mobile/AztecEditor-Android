@@ -22,7 +22,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
-import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.BulletSpan
 
 class AztecBulletSpan : BulletSpan {
@@ -58,10 +58,13 @@ class AztecBulletSpan : BulletSpan {
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-        if ((text as Spanned).getSpanStart(this) == start) {
+        val lines = TextUtils.split(text.toString(), "\n")
+
+        for (i in lines.indices) {
             val style = p.style
 
             val oldColor = p.color
+
             p.color = bulletColor
             p.style = Paint.Style.FILL
 
@@ -83,6 +86,7 @@ class AztecBulletSpan : BulletSpan {
             p.color = oldColor
             p.style = style
         }
+
     }
 
     companion object {

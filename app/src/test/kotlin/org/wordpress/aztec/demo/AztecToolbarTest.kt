@@ -83,7 +83,7 @@ class AztecToolbarTest : AndroidTestCase() {
     fun testNormalBulletPointBehaviour() {
         val activity = Robolectric.setupActivity(MainActivity::class.java)
         val editText = activity.findViewById(R.id.aztec) as AztecText
-
+        editText.setText("")
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
 
         val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton

@@ -22,11 +22,14 @@ import android.graphics.Typeface
 import android.text.*
 import android.text.style.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
+
+    private val TAG = "AztecText"
 
     private var bulletColor = 0
     private var bulletRadius = 0
@@ -113,10 +116,10 @@ class AztecText : EditText, TextWatcher {
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
-        if(selStart > 0 && selEnd > 0){
+        if (!consumeSelectionEvent) {
+            consumeSelectionEvent = false
             mOnSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
         }
-
     }
 
     // StyleSpan ===================================================================================
@@ -388,11 +391,13 @@ class AztecText : EditText, TextWatcher {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (lines.isEmpty()) {
+            consumeSelectionEvent = true
             editableText.append("\u200B")
             editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), 0, 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            onSelectionChanged(0, 1)
         }
-
         for (i in lines.indices) {
+
             if (containBullet(i)) {
                 continue
             }
@@ -426,6 +431,7 @@ class AztecText : EditText, TextWatcher {
 
             if (bulletStart <= bulletEnd) {
                 if (lineStart == lineEnd) {   //line is empy
+                    consumeSelectionEvent = true
                     editableText.append("\u200B")
                     bulletEnd += 1
                 }
@@ -484,6 +490,7 @@ class AztecText : EditText, TextWatcher {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
+
         for (i in lines.indices) {
             var lineStart = 0
             for (j in 0..i - 1) {
@@ -491,7 +498,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
+            if (lineStart > lineEnd) {
                 continue
             }
 
@@ -617,6 +624,7 @@ class AztecText : EditText, TextWatcher {
     private fun containQuote(selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
+
 
         for (i in lines.indices) {
             var lineStart = 0
@@ -774,7 +782,8 @@ class AztecText : EditText, TextWatcher {
     var inputStart = -1
     var inputEnd = -1
 
-    var consumeEvent: Boolean = false
+    var consumeEditEvent: Boolean = false
+    var consumeSelectionEvent: Boolean = false
     var isBlockStyleFixRequired = false
     var isNewlineInputed = false
     var addnewBullet = false
@@ -788,6 +797,24 @@ class AztecText : EditText, TextWatcher {
                 isBlockStyleFixRequired = true
             }
 
+
+            if (text.length > start) {
+                val inputedCharacter = text[start]
+
+                val spans = editableText.getSpans(start, start, AztecBulletSpan::class.java)
+                if (!spans.isEmpty() && !inputedCharacter.toString().equals("\n")) {
+                    val flags = editableText.getSpanFlags(spans[0])
+
+                    val spanStart = editableText.getSpanStart(spans[0])
+                    val spanEnd = editableText.getSpanEnd(spans[0])
+
+                    if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
+                        editableText.setSpan(spans[0], spanStart, spanEnd + count, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        Log.v(TAG,"opened span")
+                    }
+
+                }
+            }
 
             if (count == 1) {
                 val currentCharacter = text[start]
@@ -807,56 +834,9 @@ class AztecText : EditText, TextWatcher {
         inputEnd = start + count
     }
 
-    fun handleHistory(text: Editable) {
-
-        //history
-        if (!historyEnable || historyWorking) {
-            return
-        }
-
-        inputLast = SpannableStringBuilder(text)
-        if (text.toString() == inputBefore.toString()) {
-            return
-        }
-
-        if (historyList.size >= historySize) {
-            historyList.removeAt(0)
-        }
-
-        historyList.add(inputBefore)
-        historyCursor = historyList.size
-    }
-
-    fun handleLists(text: Editable) {
-        if (isBlockStyleFixRequired && !isNewlineInputed) {
-            consumeEvent = true
-            if (fixingNewBullet) {
-                fixingNewBullet = false
-                text.delete(inputStart - 1, inputStart)
-            } else {
-                text.delete(inputStart - 1, inputStart)
-            }
-        } else if (isBlockStyleFixRequired && isNewlineInputed) {
-            consumeEvent = true
-            text.delete(inputStart - 1, inputStart + 1)
-            consumeEvent = true
-            bulletInvalid()
-        } else if (!isBlockStyleFixRequired && addnewBullet) {
-            consumeEvent = true
-            //get bullet span from the last character
-            val spans = text.getSpans(inputStart, inputStart, BulletSpan::class.java)
-            if (!spans.isEmpty()) {
-                text.setSpan(spans[0], text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            bulletValid()
-            fixingNewBullet = true
-        }
-    }
-
-
     override fun afterTextChanged(text: Editable) {
-        if (consumeEvent) {
-            consumeEvent = false
+        if (consumeEditEvent) {
+            consumeEditEvent = false
 
             addnewBullet = false
             isNewlineInputed = false
@@ -905,8 +885,46 @@ class AztecText : EditText, TextWatcher {
         inputEnd = -1
     }
 
+    fun handleHistory(text: Editable) {
 
-    private val LOCKED = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        //history
+        if (!historyEnable || historyWorking) {
+            return
+        }
+
+        inputLast = SpannableStringBuilder(text)
+        if (text.toString() == inputBefore.toString()) {
+            return
+        }
+
+        if (historyList.size >= historySize) {
+            historyList.removeAt(0)
+        }
+
+        historyList.add(inputBefore)
+        historyCursor = historyList.size
+    }
+
+    fun handleLists(text: Editable) {
+        if (isBlockStyleFixRequired && !isNewlineInputed) {
+            consumeEditEvent = true
+            text.delete(inputStart - 1, inputStart)
+            Log.v(TAG,"fixed empty bullet point")
+        } else if (isBlockStyleFixRequired && isNewlineInputed) {
+            val spans = text.getSpans(inputStart, inputEnd, BulletSpan::class.java)
+            if (!spans.isEmpty()) {
+                text.setSpan(spans[0], text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+            consumeEditEvent = true
+            text.delete(inputStart - 2, inputStart)
+            Log.v(TAG,"removed bullet point and closed span")
+        } else if (!isBlockStyleFixRequired && addnewBullet) {
+            consumeEditEvent = true
+            text.append("\u200B")
+            Log.v(TAG,"added empty bullet point")
+        }
+    }
 
     fun isEmpty(): Boolean {
         return text.isEmpty()

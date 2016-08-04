@@ -32,7 +32,20 @@ class MainActivity : AppCompatActivity(), FormatToolbar.OnToolbarActionListener 
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
         private val COMMENT = "<!--This is a comment--><br><br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT
+        private val HIDDEN = 
+                "<span></span>" +
+                "<div class=\"first\">" +
+                "    <div class=\"second\">" +
+                "        <div class=\"third\">" +
+                "            Div<br><span><b>Span</b></span><br>Hidden" +
+                "        </div>" +
+                "        <div class=\"fourth\"></div>" +
+                "        <div class=\"fifth\"></div>" +
+                "    </div>" +
+                "    <span class=\"second last\"></span>" +
+                "</div>" +
+                "<br><br>"
+        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 
     private lateinit var aztec: AztecText

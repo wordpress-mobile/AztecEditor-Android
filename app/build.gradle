@@ -6,9 +6,9 @@ android {
     buildToolsVersion "24.0.0"
 
     defaultConfig {
-        applicationId "org.wordpress.aztec"
+        applicationId "org.wordpress.aztec.demo"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -21,6 +21,7 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
     }
 }
 
@@ -28,6 +29,10 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':aztec')
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.1'
+    testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
 }
 repositories {
     mavenCentral()

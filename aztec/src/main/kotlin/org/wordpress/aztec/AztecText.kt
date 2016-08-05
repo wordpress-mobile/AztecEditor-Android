@@ -388,57 +388,58 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun bulletValid(start: Int, end: Int) {
-        val lines = TextUtils.split(editableText.toString(), "\n")
+        if (start != end) {
+            val selectedText = editableText.substring(start + 1..end - 1)
 
-        if (lines.isEmpty()) {
-            consumeSelectionEvent = true
-            editableText.append("\u200B")
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), 0, 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-            onSelectionChanged(0, 1)
-        }
-        for (i in lines.indices) {
+            //multiline text selected
+            if (selectedText.indexOf("\n") != -1) {
+                val indexOfFirstLineBreak = editableText.indexOf("\n", end)
 
-            if (containBullet(i)) {
-                continue
-            }
+                val endOfList = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else editableText.length
+                val startOfList = editableText.lastIndexOf("\n", start)
 
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1 // \n
-            }
+                val selectedLines = editableText.subSequence(startOfList + 1..endOfList - 1) as Editable
 
-            val lineEnd = lineStart + lines[i].length
-            if (lineStart > lineEnd) {
-                continue
-            }
+                var numberOfLinesWithSpanApplied = 0
+                var numberOfLines = 0
 
+                val lines = TextUtils.split(selectedLines.toString(), "\n")
 
-            // Find selection area inside
-            var bulletStart = 0
-            var bulletEnd = 0
-            if (lineStart <= start && end <= lineEnd) {
-                bulletStart = lineStart
-                bulletEnd = lineEnd
-            }
-//            else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
-//                bulletStart = lineStart
-//                bulletEnd = lineEnd
-//            }
-
-            else {
-                continue
-            }
-
-            if (bulletStart <= bulletEnd) {
-                if (lineStart == lineEnd) {   //line is empy
-                    consumeSelectionEvent = true
-                    editableText.append("\u200B")
-                    bulletEnd += 1
+                for (i in lines.indices) {
+                    numberOfLines++
+                    if (containBullet(i, selectedLines)) {
+                        numberOfLinesWithSpanApplied++
+                    }
                 }
 
-                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                if (numberOfLines == numberOfLinesWithSpanApplied) {
+                    bulletInvalid()
+                } else {
+                    editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+
+
             }
+
+        } else {
+            val indexOfLastLineBreak = editableText.indexOf("\n", end)
+            val indexOfFirstLineBreak = editableText.lastIndexOf("\n", start)
+
+            val startOfList = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
+            var endOfList = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editableText.length
+
+
+            if (startOfList == endOfList) {   //line is empty
+                consumeSelectionEvent = true
+                editableText.append("\u200B")
+                endOfList += 1
+            }
+
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfList, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            onSelectionChanged(endOfList, endOfList)
         }
+
+
     }
 
     private fun bulletInvalid() {
@@ -446,45 +447,46 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun bulletInvalid(start: Int, end: Int) {
-        val lines = TextUtils.split(editableText.toString(), "\n")
+        if (start != end) {
+            val selectedText = editableText.substring(start + 1..end - 1)
 
-        for (i in lines.indices) {
-            if (!containBullet(i)) {
-                continue
-            }
-
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
-            val lineEnd = lineStart + lines[i].length
-            if (lineStart > lineEnd) {
-                continue
-            }
-
-            var bulletStart = 0
-            var bulletEnd = 0
-            if (lineStart <= start && end <= lineEnd) {
-                bulletStart = lineStart
-                bulletEnd = lineEnd
-            } else {
-                continue
-
-            }
-
-            if (bulletStart <= bulletEnd) {
-                val spans = editableText.getSpans(bulletStart, bulletEnd, BulletSpan::class.java)
+            //multiline text selected
+            if (selectedText.indexOf("\n") != -1) {
+                val spans = editableText.getSpans(start, end, BulletSpan::class.java)
                 for (span in spans) {
                     editableText.removeSpan(span)
                 }
+
+                return
+            }
+        } else {
+
+            //get whole line with this span
+
+
+            //check if span on first character before this line is BulletSpan
+
+            //get the start of this span
+
+
+            //check if span on first character after this line is BulletSpan
+
+            //get the end of this span
+
+
+            //copy the span
+
+
+            //remove the span from this line
+
+
+            val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+            for (span in spans) {
+                editableText.removeSpan(span)
             }
         }
     }
 
-    private fun containBullet(): Boolean {
-        return containBullet(selectionStart, selectionEnd)
-    }
 
     private fun containBullet(selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
@@ -518,6 +520,26 @@ class AztecText : EditText, TextWatcher {
         }
 
         return true
+    }
+
+    private fun containBullet(index: Int, text: Editable): Boolean {
+        val lines = TextUtils.split(text.toString(), "\n")
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        var start = 0
+        for (i in 0..index - 1) {
+            start += lines[i].length + 1
+        }
+
+        val end = start + lines[index].length
+        if (start > end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+        return spans.size > 0
     }
 
     private fun containBullet(index: Int): Boolean {
@@ -810,7 +832,7 @@ class AztecText : EditText, TextWatcher {
 
                     if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
                         editableText.setSpan(spans[0], spanStart, spanEnd + count, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                        Log.v(TAG,"opened span")
+                        Log.v(TAG, "opened span")
                     }
 
                 }
@@ -909,7 +931,7 @@ class AztecText : EditText, TextWatcher {
         if (isBlockStyleFixRequired && !isNewlineInputed) {
             consumeEditEvent = true
             text.delete(inputStart - 1, inputStart)
-            Log.v(TAG,"fixed empty bullet point")
+            Log.v(TAG, "fixed empty bullet point")
         } else if (isBlockStyleFixRequired && isNewlineInputed) {
             val spans = text.getSpans(inputStart, inputEnd, BulletSpan::class.java)
             if (!spans.isEmpty()) {
@@ -918,11 +940,11 @@ class AztecText : EditText, TextWatcher {
 
             consumeEditEvent = true
             text.delete(inputStart - 2, inputStart)
-            Log.v(TAG,"removed bullet point and closed span")
+            Log.v(TAG, "removed bullet point and closed span")
         } else if (!isBlockStyleFixRequired && addnewBullet) {
             consumeEditEvent = true
             text.append("\u200B")
-            Log.v(TAG,"added empty bullet point")
+            Log.v(TAG, "added empty bullet point")
         }
     }
 

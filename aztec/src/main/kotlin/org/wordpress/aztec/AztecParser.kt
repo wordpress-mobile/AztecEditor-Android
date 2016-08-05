@@ -119,7 +119,7 @@ class AztecParser {
             }
 
             out.append("<li>")
-            withinContent(out, text, lineStart, lineEnd)
+            withinContent(out, text.subSequence(start..end-1) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
         out.append("</ul>")
@@ -341,6 +341,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
     }
 }

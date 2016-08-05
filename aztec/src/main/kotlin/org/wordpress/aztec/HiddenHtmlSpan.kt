@@ -3,17 +3,19 @@ package org.wordpress.aztec
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 
-import org.xml.sax.Attributes
-
-class HiddenHtmlSpan(tag: String, attributes: StringBuilder) : CharacterStyle() {
+class HiddenHtmlSpan(tag: String, attributes: StringBuilder, openOrder : Int) : CharacterStyle() {
 
     val startTag: StringBuilder
     val endTag: StringBuilder
     var isClosed: Boolean = false
         private set
+    var isOpened: Boolean = false
+        private set
     var isParsed: Boolean = false
         private set
     var endOrder: Int = 0
+        private set
+    var startOrder = openOrder
         private set
 
     init {
@@ -24,6 +26,7 @@ class HiddenHtmlSpan(tag: String, attributes: StringBuilder) : CharacterStyle() 
         this.endTag.append("</").append(tag).append(">")
 
         isClosed = false
+        isOpened = false
         isParsed = false
     }
 
@@ -38,5 +41,9 @@ class HiddenHtmlSpan(tag: String, attributes: StringBuilder) : CharacterStyle() 
 
     fun parse() {
         isParsed = true
+    }
+
+    fun open() {
+        isOpened = true
     }
 }

@@ -25,7 +25,6 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.BulletSpan
-import android.text.style.StrikethroughSpan
 import org.xml.sax.Attributes
 
 import org.xml.sax.XMLReader
@@ -60,10 +59,9 @@ class AztecTagHandler : Html.TagHandler {
             }
             DIV, SPAN -> {
                 if (opening) {
-                    start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes)))
+                    start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes), order++))
                 } else {
-                    endHidden(output, order)
-                    order++
+                    endHidden(output, order++)
                 }
                 return true
             }

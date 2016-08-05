@@ -47,15 +47,16 @@ class AztecParserTest : AndroidTestCase() {
             "<div class=\"fifth\"></div>" +
             "</div>" +
             "<span class=\"second last\"></span>" +
+            "<span></span><div><div><div><span></span></div></div></div><div></div>" +
             "</div>" +
             "<br><br>"
-    private val HTML_NESTED_EMPTY_END = "1<div><div><div><span></span></div></div></div>";
-    private val HTML_NESTED_EMPTY_START = "<div><div><div><span></span></div></div></div>1";
-    private val HTML_NESTED_EMPTY = "<span></span><div><div><div><span></span></div></div></div><div></div>";
-    private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>";
+    private val HTML_NESTED_EMPTY_END = "1<span></span><div><div><div><span></span>a</div><div></div><div></div></div><span></span></div>"
+    private val HTML_NESTED_EMPTY_START = "<span></span><div><div><div><span></span></div><div></div></div><span></span></div>1"
+    private val HTML_NESTED_EMPTY = "<span></span><div><div><div><span></span></div></div></div><div></div>"
+    private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>"
     private val HTML_NESTED_INTERLEAVING =
-            "<div><div><div><span></span></div></div></div><br>" +
-            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>";
+            "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
+            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
 
     /**
      * Initialize variables.

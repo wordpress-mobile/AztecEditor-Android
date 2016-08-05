@@ -20,7 +20,6 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -30,7 +29,8 @@ import java.util.*
 class AztecParser {
 
     internal var hiddenIndex = 0
-    internal var spanMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+    internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+    internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
 
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
@@ -55,7 +55,8 @@ class AztecParser {
         hiddenIndex = 0
 
         // keeps the spans, which will be closed in the future, using the closing order index as key
-        spanMap = TreeMap()
+        closeMap = TreeMap()
+        openMap = TreeMap()
 
         while (i < text.length) {
             next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
@@ -86,7 +87,8 @@ class AztecParser {
             i = next
         }
 
-        spanMap.clear()
+        closeMap.clear()
+        openMap.clear()
     }
 
     private fun withinUnknown(unknownHtmlSpan: UnknownHtmlSpan, out: StringBuilder) {
@@ -228,26 +230,7 @@ class AztecParser {
                     }
 
                     if (span is HiddenHtmlSpan) {
-                        // only append a hidden tag if it starts at the beginning of current span
-                        if (text.getSpanStart(span) == i) {
-                            if (text.getSpanStart(span) != text.getSpanEnd(span)) {
-                                out.append(span.startTag)
-                            }
-                            else if (!span.isParsed) {
-                                out.append(span.startTag)
-
-                                // empty span, process it if not already parsed
-                                spanMap.put(span.endOrder, span)
-
-                                // check if we have a span that needs to be closed
-                                while (spanMap.contains(hiddenIndex)) {
-                                    val endSpan = spanMap[hiddenIndex]!!
-                                    out.append(endSpan.endTag)
-                                    hiddenIndex++
-                                    endSpan.parse()
-                                }
-                            }
-                        }
+                        parseHiddenSpans(i, out, span, text)
                     }
                 }
 
@@ -288,37 +271,9 @@ class AztecParser {
                         out.append("-->")
                     }
 
-//                    if (span is HiddenHtmlSpan) {
-//                        spanMap.put(span.endOrder, span)
-//
-//                        // check if we have a span that needs to be closed
-//                        while (spanMap.contains(hiddenIndex) && text.getSpanEnd(spanMap[hiddenIndex]!!) == next) {
-//                            endSpan(next, out, spanMap[hiddenIndex]!!, text)
-//                        }
-//                    }
-
                     if (span is HiddenHtmlSpan) {
-
-                        spanMap.put(span.endOrder, span)
-
-                        // check if we have a span that needs to be closed
-                        while (spanMap.contains(hiddenIndex) && text.getSpanEnd(spanMap[hiddenIndex]!!) == next) {
-
-                            val found = spanMap[hiddenIndex]!!
-
-                            if (!found.isParsed) {
-                                if (text.getSpanStart(found) == text.getSpanEnd(found)) {
-                                    out.insert(startPos, found.startTag)
-//                                    out.append(found.startTag)
-                                }
-                            }
-
-                            found.parse()
-                            out.append(found.endTag)
-                            hiddenIndex++
-                        }
+                        parseHiddenSpans(next, out, span, text)
                     }
-
                 }
 
                 if (start == end)
@@ -333,17 +288,29 @@ class AztecParser {
         }
     }
 
-    private fun endSpan(next: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
-        hiddenIndex++
+    private fun parseHiddenSpans(position: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
+        closeMap.put(span.endOrder, span)
+        openMap.put(span.startOrder, span)
 
-        if (text.getSpanStart(span) != text.getSpanEnd(span)) {
-            out.append(span.endTag)
-        } else if (!span.isParsed) {
-            // empty span, process it if not already parsed
-            span.parse()
-            out.append(span.startTag)
-            out.append(span.endTag)
-        }
+        var last: Int
+        do {
+            last = hiddenIndex
+
+            if (openMap.contains(hiddenIndex) &&
+                    !openMap[hiddenIndex]!!.isOpened &&
+                    text.getSpanStart(openMap[hiddenIndex]!!) == position) {
+                out.append(openMap[hiddenIndex]!!.startTag)
+                openMap[hiddenIndex]!!.open()
+                hiddenIndex++
+            }
+            if (closeMap.containsKey(hiddenIndex) &&
+                    !closeMap[hiddenIndex]!!.isParsed &&
+                    text.getSpanEnd(closeMap[hiddenIndex]!!) == position) {
+                out.append(closeMap[hiddenIndex]!!.endTag)
+                closeMap[hiddenIndex]!!.parse()
+                hiddenIndex++
+            }
+        } while (last != hiddenIndex)
     }
 
     private fun withinStyle(out: StringBuilder, text: CharSequence, start: Int, end: Int) {

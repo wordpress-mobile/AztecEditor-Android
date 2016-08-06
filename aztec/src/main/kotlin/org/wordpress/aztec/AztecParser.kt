@@ -110,24 +110,26 @@ class AztecParser {
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         out.append("<ul>")
 
-        var next: Int
 
-        var i = start
-        while (i < end) {
-            next = text.nextSpanTransition(i, end, BulletSpan::class.java)
+        val lines = TextUtils.split(text.substring(start..end-1), "\n")
 
-            val spans = text.getSpans(i, next, BulletSpan::class.java)
-            for (span in spans) {
-                out.append("<li>")
+
+        for (i in lines.indices) {
+
+            var lineStart = 0
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
             }
 
-            withinContent(out, text, i, next)
-            for (span in spans) {
-                out.append("</li>")
+            val lineEnd = lineStart + lines[i].length
+            if (lineStart > lineEnd) {
+                continue
             }
-            i = next
+
+            out.append("<li>")
+            withinContent(out, text.subSequence(start..end-1) as Spanned, lineStart, lineEnd)
+            out.append("</li>")
         }
-
         out.append("</ul>")
     }
 

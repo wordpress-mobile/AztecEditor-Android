@@ -1,19 +1,27 @@
 package org.wordpress.aztec.demo
 
-import android.app.Activity
 import android.app.AlertDialog
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
+import android.text.style.URLSpan
+import android.util.Patterns
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.toolbar.FormatToolbar
+import org.wordpress.aztec.toolbar.ToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarActionType
+import java.util.*
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity(), FormatToolbar.OnToolbarActionListener {
+
     companion object {
         private val BOLD = "<b>Bold</b><br><br>"
         private val ITALIC = "<i>Italic</i><br><br>"
@@ -41,147 +49,161 @@ class MainActivity : Activity() {
     }
 
     private lateinit var aztec: AztecText
+    private lateinit var mFormattingToolbar: FormatToolbar
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+        mFormattingToolbar = findViewById(R.id.formatting_toolbar) as FormatToolbar
+
+
+        //highlight toolbar buttons based on what styles are applied to the text beneath cursor
+        aztec.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
+            override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+                highlightAppliedStyles(selStart,selEnd)
+            }
+        })
+
         // ImageGetter coming soon...
-        aztec.fromHtml(EXAMPLE)
+//        aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
 
-        setupBold()
-        setupItalic()
-        setupUnderline()
-        setupStrikethrough()
-        setupBullet()
-        setupQuote()
-        setupLink()
-        setupClear()
-        setupHtml()
+        mFormattingToolbar.setToolbarActionListener(this)
     }
 
-    private fun setupBold() {
-        val bold = findViewById(R.id.bold) as ImageButton
 
-        bold.setOnClickListener { aztec.bold(!aztec.contains(AztecText.FORMAT_BOLD)) }
+    fun highlightAppliedStyles(selStart: Int, selEnd: Int){
+        var newSelStart = selStart
 
-        bold.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_bold, Toast.LENGTH_SHORT).show()
-            true
+        if (selStart > 0 && !aztec.isTextSelected()) {
+            newSelStart = selStart - 1
+        }
+
+        val appliedStyles = aztec.getAppliedStyles(newSelStart, selEnd)
+
+        //remember the last active style after emptying EditText manually
+        if (!aztec.isEmpty()) {
+            aztec.setSelectedStyles(appliedStyles)
+            mFormattingToolbar.highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
         }
     }
 
-    private fun setupItalic() {
-        val italic = findViewById(R.id.italic) as ImageButton
+    override fun onToolbarAction(action: ToolbarAction) {
+        //if noting is selected just activate style
+        if (!aztec.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
+            val actions = mFormattingToolbar.getSelectedActions()
+            val textFormats = ArrayList<TextFormat>()
 
-        italic.setOnClickListener { aztec.italic(!aztec.contains(AztecText.FORMAT_ITALIC)) }
+            actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
+            return aztec.setSelectedStyles(textFormats)
+        }
 
-        italic.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_italic, Toast.LENGTH_SHORT).show()
-            true
+        //if text is selected and action is styling toggle it's style
+        if (action.isStylingAction()) {
+            return aztec.toggleFormatting(action.textFormat!!)
+        }
+
+        //other toolbar action
+        when (action) {
+            ToolbarAction.LINK -> showLinkDialog()
+            ToolbarAction.HTML -> aztec.setText(aztec.toHtml())
+            else -> {
+                Toast.makeText(this@MainActivity, "Unsupported action", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun setupUnderline() {
-        val underline = findViewById(R.id.underline) as ImageButton
-
-        underline.setOnClickListener { aztec.underline(!aztec.contains(AztecText.FORMAT_UNDERLINED)) }
-
-        underline.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_underline, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupStrikethrough() {
-        val strikethrough = findViewById(R.id.strikethrough) as ImageButton
-
-        strikethrough.setOnClickListener { aztec.strikethrough(!aztec.contains(AztecText.FORMAT_STRIKETHROUGH)) }
-
-        strikethrough.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_strikethrough, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupBullet() {
-        val bullet = findViewById(R.id.bullet) as ImageButton
-
-        bullet.setOnClickListener { aztec.bullet(!aztec.contains(AztecText.FORMAT_BULLET)) }
-
-
-        bullet.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_bullet, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupQuote() {
-        val quote = findViewById(R.id.quote) as ImageButton
-
-        quote.setOnClickListener { aztec.quote(!aztec.contains(AztecText.FORMAT_QUOTE)) }
-
-        quote.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_quote, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupLink() {
-        val link = findViewById(R.id.link) as ImageButton
-
-        link.setOnClickListener { showLinkDialog() }
-
-        link.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_insert_link, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupClear() {
-        val clear = findViewById(R.id.clear) as ImageButton
-
-        clear.setOnClickListener { aztec.clearFormats() }
-
-        clear.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_format_clear, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
-
-    private fun setupHtml() {
-        val html = findViewById(R.id.html) as Button
-
-        html.setOnClickListener { aztec.setText(aztec.toHtml()) }
-
-        html.setOnLongClickListener {
-            Toast.makeText(this@MainActivity, R.string.toast_html, Toast.LENGTH_SHORT).show()
-            true
-        }
-    }
 
     private fun showLinkDialog() {
-        val start = aztec.selectionStart
-        val end = aztec.selectionEnd
+        var start = aztec.selectionStart
+        var end = aztec.selectionEnd
+
+        val urlSpans = aztec.text.getSpans(start, end, URLSpan::class.java)
+
+
+        val url: String?
+        var anchor: String?
+
+        var modifyingExistingLink = false
+
+        var spanStart: Int = 0
+        var spanEnd: Int = 0
+
+        if (!urlSpans.isEmpty()) {
+            val urlSpan = urlSpans[0]
+
+            spanStart = aztec.text.getSpanStart(urlSpan)
+            spanEnd = aztec.text.getSpanEnd(urlSpan)
+
+            if(start < spanStart || end > spanEnd){
+                //looks like some text that is not part of the url was included in selection
+                anchor = aztec.text.substring(start, end)
+                url = ""
+
+            }else{
+                anchor = aztec.text.substring(spanStart, spanEnd)
+                url = urlSpan.url
+                start = spanStart
+                end = spanEnd
+            }
+
+            if(anchor.equals(url)){
+                anchor = ""
+            }
+
+
+            modifyingExistingLink = true
+
+        } else {
+
+            val clipboardUrl = getUrlFromClipboard(this)
+
+            if(TextUtils.isEmpty(clipboardUrl)){
+                url = ""
+            }else{
+                url = clipboardUrl
+            }
+
+
+
+            if (start == end) {
+                anchor = ""
+            } else {
+                anchor = aztec.text.substring(start, end)
+            }
+        }
+
 
         val builder = AlertDialog.Builder(this)
         builder.setCancelable(false)
 
         val view = layoutInflater.inflate(R.layout.dialog_link, null, false)
-        val editText = view.findViewById(R.id.edit) as EditText
+        val urlInput = view.findViewById(R.id.linkURL) as EditText
+        val anchorInput = view.findViewById(R.id.linkText) as EditText
+
+        urlInput.setText(url)
+        anchorInput.setText(anchor)
+
         builder.setView(view)
         builder.setTitle(R.string.dialog_title)
 
         builder.setPositiveButton(R.string.dialog_button_ok, DialogInterface.OnClickListener { dialog, which ->
-            val link = editText.text.toString().trim { it <= ' ' }
+            val link = urlInput.text.toString().trim { it <= ' ' }
+            val anchorText = anchorInput.text.toString().trim { it <= ' ' }
+
             if (TextUtils.isEmpty(link)) {
                 return@OnClickListener
             }
 
-            // When AztecText lose focus, use this method
-            aztec.link(link, start, end)
+            if (modifyingExistingLink) {
+                aztec.editLink(link, anchorText, start, end)
+            } else {
+                aztec.addLink(link, anchorText, start, end)
+            }
+
         })
         builder.create().show()
     }
@@ -200,5 +222,20 @@ class MainActivity : Activity() {
         }
 
         return true
+    }
+
+
+    /**
+     * Checks the Clipboard for text that matches the [Patterns.WEB_URL] pattern.
+
+     * @return the URL text in the clipboard, if it exists; otherwise null
+     */
+    fun getUrlFromClipboard(context: Context?): String? {
+        if (context == null) return null
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val data = clipboard?.primaryClip
+        if (data == null || data.itemCount <= 0) return null
+        val clipText = data.getItemAt(0).text.toString()
+        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else null
     }
 }

@@ -1,0 +1,34 @@
+<resources>
+    <string name="format_bar_tag_bold" translatable="false">bold</string>
+    <string name="format_bar_tag_italic" translatable="false">italic</string>
+    <string name="format_bar_tag_blockquote" translatable="false">blockquote</string>
+    <string name="format_bar_tag_unorderedList" translatable="false">unorderedList</string>
+    <string name="format_bar_tag_orderedList" translatable="false">orderedList</string>
+    <string name="format_bar_tag_strikethrough" translatable="false">strikeThrough</string>
+    <string name="format_bar_tag_link" translatable="false">link</string>
+
+    <!-- Accessibility - format bar button descriptions -->
+    <string name="format_bar_description_bold">Bold</string>
+    <string name="format_bar_description_italic">Italic</string>
+    <string name="format_bar_description_underline">Underline</string>
+    <string name="format_bar_description_strike">Strikethrough</string>
+    <string name="format_bar_description_quote">Block quote</string>
+    <string name="format_bar_description_link">Insert link</string>
+    <string name="format_bar_description_more">Insert more</string>
+    <string name="format_bar_description_media">Insert media</string>
+    <string name="format_bar_description_ul">Unordered list</string>
+    <string name="format_bar_description_ol">Ordered list</string>
+    <string name="format_bar_description_html">HTML mode</string>
+    <string name="visual_editor">Visual toolbarActionListener</string>
+    <string name="image_thumbnail">Image thumbnail</string>
+
+    <!-- link view -->
+    <string name="link_enter_url">URL</string>
+    <string name="link_enter_url_text">Link text (optional)</string>
+    <string name="create_a_link">Create a link</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+
+</resources>

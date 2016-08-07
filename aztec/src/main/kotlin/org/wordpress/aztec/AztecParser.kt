@@ -66,7 +66,7 @@ class AztecParser {
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
-                    withinBullet(out, text, i, next++)
+                    withinBullet(out, text, i, next)
                 } else if (styles[0] is AztecQuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -101,10 +101,7 @@ class AztecParser {
 
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         out.append("<ul>")
-
-
         val lines = TextUtils.split(text.substring(start..end-1), "\n")
-
 
         for (i in lines.indices) {
 
@@ -114,7 +111,7 @@ class AztecParser {
             }
 
             val lineEnd = lineStart + lines[i].length
-            if (lineStart > lineEnd) {
+            if (lineStart >= lineEnd) {
                 continue
             }
 
@@ -341,6 +338,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("<br>(<ul>)?".toRegex(), "<ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("<br><ul>", "<ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
     }
 }

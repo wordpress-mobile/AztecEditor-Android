@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 class AztecParserTest : AndroidTestCase() {
     private var mParser = AztecParser()
     private val HTML_BOLD = "<b>Bold</b><br><br>"
-    private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
+    private val HTML_BULLET = "<ul><li>Bullet 1</li></ul>hello<ul><li>Bullet 2</li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
@@ -91,15 +91,15 @@ class AztecParserTest : AndroidTestCase() {
      *
      * @throws Exception
      */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlBullet_isEqual() {
-//        val input =
-//                HTML_BULLET
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBullet_isEqual() {
+        val input =
+                HTML_BULLET
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse comment text from HTML to span to HTML.  If input and output are equal with

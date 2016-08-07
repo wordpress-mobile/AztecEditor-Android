@@ -25,6 +25,7 @@ class AztecToolbarTest : AndroidTestCase() {
     lateinit var activity: Activity
     lateinit var editText: AztecText
 
+
     /**
      * Initialize variables.
      */
@@ -70,6 +71,7 @@ class AztecToolbarTest : AndroidTestCase() {
         val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton
         bulletPointListBullet.performClick()
         Assert.assertTrue(bulletPointListBullet.isChecked)
+
         editText.append("bullet list item")
         Assert.assertEquals("<ul><li>bullet list item</li></ul>", editText.toHtml())
         bulletPointListBullet.performClick()
@@ -138,6 +140,25 @@ class AztecToolbarTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun testBulletListSplitWithToolbar() {
+        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+
+        val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton
+        Assert.assertFalse(bulletPointListBullet.isChecked)
+
+        editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
+        editText.setSelection(14)
+
+        Assert.assertTrue(bulletPointListBullet.isChecked)
+        bulletPointListBullet.performClick()
+        Assert.assertFalse(bulletPointListBullet.isChecked)
+
+
+        Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testBulletListSplitWithKeyboard() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
 
         val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton

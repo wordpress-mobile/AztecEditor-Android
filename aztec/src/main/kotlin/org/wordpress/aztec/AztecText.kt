@@ -487,7 +487,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (spanExtendsBeyondLine) {
-                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), endOfLine+1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
         }
@@ -939,17 +939,13 @@ class AztecText : EditText, TextWatcher {
             text.delete(inputStart - 1, inputStart)
             Log.v(TAG, "fixed empty bullet point")
         } else if (isBlockStyleFixRequired && isNewlineInputed) {
-            val spans = text.getSpans(inputStart, inputEnd, BulletSpan::class.java)
-            if (!spans.isEmpty()) {
-                text.setSpan(spans[0], text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-
+            bulletInvalid()
             consumeEditEvent = true
             text.delete(inputStart - 2, inputStart)
             Log.v(TAG, "removed bullet point and closed span")
         } else if (!isBlockStyleFixRequired && addnewBullet) {
             consumeEditEvent = true
-            text.append("\u200B")
+            text.insert(inputStart+1,"\u200B")
             Log.v(TAG, "added empty bullet point")
         }
     }

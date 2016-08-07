@@ -422,21 +422,20 @@ class AztecText : EditText, TextWatcher {
             }
 
         } else {
-            val indexOfLastLineBreak = editableText.indexOf("\n", end)
-            val indexOfFirstLineBreak = editableText.lastIndexOf("\n", start)
 
-            val startOfList = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-            var endOfList = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editableText.length
+            val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
 
+            val startOfLine = boundsOfSelectedText.start
+            var endOfLine = boundsOfSelectedText.endInclusive
 
-            if (startOfList == endOfList) {   //line is empty
+            if (startOfLine == endOfLine) {   //line is empty
                 consumeSelectionEvent = true
-                editableText.append("\u200B")
-                endOfList += 1
+                editableText.insert(startOfLine, "\u200B")
+                endOfLine += 1
             }
 
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfList, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-            onSelectionChanged(endOfList, endOfList)
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            onSelectionChanged(endOfLine, endOfLine)
         }
 
 
@@ -460,30 +459,37 @@ class AztecText : EditText, TextWatcher {
                 return
             }
         } else {
+            val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+            //check if the span extends
+            if (spans.isEmpty()) return
 
-            //get whole line with this span
-
-
-            //check if span on first character before this line is BulletSpan
-
-            //get the start of this span
-
-
-            //check if span on first character after this line is BulletSpan
-
-            //get the end of this span
+            //for now we will assume that only one span can be applied at time
+            val span = spans[0]
 
 
-            //copy the span
+            val spanStart = editableText.getSpanStart(span)
+            val spanEnd = editableText.getSpanEnd(span)
+
+            val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
+
+            val startOfLine = boundsOfSelectedText.start
+            val endOfLine = boundsOfSelectedText.endInclusive
+
+            val spanExtedndsBeforeLine = spanStart < startOfLine
+            val spanExtendsBeyondLine = endOfLine < spanEnd
 
 
             //remove the span from this line
+            editableText.removeSpan(span)
 
-
-            val spans = editableText.getSpans(start, end, BulletSpan::class.java)
-            for (span in spans) {
-                editableText.removeSpan(span)
+            if (spanExtedndsBeforeLine) {
+                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, startOfLine-1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
+
+            if (spanExtendsBeyondLine) {
+                editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), endOfLine+1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
         }
     }
 
@@ -1156,3 +1162,33 @@ class AztecText : EditText, TextWatcher {
     }
 
 }// URLSpan =====================================================================================
+
+
+fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
+
+    val startOfLine: Int
+    val endOfLine: Int
+
+    val indexOfFirstLineBreak: Int
+    val indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
+
+    if (indexOfLastLineBreak > 0) {
+        val characterBeforeLastLineBreak = editable[indexOfLastLineBreak - 1]
+        if (!characterBeforeLastLineBreak.toString().equals("\n")) {
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+        } else {
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
+        }
+    } else {
+        if (indexOfLastLineBreak == -1)
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) + 1
+        else
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
+    }
+
+
+    startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
+    endOfLine = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editable.length
+
+    return IntRange(startOfLine, endOfLine)
+}

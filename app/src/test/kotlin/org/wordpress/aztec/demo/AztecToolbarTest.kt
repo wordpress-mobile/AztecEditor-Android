@@ -33,6 +33,7 @@ class AztecToolbarTest : AndroidTestCase() {
         context = MockContext()
         activity = Robolectric.setupActivity(MainActivity::class.java)
         editText = activity.findViewById(R.id.aztec) as AztecText
+        editText.setText("")
     }
 
     @Test
@@ -80,7 +81,6 @@ class AztecToolbarTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun testSimpleBulletPointStyling() {
-        editText.setText("")
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
 
         val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton
@@ -111,6 +111,49 @@ class AztecToolbarTest : AndroidTestCase() {
         Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item (addition)</li></ul>End", editText.toHtml())
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun testBulletListsWithingMultilineText() {
+        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+
+        val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton
+        Assert.assertFalse(bulletPointListBullet.isChecked)
+
+        editText.text.append("first item")
+        editText.text.append("\n")
+        editText.text.append("second item")
+        editText.text.append("\n")
+        editText.text.append("third item")
+
+
+        editText.setSelection(14)
+
+        bulletPointListBullet.performClick()
+        Assert.assertTrue(bulletPointListBullet.isChecked)
+
+        Assert.assertEquals("first item<ul><li>second item</li></ul>third item", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun testBulletListSplitWithToolbar() {
+        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+
+        val bulletPointListBullet = activity.findViewById(R.id.format_bar_button_ul) as ToggleButton
+        Assert.assertFalse(bulletPointListBullet.isChecked)
+
+        editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
+        editText.setSelection(14)
+
+        Assert.assertTrue(bulletPointListBullet.isChecked)
+        bulletPointListBullet.performClick()
+        Assert.assertFalse(bulletPointListBullet.isChecked)
+
+
+        Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.toHtml())
+    }
+
 
     @Test
     @Throws(Exception::class)
@@ -134,11 +177,6 @@ class AztecToolbarTest : AndroidTestCase() {
         Assert.assertTrue(bulletPointListBullet.isChecked)
 
         Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.toHtml())
-
-        //now while we still have all of the lines selected lets remove the BulletSpan
-        bulletPointListBullet.performClick()
-        Assert.assertFalse(bulletPointListBullet.isChecked)
-        Assert.assertEquals("first item<br>second item<br>third item", editText.toHtml())
 
     }
 

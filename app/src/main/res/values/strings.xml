@@ -8,12 +8,6 @@
     <string name="menu_redo">Redo</string>
     <string name="menu_github">GitHub</string>
 
-    <!-- Dialog -->
-    <string name="dialog_title">Insert link</string>
-    <string name="dialog_edit_hint">http(s)://</string>
-    <string name="dialog_button_ok">OK</string>
-    <string name="dialog_button_cancel">Cancel</string>
-
     <!-- Toast -->
     <string name="toast_bold">Bold</string>
     <string name="toast_italic">Italic</string>

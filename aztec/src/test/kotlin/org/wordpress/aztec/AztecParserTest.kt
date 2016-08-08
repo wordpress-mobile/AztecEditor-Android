@@ -21,13 +21,13 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
-    private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></ul>"
+    private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
-    private val HTML_QUOTE_WITH_BULLETS = "<blockquote><ul><li>1</li><li>2</li></ul></blockquote>"
+    private val HTML_QUOTE_WITH_BULLETS = "<blockquote><ul><li>Bullet</li></ul></blockquote>"
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
@@ -76,24 +76,31 @@ class AztecParserTest : AndroidTestCase() {
      *
      * @throws Exception
      */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlAll_isEqual() {
-//        val input =
-//                HTML_BOLD +
-//                HTML_ITALIC +
-//                HTML_UNDERLINE +
-//                HTML_STRIKETHROUGH +
-//                HTML_BULLET +
-//                HTML_QUOTE +
-//                HTML_LINK +
-//                HTML_UNKNOWN +
-//                HTML_COMMENT +
-//                HTML_NESTED_MIXED
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlAll_isEqual() {
+        val input =
+                HTML_BOLD +
+                HTML_ITALIC +
+                HTML_UNDERLINE +
+                HTML_STRIKETHROUGH +
+                HTML_BULLET +
+                HTML_QUOTE +
+                HTML_LINK +
+                HTML_BULLET_WITH_QUOTE +
+                HTML_UNKNOWN +
+                HTML_QUOTE_WITH_BULLETS +
+                HTML_COMMENT +
+                HTML_NESTED_MIXED +
+                HTML_NESTED_EMPTY_END +
+                HTML_NESTED_EMPTY_START +
+                HTML_NESTED_EMPTY +
+                HTML_NESTED_WITH_TEXT +
+                HTML_NESTED_INTERLEAVING
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse bold text from HTML to span to HTML.  If input and output are equal with

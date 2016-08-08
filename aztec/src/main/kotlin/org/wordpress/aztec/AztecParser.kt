@@ -64,10 +64,9 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is BulletSpan && styles[1] is QuoteSpan) {
-                    // Let a <br> follow the BulletSpan or QuoteSpan end, so next++
-                    withinBulletThenQuote(out, text, i, next++)
-                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
                     withinQuoteThenBullet(out, text, i, next++)
+                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
+                    withinBulletThenQuote(out, text, i, next++)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -236,8 +235,6 @@ class AztecParser {
                 }
 
                 withinStyle(out, text, i, next)
-
-                val startPos = out.length
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]

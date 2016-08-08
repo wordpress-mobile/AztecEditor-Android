@@ -21,11 +21,13 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
+    private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
+    private val HTML_QUOTE_WITH_BULLETS = "<blockquote><ul><li>1</li><li>2</li></ul></blockquote>"
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
@@ -126,6 +128,21 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
+     * Parse bullets with quotes from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBulletsWithQuotes_isEqual() {
+        val input =
+                HTML_BULLET_WITH_QUOTE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
     /**
      * Parse bullet with white space text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
@@ -142,6 +159,7 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(HTML_BULLET, output)
     }
 
+    /**
      * Parse comment text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
@@ -219,6 +237,22 @@ class AztecParserTest : AndroidTestCase() {
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_QUOTE, output)
+    }
+
+    /**
+     * Parse quote with bullets from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlQuoteWithBullets_isEqual() {
+        val input =
+                HTML_QUOTE_WITH_BULLETS
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
     }
 
     /**

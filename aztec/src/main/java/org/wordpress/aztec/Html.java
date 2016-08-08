@@ -600,11 +600,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
-            // we must remember how many extra newlines are added
-            int before = mSpannableStringBuilder.length();
             handleP(mSpannableStringBuilder);
-            int extra = mSpannableStringBuilder.length() - before;
-            end(mSpannableStringBuilder, Blockquote.class, new AztecQuoteSpan(extra));
+            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class,
                     new TypefaceSpan("monospace"));

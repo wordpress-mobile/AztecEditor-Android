@@ -74,9 +74,8 @@ class AztecParser {
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
                     withinBullet(out, text, i, next++)
-                } else if (styles[0] is AztecQuoteSpan) {
-                    val end = next - (styles[0] as AztecQuoteSpan).getExtraBreaks()
-                    withinQuote(out, text, i, end)
+                } else if (styles[0] is QuoteSpan) {
+                    withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else {
@@ -144,7 +143,7 @@ class AztecParser {
                 out.append("<blockquote>")
             }
 
-            withinContent(out, text, i, next + 1)
+            withinContent(out, text, i, next)
 
             for (quote in quotes) {
                 out.append("</blockquote>")
@@ -357,6 +356,9 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
+                .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+                .replace("&#8203;", "")
+                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
     }
 }

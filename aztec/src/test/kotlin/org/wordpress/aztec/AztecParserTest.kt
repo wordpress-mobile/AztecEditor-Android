@@ -31,15 +31,6 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
-    private val SPAN_BOLD = "Bold\n\n"
-    private val SPAN_BULLET = "Bullet\n\n"
-    private val SPAN_COMMENT = "Comment\n\n"
-    private val SPAN_ITALIC = "Italic\n\n"
-    private val SPAN_LINK = "Link\n\n"
-    private val SPAN_QUOTE = "Quote\n\n"
-    private val SPAN_STRIKETHROUGH = "Strikethrough\n\n"
-    private val SPAN_UNDERLINE = "Underline\n\n"
-    private val SPAN_UNKNOWN = "\uFFFC\n\n"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
             "<div class=\"first\">" +
@@ -61,6 +52,16 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_NESTED_INTERLEAVING =
             "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
             "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
+
+    private val SPAN_BOLD = "Bold\n\n"
+    private val SPAN_BULLET = "Bullet\n\n"
+    private val SPAN_COMMENT = "Comment\n\n"
+    private val SPAN_ITALIC = "Italic\n\n"
+    private val SPAN_LINK = "Link\n\n"
+    private val SPAN_QUOTE = "Quote\n\n"
+    private val SPAN_STRIKETHROUGH = "Strikethrough\n\n"
+    private val SPAN_UNDERLINE = "Underline\n\n"
+    private val SPAN_UNKNOWN = "\uFFFC\n\n"
 
     /**
      * Initialize variables.

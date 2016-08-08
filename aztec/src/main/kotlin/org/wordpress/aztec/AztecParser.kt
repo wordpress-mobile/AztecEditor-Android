@@ -360,5 +360,6 @@ class AztecParser {
                 .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</li>".toRegex(), "</li>")
     }
 }

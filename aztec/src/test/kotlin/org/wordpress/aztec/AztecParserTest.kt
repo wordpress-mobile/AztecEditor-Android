@@ -24,7 +24,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
-    private val HTML_STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br><br>" // <s> or <strike> or <del>
+    private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
     private val SPAN_BOLD = "Bold\n\n"
@@ -36,6 +36,27 @@ class AztecParserTest : AndroidTestCase() {
     private val SPAN_STRIKETHROUGH = "Strikethrough\n\n"
     private val SPAN_UNDERLINE = "Underline\n\n"
     private val SPAN_UNKNOWN = "\uFFFC\n\n"
+    private val HTML_NESTED_MIXED =
+            "<span></span>" +
+            "<div class=\"first\">" +
+            "<div class=\"second\">" +
+            "<div class=\"third\">" +
+            "Div<br><span><b>b</b></span><br>Hidden" +
+            "</div>" +
+            "<div class=\"fourth\"></div>" +
+            "<div class=\"fifth\"></div>" +
+            "</div>" +
+            "<span class=\"second last\"></span>" +
+            "<span></span><div><div><div><span></span></div></div></div><div></div>" +
+            "</div>" +
+            "<br><br>"
+    private val HTML_NESTED_EMPTY_END = "1<span></span><div><div><div><span></span>a</div><div></div><div></div></div><span></span></div>"
+    private val HTML_NESTED_EMPTY_START = "<span></span><div><div><div><span></span></div><div></div></div><span></span></div>1"
+    private val HTML_NESTED_EMPTY = "<span></span><div><div><div><span></span></div></div></div><div></div>"
+    private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>"
+    private val HTML_NESTED_INTERLEAVING =
+            "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
+            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
 
     /**
      * Initialize variables.
@@ -63,7 +84,8 @@ class AztecParserTest : AndroidTestCase() {
 //                HTML_QUOTE +
 //                HTML_LINK +
 //                HTML_UNKNOWN +
-//                HTML_COMMENT
+//                HTML_COMMENT +
+//                HTML_NESTED_MIXED
 //        val span = SpannableString(mParser.fromHtml(input, context))
 //        val output = mParser.toHtml(span)
 //        Assert.assertEquals(input, output)
@@ -171,15 +193,15 @@ class AztecParserTest : AndroidTestCase() {
      *
      * @throws Exception
      */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
-//        val input =
-//                HTML_STRIKETHROUGH
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
+        val input =
+                HTML_STRIKETHROUGH
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse underline text from HTML to span to HTML.  If input and output are equal with
@@ -201,16 +223,112 @@ class AztecParserTest : AndroidTestCase() {
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
-//     */
-//    @Test
-//    @Throws(Exception::class)
-//    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
-//        val input =
-//                HTML_UNKNOWN
-//        val span = SpannableString(mParser.fromHtml(input, context))
-//        val output = mParser.toHtml(span)
-//        Assert.assertEquals(input, output)
-//    }
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlUnknown_isEqual() {
+        val input =
+                HTML_UNKNOWN
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse nested blocks text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedMixed_isEqual() {
+        val input =
+                HTML_NESTED_MIXED
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse empty nested blocks text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedEmpty_isEqual() {
+        val input =
+                HTML_NESTED_EMPTY
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse empty nested blocks at the end from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedEmptyEnd_isEqual() {
+        val input =
+                HTML_NESTED_EMPTY_END
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse empty nested blocks at the beginning from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedEmptyStart_isEqual() {
+        val input =
+                HTML_NESTED_EMPTY_START
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse non-empty nested blocks text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedNonEmpty_isEqual() {
+        val input =
+                HTML_NESTED_WITH_TEXT
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse interleaving nested blocks text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedInterleaving_isEqual() {
+        val input =
+                HTML_NESTED_INTERLEAVING
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 
     /**
      * Parse all text from span to HTML to span.  If input and output are equal with

@@ -20,18 +20,29 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
+import java.util.*
 
 class AztecParser {
+
+    internal var hiddenIndex = 0
+    internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+    internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
     }
 
     fun toHtml(text: Spanned): String {
         val out = StringBuilder()
-        withinHtml(out, text)
+
+        // add a marker to the end of the text to aid nested group parsing
+        val data = SpannableStringBuilder(text).append('\u200B')
+
+        withinHtml(out, data)
         return tidy(out.toString())
     }
 
@@ -39,6 +50,14 @@ class AztecParser {
         var next: Int
 
         var i = 0
+
+        // keeps track of the next span to be closed
+        hiddenIndex = 0
+
+        // keeps the spans, which will be closed in the future, using the closing order index as key
+        closeMap = TreeMap()
+        openMap = TreeMap()
+
         while (i < text.length) {
             next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
 
@@ -68,6 +87,9 @@ class AztecParser {
             }
             i = next
         }
+
+        closeMap.clear()
+        openMap.clear()
     }
 
     private fun withinUnknown(unknownHtmlSpan: UnknownHtmlSpan, out: StringBuilder) {
@@ -148,6 +170,7 @@ class AztecParser {
             }
 
             withinParagraph(out, text, i, next - nl, nl)
+
             i = next
         }
     }
@@ -159,13 +182,16 @@ class AztecParser {
 
         run {
             var i = start
-            while (i < end) {
+
+            while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
-                    if (spans[j] is StyleSpan) {
-                        val style = (spans[j] as StyleSpan).style
+                    val span = spans[j]
+
+                    if (span is StyleSpan) {
+                        val style = span.style
 
                         if (style and Typeface.BOLD != 0) {
                             out.append("<b>")
@@ -176,52 +202,63 @@ class AztecParser {
                         }
                     }
 
-                    if (spans[j] is UnderlineSpan) {
+                    if (span is UnderlineSpan) {
                         out.append("<u>")
                     }
 
-                    // Use standard strikethrough tag <del> rather than <s> or <strike>
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("<del>")
+                    if (span is AztecStrikethroughSpan) {
+                        out.append("<")
+                        out.append(span.getTag())
+                        out.append(">")
                     }
 
-                    if (spans[j] is URLSpan) {
+                    if (span is URLSpan) {
                         out.append("<a href=\"")
-                        out.append((spans[j] as URLSpan).url)
+                        out.append(span.url)
                         out.append("\">")
                     }
 
-                    if (spans[j] is ImageSpan) {
+                    if (span is ImageSpan && span !is UnknownHtmlSpan) {
                         out.append("<img src=\"")
-                        out.append((spans[j] as ImageSpan).source)
+                        out.append(span.source)
                         out.append("\">")
 
                         // Don't output the dummy character underlying the image.
                         i = next
                     }
 
-                    if (spans[j] is CommentSpan) {
+                    if (span is CommentSpan) {
                         out.append("<!--")
+                    }
+
+                    if (span is HiddenHtmlSpan) {
+                        parseHiddenSpans(i, out, span, text)
                     }
                 }
 
                 withinStyle(out, text, i, next)
 
+                val startPos = out.length
+
                 for (j in spans.indices.reversed()) {
-                    if (spans[j] is URLSpan) {
+                    val span = spans[j]
+
+                    if (span is URLSpan) {
                         out.append("</a>")
                     }
 
-                    if (spans[j] is StrikethroughSpan) {
-                        out.append("</del>")
+                    if (span is AztecStrikethroughSpan) {
+                        out.append("</")
+                        out.append(span.getTag())
+                        out.append(">")
                     }
 
-                    if (spans[j] is UnderlineSpan) {
+                    if (span is UnderlineSpan) {
                         out.append("</u>")
                     }
 
-                    if (spans[j] is StyleSpan) {
-                        val style = (spans[j] as StyleSpan).style
+                    if (span is StyleSpan) {
+                        val style = span.style
 
                         if (style and Typeface.BOLD != 0) {
                             out.append("</b>")
@@ -232,10 +269,18 @@ class AztecParser {
                         }
                     }
 
-                    if (spans[j] is CommentSpan) {
+                    if (span is CommentSpan) {
                         out.append("-->")
                     }
+
+                    if (span is HiddenHtmlSpan) {
+                        parseHiddenSpans(next, out, span, text)
+                    }
                 }
+
+                if (start == end)
+                    break
+
                 i = next
             }
         }
@@ -245,10 +290,40 @@ class AztecParser {
         }
     }
 
+    private fun parseHiddenSpans(position: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
+        closeMap.put(span.endOrder, span)
+        openMap.put(span.startOrder, span)
+
+        var last: Int
+        do {
+            last = hiddenIndex
+
+            if (openMap.contains(hiddenIndex) &&
+                    !openMap[hiddenIndex]!!.isOpened &&
+                    text.getSpanStart(openMap[hiddenIndex]!!) == position) {
+                out.append(openMap[hiddenIndex]!!.startTag)
+                openMap[hiddenIndex]!!.open()
+                hiddenIndex++
+            }
+            if (closeMap.containsKey(hiddenIndex) &&
+                    !closeMap[hiddenIndex]!!.isParsed &&
+                    text.getSpanEnd(closeMap[hiddenIndex]!!) == position) {
+                out.append(closeMap[hiddenIndex]!!.endTag)
+                closeMap[hiddenIndex]!!.parse()
+                hiddenIndex++
+            }
+        } while (last != hiddenIndex)
+    }
+
     private fun withinStyle(out: StringBuilder, text: CharSequence, start: Int, end: Int) {
         var i = start
         while (i < end) {
             val c = text[i]
+
+            if (c == '\u200B') {
+                i++
+                continue
+            }
 
             if (c == '<') {
                 out.append("&lt;")
@@ -282,6 +357,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
     }
 }

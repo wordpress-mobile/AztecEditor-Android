@@ -464,29 +464,29 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             throw new RuntimeException(e);
         }
 
-//        // Fix flags and range for paragraph-type markup.
-//        Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
-//        for (int i = 0; i < obj.length; i++) {
-//            if (obj[i] instanceof UnknownHtmlSpan) {
-//                continue;
-//            }
-//            int start = mSpannableStringBuilder.getSpanStart(obj[i]);
-//            int end = mSpannableStringBuilder.getSpanEnd(obj[i]);
-//
-//            // If the last line of the range is blank, back off by one.
-//            if (end - 2 >= 0) {
-//                if (mSpannableStringBuilder.charAt(end - 1) == '\n' &&
-//                        mSpannableStringBuilder.charAt(end - 2) == '\n') {
-//                    end--;
-//                }
-//            }
-//
-//            if (end == start) {
-//                mSpannableStringBuilder.removeSpan(obj[i]);
-//            } else {
-//                mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_PARAGRAPH);
-//            }
-//        }
+        // Fix flags and range for paragraph-type markup.
+        Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
+        for (int i = 0; i < obj.length; i++) {
+            if (obj[i] instanceof UnknownHtmlSpan) {
+                continue;
+            }
+            int start = mSpannableStringBuilder.getSpanStart(obj[i]);
+            int end = mSpannableStringBuilder.getSpanEnd(obj[i]);
+
+            // If the last line of the range is blank, back off by one.
+            if (end - 2 >= 0) {
+                if (mSpannableStringBuilder.charAt(end - 1) == '\n' &&
+                        mSpannableStringBuilder.charAt(end - 2) == '\n') {
+                    end--;
+                }
+            }
+
+            if (end == start) {
+                mSpannableStringBuilder.removeSpan(obj[i]);
+            } else {
+                mSpannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_PARAGRAPH);
+            }
+        }
 
         return mSpannableStringBuilder;
     }

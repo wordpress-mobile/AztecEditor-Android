@@ -39,11 +39,8 @@ class AztecText : EditText, TextWatcher {
     private var quoteStripeWidth = 0
     private var quoteGapWidth = 0
 
-    private var inputStart = -1
-    private var inputEnd = -1
-    private var isFollowingZWJ = false
-    private var isNewline = false
     private var consumeEditEvent: Boolean = false
+    private var textChangedEvent = TextChangedEvent("", 0, 0, 0)
 
     private val historyList = LinkedList<SpannableStringBuilder>()
     private var historyWorking = false
@@ -730,81 +727,23 @@ class AztecText : EditText, TextWatcher {
         inputBefore = SpannableStringBuilder(text)
     }
 
-    var addnewBullet = false
-
-
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        val textLength = text.length
-
-
-        if (start >= 1 && count > 0) {
-            val currentCharacter = text[start]
-
-            val previousCharacter = text[start - 1]
-            if (previousCharacter.toString().equals("\u200B")) {
-                isFollowingZWJ = true
-            }
-
-
-            if (textLength > start) {
-
-                val spans = editableText.getSpans(start, start, AztecBulletSpan::class.java)
-                if (!spans.isEmpty()) {
-                    val flags = editableText.getSpanFlags(spans[0])
-
-                    val spanStart = editableText.getSpanStart(spans[0])
-                    val spanEnd = editableText.getSpanEnd(spans[0])
-
-                    if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
-                        editableText.setSpan(spans[0], spanStart, spanEnd + count, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                    }
-
-                }
-            }
-
-            if (count == 1) {
-                //special case for newline at the end of edittext
-                if (textLength == start + 1 && currentCharacter.toString().equals("\n")) {
-                    isNewline = true
-                    val paragraphSpans = getText().getSpans(inputStart, inputStart, LeadingMarginSpan::class.java)
-                    if (!paragraphSpans.isEmpty()) {
-                        addnewBullet = true
-                    }
-                }else if(textLength > start +1){
-                    val nextCharacter = text[start+1]
-
-                    if(currentCharacter.toString().equals("\n")){
-                        isNewline = true
-                        val paragraphSpans = getText().getSpans(inputStart, inputStart, LeadingMarginSpan::class.java)
-                        if (!paragraphSpans.isEmpty() && nextCharacter.toString().equals("\n")) {
-                            addnewBullet = true
-                        }
-                    }
-
-                }
-
-            }
-
+        //clear all spans from EditText when it get's empty
+        if(start == 0 && count == 0 && text.toString().equals("") && !consumeEditEvent){
+            consumeEditEvent = true
+            setText(null)
         }
 
-        inputStart = start
-        inputEnd = start + count
+        textChangedEvent = TextChangedEvent(text, start, before, count)
     }
 
     override fun afterTextChanged(text: Editable) {
         if (consumeEditEvent) {
             consumeEditEvent = false
-            isNewline = false
-            isFollowingZWJ = false
-            addnewBullet = false
             return
         }
 
         handleLists(text)
-
-        isNewline = false
-        isFollowingZWJ = false
-        addnewBullet = false
 
         if (!historyEnable || historyWorking) {
             return
@@ -821,16 +760,26 @@ class AztecText : EditText, TextWatcher {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
-
-        inputStart = -1
-        inputEnd = -1
     }
 
+    //TODO: Add support for NumberedLists
     fun handleLists(text: Editable) {
-        if (isFollowingZWJ && !isNewline) {
+        val inputStart = textChangedEvent.inputStart
+
+        val spanToOpen = textChangedEvent.getSpanToOpen(text)
+
+        if (spanToOpen != null) {
+            editableText.setSpan(spanToOpen,
+                    text.getSpanStart(spanToOpen),
+                    text.getSpanEnd(spanToOpen) + textChangedEvent.count,
+                    Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+
+
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewline()) {
             consumeEditEvent = true
             text.delete(inputStart - 1, inputStart)
-        } else if (isFollowingZWJ && isNewline) {
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
             bulletInvalid()
             consumeEditEvent = true
             if (inputStart == 1) {
@@ -838,10 +787,43 @@ class AztecText : EditText, TextWatcher {
             } else {
                 text.delete(inputStart - 2, inputStart)
             }
-        } else if (!isFollowingZWJ && addnewBullet) {
-            consumeEditEvent = true
-            text.insert(inputStart + 1, "\u200B")
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
+            val paragraphSpans = getText().getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, BulletSpan::class.java)
+            if (!paragraphSpans.isEmpty()) {
+                consumeEditEvent = true
+                text.insert(inputStart + 1, "\u200B")
+            }
         }
+    }
+
+    fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
+        val startOfLine: Int
+        val endOfLine: Int
+
+        val indexOfFirstLineBreak: Int
+        val indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
+
+        if (indexOfLastLineBreak > 0) {
+            val characterBeforeLastLineBreak = editable[indexOfLastLineBreak - 1]
+            if (characterBeforeLastLineBreak != '\n') {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+            } else {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
+            }
+        } else {
+            if (indexOfLastLineBreak == -1) {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) + 1
+            } else {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
+            }
+
+        }
+
+
+        startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
+        endOfLine = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editable.length
+
+        return IntRange(startOfLine, endOfLine)
     }
 
     fun redo() {
@@ -942,6 +924,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toHtml(): String {
+        clearComposingText()
         val parser = AztecParser()
         return parser.toHtml(editableText)
     }
@@ -983,34 +966,5 @@ class AztecText : EditText, TextWatcher {
         val FORMAT_QUOTE = 0x06
         val FORMAT_LINK = 0x07
     }
-}// URLSpan =====================================================================================
-
-
-fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
-
-    val startOfLine: Int
-    val endOfLine: Int
-
-    val indexOfFirstLineBreak: Int
-    val indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
-
-    if (indexOfLastLineBreak > 0) {
-        val characterBeforeLastLineBreak = editable[indexOfLastLineBreak - 1]
-        if (!characterBeforeLastLineBreak.toString().equals("\n")) {
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
-        } else {
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
-        }
-    } else {
-        if (indexOfLastLineBreak == -1)
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) + 1
-        else
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
-    }
-
-
-    startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-    endOfLine = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editable.length
-
-    return IntRange(startOfLine, endOfLine)
+// URLSpan =====================================================================================
 }

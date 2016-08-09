@@ -32,7 +32,7 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun styleSingleItem() {
-        editText.text.append("first item")
+        editText.append("first item")
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
         Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
     }
@@ -41,11 +41,11 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun styleMultipleSelectedItems() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
-        editText.text.append("\n")
-        editText.text.append("third item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("third item")
         editText.setSelection(0, editText.length())
 
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
@@ -56,11 +56,11 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun stylePartiallySelectedMultipleItems() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
-        editText.text.append("\n")
-        editText.text.append("third item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("third item")
         editText.setSelection(4, 15) //we partially selected first and second item
 
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
@@ -71,11 +71,11 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun styleSurroundedItem() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
-        editText.text.append("\n")
-        editText.text.append("third item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("third item")
         editText.setSelection(14)
 
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
@@ -96,7 +96,7 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun styleSingleEnteredItem() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("first item")
+        editText.append("first item")
         Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
     }
 
@@ -104,9 +104,9 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun styleMultipleEnteredItems() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
         Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>", editText.toHtml())
     }
 
@@ -114,13 +114,13 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun closingPopulatedList() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
 
-        editText.text.append("\n")
-        editText.text.append("\n")
-        editText.text.append("not in the list")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("not in the list")
         Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
     }
 
@@ -129,7 +129,7 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun closingEmptyList() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("\n")
+        editText.append("\n")
         Assert.assertEquals("", editText.toHtml().toString())
     }
 
@@ -137,10 +137,9 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun extendingListBySplittingItems() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("first item")
-        editText.text.insert(1,"\n")
+        editText.append("firstitem")
         editText.text.insert(5,"\n")
-        Assert.assertEquals("<ul><li>f</li><li>irs</li><li>t item</li></ul>", editText.toHtml().toString())
+        Assert.assertEquals("<ul><li>first</li><li>item</li></ul>", editText.toHtml().toString())
     }
 
 
@@ -158,15 +157,15 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun additionToClosedList() {
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-        editText.text.append("first item")
-        editText.text.append("\n")
-        editText.text.append("second item")
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
 
         val mark = editText.length()
 
-        editText.text.append("\n")
-        editText.text.append("\n")
-        editText.text.append("not in the list")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("not in the list")
         Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
 
         editText.text.insert(mark," (addition)")

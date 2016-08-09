@@ -73,7 +73,7 @@ class AztecParser {
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
-                    withinBullet(out, text, i, next++)
+                    withinBullet(out, text, i, next)
                 } else if (styles[0] is AztecQuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -109,25 +109,24 @@ class AztecParser {
 
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         out.append("<ul>")
+        val lines = TextUtils.split(text.substring(start..end-1), "\n")
 
-        var next: Int
+        for (i in lines.indices) {
 
-        var i = start
-        while (i < end) {
-            next = text.nextSpanTransition(i, end, BulletSpan::class.java)
-
-            val spans = text.getSpans(i, next, BulletSpan::class.java)
-            for (span in spans) {
-                out.append("<li>")
+            var lineStart = 0
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
             }
 
-            withinContent(out, text, i, next)
-            for (span in spans) {
-                out.append("</li>")
+            val lineEnd = lineStart + lines[i].length
+            if (lineStart >= lineEnd) {
+                continue
             }
-            i = next
+
+            out.append("<li>")
+            withinContent(out, text.subSequence(start..end-1) as Spanned, lineStart, lineEnd)
+            out.append("</li>")
         }
-
         out.append("</ul>")
     }
 
@@ -355,6 +354,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("<ul>(<br>)?".toRegex(), "<ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
     }
 }

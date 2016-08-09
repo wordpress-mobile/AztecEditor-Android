@@ -354,6 +354,6 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("<ul>(<br>)?".toRegex(), "<ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("(<br>)<ul>?".toRegex(), "<ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
     }
 }

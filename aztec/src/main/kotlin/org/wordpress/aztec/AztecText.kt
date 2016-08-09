@@ -88,7 +88,6 @@ class AztecText : EditText, TextWatcher {
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-
         addTextChangedListener(this)
     }
 
@@ -735,18 +734,22 @@ class AztecText : EditText, TextWatcher {
 
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        if (start >= 1) {
+        val textLength = text.length
+
+
+        if (start >= 1 && count > 0) {
+            val currentCharacter = text[start]
+
             val previousCharacter = text[start - 1]
             if (previousCharacter.toString().equals("\u200B")) {
                 isFollowingZWJ = true
             }
 
 
-            if (text.length > start) {
-                val inputedCharacter = text[start]
+            if (textLength > start) {
 
                 val spans = editableText.getSpans(start, start, AztecBulletSpan::class.java)
-                if (!spans.isEmpty() && !inputedCharacter.toString().equals("\n")) {
+                if (!spans.isEmpty()) {
                     val flags = editableText.getSpanFlags(spans[0])
 
                     val spanStart = editableText.getSpanStart(spans[0])
@@ -760,14 +763,26 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (count == 1) {
-                val currentCharacter = text[start]
-                if (currentCharacter.toString().equals("\n") && !previousCharacter.toString().equals("\n")) {
+                //special case for newline at the end of edittext
+                if (textLength == start + 1 && currentCharacter.toString().equals("\n")) {
                     isNewline = true
                     val paragraphSpans = getText().getSpans(inputStart, inputStart, LeadingMarginSpan::class.java)
                     if (!paragraphSpans.isEmpty()) {
                         addnewBullet = true
                     }
+                }else if(textLength > start +1){
+                    val nextCharacter = text[start+1]
+
+                    if(currentCharacter.toString().equals("\n")){
+                        isNewline = true
+                        val paragraphSpans = getText().getSpans(inputStart, inputStart, LeadingMarginSpan::class.java)
+                        if (!paragraphSpans.isEmpty() && nextCharacter.toString().equals("\n")) {
+                            addnewBullet = true
+                        }
+                    }
+
                 }
+
             }
 
         }
@@ -818,7 +833,11 @@ class AztecText : EditText, TextWatcher {
         } else if (isFollowingZWJ && isNewline) {
             bulletInvalid()
             consumeEditEvent = true
-            text.delete(inputStart - 1, inputStart)
+            if (inputStart == 1) {
+                text.delete(inputStart - 1, inputStart + 1)
+            } else {
+                text.delete(inputStart - 2, inputStart)
+            }
         } else if (!isFollowingZWJ && addnewBullet) {
             consumeEditEvent = true
             text.insert(inputStart + 1, "\u200B")

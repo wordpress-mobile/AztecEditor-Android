@@ -59,9 +59,7 @@ class AztecBulletSpan : BulletSpan {
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-        val lines = TextUtils.split(text.toString(), "\n")
-
-        for (i in lines.indices) {
+        TextUtils.split(text.toString(), "\n").forEach {
             val style = p.style
 
             val oldColor = p.color
@@ -87,6 +85,7 @@ class AztecBulletSpan : BulletSpan {
             p.color = oldColor
             p.style = style
         }
+
     }
 
     companion object {

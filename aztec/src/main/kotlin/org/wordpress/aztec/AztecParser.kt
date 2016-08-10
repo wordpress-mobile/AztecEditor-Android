@@ -64,17 +64,16 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is BulletSpan && styles[1] is QuoteSpan) {
-                    // Let a <br> follow the BulletSpan or QuoteSpan end, so next++
-                    withinBulletThenQuote(out, text, i, next++)
-                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
                     withinQuoteThenBullet(out, text, i, next++)
+                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
+                    withinBulletThenQuote(out, text, i, next++)
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
                     withinBullet(out, text, i, next++)
-                } else if (styles[0] is AztecQuoteSpan) {
+                } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
@@ -144,6 +143,7 @@ class AztecParser {
             }
 
             withinContent(out, text, i, next)
+
             for (quote in quotes) {
                 out.append("</blockquote>")
             }
@@ -235,8 +235,6 @@ class AztecParser {
                 }
 
                 withinStyle(out, text, i, next)
-
-                val startPos = out.length
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
@@ -355,6 +353,10 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
+                .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+                .replace("&#8203;", "")
+                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</li>".toRegex(), "</li>")
     }
 }

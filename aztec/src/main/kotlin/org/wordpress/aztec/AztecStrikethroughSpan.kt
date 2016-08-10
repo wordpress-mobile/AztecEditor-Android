@@ -1,12 +1,6 @@
 package org.wordpress.aztec
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.style.*
-
-import org.xml.sax.Attributes
+import android.text.style.StrikethroughSpan
 
 class AztecStrikethroughSpan(tag: String) : StrikethroughSpan() {
 

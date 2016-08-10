@@ -423,14 +423,15 @@ class AztecText : EditText, TextWatcher {
             val startOfLine = boundsOfSelectedText.start
             val endOfLine = boundsOfSelectedText.endInclusive
 
-            val spanExtendsBeforeLine = spanStart < startOfLine
+            val spanPrecedesLine = spanStart < startOfLine
             val spanExtendsBeyondLine = endOfLine < spanEnd
 
-
-            //remove the span from this line
+            //remove the span from all the selected lines
             editableText.removeSpan(span)
 
-            if (spanExtendsBeforeLine) {
+
+            //reapply span top "top" and "bottom"
+            if (spanPrecedesLine) {
                 editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
@@ -752,6 +753,7 @@ class AztecText : EditText, TextWatcher {
 
         val spanToOpen = textChangedEvent.getSpanToOpen(text)
 
+        //we might need to open span to add text to it
         if (spanToOpen != null) {
             editableText.setSpan(spanToOpen,
                     text.getSpanStart(spanToOpen),
@@ -919,7 +921,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editable.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)

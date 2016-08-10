@@ -397,7 +397,6 @@ class AztecText : EditText, TextWatcher {
             }
 
             editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-            onSelectionChanged(endOfLine, endOfLine)
         }
 
 
@@ -408,19 +407,6 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun bulletInvalid(start: Int, end: Int) {
-        if (start != end) {
-            val selectedText = editableText.substring(start + 1..end - 1)
-
-            //multiline text selected
-            if (selectedText.indexOf("\n") != -1) {
-                val spans = editableText.getSpans(start, end, BulletSpan::class.java)
-                for (span in spans) {
-                    editableText.removeSpan(span)
-                }
-
-                return
-            }
-        } else {
             val spans = editableText.getSpans(start, end, BulletSpan::class.java)
             //check if the span extends
             if (spans.isEmpty()) return
@@ -451,8 +437,6 @@ class AztecText : EditText, TextWatcher {
             if (spanExtendsBeyondLine) {
                 editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-
-        }
     }
 
     private fun containBullet(selStart: Int, selEnd: Int): Boolean {
@@ -729,7 +713,7 @@ class AztecText : EditText, TextWatcher {
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         //clear all spans from EditText when it get's empty
-        if(start == 0 && count == 0 && text.toString().equals("") && !consumeEditEvent){
+        if (start == 0 && count == 0 && text.toString().equals("") && !consumeEditEvent) {
             consumeEditEvent = true
             setText(null)
         }
@@ -816,7 +800,6 @@ class AztecText : EditText, TextWatcher {
             } else {
                 indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
             }
-
         }
 
 
@@ -918,7 +901,7 @@ class AztecText : EditText, TextWatcher {
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(source, context))
+        builder.append(parser.fromHtml(source, context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         text = builder
     }

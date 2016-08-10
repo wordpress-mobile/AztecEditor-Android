@@ -145,7 +145,7 @@ class BulletListTest() {
 
     @Test
     @Throws(Exception::class)
-    fun testBulletListSplitWithToolbar() {
+    fun bulletListSplitWithToolbar() {
         editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
         editText.setSelection(14)
         editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
@@ -172,6 +172,49 @@ class BulletListTest() {
 
         Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.toHtml().toString())
 
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeBulletListStyling() {
+        editText.fromHtml("<ul><li>first item</li></ul>")
+        editText.setSelection(1)
+        editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
+
+        Assert.assertEquals("first item", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeBulletListStylingForPartialSelection() {
+        editText.fromHtml("<ul><li>first item</li></ul>")
+        editText.setSelection(2,4)
+        editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
+
+        Assert.assertEquals("first item", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeBulletListStylingForMultilinePartialSelection() {
+        editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        val firstMark = editText.length() - 4
+        editText.append("\n")
+        editText.append("third item")
+        editText.append("\n")
+        val secondMark = editText.length() - 4
+        editText.append("fourth item")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("not in list")
+
+        editText.setSelection(firstMark,secondMark)
+        editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
+
+        Assert.assertEquals("<ul><li>first item</li></ul>second item<br>third item<ul><li>fourth item</li></ul>not in list", editText.toHtml())
     }
 
 

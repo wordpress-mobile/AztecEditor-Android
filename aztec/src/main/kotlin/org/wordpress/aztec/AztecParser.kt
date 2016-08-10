@@ -112,14 +112,15 @@ class AztecParser {
         val lines = TextUtils.split(text.substring(start..end-1), "\n")
 
         for (i in lines.indices) {
-
             var lineStart = 0
             for (j in 0..i - 1) {
                 lineStart += lines[j].length + 1
             }
 
+            val isZWJ = (lines[i].length == 1 && lines[i][0] == '\u200B')
+
             val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
+            if (lineStart >= lineEnd || isZWJ) {
                 continue
             }
 

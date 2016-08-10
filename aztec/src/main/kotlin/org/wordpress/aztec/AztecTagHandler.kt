@@ -61,7 +61,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             BULLET_UL -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n")
+                    output.append("\n\n")
                 }
                 if (opening) {
                     start(output, Ul())

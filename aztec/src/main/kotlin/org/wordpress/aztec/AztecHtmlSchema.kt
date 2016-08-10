@@ -1,7 +1,5 @@
 package org.wordpress.aztec
 
-import org.ccil.cowan.tagsoup.AttributesImpl
-import org.ccil.cowan.tagsoup.ElementType
 import org.ccil.cowan.tagsoup.HTMLSchema
 
 class AztecHtmlSchema : HTMLSchema() {

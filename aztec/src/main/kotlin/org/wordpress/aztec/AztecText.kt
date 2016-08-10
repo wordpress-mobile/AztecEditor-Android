@@ -909,7 +909,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toHtml(): String {
-        clearComposingText()
+        clearComposingText() //remove formatting provided by autosuggestion (like <u>)
         val parser = AztecParser()
         return parser.toHtml(editableText)
     }

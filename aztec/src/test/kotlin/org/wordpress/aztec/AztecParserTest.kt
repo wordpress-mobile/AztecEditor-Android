@@ -24,34 +24,34 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
-    private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
+    private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
     private val HTML_QUOTE_WITH_BULLETS = "<blockquote><ul><li>Bullet</li></ul></blockquote>"
-    private val HTML_STRIKETHROUGH = "<s>Strikethrough</s><br><br>" // <s> or <strike> or <del>
+    private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
-            "<div class=\"first\">" +
-            "<div class=\"second\">" +
-            "<div class=\"third\">" +
-            "Div<br><span><b>b</b></span><br>Hidden" +
-            "</div>" +
-            "<div class=\"fourth\"></div>" +
-            "<div class=\"fifth\"></div>" +
-            "</div>" +
-            "<span class=\"second last\"></span>" +
-            "<span></span><div><div><div><span></span></div></div></div><div></div>" +
-            "</div>" +
-            "<br><br>"
+                    "<div class=\"first\">" +
+                    "<div class=\"second\">" +
+                    "<div class=\"third\">" +
+                    "Div<br><span><b>b</b></span><br>Hidden" +
+                    "</div>" +
+                    "<div class=\"fourth\"></div>" +
+                    "<div class=\"fifth\"></div>" +
+                    "</div>" +
+                    "<span class=\"second last\"></span>" +
+                    "<span></span><div><div><div><span></span></div></div></div><div></div>" +
+                    "</div>" +
+                    "<br><br>"
     private val HTML_NESTED_EMPTY_END = "1<span></span><div><div><div><span></span>a</div><div></div><div></div></div><span></span></div>"
     private val HTML_NESTED_EMPTY_START = "<span></span><div><div><div><span></span></div><div></div></div><span></span></div>1"
     private val HTML_NESTED_EMPTY = "<span></span><div><div><div><span></span></div></div></div><div></div>"
     private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>"
     private val HTML_NESTED_INTERLEAVING =
             "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
-            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
+                    "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
 
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_BULLET = "Bullet\n\n"
@@ -82,22 +82,22 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlAll_isEqual() {
         val input =
                 HTML_BOLD +
-                HTML_ITALIC +
-                HTML_UNDERLINE +
-                HTML_STRIKETHROUGH +
-                HTML_BULLET +
-                HTML_QUOTE +
-                HTML_LINK +
-                HTML_BULLET_WITH_QUOTE +
-                HTML_UNKNOWN +
-                HTML_QUOTE_WITH_BULLETS +
-                HTML_COMMENT +
-                HTML_NESTED_MIXED +
-                HTML_NESTED_EMPTY_END +
-                HTML_NESTED_EMPTY_START +
-                HTML_NESTED_EMPTY +
-                HTML_NESTED_WITH_TEXT +
-                HTML_NESTED_INTERLEAVING
+                        HTML_ITALIC +
+                        HTML_UNDERLINE +
+                        HTML_STRIKETHROUGH +
+                        HTML_BULLET +
+                        HTML_QUOTE +
+                        HTML_LINK +
+                        HTML_BULLET_WITH_QUOTE +
+                        HTML_UNKNOWN +
+                        HTML_QUOTE_WITH_BULLETS +
+                        HTML_COMMENT +
+                        HTML_NESTED_MIXED +
+                        HTML_NESTED_EMPTY_END +
+                        HTML_NESTED_EMPTY_START +
+                        HTML_NESTED_EMPTY +
+                        HTML_NESTED_WITH_TEXT +
+                        HTML_NESTED_INTERLEAVING
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -417,14 +417,14 @@ class AztecParserTest : AndroidTestCase() {
     fun parseSpanToHtmlToSpanAll_isEqual() {
         val input = SpannableString(
                 SPAN_BOLD +
-                SPAN_ITALIC +
-                SPAN_UNDERLINE +
-                SPAN_STRIKETHROUGH +
-                SPAN_BULLET +
-                SPAN_QUOTE +
-                SPAN_LINK +
-                SPAN_UNKNOWN +
-                SPAN_COMMENT
+                        SPAN_ITALIC +
+                        SPAN_UNDERLINE +
+                        SPAN_STRIKETHROUGH +
+                        SPAN_BULLET +
+                        SPAN_QUOTE +
+                        SPAN_LINK +
+                        SPAN_UNKNOWN +
+                        SPAN_COMMENT
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)

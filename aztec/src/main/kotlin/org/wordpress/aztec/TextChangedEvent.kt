@@ -8,6 +8,7 @@ import android.text.style.BulletSpan
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val count: Int) {
 
     val inputStart = start
+    val inputEnd = start + count
 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (start >= 1 && count > 0) {

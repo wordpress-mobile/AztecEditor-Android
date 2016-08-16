@@ -145,7 +145,7 @@ class AztecText : EditText, TextWatcher {
 
     fun styleValid(style: Int, start: Int, end: Int) {
         when (style) {
-            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC -> {
+            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC -> {
             }
             else -> return
         }
@@ -154,8 +154,164 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        var precedingSpan: StyleSpan? = null
+        var followingSpan: StyleSpan? = null
+
+        if (start > 1) {
+            val previousSpans = editableText.getSpans(start - 1, start, StyleSpan::class.java)
+            previousSpans.forEach {
+                if (it.style == style) {
+                    precedingSpan = it
+                    return@forEach
+                }
+            }
+
+        }
+
+        if (length() > end) {
+            val nextSpans = editableText.getSpans(end, end + 1, StyleSpan::class.java)
+            nextSpans.forEach {
+                if (it.style == style) {
+                    followingSpan = it
+                    return@forEach
+                }
+            }
+        }
+
+
+        if (precedingSpan != null) {
+            val spanStart = editableText.getSpanStart(precedingSpan)
+            editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+
+
+        if (followingSpan != null) {
+            val spanEnd = editableText.getSpanEnd(followingSpan)
+            editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+        }
+
+        if (precedingSpan == null && followingSpan == null) {
+            var existingSpanOfSameStyle: StyleSpan? = null
+
+            val spans = editableText.getSpans(start, end, StyleSpan::class.java)
+            spans.forEach {
+                if (it.style == style) {
+                    existingSpanOfSameStyle = it
+                    return@forEach
+                }
+            }
+
+            if (existingSpanOfSameStyle != null) {
+                editableText.removeSpan(editableText)
+                editableText.setSpan(existingSpanOfSameStyle, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            } else {
+                editableText.setSpan(StyleSpan(style), start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
+
+        }
+
+
+        joinStyleSpans(start, end)
     }
+
+
+
+
+    //TODO: Check if there is more efficient way to do it
+    //TODO: Make it work with other spans (underline, strikethrough)
+    fun joinStyleSpans(start: Int, end: Int) {
+        //joins spans on the left
+        if (start > 1) {
+            val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
+
+            val spansBeforeSelection = editableText.getSpans(start - 1, start, StyleSpan::class.java)
+            spansInSelection.forEach { innerSpan ->
+                val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
+
+                spansBeforeSelection.forEach { outerSpan ->
+                    val outerSpanStart = editableText.getSpanStart(outerSpan)
+
+                    if (innerSpan.style == outerSpan.style) {
+                        editableText.removeSpan(outerSpan)
+                        editableText.setSpan(innerSpan, outerSpanStart, inSelectionSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
+
+
+                }
+            }
+        }
+
+        //joins spans on the right
+        if (length() > end) {
+            val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
+
+            val spansAfterSelection = editableText.getSpans(end, end + 1, StyleSpan::class.java)
+            spansInSelection.forEach { innerSpan ->
+                val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
+                spansAfterSelection.forEach { outerSpan ->
+                    val outerSpanEnd = editableText.getSpanEnd(outerSpan)
+
+                    if (innerSpan.style == outerSpan.style) {
+                        editableText.removeSpan(outerSpan)
+                        editableText.setSpan(innerSpan, inSelectionSpanStart, outerSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
+
+
+                }
+            }
+
+
+        }
+
+
+        //joins spans withing
+        val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
+        val spansToUse = editableText.getSpans(start, end, StyleSpan::class.java)
+
+        spansInSelection.forEach { appliedSpan ->
+
+            val spanStart = editableText.getSpanStart(appliedSpan)
+            val spanEnd = editableText.getSpanEnd(appliedSpan)
+
+            var neighbourSpan: StyleSpan? = null
+
+
+            spansToUse.forEach {
+                val aSpanStart = editableText.getSpanStart(it)
+                val aSpanEnd = editableText.getSpanEnd(it)
+                if (it.style == appliedSpan.style) {
+
+                    if (aSpanStart == spanEnd || aSpanEnd == spanStart) {
+                        neighbourSpan = it
+                        return@forEach
+                    }
+
+                }
+            }
+
+            if (neighbourSpan != null) {
+                val neighbourSpanStart = editableText.getSpanStart(neighbourSpan)
+                val neighbourSpanEnd = editableText.getSpanEnd(neighbourSpan)
+
+                if (neighbourSpanStart == -1 || neighbourSpanEnd == -1)
+                    return@forEach
+
+                //span we want to join is on the left
+                if (spanStart == neighbourSpanEnd) {
+                    editableText.setSpan(appliedSpan, neighbourSpanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                } else if (spanEnd == neighbourSpanStart) {
+                    editableText.setSpan(appliedSpan, spanStart, neighbourSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+                editableText.removeSpan(neighbourSpan)
+
+            }
+
+
+        }
+
+
+    }
+
 
     protected fun styleInvalid(style: Int, start: Int, end: Int) {
         when (style) {
@@ -189,6 +345,8 @@ class AztecText : EditText, TextWatcher {
                 }
             }
         }
+
+        joinStyleSpans(start, end)
     }
 
     protected fun containStyle(style: Int, start: Int, end: Int): Boolean {
@@ -1025,18 +1183,6 @@ class AztecText : EditText, TextWatcher {
 
     // Helper ======================================================================================
 
-//    operator fun contains(format: Int): Boolean {
-//        when (format) {
-//            FORMAT_BOLD -> return containStyle(Typeface.BOLD, selectionStart, selectionEnd)
-//            FORMAT_ITALIC -> return containStyle(Typeface.ITALIC, selectionStart, selectionEnd)
-//            FORMAT_UNDERLINED -> return containUnderline(selectionStart, selectionEnd)
-//            FORMAT_STRIKETHROUGH -> return containStrikethrough(selectionStart, selectionEnd)
-//            FORMAT_BULLET -> return containBullet(selectionStart, selectionEnd)
-//            FORMAT_QUOTE -> return containQuote()
-//            FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
-//            else -> return false
-//        }
-//    }
 
     fun clearFormats() {
         setText(editableText.toString())
@@ -1060,6 +1206,7 @@ class AztecText : EditText, TextWatcher {
         val parser = AztecParser()
         builder.append(parser.fromHtml(source, context).trim())
         switchToAztecStyle(builder, 0, builder.length)
+        consumeEditEvent = true
         text = builder
     }
 

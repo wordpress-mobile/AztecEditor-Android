@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <dimen name="bullet_gap">8dp</dimen>
+    <dimen name="bullet_width">2dp</dimen>
+    <dimen name="quote_gap">8dp</dimen>
+    <dimen name="quote_width">2dp</dimen>
+
+</resources>

@@ -19,6 +19,7 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
+import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.method.LinkMovementMethod
 import android.text.style.*
@@ -61,14 +62,17 @@ class AztecText : EditText, TextWatcher {
 
     private fun init(attrs: AttributeSet?) {
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText)
-        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, 0)
+        setBackgroundColor(array.getColor(R.styleable.AztecText_background, ContextCompat.getColor(context, R.color.background)))
+        setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
+        setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
+        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, ContextCompat.getColor(context, R.color.bullet))
         bulletRadius = array.getDimensionPixelSize(R.styleable.AztecText_bulletRadius, 0)
         bulletGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletGapWidth, 0)
         historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, true)
         historySize = array.getInt(R.styleable.AztecText_historySize, 100)
-        linkColor = array.getColor(R.styleable.AztecText_linkColor, 0)
+        linkColor = array.getColor(R.styleable.AztecText_linkColor, ContextCompat.getColor(context, R.color.link))
         linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, true)
-        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, 0)
+        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, ContextCompat.getColor(context, R.color.quote))
         quoteStripeWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteStripeWidth, 0)
         quoteGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteCapWidth, 0)
         array.recycle()

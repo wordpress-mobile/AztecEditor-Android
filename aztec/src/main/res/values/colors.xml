@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- APPLICATION -->
+    <color name="background">@color/white</color>
+    <color name="bullet">@color/text</color>
+    <color name="link">@color/blue_wordpress</color>
+    <color name="quote">@color/text</color>
+    <color name="text">@color/grey_dark</color>
+    <color name="text_hint">@color/grey_disabled</color>
+
+    <!-- STANDARD -->
+    <color name="white">#ffffffff</color>
+
+    <!-- WORDPRESS -->
+    <color name="blue_wordpress">#ff0087be</color>
+    <color name="grey_dark">#ff2e4453</color>
+    <color name="grey_disabled">#ff668eaa</color>
+
+</resources>

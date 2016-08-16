@@ -20,7 +20,6 @@ import org.wordpress.aztec.toolbar.FormatToolbar
 @Config(constants = BuildConfig::class)
 class AztecToolbarTest {
 
-    lateinit var activity: Activity
     lateinit var editText: AztecText
     lateinit var toolbar: FormatToolbar
 

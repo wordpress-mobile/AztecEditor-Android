@@ -1,9 +1,7 @@
 package org.wordpress.aztec.toolbar
 
-import android.content.ClipboardManager
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Patterns
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -140,18 +138,4 @@ class FormatToolbar : FrameLayout {
         if (!isEditorAttached()) return
     }
 
-
-    /**
-     * Checks the Clipboard for text that matches the [Patterns.WEB_URL] pattern.
-
-     * @return the URL text in the clipboard, if it exists; otherwise null
-     */
-    fun getUrlFromClipboard(context: Context?): String? {
-        if (context == null) return null
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val data = clipboard?.primaryClip
-        if (data == null || data.itemCount <= 0) return null
-        val clipText = data.getItemAt(0).text.toString()
-        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else null
-    }
 }

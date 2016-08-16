@@ -313,7 +313,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    protected fun styleInvalid(style: Int, start: Int, end: Int) {
+    private fun styleInvalid(style: Int, start: Int, end: Int) {
         when (style) {
             Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC -> {
             }
@@ -349,7 +349,7 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
-    protected fun containStyle(style: Int, start: Int, end: Int): Boolean {
+    private fun containStyle(style: Int, start: Int, end: Int): Boolean {
         when (style) {
             Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC -> {
             }
@@ -396,7 +396,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun underlineValid(start: Int, end: Int) {
+    private fun underlineValid(start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -430,7 +430,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun containUnderline(start: Int, end: Int): Boolean {
+    private fun containUnderline(start: Int, end: Int): Boolean {
         if (start > end) {
             return false
         }
@@ -474,7 +474,7 @@ class AztecText : EditText, TextWatcher {
         editableText.setSpan(StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
-    protected fun strikethroughInvalid(start: Int, end: Int) {
+    private fun strikethroughInvalid(start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -714,7 +714,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun quoteValid() {
+    private fun quoteValid() {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
@@ -785,7 +785,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun containQuote(selStart: Int, selEnd: Int): Boolean {
+    private fun containQuote(selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -845,7 +845,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun linkValid(link: String, start: Int, end: Int) {
+    private fun linkValid(link: String, start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -866,7 +866,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun containLink(start: Int, end: Int): Boolean {
+    private fun containLink(start: Int, end: Int): Boolean {
         if (start > end) {
             return false
         }
@@ -1244,14 +1244,5 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    companion object {
-        val FORMAT_BOLD = 0x01
-        val FORMAT_ITALIC = 0x02
-        val FORMAT_UNDERLINED = 0x03
-        val FORMAT_STRIKETHROUGH = 0x04
-        val FORMAT_BULLET = 0x05
-        val FORMAT_QUOTE = 0x06
-        val FORMAT_LINK = 0x07
-    }
 // URLSpan =====================================================================================
 }

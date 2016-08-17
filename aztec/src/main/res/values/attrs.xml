@@ -13,7 +13,7 @@
         <attr name="linkUnderline" format="reference|boolean" />
         <attr name="quoteColor" format="reference|color" />
         <attr name="quoteStripeWidth" format="reference|dimension" />
-        <attr name="quoteCapWidth" format="reference|dimension" />
+        <attr name="quoteGapWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
     </declare-styleable>

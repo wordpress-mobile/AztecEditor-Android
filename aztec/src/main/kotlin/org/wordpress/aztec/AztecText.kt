@@ -74,7 +74,7 @@ class AztecText : EditText, TextWatcher {
         linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, resources.getBoolean(R.bool.link_underline))
         quoteColor = array.getColor(R.styleable.AztecText_quoteColor, ContextCompat.getColor(context, R.color.quote))
         quoteStripeWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteStripeWidth, resources.getDimensionPixelSize(R.dimen.quote_width))
-        quoteGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteCapWidth, resources.getDimensionPixelSize(R.dimen.quote_gap))
+        quoteGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteGapWidth, resources.getDimensionPixelSize(R.dimen.quote_gap))
         array.recycle()
 
         if (historyEnable && historySize <= 0) {

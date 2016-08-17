@@ -123,7 +123,7 @@
             app:linkUnderline="true"
             app:quoteColor="@color/blue_500"
             app:quoteStripeWidth="@dimen/quote_stripe_width"
-            app:quoteCapWidth="@dimen/quote_gap_width">
+            app:quoteGapWidth="@dimen/quote_gap_width">
     </org.wordpress.aztec.AztecText>
 
 </RelativeLayout>

@@ -115,15 +115,15 @@
             android:scrollbars="vertical"
             android:background="@android:color/transparent"
             app:bulletColor="@color/blue_500"
-            app:bulletRadius="@dimen/bullet_radius"
-            app:bulletGapWidth="@dimen/bullet_gap_width"
+            app:bulletWidth="@dimen/bullet_radius"
+            app:bulletGap="@dimen/bullet_gap_width"
             app:historyEnable="true"
             app:historySize="99"
             app:linkColor="@color/blue_500"
             app:linkUnderline="true"
             app:quoteColor="@color/blue_500"
-            app:quoteStripeWidth="@dimen/quote_stripe_width"
-            app:quoteGapWidth="@dimen/quote_gap_width">
+            app:quoteWidth="@dimen/quote_stripe_width"
+            app:quoteGap="@dimen/quote_gap_width">
     </org.wordpress.aztec.AztecText>
 
 </RelativeLayout>

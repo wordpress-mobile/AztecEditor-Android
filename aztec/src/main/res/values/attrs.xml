@@ -5,15 +5,15 @@
     <declare-styleable name="AztecText">
         <attr name="background" format="reference|color" />
         <attr name="bulletColor" format="reference|color" />
-        <attr name="bulletRadius" format="reference|dimension" />
-        <attr name="bulletGapWidth" format="reference|dimension" />
+        <attr name="bulletGap" format="reference|dimension" />
+        <attr name="bulletWidth" format="reference|dimension" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
         <attr name="linkColor" format="reference|color" />
         <attr name="linkUnderline" format="reference|boolean" />
         <attr name="quoteColor" format="reference|color" />
-        <attr name="quoteStripeWidth" format="reference|dimension" />
-        <attr name="quoteGapWidth" format="reference|dimension" />
+        <attr name="quoteGap" format="reference|dimension" />
+        <attr name="quoteWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
     </declare-styleable>

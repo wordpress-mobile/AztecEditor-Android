@@ -29,11 +29,13 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
     private var quoteBackground: Int = 0
     private var quoteColor: Int = 0
     private var quoteGap: Int = 0
+    private var quoteMargin: Int = 0
     private var quoteWidth: Int = 0
 
-    constructor(quoteBackground: Int, quoteColor: Int, quoteWidth: Int, quoteGap: Int) {
+    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quoteGap: Int) {
         this.quoteBackground = quoteBackground
         this.quoteColor = quoteColor
+        this.quoteMargin = quoteMargin
         this.quoteWidth = quoteWidth
         this.quoteGap = quoteGap
     }
@@ -41,6 +43,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
     constructor(src: Parcel) : super(src) {
         this.quoteBackground = src.readInt()
         this.quoteColor = src.readInt()
+        this.quoteMargin = src.readInt()
         this.quoteWidth = src.readInt()
         this.quoteGap = src.readInt()
     }
@@ -49,12 +52,13 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
         super.writeToParcel(dest, flags)
         dest.writeInt(quoteBackground)
         dest.writeInt(quoteColor)
+        dest.writeInt(quoteMargin)
         dest.writeInt(quoteWidth)
         dest.writeInt(quoteGap)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteWidth + quoteGap
+        return quoteMargin + quoteWidth + quoteGap
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -66,7 +70,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
 
         p.style = Paint.Style.FILL
         p.color = quoteColor
-        c.drawRect(x.toFloat(), top.toFloat(), (x + dir * quoteWidth).toFloat(), bottom.toFloat(), p)
+        c.drawRect(x.toFloat() + quoteMargin, top.toFloat(), (x + quoteMargin + dir * quoteWidth).toFloat(), bottom.toFloat(), p)
 
         p.style = style
         p.color = color
@@ -78,7 +82,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
                                 lnum: Int) {
         val paintColor = p.color
         p.color = quoteBackground
-        c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(), p)
+        c.drawRect(left.toFloat() + quoteMargin, top.toFloat(), right.toFloat(), bottom.toFloat(), p)
         p.color = paintColor
     }
 }

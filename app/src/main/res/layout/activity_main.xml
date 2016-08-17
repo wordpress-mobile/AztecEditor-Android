@@ -132,6 +132,7 @@
             android:scrollbars="vertical"
             aztec:background="@android:color/transparent"
             aztec:bulletColor="@color/blue_500"
+            aztec:bulletMargin="@dimen/bullet_margin"
             aztec:bulletGap="@dimen/bullet_gap"
             aztec:bulletWidth="@dimen/bullet_width"
             aztec:historyEnable="true"

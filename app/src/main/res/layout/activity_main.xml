@@ -126,4 +126,23 @@
             app:quoteCapWidth="@dimen/quote_gap_width">
     </org.wordpress.aztec.AztecText>
 
+    <org.wordpress.aztec.SourceViewEditText
+        android:id="@+id/source"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/tools"
+        android:paddingTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="top|start"
+        android:scrollbars="vertical"
+        android:textSize="14sp"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        app:fontFile="DejaVuSansMono.ttf">
+    </org.wordpress.aztec.SourceViewEditText>
+
 </RelativeLayout>

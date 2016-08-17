@@ -4,16 +4,20 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.*
 
-class MainActivity : Activity() {
+class MainActivity : Activity(), OnImeBackListener {
+
     companion object {
         private val BOLD = "<b>Bold</b><br><br>"
         private val ITALIC = "<i>Italic</i><br><br>"
@@ -41,12 +45,18 @@ class MainActivity : Activity() {
     }
 
     private lateinit var aztec: AztecText
+    private lateinit var source: SourceViewEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+        source = findViewById(R.id.source) as SourceViewEditText
+
+        source.setOnImeBackListener(this)
+        source.addTextChangedListener(HtmlStyleTextWatcher());
+
         // ImageGetter coming soon...
         aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
@@ -61,6 +71,11 @@ class MainActivity : Activity() {
         setupClear()
         setupHtml()
     }
+
+    override fun onImeBack() {
+
+    }
+
 
     private fun setupBold() {
         val bold = findViewById(R.id.bold) as ImageButton
@@ -154,7 +169,15 @@ class MainActivity : Activity() {
     private fun setupHtml() {
         val html = findViewById(R.id.html) as Button
 
-        html.setOnClickListener { aztec.setText(aztec.toHtml()) }
+        html.setOnClickListener {
+
+            val styledHtml = android.text.SpannableString(aztec.toHtml())
+            HtmlStyleUtils.styleHtmlForDisplay(styledHtml)
+
+            aztec.visibility = View.GONE;
+            source.setText(styledHtml)
+            source.visibility = View.VISIBLE
+        }
 
         html.setOnLongClickListener {
             Toast.makeText(this@MainActivity, R.string.toast_html, Toast.LENGTH_SHORT).show()

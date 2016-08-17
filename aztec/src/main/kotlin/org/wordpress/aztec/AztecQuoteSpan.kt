@@ -26,30 +26,30 @@ import android.text.style.QuoteSpan
 class AztecQuoteSpan : QuoteSpan {
 
     private var quoteColor: Int = 0
-    private var quoteStripeWidth: Int = 0
-    private var quoteGapWidth: Int = 0
+    private var quoteGap: Int = 0
+    private var quoteWidth: Int = 0
 
-    constructor(quoteColor: Int, quoteStripeWidth: Int, quoteGapWidth: Int) {
+    constructor(quoteColor: Int, quoteWidth: Int, quoteGap: Int) {
         this.quoteColor = quoteColor
-        this.quoteStripeWidth = quoteStripeWidth
-        this.quoteGapWidth = quoteGapWidth
+        this.quoteWidth = quoteWidth
+        this.quoteGap = quoteGap
     }
 
     constructor(src: Parcel) : super(src) {
         this.quoteColor = src.readInt()
-        this.quoteStripeWidth = src.readInt()
-        this.quoteGapWidth = src.readInt()
+        this.quoteWidth = src.readInt()
+        this.quoteGap = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         dest.writeInt(quoteColor)
-        dest.writeInt(quoteStripeWidth)
-        dest.writeInt(quoteGapWidth)
+        dest.writeInt(quoteWidth)
+        dest.writeInt(quoteGap)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteStripeWidth + quoteGapWidth
+        return quoteWidth + quoteGap
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -61,7 +61,7 @@ class AztecQuoteSpan : QuoteSpan {
 
         p.style = Paint.Style.FILL
         p.color = quoteColor
-        c.drawRect(x.toFloat(), top.toFloat(), (x + dir * quoteGapWidth).toFloat(), bottom.toFloat(), p)
+        c.drawRect(x.toFloat(), top.toFloat(), (x + dir * quoteGap).toFloat(), bottom.toFloat(), p)
 
         p.style = style
         p.color = color

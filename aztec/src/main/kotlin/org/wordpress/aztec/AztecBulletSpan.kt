@@ -28,30 +28,30 @@ import android.text.style.BulletSpan
 class AztecBulletSpan : BulletSpan {
 
     private var bulletColor: Int = 0
-    private var bulletRadius: Int = 0
-    private var bulletGapWidth: Int = 0
+    private var bulletGap: Int = 0
+    private var bulletWidth: Int = 0
 
-    constructor(bulletColor: Int, bulletRadius: Int, bulletGapWidth: Int) {
+    constructor(bulletColor: Int, bulletWidth: Int, bulletGap: Int) {
         this.bulletColor = bulletColor
-        this.bulletRadius = bulletRadius
-        this.bulletGapWidth = bulletGapWidth
+        this.bulletWidth = bulletWidth
+        this.bulletGap = bulletGap
     }
 
     constructor(src: Parcel) : super(src) {
         this.bulletColor = src.readInt()
-        this.bulletRadius = src.readInt()
-        this.bulletGapWidth = src.readInt()
+        this.bulletWidth = src.readInt()
+        this.bulletGap = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         dest.writeInt(bulletColor)
-        dest.writeInt(bulletRadius)
-        dest.writeInt(bulletGapWidth)
+        dest.writeInt(bulletWidth)
+        dest.writeInt(bulletGap)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return 2 * bulletRadius + bulletGapWidth
+        return 2 * bulletWidth + bulletGap
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -69,15 +69,15 @@ class AztecBulletSpan : BulletSpan {
                 if (bulletPath == null) {
                     bulletPath = Path()
                     // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                    bulletPath!!.addCircle(0.0f, 0.0f, bulletRadius.toFloat(), Path.Direction.CW)
+                    bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
                 }
 
                 c.save()
-                c.translate((x + dir * bulletRadius).toFloat(), (top + bottom) / 2.0f)
+                c.translate((x + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
                 c.drawPath(bulletPath!!, p)
                 c.restore()
             } else {
-                c.drawCircle((x + dir * bulletRadius).toFloat(), (top + bottom) / 2.0f, bulletRadius.toFloat(), p)
+                c.drawCircle((x + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
             }
 
             p.color = oldColor

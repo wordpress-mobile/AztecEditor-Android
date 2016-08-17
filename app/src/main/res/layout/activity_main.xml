@@ -133,7 +133,7 @@
             aztec:background="@android:color/transparent"
             aztec:bulletColor="@color/blue_500"
             aztec:bulletMargin="@dimen/bullet_margin"
-            aztec:bulletGap="@dimen/bullet_gap"
+            aztec:bulletPadding="@dimen/bullet_padding"
             aztec:bulletWidth="@dimen/bullet_width"
             aztec:historyEnable="true"
             aztec:historySize="10"
@@ -143,8 +143,8 @@
             aztec:linkUnderline="false"
             aztec:quoteBackground="@color/blue_700"
             aztec:quoteColor="@color/blue_500"
-            aztec:quoteGap="@dimen/quote_gap"
             aztec:quoteMargin="@dimen/quote_margin"
+            aztec:quotePadding="@dimen/quote_padding"
             aztec:quoteWidth="@dimen/quote_width"
             aztec:textColor="@android:color/white"
             aztec:textColorHint="@android:color/darker_gray" >

@@ -28,16 +28,16 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
 
     private var quoteBackground: Int = 0
     private var quoteColor: Int = 0
-    private var quoteGap: Int = 0
     private var quoteMargin: Int = 0
+    private var quotePadding: Int = 0
     private var quoteWidth: Int = 0
 
-    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quoteGap: Int) {
+    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int) {
         this.quoteBackground = quoteBackground
         this.quoteColor = quoteColor
         this.quoteMargin = quoteMargin
         this.quoteWidth = quoteWidth
-        this.quoteGap = quoteGap
+        this.quotePadding = quotePadding
     }
 
     constructor(src: Parcel) : super(src) {
@@ -45,7 +45,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
         this.quoteColor = src.readInt()
         this.quoteMargin = src.readInt()
         this.quoteWidth = src.readInt()
-        this.quoteGap = src.readInt()
+        this.quotePadding = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -54,11 +54,11 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
         dest.writeInt(quoteColor)
         dest.writeInt(quoteMargin)
         dest.writeInt(quoteWidth)
-        dest.writeInt(quoteGap)
+        dest.writeInt(quotePadding)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteMargin + quoteWidth + quoteGap
+        return quoteMargin + quoteWidth + quotePadding
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,

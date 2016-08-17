@@ -2,10 +2,10 @@
 
 <resources>
 
-    <dimen name="bullet_gap">8dp</dimen>
+    <dimen name="bullet_padding">8dp</dimen>
     <dimen name="bullet_margin">16dp</dimen>
     <dimen name="bullet_width">2dp</dimen>
-    <dimen name="quote_gap">8dp</dimen>
+    <dimen name="quote_padding">8dp</dimen>
     <dimen name="quote_margin">16dp</dimen>
     <dimen name="quote_width">2dp</dimen>
     <dimen name="spacing_extra">16dp</dimen>

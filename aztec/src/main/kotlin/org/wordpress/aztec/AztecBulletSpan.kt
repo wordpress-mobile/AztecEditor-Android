@@ -28,22 +28,22 @@ import android.text.style.BulletSpan
 class AztecBulletSpan : BulletSpan {
 
     private var bulletColor: Int = 0
-    private var bulletGap: Int = 0
     private var bulletMargin: Int = 0
+    private var bulletPadding: Int = 0
     private var bulletWidth: Int = 0
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletGap: Int) {
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
         this.bulletColor = bulletColor
         this.bulletMargin = bulletMargin
         this.bulletWidth = bulletWidth
-        this.bulletGap = bulletGap
+        this.bulletPadding = bulletPadding
     }
 
     constructor(src: Parcel) : super(src) {
         this.bulletColor = src.readInt()
         this.bulletMargin = src.readInt()
         this.bulletWidth = src.readInt()
-        this.bulletGap = src.readInt()
+        this.bulletPadding = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -51,11 +51,11 @@ class AztecBulletSpan : BulletSpan {
         dest.writeInt(bulletColor)
         dest.writeInt(bulletMargin)
         dest.writeInt(bulletWidth)
-        dest.writeInt(bulletGap)
+        dest.writeInt(bulletPadding)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return bulletMargin + 2 * bulletWidth + bulletGap
+        return bulletMargin + 2 * bulletWidth + bulletPadding
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,

@@ -61,7 +61,7 @@ class AztecQuoteSpan : QuoteSpan {
 
         p.style = Paint.Style.FILL
         p.color = quoteColor
-        c.drawRect(x.toFloat(), top.toFloat(), (x + dir * quoteGap).toFloat(), bottom.toFloat(), p)
+        c.drawRect(x.toFloat(), top.toFloat(), (x + dir * quoteWidth).toFloat(), bottom.toFloat(), p)
 
         p.style = style
         p.color = color

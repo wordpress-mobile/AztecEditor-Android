@@ -29,16 +29,19 @@ class AztecBulletSpan : BulletSpan {
 
     private var bulletColor: Int = 0
     private var bulletGap: Int = 0
+    private var bulletMargin: Int = 0
     private var bulletWidth: Int = 0
 
-    constructor(bulletColor: Int, bulletWidth: Int, bulletGap: Int) {
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletGap: Int) {
         this.bulletColor = bulletColor
+        this.bulletMargin = bulletMargin
         this.bulletWidth = bulletWidth
         this.bulletGap = bulletGap
     }
 
     constructor(src: Parcel) : super(src) {
         this.bulletColor = src.readInt()
+        this.bulletMargin = src.readInt()
         this.bulletWidth = src.readInt()
         this.bulletGap = src.readInt()
     }
@@ -46,12 +49,13 @@ class AztecBulletSpan : BulletSpan {
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         dest.writeInt(bulletColor)
+        dest.writeInt(bulletMargin)
         dest.writeInt(bulletWidth)
         dest.writeInt(bulletGap)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return 2 * bulletWidth + bulletGap
+        return bulletMargin + 2 * bulletWidth + bulletGap
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -73,11 +77,11 @@ class AztecBulletSpan : BulletSpan {
                 }
 
                 c.save()
-                c.translate((x + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
+                c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
                 c.drawPath(bulletPath!!, p)
                 c.restore()
             } else {
-                c.drawCircle((x + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
+                c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
             }
 
             p.color = oldColor

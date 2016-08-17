@@ -32,6 +32,7 @@ class AztecText : EditText, TextWatcher {
 
     private var bulletColor = ContextCompat.getColor(context, R.color.bullet)
     private var bulletGap = resources.getDimensionPixelSize(R.dimen.bullet_gap)
+    private var bulletMargin = resources.getDimensionPixelSize(R.dimen.bullet_margin)
     private var bulletWidth = resources.getDimensionPixelSize(R.dimen.bullet_width)
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
@@ -79,6 +80,7 @@ class AztecText : EditText, TextWatcher {
         setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
         bulletColor = array.getColor(R.styleable.AztecText_bulletColor, bulletColor)
         bulletGap = array.getDimensionPixelSize(R.styleable.AztecText_bulletGap, bulletGap)
+        bulletMargin = array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, bulletMargin)
         bulletWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, bulletWidth)
         historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
@@ -393,7 +395,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (bulletStart < bulletEnd) {
-                editableText.setSpan(AztecBulletSpan(bulletColor, bulletWidth, bulletGap), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletGap), bulletStart, bulletEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -815,7 +817,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecBulletSpan(bulletColor, bulletWidth, bulletGap), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletGap), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)

@@ -14,4 +14,7 @@
         <attr name="quoteStripeWidth" format="reference|dimension" />
         <attr name="quoteCapWidth" format="reference|dimension" />
     </declare-styleable>
+    <declare-styleable name="SourceViewEditText">
+        <attr name="fontFile" format="string" />
+    </declare-styleable>
 </resources>

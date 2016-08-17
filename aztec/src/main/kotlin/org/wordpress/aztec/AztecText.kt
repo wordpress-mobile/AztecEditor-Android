@@ -30,16 +30,16 @@ import java.util.*
 
 class AztecText : EditText, TextWatcher {
 
-    private var bulletColor = 0
-    private var bulletGap = 0
-    private var bulletWidth = 0
-    private var historyEnable = true
-    private var historySize = 100
-    private var linkColor = 0
-    private var linkUnderline = true
-    private var quoteColor = 0
-    private var quoteGap = 0
-    private var quoteWidth = 0
+    private var bulletColor = ContextCompat.getColor(context, R.color.bullet)
+    private var bulletGap = resources.getDimensionPixelSize(R.dimen.bullet_gap)
+    private var bulletWidth = resources.getDimensionPixelSize(R.dimen.bullet_width)
+    private var historyEnable = resources.getBoolean(R.bool.history_enable)
+    private var historySize = resources.getInteger(R.integer.history_size)
+    private var linkColor = ContextCompat.getColor(context, R.color.link)
+    private var linkUnderline = resources.getBoolean(R.bool.link_underline)
+    private var quoteColor = ContextCompat.getColor(context, R.color.quote)
+    private var quoteGap = resources.getDimensionPixelSize(R.dimen.quote_gap)
+    private var quoteWidth = resources.getDimensionPixelSize(R.dimen.quote_width)
 
     private val historyList = LinkedList<SpannableStringBuilder>()
     private var historyWorking = false
@@ -65,16 +65,16 @@ class AztecText : EditText, TextWatcher {
         setBackgroundColor(array.getColor(R.styleable.AztecText_background, ContextCompat.getColor(context, R.color.background)))
         setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
         setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
-        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, ContextCompat.getColor(context, R.color.bullet))
-        bulletWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, resources.getDimensionPixelSize(R.dimen.bullet_width))
-        bulletGap = array.getDimensionPixelSize(R.styleable.AztecText_bulletGap, resources.getDimensionPixelSize(R.dimen.bullet_gap))
-        historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, resources.getBoolean(R.bool.history_enable))
-        historySize = array.getInt(R.styleable.AztecText_historySize, resources.getInteger(R.integer.history_size))
-        linkColor = array.getColor(R.styleable.AztecText_linkColor, ContextCompat.getColor(context, R.color.link))
-        linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, resources.getBoolean(R.bool.link_underline))
-        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, ContextCompat.getColor(context, R.color.quote))
-        quoteWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, resources.getDimensionPixelSize(R.dimen.quote_width))
-        quoteGap = array.getDimensionPixelSize(R.styleable.AztecText_quoteGap, resources.getDimensionPixelSize(R.dimen.quote_gap))
+        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, bulletColor)
+        bulletGap = array.getDimensionPixelSize(R.styleable.AztecText_bulletGap, bulletGap)
+        bulletWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, bulletWidth)
+        historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
+        historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
+        linkColor = array.getColor(R.styleable.AztecText_linkColor, linkColor)
+        linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, linkUnderline)
+        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, quoteColor)
+        quoteGap = array.getDimensionPixelSize(R.styleable.AztecText_quoteGap, quoteGap)
+        quoteWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, quoteWidth)
         array.recycle()
 
         if (historyEnable && historySize <= 0) {

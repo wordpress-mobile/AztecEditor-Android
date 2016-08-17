@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+
     <declare-styleable name="AztecText">
-        <attr name="pudu" format="reference|color" />
         <attr name="background" format="reference|color" />
         <attr name="bulletColor" format="reference|color" />
         <attr name="bulletRadius" format="reference|dimension" />
@@ -17,4 +17,5 @@
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
     </declare-styleable>
+
 </resources>

@@ -21,21 +21,25 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Parcel
 import android.text.Layout
+import android.text.style.LineBackgroundSpan
 import android.text.style.QuoteSpan
 
-class AztecQuoteSpan : QuoteSpan {
+class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
 
+    private var quoteBackground: Int = 0
     private var quoteColor: Int = 0
     private var quoteGap: Int = 0
     private var quoteWidth: Int = 0
 
-    constructor(quoteColor: Int, quoteWidth: Int, quoteGap: Int) {
+    constructor(quoteBackground: Int, quoteColor: Int, quoteWidth: Int, quoteGap: Int) {
+        this.quoteBackground = quoteBackground
         this.quoteColor = quoteColor
         this.quoteWidth = quoteWidth
         this.quoteGap = quoteGap
     }
 
     constructor(src: Parcel) : super(src) {
+        this.quoteBackground = src.readInt()
         this.quoteColor = src.readInt()
         this.quoteWidth = src.readInt()
         this.quoteGap = src.readInt()
@@ -43,6 +47,7 @@ class AztecQuoteSpan : QuoteSpan {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
+        dest.writeInt(quoteBackground)
         dest.writeInt(quoteColor)
         dest.writeInt(quoteWidth)
         dest.writeInt(quoteGap)
@@ -65,5 +70,15 @@ class AztecQuoteSpan : QuoteSpan {
 
         p.style = style
         p.color = color
+    }
+
+    override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int,
+                                top: Int, baseline: Int, bottom: Int,
+                                text: CharSequence?, start: Int, end: Int,
+                                lnum: Int) {
+        val paintColor = p.color
+        p.color = quoteBackground
+        c.drawRect(left.toFloat(), top.toFloat(), right.toFloat(), bottom.toFloat(), p)
+        p.color = paintColor
     }
 }

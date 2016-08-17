@@ -7,6 +7,7 @@
     <color name="bullet">@color/text</color>
     <color name="link">@color/blue_wordpress</color>
     <color name="quote">@color/text</color>
+    <color name="quote_background">@color/grey_lighten_30</color>
     <color name="text">@color/grey_dark</color>
     <color name="text_hint">@color/grey_disabled</color>
 
@@ -17,5 +18,6 @@
     <color name="blue_wordpress">#ff0087be</color>
     <color name="grey_dark">#ff2e4453</color>
     <color name="grey_disabled">#ff668eaa</color>
+    <color name="grey_lighten_30">#ffe9eff3</color>
 
 </resources>

@@ -134,7 +134,7 @@
         aztec:historyEnable="true"
         aztec:historySize="10"
         aztec:linkColor="@color/blue_700"
-        aztec:linkUnderline="true"
+        aztec:linkUnderline="false"
         aztec:quoteColor="@color/blue_500"
         aztec:quoteGap="@dimen/quote_gap"
         aztec:quoteWidth="@dimen/quote_width"

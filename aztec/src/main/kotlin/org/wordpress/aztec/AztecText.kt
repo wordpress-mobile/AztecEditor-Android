@@ -62,6 +62,16 @@ class AztecText : EditText, TextWatcher {
 
     private fun init(attrs: AttributeSet?) {
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText)
+        setLineSpacing(
+                array.getDimension(
+                        R.styleable.AztecText_lineSpacingExtra,
+                        resources.getDimension(R.dimen.spacing_extra)
+                ),
+                array.getFloat(
+                        R.styleable.AztecText_lineSpacingMultiplier,
+                        resources.getString(R.dimen.spacing_multiplier).toFloat()
+                )
+        )
         setBackgroundColor(array.getColor(R.styleable.AztecText_background, ContextCompat.getColor(context, R.color.background)))
         setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
         setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))

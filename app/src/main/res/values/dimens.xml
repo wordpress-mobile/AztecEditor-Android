@@ -6,5 +6,7 @@
     <dimen name="bullet_width">2dp</dimen>
     <dimen name="quote_gap">8dp</dimen>
     <dimen name="quote_width">2dp</dimen>
+    <dimen name="spacing_extra">4dp</dimen>
+    <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 
 </resources>

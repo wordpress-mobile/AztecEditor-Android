@@ -15,15 +15,15 @@ import org.wordpress.aztec.AztecText
 
 class MainActivity : Activity() {
     companion object {
-        private val BOLD = "<b>Bold</b><br><br>"
-        private val ITALIC = "<i>Italic</i><br><br>"
-        private val UNDERLINE = "<u>Underline</u><br><br>"
-        private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br><br>" // <s> or <strike> or <del>
+        private val BOLD = "<b>Bold</b><br>"
+        private val ITALIC = "<i>Italic</i><br>"
+        private val UNDERLINE = "<u>Underline</u><br>"
+        private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val BULLET = "<ul><li>asdfg</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
-        private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br><br>"
-        private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
-        private val COMMENT = "<!--This is a comment--><br><br>"
+        private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
+        private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"
+        private val COMMENT = "<!--This is a comment--><br>"
         private val HIDDEN = 
                 "<span></span>" +
                 "<div class=\"first\">" +
@@ -36,7 +36,7 @@ class MainActivity : Activity() {
                 "    </div>" +
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
-                "<br><br>"
+                "<br>"
         private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 

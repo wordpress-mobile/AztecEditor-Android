@@ -113,35 +113,41 @@
 
     </HorizontalScrollView>
 
-    <org.wordpress.aztec.AztecText
-        android:id="@+id/aztec"
-        android:hint="@string/edit_hint"
+    <ScrollView
         android:layout_above="@id/tools"
         android:layout_alignParentTop="true"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp"
-        android:gravity="top|start"
-        android:scrollbars="vertical"
-        aztec:background="@android:color/transparent"
-        aztec:bulletColor="@color/blue_500"
-        aztec:bulletGap="@dimen/bullet_gap"
-        aztec:bulletWidth="@dimen/bullet_width"
-        aztec:historyEnable="true"
-        aztec:historySize="10"
-        aztec:lineSpacingExtra="1dp"
-        aztec:lineSpacingMultiplier="2.0"
-        aztec:linkColor="@color/blue_700"
-        aztec:linkUnderline="false"
-        aztec:quoteColor="@color/blue_500"
-        aztec:quoteGap="@dimen/quote_gap"
-        aztec:quoteWidth="@dimen/quote_width"
-        aztec:textColor="@android:color/white"
-        aztec:textColorHint="@android:color/darker_gray" >
-    </org.wordpress.aztec.AztecText>
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" >
+
+        <org.wordpress.aztec.AztecText
+            android:id="@+id/aztec"
+            android:hint="@string/edit_hint"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:paddingEnd="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:gravity="top|start"
+            android:scrollbars="vertical"
+            aztec:background="@android:color/transparent"
+            aztec:bulletColor="@color/blue_500"
+            aztec:bulletGap="@dimen/bullet_gap"
+            aztec:bulletWidth="@dimen/bullet_width"
+            aztec:historyEnable="true"
+            aztec:historySize="10"
+            aztec:lineSpacingExtra="1dp"
+            aztec:lineSpacingMultiplier="2.0"
+            aztec:linkColor="@color/blue_700"
+            aztec:linkUnderline="false"
+            aztec:quoteColor="@color/blue_500"
+            aztec:quoteGap="@dimen/quote_gap"
+            aztec:quoteWidth="@dimen/quote_width"
+            aztec:textColor="@android:color/white"
+            aztec:textColorHint="@android:color/darker_gray" >
+        </org.wordpress.aztec.AztecText>
+
+    </ScrollView>
 
 </RelativeLayout>

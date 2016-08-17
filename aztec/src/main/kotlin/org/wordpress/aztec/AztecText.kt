@@ -46,17 +46,16 @@ class AztecText : EditText, TextWatcher {
     private var historyWorking = false
     private var historyCursor = 0
 
-    var consumeSelectionEvent: Boolean = false
+    private var consumeSelectionEvent: Boolean = false
 
     private lateinit var inputBefore: SpannableStringBuilder
     private lateinit var inputLast: Editable
-
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
     private var selectedStyles: ArrayList<TextFormat> = ArrayList()
 
-    var isNewStyleSelected = false
+    private var isNewStyleSelected = false
 
 
     interface OnSelectionChangedListener {
@@ -127,7 +126,7 @@ class AztecText : EditText, TextWatcher {
 
     // StyleSpan ===================================================================================
 
-    fun bold(valid: Boolean) {
+    private fun bold(valid: Boolean) {
         if (valid) {
             styleValid(Typeface.BOLD, selectionStart, selectionEnd)
         } else {
@@ -135,7 +134,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun italic(valid: Boolean) {
+    private fun italic(valid: Boolean) {
         if (valid) {
             styleValid(Typeface.ITALIC, selectionStart, selectionEnd)
         } else {
@@ -143,7 +142,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun styleValid(style: Int, start: Int, end: Int) {
+    private fun styleValid(style: Int, start: Int, end: Int) {
         when (style) {
             Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC -> {
             }
@@ -166,6 +165,10 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
+            if (precedingSpan != null) {
+                val spanStart = editableText.getSpanStart(precedingSpan)
+                editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
         }
 
         if (length() > end) {
@@ -176,18 +179,11 @@ class AztecText : EditText, TextWatcher {
                     return@forEach
                 }
             }
-        }
 
-
-        if (precedingSpan != null) {
-            val spanStart = editableText.getSpanStart(precedingSpan)
-            editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-        }
-
-
-        if (followingSpan != null) {
-            val spanEnd = editableText.getSpanEnd(followingSpan)
-            editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            if (followingSpan != null) {
+                val spanEnd = editableText.getSpanEnd(followingSpan)
+                editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
         }
 
         if (precedingSpan == null && followingSpan == null) {
@@ -201,6 +197,7 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
+            //if we already have same span within selection - reuse it by changing it's bounds
             if (existingSpanOfSameStyle != null) {
                 editableText.removeSpan(editableText)
                 editableText.setSpan(existingSpanOfSameStyle, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
@@ -210,14 +207,13 @@ class AztecText : EditText, TextWatcher {
 
         }
 
-
         joinStyleSpans(start, end)
     }
 
 
     //TODO: Check if there is more efficient way to do it
     //TODO: Make it work with other spans (underline, strikethrough)
-    fun joinStyleSpans(start: Int, end: Int) {
+    private fun joinStyleSpans(start: Int, end: Int) {
         //joins spans on the left
         if (start > 1) {
             val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
@@ -233,8 +229,6 @@ class AztecText : EditText, TextWatcher {
                         editableText.removeSpan(outerSpan)
                         editableText.setSpan(innerSpan, outerSpanStart, inSelectionSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                     }
-
-
                 }
             }
         }
@@ -242,10 +236,10 @@ class AztecText : EditText, TextWatcher {
         //joins spans on the right
         if (length() > end) {
             val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
-
             val spansAfterSelection = editableText.getSpans(end, end + 1, StyleSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
+
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
 
@@ -253,16 +247,12 @@ class AztecText : EditText, TextWatcher {
                         editableText.removeSpan(outerSpan)
                         editableText.setSpan(innerSpan, inSelectionSpanStart, outerSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                     }
-
-
                 }
             }
-
-
         }
 
 
-        //joins spans withing
+        //joins spans withing selected text
         val spansInSelection = editableText.getSpans(start, end, StyleSpan::class.java)
         val spansToUse = editableText.getSpans(start, end, StyleSpan::class.java)
 
@@ -272,7 +262,6 @@ class AztecText : EditText, TextWatcher {
             val spanEnd = editableText.getSpanEnd(appliedSpan)
 
             var neighbourSpan: StyleSpan? = null
-
 
             spansToUse.forEach {
                 val aSpanStart = editableText.getSpanStart(it)
@@ -300,20 +289,16 @@ class AztecText : EditText, TextWatcher {
                 } else if (spanEnd == neighbourSpanStart) {
                     editableText.setSpan(appliedSpan, spanStart, neighbourSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
+
                 editableText.removeSpan(neighbourSpan)
-
             }
-
-
         }
-
-
     }
 
 
     private fun styleInvalid(style: Int, start: Int, end: Int) {
         when (style) {
-            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC -> {
+            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC -> {
             }
             else -> return
         }
@@ -349,7 +334,7 @@ class AztecText : EditText, TextWatcher {
 
     private fun containStyle(style: Int, start: Int, end: Int): Boolean {
         when (style) {
-            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC, Typeface.BOLD_ITALIC -> {
+            Typeface.NORMAL, Typeface.BOLD, Typeface.ITALIC -> {
             }
             else -> return false
         }
@@ -921,19 +906,14 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun clearInlineStyles(start: Int, end: Int) {
-        val stylesToRemove = ArrayList<TextFormat>()
-
         getAppliedStyles(start, end).forEach {
             if (!selectedStyles.contains(it)) {
-                stylesToRemove.add(it)
-            }
-        }
-        stylesToRemove.forEach {
-            when (it) {
-                TextFormat.FORMAT_BOLD -> styleInvalid(Typeface.BOLD, start, end)
-                TextFormat.FORMAT_ITALIC -> styleInvalid(Typeface.ITALIC, start, end)
-                else -> {
-                    //do nothing
+                when (it) {
+                    TextFormat.FORMAT_BOLD -> styleInvalid(Typeface.BOLD, start, end)
+                    TextFormat.FORMAT_ITALIC -> styleInvalid(Typeface.ITALIC, start, end)
+                    else -> {
+                        //do nothing
+                    }
                 }
             }
         }

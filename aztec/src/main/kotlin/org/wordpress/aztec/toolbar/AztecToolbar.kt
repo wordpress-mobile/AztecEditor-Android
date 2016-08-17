@@ -29,7 +29,7 @@ class AztecToolbar : FrameLayout {
     }
 
 
-    fun isEditorAttached(): Boolean {
+    private fun isEditorAttached(): Boolean {
         return mEditor != null && mEditor is AztecText
     }
 
@@ -48,15 +48,9 @@ class AztecToolbar : FrameLayout {
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
-            button?.setOnClickListener { sendToolbarEvent(toolbarAction) }
+            button?.setOnClickListener { onToolbarAction(toolbarAction) }
         }
-
     }
-
-    private fun sendToolbarEvent(toolbarAction: ToolbarAction) {
-        onToolbarAction(toolbarAction)
-    }
-
 
     fun highlightActionButtons(toolbarActions: ArrayList<ToolbarAction>) {
         ToolbarAction.values().forEach { action ->
@@ -68,7 +62,7 @@ class AztecToolbar : FrameLayout {
         }
     }
 
-    fun getSelectedActions(): ArrayList<ToolbarAction> {
+    private fun getSelectedActions(): ArrayList<ToolbarAction> {
         val actions = ArrayList<ToolbarAction>()
 
         for (action in ToolbarAction.values()) {
@@ -87,7 +81,7 @@ class AztecToolbar : FrameLayout {
     }
 
 
-    fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
+    private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
 
         var newSelStart = selStart
@@ -103,9 +97,8 @@ class AztecToolbar : FrameLayout {
     }
 
 
-    fun onToolbarAction(action: ToolbarAction) {
-       if(mEditor != null && mEditor is AztecText) {
-
+    private fun onToolbarAction(action: ToolbarAction) {
+        if (!isEditorAttached()) return
 
         //if noting is selected just mark the style as active
         if (!mEditor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
@@ -128,12 +121,14 @@ class AztecToolbar : FrameLayout {
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
-        }       }
+        }
+
     }
 
 
     private fun showLinkDialog() {
         if (!isEditorAttached()) return
+        Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
     }
 
 }

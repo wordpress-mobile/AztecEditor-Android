@@ -2,7 +2,7 @@ package org.wordpress.aztec
 
 import android.text.Editable
 import android.text.Spanned
-import android.text.style.LeadingMarginSpan
+import android.text.style.BulletSpan
 
 
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {
@@ -33,11 +33,11 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         return false
     }
 
-    fun getSpanToOpen(editableText: Editable): LeadingMarginSpan?{
+    fun getSpanToOpen(editableText: Editable): BulletSpan?{
         if (start >= 1 && count > 0) {
             if (text.length > start) {
 
-                val spans = editableText.getSpans(start, start, LeadingMarginSpan::class.java)
+                val spans = editableText.getSpans(start, start, BulletSpan::class.java)
                 if (!spans.isEmpty()) {
                     val flags = editableText.getSpanFlags(spans[0])
                     if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {

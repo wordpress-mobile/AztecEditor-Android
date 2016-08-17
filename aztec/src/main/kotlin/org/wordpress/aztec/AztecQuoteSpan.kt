@@ -30,9 +30,9 @@ class AztecQuoteSpan : QuoteSpan {
     private var quoteGapWidth: Int = 0
 
     constructor(quoteColor: Int, quoteStripeWidth: Int, quoteGapWidth: Int) {
-        this.quoteColor = if (quoteColor != 0) quoteColor else DEFAULT_COLOR
-        this.quoteStripeWidth = if (quoteStripeWidth != 0) quoteStripeWidth else DEFAULT_STRIPE_WIDTH
-        this.quoteGapWidth = if (quoteGapWidth != 0) quoteGapWidth else DEFAULT_GAP_WIDTH
+        this.quoteColor = quoteColor
+        this.quoteStripeWidth = quoteStripeWidth
+        this.quoteGapWidth = quoteGapWidth
     }
 
     constructor(src: Parcel) : super(src) {
@@ -65,11 +65,5 @@ class AztecQuoteSpan : QuoteSpan {
 
         p.style = style
         p.color = color
-    }
-
-    companion object {
-        private val DEFAULT_STRIPE_WIDTH = 2
-        private val DEFAULT_GAP_WIDTH = 2
-        private val DEFAULT_COLOR = 0xff0000ff.toInt()
     }
 }

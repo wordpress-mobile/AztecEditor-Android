@@ -27,14 +27,14 @@ import android.text.style.BulletSpan
 
 class AztecBulletSpan : BulletSpan {
 
-    private var bulletColor = DEFAULT_COLOR
-    private var bulletRadius = DEFAULT_RADIUS
-    private var bulletGapWidth = DEFAULT_GAP_WIDTH
+    private var bulletColor: Int = 0
+    private var bulletRadius: Int = 0
+    private var bulletGapWidth: Int = 0
 
     constructor(bulletColor: Int, bulletRadius: Int, bulletGapWidth: Int) {
-        this.bulletColor = if (bulletColor != 0) bulletColor else DEFAULT_COLOR
-        this.bulletRadius = if (bulletRadius != 0) bulletRadius else DEFAULT_RADIUS
-        this.bulletGapWidth = if (bulletGapWidth != 0) bulletGapWidth else DEFAULT_GAP_WIDTH
+        this.bulletColor = bulletColor
+        this.bulletRadius = bulletRadius
+        this.bulletGapWidth = bulletGapWidth
     }
 
     constructor(src: Parcel) : super(src) {
@@ -86,9 +86,6 @@ class AztecBulletSpan : BulletSpan {
     }
 
     companion object {
-        private val DEFAULT_COLOR = 0
-        private val DEFAULT_RADIUS = 3
-        private val DEFAULT_GAP_WIDTH = 2
         private var bulletPath: Path? = null
     }
 }

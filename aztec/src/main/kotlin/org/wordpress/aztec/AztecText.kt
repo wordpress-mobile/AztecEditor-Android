@@ -69,7 +69,7 @@ class AztecText : EditText, TextWatcher {
         bulletRadius = array.getDimensionPixelSize(R.styleable.AztecText_bulletRadius, resources.getDimensionPixelSize(R.dimen.bullet_width))
         bulletGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletGapWidth, resources.getDimensionPixelSize(R.dimen.bullet_gap))
         historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, true)
-        historySize = array.getInt(R.styleable.AztecText_historySize, 100)
+        historySize = array.getInt(R.styleable.AztecText_historySize, resources.getInteger(R.integer.history_size))
         linkColor = array.getColor(R.styleable.AztecText_linkColor, ContextCompat.getColor(context, R.color.link))
         linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, true)
         quoteColor = array.getColor(R.styleable.AztecText_quoteColor, ContextCompat.getColor(context, R.color.quote))

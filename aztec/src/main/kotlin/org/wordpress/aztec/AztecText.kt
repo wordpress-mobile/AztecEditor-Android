@@ -40,7 +40,7 @@ class AztecText : EditText, TextWatcher {
     private var quoteGapWidth = 0
 
     private var consumeEditEvent: Boolean = false
-    private var textChangedEvent = TextChangedEvent("", 0, 0, 0)
+    private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private val historyList = LinkedList<SpannableStringBuilder>()
     private var historyWorking = false
@@ -213,8 +213,6 @@ class AztecText : EditText, TextWatcher {
 
         joinStyleSpans(start, end)
     }
-
-
 
 
     //TODO: Check if there is more efficient way to do it
@@ -404,7 +402,7 @@ class AztecText : EditText, TextWatcher {
         editableText.setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
-    protected fun underlineInvalid(start: Int, end: Int) {
+    private fun underlineInvalid(start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -466,7 +464,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun strikethroughValid(start: Int, end: Int) {
+    private fun strikethroughValid(start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -500,7 +498,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun containStrikethrough(start: Int, end: Int): Boolean {
+    private fun containStrikethrough(start: Int, end: Int): Boolean {
         if (start > end) {
             return false
         }
@@ -581,7 +579,7 @@ class AztecText : EditText, TextWatcher {
             var endOfLine = boundsOfSelectedText.endInclusive
 
             if (startOfLine == endOfLine) {   //line is empty
-                consumeEditEvent = true
+                disableTextChangedListener()
                 editableText.insert(startOfLine, "\u200B")
                 endOfLine += 1
             }
@@ -748,7 +746,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    protected fun quoteInvalid() {
+    private fun quoteInvalid() {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
@@ -807,6 +805,8 @@ class AztecText : EditText, TextWatcher {
             }
         }
 
+        if (list.isEmpty()) return false
+
         for (i in list) {
             if (!containQuote(i)) {
                 return false
@@ -816,7 +816,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    protected fun containQuote(index: Int): Boolean {
+    private fun containQuote(index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -855,7 +855,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     // Remove all span in selection, not like the boldInvalid()
-    protected fun linkInvalid(start: Int, end: Int) {
+    private fun linkInvalid(start: Int, end: Int) {
         if (start >= end) {
             return
         }
@@ -992,30 +992,30 @@ class AztecText : EditText, TextWatcher {
         inputBefore = SpannableStringBuilder(text)
     }
 
-    var clearingEditText = false
-
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-//        //clear all spans from EditText when it get's empty
-//        if (start == 0 && count == 0 && text.toString().equals("") && !clearingEditText) {
-//            clearingEditText = true
-//            consumeSelectionEvent = true
-//            setText(null)
-//            onSelectionChanged(0, 0)
-//        }else if(clearingEditText){
-//            clearingEditText = false
-//        }
-
-        textChangedEvent = TextChangedEvent(text, start, before, count)
+        textChangedEventDetails = TextChangedEvent(text, start, before, count)
     }
 
     override fun afterTextChanged(text: Editable) {
-        if (consumeEditEvent) {
-            consumeEditEvent = false
+        if (isTextChangedListenerDisabled()) {
+            enableTextChangedListener()
             return
         }
 
-        handleLists(text)
+        //clear all spans from EditText when it get's empty
+        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0 && text.toString().equals("")) {
+            disableTextChangedListener()
+            setText(null)
+            onSelectionChanged(0, 0)
+        }
 
+        handleHistory()
+
+        handleLists(text, textChangedEventDetails)
+        handleInlineStyling(text, textChangedEventDetails)
+    }
+
+    fun handleHistory() {
         if (!historyEnable || historyWorking) {
             return
         }
@@ -1031,8 +1031,9 @@ class AztecText : EditText, TextWatcher {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
+    }
 
-
+    fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd)
@@ -1060,8 +1061,9 @@ class AztecText : EditText, TextWatcher {
         setFormattingChangesApplied()
     }
 
+
     //TODO: Add support for NumberedLists
-    fun handleLists(text: Editable) {
+    fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
 
         val spanToOpen = textChangedEvent.getSpanToOpen(text)
@@ -1076,11 +1078,11 @@ class AztecText : EditText, TextWatcher {
 
 
         if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewline()) {
-            consumeEditEvent = true
+            disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
             bulletInvalid()
-            consumeEditEvent = true
+            disableTextChangedListener()
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
@@ -1089,7 +1091,7 @@ class AztecText : EditText, TextWatcher {
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
             val paragraphSpans = getText().getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, BulletSpan::class.java)
             if (!paragraphSpans.isEmpty()) {
-                consumeEditEvent = true
+                disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
             }
         }
@@ -1206,7 +1208,7 @@ class AztecText : EditText, TextWatcher {
         val parser = AztecParser()
         builder.append(parser.fromHtml(source, context).trim())
         switchToAztecStyle(builder, 0, builder.length)
-        consumeEditEvent = true
+        disableTextChangedListener()
         text = builder
     }
 
@@ -1216,7 +1218,7 @@ class AztecText : EditText, TextWatcher {
         return parser.toHtml(editableText)
     }
 
-    protected fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
+    private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         val bulletSpans = editable.getSpans(start, end, BulletSpan::class.java)
         for (span in bulletSpans) {
             val spanStart = editable.getSpanStart(span)
@@ -1244,5 +1246,16 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-// URLSpan =====================================================================================
+    fun disableTextChangedListener() {
+        consumeEditEvent = true
+    }
+
+
+    fun enableTextChangedListener() {
+        consumeEditEvent = false
+    }
+
+    fun isTextChangedListenerDisabled(): Boolean {
+        return consumeEditEvent
+    }
 }

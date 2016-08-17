@@ -12,7 +12,7 @@ import org.wordpress.aztec.TextFormat
 import java.util.*
 
 
-class FormatToolbar : FrameLayout {
+class AztecToolbar : FrameLayout {
 
     private var mEditor: AztecText? = null
 
@@ -30,12 +30,11 @@ class FormatToolbar : FrameLayout {
 
 
     fun isEditorAttached(): Boolean {
-        return mEditor != null
+        return mEditor != null && mEditor is AztecText
     }
 
-    fun setEditor(editor: AztecText, initialText: String) {
+    fun setEditor(editor: AztecText) {
         mEditor = editor
-        mEditor!!.setText(initialText)
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         mEditor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
@@ -57,7 +56,6 @@ class FormatToolbar : FrameLayout {
     private fun sendToolbarEvent(toolbarAction: ToolbarAction) {
         onToolbarAction(toolbarAction)
     }
-
 
 
     fun highlightActionButtons(toolbarActions: ArrayList<ToolbarAction>) {
@@ -100,16 +98,16 @@ class FormatToolbar : FrameLayout {
 
         val appliedStyles = mEditor!!.getAppliedStyles(newSelStart, selEnd)
 
-        if (!mEditor!!.isEmpty()) {
-            mEditor!!.setSelectedStyles(appliedStyles)
-            highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
-        }
+        mEditor!!.setSelectedStyles(appliedStyles)
+        highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
     }
 
 
     fun onToolbarAction(action: ToolbarAction) {
-        if (!isEditorAttached()) return
-        //if noting is selected just activate style
+       if(mEditor != null && mEditor is AztecText) {
+
+
+        //if noting is selected just mark the style as active
         if (!mEditor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
             val textFormats = ArrayList<TextFormat>()
@@ -118,7 +116,7 @@ class FormatToolbar : FrameLayout {
             return mEditor!!.setSelectedStyles(textFormats)
         }
 
-        //if text is selected and action is styling toggle it's style
+        //if text is selected and action is styling - toggle the style
         if (action.isStylingAction()) {
             return mEditor!!.toggleFormatting(action.textFormat!!)
         }
@@ -130,7 +128,7 @@ class FormatToolbar : FrameLayout {
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
-        }
+        }       }
     }
 
 

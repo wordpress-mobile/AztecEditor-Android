@@ -33,7 +33,7 @@
     </org.wordpress.aztec.AztecText>
 
 
-    <org.wordpress.aztec.toolbar.FormatToolbar
+    <org.wordpress.aztec.toolbar.AztecToolbar
         android:id="@+id/formatting_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/format_bar_height"

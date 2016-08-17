@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.toolbar.FormatToolbar
+import org.wordpress.aztec.toolbar.AztecToolbar
 
 class MainActivity : Activity() {
     companion object {
@@ -35,18 +35,20 @@ class MainActivity : Activity() {
     }
 
     private lateinit var aztec: AztecText
-    private lateinit var toolbar: FormatToolbar
+    private lateinit var toolbar: AztecToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
-        toolbar = findViewById(R.id.formatting_toolbar) as FormatToolbar
-        toolbar.setEditor(aztec,"")
-        // ImageGetter coming soon...
-//        aztec.fromHtml(EXAMPLE)
+        aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
+
+        toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
+        toolbar.setEditor(aztec)
+        // ImageGetter coming soon...
+
 
     }
 

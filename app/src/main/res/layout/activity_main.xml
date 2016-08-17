@@ -143,6 +143,7 @@
             aztec:quoteBackground="@color/blue_700"
             aztec:quoteColor="@color/blue_500"
             aztec:quoteGap="@dimen/quote_gap"
+            aztec:quoteMargin="@dimen/quote_margin"
             aztec:quoteWidth="@dimen/quote_width"
             aztec:textColor="@android:color/white"
             aztec:textColorHint="@android:color/darker_gray" >

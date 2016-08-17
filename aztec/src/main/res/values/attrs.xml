@@ -9,6 +9,8 @@
         <attr name="bulletWidth" format="reference|dimension" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
+        <attr name="lineSpacingExtra" format="reference|dimension" />
+        <attr name="lineSpacingMultiplier" format="reference|float" />
         <attr name="linkColor" format="reference|color" />
         <attr name="linkUnderline" format="reference|boolean" />
         <attr name="quoteColor" format="reference|color" />

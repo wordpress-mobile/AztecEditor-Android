@@ -30,9 +30,11 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
     private var quoteColor: Int = 0
     private var quoteMargin: Int = 0
     private var quotePadding: Int = 0
+    private var quoteTextColor: Int = 0
     private var quoteWidth: Int = 0
 
-    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int) {
+    constructor(quoteTextColor: Int, quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int) {
+        this.quoteTextColor = quoteTextColor
         this.quoteBackground = quoteBackground
         this.quoteColor = quoteColor
         this.quoteMargin = quoteMargin
@@ -41,6 +43,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
     }
 
     constructor(src: Parcel) : super(src) {
+        this.quoteTextColor = src.readInt()
         this.quoteBackground = src.readInt()
         this.quoteColor = src.readInt()
         this.quoteMargin = src.readInt()
@@ -50,6 +53,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
+        dest.writeInt(quoteTextColor)
         dest.writeInt(quoteBackground)
         dest.writeInt(quoteColor)
         dest.writeInt(quoteMargin)

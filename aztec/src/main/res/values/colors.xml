@@ -6,8 +6,9 @@
     <color name="background">@color/white</color>
     <color name="bullet">@color/text</color>
     <color name="link">@color/blue_wordpress</color>
-    <color name="quote">@color/text</color>
+    <color name="quote">@color/background</color>
     <color name="quote_background">@color/grey_lighten_30</color>
+    <color name="quote_text">@color/text</color>
     <color name="text">@color/grey_dark</color>
     <color name="text_hint">@color/grey_disabled</color>
 

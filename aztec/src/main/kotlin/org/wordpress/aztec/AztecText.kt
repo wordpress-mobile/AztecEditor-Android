@@ -42,6 +42,7 @@ class AztecText : EditText, TextWatcher {
     private var quoteColor = ContextCompat.getColor(context, R.color.quote)
     private var quoteMargin = resources.getDimensionPixelSize(R.dimen.quote_margin)
     private var quotePadding = resources.getDimensionPixelSize(R.dimen.quote_padding)
+    private var quoteTextColor = resources.getColor(R.color.quote_text)
     private var quoteWidth = resources.getDimensionPixelSize(R.dimen.quote_width)
 
     private val historyList = LinkedList<SpannableStringBuilder>()
@@ -90,6 +91,7 @@ class AztecText : EditText, TextWatcher {
         quoteColor = array.getColor(R.styleable.AztecText_quoteColor, quoteColor)
         quotePadding = array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, quotePadding)
         quoteMargin = array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, quoteMargin)
+        quoteTextColor = array.getColor(R.styleable.AztecText_quoteTextColor, quoteTextColor)
         quoteWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, quoteWidth)
         array.recycle()
 
@@ -527,7 +529,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                editableText.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecQuoteSpan(quoteTextColor, quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -826,7 +828,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecQuoteSpan(quoteTextColor, quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val urlSpans = editable.getSpans(start, end, URLSpan::class.java)

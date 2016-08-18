@@ -18,6 +18,7 @@
         <attr name="quoteColor" format="reference|color" />
         <attr name="quoteMargin" format="reference|dimension" />
         <attr name="quotePadding" format="reference|dimension" />
+        <attr name="quoteTextColor" format="reference|color" />
         <attr name="quoteWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />

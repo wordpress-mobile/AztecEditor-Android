@@ -108,7 +108,7 @@ class AztecParser {
 
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         out.append("<ul>")
-        val lines = TextUtils.split(text.substring(start..end-1), "\n")
+        val lines = TextUtils.split(text.substring(start..end - 1), "\n")
 
         for (i in lines.indices) {
             var lineStart = 0
@@ -124,7 +124,7 @@ class AztecParser {
             }
 
             out.append("<li>")
-            withinContent(out, text.subSequence(start..end-1) as Spanned, lineStart, lineEnd)
+            withinContent(out, text.subSequence(start..end - 1) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
         out.append("</ul>")
@@ -167,7 +167,10 @@ class AztecParser {
                 nl++
             }
 
-            withinParagraph(out, text, i, next - nl, nl)
+            //account for possible zero-width joiner at the end of the line
+            val zwjModifer = if (text[next-1] == '\u200B') 1 else 0
+
+            withinParagraph(out, text, i, next - nl - zwjModifer, nl)
 
             i = next
         }

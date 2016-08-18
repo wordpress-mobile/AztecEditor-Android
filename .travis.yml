@@ -1,5 +1,6 @@
 language: android
 jdk: oraclejdk8
+sudo: required
 
 android:
   components:
@@ -12,6 +13,7 @@ android:
 
 env:
   global:
+    - MALLOC_ARENA_MAX=2
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
     - ANDROID_SDKS=android-14
     - ANDROID_TARGET=android-14

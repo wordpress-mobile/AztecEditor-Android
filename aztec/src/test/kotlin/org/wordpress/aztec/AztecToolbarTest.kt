@@ -87,6 +87,7 @@ class AztecToolbarTest {
 
         editText.append("bold")
         Assert.assertEquals("<b>bold</b>", editText.toHtml())
+
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
     }
@@ -374,8 +375,27 @@ class AztecToolbarTest {
         Assert.assertFalse(numberedListButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
-
-
     }
 
+
+    /**
+     * Toggle bullet list button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun bulletListTyping() {
+        Assert.assertFalse(bulletListButton.isChecked)
+        bulletListButton.performClick()
+        Assert.assertTrue(bulletListButton.isChecked)
+
+        editText.append("bullet")
+        Assert.assertEquals("<ul><li>bullet</li></ul>", editText.toHtml())
+
+        bulletListButton.performClick()
+        Assert.assertFalse(boldButton.isChecked)
+
+        Assert.assertEquals("bullet", editText.toHtml())
+    }
 }

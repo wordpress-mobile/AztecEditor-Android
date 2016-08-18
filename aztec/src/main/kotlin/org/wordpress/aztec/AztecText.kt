@@ -46,8 +46,6 @@ class AztecText : EditText, TextWatcher {
     private var historyWorking = false
     private var historyCursor = 0
 
-    private var consumeSelectionEvent: Boolean = false
-
     private lateinit var inputBefore: SpannableStringBuilder
     private lateinit var inputLast: Editable
 
@@ -118,10 +116,8 @@ class AztecText : EditText, TextWatcher {
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
-        if (!consumeSelectionEvent) {
-            consumeSelectionEvent = false
-            onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-        }
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+
     }
 
     // StyleSpan ===================================================================================
@@ -570,6 +566,12 @@ class AztecText : EditText, TextWatcher {
             }
 
             editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+
+            //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
+            if (startOfLine == endOfLine) {
+                onSelectionChanged(startOfLine, endOfLine)
+            }
+
         }
 
 

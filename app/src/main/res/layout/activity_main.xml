@@ -145,7 +145,6 @@
             aztec:quoteColor="@color/blue_500"
             aztec:quoteMargin="@dimen/quote_margin"
             aztec:quotePadding="@dimen/quote_padding"
-            aztec:quoteTextColor="@color/white"
             aztec:quoteWidth="@dimen/quote_width"
             aztec:textColor="@android:color/white"
             aztec:textColorHint="@android:color/darker_gray" >

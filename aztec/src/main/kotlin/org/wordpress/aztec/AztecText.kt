@@ -559,7 +559,9 @@ class AztecText : EditText, TextWatcher {
             val startOfLine = boundsOfSelectedText.start
             var endOfLine = boundsOfSelectedText.endInclusive
 
-            if (startOfLine == endOfLine) {   //line is empty
+            val isEmptyLine = startOfLine == endOfLine
+
+            if (isEmptyLine) {  
                 disableTextChangedListener()
                 editableText.insert(startOfLine, "\u200B")
                 endOfLine += 1
@@ -568,7 +570,7 @@ class AztecText : EditText, TextWatcher {
             editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
-            if (startOfLine == endOfLine) {
+            if (isEmptyLine) {
                 onSelectionChanged(startOfLine, endOfLine)
             }
 

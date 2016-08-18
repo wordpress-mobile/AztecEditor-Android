@@ -100,7 +100,7 @@ class AztecToolbar : FrameLayout {
     private fun onToolbarAction(action: ToolbarAction) {
         if (!isEditorAttached()) return
 
-        //if noting is selected just mark the style as active
+        //if nothing is selected just mark the style as active
         if (!mEditor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
             val textFormats = ArrayList<TextFormat>()

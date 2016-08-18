@@ -6,6 +6,7 @@
     <string name="app_name">AztecDemo</string>
     <string name="edit_hint">Tenochtitlan is the hint</string>
 
+<<<<<<< HEAD
     <!-- DIALOG -->
     <string name="dialog_title">Insert link</string>
     <string name="dialog_edit_hint">http(s)://</string>

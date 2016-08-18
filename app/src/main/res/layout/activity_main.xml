@@ -6,115 +6,8 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent" >
 
-    <HorizontalScrollView
-        android:id="@+id/tools"
-        android:layout_alignParentBottom="true"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:scrollbars="none" >
-
-        <LinearLayout
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:orientation="horizontal" >
-
-            <Button
-                android:id="@+id/html"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:text="@string/toast_html"
-                android:textColor="@color/blue_200" >
-            </Button>
-
-            <ImageButton
-                android:id="@+id/bold"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_bold" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/italic"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_italic" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/underline"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_underline" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/strikethrough"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_strikethrough" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/bullet"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_bullet" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/quote"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_quote" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/link"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_insert_link" >
-            </ImageButton>
-
-            <ImageButton
-                android:id="@+id/clear"
-                android:background="?android:selectableItemBackground"
-                android:contentDescription="@null"
-                android:layout_height="48dp"
-                android:layout_width="48dp"
-                android:scaleType="center"
-                android:src="@drawable/ic_format_clear" >
-            </ImageButton>
-
-        </LinearLayout>
-
-    </HorizontalScrollView>
-
     <ScrollView
-        android:layout_above="@id/tools"
+        android:layout_above="@id/formatting_toolbar"
         android:layout_alignParentTop="true"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" >
@@ -151,5 +44,12 @@
         </org.wordpress.aztec.AztecText>
 
     </ScrollView>
+
+    <org.wordpress.aztec.toolbar.AztecToolbar
+        android:id="@+id/formatting_toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_height="@dimen/format_bar_height"
+        android:layout_width="match_parent" >
+    </org.wordpress.aztec.toolbar.AztecToolbar>
 
 </RelativeLayout>

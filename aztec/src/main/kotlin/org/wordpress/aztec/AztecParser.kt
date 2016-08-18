@@ -64,17 +64,16 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is BulletSpan && styles[1] is QuoteSpan) {
-                    // Let a <br> follow the BulletSpan or QuoteSpan end, so next++
-                    withinBulletThenQuote(out, text, i, next++)
-                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
                     withinQuoteThenBullet(out, text, i, next++)
+                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
+                    withinBulletThenQuote(out, text, i, next++)
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is BulletSpan) {
-                    withinBullet(out, text, i, next++)
-                } else if (styles[0] is AztecQuoteSpan) {
+                    withinBullet(out, text, i, next)
+                } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
@@ -109,25 +108,25 @@ class AztecParser {
 
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         out.append("<ul>")
+        val lines = TextUtils.split(text.substring(start..end - 1), "\n")
 
-        var next: Int
-
-        var i = start
-        while (i < end) {
-            next = text.nextSpanTransition(i, end, BulletSpan::class.java)
-
-            val spans = text.getSpans(i, next, BulletSpan::class.java)
-            for (span in spans) {
-                out.append("<li>")
+        for (i in lines.indices) {
+            var lineStart = 0
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
             }
 
-            withinContent(out, text, i, next)
-            for (span in spans) {
-                out.append("</li>")
+            val isZWJ = (lines[i].length == 1 && lines[i][0] == '\u200B')
+
+            val lineEnd = lineStart + lines[i].length
+            if (lineStart >= lineEnd || isZWJ) {
+                continue
             }
-            i = next
+
+            out.append("<li>")
+            withinContent(out, text.subSequence(start..end - 1) as Spanned, lineStart, lineEnd)
+            out.append("</li>")
         }
-
         out.append("</ul>")
     }
 
@@ -144,6 +143,7 @@ class AztecParser {
             }
 
             withinContent(out, text, i, next)
+
             for (quote in quotes) {
                 out.append("</blockquote>")
             }
@@ -167,7 +167,10 @@ class AztecParser {
                 nl++
             }
 
-            withinParagraph(out, text, i, next - nl, nl)
+            //account for possible zero-width joiner at the end of the line
+            val zwjModifer = if (text[next-1] == '\u200B') 1 else 0
+
+            withinParagraph(out, text, i, next - nl - zwjModifer, nl)
 
             i = next
         }
@@ -235,8 +238,6 @@ class AztecParser {
                 }
 
                 withinStyle(out, text, i, next)
-
-                val startPos = out.length
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
@@ -355,6 +356,12 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>").replace("</blockquote>(<br>)?".toRegex(), "</blockquote>").replace("&#8203;", "")
+        return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
+                .replace("(<br>)*<ul>?".toRegex(), "<ul>")
+                .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
+                .replace("&#8203;", "")
+                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</li>".toRegex(), "</li>")
+
     }
 }

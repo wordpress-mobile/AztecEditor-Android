@@ -88,7 +88,7 @@ class AztecText : EditText, TextWatcher {
                         resources.getString(R.dimen.spacing_multiplier).toFloat()
                 )
         )
-        setBackgroundColor(array.getColor(R.styleable.AztecText_background, ContextCompat.getColor(context, R.color.background)))
+        setBackgroundColor(array.getColor(R.styleable.AztecText_backgroundColor, ContextCompat.getColor(context, R.color.background)))
         setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
         setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
         bulletColor = array.getColor(R.styleable.AztecText_bulletColor, bulletColor)

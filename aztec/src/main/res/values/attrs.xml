@@ -3,7 +3,7 @@
 <resources>
 
     <declare-styleable name="AztecText">
-        <attr name="background" format="reference|color" />
+        <attr name="backgroundColor" format="reference|color" />
         <attr name="bulletColor" format="reference|color" />
         <attr name="bulletMargin" format="reference|dimension" />
         <attr name="bulletPadding" format="reference|dimension" />

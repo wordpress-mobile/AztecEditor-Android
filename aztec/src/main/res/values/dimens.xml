@@ -2,6 +2,7 @@
 
 <resources>
 
+    <!-- STYING -->
     <dimen name="bullet_padding">8dp</dimen>
     <dimen name="bullet_margin">16dp</dimen>
     <dimen name="bullet_width">2dp</dimen>
@@ -11,6 +12,7 @@
     <dimen name="spacing_extra">16dp</dimen>
     <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 
+    <!-- TOOLBAR -->
     <dimen name="format_bar_height">44dp</dimen>
     <dimen name="format_bar_height_tablet">49dp</dimen>
     <dimen name="format_bar_left_margin">5dp</dimen>

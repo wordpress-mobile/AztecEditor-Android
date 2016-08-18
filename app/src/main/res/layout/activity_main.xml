@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent" >
 
+    <org.wordpress.aztec.toolbar.AztecToolbar
+        android:id="@+id/formatting_toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_height="@dimen/format_bar_height"
+        android:layout_width="match_parent" >
+    </org.wordpress.aztec.toolbar.AztecToolbar>
+
     <ScrollView
         android:layout_above="@id/formatting_toolbar"
         android:layout_alignParentTop="true"
@@ -23,7 +30,7 @@
             android:paddingStart="16dp"
             android:paddingTop="16dp"
             android:scrollbars="vertical"
-            aztec:background="@android:color/transparent"
+            aztec:backgroundColor="@android:color/transparent"
             aztec:bulletColor="@color/blue_500"
             aztec:bulletMargin="@dimen/bullet_margin"
             aztec:bulletPadding="@dimen/bullet_padding"
@@ -44,12 +51,5 @@
         </org.wordpress.aztec.AztecText>
 
     </ScrollView>
-
-    <org.wordpress.aztec.toolbar.AztecToolbar
-        android:id="@+id/formatting_toolbar"
-        android:layout_alignParentBottom="true"
-        android:layout_height="@dimen/format_bar_height"
-        android:layout_width="match_parent" >
-    </org.wordpress.aztec.toolbar.AztecToolbar>
 
 </RelativeLayout>

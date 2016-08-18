@@ -19,6 +19,7 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
+import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.*
 import android.util.AttributeSet
@@ -28,16 +29,19 @@ import java.util.*
 
 class AztecText : EditText, TextWatcher {
 
-    private var bulletColor = 0
-    private var bulletRadius = 0
-    private var bulletGapWidth = 0
-    private var historyEnable = true
-    private var historySize = 100
-    private var linkColor = 0
-    private var linkUnderline = true
-    private var quoteColor = 0
-    private var quoteStripeWidth = 0
-    private var quoteGapWidth = 0
+    private var bulletColor = ContextCompat.getColor(context, R.color.bullet)
+    private var bulletMargin = resources.getDimensionPixelSize(R.dimen.bullet_margin)
+    private var bulletPadding = resources.getDimensionPixelSize(R.dimen.bullet_padding)
+    private var bulletWidth = resources.getDimensionPixelSize(R.dimen.bullet_width)
+    private var historyEnable = resources.getBoolean(R.bool.history_enable)
+    private var historySize = resources.getInteger(R.integer.history_size)
+    private var linkColor = ContextCompat.getColor(context, R.color.link)
+    private var linkUnderline = resources.getBoolean(R.bool.link_underline)
+    private var quoteBackground = ContextCompat.getColor(context, R.color.quote_background)
+    private var quoteColor = ContextCompat.getColor(context, R.color.quote)
+    private var quoteMargin = resources.getDimensionPixelSize(R.dimen.quote_margin)
+    private var quotePadding = resources.getDimensionPixelSize(R.dimen.quote_padding)
+    private var quoteWidth = resources.getDimensionPixelSize(R.dimen.quote_width)
 
     private var consumeEditEvent: Boolean = false
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
@@ -74,16 +78,32 @@ class AztecText : EditText, TextWatcher {
 
     private fun init(attrs: AttributeSet?) {
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText)
-        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, 0)
-        bulletRadius = array.getDimensionPixelSize(R.styleable.AztecText_bulletRadius, 0)
-        bulletGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletGapWidth, 0)
-        historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, true)
-        historySize = array.getInt(R.styleable.AztecText_historySize, 100)
-        linkColor = array.getColor(R.styleable.AztecText_linkColor, 0)
-        linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, true)
-        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, 0)
-        quoteStripeWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteStripeWidth, 0)
-        quoteGapWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteCapWidth, 0)
+        setLineSpacing(
+                array.getDimension(
+                        R.styleable.AztecText_lineSpacingExtra,
+                        resources.getDimension(R.dimen.spacing_extra)
+                ),
+                array.getFloat(
+                        R.styleable.AztecText_lineSpacingMultiplier,
+                        resources.getString(R.dimen.spacing_multiplier).toFloat()
+                )
+        )
+        setBackgroundColor(array.getColor(R.styleable.AztecText_backgroundColor, ContextCompat.getColor(context, R.color.background)))
+        setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
+        setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
+        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, bulletColor)
+        bulletPadding = array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, bulletPadding)
+        bulletMargin = array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, bulletMargin)
+        bulletWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, bulletWidth)
+        historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
+        historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
+        linkColor = array.getColor(R.styleable.AztecText_linkColor, linkColor)
+        linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, linkUnderline)
+        quoteBackground = array.getColor(R.styleable.AztecText_quoteBackground, quoteBackground)
+        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, quoteColor)
+        quotePadding = array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, quotePadding)
+        quoteMargin = array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, quoteMargin)
+        quoteWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, quoteWidth)
         array.recycle()
 
         if (historyEnable && historySize <= 0) {
@@ -547,7 +567,7 @@ class AztecText : EditText, TextWatcher {
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
                     bulletInvalid()
                 } else {
-                    editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
 
 
@@ -567,16 +587,13 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
                 onSelectionChanged(startOfLine, endOfLine)
             }
-
         }
-
-
     }
 
     private fun bulletInvalid() {
@@ -609,11 +626,11 @@ class AztecText : EditText, TextWatcher {
 
         //reapply span top "top" and "bottom"
         if (spanPrecedesLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanExtendsBeyondLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -730,7 +747,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                editableText.setSpan(AztecQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -1209,7 +1226,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecBulletSpan(bulletColor, bulletRadius, bulletGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)
@@ -1218,7 +1235,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecQuoteSpan(quoteColor, quoteStripeWidth, quoteGapWidth), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val urlSpans = editable.getSpans(start, end, URLSpan::class.java)

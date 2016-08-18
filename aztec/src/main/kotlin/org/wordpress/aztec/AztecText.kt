@@ -120,7 +120,7 @@ class AztecText : EditText, TextWatcher {
 
     }
 
-    // StyleSpan ===================================================================================
+    // Inline Styles ===================================================================================
 
     private fun bold(valid: Boolean) {
         if (valid) {
@@ -135,6 +135,22 @@ class AztecText : EditText, TextWatcher {
             applyInlineStyle(TextFormat.FORMAT_ITALIC, selectionStart, selectionEnd)
         } else {
             removeInlineStyle(TextFormat.FORMAT_ITALIC, selectionStart, selectionEnd)
+        }
+    }
+
+    fun underline(valid: Boolean) {
+        if (valid) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionStart, selectionEnd)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionEnd, selectionEnd)
+        }
+    }
+
+    fun strikethrough(valid: Boolean) {
+        if (valid) {
+            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
         }
     }
 
@@ -379,25 +395,6 @@ class AztecText : EditText, TextWatcher {
         }
 
     }
-
-    // UnderlineSpan ===============================================================================
-
-    fun underline(valid: Boolean) {
-        if (valid) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionStart, selectionEnd)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionEnd, selectionEnd)
-        }
-    }
-
-    fun strikethrough(valid: Boolean) {
-        if (valid) {
-            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
-        }
-    }
-
     // BulletSpan ==================================================================================
 
     fun bullet(valid: Boolean) {

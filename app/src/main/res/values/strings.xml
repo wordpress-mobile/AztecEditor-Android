@@ -16,15 +16,4 @@
     <string name="menu_undo">Undo</string>
     <string name="menu_redo">Redo</string>
 
-    <!-- TOAST -->
-    <string name="toast_bold">Bold</string>
-    <string name="toast_bullet">Bullet</string>
-    <string name="toast_format_clear">Format clear</string>
-    <string name="toast_html">HTML</string>
-    <string name="toast_insert_link">Insert link</string>
-    <string name="toast_italic">Italic</string>
-    <string name="toast_quote">Quote</string>
-    <string name="toast_strikethrough">Strikethrough</string>
-    <string name="toast_underline">Underline</string>
-
 </resources>

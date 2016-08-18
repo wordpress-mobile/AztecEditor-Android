@@ -12,7 +12,7 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     BULLET_LIST(R.id.format_bar_button_ul, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_BULLET),
-    NUMBERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_BULLET), //temporary
+    NUMBERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.OTHER, null), //temporary
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);

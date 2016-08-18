@@ -157,6 +157,7 @@ class AztecText : EditText, TextWatcher {
 
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
+            //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
             } else {
@@ -168,7 +169,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    //TODO: Check if there is more efficient way to do it
+    //TODO: Check if there is more efficient way to tidy spans
     private fun joinStyleSpans(start: Int, end: Int) {
         //joins spans on the left
         if (start > 1) {

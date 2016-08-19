@@ -733,22 +733,59 @@ class AztecText : EditText, TextWatcher {
         return spans.size > 0
     }
 
-    // When AztecText lose focus, use this method
-    @JvmOverloads fun link(link: String?, start: Int = selectionStart, end: Int = selectionEnd) {
-        if (link != null && !TextUtils.isEmpty(link.trim { it <= ' ' })) {
-            linkValid(link, start, end)
-        } else {
-            linkInvalid(start, end)
+
+    fun addLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
+        if (TextUtils.isEmpty(link)) {
+            return
         }
+
+        val cleanLink = link.trim()
+        val newEnd: Int
+
+        if (TextUtils.isEmpty(anchor)) {
+            text.insert(start, cleanLink)
+            newEnd = start + cleanLink.length
+        } else {
+            text.insert(start, anchor)
+            newEnd = start + anchor!!.length
+        }
+
+        linkValid(link, start, newEnd)
+
     }
+
+
+    fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
+        if (TextUtils.isEmpty(link)) {
+            return
+        }
+
+        val cleanLink = link.trim()
+        val newEnd: Int
+
+        if (TextUtils.isEmpty(anchor)) {
+            text.replace(start, end, cleanLink)
+            newEnd = start + cleanLink.length
+        } else {
+            text.replace(start, end, anchor)
+            newEnd = start + anchor!!.length
+        }
+
+        linkValid(link, start, newEnd)
+    }
+
+    fun removeLink(start: Int = selectionStart, end: Int = selectionEnd) {
+        linkInvalid(start, end)
+    }
+
 
     private fun linkValid(link: String, start: Int, end: Int) {
         if (start >= end) {
             return
         }
-
         linkInvalid(start, end)
         editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        onSelectionChanged(end, end)
     }
 
     // Remove all span in selection, not like the boldInvalid()

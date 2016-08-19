@@ -2,8 +2,8 @@
 
 <resources>
 
-    <color name="blue_200">#FF90CAF9</color>
-    <color name="blue_500">#FF2196F3</color>
-    <color name="blue_700">#FF1976D2</color>
+    <color name="blue_200">#ff90caf9</color>
+    <color name="blue_500">#ff2196f3</color>
+    <color name="blue_700">#ff1976d2</color>
 
 </resources>

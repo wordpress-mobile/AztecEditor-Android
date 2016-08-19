@@ -27,32 +27,35 @@ import android.text.style.BulletSpan
 
 class AztecBulletSpan : BulletSpan {
 
-    private var bulletColor = DEFAULT_COLOR
-    private var bulletRadius = DEFAULT_RADIUS
-    private var bulletGapWidth = DEFAULT_GAP_WIDTH
+    private var bulletColor: Int = 0
+    private var bulletMargin: Int = 0
+    private var bulletPadding: Int = 0
+    private var bulletWidth: Int = 0
 
-
-    constructor(bulletColor: Int, bulletRadius: Int, bulletGapWidth: Int) {
-        this.bulletColor = if (bulletColor != 0) bulletColor else DEFAULT_COLOR
-        this.bulletRadius = if (bulletRadius != 0) bulletRadius else DEFAULT_RADIUS
-        this.bulletGapWidth = if (bulletGapWidth != 0) bulletGapWidth else DEFAULT_GAP_WIDTH
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
+        this.bulletColor = bulletColor
+        this.bulletMargin = bulletMargin
+        this.bulletWidth = bulletWidth
+        this.bulletPadding = bulletPadding
     }
 
     constructor(src: Parcel) : super(src) {
         this.bulletColor = src.readInt()
-        this.bulletRadius = src.readInt()
-        this.bulletGapWidth = src.readInt()
+        this.bulletMargin = src.readInt()
+        this.bulletWidth = src.readInt()
+        this.bulletPadding = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
         dest.writeInt(bulletColor)
-        dest.writeInt(bulletRadius)
-        dest.writeInt(bulletGapWidth)
+        dest.writeInt(bulletMargin)
+        dest.writeInt(bulletWidth)
+        dest.writeInt(bulletPadding)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return 2 * bulletRadius + bulletGapWidth
+        return bulletMargin + 2 * bulletWidth + bulletPadding
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -71,15 +74,15 @@ class AztecBulletSpan : BulletSpan {
                 if (bulletPath == null) {
                     bulletPath = Path()
                     // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                    bulletPath!!.addCircle(0.0f, 0.0f, bulletRadius.toFloat(), Path.Direction.CW)
+                    bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
                 }
 
                 c.save()
-                c.translate((x + dir * bulletRadius).toFloat(), (top + bottom) / 2.0f)
+                c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
                 c.drawPath(bulletPath!!, p)
                 c.restore()
             } else {
-                c.drawCircle((x + dir * bulletRadius).toFloat(), (top + bottom) / 2.0f, bulletRadius.toFloat(), p)
+                c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
             }
 
             p.color = oldColor
@@ -89,9 +92,6 @@ class AztecBulletSpan : BulletSpan {
     }
 
     companion object {
-        private val DEFAULT_COLOR = 0
-        private val DEFAULT_RADIUS = 3
-        private val DEFAULT_GAP_WIDTH = 2
         private var bulletPath: Path? = null
     }
 }

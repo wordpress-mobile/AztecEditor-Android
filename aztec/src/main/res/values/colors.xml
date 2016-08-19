@@ -1,18 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
-    <color name="legacy_format_bar_button_selected">#00aadc</color>
-    <color name="legacy_placeholder_content_text">#21759B</color>
-    <color name="legacy_format_bar_background">#eeeeee</color>
-    <color name="legacy_pressed_wordpress">#CC78C8E6</color>
 
-    <color name="image_options_label">@color/wp_gray</color>
+    <!-- STYLING -->
+    <color name="background">@color/white</color>
+    <color name="bullet">@color/text</color>
+    <color name="link">@color/blue_wordpress</color>
+    <color name="quote">@color/background</color>
+    <color name="quote_background">@color/grey_lighten_30</color>
+    <color name="text">@color/grey_dark</color>
+    <color name="text_hint">@color/grey_disabled</color>
 
-    <color name="format_bar_button_normal_color">@color/wp_gray_lighten_10</color>
-    <color name="format_bar_button_highlighted_color">@color/wp_blue</color>
-    <color name="format_bar_background">#f9fbfc</color>
-    <color name="format_bar_ripple_animation">@color/wp_gray_lighten_10</color>
+    <!-- TOOLBAR -->
+    <color name="format_bar_background">#fff9fbfc</color>
+    <color name="format_bar_button_highlighted_color">@color/blue_wordpress</color>
+    <color name="format_bar_button_normal_color">@color/grey_lighten_10</color>
+    <color name="format_bar_divider">@color/grey_lighten_10</color>
+    <color name="format_bar_ripple_animation">@color/grey_lighten_10</color>
 
-    <color name="format_bar_divider">@color/wp_gray_lighten_10</color>
-    <color name="sourceview_separator">@color/wp_gray_lighten_30</color>
-    <color name="sourceview_placeholder_text">@color/wp_gray</color>
+    <color name="image_options_label">@color/grey</color>
+
+    <color name="legacy_format_bar_background">@color/grey_e</color>
+    <color name="legacy_format_bar_button_selected">@color/blue_medium</color>
+    <color name="legacy_placeholder_content_text">#ff21759b</color>
+    <color name="legacy_pressed_wordpress">#cc78c8e6</color>
+
+    <color name="sourceview_separator">@color/grey_lighten_30</color>
+    <color name="sourceview_placeholder_text">@color/grey</color>
+
+    <!-- STANDARD -->
+    <color name="grey_e">#ffeeeeee</color>
+    <color name="white">#ffffffff</color>
+
+    <!-- WORDPRESS -->
+    <color name="blue_medium">#ff00aadc</color>
+    <color name="blue_wordpress">#ff0087be</color>
+    <color name="grey">#ff87a6bc</color>
+    <color name="grey_dark">#ff2e4453</color>
+    <color name="grey_disabled">#ff668eaa</color>
+    <color name="grey_lighten_10">#ffa8bece</color>
+    <color name="grey_lighten_30">#ffe9eff3</color>
+
 </resources>

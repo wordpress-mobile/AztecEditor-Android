@@ -6,15 +6,14 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
 import android.widget.ToggleButton
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.R
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.*
 import java.util.*
 
 
 class AztecToolbar : FrameLayout {
 
     private var mEditor: AztecText? = null
+    private var mSourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
         initView()
@@ -33,8 +32,10 @@ class AztecToolbar : FrameLayout {
         return mEditor != null && mEditor is AztecText
     }
 
-    fun setEditor(editor: AztecText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
         mEditor = editor
+        mSourceEditor = sourceEditor
+
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         mEditor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
@@ -117,7 +118,25 @@ class AztecToolbar : FrameLayout {
         //other toolbar action
         when (action) {
             ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.HTML -> mEditor!!.setText(mEditor!!.toHtml())
+            ToolbarAction.HTML -> {
+                if (mEditor!!.visibility == View.VISIBLE) {
+                    val styledHtml = android.text.SpannableString(mEditor!!.toHtml())
+                    HtmlStyleUtils.styleHtmlForDisplay(styledHtml)
+                    mSourceEditor!!.setText(styledHtml)
+
+                    mEditor!!.visibility = View.GONE
+                    mSourceEditor!!.visibility = View.VISIBLE
+
+                    toggleButton(findViewById(action.buttonId), true)
+                } else {
+                    mEditor!!.fromHtml(mSourceEditor!!.text.toString())
+
+                    mEditor!!.visibility = View.VISIBLE
+                    mSourceEditor!!.visibility = View.GONE
+
+                    toggleButton(findViewById(action.buttonId), false)
+                }
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }

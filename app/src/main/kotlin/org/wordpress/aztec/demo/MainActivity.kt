@@ -48,19 +48,15 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        aztec = findViewById(R.id.aztec) as AztecText
-        // ImageGetter coming soon...
         source = findViewById(R.id.source) as SourceViewEditText
-        source.addTextChangedListener(HtmlStyleTextWatcher());
+        source.addTextChangedListener(HtmlStyleTextWatcher())
 
-        // ImageGetter coming soon...
+        aztec = findViewById(R.id.aztec) as AztecText
         aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
 
         toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
-        toolbar.setEditor(aztec)
-        // ImageGetter coming soon...
-
+        toolbar.setEditor(aztec, source)
 
     }
 

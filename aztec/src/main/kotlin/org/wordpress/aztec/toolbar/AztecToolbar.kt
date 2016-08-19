@@ -3,6 +3,8 @@ package org.wordpress.aztec.toolbar
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Bundle
+import android.os.Parcelable
 import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.text.style.URLSpan
@@ -24,6 +26,9 @@ class AztecToolbar : FrameLayout {
 
     private var mEditor: AztecText? = null
 
+
+    private var addUrlDialog: AlertDialog? = null
+
     constructor(context: Context) : super(context) {
         initView()
     }
@@ -36,6 +41,35 @@ class AztecToolbar : FrameLayout {
         initView()
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable("superState", super.onSaveInstanceState())
+        bundle.putBoolean("isUrlDialogVisible", if (addUrlDialog != null) addUrlDialog!!.isShowing else false)
+        return bundle
+    }
+
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        var superState = state
+
+        if (state is Bundle) {
+            val dialogIsVisible = state.getBoolean("isUrlDialogVisible")
+
+            superState = state.getParcelable("superState");
+            if (dialogIsVisible) {
+                showLinkDialog()
+            }
+        }
+        super.onRestoreInstanceState(superState)
+    }
+
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if(addUrlDialog != null && addUrlDialog!!.isShowing){
+            addUrlDialog!!.dismiss()
+        }
+    }
 
     private fun isEditorAttached(): Boolean {
         return mEditor != null && mEditor is AztecText
@@ -224,9 +258,9 @@ class AztecToolbar : FrameLayout {
             }
 
         })
-        builder.create().show()
+        addUrlDialog = builder.create()
+        addUrlDialog!!.show()
     }
-
 
 
     /**

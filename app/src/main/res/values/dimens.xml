@@ -2,9 +2,13 @@
 
 <resources>
 
-    <dimen name="bullet_radius">2dp</dimen>
-    <dimen name="bullet_gap_width">8dp</dimen>
-    <dimen name="quote_stripe_width">8dp</dimen>
-    <dimen name="quote_gap_width">2dp</dimen>
+    <dimen name="bullet_margin">32dp</dimen>
+    <dimen name="bullet_padding">8dp</dimen>
+    <dimen name="bullet_width">2dp</dimen>
+    <dimen name="quote_margin">32dp</dimen>
+    <dimen name="quote_padding">8dp</dimen>
+    <dimen name="quote_width">2dp</dimen>
+    <dimen name="spacing_extra">4dp</dimen>
+    <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 
 </resources>

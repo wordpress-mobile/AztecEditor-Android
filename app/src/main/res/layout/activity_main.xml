@@ -1,130 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aztec="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" >
 
-    <HorizontalScrollView android:id="@+id/tools"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:layout_alignParentBottom="true"
-                          android:scrollbars="none">
+    <org.wordpress.aztec.toolbar.AztecToolbar
+        android:id="@+id/formatting_toolbar"
+        android:layout_alignParentBottom="true"
+        android:layout_height="@dimen/format_bar_height"
+        android:layout_width="match_parent" >
+    </org.wordpress.aztec.toolbar.AztecToolbar>
 
-        <LinearLayout android:orientation="horizontal"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content">
+    <ScrollView
+        android:layout_above="@id/formatting_toolbar"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" >
 
-            <Button android:id="@+id/html"
-                android:contentDescription="@null"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="center"
-                android:text="@string/toast_html"
-                android:textColor="@color/blue_200"
-                android:background="?android:selectableItemBackground" />
-
-            <ImageButton android:id="@+id/bold"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_bold"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/italic"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_italic"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/underline"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_underline"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/strikethrough"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_strikethrough"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/bullet"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_bullet"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/quote"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_quote"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/link"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_insert_link"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-            <ImageButton android:id="@+id/clear"
-                         android:contentDescription="@null"
-                         android:layout_width="48dp"
-                         android:layout_height="48dp"
-                         android:src="@drawable/ic_format_clear"
-                         android:scaleType="center"
-                         android:background="?android:selectableItemBackground">
-            </ImageButton>
-
-        </LinearLayout>
-
-    </HorizontalScrollView>
-
-    <org.wordpress.aztec.AztecText
+        <org.wordpress.aztec.AztecText
             android:id="@+id/aztec"
+            android:hint="@string/edit_hint"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentTop="true"
-            android:layout_above="@id/tools"
-            android:paddingTop="16dp"
-            android:paddingLeft="16dp"
-            android:paddingStart="16dp"
-            android:paddingRight="16dp"
             android:paddingEnd="16dp"
-            android:gravity="top|start"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
             android:scrollbars="vertical"
-            android:background="@android:color/transparent"
-            app:bulletColor="@color/blue_500"
-            app:bulletRadius="@dimen/bullet_radius"
-            app:bulletGapWidth="@dimen/bullet_gap_width"
-            app:historyEnable="true"
-            app:historySize="99"
-            app:linkColor="@color/blue_500"
-            app:linkUnderline="true"
-            app:quoteColor="@color/blue_500"
-            app:quoteStripeWidth="@dimen/quote_stripe_width"
-            app:quoteCapWidth="@dimen/quote_gap_width">
-    </org.wordpress.aztec.AztecText>
+            aztec:backgroundColor="@android:color/transparent"
+            aztec:bulletColor="@color/blue_500"
+            aztec:bulletMargin="@dimen/bullet_margin"
+            aztec:bulletPadding="@dimen/bullet_padding"
+            aztec:bulletWidth="@dimen/bullet_width"
+            aztec:historyEnable="true"
+            aztec:historySize="10"
+            aztec:lineSpacingExtra="@dimen/spacing_extra"
+            aztec:lineSpacingMultiplier="@dimen/spacing_multiplier"
+            aztec:linkColor="@color/blue_700"
+            aztec:linkUnderline="false"
+            aztec:quoteBackground="@color/blue_700"
+            aztec:quoteColor="@color/blue_500"
+            aztec:quoteMargin="@dimen/quote_margin"
+            aztec:quotePadding="@dimen/quote_padding"
+            aztec:quoteWidth="@dimen/quote_width"
+            aztec:textColor="@android:color/white"
+            aztec:textColorHint="@android:color/darker_gray" >
+        </org.wordpress.aztec.AztecText>
+
+    </ScrollView>
 
     <org.wordpress.aztec.SourceViewEditText
         android:id="@+id/source"

@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+
     <declare-styleable name="AztecText">
-        <attr name="pudu" format="reference|color" />
+        <attr name="backgroundColor" format="reference|color" />
         <attr name="bulletColor" format="reference|color" />
-        <attr name="bulletRadius" format="reference|dimension" />
-        <attr name="bulletGapWidth" format="reference|dimension" />
+        <attr name="bulletMargin" format="reference|dimension" />
+        <attr name="bulletPadding" format="reference|dimension" />
+        <attr name="bulletWidth" format="reference|dimension" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
+        <attr name="lineSpacingExtra" format="reference|dimension" />
+        <attr name="lineSpacingMultiplier" format="reference|float" />
         <attr name="linkColor" format="reference|color" />
         <attr name="linkUnderline" format="reference|boolean" />
+        <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteColor" format="reference|color" />
-        <attr name="quoteStripeWidth" format="reference|dimension" />
-        <attr name="quoteCapWidth" format="reference|dimension" />
+        <attr name="quoteMargin" format="reference|dimension" />
+        <attr name="quotePadding" format="reference|dimension" />
+        <attr name="quoteWidth" format="reference|dimension" />
+        <attr name="textColor" format="reference|color" />
+        <attr name="textColorHint" format="reference|color" />
     </declare-styleable>
     <declare-styleable name="SourceViewEditText">
         <attr name="fontFile" format="string" />

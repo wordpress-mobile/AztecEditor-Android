@@ -484,4 +484,36 @@ class AztecToolbarTest {
 
         Assert.assertEquals("bullet", editText.toHtml())
     }
+
+
+    /**
+     * Test styling inside HiddenHtmlSpan
+     *
+     * @throws Exception
+     */
+    //TODO: remove extra fromHtml calls after fixing https://github.com/wordpress-mobile/WordPress-Aztec-Android/issues/54
+    @Test
+    @Throws(Exception::class)
+    fun stylingInsideHiddenHtmlSpan() {
+        editText.fromHtml("<div class=\"third\">Div<br><span>Span</span><br>Hidden</div>")
+
+        editText.setSelection(0, 3)
+        boldButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>", editText.toHtml())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>")
+
+        editText.setSelection(4, 8)
+        italicButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>",
+                editText.toHtml())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>")
+        editText.setSelection(9, 15)
+        strikeThroughButton.performClick()
+
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br><del>Hidden</del></div>",
+                editText.toHtml())
+
+    }
 }

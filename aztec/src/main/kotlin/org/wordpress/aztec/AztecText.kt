@@ -176,6 +176,8 @@ class AztecText : EditText, TextWatcher {
 
 
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
+        if(firstSpan is HiddenHtmlSpan || secondSpan is HiddenHtmlSpan) return false
+
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {

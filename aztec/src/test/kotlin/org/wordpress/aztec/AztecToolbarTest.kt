@@ -21,6 +21,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 class AztecToolbarTest {
 
     lateinit var editText: AztecText
+    lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
 
     lateinit var boldButton: ToggleButton
@@ -39,9 +40,12 @@ class AztecToolbarTest {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        sourceText = SourceViewEditText(activity)
+
+
         activity.setContentView(editText)
         toolbar = AztecToolbar(activity)
-        toolbar.setEditor(editText)
+        toolbar.setEditor(editText, sourceText)
 
         boldButton = toolbar.findViewById(R.id.format_bar_button_bold) as ToggleButton
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic) as ToggleButton

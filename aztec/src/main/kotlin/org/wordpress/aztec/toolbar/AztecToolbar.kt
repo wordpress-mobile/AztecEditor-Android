@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
 import android.widget.ToggleButton
+import android.widget.Toolbar
 import org.wordpress.aztec.*
 import java.util.*
 
@@ -81,6 +82,11 @@ class AztecToolbar : FrameLayout {
         }
     }
 
+    private fun toggleButtonState(button: View?, enabled: Boolean) {
+        if (button != null) {
+            button.isEnabled = enabled
+        }
+    }
 
     private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
@@ -120,21 +126,21 @@ class AztecToolbar : FrameLayout {
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> {
                 if (mEditor!!.visibility == View.VISIBLE) {
-                    val styledHtml = android.text.SpannableString(mEditor!!.toHtml())
+                    val styledHtml = android.text.SpannableString(Format.toHtml(mEditor!!.toHtml()))
                     HtmlStyleUtils.styleHtmlForDisplay(styledHtml)
                     mSourceEditor!!.setText(styledHtml)
 
                     mEditor!!.visibility = View.GONE
                     mSourceEditor!!.visibility = View.VISIBLE
 
-                    toggleButton(findViewById(action.buttonId), true)
+                    toggleHtmlMode(true)
                 } else {
-                    mEditor!!.fromHtml(mSourceEditor!!.text.toString())
+                    mEditor!!.fromHtml(Format.fromHtml(mSourceEditor!!.text.toString()))
 
                     mEditor!!.visibility = View.VISIBLE
                     mSourceEditor!!.visibility = View.GONE
 
-                    toggleButton(findViewById(action.buttonId), false)
+                    toggleHtmlMode(false)
                 }
             }
             else -> {
@@ -144,6 +150,15 @@ class AztecToolbar : FrameLayout {
 
     }
 
+    private fun toggleHtmlMode(isHtmlMode: Boolean) {
+        ToolbarAction.values().forEach { action ->
+            if (action == ToolbarAction.HTML) {
+                toggleButton(findViewById(action.buttonId), isHtmlMode)
+            } else {
+                toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
+            }
+        }
+    }
 
     private fun showLinkDialog() {
         if (!isEditorAttached()) return

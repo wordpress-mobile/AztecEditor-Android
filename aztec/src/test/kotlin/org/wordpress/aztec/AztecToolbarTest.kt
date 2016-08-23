@@ -512,4 +512,31 @@ class AztecToolbarTest {
                 editText.toHtml())
 
     }
+
+    /**
+     * Test the correctness of span-to-HTML conversion after deleting a span from the editor
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun htmlAfterEditingHiddenSpan() {
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(4, 8)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><br><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(3, 9)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(0, editText.length())
+
+        htmlButton.performClick()
+        Assert.assertEquals("", editText.text.toString())
+    }
 }

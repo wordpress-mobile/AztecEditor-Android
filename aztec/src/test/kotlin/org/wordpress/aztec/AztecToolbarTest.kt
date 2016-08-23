@@ -491,7 +491,6 @@ class AztecToolbarTest {
      *
      * @throws Exception
      */
-    //TODO: remove extra fromHtml calls after fixing https://github.com/wordpress-mobile/WordPress-Aztec-Android/issues/54
     @Test
     @Throws(Exception::class)
     fun stylingInsideHiddenHtmlSpan() {
@@ -501,14 +500,11 @@ class AztecToolbarTest {
         boldButton.performClick()
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>", editText.toHtml())
 
-        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>")
-
         editText.setSelection(4, 8)
         italicButton.performClick()
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>",
                 editText.toHtml())
 
-        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>")
         editText.setSelection(9, 15)
         strikeThroughButton.performClick()
 

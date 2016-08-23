@@ -327,6 +327,25 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
+     * Parse nested blocks text from HTML to span to HTML twice with the same spannable string
+     * instance.  If input and output are equal with the same length and corresponding characters,
+     * [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedMixedTwice_isEqual() {
+        val input =
+                HTML_NESTED_MIXED
+
+        val span = SpannableString(mParser.fromHtml(input, context))
+
+        Assert.assertEquals(input, mParser.toHtml(span))
+        Assert.assertEquals(input, mParser.toHtml(span))
+    }
+
+    /**
      * Parse empty nested blocks text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *

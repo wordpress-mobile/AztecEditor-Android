@@ -80,14 +80,62 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun setLinkToStyledText() {
         editText.fromHtml("Hello <b>WordPress</b>")
-
         editText.setSelection(6,editText.length())
 
-        Assert.assertEquals("WordPress", editText.getSelectedText())
-
         editText.link("http://wordpress.com", editText.getSelectedText())
-
         Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun setLinkAndReplaceText() {
+        editText.fromHtml("Hello <b>WordPress</b>")
+        editText.setSelection(6,editText.length())
+
+        editText.link("http://wordpress.com", "World")
+        Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">World</a></b>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeLink() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(6,editText.length())
+
+        editText.link("", "WordPress")
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeLinkAndChangeAnchor() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(6,editText.length())
+
+        editText.link("", "World") //removing url wont cause anchor to change
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun changeAnchorAndUrl() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(7)
+
+        editText.link("http://automattic.com", "World")
+        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun changeAnchorAndUrlWithPartialSelection() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(6,editText.length()-1)
+
+        editText.link("http://automattic.com", "World")
+        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
 }

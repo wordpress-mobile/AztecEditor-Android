@@ -832,6 +832,10 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun link(url: String, anchor: String) {
+        if (TextUtils.isEmpty(url)) {
+            removeLink()
+        }
+
         if (isUrlSelected()) {
             editLink(url, anchor, getUrlSpanBounds().first, getUrlSpanBounds().second)
         } else {

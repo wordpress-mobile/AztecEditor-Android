@@ -23,6 +23,7 @@ import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.*
 import android.util.AttributeSet
+import android.util.Patterns
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import java.util.*
@@ -126,8 +127,8 @@ class AztecText : EditText, TextWatcher {
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {
         isNewStyleSelected = true
-        selectedStyles.clear()
-        selectedStyles.addAll(styles)
+        selectedStyles?.clear()
+        selectedStyles?.addAll(styles)
     }
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
@@ -137,6 +138,15 @@ class AztecText : EditText, TextWatcher {
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+
+
+        var newSelStart = selStart
+
+        if (selStart > 0 && !isTextSelected()) {
+            newSelStart = selStart - 1
+        }
+
+        setSelectedStyles(getAppliedStyles(newSelStart, selEnd))
 
     }
 
@@ -177,7 +187,7 @@ class AztecText : EditText, TextWatcher {
 
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
-            if(firstSpan is HiddenHtmlSpan) return false
+            if (firstSpan is HiddenHtmlSpan) return false
 
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
@@ -735,8 +745,101 @@ class AztecText : EditText, TextWatcher {
         return spans.size > 0
     }
 
+    fun getSelectedText(): String {
+        return editableText.substring(selectionStart, selectionEnd)
+    }
 
-    fun addLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun isUrlSelected(): Boolean {
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+        return !urlSpans.isEmpty()
+    }
+
+    fun getSelectedUrlWithAnchor(): Pair<String, String> {
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+
+        val url: String
+        var anchor: String
+
+        if (!isUrlSelected()) {
+
+            val clipboardUrl = getUrlFromClipboard(context)
+
+            if (TextUtils.isEmpty(clipboardUrl)) {
+                url = ""
+            } else {
+                url = clipboardUrl!!
+            }
+
+            if (selectionStart == selectionEnd) {
+                anchor = ""
+            } else {
+                anchor = editableText.substring(selectionStart, selectionEnd)
+            }
+
+        } else {
+            val spanStart: Int
+            val spanEnd: Int
+
+            val urlSpan = urlSpans[0]
+
+            spanStart = editableText.getSpanStart(urlSpan)
+            spanEnd = editableText.getSpanEnd(urlSpan)
+
+            if (selectionStart < spanStart || selectionEnd > spanEnd) {
+                //looks like some text that is not part of the url was included in selection
+                anchor = editableText.substring(selectionStart, selectionEnd)
+                url = ""
+
+            } else {
+                anchor = editableText.substring(spanStart, spanEnd)
+                url = urlSpan.url
+            }
+
+            if (anchor.equals(url)) {
+                anchor = ""
+            }
+        }
+
+        return Pair(url, anchor)
+
+    }
+
+    /**
+     * Checks the Clipboard for text that matches the [Patterns.WEB_URL] pattern.
+     * @return the URL text in the clipboard, if it exists; otherwise null
+     */
+    fun getUrlFromClipboard(context: Context?): String? {
+        if (context == null) return null
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+
+        val data = clipboard?.primaryClip
+        if (data == null || data.itemCount <= 0) return null
+        val clipText = data.getItemAt(0).text.toString()
+        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else null
+    }
+
+    fun getUrlSpanBounds(): Pair<Int, Int> {
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+
+        val spanStart = text.getSpanStart(urlSpans[0])
+        val spanEnd = text.getSpanEnd(urlSpans[0])
+
+        if (selectionStart < spanStart || selectionEnd > spanEnd) {
+            //looks like some text that is not part of the url was included in selection
+            return Pair(selectionStart, selectionEnd)
+        }
+        return Pair(spanStart, spanEnd)
+    }
+
+    fun link(url: String, anchor: String) {
+        if (isUrlSelected()) {
+            editLink(url, anchor, getUrlSpanBounds().first, getUrlSpanBounds().second)
+        } else {
+            addLink(url, anchor, selectionStart, selectionEnd)
+        }
+    }
+
+    fun addLink(link: String, anchor: String, start: Int, end: Int) {
         if (TextUtils.isEmpty(link)) {
             return
         }
@@ -744,18 +847,29 @@ class AztecText : EditText, TextWatcher {
         val cleanLink = link.trim()
         val newEnd: Int
 
+        val actuallAnchor: String
+
         if (TextUtils.isEmpty(anchor)) {
-            text.insert(start, cleanLink)
-            newEnd = start + cleanLink.length
+            actuallAnchor = cleanLink
         } else {
-            text.insert(start, anchor)
-            newEnd = start + anchor!!.length
+            actuallAnchor = anchor
         }
+
+        if (start == end) {
+            //insert anchor
+            text.insert(start, actuallAnchor)
+            newEnd = start + actuallAnchor.length
+        } else {
+            //apply span to text
+            text.replace(start, end, actuallAnchor)
+            newEnd = start + actuallAnchor.length
+        }
+
 
         linkValid(link, start, newEnd)
 
-    }
 
+    }
 
     fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
         if (TextUtils.isEmpty(link)) {
@@ -780,11 +894,11 @@ class AztecText : EditText, TextWatcher {
         linkInvalid(start, end)
     }
 
-
     private fun linkValid(link: String, start: Int, end: Int) {
         if (start >= end) {
             return
         }
+
         linkInvalid(start, end)
         editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         onSelectionChanged(end, end)

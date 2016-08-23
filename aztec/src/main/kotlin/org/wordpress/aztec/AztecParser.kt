@@ -31,9 +31,15 @@ class AztecParser {
     internal var hiddenIndex = 0
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+    internal var removedSpans: List<Int> = ArrayList()
 
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
+    }
+
+    fun toHtml(text: Spanned, removed: List<Int>): String {
+        removedSpans = removed
+        return toHtml(text)
     }
 
     fun toHtml(text: Spanned): String {
@@ -311,6 +317,10 @@ class AztecParser {
                 closeMap[hiddenIndex]!!.parse()
                 hiddenIndex++
             }
+            if (removedSpans.contains(hiddenIndex)) {
+                hiddenIndex++
+            }
+
         } while (last != hiddenIndex)
     }
 

@@ -19,6 +19,8 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Bundle
+import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.*
@@ -28,6 +30,9 @@ import android.widget.EditText
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
+
+    private val REMOVED_SPANS_BUNDLE_KEY = "REMOVED_SPANS_BUNDLE_KEY"
+    private val SUPER_STATE_BUNDLE_KEY = "SUPER_STATE_BUNDLE_KEY"
 
     private var bulletColor = ContextCompat.getColor(context, R.color.bullet)
     private var bulletMargin = resources.getDimensionPixelSize(R.dimen.bullet_margin)
@@ -59,6 +64,7 @@ class AztecText : EditText, TextWatcher {
 
     private var isNewStyleSelected = false
 
+    var removedSpans = ArrayList<Int>()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -112,6 +118,26 @@ class AztecText : EditText, TextWatcher {
 
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
+
+        removedSpans.clear()
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val bundle = Bundle()
+        bundle.putIntegerArrayList(REMOVED_SPANS_BUNDLE_KEY, removedSpans)
+        bundle.putParcelable(SUPER_STATE_BUNDLE_KEY, superState)
+        return bundle
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state != null && state is Bundle) {
+            removedSpans = state.getIntegerArrayList(REMOVED_SPANS_BUNDLE_KEY)
+            super.onRestoreInstanceState(state.getParcelable(SUPER_STATE_BUNDLE_KEY))
+        }
+        else {
+            super.onRestoreInstanceState(BaseSavedState.EMPTY_STATE)
+        }
     }
 
     override fun onAttachedToWindow() {
@@ -886,6 +912,16 @@ class AztecText : EditText, TextWatcher {
         }
 
         inputBefore = SpannableStringBuilder(text)
+
+        if (count > after) {
+            val hidden = inputBefore.getSpans(start, start + count, HiddenHtmlSpan::class.java)
+            hidden.forEach {
+                if (inputBefore.getSpanStart(it) >= start && inputBefore.getSpanEnd(it) <= start + count) {
+                    removedSpans.add(it.startOrder)
+                    removedSpans.add(it.endOrder)
+                }
+            }
+        }
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -1113,7 +1149,7 @@ class AztecText : EditText, TextWatcher {
     fun toHtml(): String {
         clearComposingText() //remove formatting provided by autosuggestion (like <u>)
         val parser = AztecParser()
-        return parser.toHtml(editableText)
+        return parser.toHtml(editableText, removedSpans)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

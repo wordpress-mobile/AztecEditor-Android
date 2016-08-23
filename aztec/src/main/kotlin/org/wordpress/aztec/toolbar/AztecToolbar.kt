@@ -1,15 +1,12 @@
 package org.wordpress.aztec.toolbar
 
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AlertDialog
 import android.text.TextUtils
-import android.text.style.URLSpan
 import android.util.AttributeSet
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -66,7 +63,7 @@ class AztecToolbar : FrameLayout {
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        if(addUrlDialog != null && addUrlDialog!!.isShowing){
+        if (addUrlDialog != null && addUrlDialog!!.isShowing) {
             addUrlDialog!!.dismiss()
         }
     }
@@ -134,7 +131,7 @@ class AztecToolbar : FrameLayout {
 
         val appliedStyles = mEditor!!.getAppliedStyles(newSelStart, selEnd)
 
-        mEditor!!.setSelectedStyles(appliedStyles)
+//        mEditor!!.setSelectedStyles(appliedStyles)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
     }
 
@@ -171,64 +168,10 @@ class AztecToolbar : FrameLayout {
     private fun showLinkDialog() {
         if (!isEditorAttached()) return
 
-        var start = mEditor!!.selectionStart
-        var end = mEditor!!.selectionEnd
+        val urlAndAnchor = mEditor!!.getSelectedUrlWithAnchor()
 
-        val urlSpans = mEditor!!.text.getSpans(start, end, URLSpan::class.java)
-
-
-        val url: String?
-        var anchor: String?
-
-        var modifyingExistingLink = false
-
-        var spanStart: Int = 0
-        var spanEnd: Int = 0
-
-        if (!urlSpans.isEmpty()) {
-            val urlSpan = urlSpans[0]
-
-            spanStart = mEditor!!.text.getSpanStart(urlSpan)
-            spanEnd = mEditor!!.text.getSpanEnd(urlSpan)
-
-            if (start < spanStart || end > spanEnd) {
-                //looks like some text that is not part of the url was included in selection
-                anchor = mEditor!!.text.substring(start, end)
-                url = ""
-
-            } else {
-                anchor = mEditor!!.text.substring(spanStart, spanEnd)
-                url = urlSpan.url
-                start = spanStart
-                end = spanEnd
-            }
-
-            if (anchor.equals(url)) {
-                anchor = ""
-            }
-
-
-            modifyingExistingLink = true
-
-        } else {
-
-            val clipboardUrl = getUrlFromClipboard(context)
-
-            if (TextUtils.isEmpty(clipboardUrl)) {
-                url = ""
-            } else {
-                url = clipboardUrl
-            }
-
-
-
-            if (start == end) {
-                anchor = ""
-            } else {
-                anchor = mEditor!!.text.substring(start, end)
-            }
-        }
-
+        val url = urlAndAnchor.first
+        val anchor = urlAndAnchor.second
 
         val builder = AlertDialog.Builder(context)
         builder.setCancelable(false)
@@ -244,36 +187,19 @@ class AztecToolbar : FrameLayout {
         builder.setTitle(R.string.dialog_title)
 
         builder.setPositiveButton(R.string.dialog_button_ok, DialogInterface.OnClickListener { dialog, which ->
-            val link = urlInput.text.toString().trim { it <= ' ' }
+            val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
-            if (TextUtils.isEmpty(link)) {
+            if (TextUtils.isEmpty(linkText)) {
                 return@OnClickListener
             }
 
-            if (modifyingExistingLink) {
-                mEditor!!.editLink(link, anchorText, start, end)
-            } else {
-                mEditor!!.addLink(link, anchorText, start, end)
-            }
+            mEditor!!.link(linkText, anchorText)
 
         })
         addUrlDialog = builder.create()
         addUrlDialog!!.show()
     }
 
-
-    /**
-     * Checks the Clipboard for text that matches the [Patterns.WEB_URL] pattern.
-     * @return the URL text in the clipboard, if it exists; otherwise null
-     */
-    fun getUrlFromClipboard(context: Context?): String? {
-        if (context == null) return null
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val data = clipboard?.primaryClip
-        if (data == null || data.itemCount <= 0) return null
-        val clipText = data.getItemAt(0).text.toString()
-        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else null
-    }
 
 }

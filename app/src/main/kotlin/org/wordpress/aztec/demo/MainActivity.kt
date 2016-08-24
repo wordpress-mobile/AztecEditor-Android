@@ -42,11 +42,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
-        aztec.fromHtml(EXAMPLE)
-        aztec.setSelection(aztec.editableText.length)
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec)
+
+        aztec.fromHtml(EXAMPLE)
+        aztec.setSelection(aztec.editableText.length)
         // ImageGetter coming soon...
 
 

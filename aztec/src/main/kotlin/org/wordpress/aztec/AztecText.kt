@@ -127,8 +127,8 @@ class AztecText : EditText, TextWatcher {
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {
         isNewStyleSelected = true
-        selectedStyles.clear()
-        selectedStyles.addAll(styles)
+        selectedStyles?.clear()
+        selectedStyles?.addAll(styles)
     }
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
@@ -748,41 +748,26 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getSelectedUrlWithAnchor(): Pair<String, String> {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
-
         val url: String
         var anchor: String
 
         if (!isUrlSelected()) {
-
             val clipboardUrl = getUrlFromClipboard(context)
 
-            if (TextUtils.isEmpty(clipboardUrl)) {
-                url = ""
-            } else {
-                url = clipboardUrl!!
-            }
-
-            if (selectionStart == selectionEnd) {
-                anchor = ""
-            } else {
-                anchor = editableText.substring(selectionStart, selectionEnd)
-            }
+            url = if (TextUtils.isEmpty(clipboardUrl)) "" else clipboardUrl
+            anchor = if (selectionStart == selectionEnd) "" else editableText.substring(selectionStart, selectionEnd)
 
         } else {
-            val spanStart: Int
-            val spanEnd: Int
-
+            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
             val urlSpan = urlSpans[0]
 
-            spanStart = editableText.getSpanStart(urlSpan)
-            spanEnd = editableText.getSpanEnd(urlSpan)
+            val spanStart = editableText.getSpanStart(urlSpan)
+            val spanEnd = editableText.getSpanEnd(urlSpan)
 
             if (selectionStart < spanStart || selectionEnd > spanEnd) {
                 //looks like some text that is not part of the url was included in selection
                 anchor = editableText.substring(selectionStart, selectionEnd)
                 url = ""
-
             } else {
                 anchor = editableText.substring(spanStart, spanEnd)
                 url = urlSpan.url
@@ -801,14 +786,14 @@ class AztecText : EditText, TextWatcher {
      * Checks the Clipboard for text that matches the [Patterns.WEB_URL] pattern.
      * @return the URL text in the clipboard, if it exists; otherwise null
      */
-    fun getUrlFromClipboard(context: Context?): String? {
-        if (context == null) return null
+    fun getUrlFromClipboard(context: Context?): String {
+        if (context == null) return ""
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
 
-        val data = clipboard?.primaryClip
-        if (data == null || data.itemCount <= 0) return null
+        val data = clipboard.primaryClip
+        if (data == null || data.itemCount <= 0) return ""
         val clipText = data.getItemAt(0).text.toString()
-        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else null
+        return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else ""
     }
 
     fun getUrlSpanBounds(): Pair<Int, Int> {
@@ -825,11 +810,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun link(url: String, anchor: String) {
-        if (TextUtils.isEmpty(url)) {
+        if (TextUtils.isEmpty(url) && isUrlSelected()) {
             removeLink()
-        }
-
-        if (isUrlSelected()) {
+        } else if (isUrlSelected()) {
             editLink(url, anchor, getUrlSpanBounds().first, getUrlSpanBounds().second)
         } else {
             addLink(url, anchor, selectionStart, selectionEnd)
@@ -837,20 +820,10 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun addLink(link: String, anchor: String, start: Int, end: Int) {
-        if (TextUtils.isEmpty(link)) {
-            return
-        }
-
         val cleanLink = link.trim()
         val newEnd: Int
 
-        val actuallAnchor: String
-
-        if (TextUtils.isEmpty(anchor)) {
-            actuallAnchor = cleanLink
-        } else {
-            actuallAnchor = anchor
-        }
+        val actuallAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
         if (start == end) {
             //insert anchor
@@ -862,17 +835,10 @@ class AztecText : EditText, TextWatcher {
             newEnd = start + actuallAnchor.length
         }
 
-
         linkValid(link, start, newEnd)
-
-
     }
 
     fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
-        if (TextUtils.isEmpty(link)) {
-            return
-        }
-
         val cleanLink = link.trim()
         val newEnd: Int
 
@@ -880,7 +846,8 @@ class AztecText : EditText, TextWatcher {
             text.replace(start, end, cleanLink)
             newEnd = start + cleanLink.length
         } else {
-            if(!getSelectedText().equals(anchor)){
+            //if the anchor was not changed do nothing to preserve original style of text
+            if (!getSelectedText().equals(anchor)) {
                 text.replace(start, end, anchor)
             }
             newEnd = start + anchor!!.length
@@ -889,11 +856,10 @@ class AztecText : EditText, TextWatcher {
         linkValid(link, start, newEnd)
     }
 
-    fun removeLink(start: Int = selectionStart, end: Int = selectionEnd) {
-
+    fun removeLink() {
         val urlSpanBounds = getUrlSpanBounds()
 
-        linkInvalid(urlSpanBounds.first , urlSpanBounds.second)
+        linkInvalid(urlSpanBounds.first, urlSpanBounds.second)
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
@@ -907,7 +873,6 @@ class AztecText : EditText, TextWatcher {
         onSelectionChanged(end, end)
     }
 
-    // Remove all span in selection, not like the boldInvalid()
     private fun linkInvalid(start: Int, end: Int) {
         if (start >= end) {
             return
@@ -1007,7 +972,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun contains(format: TextFormat,  selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)

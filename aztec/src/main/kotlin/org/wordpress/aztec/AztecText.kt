@@ -56,7 +56,7 @@ class AztecText : EditText, TextWatcher {
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
-    private var selectedStyles: ArrayList<TextFormat> = ArrayList()
+    private val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
 
@@ -127,8 +127,8 @@ class AztecText : EditText, TextWatcher {
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {
         isNewStyleSelected = true
-        selectedStyles?.clear()
-        selectedStyles?.addAll(styles)
+        selectedStyles.clear()
+        selectedStyles.addAll(styles)
     }
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
@@ -139,14 +139,7 @@ class AztecText : EditText, TextWatcher {
         super.onSelectionChanged(selStart, selEnd)
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
-
-        var newSelStart = selStart
-
-        if (selStart > 0 && !isTextSelected()) {
-            newSelStart = selStart - 1
-        }
-
-        setSelectedStyles(getAppliedStyles(newSelStart, selEnd))
+        setSelectedStyles(getAppliedStyles(if (selStart > 0 && !isTextSelected()) selStart - 1 else selStart, selEnd))
 
     }
 

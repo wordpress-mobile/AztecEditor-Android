@@ -2,8 +2,11 @@ package org.wordpress.aztec.toolbar
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.PopupMenu
+import android.widget.PopupMenu.OnMenuItemClickListener
 import android.widget.Toast
 import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
@@ -11,9 +14,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import java.util.*
 
-
-class AztecToolbar : FrameLayout {
-
+class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var mEditor: AztecText? = null
 
     constructor(context: Context) : super(context) {
@@ -28,6 +29,41 @@ class AztecToolbar : FrameLayout {
         initView()
     }
 
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.header_1 -> {
+                // TODO: Format line for H1
+                Toast.makeText(context, "H1", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.header_2 -> {
+                // TODO: Format line for H2
+                Toast.makeText(context, "H2", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.header_3 -> {
+                // TODO: Format line for H3
+                Toast.makeText(context, "H3", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.header_4 -> {
+                // TODO: Format line for H4
+                Toast.makeText(context, "H4", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.header_5 -> {
+                // TODO: Format line for H5
+                Toast.makeText(context, "H5", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.header_6 -> {
+                // TODO: Format line for H6
+                Toast.makeText(context, "H6", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            else -> return false
+        }
+    }
 
     private fun isEditorAttached(): Boolean {
         return mEditor != null && mEditor is AztecText
@@ -73,13 +109,11 @@ class AztecToolbar : FrameLayout {
         return actions
     }
 
-
     private fun toggleButton(button: View?, checked: Boolean) {
         if (button != null && button is ToggleButton) {
             button.isChecked = checked
         }
     }
-
 
     private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
@@ -95,7 +129,6 @@ class AztecToolbar : FrameLayout {
         mEditor!!.setSelectedStyles(appliedStyles)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
     }
-
 
     private fun onToolbarAction(action: ToolbarAction) {
         if (!isEditorAttached()) return
@@ -116,6 +149,7 @@ class AztecToolbar : FrameLayout {
 
         //other toolbar action
         when (action) {
+            ToolbarAction.HEADER -> showHeaderMenu(findViewById(action.buttonId))
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> mEditor!!.setText(mEditor!!.toHtml())
             else -> {
@@ -125,10 +159,15 @@ class AztecToolbar : FrameLayout {
 
     }
 
+    private fun showHeaderMenu(view: View) {
+        val popup = PopupMenu(context, view)
+        popup.setOnMenuItemClickListener(this)
+        popup.inflate(R.menu.header)
+        popup.show()
+    }
 
     private fun showLinkDialog() {
         if (!isEditorAttached()) return
         Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
     }
-
 }

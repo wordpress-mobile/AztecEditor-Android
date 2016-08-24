@@ -31,9 +31,15 @@ class AztecParser {
     internal var hiddenIndex = 0
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
+    internal var removedSpans: List<Int> = ArrayList()
 
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
+    }
+
+    fun toHtml(text: Spanned, removed: List<Int>): String {
+        removedSpans = removed
+        return toHtml(text)
     }
 
     fun toHtml(text: Spanned): String {
@@ -42,21 +48,30 @@ class AztecParser {
         // add a marker to the end of the text to aid nested group parsing
         val data = SpannableStringBuilder(text).append('\u200B')
 
+        resetHiddenTagParser(text)
+
         withinHtml(out, data)
         return tidy(out.toString())
+    }
+
+    private fun resetHiddenTagParser(text: Spanned) {
+        // keeps track of the next span to be closed
+        hiddenIndex = 0
+
+        // keeps the spans, which will be closed in the future, using the closing order index as key
+        closeMap.clear()
+        openMap.clear()
+
+        val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
+        spans.forEach {
+            it.reset()
+        }
     }
 
     private fun withinHtml(out: StringBuilder, text: Spanned) {
         var next: Int
 
         var i = 0
-
-        // keeps track of the next span to be closed
-        hiddenIndex = 0
-
-        // keeps the spans, which will be closed in the future, using the closing order index as key
-        closeMap = TreeMap()
-        openMap = TreeMap()
 
         while (i < text.length) {
             next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
@@ -85,9 +100,6 @@ class AztecParser {
             }
             i = next
         }
-
-        closeMap.clear()
-        openMap.clear()
     }
 
     private fun withinUnknown(unknownHtmlSpan: UnknownHtmlSpan, out: StringBuilder) {
@@ -311,6 +323,10 @@ class AztecParser {
                 closeMap[hiddenIndex]!!.parse()
                 hiddenIndex++
             }
+            if (removedSpans.contains(hiddenIndex)) {
+                hiddenIndex++
+            }
+
         } while (last != hiddenIndex)
     }
 

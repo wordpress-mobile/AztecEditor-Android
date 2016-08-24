@@ -25,6 +25,10 @@ class HiddenHtmlSpan(tag: String, attributes: StringBuilder, openOrder : Int) : 
         this.endTag = StringBuilder()
         this.endTag.append("</").append(tag).append(">")
 
+        reset()
+    }
+
+    fun reset() {
         isClosed = false
         isOpened = false
         isParsed = false

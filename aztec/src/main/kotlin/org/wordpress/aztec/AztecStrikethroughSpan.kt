@@ -6,7 +6,10 @@ class AztecStrikethroughSpan(tag: String) : StrikethroughSpan() {
 
     private var mTag: String = tag
 
-    fun getTag() : String {
+    //default tag
+    constructor() : this("del")
+
+    fun getTag(): String {
         return mTag
     }
 }

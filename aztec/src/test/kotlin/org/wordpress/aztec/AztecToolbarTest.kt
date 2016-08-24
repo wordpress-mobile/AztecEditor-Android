@@ -26,6 +26,7 @@ class AztecToolbarTest {
 
     lateinit var boldButton: ToggleButton
     lateinit var italicButton: ToggleButton
+    lateinit var strikeThroughButton: ToggleButton
     lateinit var quoteButton: ToggleButton
     lateinit var bulletListButton: ToggleButton
     lateinit var numberedListButton: ToggleButton
@@ -49,6 +50,7 @@ class AztecToolbarTest {
 
         boldButton = toolbar.findViewById(R.id.format_bar_button_bold) as ToggleButton
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic) as ToggleButton
+        strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough) as ToggleButton
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
         bulletListButton = toolbar.findViewById(R.id.format_bar_button_ul) as ToggleButton
         numberedListButton = toolbar.findViewById(R.id.format_bar_button_ol) as ToggleButton
@@ -161,6 +163,49 @@ class AztecToolbarTest {
 
 
     /**
+     * Toggle bold Strikethrough and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testStrikethroughTyping() {
+        Assert.assertFalse(strikeThroughButton.isChecked)
+        strikeThroughButton.performClick()
+        Assert.assertTrue(strikeThroughButton.isChecked)
+
+        editText.append("strike")
+        Assert.assertEquals("<del>strike</del>", editText.toHtml())
+
+        strikeThroughButton.performClick()
+        Assert.assertFalse(strikeThroughButton.isChecked)
+    }
+
+
+    /**
+     * Select text and toggle Strikethrough button.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testStrikethroughToggle() {
+        Assert.assertFalse(strikeThroughButton.isChecked)
+
+        editText.append("strike")
+        editText.setSelection(0, editText.length())
+        strikeThroughButton.performClick()
+        Assert.assertTrue(strikeThroughButton.isChecked)
+        Assert.assertEquals("<del>strike</del>", editText.toHtml())
+
+        strikeThroughButton.performClick()
+        Assert.assertFalse(strikeThroughButton.isChecked)
+
+        Assert.assertEquals("strike", editText.toHtml())
+    }
+
+
+    /**
      * Select parts of text and apply formatting to it.
      *
      * @throws Exception
@@ -169,14 +214,14 @@ class AztecToolbarTest {
     @Throws(Exception::class)
     fun testCrossStylesToggle() {
 
-        editText.append("bold bolditalic italic normal")
+        editText.append("bold bolditalic italic strike normal")
         editText.setSelection(0, 4)
 
         Assert.assertFalse(boldButton.isChecked)
         boldButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> bolditalic italic normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b> bolditalic italic strike normal", editText.toHtml())
 
         editText.setSelection(5, 15)
 
@@ -188,7 +233,7 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(italicButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> italic normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> italic strike normal", editText.toHtml())
 
         editText.setSelection(16, 22)
 
@@ -198,7 +243,12 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(italicButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> normal", editText.toHtml())
+        editText.setSelection(23, 29)
+
+        strikeThroughButton.performClick()
+        Assert.assertTrue(strikeThroughButton.isChecked)
+
+        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <del>strike</del> normal", editText.toHtml())
     }
 
     /**
@@ -227,9 +277,17 @@ class AztecToolbarTest {
         Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i>", editText.toHtml())
 
         italicButton.performClick()
-        Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
+
+        strikeThroughButton.performClick()
+        editText.append("strike")
+        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>", editText.toHtml())
+
+        strikeThroughButton.performClick()
+        Assert.assertFalse(strikeThroughButton.isChecked)
+
         editText.append("normal")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i>normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>normal", editText.toHtml())
     }
 
 
@@ -241,7 +299,7 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun testSelection() {
-        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i>normal")
+        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>normal")
 
         //cursor is at bold text
         editText.setSelection(2)
@@ -258,6 +316,11 @@ class AztecToolbarTest {
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
 
+        //unstyled text selected
+        editText.setSelection(22)
+        Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
+        Assert.assertTrue(strikeThroughButton.isChecked)
 
         //unstyled text selected
         editText.setSelection(15)
@@ -268,6 +331,7 @@ class AztecToolbarTest {
         editText.setSelection(0, editText.length() - 1)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
 
     }
 
@@ -291,6 +355,28 @@ class AztecToolbarTest {
         italicButton.performClick()
 
         Assert.assertEquals("<b>bol</b><b><i>ditalic</i></b>", editText.toHtml())
+    }
+
+    /**
+     * Select whole text with one common style applied to it and another style applied to part of it
+     * ("ds" from <b>bold</b><b><del>strike</del></b>) and extend partially applied style (strikethrough) to other part of selection
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun extendStyleStrikethrough() {
+        editText.fromHtml("<b>bold</b><b><del>strike</del></b>")
+
+        val selectedText = editText.text.substring(3, 5)
+        Assert.assertEquals("ds", selectedText) //sanity check
+
+        editText.setSelection(3, 5)
+
+        Assert.assertTrue(boldButton.isChecked)
+        strikeThroughButton.performClick()
+
+        Assert.assertEquals("<b>bol</b><b><del>dstrike</del></b>", editText.toHtml())
     }
 
 
@@ -401,5 +487,60 @@ class AztecToolbarTest {
         Assert.assertFalse(boldButton.isChecked)
 
         Assert.assertEquals("bullet", editText.toHtml())
+    }
+
+
+    /**
+     * Test styling inside HiddenHtmlSpan
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun stylingInsideHiddenHtmlSpan() {
+        editText.fromHtml("<div class=\"third\">Div<br><span>Span</span><br>Hidden</div>")
+
+        editText.setSelection(0, 3)
+        boldButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>", editText.toHtml())
+
+        editText.setSelection(4, 8)
+        italicButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>",
+                editText.toHtml())
+
+        editText.setSelection(9, 15)
+        strikeThroughButton.performClick()
+
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br><del>Hidden</del></div>",
+                editText.toHtml())
+
+    }
+
+    /**
+     * Test the correctness of span-to-HTML conversion after deleting a span from the editor
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun htmlAfterEditingHiddenSpan() {
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(4, 8)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><br><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(3, 9)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(0, editText.length())
+
+        htmlButton.performClick()
+        Assert.assertEquals("", editText.text.toString())
     }
 }

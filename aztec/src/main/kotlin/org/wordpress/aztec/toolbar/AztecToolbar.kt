@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AlertDialog
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +21,6 @@ import java.util.*
 class AztecToolbar : FrameLayout {
 
     private var mEditor: AztecText? = null
-
 
     private var addUrlDialog: AlertDialog? = null
 
@@ -190,13 +188,18 @@ class AztecToolbar : FrameLayout {
             val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
-            if (TextUtils.isEmpty(linkText)) {
-                return@OnClickListener
-            }
-
             mEditor!!.link(linkText, anchorText)
 
         })
+
+        builder.setNeutralButton(R.string.dialog_button_remove_link, DialogInterface.OnClickListener { dialogInterface, i ->
+            mEditor!!.removeLink()
+        })
+
+        builder.setNegativeButton(R.string.dialog_button_cancel, DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        })
+
         addUrlDialog = builder.create()
         addUrlDialog!!.show()
     }

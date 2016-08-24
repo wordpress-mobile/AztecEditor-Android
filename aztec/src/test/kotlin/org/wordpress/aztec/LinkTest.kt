@@ -11,7 +11,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(constants = BuildConfig::class)
-class AddUrlTest() {
+class LinkTest() {
 
     lateinit var editText: AztecText
 
@@ -80,7 +80,7 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun setLinkToStyledText() {
         editText.fromHtml("Hello <b>WordPress</b>")
-        editText.setSelection(6,editText.length())
+        editText.setSelection(6, editText.length())
 
         editText.link("http://wordpress.com", editText.getSelectedText())
         Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>", editText.toHtml())
@@ -91,7 +91,7 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun setLinkAndReplaceText() {
         editText.fromHtml("Hello <b>WordPress</b>")
-        editText.setSelection(6,editText.length())
+        editText.setSelection(6, editText.length())
 
         editText.link("http://wordpress.com", "World")
         Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">World</a></b>", editText.toHtml())
@@ -101,7 +101,7 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun removeLink() {
         editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
-        editText.setSelection(6,editText.length())
+        editText.setSelection(6, editText.length())
 
         editText.link("", "WordPress")
         Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
@@ -111,7 +111,7 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun removeLinkAndChangeAnchor() {
         editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
-        editText.setSelection(6,editText.length())
+        editText.setSelection(6, editText.length())
 
         editText.link("", "World") //removing url wont cause anchor to change
         Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
@@ -132,10 +132,56 @@ class AddUrlTest() {
     @Throws(Exception::class)
     fun changeAnchorAndUrlWithPartialSelection() {
         editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
-        editText.setSelection(6,editText.length()-1)
+        editText.setSelection(6, editText.length() - 1)
 
         editText.link("http://automattic.com", "World")
         Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
+
+    //TODO: Modify parser to produce cleaner html
+    //Currently the way tags are closed (at every span transition) makes toHtml produce this:
+    //<a href="http://automattic.com">FirstUrl Hello </a><a href="http://automattic.com"><b>SecondUrl</b></a>
+    @Test
+    @Throws(Exception::class)
+    fun changeUrlOfMultipleSelectedLinks() {
+        editText.fromHtml("<a href=\"http://first\">FirstUrl</a> Hello <b><a href=\"http://second\">SecondUrl</a></b>")
+        editText.setSelection(0, editText.length())
+
+        editText.link("http://automattic.com", editText.getSelectedText())
+        Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a>" +
+                "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun removeUrl() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(7)
+
+        editText.removeLink()
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun removeUrlWithOtherTextSelected() {
+        editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
+        editText.setSelection(0, editText.length())
+
+        editText.removeLink()
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeUrlFromMultipleSelectedUrls() {
+        editText.fromHtml("<a href=\"http://first\">FirstUrl</a> Hello <b><a href=\"http://second\">SecondUrl</a></b>")
+        editText.setSelection(0, editText.length())
+
+        editText.removeLink()
+        Assert.assertEquals("FirstUrl Hello <b>SecondUrl</b>", editText.toHtml())
+    }
 }

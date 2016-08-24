@@ -739,6 +739,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getSelectedText(): String {
+        if (selectionStart == -1 || selectionEnd == -1) return ""
         return editableText.substring(selectionStart, selectionEnd)
     }
 
@@ -755,7 +756,7 @@ class AztecText : EditText, TextWatcher {
             val clipboardUrl = getUrlFromClipboard(context)
 
             url = if (TextUtils.isEmpty(clipboardUrl)) "" else clipboardUrl
-            anchor = if (selectionStart == selectionEnd) "" else editableText.substring(selectionStart, selectionEnd)
+            anchor = if (selectionStart == selectionEnd) "" else getSelectedText()
 
         } else {
             val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
@@ -766,7 +767,7 @@ class AztecText : EditText, TextWatcher {
 
             if (selectionStart < spanStart || selectionEnd > spanEnd) {
                 //looks like some text that is not part of the url was included in selection
-                anchor = editableText.substring(selectionStart, selectionEnd)
+                anchor = getSelectedText()
                 url = ""
             } else {
                 anchor = editableText.substring(spanStart, spanEnd)

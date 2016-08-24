@@ -50,7 +50,7 @@ class AztecToolbar : FrameLayout {
         if (state is Bundle) {
             val dialogIsVisible = state.getBoolean("isUrlDialogVisible")
 
-            superState = state.getParcelable("superState");
+            superState = state.getParcelable("superState")
             if (dialogIsVisible) {
                 showLinkDialog()
             }
@@ -72,7 +72,7 @@ class AztecToolbar : FrameLayout {
     fun setEditor(editor: AztecText) {
         this.editor = editor
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
-        editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
+        this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 highlightAppliedStyles(selStart, selEnd)
             }

@@ -8,6 +8,7 @@
     <string name="format_bar_tag_link" translatable="false">link</string>
 
     <!-- Accessibility - format bar button descriptions -->
+    <string name="format_bar_description_header">Header</string>
     <string name="format_bar_description_bold">Bold</string>
     <string name="format_bar_description_italic">Italic</string>
     <string name="format_bar_description_underline">Underline</string>

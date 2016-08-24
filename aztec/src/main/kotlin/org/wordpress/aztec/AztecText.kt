@@ -887,7 +887,9 @@ class AztecText : EditText, TextWatcher {
             text.replace(start, end, cleanLink)
             newEnd = start + cleanLink.length
         } else {
-            text.replace(start, end, anchor)
+            if(!getSelectedText().equals(anchor)){
+                text.replace(start, end, anchor)
+            }
             newEnd = start + anchor!!.length
         }
 
@@ -895,7 +897,11 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun removeLink(start: Int = selectionStart, end: Int = selectionEnd) {
-        linkInvalid(start, end)
+
+        val urlSpanBounds = getUrlSpanBounds()
+
+        linkInvalid(urlSpanBounds.first , urlSpanBounds.second)
+        onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
     private fun linkValid(link: String, start: Int, end: Int) {
@@ -1008,21 +1014,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-
-    operator fun contains(format: TextFormat): Boolean {
-        when (format) {
-            TextFormat.FORMAT_BOLD -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_ITALIC -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_BULLET -> return containBullet(selectionStart, selectionEnd)
-            TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
-            TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
-            else -> return false
-        }
-    }
-
-    fun contains(format: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    fun contains(format: TextFormat,  selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)

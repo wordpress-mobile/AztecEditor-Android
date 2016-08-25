@@ -491,7 +491,6 @@ class AztecToolbarTest {
      *
      * @throws Exception
      */
-    //TODO: remove extra fromHtml calls after fixing https://github.com/wordpress-mobile/WordPress-Aztec-Android/issues/54
     @Test
     @Throws(Exception::class)
     fun stylingInsideHiddenHtmlSpan() {
@@ -501,19 +500,43 @@ class AztecToolbarTest {
         boldButton.performClick()
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>", editText.toHtml())
 
-        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>")
-
         editText.setSelection(4, 8)
         italicButton.performClick()
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>",
                 editText.toHtml())
 
-        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>")
         editText.setSelection(9, 15)
         strikeThroughButton.performClick()
 
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br><del>Hidden</del></div>",
                 editText.toHtml())
 
+    }
+
+    /**
+     * Test the correctness of span-to-HTML conversion after deleting a span from the editor
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun htmlAfterEditingHiddenSpan() {
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(4, 8)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><br><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(3, 9)
+
+        htmlButton.performClick()
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><span>Hidden</span></div><div></div>", editText.text.toString())
+
+        editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
+        editText.text.delete(0, editText.length())
+
+        htmlButton.performClick()
+        Assert.assertEquals("", editText.text.toString())
     }
 }

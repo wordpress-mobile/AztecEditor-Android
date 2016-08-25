@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="MainActivityTheme" parent="android:Theme.DeviceDefault">
+    <style name="MainActivityTheme" parent="@style/Theme.AppCompat">
         <!-- DO NOTHING HERE -->
     </style>
 

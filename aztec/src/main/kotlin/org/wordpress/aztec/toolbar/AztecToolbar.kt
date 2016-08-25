@@ -201,7 +201,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
-                    val styledHtml = android.text.SpannableString(Format.toHtml(editor!!.toHtml()))
+                    val styledHtml = android.text.SpannableString(Format.toSourceCodeMode(editor!!.toHtml()))
                     HtmlStyleUtils.styleHtmlForDisplay(styledHtml)
                     sourceEditor!!.setText(styledHtml)
 
@@ -210,7 +210,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     toggleHtmlMode(true)
                 } else {
-                    editor!!.fromHtml(Format.fromHtml(sourceEditor!!.text.toString()))
+                    editor!!.fromHtml(Format.toVisualMode(sourceEditor!!.text.toString()))
 
                     editor!!.visibility = View.VISIBLE
                     sourceEditor!!.visibility = View.GONE

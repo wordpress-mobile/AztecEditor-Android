@@ -858,7 +858,9 @@ class AztecText : EditText, TextWatcher {
             newEnd = start + actuallAnchor.length
         } else {
             //apply span to text
-            text.replace(start, end, actuallAnchor)
+            if (!getSelectedText().equals(anchor)) {
+                text.replace(start, end, actuallAnchor)
+            }
             newEnd = start + actuallAnchor.length
         }
 

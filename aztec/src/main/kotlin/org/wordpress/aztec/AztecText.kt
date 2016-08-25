@@ -1111,7 +1111,7 @@ class AztecText : EditText, TextWatcher {
 
         //we might need to open span to add text to it
         if (spanToOpen != null) {
-            var spanEnd = text.getSpanEnd(spanToOpen) + textChangedEvent.count
+            val spanEnd = text.getSpanEnd(spanToOpen) + textChangedEvent.count
 
             if (spanEnd <= text.length) {
                 editableText.setSpan(spanToOpen,

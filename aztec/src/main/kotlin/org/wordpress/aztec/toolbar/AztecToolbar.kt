@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AlertDialog
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -39,7 +40,17 @@ class AztecToolbar : FrameLayout {
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
         bundle.putParcelable("superState", super.onSaveInstanceState())
-        bundle.putBoolean("isUrlDialogVisible", if (addLinkDialog != null) addLinkDialog!!.isShowing else false)
+
+        if (addLinkDialog != null && addLinkDialog!!.isShowing) {
+            bundle.putBoolean("isUrlDialogVisible", true)
+
+            val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
+            val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
+
+            bundle.putString("retainedUrl", urlInput.text.toString())
+            bundle.putString("retainedAnchor", anchorInput.text.toString())
+        }
+
         return bundle
     }
 
@@ -48,11 +59,14 @@ class AztecToolbar : FrameLayout {
         var superState = state
 
         if (state is Bundle) {
-            val dialogIsVisible = state.getBoolean("isUrlDialogVisible")
-
+            val isDialogVisible = state.getBoolean("isUrlDialogVisible")
             superState = state.getParcelable("superState")
-            if (dialogIsVisible) {
-                showLinkDialog()
+
+            if (isDialogVisible) {
+                val retainedUrl = state.getString("retainedUrl", "")
+                val retainedAnchor = state.getString("retainedAnchor", "")
+
+                showLinkDialog(retainedUrl, retainedAnchor)
             }
         }
         super.onRestoreInstanceState(superState)
@@ -157,17 +171,18 @@ class AztecToolbar : FrameLayout {
     }
 
 
-    private fun showLinkDialog() {
+    private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return
 
         val urlAndAnchor = editor!!.getSelectedUrlWithAnchor()
 
-        val url = urlAndAnchor.first
-        val anchor = urlAndAnchor.second
+        val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
+        val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
 
         val builder = AlertDialog.Builder(context)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null, false)
+
         val urlInput = dialogView.findViewById(R.id.linkURL) as EditText
         val anchorInput = dialogView.findViewById(R.id.linkText) as EditText
 

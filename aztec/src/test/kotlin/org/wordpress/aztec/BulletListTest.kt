@@ -219,22 +219,22 @@ class BulletListTest() {
 
 
     //ToDo: Make empty bullet points work
-//    @Test
-//    @Throws(Exception::class)
-//    fun emptyBulletSurroundedBytItems() {
-//        editText.bullet(!editText.contains(AztecText.FORMAT_BULLET))
-//        editText.append("first item")
-//        editText.append("\n")
-//        val firstMark = editText.length()
-//        editText.append("second item")
-//        editText.append("\n")
-//        val secondMart = editText.length()
-//        editText.append("third item")
-//
-//        editText.text.delete(firstMark-1,secondMart-2)
-//
-//        Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.toHtml())
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun emptyBulletSurroundedBytItems() {
+        editText.toggleFormatting(TextFormat.FORMAT_BULLET)
+        editText.append("first item")
+        editText.append("\n")
+        val firstMark = editText.length()
+        editText.append("second item")
+        editText.append("\n")
+        val secondMart = editText.length()
+        editText.append("third item")
+
+        editText.text.delete(firstMark-1,secondMart-2)
+
+        Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.toHtml())
+    }
 
 
 }

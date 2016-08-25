@@ -218,7 +218,6 @@ class BulletListTest() {
     }
 
 
-    //ToDo: Make empty bullet points work
     @Test
     @Throws(Exception::class)
     fun emptyBulletSurroundedBytItems() {
@@ -236,5 +235,29 @@ class BulletListTest() {
         Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.toHtml())
     }
 
+
+    @Test
+    @Throws(Exception::class)
+    fun trailingEmptyBulletPoint() {
+        editText.toggleFormatting(TextFormat.FORMAT_BULLET)
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("third item")
+        val mark = editText.length()
+        editText.append("\n")
+
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>", editText.toHtml())
+        editText.append("\n")
+
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.toHtml())
+
+        editText.append("not in list")
+        editText.setSelection(mark)
+        editText.text.insert(mark,"\n")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>not in list", editText.toHtml())
+
+    }
 
 }

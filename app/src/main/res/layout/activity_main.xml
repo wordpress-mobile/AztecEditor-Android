@@ -13,7 +13,7 @@
     </org.wordpress.aztec.toolbar.AztecToolbar>
 
     <ScrollView
-        android:layout_above="@id/formatting_toolbar"
+        android:layout_above="@+id/formatting_toolbar"
         android:layout_alignParentTop="true"
         android:layout_height="wrap_content"
         android:layout_width="match_parent" >

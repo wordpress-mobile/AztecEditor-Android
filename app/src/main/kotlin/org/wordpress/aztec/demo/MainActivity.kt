@@ -1,10 +1,10 @@
 package org.wordpress.aztec.demo
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextUtils
+import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -12,8 +12,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.*
 
-class MainActivity : Activity() {
-
+class MainActivity : AppCompatActivity() {
     companion object {
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
@@ -42,7 +41,7 @@ class MainActivity : Activity() {
 
     private lateinit var aztec: AztecText
     private lateinit var source: SourceViewEditText
-    private lateinit var toolbar: AztecToolbar
+    private lateinit var formattingToolbar: AztecToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,14 +51,15 @@ class MainActivity : Activity() {
         source.addTextChangedListener(HtmlStyleTextWatcher())
 
         aztec = findViewById(R.id.aztec) as AztecText
+
+        formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
+        formattingToolbar.setEditor(aztec, source)
+
         aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
 
-        toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
-        toolbar.setEditor(aztec, source)
-
+        // ImageGetter coming soon...
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)

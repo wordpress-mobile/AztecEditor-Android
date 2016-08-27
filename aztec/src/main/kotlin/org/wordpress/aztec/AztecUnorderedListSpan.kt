@@ -22,10 +22,9 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
-import android.text.TextUtils
 import android.text.style.BulletSpan
 
-class AztecUnorderedListSpan : BulletSpan,AztecList {
+class AztecUnorderedListSpan : BulletSpan, AztecList {
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
@@ -62,32 +61,32 @@ class AztecUnorderedListSpan : BulletSpan,AztecList {
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-        TextUtils.split(text.toString(), "\n").forEach {
-            val style = p.style
+        if (!first) return
 
-            val oldColor = p.color
+        val style = p.style
 
-            p.color = bulletColor
-            p.style = Paint.Style.FILL
+        val oldColor = p.color
 
-            if (c.isHardwareAccelerated) {
-                if (bulletPath == null) {
-                    bulletPath = Path()
-                    // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                    bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
-                }
+        p.color = bulletColor
+        p.style = Paint.Style.FILL
 
-                c.save()
-                c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
-                c.drawPath(bulletPath!!, p)
-                c.restore()
-            } else {
-                c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
+        if (c.isHardwareAccelerated) {
+            if (bulletPath == null) {
+                bulletPath = Path()
+                // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
+                bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
             }
 
-            p.color = oldColor
-            p.style = style
+            c.save()
+            c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
+            c.drawPath(bulletPath!!, p)
+            c.restore()
+        } else {
+            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
         }
+
+        p.color = oldColor
+        p.style = style
 
     }
 

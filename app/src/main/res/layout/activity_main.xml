@@ -52,7 +52,7 @@
                 aztec:textColor="@android:color/white"
                 aztec:textColorHint="@android:color/darker_gray" />
 
-            <org.wordpress.aztec.SourceViewEditText
+            <org.wordpress.aztec.source.SourceViewEditText
                 android:id="@+id/source"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"

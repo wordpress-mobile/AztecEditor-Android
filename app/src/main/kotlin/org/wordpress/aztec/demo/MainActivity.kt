@@ -11,6 +11,7 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.*
+import org.wordpress.aztec.source.SourceViewEditText
 
 class MainActivity : AppCompatActivity() {
     companion object {

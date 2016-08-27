@@ -402,6 +402,22 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
+    fun makeDummylistSpan(textFormat: TextFormat): LeadingMarginSpan {
+        when (textFormat) {
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+        }
+    }
+
+
+    fun makeDummylistSpan(spanType: Class<AztecList>): LeadingMarginSpan {
+        when (spanType) {
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+        }
+    }
 
     fun makeDummyInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
@@ -448,19 +464,25 @@ class AztecText : EditText, TextWatcher {
     }
     // BulletSpan ==================================================================================
 
-    fun bullet(valid: Boolean) {
+    fun orderedListValid(valid: Boolean) {
         if (valid) {
-            bulletValid()
+            applyList(TextFormat.FORMAT_ORDERED_LIST)
         } else {
-            bulletInvalid()
+            removeList()
         }
     }
 
-    private fun bulletValid() {
-        bulletValid(selectionStart, selectionEnd)
+
+    fun unorderedListValid(valid: Boolean) {
+        if (valid) {
+            applyList(TextFormat.FORMAT_UNORDERED_LIST)
+        } else {
+            removeList()
+        }
     }
 
-    private fun bulletValid(start: Int, end: Int) {
+
+    private fun applyList(listType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
             val selectedText = editableText.substring(start + 1..end - 1)
 
@@ -480,15 +502,15 @@ class AztecText : EditText, TextWatcher {
 
                 for (i in lines.indices) {
                     numberOfLines++
-                    if (containBullet(i, selectedLines)) {
+                    if (containsList(listType,i, selectedLines)) {
                         numberOfLinesWithSpanApplied++
                     }
                 }
 
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    bulletInvalid()
+                    removeList()
                 } else {
-                    editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
 
 
@@ -508,7 +530,7 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editableText.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
@@ -517,17 +539,15 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    private fun bulletInvalid() {
-        bulletInvalid(selectionStart, selectionEnd)
-    }
 
-    private fun bulletInvalid(start: Int, end: Int) {
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+    private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
+        val spans = editableText.getSpans(start, end, AztecList::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
 
         //for now we will assume that only one span can be applied at time
         val span = spans[0]
+
 
 
         val spanStart = editableText.getSpanStart(span)
@@ -547,15 +567,15 @@ class AztecText : EditText, TextWatcher {
 
         //reapply span top "top" and "bottom"
         if (spanPrecedesLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeDummylistSpan(span.javaClass), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanExtendsBeyondLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeDummylistSpan(span.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    private fun containBullet(selStart: Int, selEnd: Int): Boolean {
+    private fun containsList(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -581,7 +601,7 @@ class AztecText : EditText, TextWatcher {
         if (list.isEmpty()) return false
 
         for (i in list) {
-            if (!containBullet(i)) {
+            if (!containsList(textFormat, i)) {
                 return false
             }
         }
@@ -589,7 +609,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    private fun containBullet(index: Int, text: Editable): Boolean {
+    private fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -609,7 +629,7 @@ class AztecText : EditText, TextWatcher {
         return spans.size > 0
     }
 
-    private fun containBullet(index: Int): Boolean {
+    private fun containsList(textFormat: TextFormat, index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -625,7 +645,8 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+
+        val spans = editableText.getSpans(start, end, makeDummylistSpan(textFormat).javaClass)
         return spans.size > 0
     }
 
@@ -992,7 +1013,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD))
             TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC))
             TextFormat.FORMAT_STRIKETHROUGH -> strikethrough(!contains(TextFormat.FORMAT_STRIKETHROUGH))
-            TextFormat.FORMAT_BULLET -> bullet(!contains(TextFormat.FORMAT_BULLET))
+            TextFormat.FORMAT_UNORDERED_LIST -> unorderedListValid(!contains(TextFormat.FORMAT_UNORDERED_LIST))
+            TextFormat.FORMAT_ORDERED_LIST -> orderedListValid(!contains(TextFormat.FORMAT_ORDERED_LIST))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
             else -> {
                 //Do nothing for now
@@ -1006,7 +1028,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            TextFormat.FORMAT_BULLET -> return containBullet(selStart, selEnd)
+            TextFormat.FORMAT_UNORDERED_LIST -> return containsList(TextFormat.FORMAT_UNORDERED_LIST,selStart, selEnd)
+            TextFormat.FORMAT_ORDERED_LIST -> return containsList(TextFormat.FORMAT_ORDERED_LIST,selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return containLink(selStart, selEnd)
             else -> return false
@@ -1126,7 +1149,7 @@ class AztecText : EditText, TextWatcher {
             disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
-            bulletInvalid()
+            removeList()
             disableTextChangedListener()
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)
@@ -1271,7 +1294,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)

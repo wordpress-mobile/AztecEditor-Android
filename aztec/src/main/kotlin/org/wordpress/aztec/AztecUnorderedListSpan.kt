@@ -25,7 +25,7 @@ import android.text.Layout
 import android.text.TextUtils
 import android.text.style.BulletSpan
 
-class AztecBulletSpan : BulletSpan {
+class AztecUnorderedListSpan : BulletSpan,AztecList {
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0

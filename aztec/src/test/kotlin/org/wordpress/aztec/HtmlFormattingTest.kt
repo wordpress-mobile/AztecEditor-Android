@@ -69,7 +69,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.toVisualMode(Format.toSourceCodeMode(parser.toHtml(span)))
-        Assert.assertEquals(input, output)
+        TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
     @Test
@@ -78,7 +78,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.toVisualMode(Format.toSourceCodeMode(parser.toHtml(span)))
-        Assert.assertEquals(input, output)
+        TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
     @Test

@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -19,16 +20,13 @@ public class Format {
     public static String toSourceCodeMode(String content) {
         // let's use Jsoup for HTML formatting for now because it works out of the box
         Document doc = Jsoup.parseBodyFragment(content);
-        doc.outputSettings().prettyPrint(false);
         return doc.body().html();
     }
 
     public static String toVisualMode(String html) {
-        Document doc = Jsoup.parseBodyFragment(html);
-        doc.outputSettings().prettyPrint(false);
-        return doc.body().html();
+        // don't do anything for now, might change in the future
+        return html;
     }
-
 
     /**
      * Ported js code from wpandroid libs/wpsave.js

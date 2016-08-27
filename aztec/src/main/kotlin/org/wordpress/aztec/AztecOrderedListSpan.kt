@@ -22,6 +22,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
+import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.BulletSpan
 
@@ -58,36 +59,48 @@ class AztecOrderedListSpan : BulletSpan, AztecList {
         return bulletMargin + 2 * bulletWidth + bulletPadding
     }
 
+    fun getLineNumber(text: CharSequence, start: Int, end: Int): Int {
+
+        var stringBeforeStart = text.substring(0, end)
+        stringBeforeStart = stringBeforeStart.removePrefix("\n")
+
+        val numberOfNewlines = TextUtils.split(stringBeforeStart.toString(), "\n").size
+
+        return numberOfNewlines
+
+    }
+
+
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-        TextUtils.split(text.toString(), "\n").forEach {
-            val style = p.style
 
-            val oldColor = p.color
+        if(!first) return
 
-            p.color = bulletColor
-            p.style = Paint.Style.FILL
 
-            if (c.isHardwareAccelerated) {
-                if (bulletPath == null) {
-                    bulletPath = Path()
-                    // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                    bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
-                }
+        val spanStart = (text as Spanned).getSpanStart(this)
+        val spanEnd = text.getSpanEnd(this)
 
-                c.save()
-                c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
-                c.drawPath(bulletPath!!, p)
-                c.restore()
-            } else {
-                c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
-            }
+        if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
-            p.color = oldColor
-            p.style = style
-        }
+        val listText = text.subSequence(spanStart, spanEnd)
+
+        val lineNumber = getLineNumber(listText, start - spanStart, end - spanStart)
+
+        val style = p.style
+
+        val oldColor = p.color
+
+        p.color = bulletColor
+        p.style = Paint.Style.FILL
+
+
+        val width = p.measureText("4.")
+        c.drawText(lineNumber.toString() + ".", (bulletMargin + x - width / 2) * dir, bottom - p.descent(), p)
+
+        p.color = oldColor
+        p.style = style
 
     }
 

@@ -510,7 +510,7 @@ class AztecText : EditText, TextWatcher {
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
                     removeList()
                 } else {
-                    editableText.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(makeDummylistSpan(listType), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
 
 
@@ -530,7 +530,7 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editableText.setSpan(makeDummylistSpan(listType), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {

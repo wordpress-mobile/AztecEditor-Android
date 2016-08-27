@@ -1,10 +1,14 @@
 package org.wordpress.aztec;
 
+import android.support.annotation.ColorInt;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
 
 public class HtmlStyleTextWatcher implements TextWatcher {
+    private int tagColor;
+    private int attributeColor;
+
     private enum Operation {
         INSERT, DELETE, REPLACE, NONE
     }
@@ -12,6 +16,11 @@ public class HtmlStyleTextWatcher implements TextWatcher {
     private int mOffset;
     private CharSequence mModifiedText;
     private Operation mLastOperation;
+
+    public HtmlStyleTextWatcher(@ColorInt int tagColor, @ColorInt int attributeColor) {
+        this.tagColor = tagColor;
+        this.attributeColor = attributeColor;
+    }
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -198,7 +207,7 @@ public class HtmlStyleTextWatcher implements TextWatcher {
         }
 
         HtmlStyleUtils.clearSpans(content, spanStart, spanEnd);
-        HtmlStyleUtils.styleHtmlForDisplay(content, spanStart, spanEnd);
+        HtmlStyleUtils.styleHtmlForDisplay(content, spanStart, spanEnd, tagColor, attributeColor);
     }
 
     /**

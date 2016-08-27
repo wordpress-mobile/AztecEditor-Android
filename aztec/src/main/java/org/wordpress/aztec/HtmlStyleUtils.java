@@ -1,8 +1,8 @@
 package org.wordpress.aztec;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.text.Spannable;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
@@ -13,13 +13,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HtmlStyleUtils {
-    public static final int TAG_COLOR = Color.rgb(0, 80, 130);
-    public static final int ATTRIBUTE_COLOR = Color.rgb(158, 158, 158);
 
-    public static final String REGEX_HTML_TAGS = "(<\\/?[a-z][^<>]*>)";
-    public static final String REGEX_HTML_ATTRIBUTES = "(?<==)('|\")(.*?\\1)(?=.*?>)";
-    public static final String REGEX_HTML_COMMENTS = "(<!--.*?-->)";
-    public static final String REGEX_HTML_ENTITIES = "(&#34;|&#38;|&#39;|&#60;|&#62;|&#160;|&#161;|&#162;|&#163;" +
+    private static final String REGEX_HTML_TAGS = "(<\\/?[a-z][^<>]*>)";
+    private static final String REGEX_HTML_ATTRIBUTES = "(?<==)('|\")(.*?\\1)(?=.*?>)";
+    private static final String REGEX_HTML_COMMENTS = "(<!--.*?-->)";
+    private static final String REGEX_HTML_ENTITIES = "(&#34;|&#38;|&#39;|&#60;|&#62;|&#160;|&#161;|&#162;|&#163;" +
             "|&#164;|&#165;|&#166;|&#167;|&#168;|&#169;|&#170;|&#171;|&#172;|&#173;|&#174;|&#175;|&#176;|&#177;" +
             "|&#178;|&#179;|&#180;|&#181;|&#182;|&#183;|&#184;|&#185;|&#186;|&#187;|&#188;|&#189;|&#190;|&#191;" +
             "|&#192;|&#193;|&#194;|&#195;|&#196;|&#197;|&#198;|&#199;|&#200;|&#201;|&#202;|&#203;|&#204;|&#205;" +
@@ -61,10 +59,11 @@ public class HtmlStyleUtils {
     public static final int SPANNABLE_FLAGS = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
 
     /**
-     * Apply styling rules to {@code content}.
+     * Apply styling rules to {@code content} with the given colors.
      */
-    public static void styleHtmlForDisplay(Spannable content) {
-        styleHtmlForDisplay(content, 0, content.length());
+    public static void styleHtmlForDisplayWithColors(Spannable content, @ColorInt int tagColor,
+                                                     @ColorInt int attributeColor) {
+        styleHtmlForDisplay(content, 0, content.length(), tagColor, attributeColor);
     }
 
     /**
@@ -74,17 +73,18 @@ public class HtmlStyleUtils {
      * @param start the index in {@code content} to start styling from
      * @param end the index in {@code content} to style until
      */
-    public static void styleHtmlForDisplay(Spannable content, int start, int end) {
+    public static void styleHtmlForDisplay(Spannable content, int start, int end, @ColorInt int tagColor,
+                                           @ColorInt int attributeColor) {
         if (Build.VERSION.RELEASE.equals("4.1") || Build.VERSION.RELEASE.equals("4.1.1")) {
             // Avoids crashing bug in Android 4.1 and 4.1.1 triggered when spanned text is line-wrapped
             // AOSP issue: https://code.google.com/p/android/issues/detail?id=35466
             return;
         }
 
-        applySpansByRegex(content, start, end, REGEX_HTML_TAGS);
-        applySpansByRegex(content, start, end, REGEX_HTML_ATTRIBUTES);
-        applySpansByRegex(content, start, end, REGEX_HTML_COMMENTS);
-        applySpansByRegex(content, start, end, REGEX_HTML_ENTITIES);
+        applySpansByRegex(content, start, end, REGEX_HTML_TAGS, tagColor, attributeColor);
+        applySpansByRegex(content, start, end, REGEX_HTML_ATTRIBUTES, tagColor, attributeColor);
+        applySpansByRegex(content, start, end, REGEX_HTML_COMMENTS, tagColor, attributeColor);
+        applySpansByRegex(content, start, end, REGEX_HTML_ENTITIES, tagColor, attributeColor);
     }
 
     /**
@@ -94,7 +94,8 @@ public class HtmlStyleUtils {
      * @param end the index in {@code content} to style until
      * @param regex the pattern to match for styling
      */
-    private static void applySpansByRegex(Spannable content, int start, int end, String regex) {
+    private static void applySpansByRegex(Spannable content, int start, int end, String regex, @ColorInt int tagColor,
+                                          @ColorInt int attributeColor) {
         if (content == null || start < 0 || end < 0 || start > content.length() || end > content.length() ||
                 start >= end) {
             return;
@@ -108,18 +109,16 @@ public class HtmlStyleUtils {
             int matchEnd = matcher.end() + start;
             switch(regex) {
                 case REGEX_HTML_TAGS:
-                    content.setSpan(new ForegroundColorSpan(TAG_COLOR), matchStart, matchEnd, SPANNABLE_FLAGS);
+                    content.setSpan(new ForegroundColorSpan(tagColor), matchStart, matchEnd, SPANNABLE_FLAGS);
                     break;
                 case REGEX_HTML_ATTRIBUTES:
-                    content.setSpan(new ForegroundColorSpan(ATTRIBUTE_COLOR), matchStart, matchEnd, SPANNABLE_FLAGS);
+                    content.setSpan(new ForegroundColorSpan(attributeColor), matchStart, matchEnd, SPANNABLE_FLAGS);
                     break;
                 case REGEX_HTML_COMMENTS:
-                    content.setSpan(new ForegroundColorSpan(ATTRIBUTE_COLOR), matchStart, matchEnd, SPANNABLE_FLAGS);
-                    content.setSpan(new StyleSpan(Typeface.ITALIC), matchStart, matchEnd, SPANNABLE_FLAGS);
-                    content.setSpan(new RelativeSizeSpan(0.75f), matchStart, matchEnd, SPANNABLE_FLAGS);
+                    content.setSpan(new ForegroundColorSpan(attributeColor), matchStart, matchEnd, SPANNABLE_FLAGS);
                     break;
                 case REGEX_HTML_ENTITIES:
-                    content.setSpan(new ForegroundColorSpan(TAG_COLOR), matchStart, matchEnd, SPANNABLE_FLAGS);
+                    content.setSpan(new ForegroundColorSpan(tagColor), matchStart, matchEnd, SPANNABLE_FLAGS);
                     content.setSpan(new StyleSpan(Typeface.BOLD), matchStart, matchEnd, SPANNABLE_FLAGS);
                     content.setSpan(new RelativeSizeSpan(0.75f), matchStart, matchEnd, SPANNABLE_FLAGS);
                     break;
@@ -129,7 +128,7 @@ public class HtmlStyleUtils {
 
     /**
      * Clears all relevant spans in {@code content} from {@code start} to {@code end}. Relevant spans are the subclasses
-     * of {@link CharacterStyle} applied by {@link HtmlStyleUtils#applySpansByRegex(Spannable, int, int, String)}.
+     * of {@link CharacterStyle} applied by {@link HtmlStyleUtils#applySpansByRegex(Spannable, int, int, String, int, int)}.
      * @param content the Spannable to clear styles from
      * @param spanStart the index in {@code content} to start clearing styles from
      * @param spanEnd the index in {@code content} to clear styles until

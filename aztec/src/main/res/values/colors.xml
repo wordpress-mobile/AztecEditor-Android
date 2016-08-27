@@ -28,6 +28,10 @@
     <color name="sourceview_separator">@color/grey_lighten_30</color>
     <color name="sourceview_placeholder_text">@color/grey</color>
 
+    <!-- HTML CODE STYLE -->
+    <color name="tag_color">@color/blue_wordpress</color>
+    <color name="attribute_color">@color/grey</color>
+
     <!-- STANDARD -->
     <color name="grey_e">#ffeeeeee</color>
     <color name="white">#ffffffff</color>

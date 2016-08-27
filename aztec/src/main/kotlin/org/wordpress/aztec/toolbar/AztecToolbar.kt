@@ -202,7 +202,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
                     val styledHtml = android.text.SpannableString(Format.toSourceCodeMode(editor!!.toHtml()))
-                    HtmlStyleUtils.styleHtmlForDisplay(styledHtml)
+                    HtmlStyleUtils.styleHtmlForDisplayWithColors(styledHtml,
+                            sourceEditor!!.tagColor, sourceEditor!!.attributeColor)
                     sourceEditor!!.setText(styledHtml)
 
                     editor!!.visibility = View.GONE

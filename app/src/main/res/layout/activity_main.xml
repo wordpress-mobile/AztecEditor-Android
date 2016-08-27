@@ -64,8 +64,9 @@
                 android:gravity="top|start"
                 android:scrollbars="vertical"
                 android:textSize="14sp"
-                android:background="@android:color/transparent"
                 android:visibility="gone"
+                aztec:codeTextColor="@android:color/white"
+                aztec:codeBackgroundColor="@android:color/transparent"
                 aztec:fontFile="DejaVuSansMono.ttf" />
 
         </FrameLayout>

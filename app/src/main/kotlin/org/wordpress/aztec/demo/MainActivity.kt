@@ -48,8 +48,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         source = findViewById(R.id.source) as SourceViewEditText
-        source.addTextChangedListener(HtmlStyleTextWatcher())
-
         aztec = findViewById(R.id.aztec) as AztecText
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar

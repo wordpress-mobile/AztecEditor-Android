@@ -9,18 +9,12 @@ import android.view.KeyEvent
 import android.widget.EditText
 import org.wordpress.aztec.R
 
-/**
- * An EditText with support for [OnImeBackListener] and typeface setting
- * using a custom XML attribute.
- */
 class SourceViewEditText : EditText {
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.tag_color)
         internal set
     @ColorInt var attributeColor = ContextCompat.getColor(context, R.color.attribute_color)
         internal set
-
-    private var onImeBackListener: OnImeBackListener? = null
 
     constructor(context: Context) : super(context) {
     }
@@ -31,19 +25,6 @@ class SourceViewEditText : EditText {
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         init(attrs)
-    }
-
-    override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-            if (this.onImeBackListener != null) {
-                this.onImeBackListener!!.onImeBack()
-            }
-        }
-        return super.onKeyPreIme(keyCode, event)
-    }
-
-    fun setOnImeBackListener(listener: OnImeBackListener) {
-        this.onImeBackListener = listener
     }
 
     private fun init(attrs: AttributeSet) {

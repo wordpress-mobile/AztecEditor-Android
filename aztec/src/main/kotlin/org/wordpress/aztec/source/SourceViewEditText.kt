@@ -20,7 +20,7 @@ class SourceViewEditText : EditText {
     @ColorInt var attributeColor = ContextCompat.getColor(context, R.color.attribute_color)
         internal set
 
-    private var mOnImeBackListener: OnImeBackListener? = null
+    private var onImeBackListener: OnImeBackListener? = null
 
     constructor(context: Context) : super(context) {
     }
@@ -35,15 +35,15 @@ class SourceViewEditText : EditText {
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-            if (this.mOnImeBackListener != null) {
-                this.mOnImeBackListener!!.onImeBack()
+            if (this.onImeBackListener != null) {
+                this.onImeBackListener!!.onImeBack()
             }
         }
         return super.onKeyPreIme(keyCode, event)
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {
-        this.mOnImeBackListener = listener
+        this.onImeBackListener = listener
     }
 
     private fun init(attrs: AttributeSet) {

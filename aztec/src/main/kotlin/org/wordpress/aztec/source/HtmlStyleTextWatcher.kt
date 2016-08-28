@@ -11,9 +11,9 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
         INSERT, DELETE, REPLACE, NONE
     }
 
-    private var mOffset: Int = 0
-    private var mModifiedText: CharSequence? = null
-    private var mLastOperation: Operation? = null
+    private var offset: Int = 0
+    private var modifiedText: CharSequence? = null
+    private var lastOperation: Operation? = null
 
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         if (s == null) {
@@ -25,14 +25,14 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
             if (after < count) {
                 if (after > 0) {
                     // Text was deleted and replaced by some other text
-                    mLastOperation = Operation.REPLACE
+                    lastOperation = Operation.REPLACE
                 } else {
                     // Text was deleted only
-                    mLastOperation = Operation.DELETE
+                    lastOperation = Operation.DELETE
                 }
 
-                mOffset = start
-                mModifiedText = s.subSequence(start + after, start + count)
+                offset = start
+                modifiedText = s.subSequence(start + after, start + count)
             }
         }
     }
@@ -47,33 +47,33 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
             if (count > 0) {
                 if (before > 0) {
                     // Text was added, replacing some existing text
-                    mLastOperation = Operation.REPLACE
-                    mModifiedText = s.subSequence(start, start + count)
+                    lastOperation = Operation.REPLACE
+                    modifiedText = s.subSequence(start, start + count)
                 } else {
                     // Text was added only
-                    mLastOperation = Operation.INSERT
-                    mOffset = start
-                    mModifiedText = s.subSequence(start + before, start + count)
+                    lastOperation = Operation.INSERT
+                    offset = start
+                    modifiedText = s.subSequence(start + before, start + count)
                 }
             }
         }
     }
 
     override fun afterTextChanged(s: Editable?) {
-        if (mModifiedText == null || s == null) {
+        if (modifiedText == null || s == null) {
             return
         }
 
         var spanRange: SpanRange?
 
         // If the modified text included a tag or entity symbol ("<", ">", "&" or ";"), find its match and restyle
-        if (mModifiedText!!.toString().contains("<")) {
+        if (modifiedText!!.toString().contains("<")) {
             spanRange = getRespanRangeForChangedOpeningSymbol(s, "<")
-        } else if (mModifiedText!!.toString().contains(">")) {
+        } else if (modifiedText!!.toString().contains(">")) {
             spanRange = getRespanRangeForChangedClosingSymbol(s, ">")
-        } else if (mModifiedText!!.toString().contains("&")) {
+        } else if (modifiedText!!.toString().contains("&")) {
             spanRange = getRespanRangeForChangedOpeningSymbol(s, "&")
-        } else if (mModifiedText!!.toString().contains(";")) {
+        } else if (modifiedText!!.toString().contains(";")) {
             spanRange = getRespanRangeForChangedClosingSymbol(s, ";")
         } else {
             // If the modified text didn't include any tag or entity symbols, restyle if the modified text is inside
@@ -88,8 +88,8 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
             updateSpans(s, spanRange)
         }
 
-        mModifiedText = null
-        mLastOperation = Operation.NONE
+        modifiedText = null
+        lastOperation = Operation.NONE
     }
 
     /**
@@ -103,23 +103,23 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      */
     protected fun getRespanRangeForChangedOpeningSymbol(content: Editable, openingSymbol: String): SpanRange? {
         // For simplicity, re-parse the document if text was replaced
-        if (mLastOperation == Operation.REPLACE) {
+        if (lastOperation == Operation.REPLACE) {
             return SpanRange(0, content.length)
         }
 
         val closingSymbol = getMatchingSymbol(openingSymbol)
 
-        val firstOpeningTagLoc = mOffset + mModifiedText!!.toString().indexOf(openingSymbol)
+        val firstOpeningTagLoc = offset + modifiedText!!.toString().indexOf(openingSymbol)
         val closingTagLoc: Int
-        if (mLastOperation == Operation.INSERT) {
+        if (lastOperation == Operation.INSERT) {
             // Apply span from the first added opening symbol until the closing symbol in the content matching the
             // last added opening symbol
             // e.g. pasting "<b><" before "/b>" - we want the span to be applied to all of "<b></b>"
-            val lastOpeningTagLoc = mOffset + mModifiedText!!.toString().lastIndexOf(openingSymbol)
+            val lastOpeningTagLoc = offset + modifiedText!!.toString().lastIndexOf(openingSymbol)
             closingTagLoc = content.toString().indexOf(closingSymbol, lastOpeningTagLoc)
         } else {
             // Apply span until the first closing tag that appears after the deleted text
-            closingTagLoc = content.toString().indexOf(closingSymbol, mOffset)
+            closingTagLoc = content.toString().indexOf(closingSymbol, offset)
         }
 
         if (closingTagLoc > 0) {
@@ -139,14 +139,14 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      */
     protected fun getRespanRangeForChangedClosingSymbol(content: Editable, closingSymbol: String): SpanRange? {
         // For simplicity, re-parse the document if text was replaced
-        if (mLastOperation == Operation.REPLACE) {
+        if (lastOperation == Operation.REPLACE) {
             return SpanRange(0, content.length)
         }
 
         val openingSymbol = getMatchingSymbol(closingSymbol)
 
-        val firstClosingTagInModLoc = mOffset + mModifiedText!!.toString().indexOf(closingSymbol)
-        val firstClosingTagAfterModLoc = content.toString().indexOf(closingSymbol, mOffset + mModifiedText!!.length)
+        val firstClosingTagInModLoc = offset + modifiedText!!.toString().indexOf(closingSymbol)
+        val firstClosingTagAfterModLoc = content.toString().indexOf(closingSymbol, offset + modifiedText!!.length)
 
         val openingTagLoc = content.toString().lastIndexOf(openingSymbol, firstClosingTagInModLoc - 1)
         if (openingTagLoc >= 0) {
@@ -171,10 +171,10 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
     protected fun getRespanRangeForNormalText(content: Editable, openingSymbol: String): SpanRange? {
         val closingSymbol = getMatchingSymbol(openingSymbol)
 
-        val openingTagLoc = content.toString().lastIndexOf(openingSymbol, mOffset)
+        val openingTagLoc = content.toString().lastIndexOf(openingSymbol, offset)
         if (openingTagLoc >= 0) {
             val closingTagLoc = content.toString().indexOf(closingSymbol, openingTagLoc)
-            if (closingTagLoc >= mOffset) {
+            if (closingTagLoc >= offset) {
                 return SpanRange(openingTagLoc, closingTagLoc + 1)
             }
         }

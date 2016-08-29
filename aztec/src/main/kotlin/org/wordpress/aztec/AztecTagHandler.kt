@@ -31,13 +31,14 @@ import org.xml.sax.XMLReader
 class AztecTagHandler : Html.TagHandler {
 
     private class Ul
+    private class Ol
     private class Strike
 
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
         when (tag.toLowerCase()) {
-            BULLET_LI -> {
+            LIST_LI -> {
                 if (!opening) {
                     output.append("\n")
                 }
@@ -59,7 +60,7 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
-            BULLET_UL -> {
+            LIST_UL -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
                     output.append("\n\n")
                 }
@@ -67,6 +68,17 @@ class AztecTagHandler : Html.TagHandler {
                     start(output, Ul())
                 } else {
                     end(output, Ul::class.java, BulletSpan())
+                }
+                return true
+            }
+            LIST_OL -> {
+                if (output.length > 0 && output[output.length - 1] != '\n') {
+                    output.append("\n\n")
+                }
+                if (opening) {
+                    start(output, Ol())
+                } else {
+                    end(output, Ol::class.java, AztecOrderedListSpan())
                 }
                 return true
             }
@@ -106,8 +118,9 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     companion object {
-        private val BULLET_LI = "li"
-        private val BULLET_UL = "ul"
+        private val LIST_LI = "li"
+        private val LIST_UL = "ul"
+        private val LIST_OL = "ol"
         private val STRIKETHROUGH_S = "s"
         private val STRIKETHROUGH_STRIKE = "strike"
         private val STRIKETHROUGH_DEL = "del"

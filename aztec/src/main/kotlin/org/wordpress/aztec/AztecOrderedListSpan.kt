@@ -24,16 +24,21 @@ import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.style.BulletSpan
+import android.text.style.LeadingMarginSpan
 
-class AztecOrderedListSpan : BulletSpan, AztecList {
+class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecList {
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
     private var bulletPadding: Int = 0
     private var bulletWidth: Int = 0
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
+
+    constructor() : super(0) {
+
+    }
+
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) : super(bulletMargin) {
         this.bulletColor = bulletColor
         this.bulletMargin = bulletMargin
         this.bulletWidth = bulletWidth
@@ -76,7 +81,7 @@ class AztecOrderedListSpan : BulletSpan, AztecList {
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
 
-        if(!first) return
+        if (!first) return
 
 
         val spanStart = (text as Spanned).getSpanStart(this)
@@ -95,9 +100,10 @@ class AztecOrderedListSpan : BulletSpan, AztecList {
         p.color = bulletColor
         p.style = Paint.Style.FILL
 
+        val textToDraw = lineNumber.toString() + "."
 
-        val width = p.measureText("4.")
-        c.drawText(lineNumber.toString() + ".", (bulletMargin + x - width / 2) * dir, bottom - p.descent(), p)
+        val width = p.measureText(textToDraw)
+        c.drawText(textToDraw, (bulletMargin + x - width) * dir, bottom - p.descent(), p)
 
         p.color = oldColor
         p.style = style

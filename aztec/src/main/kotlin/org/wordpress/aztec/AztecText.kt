@@ -1323,6 +1323,15 @@ class AztecText : EditText, TextWatcher {
             editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
+        val orderedListSpan = editable.getSpans(start, end, AztecOrderedListSpan::class.java)
+        for (span in orderedListSpan) {
+            val spanStart = editable.getSpanStart(span)
+            var spanEnd = editable.getSpanEnd(span)
+            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            editable.removeSpan(span)
+            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)
         for (span in quoteSpans) {
             val spanStart = editable.getSpanStart(span)

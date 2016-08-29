@@ -138,7 +138,7 @@ class BulletListTest() {
     fun extendingListBySplittingItems() {
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
         editText.append("firstitem")
-        editText.text.insert(5,"\n")
+        editText.text.insert(5, "\n")
         Assert.assertEquals("<ul><li>first</li><li>item</li></ul>", editText.toHtml().toString())
     }
 
@@ -153,26 +153,6 @@ class BulletListTest() {
         Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.toHtml())
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun additionToClosedList() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-
-        val mark = editText.length()
-
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
-
-        editText.text.insert(mark," (addition)")
-
-        Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.toHtml().toString())
-
-    }
 
     @Test
     @Throws(Exception::class)
@@ -188,7 +168,7 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun removeBulletListStylingForPartialSelection() {
         editText.fromHtml("<ul><li>first item</li></ul>")
-        editText.setSelection(2,4)
+        editText.setSelection(2, 4)
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
 
         Assert.assertEquals("first item", editText.toHtml())
@@ -211,7 +191,7 @@ class BulletListTest() {
         editText.append("\n")
         editText.append("not in list")
 
-        editText.setSelection(firstMark,secondMark)
+        editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
 
         Assert.assertEquals("<ul><li>first item</li></ul>second item<br>third item<ul><li>fourth item</li></ul>not in list", editText.toHtml())
@@ -230,7 +210,7 @@ class BulletListTest() {
         val secondMart = editText.length()
         editText.append("third item")
 
-        editText.text.delete(firstMark-1,secondMart-2)
+        editText.text.delete(firstMark - 1, secondMart - 2)
 
         Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.toHtml())
     }
@@ -255,9 +235,67 @@ class BulletListTest() {
 
         editText.append("not in list")
         editText.setSelection(mark)
-        editText.text.insert(mark,"\n")
+        editText.text.insert(mark, "\n")
         Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>not in list", editText.toHtml())
-
     }
+
+    //Closing/Opening of list
+
+
+    @Test
+    @Throws(Exception::class)
+    fun openList() {
+        editText.fromHtml("<ul><li>first item</li><li>second item</li></ul>")
+        editText.setSelection(editText.length())
+
+        editText.append("\n")
+        editText.append("third item")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("not in the list")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>not in the list", editText.toHtml())
+    }
+
+
+
+    @Test
+    @Throws(Exception::class)
+    fun handleListReopeningAfterLastElementDeletion() {
+        editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
+        editText.setSelection(editText.length())
+
+        editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
+
+        editText.append("not in the list")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml())
+
+        editText.text.insert(editText.text.indexOf("not in the list", 0)-1," addition")
+        Assert.assertEquals("<ul><li>first item</li><li>second item addition</li></ul>not in the list", editText.toHtml())
+
+        editText.text.insert(editText.text.indexOf("not in the list", 0)-1,"\n")
+        editText.text.insert(editText.text.indexOf("not in the list", 0)-1,"third item")
+        Assert.assertEquals("<ul><li>first item</li><li>second item addition</li><li>third item</li></ul>not in the list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun additionToClosedList() {
+        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+
+        val mark = editText.length()
+
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("not in the list")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
+
+        editText.text.insert(mark, " (addition)")
+
+        Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.toHtml().toString())
+    }
+
 
 }

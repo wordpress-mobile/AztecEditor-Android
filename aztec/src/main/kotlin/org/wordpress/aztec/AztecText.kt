@@ -502,7 +502,7 @@ class AztecText : EditText, TextWatcher {
 
                 for (i in lines.indices) {
                     numberOfLines++
-                    if (containsList(listType,i, selectedLines)) {
+                    if (containsList(listType, i, selectedLines)) {
                         numberOfLinesWithSpanApplied++
                     }
                 }
@@ -547,7 +547,6 @@ class AztecText : EditText, TextWatcher {
 
         //for now we will assume that only one span can be applied at time
         val span = spans[0]
-
 
 
         val spanStart = editableText.getSpanStart(span)
@@ -1028,8 +1027,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            TextFormat.FORMAT_UNORDERED_LIST -> return containsList(TextFormat.FORMAT_UNORDERED_LIST,selStart, selEnd)
-            TextFormat.FORMAT_ORDERED_LIST -> return containsList(TextFormat.FORMAT_ORDERED_LIST,selStart, selEnd)
+            TextFormat.FORMAT_UNORDERED_LIST -> return containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
+            TextFormat.FORMAT_ORDERED_LIST -> return containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return containLink(selStart, selEnd)
             else -> return false
@@ -1126,20 +1125,46 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    //TODO: Add support for NumberedLists
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
+
+
+        val spanToClose = textChangedEvent.getSpanToClose(text)
+
+        if (spanToClose != null) {
+            val spanEnd = text.getSpanEnd(spanToClose)
+
+            if (spanEnd <= text.length) {
+                editableText.setSpan(spanToClose,
+                        text.getSpanStart(spanToClose),
+                        spanEnd,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
 
         val spanToOpen = textChangedEvent.getSpanToOpen(text)
 
         //we might need to open span to add text to it
         if (spanToOpen != null) {
-            val spanEnd = text.getSpanEnd(spanToOpen) + textChangedEvent.count
+            val textLength = text.length
 
-            if (spanEnd <= text.length) {
+            val spanEnd = text.getSpanEnd(spanToOpen)
+            val indexOfLineEnd = text.indexOf('\n', spanEnd-1, true)
+
+            val extendedEndOfSpan: Int
+
+            if (indexOfLineEnd == spanEnd) {
+                extendedEndOfSpan = spanEnd + textChangedEvent.count
+            } else if (indexOfLineEnd == -1) {
+                extendedEndOfSpan = text.length
+            } else {
+                extendedEndOfSpan = indexOfLineEnd
+            }
+
+            if (spanEnd <= textLength) {
                 editableText.setSpan(spanToOpen,
                         text.getSpanStart(spanToOpen),
-                        spanEnd,
+                        extendedEndOfSpan,
                         Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
             }
         }
@@ -1157,8 +1182,9 @@ class AztecText : EditText, TextWatcher {
                 text.delete(inputStart - 2, inputStart)
             }
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
-            val paragraphSpans = getText().getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, BulletSpan::class.java)
-            if (!paragraphSpans.isEmpty()) {
+            //Add ZWJ to the new line at the end of list
+            val paragraphSpans = getText().getSpans(inputStart, inputStart, AztecList::class.java)
+            if (!paragraphSpans.isEmpty() && text.getSpanEnd(paragraphSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
             }

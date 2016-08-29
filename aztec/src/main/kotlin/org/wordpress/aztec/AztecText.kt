@@ -28,6 +28,7 @@ import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
@@ -72,7 +73,6 @@ class AztecText : EditText, TextWatcher {
     }
 
     constructor(context: Context) : super(context) {
-        init(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -84,6 +84,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun init(attrs: AttributeSet?) {
+
+        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
+
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText)
         setLineSpacing(
                 array.getDimension(

@@ -9,6 +9,7 @@ import java.util.Hashtable
 object TypefaceCache {
 
     val TYPEFACE_DEJAVU_SANS_MONO = "DejaVuSansMono.ttf"
+    val TYPEFACE_MERRIWEATHER_REGULAR = "Merriweather-Regular.ttf"
 
     private val mTypefaceCache = Hashtable<String, Typeface>()
 
@@ -38,7 +39,6 @@ object TypefaceCache {
 
         // skip at design-time
         if (view.isInEditMode) return
-
 
         val typeface = getTypeface(context, typefaceName)
         if (typeface != null) {

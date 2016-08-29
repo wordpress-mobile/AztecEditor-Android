@@ -67,8 +67,7 @@
                 android:visibility="gone"
                 android:inputType="textNoSuggestions|textMultiLine"
                 aztec:codeTextColor="@android:color/white"
-                aztec:codeBackgroundColor="@android:color/transparent"
-                aztec:fontFile="DejaVuSansMono.ttf" />
+                aztec:codeBackgroundColor="@android:color/transparent" />
 
         </FrameLayout>
 

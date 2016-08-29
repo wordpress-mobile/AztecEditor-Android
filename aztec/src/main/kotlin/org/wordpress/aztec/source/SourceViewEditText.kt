@@ -1,13 +1,12 @@
 package org.wordpress.aztec.source
 
 import android.content.Context
-import android.graphics.Typeface
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.widget.EditText
 import org.wordpress.aztec.R
+import org.wordpress.aztec.util.TypefaceCache
 
 class SourceViewEditText : EditText {
 
@@ -29,18 +28,9 @@ class SourceViewEditText : EditText {
 
     private fun init(attrs: AttributeSet) {
 
+        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_DEJAVU_SANS_MONO)
+
         val values = context.obtainStyledAttributes(attrs, R.styleable.SourceViewEditText)
-        val typefaceName = values.getString(R.styleable.SourceViewEditText_fontFile)
-        if (typefaceName != null) {
-            try {
-                val typeface = Typeface.createFromAsset(context.assets, "fonts/" + typefaceName)
-                this.typeface = typeface
-            } catch (e: RuntimeException) {
-                //                AppLog.e(AppLog.T.EDITOR, "Could not load typeface " + typefaceName);
-            }
-
-        }
-
         setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))
         setTextColor(values.getColor(R.styleable.SourceViewEditText_codeTextColor, ContextCompat.getColor(context, R.color.text)))
 

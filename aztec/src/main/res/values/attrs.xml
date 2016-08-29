@@ -24,7 +24,6 @@
     </declare-styleable>
     
     <declare-styleable name="SourceViewEditText">
-        <attr name="fontFile" format="string" />
         <attr name="codeTextColor" format="reference|color" />
         <attr name="codeBackgroundColor" format="reference|color" />
         <attr name="tagColor" format="reference|color" />

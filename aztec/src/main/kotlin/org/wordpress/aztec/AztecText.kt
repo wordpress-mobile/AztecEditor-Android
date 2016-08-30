@@ -1018,11 +1018,10 @@ class AztecText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (!historyEnable || historyWorking) {
-            return
-        }
 
-        inputBefore = SpannableStringBuilder(text)
+        if (historyEnable && !historyWorking) {
+            inputBefore = SpannableStringBuilder(text)
+        }
 
         if (count > after) {
             val hidden = inputBefore.getSpans(start, start + count, HiddenHtmlSpan::class.java)

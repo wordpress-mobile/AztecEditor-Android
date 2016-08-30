@@ -26,6 +26,8 @@
     <declare-styleable name="SourceViewEditText">
         <attr name="codeTextColor" format="reference|color" />
         <attr name="codeBackgroundColor" format="reference|color" />
+        <attr name="codeHistoryEnable" format="reference|boolean" />
+        <attr name="codeHistorySize" format="reference|integer" />
         <attr name="tagColor" format="reference|color" />
         <attr name="attributeColor" format="reference|color" />
     </declare-styleable>

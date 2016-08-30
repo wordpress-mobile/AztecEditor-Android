@@ -67,8 +67,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.undo -> aztec.undo()
-            R.id.redo -> aztec.redo()
+            R.id.undo ->
+                if (aztec.visibility == View.VISIBLE) {
+                    aztec.undo()
+                } else {
+                    source.undo()
+                }
+            R.id.redo ->
+                if (aztec.visibility == View.VISIBLE) {
+                    aztec.redo()
+                } else {
+                    source.redo()
+                }
             else -> {
             }
         }

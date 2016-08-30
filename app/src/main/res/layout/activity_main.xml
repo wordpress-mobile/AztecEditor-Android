@@ -66,6 +66,8 @@
                 android:textSize="14sp"
                 android:visibility="gone"
                 android:inputType="textNoSuggestions|textMultiLine"
+                aztec:codeHistoryEnable="true"
+                aztec:codeHistorySize="10"
                 aztec:codeTextColor="@android:color/white"
                 aztec:codeBackgroundColor="@android:color/transparent" />
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -26,7 +26,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
 
-class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecList {
+class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0

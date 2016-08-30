@@ -1,4 +1,4 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle

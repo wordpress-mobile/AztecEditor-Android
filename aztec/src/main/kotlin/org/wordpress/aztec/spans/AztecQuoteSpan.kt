@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint

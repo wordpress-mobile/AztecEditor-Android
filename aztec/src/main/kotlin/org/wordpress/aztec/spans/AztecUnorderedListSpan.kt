@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -24,7 +24,7 @@ import android.os.Parcel
 import android.text.Layout
 import android.text.style.BulletSpan
 
-class AztecUnorderedListSpan : BulletSpan, AztecList {
+class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0

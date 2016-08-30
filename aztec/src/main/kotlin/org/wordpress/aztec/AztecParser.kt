@@ -24,6 +24,10 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
+import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.CommentSpan
+import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.UnknownHtmlSpan
 import java.util.*
 
 class AztecParser {

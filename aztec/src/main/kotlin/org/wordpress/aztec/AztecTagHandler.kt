@@ -25,6 +25,9 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.style.BulletSpan
+import org.wordpress.aztec.spans.AztecOrderedListSpan
+import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
 

@@ -97,9 +97,9 @@ object HtmlStyleUtils {
      * *
      * @param regex the pattern to match for styling
      */
-    private fun applySpansByRegex(content: Spannable?, start: Int, end: Int, regex: String, @ColorInt tagColor: Int,
+    private fun applySpansByRegex(content: Spannable, start: Int, end: Int, regex: String, @ColorInt tagColor: Int,
                                   @ColorInt attributeColor: Int) {
-        if (content == null || start < 0 || end < 0 || start > content.length || end > content.length ||
+        if (start < 0 || end < 0 || start > content.length || end > content.length ||
                 start >= end) {
             return
         }

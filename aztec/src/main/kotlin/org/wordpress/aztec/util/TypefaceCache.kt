@@ -13,11 +13,7 @@ object TypefaceCache {
 
     private val mTypefaceCache = Hashtable<String, Typeface>()
 
-    fun getTypeface(context: Context?, typefaceName: String?): Typeface? {
-        if (context == null || typefaceName == null) {
-            return null
-        }
-
+    fun getTypeface(context: Context, typefaceName: String): Typeface? {
         if (!mTypefaceCache.containsKey(typefaceName)) {
             val typeface = Typeface.createFromAsset(context.applicationContext.assets, "fonts/" + typefaceName)
             if (typeface != null) {
@@ -32,11 +28,7 @@ object TypefaceCache {
      * sets the typeface for a TextView (or TextView descendant such as EditText or Button) based on
      * the passed attributes, defaults to normal typeface
      */
-    fun setCustomTypeface(context: Context?, view: TextView?, typefaceName: String?) {
-        if (context == null || view == null || typefaceName == null) {
-            return
-        }
-
+    fun setCustomTypeface(context: Context, view: TextView, typefaceName: String) {
         // skip at design-time
         if (view.isInEditMode) return
 

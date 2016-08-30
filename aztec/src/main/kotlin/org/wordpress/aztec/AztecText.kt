@@ -28,6 +28,7 @@ import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.spans.*
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
@@ -411,7 +412,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    fun makeDummylistSpan(spanType: Class<AztecList>): LeadingMarginSpan {
+    fun makeDummylistSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
         when (spanType) {
             AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
             AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
@@ -541,7 +542,7 @@ class AztecText : EditText, TextWatcher {
 
 
     private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecList::class.java)
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
 
@@ -1063,11 +1064,23 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        //clear all spans from EditText when it get's empty
-        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0 && text.toString().equals("")) {
-            disableTextChangedListener()
-            setText(null)
-            onSelectionChanged(0, 0)
+        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
+            text.getSpans(0, 0, CharacterStyle::class.java).forEach {
+                if (text.length >= 1) {
+                    text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+                } else {
+                    text.removeSpan(it)
+                }
+            }
+
+            text.getSpans(0, 0, LeadingMarginSpan::class.java).forEach {
+                if (text.length >= 1) {
+                    text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+                } else {
+                    text.removeSpan(it)
+                }
+
+            }
         }
 
         handleHistory()
@@ -1149,7 +1162,7 @@ class AztecText : EditText, TextWatcher {
             val textLength = text.length
 
             val spanEnd = text.getSpanEnd(spanToOpen)
-            val indexOfLineEnd = text.indexOf('\n', spanEnd-1, true)
+            val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
 
             val extendedEndOfSpan: Int
 
@@ -1170,10 +1183,10 @@ class AztecText : EditText, TextWatcher {
         }
 
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewline()) {
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewlineEntered()) {
             disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewlineEntered()) {
             removeList()
             disableTextChangedListener()
             if (inputStart == 1) {
@@ -1181,15 +1194,16 @@ class AztecText : EditText, TextWatcher {
             } else {
                 text.delete(inputStart - 2, inputStart)
             }
-        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewlineEntered()) {
             //Add ZWJ to the new line at the end of list
-            val paragraphSpans = getText().getSpans(inputStart, inputStart, AztecList::class.java)
+            val paragraphSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
             if (!paragraphSpans.isEmpty() && text.getSpanEnd(paragraphSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
             }
         }
     }
+
 
     fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
         val startOfLine: Int

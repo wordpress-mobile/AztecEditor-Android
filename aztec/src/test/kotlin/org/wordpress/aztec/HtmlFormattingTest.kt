@@ -1,9 +1,5 @@
 package org.wordpress.aztec;
 
-/**
- * Created by Onko on 8/25/2016.
- */
-
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
 import android.text.SpannableString
@@ -64,6 +60,11 @@ class HtmlFormattingTest() : AndroidTestCase() {
         context = MockContext()
     }
 
+    /**
+     * Test the conversion from HTML to visual mode with nested HTML
+     *
+     * @throws Exception
+     */
     @Test
     @Throws(Exception::class)
     fun formatNestedHtml() {
@@ -73,6 +74,11 @@ class HtmlFormattingTest() : AndroidTestCase() {
         TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
+    /**
+     * Test the conversion from HTML to visual mode with multiple line breaks
+     *
+     * @throws Exception
+     */
     @Test
     @Throws(Exception::class)
     fun formatLineBreaks() {
@@ -82,6 +88,11 @@ class HtmlFormattingTest() : AndroidTestCase() {
         TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
+    /**
+     * Test the conversion from HTML to visual mode with mixed HTML
+     *
+     * @throws Exception
+     */
     @Test
     @Throws(Exception::class)
     fun formatMixedHtml() {

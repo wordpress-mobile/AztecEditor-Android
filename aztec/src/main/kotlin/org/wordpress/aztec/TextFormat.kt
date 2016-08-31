@@ -16,5 +16,6 @@ enum class TextFormat {
     FORMAT_STRIKETHROUGH,
     FORMAT_BULLET,
     FORMAT_QUOTE,
-    FORMAT_LINK
+    FORMAT_LINK,
+    FORMAT_NORMAL
 }

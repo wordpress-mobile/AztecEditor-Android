@@ -15,7 +15,13 @@ object TypefaceCache {
 
     fun getTypeface(context: Context, typefaceName: String): Typeface? {
         if (!mTypefaceCache.containsKey(typefaceName)) {
-            val typeface = Typeface.createFromAsset(context.applicationContext.assets, "fonts/" + typefaceName)
+            var typeface: Typeface? = null
+            try {
+                typeface = Typeface.createFromAsset(context.applicationContext.assets, "fonts/" + typefaceName)
+            }
+            catch (e: RuntimeException) {
+            }
+
             if (typeface != null) {
                 mTypefaceCache.put(typefaceName, typeface)
             }

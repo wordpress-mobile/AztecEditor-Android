@@ -204,14 +204,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
-                    sourceEditor!!.toHtml(editor!!.toHtml())
+                    sourceEditor!!.displayStyledHtml(editor!!.getPureHtml())
 
                     editor!!.visibility = View.GONE
                     sourceEditor!!.visibility = View.VISIBLE
 
                     toggleHtmlMode(true)
                 } else {
-                    editor!!.fromHtml(sourceEditor!!.fromHtml())
+                    editor!!.fromHtml(sourceEditor!!.getPureHtml())
 
                     editor!!.visibility = View.VISIBLE
                     sourceEditor!!.visibility = View.GONE

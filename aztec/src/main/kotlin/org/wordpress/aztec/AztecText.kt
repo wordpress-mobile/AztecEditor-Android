@@ -1034,7 +1034,7 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
-            history.beforeTextChanged(toHtml())
+            history.beforeTextChanged(getPureHtml())
         }
     }
 
@@ -1187,18 +1187,18 @@ class AztecText : EditText, TextWatcher {
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.toVisualMode(source), context).trim())
+        builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         text = builder
         enableTextChangedListener()
     }
 
-    fun toHtml(): String {
+    fun getPureHtml(): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
         BaseInputConnection.removeComposingSpans(output)
-        return Format.toSourceCodeMode(parser.toHtml(output, removedSpans))
+        return Format.clearFormatting(parser.toHtml(output, removedSpans))
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

@@ -28,10 +28,10 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         }
 
         if (editText is AztecText) {
-            inputLast = editText.toHtml()
+            inputLast = editText.getPureHtml()
         }
         else if (editText is SourceViewEditText) {
-            inputLast = editText.fromHtml()
+            inputLast = editText.getPureHtml()
         }
 
         if (inputLast == inputBefore) {
@@ -60,7 +60,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
                 editText.fromHtml(inputLast)
             }
             else if (editText is SourceViewEditText) {
-                editText.toHtml(inputLast)
+                editText.displayStyledHtml(inputLast)
             }
         } else {
             historyCursor++
@@ -89,7 +89,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         if (editText is AztecText) {
             editText.fromHtml(historyList[historyCursor])
         } else if (editText is SourceViewEditText) {
-            editText.toHtml(historyList[historyCursor])
+            editText.displayStyledHtml(historyList[historyCursor])
         }
     }
 

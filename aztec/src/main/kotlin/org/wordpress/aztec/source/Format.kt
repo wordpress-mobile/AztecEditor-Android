@@ -1,24 +1,35 @@
 package org.wordpress.aztec.source
 
 import org.jsoup.Jsoup
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 object Format {
 
-    fun toSourceCodeMode(content: String): String {
+    private val inline = "b|i|u|s|del|a"
+
+    fun addFormatting(content: String): String {
         // let's use Jsoup for HTML formatting for now because it works out of the box
         val doc = Jsoup.parseBodyFragment(content)
         return doc.body().html()
     }
 
-    fun toVisualMode(html: String): String {
-        // don't do anything for now, might change in the future
-        return html
+    fun clearFormatting(html: String): String {
+        var out = replaceAll(html, "([^$inline])>\\s*", "$1>")
+        out = replaceAll(out, "\\s*<([^$inline])", "<$1")
+        return out
+    }
+
+    private fun replaceAll(content: String, pattern: String, replacement: String): String  {
+        val p = Pattern.compile(pattern);
+        val  m = p.matcher(content);
+        return m.replaceAll(replacement);
     }
 
     /**
      * Ported js code from wpandroid libs/wpsave.js
      */
-    //    public static String toSourceCodeMode(String content) {
+    //    public static String addFormatting(String content) {
     //        if (content == null || TextUtils.isEmpty(content.trim())) {
     //            // Just whitespace, null, or undefined
     //            return "";
@@ -131,7 +142,7 @@ object Format {
     /**
      * Ported js code from wpandroid libs/wpsave.js
      */
-    //    public static String toVisualMode(String html) {
+    //    public static String clearFormatting(String html) {
     //        if (html == null || TextUtils.isEmpty(html.trim())) {
     //            // Just whitespace, null, or undefined
     //            return "";

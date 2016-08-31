@@ -66,7 +66,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        history?.beforeTextChanged(Format.toSourceCodeMode(text.toString()))
+        history?.beforeTextChanged(getPureHtml())
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
     }
 
@@ -92,21 +92,21 @@ class SourceViewEditText : EditText, TextWatcher {
         history?.undo(this)
     }
 
-    fun toHtml(source: String) {
-        val styledHtml = styleHtml(source)
+    fun displayStyledHtml(source: String) {
+        val styledHtml = styleHtml(Format.addFormatting(source))
         disableTextChangedListener()
         text = styledHtml
         enableTextChangedListener()
     }
 
     private fun styleHtml(source: String): SpannableStringBuilder {
-        val styledHtml = SpannableStringBuilder(Format.toSourceCodeMode(source))
+        val styledHtml = SpannableStringBuilder(source)
         HtmlStyleUtils.styleHtmlForDisplayWithColors(styledHtml, tagColor, attributeColor)
         return styledHtml
     }
 
-    fun fromHtml() : String {
-        return Format.toSourceCodeMode(text.toString())
+    fun getPureHtml() : String {
+        return Format.clearFormatting(text.toString())
     }
 
     fun disableTextChangedListener() {

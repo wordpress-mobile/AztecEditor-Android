@@ -70,7 +70,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     fun formatNestedHtml() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, context))
-        val output = Format.toVisualMode(Format.toSourceCodeMode(parser.toHtml(span)))
+        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
@@ -84,7 +84,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     fun formatLineBreaks() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, context))
-        val output = Format.toVisualMode(Format.toSourceCodeMode(parser.toHtml(span)))
+        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         TestUtils.equalsIgnoreWhitespace(input, output)
     }
 
@@ -98,7 +98,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     fun formatMixedHtml() {
         val input = HTML_MIXED
         val span = SpannableString(parser.fromHtml(input, context))
-        val output = Format.toVisualMode(Format.toSourceCodeMode(parser.toHtml(span)))
+        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         TestUtils.equalsIgnoreWhitespace(input, output)
     }
 }

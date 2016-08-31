@@ -32,33 +32,27 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.header_1 -> {
-                // TODO: Format line for H1
-                Toast.makeText(context, "H1", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_1)
                 return true
             }
             R.id.header_2 -> {
-                // TODO: Format line for H2
-                Toast.makeText(context, "H2", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_2)
                 return true
             }
             R.id.header_3 -> {
-                // TODO: Format line for H3
-                Toast.makeText(context, "H3", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_3)
                 return true
             }
             R.id.header_4 -> {
-                // TODO: Format line for H4
-                Toast.makeText(context, "H4", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_4)
                 return true
             }
             R.id.header_5 -> {
-                // TODO: Format line for H5
-                Toast.makeText(context, "H5", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_5)
                 return true
             }
             R.id.header_6 -> {
-                // TODO: Format line for H6
-                Toast.makeText(context, "H6", Toast.LENGTH_SHORT).show()
+                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_6)
                 return true
             }
             else -> return false

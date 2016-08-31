@@ -11,6 +11,7 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.*
+import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 
 class MainActivity : AppCompatActivity() {
@@ -48,14 +49,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        source = findViewById(R.id.source) as SourceViewEditText
         aztec = findViewById(R.id.aztec) as AztecText
+        source = findViewById(R.id.source) as SourceViewEditText
+        source.history = aztec.history
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
 
         aztec.fromHtml(EXAMPLE)
         aztec.setSelection(aztec.editableText.length)
+        aztec.history.clearHistory()
 
         // ImageGetter coming soon...
     }

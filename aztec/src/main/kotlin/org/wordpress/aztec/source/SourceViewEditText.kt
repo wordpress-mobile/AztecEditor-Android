@@ -4,10 +4,12 @@ import android.content.Context
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.text.Editable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
+import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
@@ -19,19 +21,14 @@ class SourceViewEditText : EditText, TextWatcher {
     @ColorInt var attributeColor = ContextCompat.getColor(context, R.color.attribute_color)
         internal set
 
-    private var historyEnable = resources.getBoolean(R.bool.history_enable)
-    private var historySize = resources.getInteger(R.integer.history_size)
-
-    private val historyList = LinkedList<SpannableStringBuilder>()
-    private var historyWorking = false
-    private var historyCursor = 0
-
-    private lateinit var inputBefore: SpannableStringBuilder
-    private lateinit var inputLast: Editable
-
     private var styleTextWatcher: HtmlStyleTextWatcher? = null
 
+    public var history: History? = null
+
+    private var consumeEditEvent: Boolean = true
+
     constructor(context: Context) : super(context) {
+        init(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
@@ -42,16 +39,13 @@ class SourceViewEditText : EditText, TextWatcher {
         init(attrs)
     }
 
-    private fun init(attrs: AttributeSet) {
+    private fun init(attrs: AttributeSet?) {
 
         TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_DEJAVU_SANS_MONO)
 
         val values = context.obtainStyledAttributes(attrs, R.styleable.SourceViewEditText)
         setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))
         setTextColor(values.getColor(R.styleable.SourceViewEditText_codeTextColor, ContextCompat.getColor(context, R.color.text)))
-
-        historyEnable = values.getBoolean(R.styleable.SourceViewEditText_codeHistoryEnable, historyEnable)
-        historySize = values.getInt(R.styleable.SourceViewEditText_codeHistorySize, historySize)
 
         tagColor = values.getColor(R.styleable.SourceViewEditText_tagColor, tagColor)
         attributeColor = values.getColor(R.styleable.SourceViewEditText_attributeColor, attributeColor)
@@ -72,10 +66,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (historyEnable && !historyWorking) {
-            inputBefore = SpannableStringBuilder(text)
-        }
-
+        history?.beforeTextChanged(Format.toSourceCodeMode(text.toString()))
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
     }
 
@@ -84,83 +75,50 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun afterTextChanged(text: Editable?) {
-        handleHistory()
+        if (isTextChangedListenerDisabled()) {
+            enableTextChangedListener()
+            return
+        }
 
+        history?.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 
     fun redo() {
-        if (!redoValid()) {
-            return
-        }
-
-        historyWorking = true
-
-        if (historyCursor >= historyList.size - 1) {
-            historyCursor = historyList.size
-            text = inputLast
-        } else {
-            historyCursor++
-            text = historyList[historyCursor]
-        }
-
-        setSelection(editableText.length)
-        historyWorking = false
+        history?.redo(this)
     }
 
     fun undo() {
-        if (!undoValid()) {
-            return
-        }
-
-        historyWorking = true
-
-        historyCursor--
-        text = historyList[historyCursor]
-        setSelection(editableText.length)
-
-        historyWorking = false
+        history?.undo(this)
     }
 
-    fun handleHistory() {
-        if (!historyEnable || historyWorking) {
-            return
-        }
-
-        inputLast = SpannableStringBuilder(text)
-        if (text.toString() == inputBefore.toString()) {
-            return
-        }
-
-        if (historyList.size >= historySize) {
-            historyList.removeAt(0)
-        }
-
-        historyList.add(inputBefore)
-        historyCursor = historyList.size
+    fun toHtml(source: String) {
+        val styledHtml = styleHtml(source)
+        disableTextChangedListener()
+        text = styledHtml
+        enableTextChangedListener()
     }
 
-    fun redoValid(): Boolean {
-        if (!historyEnable || historySize <= 0 || historyList.size <= 0 || historyWorking) {
-            return false
-        }
-
-        return historyCursor < historyList.size - 1 || historyCursor >= historyList.size - 1
+    private fun styleHtml(source: String): SpannableStringBuilder {
+        val styledHtml = SpannableStringBuilder(Format.toSourceCodeMode(source))
+        HtmlStyleUtils.styleHtmlForDisplayWithColors(styledHtml, tagColor, attributeColor)
+        return styledHtml
     }
 
-    fun undoValid(): Boolean {
-        if (!historyEnable || historySize <= 0 || historyWorking) {
-            return false
-        }
-
-        if (historyList.size <= 0 || historyCursor <= 0) {
-            return false
-        }
-
-        return true
+    fun fromHtml() : String {
+        return Format.toSourceCodeMode(text.toString())
     }
 
-    fun clearHistory() {
-        historyList.clear()
+    fun disableTextChangedListener() {
+        consumeEditEvent = true
+    }
+
+
+    fun enableTextChangedListener() {
+        consumeEditEvent = false
+    }
+
+    fun isTextChangedListenerDisabled(): Boolean {
+        return consumeEditEvent
     }
 }

@@ -16,7 +16,7 @@ object Format {
 
     fun clearFormatting(html: String): String {
         var out = replaceAll(html, "([^$inline])>\\s*", "$1>")
-        out = replaceAll(out, "\\s*<([^$inline])", "<$1")
+        out = replaceAll(out, "\\s*<(/?+[^$inline])", "<$1")
         return out
     }
 

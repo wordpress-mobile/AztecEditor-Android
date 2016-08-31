@@ -31,6 +31,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
+            R.id.normal -> {
+                mEditor?.toggleFormatting(TextFormat.FORMAT_NORMAL)
+                return true
+            }
             R.id.header_1 -> {
                 mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_1)
                 return true

@@ -2,6 +2,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/normal"
+        android:title="@string/normal" >
+    </item>
+
+    <item
         android:id="@+id/header_1"
         android:title="@string/header_1" >
     </item>

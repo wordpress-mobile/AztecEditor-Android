@@ -467,7 +467,7 @@ class AztecText : EditText, TextWatcher {
 
     fun orderedListValid(valid: Boolean) {
         if (valid) {
-            applyList(TextFormat.FORMAT_ORDERED_LIST)
+            applyListStyle(TextFormat.FORMAT_ORDERED_LIST)
         } else {
             removeList()
         }
@@ -476,14 +476,14 @@ class AztecText : EditText, TextWatcher {
 
     fun unorderedListValid(valid: Boolean) {
         if (valid) {
-            applyList(TextFormat.FORMAT_UNORDERED_LIST)
+            applyListStyle(TextFormat.FORMAT_UNORDERED_LIST)
         } else {
             removeList()
         }
     }
 
 
-    private fun applyList(listType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    private fun applyListStyle(listType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
             val selectedText = editableText.substring(start + 1..end - 1)
 
@@ -609,7 +609,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    private fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
+    private fun containsList(textFormat: TextFormat, index: Int, text: Editable = editableText): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -625,30 +625,10 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
-        return spans.size > 0
-    }
-
-    private fun containsList(textFormat: TextFormat, index: Int): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        if (index < 0 || index >= lines.size) {
-            return false
-        }
-
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
-        val end = start + lines[index].length
-        if (start > end) {
-            return false
-        }
-
-
         val spans = editableText.getSpans(start, end, makeDummylistSpan(textFormat).javaClass)
         return spans.size > 0
     }
+
 
     // QuoteSpan ===================================================================================
 
@@ -1065,28 +1045,27 @@ class AztecText : EditText, TextWatcher {
         }
 
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-            text.getSpans(0, 0, CharacterStyle::class.java).forEach {
-                if (text.length >= 1) {
-                    text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
-                } else {
-                    text.removeSpan(it)
-                }
-            }
 
-            text.getSpans(0, 0, LeadingMarginSpan::class.java).forEach {
-                if (text.length >= 1) {
-                    text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
-                } else {
-                    text.removeSpan(it)
-                }
+            removeTrailingStyle(text, CharacterStyle::class.java)
+            removeTrailingStyle(text, LeadingMarginSpan::class.java)
 
-            }
         }
 
         handleHistory()
 
         handleLists(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
+    }
+
+
+    fun removeTrailingStyle(text: Editable, spanClass: Class<*>) {
+        text.getSpans(0, 0, spanClass).forEach {
+            if (text.length >= 1) {
+                text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+            } else {
+                text.removeSpan(it)
+            }
+        }
     }
 
     fun handleHistory() {
@@ -1157,7 +1136,6 @@ class AztecText : EditText, TextWatcher {
 
         val spanToOpen = textChangedEvent.getSpanToOpen(text)
 
-        //we might need to open span to add text to it
         if (spanToOpen != null) {
             val textLength = text.length
 

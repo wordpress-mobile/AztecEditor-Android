@@ -987,6 +987,7 @@ class AztecText : EditText, TextWatcher {
 
     fun toggleFormatting(textFormat: TextFormat) {
         when (textFormat) {
+            TextFormat.FORMAT_NORMAL -> header(false, textFormat)
             TextFormat.FORMAT_HEADER_1,
             TextFormat.FORMAT_HEADER_2,
             TextFormat.FORMAT_HEADER_3,

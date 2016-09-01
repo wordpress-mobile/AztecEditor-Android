@@ -1,12 +1,12 @@
 package org.wordpress.aztec.source
 
 import org.jsoup.Jsoup
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 object Format {
 
-    private val inline = "b|i|u|s|del|a"
+    // list of block elements
+    private val block = "div|span|br|blockquote|ul|ol"
 
     fun addFormatting(content: String): String {
         // let's use Jsoup for HTML formatting for now because it works out of the box
@@ -15,9 +15,8 @@ object Format {
     }
 
     fun clearFormatting(html: String): String {
-        var out = replaceAll(html, "([^$inline])>\\s*", "$1>")
-        out = replaceAll(out, "\\s*<(/?+[^$inline])", "<$1")
-        return out
+        // remove all whitespace around block elements
+        return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String  {

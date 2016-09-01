@@ -463,7 +463,7 @@ class AztecText : EditText, TextWatcher {
             var lineStart = 0
 
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -502,7 +502,7 @@ class AztecText : EditText, TextWatcher {
             var lineStart = 0
 
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -551,7 +551,7 @@ class AztecText : EditText, TextWatcher {
         for (i in lines.indices) {
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -587,7 +587,7 @@ class AztecText : EditText, TextWatcher {
         var start = 0
 
         for (i in 0..index - 1) {
-            start = start + lines[i].length + 1
+            start += lines[i].length + 1
         }
 
         val end = start + lines[index].length
@@ -610,7 +610,7 @@ class AztecText : EditText, TextWatcher {
         var start = 0
 
         for (i in 0..index - 1) {
-            start = start + lines[i].length + 1
+            start += lines[i].length + 1
         }
 
         val end = start + lines[index].length
@@ -845,7 +845,7 @@ class AztecText : EditText, TextWatcher {
 
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1 // \n
+                lineStart += lines[j].length + 1 // \n
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -879,7 +879,7 @@ class AztecText : EditText, TextWatcher {
 
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -913,7 +913,7 @@ class AztecText : EditText, TextWatcher {
         for (i in lines.indices) {
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -947,7 +947,7 @@ class AztecText : EditText, TextWatcher {
 
         var start = 0
         for (i in 0..index - 1) {
-            start = start + lines[i].length + 1
+            start += lines[i].length + 1
         }
 
         val end = start + lines[index].length

@@ -28,10 +28,10 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         }
 
         if (editText is AztecText) {
-            inputLast = editText.getPureHtml()
+            inputLast = editText.toFormattedHtml()
         }
         else if (editText is SourceViewEditText) {
-            inputLast = editText.getPureHtml()
+            inputLast = editText.text.toString()
         }
 
         if (inputLast == inputBefore) {

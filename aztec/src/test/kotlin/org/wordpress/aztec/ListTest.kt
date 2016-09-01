@@ -6,16 +6,31 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 
 
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
-class BulletListTest() {
+@RunWith(ParameterizedRobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(16))
+class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
+
+    val listType = listTextFormat
+    val listTag = listHtmlTag
     lateinit var editText: AztecText
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing lists with {1} tag")
+        fun data(): Collection<Array<Any>> {
+            return listOf(
+                    arrayOf(TextFormat.FORMAT_ORDERED_LIST, "ol"), // First test:  (paramOne = 1, paramTwo = "I")
+                    arrayOf(TextFormat.FORMAT_UNORDERED_LIST, "ul") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+            )
+        }
+    }
+
 
     /**
      * Initialize variables.
@@ -33,9 +48,10 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun styleSingleItem() {
         editText.append("first item")
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>", editText.toHtml())
     }
+
 
     @Test
     @Throws(Exception::class)
@@ -48,8 +64,8 @@ class BulletListTest() {
         editText.append("third item")
         editText.setSelection(0, editText.length())
 
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.toHtml())
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -63,8 +79,8 @@ class BulletListTest() {
         editText.append("third item")
         editText.setSelection(4, 15) //we partially selected first and second item
 
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>third item", editText.toHtml())
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>third item", editText.toHtml())
     }
 
     @Test
@@ -78,8 +94,8 @@ class BulletListTest() {
         editText.append("third item")
         editText.setSelection(14)
 
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("first item<ul><li>second item</li></ul>third item", editText.toHtml())
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("first item<$listTag><li>second item</li></$listTag>third item", editText.toHtml())
     }
 
 
@@ -88,32 +104,32 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun emptyList() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("<ul><li></li></ul>", editText.toHtml())
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun styleSingleEnteredItem() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
-        Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun styleMultipleEnteredItems() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closingPopulatedList() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -121,14 +137,14 @@ class BulletListTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml().toString())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun closingEmptyList() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("\n")
         Assert.assertEquals("", editText.toHtml().toString())
     }
@@ -136,30 +152,30 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun extendingListBySplittingItems() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<ul><li>first</li><li>item</li></ul>", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first</li><li>item</li></$listTag>", editText.toHtml().toString())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun bulletListSplitWithToolbar() {
-        editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
         editText.setSelection(14)
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<$listTag><li>third item</li></$listTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun removeBulletListStyling() {
-        editText.fromHtml("<ul><li>first item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
         editText.setSelection(1)
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
 
         Assert.assertEquals("first item", editText.toHtml())
     }
@@ -167,9 +183,9 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun removeBulletListStylingForPartialSelection() {
-        editText.fromHtml("<ul><li>first item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
         editText.setSelection(2, 4)
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
 
         Assert.assertEquals("first item", editText.toHtml())
     }
@@ -177,7 +193,7 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun removeBulletListStylingForMultilinePartialSelection() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -192,16 +208,16 @@ class BulletListTest() {
         editText.append("not in list")
 
         editText.setSelection(firstMark, secondMark)
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<ul><li>first item</li></ul>second item<br>third item<ul><li>fourth item</li></ul>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun emptyBulletSurroundedBytItems() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         val firstMark = editText.length()
@@ -212,14 +228,14 @@ class BulletListTest() {
 
         editText.text.delete(firstMark - 1, secondMart - 2)
 
-        Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun trailingEmptyBulletPoint() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -228,22 +244,22 @@ class BulletListTest() {
         val mark = editText.length()
         editText.append("\n")
 
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>", editText.toHtml())
         editText.append("\n")
 
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
 
         editText.append("not in list")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>not in list", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun openList() {
-        editText.fromHtml("<ul><li>first item</li><li>second item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.append("\n")
@@ -254,17 +270,17 @@ class BulletListTest() {
         editText.append("not in the list")
         editText.append("\n")
         editText.append("foo")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
 
         //reopen list
         editText.text.delete(mark, mark + 1)
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third itemnot in the list</li></ul>foo", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closeList() {
-        editText.fromHtml("<ul><li>first item</li><li>second item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.append("\n")
@@ -272,7 +288,7 @@ class BulletListTest() {
 
         editText.text.delete(mark, mark + 1)
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
     }
 
@@ -280,26 +296,26 @@ class BulletListTest() {
     @Test
     @Throws(Exception::class)
     fun handleListReopeningAfterLastElementDeletion() {
-        editText.fromHtml("<ul><li>first item</li><li>second item</li><li>third item</li></ul>")
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, " addition")
-        Assert.assertEquals("<ul><li>first item</li><li>second item addition</li></ul>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "\n")
         editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "third item")
-        Assert.assertEquals("<ul><li>first item</li><li>second item addition</li><li>third item</li></ul>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun additionToClosedList() {
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -309,11 +325,32 @@ class BulletListTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml().toString())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml().toString())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun toggleListType() {
+
+        val oppositeTextFormat = if(listType == TextFormat.FORMAT_ORDERED_LIST)
+            TextFormat.FORMAT_UNORDERED_LIST else TextFormat.FORMAT_ORDERED_LIST
+
+        val oppositeTag = if(listTag.equals("ol")) "ul" else "ol"
+
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
+        editText.setSelection(editText.length())
+
+        editText.toggleFormatting(oppositeTextFormat)
+
+        Assert.assertEquals("<$oppositeTag><li>first item</li><li>second item</li><li>third item</li></$oppositeTag>", editText.toHtml().toString())
+
+        editText.toggleFormatting(listType)
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml().toString())
+
     }
 
 

@@ -32,7 +32,7 @@ class LinkTest() {
         editText.append("hello ")
         editText.setSelection(editText.length())
         editText.link("http://wordpress.com", "WordPress")
-        Assert.assertEquals("hello <a href=\"http://wordpress.com\">WordPress</a>", editText.getPureHtml())
+        Assert.assertEquals("hello <a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
 
@@ -42,7 +42,7 @@ class LinkTest() {
         editText.append("leftright")
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
-        Assert.assertEquals("left<a href=\"http://wordpress.com\">WordPress</a>right", editText.getPureHtml())
+        Assert.assertEquals("left<a href=\"http://wordpress.com\">WordPress</a>right", editText.toHtml())
     }
 
 
@@ -53,14 +53,14 @@ class LinkTest() {
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
         //Still valid, but order of b and del is switched here for some reason.
-        Assert.assertEquals("<b><del>left</del></b><b><del><a href=\"http://wordpress.com\">WordPress</a></del></b><del><i>right</i></del>", editText.getPureHtml())
+        Assert.assertEquals("<b><del>left</del></b><b><del><a href=\"http://wordpress.com\">WordPress</a></del></b><del><i>right</i></del>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoEmptyEditor() {
         editText.link("http://wordpress.com", "WordPress")
-        Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.getPureHtml())
+        Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
 
@@ -72,7 +72,7 @@ class LinkTest() {
 
         editText.link("http://wordpress.com", editText.getSelectedText())
 
-        Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.getPureHtml())
+        Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
 
@@ -83,7 +83,7 @@ class LinkTest() {
         editText.setSelection(6, editText.length())
 
         editText.link("http://wordpress.com", editText.getSelectedText())
-        Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>", editText.toHtml())
     }
 
 
@@ -94,7 +94,7 @@ class LinkTest() {
         editText.setSelection(6, editText.length())
 
         editText.link("http://wordpress.com", "World")
-        Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">World</a></b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">World</a></b>", editText.toHtml())
     }
 
     @Test
@@ -104,7 +104,7 @@ class LinkTest() {
         editText.setSelection(6, editText.length())
 
         editText.link("", "WordPress")
-        Assert.assertEquals("Hello <b>WordPress</b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
     @Test
@@ -114,7 +114,7 @@ class LinkTest() {
         editText.setSelection(6, editText.length())
 
         editText.link("", "World") //removing url wont cause anchor to change
-        Assert.assertEquals("Hello <b>WordPress</b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
 
@@ -125,7 +125,7 @@ class LinkTest() {
         editText.setSelection(7)
 
         editText.link("http://automattic.com", "World")
-        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
     @Test
@@ -135,12 +135,12 @@ class LinkTest() {
         editText.setSelection(6, editText.length() - 1)
 
         editText.link("http://automattic.com", "World")
-        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
 
     //TODO: Modify parser to produce cleaner html
-    //Currently the way tags are closed (at every span transition) makes displayStyledHtml produce this:
+    //Currently the way tags are closed (at every span transition) makes toHtml produce this:
     //<a href="http://automattic.com">FirstUrl Hello </a><a href="http://automattic.com"><b>SecondUrl</b></a>
     @Test
     @Throws(Exception::class)
@@ -150,7 +150,7 @@ class LinkTest() {
 
         editText.link("http://automattic.com", editText.getSelectedText())
         Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a>" +
-                "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.getPureHtml())
+                "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
     }
 
 
@@ -161,7 +161,7 @@ class LinkTest() {
         editText.setSelection(7)
 
         editText.removeLink()
-        Assert.assertEquals("Hello <b>WordPress</b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
 
@@ -172,7 +172,7 @@ class LinkTest() {
         editText.setSelection(0, editText.length())
 
         editText.removeLink()
-        Assert.assertEquals("Hello <b>WordPress</b>", editText.getPureHtml())
+        Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
     @Test
@@ -182,7 +182,7 @@ class LinkTest() {
         editText.setSelection(0, editText.length())
 
         editText.removeLink()
-        Assert.assertEquals("FirstUrl Hello <b>SecondUrl</b>", editText.getPureHtml())
+        Assert.assertEquals("FirstUrl Hello <b>SecondUrl</b>", editText.toHtml())
     }
 
 
@@ -194,12 +194,12 @@ class LinkTest() {
 
         editText.link("http://first_link","First Link")
         Assert.assertEquals("<div class=\"third\">Div<a href=\"http://first_link\">First Link</a>" +
-                "<br><span>Span</span><br>Hidden</div>", editText.getPureHtml())
+                "<br><span>Span</span><br>Hidden</div>", editText.toHtml())
         editText.setSelection(14)
         editText.link("http://second_link","Second Link")
 
         Assert.assertEquals("<div class=\"third\">Div<a href=\"http://first_link\">First Link</a>" +
-                "<br><a href=\"http://second_link\">Second Link</a><span>Span</span><br>Hidden</div>", editText.getPureHtml())
+                "<br><a href=\"http://second_link\">Second Link</a><span>Span</span><br>Hidden</div>", editText.toHtml())
     }
 
 
@@ -210,13 +210,13 @@ class LinkTest() {
         editText.setSelection(4,8)
 
         editText.link("http://span",editText.getSelectedText())
-        Assert.assertEquals("<div class=\"third\">Div<br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.getPureHtml())
+        Assert.assertEquals("<div class=\"third\">Div<br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.toHtml())
 
 
         editText.setSelection(0,3)
 
         editText.link("http://div",editText.getSelectedText())
-        Assert.assertEquals("<div class=\"third\"><a href=\"http://div\">Div</a><br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.getPureHtml())
+        Assert.assertEquals("<div class=\"third\"><a href=\"http://div\">Div</a><br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.toHtml())
     }
 
     @Test
@@ -226,7 +226,7 @@ class LinkTest() {
         editText.selectAll()
         editText.link("http://link",editText.getSelectedText())
 
-        Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><a href=\"http://link\"><span>Span</span></a><br><a href=\"http://link\">Hidden</a></div>", editText.getPureHtml())
+        Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><a href=\"http://link\"><span>Span</span></a><br><a href=\"http://link\">Hidden</a></div>", editText.toHtml())
     }
 
 }

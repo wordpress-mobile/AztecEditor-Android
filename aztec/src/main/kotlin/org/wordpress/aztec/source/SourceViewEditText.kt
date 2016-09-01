@@ -9,6 +9,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
+import org.jsoup.Jsoup
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.util.TypefaceCache
@@ -66,7 +67,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        history?.beforeTextChanged(getPureHtml())
+        history?.beforeTextChanged(text.toString())
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
     }
 
@@ -92,8 +93,15 @@ class SourceViewEditText : EditText, TextWatcher {
         history?.undo(this)
     }
 
-    fun displayStyledHtml(source: String) {
+    fun displayStyledAndFormattedHtml(source: String) {
         val styledHtml = styleHtml(Format.addFormatting(source))
+        disableTextChangedListener()
+        text = styledHtml
+        enableTextChangedListener()
+    }
+
+    fun displayStyledHtml(source: String) {
+        val styledHtml = styleHtml(source)
         disableTextChangedListener()
         text = styledHtml
         enableTextChangedListener()

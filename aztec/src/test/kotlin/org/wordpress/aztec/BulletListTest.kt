@@ -34,7 +34,7 @@ class BulletListTest() {
     fun styleSingleItem() {
         editText.append("first item")
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
-        Assert.assertEquals("<ul><li>first item</li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -49,7 +49,7 @@ class BulletListTest() {
         editText.setSelection(0, editText.length())
 
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -64,7 +64,7 @@ class BulletListTest() {
         editText.setSelection(4, 15) //we partially selected first and second item
 
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>third item", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>third item", editText.toHtml())
     }
 
     @Test
@@ -79,7 +79,7 @@ class BulletListTest() {
         editText.setSelection(14)
 
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
-        Assert.assertEquals("first item<ul><li>second item</li></ul>third item", editText.getPureHtml())
+        Assert.assertEquals("first item<ul><li>second item</li></ul>third item", editText.toHtml())
     }
 
 
@@ -89,7 +89,7 @@ class BulletListTest() {
     @Throws(Exception::class)
     fun emptyList() {
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
-        Assert.assertEquals("<ul><li></li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li></li></ul>", editText.toHtml())
     }
 
     @Test
@@ -97,7 +97,7 @@ class BulletListTest() {
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
         editText.append("first item")
-        Assert.assertEquals("<ul><li>first item</li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -107,7 +107,7 @@ class BulletListTest() {
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -121,7 +121,7 @@ class BulletListTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.getPureHtml().toString())
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
     }
 
 
@@ -130,7 +130,7 @@ class BulletListTest() {
     fun closingEmptyList() {
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
         editText.append("\n")
-        Assert.assertEquals("", editText.getPureHtml().toString())
+        Assert.assertEquals("", editText.toHtml().toString())
     }
 
     @Test
@@ -139,7 +139,7 @@ class BulletListTest() {
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
         editText.append("firstitem")
         editText.text.insert(5,"\n")
-        Assert.assertEquals("<ul><li>first</li><li>item</li></ul>", editText.getPureHtml().toString())
+        Assert.assertEquals("<ul><li>first</li><li>item</li></ul>", editText.toHtml().toString())
     }
 
 
@@ -150,7 +150,7 @@ class BulletListTest() {
         editText.setSelection(14)
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
 
-        Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li></ul>second item<ul><li>third item</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -166,11 +166,11 @@ class BulletListTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.getPureHtml().toString())
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml().toString())
 
         editText.text.insert(mark," (addition)")
 
-        Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.getPureHtml().toString())
+        Assert.assertEquals("<ul><li>first item</li><li>second item (addition)</li></ul>not in the list", editText.toHtml().toString())
 
     }
 
@@ -181,7 +181,7 @@ class BulletListTest() {
         editText.setSelection(1)
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
 
-        Assert.assertEquals("first item", editText.getPureHtml())
+        Assert.assertEquals("first item", editText.toHtml())
     }
 
     @Test
@@ -191,7 +191,7 @@ class BulletListTest() {
         editText.setSelection(2,4)
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
 
-        Assert.assertEquals("first item", editText.getPureHtml())
+        Assert.assertEquals("first item", editText.toHtml())
     }
 
     @Test
@@ -214,7 +214,7 @@ class BulletListTest() {
         editText.setSelection(firstMark,secondMark)
         editText.toggleFormatting(TextFormat.FORMAT_BULLET)
 
-        Assert.assertEquals("<ul><li>first item</li></ul>second item<br>third item<ul><li>fourth item</li></ul>not in list", editText.getPureHtml())
+        Assert.assertEquals("<ul><li>first item</li></ul>second item<br>third item<ul><li>fourth item</li></ul>not in list", editText.toHtml())
     }
 
 
@@ -233,7 +233,7 @@ class BulletListTest() {
 //
 //        editText.text.delete(firstMark-1,secondMart-2)
 //
-//        Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.displayStyledHtml())
+//        Assert.assertEquals("<ul><li>first item</li><li></li><li>third item</li></ul>", editText.displayStyledAndFormattedHtml())
 //    }
 
 

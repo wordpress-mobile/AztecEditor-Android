@@ -994,7 +994,7 @@ class AztecText : EditText, TextWatcher {
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isTextChangedListenerDisabled()) {
-            history.beforeTextChanged(getPureHtml())
+            history.beforeTextChanged(toFormattedHtml())
         }
     }
 
@@ -1154,11 +1154,18 @@ class AztecText : EditText, TextWatcher {
         enableTextChangedListener()
     }
 
-    fun getPureHtml(): String {
+    fun toHtml(): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
         BaseInputConnection.removeComposingSpans(output)
         return Format.clearFormatting(parser.toHtml(output))
+    }
+
+    fun toFormattedHtml(): String {
+        val parser = AztecParser()
+        val output = SpannableStringBuilder(text)
+        BaseInputConnection.removeComposingSpans(output)
+        return Format.addFormatting(parser.toHtml(output))
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

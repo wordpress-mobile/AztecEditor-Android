@@ -544,6 +544,39 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    private fun containHeader(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        val list = ArrayList<Int>()
+
+        for (i in lines.indices) {
+            var lineStart = 0
+            for (j in 0..i - 1) {
+                lineStart = lineStart + lines[j].length + 1
+            }
+
+            val lineEnd = lineStart + lines[i].length
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            if (lineStart <= selStart && selEnd <= lineEnd) {
+                list.add(i)
+            } else if (selStart <= lineStart && lineEnd <= selEnd) {
+                list.add(i)
+            }
+        }
+
+        if (list.isEmpty()) return false
+
+        for (i in list) {
+            if (!containHeaderType(textFormat, i)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
     private fun containHeader(index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
@@ -565,6 +598,48 @@ class AztecText : EditText, TextWatcher {
 
         val spans = editableText.getSpans(start, end, AztecHeaderSpan::class.java)
         return spans.size > 0
+    }
+
+    private fun containHeaderType(textFormat: TextFormat, index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        var start = 0
+
+        for (i in 0..index - 1) {
+            start = start + lines[i].length + 1
+        }
+
+        val end = start + lines[index].length
+
+        if (start >= end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecHeaderSpan::class.java)
+
+        for (span in spans) {
+            when (textFormat) {
+                TextFormat.FORMAT_HEADER_1 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H1)
+                TextFormat.FORMAT_HEADER_2 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H2)
+                TextFormat.FORMAT_HEADER_3 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H3)
+                TextFormat.FORMAT_HEADER_4 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H4)
+                TextFormat.FORMAT_HEADER_5 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H5)
+                TextFormat.FORMAT_HEADER_6 ->
+                    return span.mHeader.equals(AztecHeaderSpan.Header.H6)
+                else -> return false
+            }
+        }
+
+        return false
     }
 
     // BulletSpan ==================================================================================
@@ -940,6 +1015,16 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun getAppliedHeader(selectionStart: Int, selectionEnd: Int): TextFormat? {
+        TextFormat.values().forEach {
+            if (contains(it, selectionStart, selectionEnd)) {
+                return it
+            }
+        }
+
+        return null
+    }
+
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
         val styles = ArrayList<TextFormat>()
         TextFormat.values().forEach {
@@ -1018,6 +1103,12 @@ class AztecText : EditText, TextWatcher {
 
     fun contains(format: TextFormat, selStart: Int, selEnd: Int): Boolean {
         when (format) {
+            TextFormat.FORMAT_HEADER_1,
+            TextFormat.FORMAT_HEADER_2,
+            TextFormat.FORMAT_HEADER_3,
+            TextFormat.FORMAT_HEADER_4,
+            TextFormat.FORMAT_HEADER_5,
+            TextFormat.FORMAT_HEADER_6 -> return containHeader(format, selStart, selEnd)
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)

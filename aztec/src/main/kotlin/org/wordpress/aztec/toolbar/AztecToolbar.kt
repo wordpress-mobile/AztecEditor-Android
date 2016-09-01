@@ -16,6 +16,7 @@ import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var mEditor: AztecText? = null
+    private var mHeaderMenu: PopupMenu? = null
 
     constructor(context: Context) : super(context) {
         initView()
@@ -30,6 +31,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.isChecked = (item?.isChecked == false)
+
         when (item?.itemId) {
             R.id.normal -> {
                 mEditor?.toggleFormatting(TextFormat.FORMAT_NORMAL)
@@ -83,6 +86,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
+
+            if (toolbarAction.equals(ToolbarAction.HEADER)) {
+                setHeaderMenu(findViewById(toolbarAction.buttonId))
+            }
         }
     }
 
@@ -126,6 +133,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         mEditor!!.setSelectedStyles(appliedStyles)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
+        selectHeaderMenu(mEditor!!.getAppliedHeader(newSelStart, selEnd))
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -147,7 +155,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
-            ToolbarAction.HEADER -> showHeaderMenu(findViewById(action.buttonId))
+            ToolbarAction.HEADER -> mHeaderMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> mEditor!!.setText(mEditor!!.toHtml())
             else -> {
@@ -157,11 +165,22 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     }
 
-    private fun showHeaderMenu(view: View) {
-        val popup = PopupMenu(context, view)
-        popup.setOnMenuItemClickListener(this)
-        popup.inflate(R.menu.header)
-        popup.show()
+    private fun selectHeaderMenu(textFormat: TextFormat?) {
+        when (textFormat) {
+            TextFormat.FORMAT_HEADER_1 -> mHeaderMenu?.menu?.getItem(1)?.isChecked = true
+            TextFormat.FORMAT_HEADER_2 -> mHeaderMenu?.menu?.getItem(2)?.isChecked = true
+            TextFormat.FORMAT_HEADER_3 -> mHeaderMenu?.menu?.getItem(3)?.isChecked = true
+            TextFormat.FORMAT_HEADER_4 -> mHeaderMenu?.menu?.getItem(4)?.isChecked = true
+            TextFormat.FORMAT_HEADER_5 -> mHeaderMenu?.menu?.getItem(5)?.isChecked = true
+            TextFormat.FORMAT_HEADER_6 -> mHeaderMenu?.menu?.getItem(6)?.isChecked = true
+            else -> mHeaderMenu?.menu?.getItem(0)?.isChecked = true
+        }
+    }
+
+    private fun setHeaderMenu(view: View) {
+        mHeaderMenu = PopupMenu(context, view)
+        mHeaderMenu?.setOnMenuItemClickListener(this)
+        mHeaderMenu?.inflate(R.menu.header)
     }
 
     private fun showLinkDialog() {

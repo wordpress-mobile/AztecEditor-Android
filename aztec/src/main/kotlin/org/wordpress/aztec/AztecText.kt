@@ -490,7 +490,7 @@ class AztecText : EditText, TextWatcher {
                     editableText.removeSpan(span)
                 }
 
-                text = editableText
+                refreshText()
             }
         }
     }
@@ -539,7 +539,7 @@ class AztecText : EditText, TextWatcher {
                     else -> {}
                 }
 
-                text = editableText
+                refreshText()
             }
         }
     }
@@ -1402,5 +1402,12 @@ class AztecText : EditText, TextWatcher {
 
     fun isTextChangedListenerDisabled(): Boolean {
         return consumeEditEvent
+    }
+
+    fun refreshText() {
+        val selStart = selectionStart
+        val selEnd = selectionEnd
+        text = editableText
+        setSelection(selStart, selEnd)
     }
 }

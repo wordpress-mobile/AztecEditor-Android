@@ -19,7 +19,6 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
@@ -32,51 +31,43 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         return "ol"
     }
 
-    private var bulletColor: Int = 0
-    private var bulletMargin: Int = 0
-    private var bulletPadding: Int = 0
-    private var bulletWidth: Int = 0
+    private var textColor: Int = 0
+    private var textMargin: Int = 0
+    private var textPadding: Int = 0
+    private var bulletWidth: Int = 0 //we are using bullet width to maintain same margin with bullet list
 
 
     //used for marking
     constructor() : super(0) {
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) : super(bulletMargin) {
-        this.bulletColor = bulletColor
-        this.bulletMargin = bulletMargin
+    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int) : super(textMargin) {
+        this.textColor = textColor
+        this.textMargin = textMargin
         this.bulletWidth = bulletWidth
-        this.bulletPadding = bulletPadding
+        this.textPadding = textPadding
     }
 
     constructor(src: Parcel) : super(src) {
-        this.bulletColor = src.readInt()
-        this.bulletMargin = src.readInt()
-        this.bulletWidth = src.readInt()
-        this.bulletPadding = src.readInt()
+        this.textColor = src.readInt()
+        this.textMargin = src.readInt()
+        this.textPadding = src.readInt()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)
-        dest.writeInt(bulletColor)
-        dest.writeInt(bulletMargin)
-        dest.writeInt(bulletWidth)
-        dest.writeInt(bulletPadding)
+        dest.writeInt(textColor)
+        dest.writeInt(textMargin)
+        dest.writeInt(textPadding)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return bulletMargin + 2 * bulletWidth + bulletPadding
+        return textMargin + 2 * bulletWidth + textPadding
     }
 
-    fun getLineNumber(text: CharSequence, start: Int, end: Int): Int {
-
-        var stringBeforeStart = text.substring(0, end)
-        stringBeforeStart = stringBeforeStart.removePrefix("\n")
-
-        val numberOfNewlines = TextUtils.split(stringBeforeStart.toString(), "\n").size
-
-        return numberOfNewlines
-
+    fun getLineNumber(text: CharSequence, end: Int): Int {
+        val textBeforeBeforeEnd = text.substring(0, end).removePrefix("\n")
+        return TextUtils.split(textBeforeBeforeEnd.toString(), "\n").size
     }
 
 
@@ -87,7 +78,6 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
         if (!first) return
 
-
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
@@ -95,26 +85,23 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
         val listText = text.subSequence(spanStart, spanEnd)
 
-        val lineNumber = getLineNumber(listText, start - spanStart, end - spanStart)
+        val lineNumber = getLineNumber(listText, end - spanStart)
 
         val style = p.style
 
         val oldColor = p.color
 
-        p.color = bulletColor
+        p.color = textColor
         p.style = Paint.Style.FILL
 
         val textToDraw = lineNumber.toString() + "."
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (bulletMargin + x - width) * dir, bottom - p.descent(), p)
+        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, bottom - p.descent(), p)
 
         p.color = oldColor
         p.style = style
 
     }
 
-    companion object {
-        private var bulletPath: Path? = null
-    }
 }

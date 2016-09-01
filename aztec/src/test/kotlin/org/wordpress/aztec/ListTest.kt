@@ -11,10 +11,14 @@ import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 
 
+/**
+ * Testing the nadling of ordered and unordered lists.
+ *
+ * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
+ */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(16))
 class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
-
 
     val listType = listTextFormat
     val listTag = listHtmlTag
@@ -25,8 +29,8 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         @ParameterizedRobolectricTestRunner.Parameters(name = "Testing lists with {1} tag")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                    arrayOf(TextFormat.FORMAT_ORDERED_LIST, "ol"), // First test:  (paramOne = 1, paramTwo = "I")
-                    arrayOf(TextFormat.FORMAT_UNORDERED_LIST, "ul") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                    arrayOf(TextFormat.FORMAT_ORDERED_LIST, "ol"),
+                    arrayOf(TextFormat.FORMAT_UNORDERED_LIST, "ul")
             )
         }
     }
@@ -336,10 +340,10 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun toggleListType() {
 
-        val oppositeTextFormat = if(listType == TextFormat.FORMAT_ORDERED_LIST)
+        val oppositeTextFormat = if (listType == TextFormat.FORMAT_ORDERED_LIST)
             TextFormat.FORMAT_UNORDERED_LIST else TextFormat.FORMAT_ORDERED_LIST
 
-        val oppositeTag = if(listTag.equals("ol")) "ul" else "ol"
+        val oppositeTag = if (listTag.equals("ol")) "ul" else "ol"
 
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
         editText.setSelection(editText.length())

@@ -305,7 +305,7 @@ class AztecText : EditText, TextWatcher {
 
     private fun applyInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
 
-        val spanToApply = makeDummyInlineSpan(textFormat)
+        val spanToApply = makeInlineSpan(textFormat)
 
         if (start >= end) {
             return
@@ -372,7 +372,7 @@ class AztecText : EditText, TextWatcher {
 
     fun removeInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
         //for convenience sake we are initializing the span of same type we are planing to remove
-        val spanToRemove = makeDummyInlineSpan(textFormat)
+        val spanToRemove = makeInlineSpan(textFormat)
 
         if (start >= end) {
             return
@@ -403,7 +403,9 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
-    fun makeDummylistSpan(textFormat: TextFormat): LeadingMarginSpan {
+
+    //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
+    fun makeListSpan(textFormat: TextFormat): LeadingMarginSpan {
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
             TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
@@ -412,7 +414,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    fun makeDummylistSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
+    fun makeListSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
         when (spanType) {
             AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
             AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
@@ -420,7 +422,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun makeDummyInlineSpan(textFormat: TextFormat): CharacterStyle {
+    fun makeInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
             TextFormat.FORMAT_BOLD -> return StyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return StyleSpan(Typeface.ITALIC)
@@ -431,7 +433,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun containsInlineStyle(textFormat: TextFormat, start: Int, end: Int): Boolean {
-        val spanToCheck = makeDummyInlineSpan(textFormat)
+        val spanToCheck = makeInlineSpan(textFormat)
 
         if (start > end) {
             return false
@@ -485,32 +487,26 @@ class AztecText : EditText, TextWatcher {
             } else {
                 applyListStyle(TextFormat.FORMAT_UNORDERED_LIST)
             }
-
         } else {
             removeList()
         }
     }
 
     private fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-
         val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
 
         if (spans.isEmpty()) return
 
-
         val existingListSpan = spans[0]
-
 
         val spanStart = editableText.getSpanStart(existingListSpan)
         val spanEnd = editableText.getSpanEnd(existingListSpan)
         val spanFlags = editableText.getSpanFlags(existingListSpan)
         editableText.removeSpan(existingListSpan)
 
-        editableText.setSpan(makeDummylistSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
-//        onSelectionChanged(start, end)
-
+        editableText.setSpan(makeListSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
+        onSelectionChanged(start, end)
     }
-
 
     private fun applyListStyle(listType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
@@ -540,7 +536,7 @@ class AztecText : EditText, TextWatcher {
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
                     removeList()
                 } else {
-                    editableText.setSpan(makeDummylistSpan(listType), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(makeListSpan(listType), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
 
 
@@ -560,7 +556,7 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(makeDummylistSpan(listType), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editableText.setSpan(makeListSpan(listType), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
@@ -596,11 +592,11 @@ class AztecText : EditText, TextWatcher {
 
         //reapply span top "top" and "bottom"
         if (spanPrecedesLine) {
-            editableText.setSpan(makeDummylistSpan(span.javaClass), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeListSpan(span.javaClass), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanExtendsBeyondLine) {
-            editableText.setSpan(makeDummylistSpan(span.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeListSpan(span.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -654,7 +650,7 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, makeDummylistSpan(textFormat).javaClass)
+        val spans = editableText.getSpans(start, end, makeListSpan(textFormat).javaClass)
         return spans.size > 0
     }
 
@@ -1074,10 +1070,8 @@ class AztecText : EditText, TextWatcher {
         }
 
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-
-            removeTrailingStyle(text, CharacterStyle::class.java)
-            removeTrailingStyle(text, LeadingMarginSpan::class.java)
-
+            removeLeadingStyle(text, CharacterStyle::class.java)
+            removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
         handleHistory()
@@ -1087,7 +1081,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    fun removeTrailingStyle(text: Editable, spanClass: Class<*>) {
+    fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
                 text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
@@ -1149,9 +1143,7 @@ class AztecText : EditText, TextWatcher {
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
 
-
-        val spanToClose = textChangedEvent.getSpanToClose(text)
-
+        val spanToClose = textChangedEvent.getListSpanToClose(text)
         if (spanToClose != null) {
             val spanEnd = text.getSpanEnd(spanToClose)
 
@@ -1163,37 +1155,34 @@ class AztecText : EditText, TextWatcher {
             }
         }
 
-        val spanToOpen = textChangedEvent.getSpanToOpen(text)
-
+        val spanToOpen = textChangedEvent.getListSpanToOpen(text)
         if (spanToOpen != null) {
             val textLength = text.length
 
-            val spanEnd = text.getSpanEnd(spanToOpen)
+            var spanEnd = text.getSpanEnd(spanToOpen)
             val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
 
-            val extendedEndOfSpan: Int
-
             if (indexOfLineEnd == spanEnd) {
-                extendedEndOfSpan = spanEnd + textChangedEvent.count
+                spanEnd += textChangedEvent.count
             } else if (indexOfLineEnd == -1) {
-                extendedEndOfSpan = text.length
+                spanEnd = text.length
             } else {
-                extendedEndOfSpan = indexOfLineEnd
+                spanEnd = indexOfLineEnd
             }
 
             if (spanEnd <= textLength) {
                 editableText.setSpan(spanToOpen,
                         text.getSpanStart(spanToOpen),
-                        extendedEndOfSpan,
+                        spanEnd,
                         Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
             }
         }
 
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewlineEntered()) {
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLine()) {
             disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewlineEntered()) {
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             removeList()
             disableTextChangedListener()
             if (inputStart == 1) {
@@ -1201,10 +1190,10 @@ class AztecText : EditText, TextWatcher {
             } else {
                 text.delete(inputStart - 2, inputStart)
             }
-        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewlineEntered()) {
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             //Add ZWJ to the new line at the end of list
-            val paragraphSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
-            if (!paragraphSpans.isEmpty() && text.getSpanEnd(paragraphSpans[0]) == inputStart + 1) {
+            val listSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
+            if (!listSpans.isEmpty() && text.getSpanEnd(listSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
             }

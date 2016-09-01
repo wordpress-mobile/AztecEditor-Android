@@ -24,8 +24,8 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         return false
     }
 
-    fun isNewlineEntered(): Boolean {
-        if(!isAddingCharacters) return false
+    fun isNewLine(): Boolean {
+        if (!isAddingCharacters) return false
 
         if (start >= 1 && count == 1) {
             val currentCharacter = text[start]
@@ -40,12 +40,12 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         return false
     }
 
-    fun getSpanToOpen(editableText: Editable): AztecListSpan? {
 
+    //TODO: make this to also work with bullet span in the future
+    fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
         if (start >= 1 && count >= 0) {
             if (text.length > start) {
-                val char = text[start-1]
-                if (char == '\n') return null
+                if (text[start - 1] == '\n') return null
                 val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
                 if (!spans.isEmpty()) {
                     val flags = editableText.getSpanFlags(spans[0])
@@ -60,19 +60,18 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
     }
 
-
-    fun getSpanToClose(editableText: Editable): AztecListSpan? {
-
+    //TODO: make this to also work with bullet span in the future
+    fun getListSpanToClose(editableText: Editable): AztecListSpan? {
         if (start >= 1 && count == 0) {
-            if (text[start - 1] == '\n') {
-                val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
-                if (!spans.isEmpty()) {
-                    val flags = editableText.getSpanFlags(spans[0])
-                    if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
-                        return spans[0]
-                    }
+            if (text[start - 1] != '\n') return null
+            val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
+            if (!spans.isEmpty()) {
+                val flags = editableText.getSpanFlags(spans[0])
+                if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                    return spans[0]
                 }
             }
+
         }
 
         return null

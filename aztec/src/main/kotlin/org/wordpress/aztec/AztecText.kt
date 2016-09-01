@@ -1058,10 +1058,14 @@ class AztecText : EditText, TextWatcher {
 
         //we might need to open span to add text to it
         if (spanToOpen != null) {
-            editableText.setSpan(spanToOpen,
-                    text.getSpanStart(spanToOpen),
-                    text.getSpanEnd(spanToOpen) + textChangedEvent.count,
-                    Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            val spanEnd = text.getSpanEnd(spanToOpen) + textChangedEvent.count
+
+            if (spanEnd <= text.length) {
+                editableText.setSpan(spanToOpen,
+                        text.getSpanStart(spanToOpen),
+                        spanEnd,
+                        Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
         }
 
 

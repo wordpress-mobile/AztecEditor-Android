@@ -12,9 +12,9 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
-import org.wordpress.aztec.*
-import org.wordpress.aztec.source.Format
-import org.wordpress.aztec.source.HtmlStyleUtils
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.R
+import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 

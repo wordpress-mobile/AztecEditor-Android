@@ -4,16 +4,13 @@ import android.content.Context
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.text.Editable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.widget.EditText
-import org.jsoup.Jsoup
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.util.TypefaceCache
-import java.util.*
 
 class SourceViewEditText : EditText, TextWatcher {
 

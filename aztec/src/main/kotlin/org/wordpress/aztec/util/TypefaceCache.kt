@@ -3,8 +3,7 @@ package org.wordpress.aztec.util
 import android.content.Context
 import android.graphics.Typeface
 import android.widget.TextView
-
-import java.util.Hashtable
+import java.util.*
 
 object TypefaceCache {
 

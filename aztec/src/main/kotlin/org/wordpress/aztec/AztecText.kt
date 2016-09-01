@@ -19,8 +19,6 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Bundle
-import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.*

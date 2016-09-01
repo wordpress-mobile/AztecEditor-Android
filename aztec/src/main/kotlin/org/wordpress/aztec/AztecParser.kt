@@ -20,7 +20,6 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
-import android.support.v7.util.SortedList
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils

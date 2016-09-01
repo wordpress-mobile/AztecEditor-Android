@@ -1,7 +1,5 @@
 package org.wordpress.aztec
 
-import android.text.Editable
-import android.text.SpannableStringBuilder
 import android.widget.EditText
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*

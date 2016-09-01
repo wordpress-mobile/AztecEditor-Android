@@ -23,6 +23,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
     private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
+    private val HTML_HEADER = "<h1>Header 1</h1><br><br><h2>Header 2</h2><br><br><h3>Header 3</h3><br><br><h4>Header 4</h4><br><br><h5>Header 5</h5><br><br><h6>Header 6</h6><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
@@ -56,6 +57,7 @@ class AztecParserTest : AndroidTestCase() {
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_BULLET = "Bullet\n\n"
     private val SPAN_COMMENT = "Comment\n\n"
+    private val SPAN_HEADER = "Header 1\n\nHeader 2\n\nHeader 3\n\nHeader 4\n\nHeader 5\n\nHeader 6\n\n"
     private val SPAN_ITALIC = "Italic\n\n"
     private val SPAN_LINK = "Link\n\n"
     private val SPAN_QUOTE = "Quote\n\n"
@@ -81,23 +83,24 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlAll_isEqual() {
         val input =
+                HTML_HEADER +
                 HTML_BOLD +
-                        HTML_ITALIC +
-                        HTML_UNDERLINE +
-                        HTML_STRIKETHROUGH +
-                        HTML_BULLET +
-                        HTML_QUOTE +
-                        HTML_LINK +
-                        HTML_BULLET_WITH_QUOTE +
-                        HTML_UNKNOWN +
-                        HTML_QUOTE_WITH_BULLETS +
-                        HTML_COMMENT +
-                        HTML_NESTED_MIXED +
-                        HTML_NESTED_EMPTY_END +
-                        HTML_NESTED_EMPTY_START +
-                        HTML_NESTED_EMPTY +
-                        HTML_NESTED_WITH_TEXT +
-                        HTML_NESTED_INTERLEAVING
+                HTML_ITALIC +
+                HTML_UNDERLINE +
+                HTML_STRIKETHROUGH +
+                HTML_BULLET +
+                HTML_QUOTE +
+                HTML_LINK +
+                HTML_BULLET_WITH_QUOTE +
+                HTML_UNKNOWN +
+                HTML_QUOTE_WITH_BULLETS +
+                HTML_COMMENT +
+                HTML_NESTED_MIXED +
+                HTML_NESTED_EMPTY_END +
+                HTML_NESTED_EMPTY_START +
+                HTML_NESTED_EMPTY +
+                HTML_NESTED_WITH_TEXT +
+                HTML_NESTED_INTERLEAVING
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -178,6 +181,22 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlComment_isEqual() {
         val input =
                 HTML_COMMENT
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse header text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlHeader_isEqual() {
+        val input =
+                HTML_HEADER
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -338,9 +357,7 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlNestedMixedTwice_isEqual() {
         val input =
                 HTML_NESTED_MIXED
-
         val span = SpannableString(mParser.fromHtml(input, context))
-
         Assert.assertEquals(input, mParser.toHtml(span))
         Assert.assertEquals(input, mParser.toHtml(span))
     }
@@ -435,15 +452,16 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanAll_isEqual() {
         val input = SpannableString(
+                SPAN_HEADER +
                 SPAN_BOLD +
-                        SPAN_ITALIC +
-                        SPAN_UNDERLINE +
-                        SPAN_STRIKETHROUGH +
-                        SPAN_BULLET +
-                        SPAN_QUOTE +
-                        SPAN_LINK +
-                        SPAN_UNKNOWN +
-                        SPAN_COMMENT
+                SPAN_ITALIC +
+                SPAN_UNDERLINE +
+                SPAN_STRIKETHROUGH +
+                SPAN_BULLET +
+                SPAN_QUOTE +
+                SPAN_LINK +
+                SPAN_UNKNOWN +
+                SPAN_COMMENT
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
@@ -495,6 +513,23 @@ class AztecParserTest : AndroidTestCase() {
     fun parseSpanToHtmlToSpanComment_isEqual() {
         val input = SpannableString(
                 SPAN_COMMENT
+        )
+        val html = mParser.toHtml(input)
+        val output = mParser.fromHtml(html, context)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse header text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseSpanToHtmlToSpanHeader_isEqual() {
+        val input = SpannableString(
+                SPAN_ITALIC
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)

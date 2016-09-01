@@ -241,7 +241,6 @@ class BulletListTest() {
 
     //Closing/Opening of list
 
-
     @Test
     @Throws(Exception::class)
     fun openList() {
@@ -252,10 +251,31 @@ class BulletListTest() {
         editText.append("third item")
         editText.append("\n")
         editText.append("\n")
+        val mark = editText.length() - 1
         editText.append("not in the list")
-        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>not in the list", editText.toHtml())
+        editText.append("\n")
+        editText.append("foo")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li></ul>not in the list<br>foo", editText.toHtml())
+
+        //reopen list
+        editText.text.delete(mark, mark + 1)
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third itemnot in the list</li></ul>foo", editText.toHtml())
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun closeList() {
+        editText.fromHtml("<ul><li>first item</li><li>second item</li></ul>")
+        editText.setSelection(editText.length())
+
+        editText.append("\n")
+        val mark = editText.length() - 1
+
+        editText.text.delete(mark, mark + 1)
+        editText.append("not in the list")
+        Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml())
+
+    }
 
 
     @Test
@@ -269,11 +289,11 @@ class BulletListTest() {
         editText.append("not in the list")
         Assert.assertEquals("<ul><li>first item</li><li>second item</li></ul>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list", 0)-1," addition")
+        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, " addition")
         Assert.assertEquals("<ul><li>first item</li><li>second item addition</li></ul>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list", 0)-1,"\n")
-        editText.text.insert(editText.text.indexOf("not in the list", 0)-1,"third item")
+        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "\n")
+        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "third item")
         Assert.assertEquals("<ul><li>first item</li><li>second item addition</li><li>third item</li></ul>not in the list", editText.toHtml())
     }
 

@@ -56,7 +56,11 @@ class MainActivity : AppCompatActivity() {
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
 
+        // initialize the text & HTML
         aztec.fromHtml(EXAMPLE)
+        source.displayStyledAndFormattedHtml(aztec.toHtml())
+        aztec.fromHtml(source.getPureHtml())
+
         aztec.setSelection(aztec.editableText.length)
         aztec.history.clearHistory()
 

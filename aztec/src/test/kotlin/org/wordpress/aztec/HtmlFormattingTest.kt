@@ -36,21 +36,38 @@ class HtmlFormattingTest() : AndroidTestCase() {
             "<br><br>"
 
     private val HTML_MIXED =
-            "<span><i>Italic</i></span>" +
+            "\n\n<span><i>Italic</i></span>\n\n" +
             "<b>Bold</b><br>" +
-            "<div class=\"first\">" +
+            "\t<div class=\"first\">" +
             "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
-            "    <div class=\"second\">" +
+            "    \t<div class=\"second\">" +
             "        <div class=\"third\">" +
             "            Div<br><span><b>Span</b></span><br>Hidden" +
             "        </div>" +
             "<iframe class=\"classic\">Menu</iframe><br><br>" +
-            "        <div class=\"fourth\"><u>Under</u>line</div>" +
+            "        <div class=\"fourth\"><u>Under</u>line</div>\n\n" +
             "        <div class=\"fifth\"></div>" +
-            "    </div>" +
+            "   \t\t</div>" +
             "    <span class=\"second last\"></span>" +
             "</div>" +
             "<br>"
+
+    private val HTML_MIXED_NO_WS =
+            "<span><i>Italic</i></span>" +
+                    "<b>Bold</b><br>" +
+                    "<div class=\"first\">" +
+                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
+                    "<div class=\"second\">" +
+                    "<div class=\"third\">" +
+                    "Div<br><span><b>Span</b></span><br>Hidden" +
+                    "</div>" +
+                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
+                    "<div class=\"fourth\"><u>Under</u>line</div>" +
+                    "<div class=\"fifth\"></div>" +
+                    "</div>" +
+                    "<span class=\"second last\"></span>" +
+                    "</div>" +
+                    "<br>"
 
     /**
      * Initialize variables.
@@ -71,7 +88,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        TestUtils.equalsIgnoreWhitespace(input, output)
+        Assert.assertEquals(input, output)
     }
 
     /**
@@ -85,7 +102,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        TestUtils.equalsIgnoreWhitespace(input, output)
+        Assert.assertEquals(input, output)
     }
 
     /**
@@ -99,6 +116,6 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val input = HTML_MIXED
         val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        TestUtils.equalsIgnoreWhitespace(input, output)
+        Assert.assertEquals(HTML_MIXED_NO_WS, output)
     }
 }

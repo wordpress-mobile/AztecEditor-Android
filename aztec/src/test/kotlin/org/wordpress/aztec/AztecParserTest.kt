@@ -22,6 +22,9 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
     private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
+    private val HTML_ORDERED_LIST = "<ol><li>Ordered item</li></ol>"
+    private val HTML_ORDERED_LIST_WITH_WHITE_SPACE = "<ol><li>Ordered item<br></br></li></ol>"
+    private val HTML_ORDERED_LIST_WITH_QUOTE = "<ol><li><blockquote>Quote</blockquote></li></ol>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
@@ -85,12 +88,14 @@ class AztecParserTest : AndroidTestCase() {
                         HTML_ITALIC +
                         HTML_UNDERLINE +
                         HTML_STRIKETHROUGH +
+                        HTML_ORDERED_LIST_WITH_QUOTE +
                         HTML_BULLET +
                         HTML_QUOTE +
                         HTML_LINK +
                         HTML_BULLET_WITH_QUOTE +
                         HTML_UNKNOWN +
                         HTML_QUOTE_WITH_BULLETS +
+                        HTML_ORDERED_LIST +
                         HTML_COMMENT +
                         HTML_NESTED_MIXED +
                         HTML_NESTED_EMPTY_END +
@@ -166,6 +171,56 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_BULLET, output)
     }
+
+
+    /**
+     * Parse ordered list text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedList_isEqual() {
+        val input =
+                HTML_ORDERED_LIST
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse ordered lists with quotes from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListsWithQuotes_isEqual() {
+        val input =
+                HTML_ORDERED_LIST_WITH_QUOTE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse ordered list with white space text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListtWhiteSpace_isEqual() {
+        val input =
+                HTML_ORDERED_LIST_WITH_WHITE_SPACE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(HTML_ORDERED_LIST, output)
+    }
+
 
     /**
      * Parse comment text from HTML to span to HTML.  If input and output are equal with

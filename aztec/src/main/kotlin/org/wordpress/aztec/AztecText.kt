@@ -467,7 +467,11 @@ class AztecText : EditText, TextWatcher {
 
     fun orderedListValid(valid: Boolean) {
         if (valid) {
-            applyListStyle(TextFormat.FORMAT_ORDERED_LIST)
+            if (containsList(TextFormat.FORMAT_UNORDERED_LIST, selectionStart, selectionEnd)) {
+                switchListType(TextFormat.FORMAT_ORDERED_LIST)
+            } else {
+                applyListStyle(TextFormat.FORMAT_ORDERED_LIST)
+            }
         } else {
             removeList()
         }
@@ -476,10 +480,35 @@ class AztecText : EditText, TextWatcher {
 
     fun unorderedListValid(valid: Boolean) {
         if (valid) {
-            applyListStyle(TextFormat.FORMAT_UNORDERED_LIST)
+            if (containsList(TextFormat.FORMAT_ORDERED_LIST, selectionStart, selectionEnd)) {
+                switchListType(TextFormat.FORMAT_UNORDERED_LIST)
+            } else {
+                applyListStyle(TextFormat.FORMAT_UNORDERED_LIST)
+            }
+
         } else {
             removeList()
         }
+    }
+
+    private fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+
+        if (spans.isEmpty()) return
+
+
+        val existingListSpan = spans[0]
+
+
+        val spanStart = editableText.getSpanStart(existingListSpan)
+        val spanEnd = editableText.getSpanEnd(existingListSpan)
+        val spanFlags = editableText.getSpanFlags(existingListSpan)
+        editableText.removeSpan(existingListSpan)
+
+        editableText.setSpan(makeDummylistSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
+//        onSelectionChanged(start, end)
+
     }
 
 

@@ -24,9 +24,9 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
-import android.text.style.BulletSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
@@ -70,7 +70,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, Ul())
                 } else {
-                    end(output, Ul::class.java, BulletSpan())
+                    end(output, Ul::class.java, AztecUnorderedListSpan())
                 }
                 return true
             }

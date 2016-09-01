@@ -239,7 +239,6 @@ class BulletListTest() {
         Assert.assertEquals("<ul><li>first item</li><li>second item</li><li>third item</li><li></li></ul>not in list", editText.toHtml())
     }
 
-    //Closing/Opening of list
 
     @Test
     @Throws(Exception::class)

@@ -26,10 +26,19 @@ import android.text.style.BulletSpan
 
 class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
+    override fun getTag(): String {
+        return "ul"
+    }
+
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
     private var bulletPadding: Int = 0
     private var bulletWidth: Int = 0
+
+
+    //used for marking
+    constructor() : super(0) {
+    }
 
     constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
         this.bulletColor = bulletColor

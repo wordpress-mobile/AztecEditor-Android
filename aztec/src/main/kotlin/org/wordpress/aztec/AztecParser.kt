@@ -24,10 +24,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.*
-import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.CommentSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
-import org.wordpress.aztec.spans.UnknownHtmlSpan
+import org.wordpress.aztec.spans.*
 import java.util.*
 
 class AztecParser {
@@ -82,16 +79,16 @@ class AztecParser {
 
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
-                if (styles[0] is BulletSpan && styles[1] is QuoteSpan) {
-                    withinQuoteThenBullet(out, text, i, next++)
-                } else if (styles[0] is QuoteSpan && styles[1] is BulletSpan) {
-                    withinBulletThenQuote(out, text, i, next++)
+                if (styles[0] is AztecListSpan && styles[1] is QuoteSpan) {
+                    withinQuoteThenList(out, text, i, next++, (styles[0] as AztecListSpan).getTag())
+                } else if (styles[0] is QuoteSpan && styles[1] is AztecListSpan) {
+                    withinBulletThenQuote(out, text, i, next++, (styles[1] as AztecListSpan).getTag())
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
-                if (styles[0] is BulletSpan) {
-                    withinBullet(out, text, i, next)
+                if (styles[0] is AztecListSpan) {
+                    withingList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -110,19 +107,19 @@ class AztecParser {
         out.append(unknownHtmlSpan.getRawHtml())
     }
 
-    private fun withinBulletThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {
-        out.append("<ul><li>")
+    private fun withinBulletThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
+        out.append("<$listTag><li>")
         withinQuote(out, text, start, end)
-        out.append("</li></ul>")
+        out.append("</li></$listTag>")
     }
 
-    private fun withinQuoteThenBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         out.append("<blockquote>")
-        withinBullet(out, text, start, end)
+        withingList(out, text, start, end, listTag)
         out.append("</blockquote>")
     }
 
-    private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+    private fun withingList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         var newStart = start
         var newEnd = end - 1
 
@@ -131,7 +128,7 @@ class AztecParser {
             newEnd += 1
         }
 
-        out.append("<ul>")
+        out.append("<$listTag>")
         val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
 
         for (i in lines.indices) {
@@ -158,7 +155,7 @@ class AztecParser {
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
-        out.append("</ul>")
+        out.append("</$listTag>")
     }
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {
@@ -393,6 +390,8 @@ class AztecParser {
     private fun tidy(html: String): String {
         return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
                 .replace("(<br>)*<ul>?".toRegex(), "<ul>")
+                .replace("</ol>(<br>)?".toRegex(), "</ol>")
+                .replace("(<br>)*<ol>?".toRegex(), "<ol>")
                 .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")

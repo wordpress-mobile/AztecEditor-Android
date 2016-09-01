@@ -42,6 +42,10 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             historyList.removeAt(0)
         }
 
+        while (historyCursor != historyList.size) {
+            historyList.removeAt(historyCursor)
+        }
+
         historyList.add(inputBefore)
         historyCursor = historyList.size
     }

@@ -1,11 +1,9 @@
 package org.wordpress.aztec
 
-import android.graphics.Paint.FontMetricsInt
 import android.text.TextPaint
-import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 
-class AztecHeaderSpan(val mHeader: AztecHeaderSpan.Header) : MetricAffectingSpan(), LineHeightSpan {
+class AztecHeaderSpan(val mHeader: AztecHeaderSpan.Header) : MetricAffectingSpan() {
     companion object {
         private val SCALE_H1: Float = 2.0f
         private val SCALE_H2: Float = 1.8f
@@ -22,11 +20,6 @@ class AztecHeaderSpan(val mHeader: AztecHeaderSpan.Header) : MetricAffectingSpan
         H4(SCALE_H4),
         H5(SCALE_H5),
         H6(SCALE_H6)
-    }
-
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, startspanv: Int, v: Int, fm: FontMetricsInt) {
-        fm.bottom = (fm.bottom * 1.5f).toInt()
-        fm.descent = (fm.descent * 1.5f).toInt()
     }
 
     override fun updateDrawState(textPaint: TextPaint) {

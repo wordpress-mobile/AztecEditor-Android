@@ -556,7 +556,31 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(makeListSpan(listType), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            val spanToApply = makeListSpan(listType)
+
+            var startOfList: Int = startOfLine
+            var endOfList: Int = endOfLine
+
+
+            if (startOfLine != 0) {
+                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
+                if (!spansOnPreviousLine.isEmpty()) {
+                    startOfList = editableText.getSpanStart(spansOnPreviousLine[0])
+                    editableText.removeSpan(spansOnPreviousLine[0])
+                }
+            }
+
+            if (endOfLine != editableText.length) {
+                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
+                if (!spanOnNextLine.isEmpty()) {
+                    endOfList = editableText.getSpanEnd(spanOnNextLine[0])
+                    editableText.removeSpan(spanOnNextLine[0])
+                }
+            }
+
+
+            editableText.setSpan(spanToApply, startOfList, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {

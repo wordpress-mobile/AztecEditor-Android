@@ -398,4 +398,59 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     }
 
 
+    @Test
+    @Throws(Exception::class)
+    fun appendToListFromBottom() {
+        editText.toggleFormatting(listType)
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("third item")
+        editText.setSelection(editText.length())
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun appendToListFromTop() {
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(listType)
+        editText.append("\n")
+        editText.append("third item")
+
+        editText.setSelection(0)
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun appendToListFromInside() {
+        editText.toggleFormatting(listType)
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("\n")
+        editText.append("second item")
+        editText.append("\n")
+        editText.append("third item")
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<$listTag><li>third item</li></$listTag>", editText.toHtml())
+        editText.setSelection(15)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+    }
 }

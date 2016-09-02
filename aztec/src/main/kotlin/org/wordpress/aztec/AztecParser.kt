@@ -119,24 +119,39 @@ class AztecParser {
     }
 
     private fun withinBullet(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+        var newStart = start
+        var newEnd = end - 1
+
+        if (text[newStart] == '\n') {
+            newStart += 1
+            newEnd += 1
+        }
+
         out.append("<ul>")
-        val lines = TextUtils.split(text.substring(start..end - 1), "\n")
+        val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
 
         for (i in lines.indices) {
+
+            val lineLength = lines[i].length
+
             var lineStart = 0
             for (j in 0..i - 1) {
                 lineStart += lines[j].length + 1
             }
 
-            val isZWJ = (lines[i].length == 1 && lines[i][0] == '\u200B')
+            val isAtTheEndOfText = text.length == lineStart + 1
 
-            val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd || isZWJ) {
+            val lineIsZWJ = lineLength == 1 && lines[i][0] == '\u200B'
+            val isLastLineInList = lines.indices.last == i
+
+            val lineEnd = lineStart + lineLength
+
+            if (lineStart > lineEnd || isAtTheEndOfText && lineIsZWJ || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
 
             out.append("<li>")
-            withinContent(out, text.subSequence(start..end - 1) as Spanned, lineStart, lineEnd)
+            withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
         out.append("</ul>")
@@ -180,7 +195,7 @@ class AztecParser {
             }
 
             //account for possible zero-width joiner at the end of the line
-            val zwjModifer = if (text[next-1] == '\u200B') 1 else 0
+            val zwjModifer = if (text[next - 1] == '\u200B') 1 else 0
 
             withinParagraph(out, text, i, next - nl - zwjModifer, nl)
 

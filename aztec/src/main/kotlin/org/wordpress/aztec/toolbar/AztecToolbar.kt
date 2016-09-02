@@ -1,22 +1,26 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
+import android.content.DialogInterface
+import android.os.Bundle
+import android.os.Parcelable
+import android.support.v7.app.AlertDialog
+import android.text.TextUtils
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.PopupMenu
+import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
-import android.widget.Toast
-import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
-    private var mEditor: AztecText? = null
-    private var mHeaderMenu: PopupMenu? = null
+    private var addLinkDialog: AlertDialog? = null
+    private var editor: AztecText? = null
+    private var headerMenu: PopupMenu? = null
 
     constructor(context: Context) : super(context) {
         initView()
@@ -30,36 +34,78 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView()
     }
 
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable("superState", super.onSaveInstanceState())
+
+        if (addLinkDialog != null && addLinkDialog!!.isShowing) {
+            bundle.putBoolean("isUrlDialogVisible", true)
+
+            val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
+            val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
+
+            bundle.putString("retainedUrl", urlInput.text.toString())
+            bundle.putString("retainedAnchor", anchorInput.text.toString())
+        }
+
+        return bundle
+    }
+
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        var superState = state
+
+        if (state is Bundle) {
+            val isDialogVisible = state.getBoolean("isUrlDialogVisible")
+            superState = state.getParcelable("superState")
+
+            if (isDialogVisible) {
+                val retainedUrl = state.getString("retainedUrl", "")
+                val retainedAnchor = state.getString("retainedAnchor", "")
+
+                showLinkDialog(retainedUrl, retainedAnchor)
+            }
+        }
+        super.onRestoreInstanceState(superState)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (addLinkDialog != null && addLinkDialog!!.isShowing) {
+            addLinkDialog!!.dismiss()
+        }
+    }
+
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
             R.id.normal -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_NORMAL)
+                editor?.toggleFormatting(TextFormat.FORMAT_NORMAL)
                 return true
             }
             R.id.header_1 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_1)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_1)
                 return true
             }
             R.id.header_2 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_2)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_2)
                 return true
             }
             R.id.header_3 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_3)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_3)
                 return true
             }
             R.id.header_4 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_4)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_4)
                 return true
             }
             R.id.header_5 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_5)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_5)
                 return true
             }
             R.id.header_6 -> {
-                mEditor?.toggleFormatting(TextFormat.FORMAT_HEADER_6)
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_6)
                 return true
             }
             else -> return false
@@ -67,13 +113,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun isEditorAttached(): Boolean {
-        return mEditor != null && mEditor is AztecText
+        return editor != null && editor is AztecText
     }
 
     fun setEditor(editor: AztecText) {
-        mEditor = editor
+        this.editor = editor
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
-        mEditor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
+        this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 highlightAppliedStyles(selStart, selEnd)
             }
@@ -123,41 +169,36 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
 
-        var newSelStart = selStart
+        val newSelStart = if (selStart > 0 && !editor!!.isTextSelected()) selStart - 1 else selStart
 
-        if (selStart > 0 && !mEditor!!.isTextSelected()) {
-            newSelStart = selStart - 1
-        }
+        val appliedStyles = editor!!.getAppliedStyles(newSelStart, selEnd)
 
-        val appliedStyles = mEditor!!.getAppliedStyles(newSelStart, selEnd)
-
-        mEditor!!.setSelectedStyles(appliedStyles)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
-        selectHeaderMenu(mEditor!!.getAppliedHeader(newSelStart, selEnd))
+        selectHeaderMenu(editor!!.getAppliedHeader(newSelStart, selEnd))
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
         if (!isEditorAttached()) return
 
         //if nothing is selected just mark the style as active
-        if (!mEditor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
+        if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
-            return mEditor!!.setSelectedStyles(textFormats)
+            return editor!!.setSelectedStyles(textFormats)
         }
 
         //if text is selected and action is styling - toggle the style
         if (action.isStylingAction()) {
-            return mEditor!!.toggleFormatting(action.textFormat!!)
+            return editor!!.toggleFormatting(action.textFormat!!)
         }
 
         //other toolbar action
         when (action) {
-            ToolbarAction.HEADER -> mHeaderMenu?.show()
+            ToolbarAction.HEADER -> headerMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.HTML -> mEditor!!.setText(mEditor!!.toHtml())
+            ToolbarAction.HTML -> editor!!.setText(editor!!.toHtml())
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
@@ -167,24 +208,64 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun selectHeaderMenu(textFormat: TextFormat?) {
         when (textFormat) {
-            TextFormat.FORMAT_HEADER_1 -> mHeaderMenu?.menu?.getItem(1)?.isChecked = true
-            TextFormat.FORMAT_HEADER_2 -> mHeaderMenu?.menu?.getItem(2)?.isChecked = true
-            TextFormat.FORMAT_HEADER_3 -> mHeaderMenu?.menu?.getItem(3)?.isChecked = true
-            TextFormat.FORMAT_HEADER_4 -> mHeaderMenu?.menu?.getItem(4)?.isChecked = true
-            TextFormat.FORMAT_HEADER_5 -> mHeaderMenu?.menu?.getItem(5)?.isChecked = true
-            TextFormat.FORMAT_HEADER_6 -> mHeaderMenu?.menu?.getItem(6)?.isChecked = true
-            else -> mHeaderMenu?.menu?.getItem(0)?.isChecked = true
+            TextFormat.FORMAT_HEADER_1 -> headerMenu?.menu?.getItem(1)?.isChecked = true
+            TextFormat.FORMAT_HEADER_2 -> headerMenu?.menu?.getItem(2)?.isChecked = true
+            TextFormat.FORMAT_HEADER_3 -> headerMenu?.menu?.getItem(3)?.isChecked = true
+            TextFormat.FORMAT_HEADER_4 -> headerMenu?.menu?.getItem(4)?.isChecked = true
+            TextFormat.FORMAT_HEADER_5 -> headerMenu?.menu?.getItem(5)?.isChecked = true
+            TextFormat.FORMAT_HEADER_6 -> headerMenu?.menu?.getItem(6)?.isChecked = true
+            else -> headerMenu?.menu?.getItem(0)?.isChecked = true
         }
     }
 
     private fun setHeaderMenu(view: View) {
-        mHeaderMenu = PopupMenu(context, view)
-        mHeaderMenu?.setOnMenuItemClickListener(this)
-        mHeaderMenu?.inflate(R.menu.header)
+        headerMenu = PopupMenu(context, view)
+        headerMenu?.setOnMenuItemClickListener(this)
+        headerMenu?.inflate(R.menu.header)
     }
 
-    private fun showLinkDialog() {
+    private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return
-        Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
+
+
+        val urlAndAnchor = editor!!.getSelectedUrlWithAnchor()
+
+        val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
+        val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
+
+        val builder = AlertDialog.Builder(context)
+
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null, false)
+
+        val urlInput = dialogView.findViewById(R.id.linkURL) as EditText
+        val anchorInput = dialogView.findViewById(R.id.linkText) as EditText
+
+        urlInput.setText(url)
+        anchorInput.setText(anchor)
+
+        builder.setView(dialogView)
+        builder.setTitle(R.string.dialog_title)
+
+        builder.setPositiveButton(R.string.dialog_button_ok, DialogInterface.OnClickListener { dialog, which ->
+            val linkText = urlInput.text.toString().trim { it <= ' ' }
+            val anchorText = anchorInput.text.toString().trim { it <= ' ' }
+
+            editor!!.link(linkText, anchorText)
+
+        })
+
+        if (editor!!.isUrlSelected()) {
+            builder.setNeutralButton(R.string.dialog_button_remove_link, DialogInterface.OnClickListener { dialogInterface, i ->
+                editor!!.removeLink()
+            })
+        }
+
+        builder.setNegativeButton(R.string.dialog_button_cancel, DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        })
+
+        addLinkDialog = builder.create()
+        addLinkDialog!!.show()
+
     }
 }

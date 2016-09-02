@@ -12,7 +12,7 @@ import org.robolectric.annotation.Config
 
 
 /**
- * Testing the nadling of ordered and unordered lists.
+ * Testing ordered and unordered lists.
  *
  * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
  */

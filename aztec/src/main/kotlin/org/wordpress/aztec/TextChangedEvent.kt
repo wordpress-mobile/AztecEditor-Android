@@ -40,8 +40,6 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         return false
     }
 
-
-    //TODO: make this to also work with bullet span in the future
     fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
         if (start >= 1 && count >= 0) {
             if (text.length > start) {
@@ -70,7 +68,6 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
     }
 
-    //TODO: make this to also work with bullet span in the future
     fun getListSpanToClose(editableText: Editable): AztecListSpan? {
         if (start >= 1 && count == 0) {
             if (text[start - 1] != '\n') return null

@@ -45,7 +45,17 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
         if (start >= 1 && count >= 0) {
             if (text.length > start) {
-                if (text[start - 1] == '\n') return null
+                val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
+                if (previousCharacter == '\n') return null
+
+                val deletingLastCharacter = !isAddingCharacters && text.length == inputEnd
+                if (deletingLastCharacter) return null
+
+                if (!isAddingCharacters && text.length > inputEnd) {
+                    val lastCharacter = text[inputEnd]
+                    if (lastCharacter == '\n') return null
+                }
+
                 val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
                 if (!spans.isEmpty()) {
                     val flags = editableText.getSpanFlags(spans[0])

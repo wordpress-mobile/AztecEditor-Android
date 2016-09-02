@@ -262,16 +262,58 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun openList() {
+    fun openListByAddingNewline() {
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.setSelection(editText.length())
+
+        editText.text.insert(editText.text.indexOf("not in list") - 1, "\n")
+        editText.text.insert(editText.text.indexOf("not in list") - 1, "third item")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun openListByAppendingTextToTheEnd() {
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.setSelection(editText.length())
+        editText.text.insert(editText.text.indexOf("not in list") - 1, " (appended)")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (appended)</li></$listTag>not in list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun openListByMovingOutsideTextInsideList() {
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.text.indexOf("not in list") - 1, editText.text.indexOf("not in list"))
+        Assert.assertEquals("<$listTag><li>first item</li><li>second itemnot in list</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun listRemainsClosedWhenLastCharacterIsDeleted() {
+        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.setSelection(editText.length())
+
+        //delete last character from "second item"
+        editText.text.delete(editText.text.indexOf("not in list") - 2, editText.text.indexOf("not in list") - 1)
+        Assert.assertEquals("<$listTag><li>first item</li><li>second ite</li></$listTag>not in list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun openingAndReopeningOfList() {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.append("\n")
         editText.append("third item")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
         editText.append("\n")
         editText.append("\n")
         val mark = editText.length() - 1
         editText.append("not in the list")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list", editText.toHtml())
         editText.append("\n")
         editText.append("foo")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
@@ -293,7 +335,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.delete(mark, mark + 1)
         editText.append("not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
-
     }
 
 
@@ -308,11 +349,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, " addition")
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "\n")
-        editText.text.insert(editText.text.indexOf("not in the list", 0) - 1, "third item")
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
     }
 
@@ -354,7 +395,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml().toString())
-
     }
 
 

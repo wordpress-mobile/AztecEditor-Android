@@ -1137,13 +1137,21 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getAppliedHeader(selectionStart: Int, selectionEnd: Int): TextFormat? {
-        TextFormat.values().forEach {
-            if (contains(it, selectionStart, selectionEnd)) {
-                return it
-            }
+        if (contains(TextFormat.FORMAT_HEADER_1, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_1
+        } else if (contains(TextFormat.FORMAT_HEADER_2, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_2
+        } else if (contains(TextFormat.FORMAT_HEADER_3, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_3
+        } else if (contains(TextFormat.FORMAT_HEADER_4, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_4
+        } else if (contains(TextFormat.FORMAT_HEADER_5, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_5
+        } else if (contains(TextFormat.FORMAT_HEADER_6, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADER_6
+        } else {
+            return null
         }
-
-        return null
     }
 
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {

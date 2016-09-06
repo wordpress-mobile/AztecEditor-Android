@@ -38,6 +38,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
         if (historyList.size >= historySize) {
             historyList.removeAt(0)
+            historyCursor--
         }
 
         while (historyCursor != historyList.size) {

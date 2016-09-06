@@ -491,10 +491,10 @@ class AztecText : EditText, TextWatcher {
                 for (span in spans) {
                     editableText.removeSpan(span)
                 }
-
-                refreshText()
             }
         }
+
+        refreshText()
     }
 
     private fun headerFormat(textFormat: TextFormat) {
@@ -540,10 +540,10 @@ class AztecText : EditText, TextWatcher {
                         editableText.setSpan(AztecHeaderSpan(Header.H6), headerStart, headerEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     else -> {}
                 }
-
-                refreshText()
             }
         }
+
+        refreshText()
     }
 
     private fun containHeader(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {

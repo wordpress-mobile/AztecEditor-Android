@@ -231,7 +231,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     }
 
-<<<<<<< HEAD
     private fun selectHeaderMenu(textFormat: TextFormat?) {
         when (textFormat) {
             TextFormat.FORMAT_HEADER_1 -> headerMenu?.menu?.getItem(1)?.isChecked = true

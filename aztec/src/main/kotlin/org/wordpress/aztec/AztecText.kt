@@ -19,21 +19,19 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Bundle
-import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.*
 import android.util.AttributeSet
 import android.util.Patterns
+import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
-
-    private val REMOVED_SPANS_BUNDLE_KEY = "REMOVED_SPANS_BUNDLE_KEY"
-    private val SUPER_STATE_BUNDLE_KEY = "SUPER_STATE_BUNDLE_KEY"
 
     private var bulletColor = ContextCompat.getColor(context, R.color.bullet)
     private var bulletMargin = resources.getDimensionPixelSize(R.dimen.bullet_margin)
@@ -52,20 +50,13 @@ class AztecText : EditText, TextWatcher {
     private var consumeEditEvent: Boolean = false
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
-    private val historyList = LinkedList<SpannableStringBuilder>()
-    private var historyWorking = false
-    private var historyCursor = 0
-
-    private lateinit var inputBefore: SpannableStringBuilder
-    private lateinit var inputLast: Editable
-
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
     private val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
 
-    var removedSpans = ArrayList<Int>()
+    lateinit var history: History
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -84,6 +75,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun init(attrs: AttributeSet?) {
+
+        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
+
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText)
         setLineSpacing(
                 array.getDimension(
@@ -117,27 +111,10 @@ class AztecText : EditText, TextWatcher {
             throw IllegalArgumentException("historySize must > 0")
         }
 
+        history = History(historyEnable, historySize)
+
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
-
-        removedSpans.clear()
-    }
-
-    override fun onSaveInstanceState(): Parcelable {
-        val superState = super.onSaveInstanceState()
-        val bundle = Bundle()
-        bundle.putIntegerArrayList(REMOVED_SPANS_BUNDLE_KEY, removedSpans)
-        bundle.putParcelable(SUPER_STATE_BUNDLE_KEY, superState)
-        return bundle
-    }
-
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        if (state != null && state is Bundle) {
-            removedSpans = state.getIntegerArrayList(REMOVED_SPANS_BUNDLE_KEY)
-            super.onRestoreInstanceState(state.getParcelable(SUPER_STATE_BUNDLE_KEY))
-        } else {
-            super.onRestoreInstanceState(BaseSavedState.EMPTY_STATE)
-        }
     }
 
     override fun onAttachedToWindow() {
@@ -649,7 +626,7 @@ class AztecText : EditText, TextWatcher {
 
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1 // \n
+                lineStart += lines[j].length + 1 // \n
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -683,7 +660,7 @@ class AztecText : EditText, TextWatcher {
 
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -717,7 +694,7 @@ class AztecText : EditText, TextWatcher {
         for (i in lines.indices) {
             var lineStart = 0
             for (j in 0..i - 1) {
-                lineStart = lineStart + lines[j].length + 1
+                lineStart += lines[j].length + 1
             }
 
             val lineEnd = lineStart + lines[i].length
@@ -751,7 +728,7 @@ class AztecText : EditText, TextWatcher {
 
         var start = 0
         for (i in 0..index - 1) {
-            start = start + lines[i].length + 1
+            start += lines[i].length + 1
         }
 
         val end = start + lines[index].length
@@ -1014,20 +991,8 @@ class AztecText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (!historyEnable || historyWorking) {
-            return
-        }
-
-        inputBefore = SpannableStringBuilder(text)
-
-        if (count > after) {
-            val hidden = inputBefore.getSpans(start, start + count, HiddenHtmlSpan::class.java)
-            hidden.forEach {
-                if (inputBefore.getSpanStart(it) >= start && inputBefore.getSpanEnd(it) <= start + count) {
-                    removedSpans.add(it.startOrder)
-                    removedSpans.add(it.endOrder)
-                }
-            }
+        if (!isTextChangedListenerDisabled()) {
+            history.beforeTextChanged(toFormattedHtml())
         }
     }
 
@@ -1048,28 +1013,10 @@ class AztecText : EditText, TextWatcher {
             onSelectionChanged(0, 0)
         }
 
-        handleHistory()
+        history.handleHistory(this)
 
         handleLists(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
-    }
-
-    fun handleHistory() {
-        if (!historyEnable || historyWorking) {
-            return
-        }
-
-        inputLast = SpannableStringBuilder(text)
-        if (text.toString() == inputBefore.toString()) {
-            return
-        }
-
-        if (historyList.size >= historySize) {
-            historyList.removeAt(0)
-        }
-
-        historyList.add(inputBefore)
-        historyCursor = historyList.size
     }
 
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
@@ -1172,60 +1119,11 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun redo() {
-        if (!redoValid()) {
-            return
-        }
-
-        historyWorking = true
-
-        if (historyCursor >= historyList.size - 1) {
-            historyCursor = historyList.size
-            text = inputLast
-        } else {
-            historyCursor++
-            text = historyList[historyCursor]
-        }
-
-        setSelection(editableText.length)
-        historyWorking = false
+        history.redo(this)
     }
 
     fun undo() {
-        if (!undoValid()) {
-            return
-        }
-
-        historyWorking = true
-
-        historyCursor--
-        text = historyList[historyCursor]
-        setSelection(editableText.length)
-
-        historyWorking = false
-    }
-
-    fun redoValid(): Boolean {
-        if (!historyEnable || historySize <= 0 || historyList.size <= 0 || historyWorking) {
-            return false
-        }
-
-        return historyCursor < historyList.size - 1 || historyCursor >= historyList.size - 1
-    }
-
-    fun undoValid(): Boolean {
-        if (!historyEnable || historySize <= 0 || historyWorking) {
-            return false
-        }
-
-        if (historyList.size <= 0 || historyCursor <= 0) {
-            return false
-        }
-
-        return true
-    }
-
-    fun clearHistory() {
-        historyList.clear()
+        history.undo(this)
     }
 
     // Helper ======================================================================================
@@ -1251,7 +1149,7 @@ class AztecText : EditText, TextWatcher {
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(source, context).trim())
+        builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         text = builder
@@ -1259,9 +1157,17 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toHtml(): String {
-        clearComposingText() //remove formatting provided by autosuggestion (like <u>)
         val parser = AztecParser()
-        return parser.toHtml(editableText, removedSpans)
+        val output = SpannableStringBuilder(text)
+        BaseInputConnection.removeComposingSpans(output)
+        return Format.clearFormatting(parser.toHtml(output))
+    }
+
+    fun toFormattedHtml(): String {
+        val parser = AztecParser()
+        val output = SpannableStringBuilder(text)
+        BaseInputConnection.removeComposingSpans(output)
+        return Format.addFormatting(parser.toHtml(output))
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

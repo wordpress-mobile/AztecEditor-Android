@@ -27,6 +27,7 @@ dependencies {
     compile "com.android.support:support-v4:24.1.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
+    compile 'org.jsoup:jsoup:1.9.2'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1'

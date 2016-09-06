@@ -15,9 +15,11 @@ import android.widget.PopupMenu.OnMenuItemClickListener
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
+    private var sourceEditor: SourceViewEditText? = null
     private var editor: AztecText? = null
 
     private var addLinkDialog: AlertDialog? = null
@@ -116,7 +118,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
+        this.sourceEditor = sourceEditor
         this.editor = editor
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
@@ -162,6 +165,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
+    private fun toggleButtonState(button: View?, enabled: Boolean) {
+        if (button != null) {
+            button.isEnabled = enabled
+        }
+    }
+
     private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
 
@@ -193,13 +202,39 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (action) {
             ToolbarAction.HEADER -> showHeaderMenu(findViewById(action.buttonId))
             ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.HTML -> editor!!.setText(editor!!.toHtml())
+            ToolbarAction.HTML -> {
+                if (editor!!.visibility == View.VISIBLE) {
+                    sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
+
+                    editor!!.visibility = View.GONE
+                    sourceEditor!!.visibility = View.VISIBLE
+
+                    toggleHtmlMode(true)
+                } else {
+                    editor!!.fromHtml(sourceEditor!!.getPureHtml())
+
+                    editor!!.visibility = View.VISIBLE
+                    sourceEditor!!.visibility = View.GONE
+
+                    toggleHtmlMode(false)
+                }
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
         }
 
     }
+
+    private fun toggleHtmlMode(isHtmlMode: Boolean) {
+        ToolbarAction.values().forEach { action ->
+            if (action == ToolbarAction.HTML) {
+                toggleButton(findViewById(action.buttonId), isHtmlMode)
+            } else {
+                toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
+            }
+        }
+	}
 
     private fun showHeaderMenu(view: View) {
         val popup = PopupMenu(context, view)
@@ -210,7 +245,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return
-
 
         val urlAndAnchor = editor!!.getSelectedUrlWithAnchor()
 

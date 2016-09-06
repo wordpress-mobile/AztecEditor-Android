@@ -22,5 +22,11 @@
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
     </declare-styleable>
-
+    
+    <declare-styleable name="SourceViewEditText">
+        <attr name="codeTextColor" format="reference|color" />
+        <attr name="codeBackgroundColor" format="reference|color" />
+        <attr name="tagColor" format="reference|color" />
+        <attr name="attributeColor" format="reference|color" />
+    </declare-styleable>
 </resources>

@@ -1539,9 +1539,11 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun refreshText() {
+        disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
         text = editableText
         setSelection(selStart, selEnd)
+        enableTextChangedListener()
     }
 }

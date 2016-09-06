@@ -5,7 +5,7 @@ import org.wordpress.aztec.TextFormat
 import java.util.*
 
 /**
- * Describes what actions toolbar can perform and what buttons they are binded too
+ * Describes what actions toolbar can perform and what buttons they are bound to
  */
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),

@@ -454,10 +454,10 @@ class AztecText : EditText, TextWatcher {
             var headerStart = 0
             var headerEnd = 0
 
-            if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
-                headerStart = lineStart
-                headerEnd = lineEnd
-            } else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headerStart = lineStart
                 headerEnd = lineEnd
             }
@@ -493,10 +493,10 @@ class AztecText : EditText, TextWatcher {
             var headerStart = 0
             var headerEnd = 0
 
-            if (lineStart <= selectionStart && selectionEnd <= lineEnd) {
-                headerStart = lineStart
-                headerEnd = lineEnd
-            } else if (selectionStart <= lineStart && lineEnd <= selectionEnd) {
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headerStart = lineStart
                 headerEnd = lineEnd
             }

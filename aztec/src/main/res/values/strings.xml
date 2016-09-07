@@ -37,7 +37,7 @@
     <string name="header_4">Header 4</string>
     <string name="header_5">Header 5</string>
     <string name="header_6">Header 6</string>
-    <string name="normal">Normal</string>
+    <string name="paragraph">Paragraph</string>
 
     <!-- LINK -->
     <string name="link_enter_url">URL</string>

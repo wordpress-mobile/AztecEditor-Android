@@ -5,9 +5,9 @@
         android:checkableBehavior="single" >
 
         <item
-            android:id="@+id/normal"
+            android:id="@+id/paragraph"
             android:checked="true"
-            android:title="@string/normal" >
+            android:title="@string/paragraph" >
         </item>
 
         <item

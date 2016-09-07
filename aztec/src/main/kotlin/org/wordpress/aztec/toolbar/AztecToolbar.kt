@@ -82,8 +82,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
-            R.id.normal -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_NORMAL)
+            R.id.paragraph -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
             R.id.header_1 -> {

@@ -136,7 +136,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
-            if (toolbarAction.equals(ToolbarAction.HEADER)) {
+            if (toolbarAction.equals(ToolbarAction.HEADING)) {
                 setHeaderMenu(findViewById(toolbarAction.buttonId))
             }
         }
@@ -205,7 +205,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
-            ToolbarAction.HEADER -> headingMenu?.show()
+            ToolbarAction.HEADING -> headingMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {

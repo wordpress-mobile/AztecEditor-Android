@@ -803,27 +803,27 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
             switch (h.mLevel) {
                 case 0:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H1),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 1:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H2),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 2:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H3),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 3:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H4),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 4:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H5),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 5:
-                    text.setSpan(new AztecHeaderSpan(AztecHeaderSpan.Header.H6),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
             }

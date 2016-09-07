@@ -222,7 +222,7 @@ class AztecParser {
                 for (j in spans.indices) {
                     val span = spans[j]
 
-                    if (span is AztecHeaderSpan) {
+                    if (span is AztecHeadingSpan) {
                         out.append("<")
                         out.append(span.getTag())
                         out.append(">")
@@ -279,7 +279,7 @@ class AztecParser {
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
 
-                    if (span is AztecHeaderSpan) {
+                    if (span is AztecHeadingSpan) {
                         out.append("</")
                         out.append(span.getTag())
                         out.append(">")

@@ -21,7 +21,7 @@ import java.util.*
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var addLinkDialog: AlertDialog? = null
     private var editor: AztecText? = null
-    private var headerMenu: PopupMenu? = null
+    private var headingMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
@@ -86,28 +86,28 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
-            R.id.header_1 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_1)
+            R.id.heading_1 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                 return true
             }
-            R.id.header_2 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_2)
+            R.id.heading_2 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                 return true
             }
-            R.id.header_3 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_3)
+            R.id.heading_3 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                 return true
             }
-            R.id.header_4 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_4)
+            R.id.heading_4 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                 return true
             }
-            R.id.header_5 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_5)
+            R.id.heading_5 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
                 return true
             }
-            R.id.header_6 -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADER_6)
+            R.id.heading_6 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                 return true
             }
             else -> return false
@@ -183,7 +183,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val appliedStyles = editor!!.getAppliedStyles(newSelStart, selEnd)
 
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
-        selectHeaderMenu(editor!!.getAppliedHeader(newSelStart, selEnd))
+        selectHeaderMenu(editor!!.getAppliedHeading(newSelStart, selEnd))
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -205,7 +205,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
-            ToolbarAction.HEADER -> headerMenu?.show()
+            ToolbarAction.HEADER -> headingMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
@@ -233,20 +233,20 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun selectHeaderMenu(textFormat: TextFormat?) {
         when (textFormat) {
-            TextFormat.FORMAT_HEADER_1 -> headerMenu?.menu?.getItem(1)?.isChecked = true
-            TextFormat.FORMAT_HEADER_2 -> headerMenu?.menu?.getItem(2)?.isChecked = true
-            TextFormat.FORMAT_HEADER_3 -> headerMenu?.menu?.getItem(3)?.isChecked = true
-            TextFormat.FORMAT_HEADER_4 -> headerMenu?.menu?.getItem(4)?.isChecked = true
-            TextFormat.FORMAT_HEADER_5 -> headerMenu?.menu?.getItem(5)?.isChecked = true
-            TextFormat.FORMAT_HEADER_6 -> headerMenu?.menu?.getItem(6)?.isChecked = true
-            else -> headerMenu?.menu?.getItem(0)?.isChecked = true
+            TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
+            TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
+            TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
+            TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
+            TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
+            TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+            else -> headingMenu?.menu?.getItem(0)?.isChecked = true
         }
     }
 
     private fun setHeaderMenu(view: View) {
-        headerMenu = PopupMenu(context, view)
-        headerMenu?.setOnMenuItemClickListener(this)
-        headerMenu?.inflate(R.menu.header)
+        headingMenu = PopupMenu(context, view)
+        headingMenu?.setOnMenuItemClickListener(this)
+        headingMenu?.inflate(R.menu.heading)
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

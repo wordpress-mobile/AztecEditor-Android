@@ -31,12 +31,12 @@
     <string name="image_thumbnail">Image thumbnail</string>
 
     <!-- HEADER -->
-    <string name="header_1">Header 1</string>
-    <string name="header_2">Header 2</string>
-    <string name="header_3">Header 3</string>
-    <string name="header_4">Header 4</string>
-    <string name="header_5">Header 5</string>
-    <string name="header_6">Header 6</string>
+    <string name="heading_1">Heading 1</string>
+    <string name="heading_2">Heading 2</string>
+    <string name="heading_3">Heading 3</string>
+    <string name="heading_4">Heading 4</string>
+    <string name="heading_5">Heading 5</string>
+    <string name="heading_6">Heading 6</string>
     <string name="paragraph">Paragraph</string>
 
     <!-- LINK -->

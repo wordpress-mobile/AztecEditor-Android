@@ -78,8 +78,13 @@ class RippleToggleButton : ToggleButton, OnLongClickListener {
     }
 
     override fun onLongClick(view: View?): Boolean {
-        Toast.makeText(context, contentDescription, Toast.LENGTH_SHORT).show()
-        return true
+        if (contentDescription == null ||
+            contentDescription.toString().equals("", ignoreCase = true)) {
+            return false
+        } else {
+            Toast.makeText(context, contentDescription, Toast.LENGTH_SHORT).show()
+            return true
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

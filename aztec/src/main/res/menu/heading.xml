@@ -1,0 +1,45 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group
+        android:checkableBehavior="single" >
+
+        <item
+            android:id="@+id/paragraph"
+            android:checked="true"
+            android:title="@string/paragraph" >
+        </item>
+
+        <item
+            android:id="@+id/heading_1"
+            android:title="@string/heading_1" >
+        </item>
+
+        <item
+            android:id="@+id/heading_2"
+            android:title="@string/heading_2" >
+        </item>
+
+        <item
+            android:id="@+id/heading_3"
+            android:title="@string/heading_3" >
+        </item>
+
+        <item
+            android:id="@+id/heading_4"
+            android:title="@string/heading_4" >
+        </item>
+
+        <item
+            android:id="@+id/heading_5"
+            android:title="@string/heading_5" >
+        </item>
+
+        <item
+            android:id="@+id/heading_6"
+            android:title="@string/heading_6" >
+        </item>
+
+    </group>
+
+</menu>

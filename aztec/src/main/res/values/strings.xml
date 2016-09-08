@@ -8,13 +8,6 @@
     <string name="dialog_button_cancel">Cancel</string>
 
     <!-- FORMAT -->
-    <string name="format_bar_tag_bold" translatable="false">bold</string>
-    <string name="format_bar_tag_italic" translatable="false">italic</string>
-    <string name="format_bar_tag_blockquote" translatable="false">blockquote</string>
-    <string name="format_bar_tag_unorderedList" translatable="false">unorderedList</string>
-    <string name="format_bar_tag_orderedList" translatable="false">orderedList</string>
-    <string name="format_bar_tag_strikethrough" translatable="false">strikeThrough</string>
-    <string name="format_bar_tag_link" translatable="false">link</string>
     <string name="format_bar_description_heading">Heading</string>
     <string name="format_bar_description_bold">Bold</string>
     <string name="format_bar_description_italic">Italic</string>

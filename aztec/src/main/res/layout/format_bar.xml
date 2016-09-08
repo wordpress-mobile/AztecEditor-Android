@@ -55,7 +55,6 @@
                     android:contentDescription="@string/format_bar_description_header"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_bold"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -65,7 +64,6 @@
                     android:contentDescription="@string/format_bar_description_bold"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_bold"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -75,7 +73,6 @@
                     android:contentDescription="@string/format_bar_description_italic"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_italic"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -85,7 +82,6 @@
                     android:contentDescription="@string/format_bar_description_italic"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_strikethrough"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -95,7 +91,6 @@
                     android:contentDescription="@string/format_bar_description_quote"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_blockquote"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -105,7 +100,6 @@
                     android:contentDescription="@string/format_bar_description_ul"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_unorderedList"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -115,7 +109,6 @@
                     android:contentDescription="@string/format_bar_description_ol"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_orderedList"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
@@ -125,7 +118,6 @@
                     android:contentDescription="@string/format_bar_description_link"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    android:tag="@string/format_bar_tag_link"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 

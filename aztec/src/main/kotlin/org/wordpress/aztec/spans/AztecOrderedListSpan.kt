@@ -22,7 +22,6 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
 
 class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
@@ -66,8 +65,9 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     }
 
     fun getLineNumber(text: CharSequence, end: Int): Int {
-        val textBeforeBeforeEnd = text.substring(0, end).removePrefix("\n")
-        return TextUtils.split(textBeforeBeforeEnd.toString(), "\n").size
+        val textBeforeBeforeEnd = text.substring(0, end)
+        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
+        return lineIndex + 1
     }
 
 

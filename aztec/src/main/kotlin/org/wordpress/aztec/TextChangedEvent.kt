@@ -73,9 +73,17 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
             if (text[start - 1] != '\n') return null
             val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
             if (!spans.isEmpty()) {
-                val flags = editableText.getSpanFlags(spans[0])
-                if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+
+                val spanStart = editableText.getSpanStart(spans[0])
+                val spanEnd = editableText.getSpanEnd(spans[0])
+
+                if (start == spanStart) {
                     return spans[0]
+                } else if (start == spanEnd) {
+                    val flags = editableText.getSpanFlags(spans[0])
+                    if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                        return spans[0]
+                    }
                 }
             }
 

@@ -1169,11 +1169,25 @@ class AztecText : EditText, TextWatcher {
 
         val spanToClose = textChangedEvent.getListSpanToClose(text)
         if (spanToClose != null) {
-            val spanEnd = text.getSpanEnd(spanToClose)
+            var spanEnd = text.getSpanEnd(spanToClose)
+            var spanStart = text.getSpanStart(spanToClose)
 
-            if (spanEnd <= text.length) {
+            if (spanEnd == spanStart) {
+                editableText.removeSpan(spanToClose)
+            } else if (spanEnd <= text.length) {
+                //special case for span that starts with empty line
+                if (text[spanStart] == '\n') {
+                    spanStart += 1
+
+                    if (text[spanStart] == '\n' && text.length > spanEnd + 1) {
+                        spanEnd += 1
+                        disableTextChangedListener()
+                        text.insert(spanStart, "\u200B")
+                    }
+                }
+
                 editableText.setSpan(spanToClose,
-                        text.getSpanStart(spanToClose),
+                        spanStart,
                         spanEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }

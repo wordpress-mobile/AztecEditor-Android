@@ -125,7 +125,11 @@ class AztecParser {
 
         if (text[newStart] == '\n') {
             newStart += 1
-            newEnd += 1
+
+            if (text.length < newEnd + 1) {
+                newEnd += 1
+            }
+
         }
 
         out.append("<$listTag>")

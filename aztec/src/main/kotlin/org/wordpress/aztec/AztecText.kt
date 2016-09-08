@@ -27,6 +27,7 @@ import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
@@ -179,7 +180,6 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
             if (firstSpan is HiddenHtmlSpan) return false
@@ -194,7 +194,6 @@ class AztecText : EditText, TextWatcher {
 
         return false
     }
-
 
     //TODO: Check if there is more efficient way to tidy spans
     private fun joinStyleSpans(start: Int, end: Int) {
@@ -345,7 +344,6 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
-
     fun removeInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
         //for convenience sake we are initializing the span of same type we are planing to remove
         val spanToRemove = makeDummyInlineSpan(textFormat)
@@ -378,7 +376,6 @@ class AztecText : EditText, TextWatcher {
 
         joinStyleSpans(start, end)
     }
-
 
     fun makeDummyInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
@@ -423,6 +420,207 @@ class AztecText : EditText, TextWatcher {
         }
 
     }
+
+    // HeadingSpan =================================================================================
+
+    fun heading(format: Boolean, textFormat: TextFormat) {
+        headingClear()
+
+        if (format) {
+            headingFormat(textFormat)
+        }
+    }
+
+    private fun headingClear() {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+
+        for (i in lines.indices) {
+            if (!containHeading(i)) {
+                continue
+            }
+
+            var lineStart = 0
+
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
+            }
+
+            val lineEnd = lineStart + lines[i].length
+
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            var headingStart = 0
+            var headingEnd = 0
+
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                headingStart = lineStart
+                headingEnd = lineEnd
+            }
+
+            if (headingStart < headingEnd) {
+                val spans = editableText.getSpans(headingStart, headingEnd, AztecHeadingSpan::class.java)
+
+                for (span in spans) {
+                    editableText.removeSpan(span)
+                }
+            }
+        }
+
+        refreshText()
+    }
+
+    private fun headingFormat(textFormat: TextFormat) {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+
+        for (i in lines.indices) {
+            var lineStart = 0
+
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
+            }
+
+            val lineEnd = lineStart + lines[i].length
+
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            var headingStart = 0
+            var headingEnd = 0
+
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                headingStart = lineStart
+                headingEnd = lineEnd
+            }
+
+            if (headingStart < headingEnd) {
+                when (textFormat) {
+                    TextFormat.FORMAT_HEADING_1 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H1), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    TextFormat.FORMAT_HEADING_2 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H2), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    TextFormat.FORMAT_HEADING_3 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H3), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    TextFormat.FORMAT_HEADING_4 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H4), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    TextFormat.FORMAT_HEADING_5 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    TextFormat.FORMAT_HEADING_6 ->
+                        editableText.setSpan(AztecHeadingSpan(Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    else -> {}
+                }
+            }
+        }
+
+        refreshText()
+    }
+
+    private fun containHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        val list = ArrayList<Int>()
+
+        for (i in lines.indices) {
+            var lineStart = 0
+            for (j in 0..i - 1) {
+                lineStart += lines[j].length + 1
+            }
+
+            val lineEnd = lineStart + lines[i].length
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            if (lineStart <= selStart && selEnd <= lineEnd) {
+                list.add(i)
+            } else if (selStart <= lineStart && lineEnd <= selEnd) {
+                list.add(i)
+            }
+        }
+
+        if (list.isEmpty()) return false
+
+        for (i in list) {
+            if (!containHeadingType(textFormat, i)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    private fun containHeading(index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        var start = 0
+
+        for (i in 0..index - 1) {
+            start += lines[i].length + 1
+        }
+
+        val end = start + lines[index].length
+
+        if (start >= end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        return spans.size > 0
+    }
+
+    private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        var start = 0
+
+        for (i in 0..index - 1) {
+            start += lines[i].length + 1
+        }
+
+        val end = start + lines[index].length
+
+        if (start >= end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+
+        for (span in spans) {
+            when (textFormat) {
+                TextFormat.FORMAT_HEADING_1 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H1)
+                TextFormat.FORMAT_HEADING_2 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H2)
+                TextFormat.FORMAT_HEADING_3 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H3)
+                TextFormat.FORMAT_HEADING_4 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H4)
+                TextFormat.FORMAT_HEADING_5 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H5)
+                TextFormat.FORMAT_HEADING_6 ->
+                    return span.mHeading.equals(AztecHeadingSpan.Heading.H6)
+                else -> return false
+            }
+        }
+
+        return false
+    }
+
     // BulletSpan ==================================================================================
 
     fun bullet(valid: Boolean) {
@@ -915,6 +1113,23 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
+        if (contains(TextFormat.FORMAT_HEADING_1, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_1
+        } else if (contains(TextFormat.FORMAT_HEADING_2, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_2
+        } else if (contains(TextFormat.FORMAT_HEADING_3, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_3
+        } else if (contains(TextFormat.FORMAT_HEADING_4, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_4
+        } else if (contains(TextFormat.FORMAT_HEADING_5, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_5
+        } else if (contains(TextFormat.FORMAT_HEADING_6, selectionStart, selectionEnd)) {
+            return TextFormat.FORMAT_HEADING_6
+        } else {
+            return null
+        }
+    }
 
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
         val styles = ArrayList<TextFormat>()
@@ -925,7 +1140,6 @@ class AztecText : EditText, TextWatcher {
         }
         return styles
     }
-
 
     fun isEmpty(): Boolean {
         return text.isEmpty()
@@ -958,27 +1172,49 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-
     fun isTextSelected(): Boolean {
         return selectionStart != selectionEnd
     }
 
-
     fun toggleFormatting(textFormat: TextFormat) {
         when (textFormat) {
+            TextFormat.FORMAT_PARAGRAPH -> heading(false, textFormat)
+            TextFormat.FORMAT_HEADING_1,
+            TextFormat.FORMAT_HEADING_2,
+            TextFormat.FORMAT_HEADING_3,
+            TextFormat.FORMAT_HEADING_4,
+            TextFormat.FORMAT_HEADING_5,
+            TextFormat.FORMAT_HEADING_6 -> heading(true, textFormat)
             TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD))
             TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC))
             TextFormat.FORMAT_STRIKETHROUGH -> strikethrough(!contains(TextFormat.FORMAT_STRIKETHROUGH))
             TextFormat.FORMAT_BULLET -> bullet(!contains(TextFormat.FORMAT_BULLET))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
-            else -> {
-                //Do nothing for now
-            }
+            else -> {}
+        }
+    }
+
+    operator fun contains(format: TextFormat): Boolean {
+        when (format) {
+            TextFormat.FORMAT_BOLD -> return containsInlineStyle(format, selectionStart, selectionEnd)
+            TextFormat.FORMAT_ITALIC -> return containsInlineStyle(format, selectionStart, selectionEnd)
+            TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(format, selectionStart, selectionEnd)
+            TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(format, selectionStart, selectionEnd)
+            TextFormat.FORMAT_BULLET -> return containBullet(selectionStart, selectionEnd)
+            TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
+            TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
+            else -> return false
         }
     }
 
     fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
+            TextFormat.FORMAT_HEADING_1,
+            TextFormat.FORMAT_HEADING_2,
+            TextFormat.FORMAT_HEADING_3,
+            TextFormat.FORMAT_HEADING_4,
+            TextFormat.FORMAT_HEADING_5,
+            TextFormat.FORMAT_HEADING_6 -> return containHeading(format, selStart, selEnd)
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
@@ -1048,7 +1284,6 @@ class AztecText : EditText, TextWatcher {
 
         setFormattingChangesApplied()
     }
-
 
     //TODO: Add support for NumberedLists
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
@@ -1128,7 +1363,6 @@ class AztecText : EditText, TextWatcher {
 
     // Helper ======================================================================================
 
-
     fun clearFormats() {
         setText(editableText.toString())
         setSelection(editableText.length)
@@ -1202,12 +1436,20 @@ class AztecText : EditText, TextWatcher {
         consumeEditEvent = true
     }
 
-
     fun enableTextChangedListener() {
         consumeEditEvent = false
     }
 
     fun isTextChangedListenerDisabled(): Boolean {
         return consumeEditEvent
+    }
+
+    fun refreshText() {
+        disableTextChangedListener()
+        val selStart = selectionStart
+        val selEnd = selectionEnd
+        text = editableText
+        setSelection(selStart, selEnd)
+        enableTextChangedListener()
     }
 }

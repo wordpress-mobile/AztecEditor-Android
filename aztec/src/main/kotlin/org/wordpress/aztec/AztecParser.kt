@@ -32,15 +32,10 @@ class AztecParser {
     internal var hiddenIndex = 0
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
-    internal var removedSpans: List<Int> = ArrayList()
+    internal var hiddenSpans: IntArray = IntArray(0)
 
     fun fromHtml(source: String, context: Context): Spanned {
         return Html.fromHtml(source, null, AztecTagHandler(), context)
-    }
-
-    fun toHtml(text: Spanned, removed: List<Int>): String {
-        removedSpans = removed
-        return toHtml(text)
     }
 
     fun toHtml(text: Spanned): String {
@@ -50,6 +45,15 @@ class AztecParser {
         val data = SpannableStringBuilder(text).append('\u200B')
 
         resetHiddenTagParser(text)
+
+        val hidden = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
+        hiddenSpans = IntArray(hidden.size * 2)
+        hidden.forEach {
+            hiddenSpans[hiddenIndex++] = it.startOrder
+            hiddenSpans[hiddenIndex++] = it.endOrder
+        }
+        hiddenIndex = 0
+        Arrays.sort(hiddenSpans)
 
         withinHtml(out, data)
         return tidy(out.toString())
@@ -223,6 +227,12 @@ class AztecParser {
                 for (j in spans.indices) {
                     val span = spans[j]
 
+                    if (span is AztecHeadingSpan) {
+                        out.append("<")
+                        out.append(span.getTag())
+                        out.append(">")
+                    }
+
                     if (span is StyleSpan) {
                         val style = span.style
 
@@ -273,6 +283,12 @@ class AztecParser {
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
+
+                    if (span is AztecHeadingSpan) {
+                        out.append("</")
+                        out.append(span.getTag())
+                        out.append(">")
+                    }
 
                     if (span is URLSpan) {
                         out.append("</a>")
@@ -329,22 +345,29 @@ class AztecParser {
         do {
             last = hiddenIndex
 
-            if (openMap.contains(hiddenIndex) &&
-                    !openMap[hiddenIndex]!!.isOpened &&
-                    text.getSpanStart(openMap[hiddenIndex]!!) == position) {
-                out.append(openMap[hiddenIndex]!!.startTag)
-                openMap[hiddenIndex]!!.open()
-                hiddenIndex++
+            if (hiddenIndex >= hiddenSpans.size)
+                break
+
+            val nextSpanIndex = hiddenSpans[hiddenIndex]
+
+            if (openMap.contains(nextSpanIndex)) {
+
+                val nextSpan = openMap[nextSpanIndex]!!
+                if (!nextSpan.isOpened && text.getSpanStart(nextSpan) == position) {
+                    out.append(nextSpan.startTag)
+                    nextSpan.open()
+                    hiddenIndex++
+                }
             }
-            if (closeMap.containsKey(hiddenIndex) &&
-                    !closeMap[hiddenIndex]!!.isParsed &&
-                    text.getSpanEnd(closeMap[hiddenIndex]!!) == position) {
-                out.append(closeMap[hiddenIndex]!!.endTag)
-                closeMap[hiddenIndex]!!.parse()
-                hiddenIndex++
-            }
-            if (removedSpans.contains(hiddenIndex)) {
-                hiddenIndex++
+
+            if (closeMap.containsKey(nextSpanIndex)) {
+
+                val nextSpan = closeMap[nextSpanIndex]!!
+                if (!nextSpan.isParsed && text.getSpanEnd(nextSpan) == position) {
+                    out.append(nextSpan.endTag)
+                    nextSpan.parse()
+                    hiddenIndex++
+                }
             }
 
         } while (last != hiddenIndex)

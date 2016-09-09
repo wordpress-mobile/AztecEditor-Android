@@ -1,11 +1,18 @@
 package org.wordpress.aztec.demo
 
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.TextUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.*
+import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.source.SourceViewEditText
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -35,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var aztec: AztecText
+    private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,17 +50,22 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+        source = findViewById(R.id.source) as SourceViewEditText
+        source.history = aztec.history
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
-        formattingToolbar.setEditor(aztec)
+        formattingToolbar.setEditor(aztec, source)
 
+        // initialize the text & HTML
         aztec.fromHtml(EXAMPLE)
+        source.displayStyledAndFormattedHtml(aztec.toHtml())
+        aztec.fromHtml(source.getPureHtml())
+
         aztec.setSelection(aztec.editableText.length)
+        aztec.history.clearHistory()
+
         // ImageGetter coming soon...
-
-
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -61,8 +74,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.undo -> aztec.undo()
-            R.id.redo -> aztec.redo()
+            R.id.undo ->
+                if (aztec.visibility == View.VISIBLE) {
+                    aztec.undo()
+                } else {
+                    source.undo()
+                }
+            R.id.redo ->
+                if (aztec.visibility == View.VISIBLE) {
+                    aztec.redo()
+                } else {
+                    source.redo()
+                }
             else -> {
             }
         }

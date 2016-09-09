@@ -541,7 +541,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            handleP(mSpannableStringBuilder);
             start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
@@ -619,7 +618,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            handleP(mSpannableStringBuilder);
             endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
@@ -806,10 +804,32 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (where != len) {
             Header h = (Header) obj;
 
-            text.setSpan(new RelativeSizeSpan(HEADER_SIZES[h.mLevel]),
-                    where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            text.setSpan(new StyleSpan(Typeface.BOLD),
-                    where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            switch (h.mLevel) {
+                case 0:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case 1:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case 2:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case 3:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case 4:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+                case 5:
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6),
+                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    break;
+            }
         }
     }
 

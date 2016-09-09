@@ -5,17 +5,18 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.View
+import android.view.View.OnLongClickListener
+import android.widget.Toast
 import android.widget.ToggleButton
 import org.wordpress.aztec.R
 
-class RippleToggleButton : ToggleButton {
-
+class RippleToggleButton : ToggleButton, OnLongClickListener {
     private var mHalfWidth: Float = 0.toFloat()
     private var mAnimationIsRunning = false
     private var mTimer = 0
     private var mFillPaint: Paint? = null
     private var mStrokePaint: Paint? = null
-
 
     constructor(context: Context) : super(context) {
         init()
@@ -29,11 +30,12 @@ class RippleToggleButton : ToggleButton {
         init()
     }
 
-
     private fun init() {
         if (isInEditMode) {
             return
         }
+
+        setOnLongClickListener(this)
 
         val rippleColor = resources.getColor(R.color.format_bar_ripple_animation)
 
@@ -72,6 +74,16 @@ class RippleToggleButton : ToggleButton {
             }
 
             invalidate()
+        }
+    }
+
+    override fun onLongClick(view: View?): Boolean {
+        if (contentDescription == null ||
+            contentDescription.toString().equals("", ignoreCase = true)) {
+            return false
+        } else {
+            Toast.makeText(context, contentDescription, Toast.LENGTH_SHORT).show()
+            return true
         }
     }
 

@@ -5,11 +5,11 @@ import org.wordpress.aztec.TextFormat
 import java.util.*
 
 /**
- * Describes what actions toolbar can perform and what buttons they are binded too
+ * Describes what actions toolbar can perform and what buttons they are bound to
  */
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
-    HEADER(R.id.format_bar_button_header, ToolbarActionType.OTHER, null),
+    HEADING(R.id.format_bar_button_heading, ToolbarActionType.OTHER, null),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),

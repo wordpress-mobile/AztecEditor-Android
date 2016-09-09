@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
 
@@ -21,6 +22,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 class AztecToolbarTest {
 
     lateinit var editText: AztecText
+    lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
 
     lateinit var boldButton: ToggleButton
@@ -40,9 +42,12 @@ class AztecToolbarTest {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        sourceText = SourceViewEditText(activity)
+
+
         activity.setContentView(editText)
         toolbar = AztecToolbar(activity)
-        toolbar.setEditor(editText)
+        toolbar.setEditor(editText, sourceText)
 
         boldButton = toolbar.findViewById(R.id.format_bar_button_bold) as ToggleButton
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic) as ToggleButton
@@ -525,18 +530,18 @@ class AztecToolbarTest {
         editText.text.delete(4, 8)
 
         htmlButton.performClick()
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><br><span>Hidden</span></div><div></div>", editText.text.toString())
+        TestUtils.equalsIgnoreWhitespace("<div class=\"third\"><b>Div</b><br><br><span>Hidden</span></div><div></div>", sourceText.text.toString())
 
         editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
         editText.text.delete(3, 9)
 
         htmlButton.performClick()
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><span>Hidden</span></div><div></div>", editText.text.toString())
+        TestUtils.equalsIgnoreWhitespace("<div class=\"third\"><b>Div</b><span>Hidden</span></div><div></div>", sourceText.text.toString())
 
         editText.fromHtml("<div class=\"third\"><b>Div</b><br><span>Span</span><br><span>Hidden</span></div><div></div>")
         editText.text.delete(0, editText.length())
 
         htmlButton.performClick()
-        Assert.assertEquals("", editText.text.toString())
+        TestUtils.equalsIgnoreWhitespace("", sourceText.text.toString())
     }
 }

@@ -15,12 +15,14 @@ import android.widget.PopupMenu.OnMenuItemClickListener
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
-    private var editor: AztecText? = null
-
     private var addLinkDialog: AlertDialog? = null
+    private var editor: AztecText? = null
+    private var headingMenu: PopupMenu? = null
+    private var sourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
         initView()
@@ -77,35 +79,35 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.isChecked = (item?.isChecked == false)
+
         when (item?.itemId) {
-            R.id.header_1 -> {
-                // TODO: Format line for H1
-                Toast.makeText(context, "H1", Toast.LENGTH_SHORT).show()
+            R.id.paragraph -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
-            R.id.header_2 -> {
-                // TODO: Format line for H2
-                Toast.makeText(context, "H2", Toast.LENGTH_SHORT).show()
+            R.id.heading_1 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                 return true
             }
-            R.id.header_3 -> {
-                // TODO: Format line for H3
-                Toast.makeText(context, "H3", Toast.LENGTH_SHORT).show()
+            R.id.heading_2 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                 return true
             }
-            R.id.header_4 -> {
-                // TODO: Format line for H4
-                Toast.makeText(context, "H4", Toast.LENGTH_SHORT).show()
+            R.id.heading_3 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                 return true
             }
-            R.id.header_5 -> {
-                // TODO: Format line for H5
-                Toast.makeText(context, "H5", Toast.LENGTH_SHORT).show()
+            R.id.heading_4 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                 return true
             }
-            R.id.header_6 -> {
-                // TODO: Format line for H6
-                Toast.makeText(context, "H6", Toast.LENGTH_SHORT).show()
+            R.id.heading_5 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
+                return true
+            }
+            R.id.heading_6 -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                 return true
             }
             else -> return false
@@ -116,7 +118,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
+        this.sourceEditor = sourceEditor
         this.editor = editor
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
@@ -132,6 +135,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
+
+            if (toolbarAction.equals(ToolbarAction.HEADING)) {
+                setHeaderMenu(findViewById(toolbarAction.buttonId))
+            }
         }
     }
 
@@ -162,6 +169,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
+    private fun toggleButtonState(button: View?, enabled: Boolean) {
+        if (button != null) {
+            button.isEnabled = enabled
+        }
+    }
+
     private fun highlightAppliedStyles(selStart: Int, selEnd: Int) {
         if (!isEditorAttached()) return
 
@@ -170,6 +183,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val appliedStyles = editor!!.getAppliedStyles(newSelStart, selEnd)
 
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
+        selectHeaderMenu(editor!!.getAppliedHeading(newSelStart, selEnd))
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -191,9 +205,25 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
-            ToolbarAction.HEADER -> showHeaderMenu(findViewById(action.buttonId))
+            ToolbarAction.HEADING -> headingMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.HTML -> editor!!.setText(editor!!.toHtml())
+            ToolbarAction.HTML -> {
+                if (editor!!.visibility == View.VISIBLE) {
+                    sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
+
+                    editor!!.visibility = View.GONE
+                    sourceEditor!!.visibility = View.VISIBLE
+
+                    toggleHtmlMode(true)
+                } else {
+                    editor!!.fromHtml(sourceEditor!!.getPureHtml())
+
+                    editor!!.visibility = View.VISIBLE
+                    sourceEditor!!.visibility = View.GONE
+
+                    toggleHtmlMode(false)
+                }
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
@@ -201,16 +231,36 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     }
 
-    private fun showHeaderMenu(view: View) {
-        val popup = PopupMenu(context, view)
-        popup.setOnMenuItemClickListener(this)
-        popup.inflate(R.menu.header)
-        popup.show()
+    private fun selectHeaderMenu(textFormat: TextFormat?) {
+        when (textFormat) {
+            TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
+            TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
+            TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
+            TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
+            TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
+            TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+            else -> headingMenu?.menu?.getItem(0)?.isChecked = true
+        }
     }
+
+    private fun setHeaderMenu(view: View) {
+        headingMenu = PopupMenu(context, view)
+        headingMenu?.setOnMenuItemClickListener(this)
+        headingMenu?.inflate(R.menu.heading)
+    }
+
+    private fun toggleHtmlMode(isHtmlMode: Boolean) {
+        ToolbarAction.values().forEach { action ->
+            if (action == ToolbarAction.HTML) {
+                toggleButton(findViewById(action.buttonId), isHtmlMode)
+            } else {
+                toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
+            }
+        }
+	}
 
     private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return
-
 
         val urlAndAnchor = editor!!.getSelectedUrlWithAnchor()
 

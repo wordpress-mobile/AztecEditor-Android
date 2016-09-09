@@ -151,7 +151,7 @@ class AztecParser {
 
             val lineEnd = lineStart + lineLength
 
-            if (lineStart > lineEnd || isAtTheEndOfText && lineIsZWJ || (lineLength == 0 && isLastLineInList)) {
+            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
 

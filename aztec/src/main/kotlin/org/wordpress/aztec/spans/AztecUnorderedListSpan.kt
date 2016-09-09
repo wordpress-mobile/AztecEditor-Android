@@ -22,13 +22,12 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
+import android.text.TextUtils
 import android.text.style.BulletSpan
 
-class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
+class AztecUnorderedListSpan : BulletSpan, AztecSpan {
 
-    override fun getTag(): String {
-        return "ul"
-    }
+    private final val TAG = "ul"
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
@@ -40,11 +39,18 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     constructor() : super(0) {
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
+    override var attributes: String? = null
+
+    constructor(attributes: String) {
+        this.attributes = attributes
+    }
+
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String?) {
         this.bulletColor = bulletColor
         this.bulletMargin = bulletMargin
         this.bulletWidth = bulletWidth
         this.bulletPadding = bulletPadding
+        this.attributes = attributes
     }
 
     constructor(src: Parcel) : super(src) {
@@ -52,6 +58,18 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         this.bulletMargin = src.readInt()
         this.bulletWidth = src.readInt()
         this.bulletPadding = src.readInt()
+        this.attributes = src.readString()
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -60,6 +78,7 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         dest.writeInt(bulletMargin)
         dest.writeInt(bulletWidth)
         dest.writeInt(bulletPadding)
+        dest.writeString(attributes)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {

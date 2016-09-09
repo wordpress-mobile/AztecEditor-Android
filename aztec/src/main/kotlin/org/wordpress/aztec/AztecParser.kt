@@ -83,16 +83,19 @@ class AztecParser {
 
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
-                if (styles[0] is AztecListSpan && styles[1] is QuoteSpan) {
-                    withinQuoteThenList(out, text, i, next++, (styles[0] as AztecListSpan).getTag())
-                } else if (styles[0] is QuoteSpan && styles[1] is AztecListSpan) {
-                    withinListThenQuote(out, text, i, next++, (styles[1] as AztecListSpan).getTag())
+                if (styles[0] is AztecSpan && styles[1] is QuoteSpan) {
+                    val span = (styles[0] as AztecSpan)
+                    withinQuoteThenList(out, text, i, next++, span.getStartTag(), span.getEndTag())
+                } else if (styles[0] is QuoteSpan && styles[1] is AztecSpan) {
+                    val span = (styles[1] as AztecSpan)
+                    withinListThenQuote(out, text, i, next++, span.getStartTag(), span.getEndTag())
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
-                if (styles[0] is AztecListSpan) {
-                    withinList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
+                if (styles[0] is AztecSpan) {
+                    val span = (styles[0] as AztecSpan)
+                    withinList(out, text, i, next, span.getStartTag(), span.getEndTag())
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -111,19 +114,22 @@ class AztecParser {
         out.append(unknownHtmlSpan.getRawHtml())
     }
 
-    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
-        out.append("<$listTag><li>")
+    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int,
+                                    listStartTag: String, listEndTag: String) {
+        out.append("<$listStartTag><li>")
         withinQuote(out, text, start, end)
-        out.append("</li></$listTag>")
+        out.append("</li></$listEndTag>")
     }
 
-    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
+    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int,
+                                    listStartTag: String, listEndTag: String) {
         out.append("<blockquote>")
-        withinList(out, text, start, end, listTag)
+        withinList(out, text, start, end, listStartTag, listEndTag)
         out.append("</blockquote>")
     }
 
-    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
+    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int,
+                           listStartTag: String, listEndTag: String) {
         var newStart = start
         var newEnd = end - 1
 
@@ -136,7 +142,7 @@ class AztecParser {
 
         }
 
-        out.append("<$listTag>")
+        out.append("<$listStartTag>")
         val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
 
         for (i in lines.indices) {
@@ -163,7 +169,7 @@ class AztecParser {
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
-        out.append("</$listTag>")
+        out.append("</$listEndTag>")
     }
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {
@@ -251,7 +257,7 @@ class AztecParser {
 
                     if (span is AztecStrikethroughSpan) {
                         out.append("<")
-                        out.append(span.getTag())
+                        out.append(span.getStartTag())
                         out.append(">")
                     }
 
@@ -296,7 +302,7 @@ class AztecParser {
 
                     if (span is AztecStrikethroughSpan) {
                         out.append("</")
-                        out.append(span.getTag())
+                        out.append(span.getEndTag())
                         out.append(">")
                     }
 
@@ -416,9 +422,9 @@ class AztecParser {
 
     private fun tidy(html: String): String {
         return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
-                .replace("(<br>)*<ul>?".toRegex(), "<ul>")
+                .replace("(<br>)*(<ul>?)".toRegex(), "$2")
                 .replace("</ol>(<br>)?".toRegex(), "</ol>")
-                .replace("(<br>)*<ol>?".toRegex(), "<ol>")
+                .replace("(<br>)*(<ol>?)".toRegex(), "$2")
                 .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")

@@ -382,18 +382,18 @@ class AztecText : EditText, TextWatcher {
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeListSpan(textFormat: TextFormat): LeadingMarginSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
         }
     }
 
 
-    fun makeListSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
+    fun makeListSpan(spanType: Class<AztecSpan>): LeadingMarginSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
         }
     }
 
@@ -669,7 +669,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecSpan::class.java)
 
         if (spans.isEmpty()) return
 
@@ -767,7 +767,7 @@ class AztecText : EditText, TextWatcher {
 
 
     private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecSpan::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
 
@@ -1423,7 +1423,7 @@ class AztecText : EditText, TextWatcher {
             }
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             //Add ZWJ to the new line at the end of list
-            val listSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
+            val listSpans = getText().getSpans(inputStart, inputStart, AztecSpan::class.java)
             if (!listSpans.isEmpty() && text.getSpanEnd(listSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
@@ -1513,13 +1513,13 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        val bulletSpans = editable.getSpans(start, end, BulletSpan::class.java)
+        val bulletSpans = editable.getSpans(start, end, AztecUnorderedListSpan::class.java)
         for (span in bulletSpans) {
             val spanStart = editable.getSpanStart(span)
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val orderedListSpan = editable.getSpans(start, end, AztecOrderedListSpan::class.java)
@@ -1528,7 +1528,7 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)

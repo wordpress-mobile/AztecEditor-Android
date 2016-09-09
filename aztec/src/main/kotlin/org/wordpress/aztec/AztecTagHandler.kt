@@ -24,18 +24,11 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
-
-    private class Ul
-    private class Ol
-    private class Strike
 
     private var order = 0
 
@@ -49,9 +42,9 @@ class AztecTagHandler : Html.TagHandler {
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
                 if (opening) {
-                    start(output, Strike())
+                    start(output, AztecStrikethroughSpan(tag, Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Strike::class.java, AztecStrikethroughSpan(tag))
+                    end(output, AztecStrikethroughSpan::class.java, AztecStrikethroughSpan(tag, null))
                 }
                 return true
             }
@@ -68,9 +61,9 @@ class AztecTagHandler : Html.TagHandler {
                     output.append("\n\n")
                 }
                 if (opening) {
-                    start(output, Ul())
+                    start(output, AztecUnorderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Ul::class.java, AztecUnorderedListSpan())
+                    end(output, AztecUnorderedListSpan::class.java, AztecUnorderedListSpan())
                 }
                 return true
             }
@@ -79,9 +72,9 @@ class AztecTagHandler : Html.TagHandler {
                     output.append("\n\n")
                 }
                 if (opening) {
-                    start(output, Ol())
+                    start(output, AztecOrderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Ol::class.java, AztecOrderedListSpan())
+                    end(output, AztecOrderedListSpan::class.java, AztecOrderedListSpan())
                 }
                 return true
             }
@@ -107,14 +100,16 @@ class AztecTagHandler : Html.TagHandler {
         }
     }
 
-    private fun end(output: Editable, kind: Class<*>, vararg replaces: Any) {
-        val last = getLast(output, kind)
+    private fun end(output: Editable, kind: Class<*>, vararg replaces: AztecSpan) {
+        val last = getLast(output, kind) as AztecSpan
         val start = output.getSpanStart(last)
         val end = output.length
+        val attr = last.attributes
         output.removeSpan(last)
 
         if (start != end) {
             for (replace in replaces) {
+                replace.attributes = attr
                 output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }

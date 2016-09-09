@@ -2,7 +2,7 @@ package org.wordpress.aztec
 
 import android.text.Editable
 import android.text.Spanned
-import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecSpan
 
 
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {
@@ -40,10 +40,10 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         return false
     }
 
-    fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
+    fun getListSpanToOpen(editableText: Editable): AztecSpan? {
         if (count >= 0) {
             if (text.length > start) {
-                val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
+                val spans = editableText.getSpans(start, start, AztecSpan::class.java)
                 if (!spans.isEmpty()) {
                     val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
                     if (previousCharacter == '\n') return null
@@ -62,7 +62,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
                         return spans[0]
                     }
                 } else {
-                    val spansAfterInput = editableText.getSpans(inputEnd, inputEnd, AztecListSpan::class.java)
+                    val spansAfterInput = editableText.getSpans(inputEnd, inputEnd, AztecSpan::class.java)
                     if (!spansAfterInput.isEmpty()) {
                         val flags = editableText.getSpanFlags(spansAfterInput[0])
                         if (((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) ||
@@ -78,11 +78,11 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
     }
 
-    fun getListSpanToClose(editableText: Editable): AztecListSpan? {
+    fun getListSpanToClose(editableText: Editable): AztecSpan? {
         if (start > 0 && count == 0) {
             if (text[start - 1] != '\n') return null
 
-            val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
+            val spans = editableText.getSpans(start, start, AztecSpan::class.java)
             if (!spans.isEmpty()) {
 
                 val spanStart = editableText.getSpanStart(spans[0])
@@ -99,7 +99,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
             }
 
         } else if (start == 0 && count == 0 && text.length > 0) {
-            val spansAfterInput = editableText.getSpans(start + 1, start + 1, AztecListSpan::class.java)
+            val spansAfterInput = editableText.getSpans(start + 1, start + 1, AztecSpan::class.java)
             if (!spansAfterInput.isEmpty()) {
                 return spansAfterInput[0]
             }

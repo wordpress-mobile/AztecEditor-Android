@@ -418,10 +418,12 @@ public class Html {
 
     public static StringBuilder stringifyAttributes(Attributes attributes) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < attributes.getLength(); i++) {
-            // separate attributes by a space character
-            sb.append(' ');
-            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                // separate attributes by a space character
+                sb.append(' ');
+                sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+            }
         }
         return sb;
     }
@@ -508,36 +510,36 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(mSpannableStringBuilder, new Bold());
+            start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("b")) {
-            start(mSpannableStringBuilder, new Bold());
+            start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("em")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("i")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("big")) {
-            start(mSpannableStringBuilder, new Big());
+            start(mSpannableStringBuilder, new Big(attributes));
         } else if (tag.equalsIgnoreCase("small")) {
-            start(mSpannableStringBuilder, new Small());
+            start(mSpannableStringBuilder, new Small(attributes));
         } else if (tag.equalsIgnoreCase("font")) {
             startFont(mSpannableStringBuilder, attributes);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            start(mSpannableStringBuilder, new Blockquote());
+            start(mSpannableStringBuilder, new Blockquote(attributes));
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(mSpannableStringBuilder, new Monospace());
+            start(mSpannableStringBuilder, new Monospace(attributes));
         } else if (tag.equalsIgnoreCase("a")) {
             startA(mSpannableStringBuilder, attributes);
         } else if (tag.equalsIgnoreCase("u")) {
-            start(mSpannableStringBuilder, new Underline());
+            start(mSpannableStringBuilder, new Underline(attributes));
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(mSpannableStringBuilder, new Super());
+            start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(mSpannableStringBuilder, new Sub());
+            start(mSpannableStringBuilder, new Sub(attributes));
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -701,11 +703,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static void startFont(SpannableStringBuilder text,
                                   Attributes attributes) {
-        String color = attributes.getValue("", "color");
-        String face = attributes.getValue("", "face");
 
         int len = text.length();
-        text.setSpan(new Font(color, face), len, len, Spannable.SPAN_MARK_MARK);
+        text.setSpan(new Font(attributes), len, len, Spannable.SPAN_MARK_MARK);
     }
 
     private static void endFont(SpannableStringBuilder text) {
@@ -718,10 +718,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (where != len) {
             Font f = (Font) obj;
 
-            if (!TextUtils.isEmpty(f.mColor)) {
-                if (f.mColor.startsWith("@")) {
+            if (!TextUtils.isEmpty(f.color)) {
+                if (f.color.startsWith("@")) {
                     Resources res = Resources.getSystem();
-                    String name = f.mColor.substring(1);
+                    String name = f.color.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
                         ColorStateList colors = res.getColorStateList(colorRes);
@@ -730,7 +730,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 } else {
-                    // int c = Color.getHtmlColor(f.mColor);
+                    // int c = Color.getHtmlColor(f.color);
                     int c = Color.GREEN; // TODO: read from html color
                     if (c != -1) {
                         text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
@@ -740,18 +740,16 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             }
 
-            if (f.mFace != null) {
-                text.setSpan(new TypefaceSpan(f.mFace), where, len,
+            if (f.face != null) {
+                text.setSpan(new TypefaceSpan(f.face), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
     }
 
     private static void startA(SpannableStringBuilder text, Attributes attributes) {
-        String href = attributes.getValue("", "href");
-
         int len = text.length();
-        text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
+        text.setSpan(new Href(attributes), len, len, Spannable.SPAN_MARK_MARK);
     }
 
     private static void endA(SpannableStringBuilder text) {
@@ -764,8 +762,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (where != len) {
             Href h = (Href) obj;
 
-            if (h.mHref != null) {
-                text.setSpan(new URLSpan(h.mHref), where, len,
+            if (h.href != null) {
+                text.setSpan(new URLSpan(h.href), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -959,47 +957,87 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private static class Bold {
+        Attributes attributes;
+        Bold(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Italic {
+        Attributes attributes;
+        Italic(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Underline {
+        Attributes attributes;
+        Underline(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Big {
+        Attributes attributes;
+        Big(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Small {
+        Attributes attributes;
+        Small(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Monospace {
+        Attributes attributes;
+        Monospace(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Blockquote {
+        Attributes attributes;
+        Blockquote(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Super {
+        Attributes attributes;
+        Super(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Sub {
+        Attributes attributes;
+        Sub(Attributes attributes) {
+            this.attributes = attributes;
+        }
     }
 
     private static class Font {
-        public String mColor;
-        public String mFace;
+        Attributes attributes;
+        String color;
+        String face;
 
-        public Font(String color, String face) {
-            mColor = color;
-            mFace = face;
+        Font(Attributes attributes) {
+            this.attributes = attributes;
+            color = attributes.getValue("", "color");
+            face = attributes.getValue("", "face");
         }
     }
 
     private static class Href {
-        public String mHref;
+        String href;
+        Attributes attributes;
 
-        public Href(String href) {
-            mHref = href;
+        Href(Attributes attributes) {
+            this.attributes = attributes;
+            href = attributes.getValue("", "href");
         }
     }
 

@@ -1198,22 +1198,33 @@ class AztecText : EditText, TextWatcher {
             val textLength = text.length
 
             var spanEnd = text.getSpanEnd(spanToOpen)
-            val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
+            val spanStart = text.getSpanStart(spanToOpen)
 
-            if (indexOfLineEnd == spanEnd) {
-                spanEnd += textChangedEvent.count
-            } else if (indexOfLineEnd == -1) {
-                spanEnd = text.length
-            } else {
-                spanEnd = indexOfLineEnd
-            }
-
-            if (spanEnd <= textLength) {
+            if (inputStart < spanStart) {
                 editableText.setSpan(spanToOpen,
-                        text.getSpanStart(spanToOpen),
+                        inputStart,
                         spanEnd,
-                        Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
+
+                if (indexOfLineEnd == spanEnd) {
+                    spanEnd += textChangedEvent.count
+                } else if (indexOfLineEnd == -1) {
+                    spanEnd = text.length
+                } else {
+                    spanEnd = indexOfLineEnd
+                }
+
+                if (spanEnd <= textLength) {
+                    editableText.setSpan(spanToOpen,
+                            text.getSpanStart(spanToOpen),
+                            spanEnd,
+                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
             }
+
+
         }
 
 

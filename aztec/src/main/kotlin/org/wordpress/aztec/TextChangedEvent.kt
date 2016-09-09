@@ -41,24 +41,35 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     }
 
     fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
-        if (start >= 1 && count >= 0) {
+        if (count >= 0) {
             if (text.length > start) {
-                val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
-                if (previousCharacter == '\n') return null
-
-                val deletingLastCharacter = !isAddingCharacters && text.length == inputEnd
-                if (deletingLastCharacter) return null
-
-                if (!isAddingCharacters && text.length > inputEnd) {
-                    val lastCharacter = text[inputEnd]
-                    if (lastCharacter == '\n') return null
-                }
-
                 val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
                 if (!spans.isEmpty()) {
+
+                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
+                    if (previousCharacter == '\n') return null
+
+                    val deletingLastCharacter = !isAddingCharacters && text.length == inputEnd
+                    if (deletingLastCharacter) return null
+
+                    if (!isAddingCharacters && text.length > inputEnd) {
+                        val lastCharacter = text[inputEnd]
+                        if (lastCharacter == '\n') return null
+                    }
+
+
                     val flags = editableText.getSpanFlags(spans[0])
                     if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
                         return spans[0]
+                    }
+                } else {
+                    val spansAfterInput = editableText.getSpans(inputEnd, inputEnd, AztecListSpan::class.java)
+                    if (!spansAfterInput.isEmpty()) {
+                        val flags = editableText.getSpanFlags(spansAfterInput[0])
+                        if (((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) ||
+                                (flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                            return spansAfterInput[0]
+                        }
                     }
                 }
             }

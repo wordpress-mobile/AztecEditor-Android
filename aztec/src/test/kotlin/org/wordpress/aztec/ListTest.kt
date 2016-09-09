@@ -400,7 +400,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun appendToListFromBottom() {
+    fun addItemToListFromBottom() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -418,7 +418,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun appendToListFromTop() {
+    fun addItemToListFromTop() {
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -436,7 +436,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun appendToListFromInside() {
+    fun addItemToListFromInside() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -452,5 +452,58 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun appendToListFromTopAtFirstLine() {
+        editText.toggleFormatting(listType)
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+        editText.setSelection(0)
+        editText.text.insert(0,"addition ")
+
+        Assert.assertEquals("<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun appendToListFromTop() {
+        editText.append("not in list")
+        editText.append("\n")
+        editText.toggleFormatting(listType)
+        val mark = editText.length() - 1
+        editText.append("first item")
+        editText.append("\n")
+        editText.append("second item")
+
+        editText.setSelection(mark)
+        editText.text.insert(mark,"addition ")
+
+        Assert.assertEquals("not in list<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteFirstItemWithKeyboard() {
+        editText.toggleFormatting(listType)
+        editText.append("first item")
+        val firstMark = editText.length()
+        editText.append("\n")
+        editText.append("second item")
+        val secondMark = editText.length()
+        editText.append("\n")
+        editText.append("third item")
+        editText.setSelection(0)
+        editText.text.delete(firstMark+1,secondMark)
+
+        Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
+
+        editText.text.delete(0,firstMark)
+
+        Assert.assertEquals("<$listTag><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
 }

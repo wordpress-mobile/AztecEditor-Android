@@ -1175,16 +1175,23 @@ class AztecText : EditText, TextWatcher {
             if (spanEnd == spanStart) {
                 editableText.removeSpan(spanToClose)
             } else if (spanEnd <= text.length) {
-                //special case for span that starts with empty line
-                if (text[spanStart] == '\n') {
-                    spanStart += 1
 
-                    if (text[spanStart] == '\n' && text.length > spanEnd + 1) {
-                        spanEnd += 1
-                        disableTextChangedListener()
-                        text.insert(spanStart, "\u200B")
+                //case for when we remove list row from first line of EditText end the next line is empty
+                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
+                    spanEnd += 1
+                    disableTextChangedListener()
+                    text.insert(spanStart, "\u200B")
+                } else
+                //case for when we remove list row from other lines of EditText end the next line is empty
+                    if (text[spanStart] == '\n') {
+                        spanStart += 1
+
+                        if (text[spanStart] == '\n' && text.length >= spanEnd) {
+                            spanEnd += 1
+                            disableTextChangedListener()
+                            text.insert(spanStart, "\u200B")
+                        }
                     }
-                }
 
                 editableText.setSpan(spanToClose,
                         spanStart,

@@ -16,6 +16,13 @@ import org.wordpress.aztec.source.SourceViewEditText
 
 class MainActivity : AppCompatActivity() {
     companion object {
+        private val HEADING =
+                "<h1>Heading 1</h1><br>" +
+                "<h2>Heading 2</h2><br>" +
+                "<h3>Heading 3</h3><br>" +
+                "<h4>Heading 4</h4><br>" +
+                "<h5>Heading 5</h5><br>" +
+                "<h6>Heading 6</h6><br>"
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"
@@ -38,7 +45,7 @@ class MainActivity : AppCompatActivity() {
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
+        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 
     private lateinit var aztec: AztecText

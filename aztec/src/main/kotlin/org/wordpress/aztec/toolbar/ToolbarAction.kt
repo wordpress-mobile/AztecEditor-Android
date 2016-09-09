@@ -15,8 +15,10 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),
     UNORDERED_LIST(R.id.format_bar_button_ul, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_UNORDERED_LIST),
     ORDERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_ORDERED_LIST),
-    LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
+    LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
+    MORE(R.id.format_bar_button_more, ToolbarActionType.OTHER, null),
+    PAGE(R.id.format_bar_button_page, ToolbarActionType.OTHER, null),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);
 
     companion object {

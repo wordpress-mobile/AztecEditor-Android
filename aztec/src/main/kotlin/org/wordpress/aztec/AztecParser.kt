@@ -82,13 +82,13 @@ class AztecParser {
                 if (styles[0] is AztecListSpan && styles[1] is QuoteSpan) {
                     withinQuoteThenList(out, text, i, next++, (styles[0] as AztecListSpan).getTag())
                 } else if (styles[0] is QuoteSpan && styles[1] is AztecListSpan) {
-                    withinBulletThenQuote(out, text, i, next++, (styles[1] as AztecListSpan).getTag())
+                    withinListThenQuote(out, text, i, next++, (styles[1] as AztecListSpan).getTag())
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is AztecListSpan) {
-                    withingList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
+                    withinList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -107,7 +107,7 @@ class AztecParser {
         out.append(unknownHtmlSpan.getRawHtml())
     }
 
-    private fun withinBulletThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
+    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         out.append("<$listTag><li>")
         withinQuote(out, text, start, end)
         out.append("</li></$listTag>")
@@ -115,11 +115,11 @@ class AztecParser {
 
     private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         out.append("<blockquote>")
-        withingList(out, text, start, end, listTag)
+        withinList(out, text, start, end, listTag)
         out.append("</blockquote>")
     }
 
-    private fun withingList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
+    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         var newStart = start
         var newEnd = end - 1
 

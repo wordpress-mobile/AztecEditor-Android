@@ -1,18 +1,13 @@
 package org.wordpress.aztec.demo
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.TextUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.*
-import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 
 class MainActivity : AppCompatActivity() {
     companion object {

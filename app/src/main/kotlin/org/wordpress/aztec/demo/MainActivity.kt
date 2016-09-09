@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"
         private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
-        private val BULLET = "<ul><li>asdfg</li></ul>"
+        private val ORDERED = "<ol><li>Ordered</li></ol>"
+        private val UNORDERED = "<ul><li>Unordered</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
+        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 
     private lateinit var aztec: AztecText

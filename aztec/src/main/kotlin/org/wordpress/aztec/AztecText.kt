@@ -28,7 +28,7 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import org.wordpress.aztec.spans.*
-import org.wordpress.aztec.AztecHeadingSpan.Heading
+import org.wordpress.aztec.spans.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*

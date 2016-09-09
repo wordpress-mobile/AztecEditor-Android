@@ -1,9 +1,9 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 
-class AztecHeadingSpan(val mHeading: AztecHeadingSpan.Heading) : MetricAffectingSpan() {
+class AztecHeadingSpan(val mHeading: Heading) : MetricAffectingSpan() {
     companion object {
         private val SCALE_H1: Float = 2.0f
         private val SCALE_H2: Float = 1.8f

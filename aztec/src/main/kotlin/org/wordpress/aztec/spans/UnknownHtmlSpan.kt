@@ -1,4 +1,4 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 import android.content.Context
 import android.text.style.ImageSpan

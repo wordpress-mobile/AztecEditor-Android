@@ -5,6 +5,7 @@ import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.view.MotionEvent
 import android.widget.TextView
+import org.wordpress.aztec.spans.UnknownClickableSpan
 
 /**
  * http://stackoverflow.com/a/23566268/569430

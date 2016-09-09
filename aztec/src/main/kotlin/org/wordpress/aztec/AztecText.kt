@@ -27,6 +27,7 @@ import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.util.TypefaceCache
@@ -280,7 +281,7 @@ class AztecText : EditText, TextWatcher {
 
     private fun applyInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
 
-        val spanToApply = makeDummyInlineSpan(textFormat)
+        val spanToApply = makeInlineSpan(textFormat)
 
         if (start >= end) {
             return
@@ -346,7 +347,7 @@ class AztecText : EditText, TextWatcher {
 
     fun removeInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
         //for convenience sake we are initializing the span of same type we are planing to remove
-        val spanToRemove = makeDummyInlineSpan(textFormat)
+        val spanToRemove = makeInlineSpan(textFormat)
 
         if (start >= end) {
             return
@@ -377,7 +378,26 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
-    fun makeDummyInlineSpan(textFormat: TextFormat): CharacterStyle {
+
+    //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
+    fun makeListSpan(textFormat: TextFormat): LeadingMarginSpan {
+        when (textFormat) {
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+        }
+    }
+
+
+    fun makeListSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
+        when (spanType) {
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+        }
+    }
+
+    fun makeInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
             TextFormat.FORMAT_BOLD -> return StyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return StyleSpan(Typeface.ITALIC)
@@ -388,7 +408,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun containsInlineStyle(textFormat: TextFormat, start: Int, end: Int): Boolean {
-        val spanToCheck = makeDummyInlineSpan(textFormat)
+        val spanToCheck = makeInlineSpan(textFormat)
 
         if (start > end) {
             return false
@@ -623,19 +643,48 @@ class AztecText : EditText, TextWatcher {
 
     // BulletSpan ==================================================================================
 
-    fun bullet(valid: Boolean) {
+    fun orderedListValid(valid: Boolean) {
         if (valid) {
-            bulletValid()
+            if (containsList(TextFormat.FORMAT_UNORDERED_LIST, selectionStart, selectionEnd)) {
+                switchListType(TextFormat.FORMAT_ORDERED_LIST)
+            } else {
+                applyListStyle(TextFormat.FORMAT_ORDERED_LIST)
+            }
         } else {
-            bulletInvalid()
+            removeList()
         }
     }
 
-    private fun bulletValid() {
-        bulletValid(selectionStart, selectionEnd)
+
+    fun unorderedListValid(valid: Boolean) {
+        if (valid) {
+            if (containsList(TextFormat.FORMAT_ORDERED_LIST, selectionStart, selectionEnd)) {
+                switchListType(TextFormat.FORMAT_UNORDERED_LIST)
+            } else {
+                applyListStyle(TextFormat.FORMAT_UNORDERED_LIST)
+            }
+        } else {
+            removeList()
+        }
     }
 
-    private fun bulletValid(start: Int, end: Int) {
+    private fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+
+        if (spans.isEmpty()) return
+
+        val existingListSpan = spans[0]
+
+        val spanStart = editableText.getSpanStart(existingListSpan)
+        val spanEnd = editableText.getSpanEnd(existingListSpan)
+        val spanFlags = editableText.getSpanFlags(existingListSpan)
+        editableText.removeSpan(existingListSpan)
+
+        editableText.setSpan(makeListSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
+        onSelectionChanged(start, end)
+    }
+
+    private fun applyListStyle(listType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
             val selectedText = editableText.substring(start + 1..end - 1)
 
@@ -655,15 +704,15 @@ class AztecText : EditText, TextWatcher {
 
                 for (i in lines.indices) {
                     numberOfLines++
-                    if (containBullet(i, selectedLines)) {
+                    if (containsList(listType, i, selectedLines)) {
                         numberOfLinesWithSpanApplied++
                     }
                 }
 
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    bulletInvalid()
+                    removeList()
                 } else {
-                    editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(makeListSpan(listType), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
 
 
@@ -683,7 +732,31 @@ class AztecText : EditText, TextWatcher {
                 endOfLine += 1
             }
 
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), startOfLine, endOfLine, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            val spanToApply = makeListSpan(listType)
+
+            var startOfList: Int = startOfLine
+            var endOfList: Int = endOfLine
+
+
+            if (startOfLine != 0) {
+                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
+                if (!spansOnPreviousLine.isEmpty()) {
+                    startOfList = editableText.getSpanStart(spansOnPreviousLine[0])
+                    editableText.removeSpan(spansOnPreviousLine[0])
+                }
+            }
+
+            if (endOfLine != editableText.length) {
+                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
+                if (!spanOnNextLine.isEmpty()) {
+                    endOfList = editableText.getSpanEnd(spanOnNextLine[0])
+                    editableText.removeSpan(spanOnNextLine[0])
+                }
+            }
+
+
+            editableText.setSpan(spanToApply, startOfList, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
@@ -692,12 +765,9 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    private fun bulletInvalid() {
-        bulletInvalid(selectionStart, selectionEnd)
-    }
 
-    private fun bulletInvalid(start: Int, end: Int) {
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+    private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
 
@@ -722,15 +792,15 @@ class AztecText : EditText, TextWatcher {
 
         //reapply span top "top" and "bottom"
         if (spanPrecedesLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeListSpan(span.javaClass), spanStart, startOfLine - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanExtendsBeyondLine) {
-            editableText.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(makeListSpan(span.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    private fun containBullet(selStart: Int, selEnd: Int): Boolean {
+    private fun containsList(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -756,7 +826,7 @@ class AztecText : EditText, TextWatcher {
         if (list.isEmpty()) return false
 
         for (i in list) {
-            if (!containBullet(i)) {
+            if (!containsList(textFormat, i)) {
                 return false
             }
         }
@@ -764,7 +834,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    private fun containBullet(index: Int, text: Editable): Boolean {
+    private fun containsList(textFormat: TextFormat, index: Int, text: Editable = editableText): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -780,29 +850,10 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
+        val spans = editableText.getSpans(start, end, makeListSpan(textFormat).javaClass)
         return spans.size > 0
     }
 
-    private fun containBullet(index: Int): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        if (index < 0 || index >= lines.size) {
-            return false
-        }
-
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
-        val end = start + lines[index].length
-        if (start > end) {
-            return false
-        }
-
-        val spans = editableText.getSpans(start, end, BulletSpan::class.java)
-        return spans.size > 0
-    }
 
     // QuoteSpan ===================================================================================
 
@@ -1190,24 +1241,13 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD))
             TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC))
             TextFormat.FORMAT_STRIKETHROUGH -> strikethrough(!contains(TextFormat.FORMAT_STRIKETHROUGH))
-            TextFormat.FORMAT_BULLET -> bullet(!contains(TextFormat.FORMAT_BULLET))
+            TextFormat.FORMAT_UNORDERED_LIST -> unorderedListValid(!contains(TextFormat.FORMAT_UNORDERED_LIST))
+            TextFormat.FORMAT_ORDERED_LIST -> orderedListValid(!contains(TextFormat.FORMAT_ORDERED_LIST))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
             else -> {}
         }
     }
 
-    operator fun contains(format: TextFormat): Boolean {
-        when (format) {
-            TextFormat.FORMAT_BOLD -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_ITALIC -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(format, selectionStart, selectionEnd)
-            TextFormat.FORMAT_BULLET -> return containBullet(selectionStart, selectionEnd)
-            TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
-            TextFormat.FORMAT_LINK -> return containLink(selectionStart, selectionEnd)
-            else -> return false
-        }
-    }
 
     fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
@@ -1221,7 +1261,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            TextFormat.FORMAT_BULLET -> return containBullet(selStart, selEnd)
+            TextFormat.FORMAT_UNORDERED_LIST -> return containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
+            TextFormat.FORMAT_ORDERED_LIST -> return containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return containLink(selStart, selEnd)
             else -> return false
@@ -1244,17 +1285,27 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        //clear all spans from EditText when it get's empty
-        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0 && text.toString().equals("")) {
-            disableTextChangedListener()
-            setText(null)
-            onSelectionChanged(0, 0)
+        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
+            removeLeadingStyle(text, CharacterStyle::class.java)
+            removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
         history.handleHistory(this)
 
         handleLists(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
+    }
+
+
+
+    fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
+        text.getSpans(0, 0, spanClass).forEach {
+            if (text.length >= 1) {
+                text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+            } else {
+                text.removeSpan(it)
+            }
+        }
     }
 
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
@@ -1287,44 +1338,99 @@ class AztecText : EditText, TextWatcher {
         setFormattingChangesApplied()
     }
 
-    //TODO: Add support for NumberedLists
+
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
 
-        val spanToOpen = textChangedEvent.getSpanToOpen(text)
+        val spanToClose = textChangedEvent.getListSpanToClose(text)
+        if (spanToClose != null) {
+            var spanEnd = text.getSpanEnd(spanToClose)
+            var spanStart = text.getSpanStart(spanToClose)
 
-        //we might need to open span to add text to it
-        if (spanToOpen != null) {
-            val spanEnd = text.getSpanEnd(spanToOpen) + textChangedEvent.count
+            if (spanEnd == spanStart) {
+                editableText.removeSpan(spanToClose)
+            } else if (spanEnd <= text.length) {
 
-            if (spanEnd <= text.length) {
-                editableText.setSpan(spanToOpen,
-                        text.getSpanStart(spanToOpen),
+                //case for when we remove list row from first line of EditText end the next line is empty
+                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
+                    spanEnd += 1
+                    disableTextChangedListener()
+                    text.insert(spanStart, "\u200B")
+                } else
+                //case for when we remove list row from other lines of EditText end the next line is empty
+                    if (text[spanStart] == '\n') {
+                        spanStart += 1
+
+                        if (text[spanStart] == '\n' && text.length >= spanEnd) {
+                            spanEnd += 1
+                            disableTextChangedListener()
+                            text.insert(spanStart, "\u200B")
+                        }
+                    }
+
+                editableText.setSpan(spanToClose,
+                        spanStart,
                         spanEnd,
-                        Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 
+        val spanToOpen = textChangedEvent.getListSpanToOpen(text)
+        if (spanToOpen != null) {
+            val textLength = text.length
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewline()) {
+            var spanEnd = text.getSpanEnd(spanToOpen)
+            val spanStart = text.getSpanStart(spanToOpen)
+
+            if (inputStart < spanStart) {
+                editableText.setSpan(spanToOpen,
+                        inputStart,
+                        spanEnd,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
+
+                if (indexOfLineEnd == spanEnd) {
+                    spanEnd += textChangedEvent.count
+                } else if (indexOfLineEnd == -1) {
+                    spanEnd = text.length
+                } else {
+                    spanEnd = indexOfLineEnd
+                }
+
+                if (spanEnd <= textLength) {
+                    editableText.setSpan(spanToOpen,
+                            text.getSpanStart(spanToOpen),
+                            spanEnd,
+                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+            }
+
+
+        }
+
+
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLine()) {
             disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
-            bulletInvalid()
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+            removeList()
             disableTextChangedListener()
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
                 text.delete(inputStart - 2, inputStart)
             }
-        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewline()) {
-            val paragraphSpans = getText().getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, BulletSpan::class.java)
-            if (!paragraphSpans.isEmpty()) {
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+            //Add ZWJ to the new line at the end of list
+            val listSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
+            if (!listSpans.isEmpty() && text.getSpanEnd(listSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")
             }
         }
     }
+
 
     fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
         val startOfLine: Int
@@ -1413,7 +1519,16 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecBulletSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val orderedListSpan = editable.getSpans(start, end, AztecOrderedListSpan::class.java)
+        for (span in orderedListSpan) {
+            val spanStart = editable.getSpanStart(span)
+            var spanEnd = editable.getSpanEnd(span)
+            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            editable.removeSpan(span)
+            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)

@@ -35,8 +35,12 @@ class AztecTagHandler : Html.TagHandler {
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                if (!opening) {
+                if (opening) {
+                    start(output, AztecListItemSpan(Html.stringifyAttributes(attributes).toString()))
+                }
+                else {
                     output.append("\n")
+                    endList(output)
                 }
                 return true
             }
@@ -44,7 +48,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, AztecStrikethroughSpan(tag, Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, AztecStrikethroughSpan::class.java, AztecStrikethroughSpan(tag, null))
+                    end(output, AztecStrikethroughSpan::class.java)
                 }
                 return true
             }
@@ -63,7 +67,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, AztecUnorderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, AztecUnorderedListSpan::class.java, AztecUnorderedListSpan())
+                    end(output, AztecUnorderedListSpan::class.java)
                 }
                 return true
             }
@@ -74,7 +78,7 @@ class AztecTagHandler : Html.TagHandler {
                 if (opening) {
                     start(output, AztecOrderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, AztecOrderedListSpan::class.java, AztecOrderedListSpan())
+                    end(output, AztecOrderedListSpan::class.java)
                 }
                 return true
             }
@@ -97,21 +101,30 @@ class AztecTagHandler : Html.TagHandler {
             if (start != end) {
                 output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
+            else {
+                output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
         }
     }
 
-    private fun end(output: Editable, kind: Class<*>, vararg replaces: AztecSpan) {
+    private fun endList(output: Editable) {
+        val last = getLast(output, AztecListItemSpan::class.java)
+        if (last != null) {
+            val mark = output.length - 1
+
+            if (mark >= 0) {
+                output.setSpan(last, mark, mark, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        }
+    }
+
+    private fun end(output: Editable, kind: Class<*>) {
         val last = getLast(output, kind) as AztecSpan
         val start = output.getSpanStart(last)
         val end = output.length
-        val attr = last.attributes
-        output.removeSpan(last)
 
         if (start != end) {
-            for (replace in replaces) {
-                replace.attributes = attr
-                output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+            output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

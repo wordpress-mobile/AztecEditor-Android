@@ -84,18 +84,16 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is AztecSpan && styles[1] is QuoteSpan) {
-                    val span = (styles[0] as AztecSpan)
-                    withinQuoteThenList(out, text, i, next++, span.getStartTag(), span.getEndTag())
+                    withinQuoteThenList(out, text, i, next++, styles[1] as AztecSpan)
                 } else if (styles[0] is QuoteSpan && styles[1] is AztecSpan) {
-                    val span = (styles[1] as AztecSpan)
-                    withinListThenQuote(out, text, i, next++, span.getStartTag(), span.getEndTag())
+                    withinListThenQuote(out, text, i, next++, styles[1] as AztecSpan)
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is AztecSpan) {
                     val span = (styles[0] as AztecSpan)
-                    withinList(out, text, i, next, span.getStartTag(), span.getEndTag())
+                    withinList(out, text, i, next, styles[0] as AztecSpan)
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -114,22 +112,19 @@ class AztecParser {
         out.append(unknownHtmlSpan.getRawHtml())
     }
 
-    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                                    listStartTag: String, listEndTag: String) {
-        out.append("<$listStartTag><li>")
+    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
+        out.append("<${list.getStartTag()}><li>")
         withinQuote(out, text, start, end)
-        out.append("</li></$listEndTag>")
+        out.append("</li></${list.getEndTag()}>")
     }
 
-    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                                    listStartTag: String, listEndTag: String) {
+    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
         out.append("<blockquote>")
-        withinList(out, text, start, end, listStartTag, listEndTag)
+        withinList(out, text, start, end, list)
         out.append("</blockquote>")
     }
 
-    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                           listStartTag: String, listEndTag: String) {
+    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
         var newStart = start
         var newEnd = end - 1
 
@@ -142,7 +137,7 @@ class AztecParser {
 
         }
 
-        out.append("<$listStartTag>")
+        out.append("<${list.getStartTag()}>")
         val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
 
         for (i in lines.indices) {
@@ -164,12 +159,17 @@ class AztecParser {
             if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
+            val itemSpans = text.getSpans(newStart + lineStart + lineLength, newStart + lineStart + lineLength + 1, AztecListItemSpan::class.java)
 
-            out.append("<li>")
+            if (itemSpans.size > 0) {
+                out.append("<li${itemSpans[0].attributes}>")
+            } else {
+                out.append("<li>")
+            }
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
-        out.append("</$listEndTag>")
+        out.append("</${list.getEndTag()}>")
     }
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {

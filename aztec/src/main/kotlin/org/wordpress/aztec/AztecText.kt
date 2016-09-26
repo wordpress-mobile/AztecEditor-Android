@@ -477,9 +477,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -516,9 +516,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -537,7 +537,8 @@ class AztecText : EditText, TextWatcher {
                         editableText.setSpan(AztecHeadingSpan(Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_6 ->
                         editableText.setSpan(AztecHeadingSpan(Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }
@@ -861,7 +862,7 @@ class AztecText : EditText, TextWatcher {
 
     fun quote(valid: Boolean) {
         if (valid) {
-            quoteValid()
+            applyBlockStyle(TextFormat.FORMAT_QUOTE)
         } else {
             quoteInvalid()
         }
@@ -889,9 +890,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -924,9 +925,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -1246,7 +1247,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_UNORDERED_LIST -> unorderedListValid(!contains(TextFormat.FORMAT_UNORDERED_LIST))
             TextFormat.FORMAT_ORDERED_LIST -> orderedListValid(!contains(TextFormat.FORMAT_ORDERED_LIST))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -1297,7 +1299,6 @@ class AztecText : EditText, TextWatcher {
         handleLists(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
     }
-
 
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

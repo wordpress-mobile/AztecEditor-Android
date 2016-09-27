@@ -954,8 +954,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     new AztecCommentSpan(
                             AztecCommentSpan.Comment.MORE,
                             mContext.getResources().getDisplayMetrics().widthPixels,
-                            mContext,
-                            R.drawable.img_more
+                            mContext.getResources().getDrawable(R.drawable.img_more)
                     ),
                     spanStart,
                     mSpannableStringBuilder.length(),
@@ -966,8 +965,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     new AztecCommentSpan(
                             AztecCommentSpan.Comment.PAGE,
                             mContext.getResources().getDisplayMetrics().widthPixels,
-                            mContext,
-                            R.drawable.img_page
+                            mContext.getResources().getDrawable(R.drawable.img_page)
                     ),
                     spanStart,
                     mSpannableStringBuilder.length(),

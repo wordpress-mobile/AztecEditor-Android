@@ -235,7 +235,7 @@ class AztecParser {
 
                     if (span is AztecHeadingSpan) {
                         out.append("<")
-                        out.append(span.getTag())
+                        out.append(span.getStartTag())
                         out.append(">")
                     }
 
@@ -292,7 +292,7 @@ class AztecParser {
 
                     if (span is AztecHeadingSpan) {
                         out.append("</")
-                        out.append(span.getTag())
+                        out.append(span.getEndTag())
                         out.append(">")
                     }
 

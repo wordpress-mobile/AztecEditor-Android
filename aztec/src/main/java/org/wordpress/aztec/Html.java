@@ -544,7 +544,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
+            start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1', attributes));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else {
@@ -805,27 +805,33 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
             switch (h.mLevel) {
                 case 0:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1,
+                                Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 1:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2,
+                                Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 2:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3,
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 3:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4,
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 4:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5,
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 5:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6),
+                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6,
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
             }
@@ -1044,9 +1050,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Header {
         private int mLevel;
+        Attributes attributes;
 
-        public Header(int level) {
+        public Header(int level, Attributes attributes) {
             mLevel = level;
+            this.attributes = attributes;
         }
     }
 }

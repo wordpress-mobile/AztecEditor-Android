@@ -18,7 +18,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
+@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(16))
 class AztecToolbarTest {
 
     lateinit var editText: AztecText

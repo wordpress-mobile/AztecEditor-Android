@@ -12,7 +12,7 @@ import org.robolectric.annotation.Config;
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(16))
+@Config(constants = BuildConfig::class)
 class HtmlFormattingTest() : AndroidTestCase() {
 
     private var parser = AztecParser()

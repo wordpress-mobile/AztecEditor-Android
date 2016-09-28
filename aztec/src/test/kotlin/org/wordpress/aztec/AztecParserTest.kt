@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
  * Tests for [AztecParser].
  */
 @RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(16))
+@Config(constants = BuildConfig::class)
 class AztecParserTest : AndroidTestCase() {
     private var mParser = AztecParser()
     private val HTML_BOLD = "<b>Bold</b><br><br>"

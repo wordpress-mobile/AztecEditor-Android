@@ -98,7 +98,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun emptyList() {
+    fun emptyQuote() {
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag></$listTag>", editText.toHtml())
     }
@@ -123,7 +123,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun closingPopulatedList() {
+    fun closingPopulatedQuote() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -138,7 +138,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun closingEmptyList() {
+    fun closingEmptyQuote() {
         editText.toggleFormatting(listType)
         editText.append("\n")
         Assert.assertEquals("", editText.toHtml().toString())
@@ -146,7 +146,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun extendingListBySplittingItems() {
+    fun extendingQuoteBySplittingItems() {
         editText.toggleFormatting(listType)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
@@ -167,7 +167,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun removeBulletListStyling() {
+    fun removeQuoteStyling() {
         editText.fromHtml("<$listTag>first item</$listTag>")
         editText.setSelection(1)
         editText.toggleFormatting(listType)
@@ -177,7 +177,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun removeBulletListStylingForPartialSelection() {
+    fun removeQuoteStylingForPartialSelection() {
         editText.fromHtml("<$listTag>first item</$listTag>")
         editText.setSelection(2, 4)
         editText.toggleFormatting(listType)
@@ -211,7 +211,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun emptyBulletSurroundedBytItems() {
+    fun emptyQuoteSurroundedBytItems() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -253,12 +253,11 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun openListByAddingNewline() {
+    fun openQuoteByAddingNewline() {
         editText.fromHtml("<$listTag>first item<br>second item</$listTag>not in list")
-        editText.setSelection(editText.length())
 
-        editText.text.insert(editText.text.indexOf("not in list") - 1, "\n")
-        editText.text.insert(editText.text.indexOf("not in list") - 1, "third item")
+        editText.text.insert(editText.text.indexOf("\nnot in list")-1, "\nthird item")
+
         Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>not in list", editText.toHtml())
     }
 
@@ -273,10 +272,11 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun openListByMovingOutsideTextInsideList() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>not in list")
-        editText.setSelection(editText.length())
-        editText.text.delete(editText.text.indexOf("not in list") - 1, editText.text.indexOf("not in list"))
+    fun openQuoteByMovingOutsideTextInsideIt() {
+        editText.fromHtml("<$listTag>first item<br>second item</$listTag>")
+        editText.append("not in list")
+
+        editText.text.delete(editText.text.indexOf("not in list"), editText.text.indexOf("not in list"))
         Assert.assertEquals("<$listTag>first item<br>second itemnot in list</$listTag>", editText.toHtml())
     }
 
@@ -293,7 +293,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun openingAndReopeningOfList() {
+    fun openingAndReopeningOfQuote() {
         editText.fromHtml("<$listTag>first item<br>second item</$listTag>")
         editText.setSelection(editText.length())
 
@@ -350,7 +350,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun additionToClosedList() {
+    fun additionToClosedQuote() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -370,7 +370,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun addItemToListFromBottom() {
+    fun addItemToQuoteFromBottom() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
@@ -388,7 +388,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun addItemToListFromTop() {
+    fun addItemToQuoteFromTop() {
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -427,7 +427,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun appendToListFromTopAtFirstLine() {
+    fun appendToQuoteFromTopAtFirstLine() {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")

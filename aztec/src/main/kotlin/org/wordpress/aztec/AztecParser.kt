@@ -84,7 +84,7 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is AztecSpan && styles[1] is QuoteSpan) {
-                    withinQuoteThenList(out, text, i, next++, styles[1] as AztecSpan)
+                    withinQuoteThenList(out, text, i, next++, styles[0] as AztecSpan)
                 } else if (styles[0] is QuoteSpan && styles[1] is AztecSpan) {
                     withinListThenQuote(out, text, i, next++, styles[1] as AztecSpan)
                 } else {
@@ -92,7 +92,6 @@ class AztecParser {
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is AztecSpan) {
-                    val span = (styles[0] as AztecSpan)
                     withinList(out, text, i, next, styles[0] as AztecSpan)
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)

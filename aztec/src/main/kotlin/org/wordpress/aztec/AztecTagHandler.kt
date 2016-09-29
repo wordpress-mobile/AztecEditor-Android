@@ -123,6 +123,7 @@ class AztecTagHandler : Html.TagHandler {
         val start = output.getSpanStart(last)
         val end = output.length
 
+        output.removeSpan(last) // important to keep the correct order of spans!
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

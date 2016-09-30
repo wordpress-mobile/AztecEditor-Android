@@ -110,10 +110,10 @@ class AztecTagHandler : Html.TagHandler {
     private fun endList(output: Editable) {
         val last = getLast(output, AztecListItemSpan::class.java)
         if (last != null) {
-            val mark = output.length - 1
+            val mark = output.length
 
             if (mark >= 0) {
-                output.setSpan(last, mark, mark, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                output.setSpan(last, mark - 1, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }

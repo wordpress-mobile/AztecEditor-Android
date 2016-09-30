@@ -1340,6 +1340,15 @@ class AztecText : EditText, TextWatcher {
 
 
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
+
+        // preserve the attributes on the previous list item when adding a new one
+        if (textChangedEvent.isNewLine() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
+            val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
+            if (spans.size == 1) {
+                text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+
         val inputStart = textChangedEvent.inputStart
 
         val spanToClose = textChangedEvent.getListSpanToClose(text)

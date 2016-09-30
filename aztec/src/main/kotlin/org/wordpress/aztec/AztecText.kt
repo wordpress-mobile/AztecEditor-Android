@@ -1166,6 +1166,27 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun applyComment(comment: AztecCommentSpan.Comment) {
+        editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + "\n")
+        setSelection(selectionEnd - 1 - comment.html.length, selectionEnd - 1)
+        removeInlineStylesFromRange(selectionStart, selectionEnd)
+        setSelection(selectionEnd)
+
+        editableText.setSpan(
+                AztecCommentSpan(
+                        comment,
+                        resources.displayMetrics.widthPixels,
+                        when (comment) {
+                            AztecCommentSpan.Comment.MORE -> resources.getDrawable(R.drawable.img_more)
+                            AztecCommentSpan.Comment.PAGE -> resources.getDrawable(R.drawable.img_page)
+                        }
+                ),
+                selectionEnd - comment.html.length,
+                selectionEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
     fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
         if (contains(TextFormat.FORMAT_HEADING_1, selectionStart, selectionEnd)) {
             return TextFormat.FORMAT_HEADING_1
@@ -1568,5 +1589,12 @@ class AztecText : EditText, TextWatcher {
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
+    }
+
+    fun removeInlineStylesFromRange(start: Int, end: Int) {
+        removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
+        removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
+        removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, start, end)
+        removeInlineStyle(TextFormat.FORMAT_UNDERLINED, start, end)
     }
 }

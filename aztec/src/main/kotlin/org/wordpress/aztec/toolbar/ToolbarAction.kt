@@ -17,8 +17,8 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     ORDERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_ORDERED_LIST),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
-    MORE(R.id.format_bar_button_more, ToolbarActionType.OTHER, null),
-    PAGE(R.id.format_bar_button_page, ToolbarActionType.OTHER, null),
+    MORE(R.id.format_bar_button_more, ToolbarActionType.OTHER, TextFormat.FORMAT_MORE),
+    PAGE(R.id.format_bar_button_page, ToolbarActionType.OTHER, TextFormat.FORMAT_PAGE),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);
 
     companion object {

@@ -18,5 +18,7 @@ enum class TextFormat {
     FORMAT_ORDERED_LIST,
     FORMAT_QUOTE,
     FORMAT_LINK,
+    FORMAT_MORE,
+    FORMAT_PAGE,
     FORMAT_PARAGRAPH
 }

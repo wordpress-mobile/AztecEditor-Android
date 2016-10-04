@@ -4,8 +4,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
-import android.view.View
-import android.widget.Toast
 
 class AztecCommentSpan(val comment: AztecCommentSpan.Comment, val width: Int, drawable: Drawable) : ImageSpan(drawable) {
     companion object {
@@ -42,9 +40,5 @@ class AztecCommentSpan(val comment: AztecCommentSpan.Comment, val width: Int, dr
         drawable.setBounds(0, 0, width, height)
 
         return drawable.bounds
-    }
-
-    fun onClick(view: View) {
-        Toast.makeText(view.context, comment.html.toString(), Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,11 +1,12 @@
 package org.wordpress.aztec.spans
 
+import android.content.Context
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
 
-class AztecCommentSpan(val comment: AztecCommentSpan.Comment, val width: Int, drawable: Drawable) : ImageSpan(drawable) {
+class AztecCommentSpan(val comment: AztecCommentSpan.Comment, val context: Context, drawable: Drawable) : ImageSpan(drawable) {
     companion object {
         private val HTML_MORE: String = "more"
         private val HTML_PAGE: String = "nextpage"
@@ -36,6 +37,7 @@ class AztecCommentSpan(val comment: AztecCommentSpan.Comment, val width: Int, dr
             return Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
         }
 
+        val width = context.resources.displayMetrics.widthPixels
         val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
         drawable.setBounds(0, 0, width, height)
 

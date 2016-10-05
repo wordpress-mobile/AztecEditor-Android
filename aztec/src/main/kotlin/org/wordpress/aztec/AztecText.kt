@@ -1175,7 +1175,7 @@ class AztecText : EditText, TextWatcher {
         editableText.setSpan(
                 AztecCommentSpan(
                         comment,
-                        resources.displayMetrics.widthPixels,
+                        context,
                         when (comment) {
                             AztecCommentSpan.Comment.MORE -> resources.getDrawable(R.drawable.img_more)
                             AztecCommentSpan.Comment.PAGE -> resources.getDrawable(R.drawable.img_page)

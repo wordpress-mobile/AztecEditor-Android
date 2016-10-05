@@ -580,7 +580,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Insert comment at selection when Page format toolbar button is tapped.
+     * Insert comment at selection when Page Break format toolbar button is tapped.
      *
      * @throws Exception
      */
@@ -611,7 +611,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Insert comment when <!--page--> is input.
+     * Insert comment when <!--nextpage--> is input.
      *
      * @throws Exception
      */

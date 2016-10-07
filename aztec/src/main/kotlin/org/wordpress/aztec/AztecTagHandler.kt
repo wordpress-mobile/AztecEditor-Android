@@ -38,13 +38,12 @@ class AztecTagHandler : Html.TagHandler {
 
     private var order = 0
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?): Boolean {
         when (tag.toLowerCase()) {
             LIST_LI -> {
                 if (!opening) {
-                    val mark = output.length
                     output.append("\n")
-                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    output.setSpan(BlockElementLinebreak(), output.length - 1, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 return true
             }
@@ -65,48 +64,34 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    val mark = output.length
-                    output.append("\n\n")
-                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-                if (opening) {
-                    start(output, Ul())
-                } else {
-                    end(output, Ul::class.java, AztecUnorderedListSpan())
-                }
+                handleBlockElement(output, opening, Ul(), AztecUnorderedListSpan())
                 return true
             }
             LIST_OL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    val mark = output.length
-                    output.append("\n\n")
-                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-                if (opening) {
-                    start(output, Ol())
-                } else {
-                    end(output, Ol::class.java, AztecOrderedListSpan())
-                }
+                handleBlockElement(output, opening, Ol(), AztecOrderedListSpan())
                 return true
             }
             BLOCKQUOTE -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    val mark = output.length
-                    output.append("\n\n")
-                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-                if (opening) {
-                    start(output, Blockquote())
-                } else {
-                    end(output, Blockquote::class.java, QuoteSpan())
-                }
+                handleBlockElement(output, opening, Blockquote(), QuoteSpan())
                 return true
             }
 
         }
         return false
     }
+
+    private fun handleBlockElement(output: Editable, opening: Boolean, mark: Any, replaces: Any) {
+        if (output.length > 0 && output[output.length - 1] != '\n') {
+            output.append("\n\n")
+            output.setSpan(BlockElementLinebreak(), output.length - 2, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        if (opening) {
+            start(output, mark)
+        } else {
+            end(output, mark.javaClass, replaces)
+        }
+    }
+
 
     private fun start(output: Editable, mark: Any) {
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)

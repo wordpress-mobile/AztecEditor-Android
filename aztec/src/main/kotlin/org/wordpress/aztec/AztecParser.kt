@@ -26,7 +26,6 @@ import android.text.TextUtils
 import android.text.style.*
 import org.wordpress.aztec.spans.*
 import java.util.*
-import java.util.regex.Pattern
 
 class AztecParser {
 
@@ -158,8 +157,8 @@ class AztecParser {
 
             val isBlockElementLineBreak = isLastLineInList && lineLength == 1 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
 
-            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList) ||
-                    isBlockElementLineBreak) {
+            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) ||
+                    (lineLength == 0 && isLastLineInList) || isBlockElementLineBreak) {
                 continue
             }
 
@@ -406,7 +405,7 @@ class AztecParser {
                     }
                 }
             } else if (c.toInt() > 0x7E || c < ' ') {
-                if (c != '\n'){
+                if (c != '\n') {
                     out.append("&#").append(c.toInt()).append(";")
                 }
             } else if (c == ' ') {
@@ -424,15 +423,13 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-
-
         return html
                 .replace("(?<=[^>]|^)(<br>)<ul>?".toRegex(), "<ul>")
                 .replace("(?<=[^>]|^)(<br>)<ol>?".toRegex(), "<ol>")
                 .replace("(?<=[^>]|^)(<br>)<blockquote>?".toRegex(), "<blockquote>")
-                .replace(Pattern.compile("(</ol>)(<br>)?").toRegex(), "</ol>")
-                .replace(Pattern.compile("(</ul>)(<br>)?").toRegex(), "</ul>")
-                .replace("</blockquote><br>", "</blockquote>")
+                .replace("(</ol>)(<br>)?".toRegex(), "</ol>")
+                .replace("(</ul>)(<br>)?".toRegex(), "</ul>")
+                .replace("(</blockquote>)<br>?".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)</blockquote>".toRegex(), "</blockquote>")
                 .replace("(<br>)*</li>".toRegex(), "</li>")

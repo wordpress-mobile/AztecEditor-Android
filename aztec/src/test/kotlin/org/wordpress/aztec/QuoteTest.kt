@@ -12,20 +12,15 @@ import org.robolectric.annotation.Config
 
 
 /**
- * Testing ordered and unordered lists.
- *
- * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
+ * Testing quote behaviour.
  */
 @RunWith(RobolectricGradleTestRunner::class)
 @Config(constants = BuildConfig::class)
 class QuoteTest() {
 
-    val listType = TextFormat.FORMAT_QUOTE
-    val listTag = "blockquote"
+    val formattingType = TextFormat.FORMAT_QUOTE
+    val quoteTag = "blockquote"
     lateinit var editText: AztecText
-
-
-
 
     /**
      * Initialize variables.
@@ -37,14 +32,12 @@ class QuoteTest() {
         activity.setContentView(editText)
     }
 
-    //enter text and then enable styling
-
     @Test
     @Throws(Exception::class)
     fun styleSingleItem() {
         editText.append("first item")
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag>first item</$listTag>", editText.toHtml())
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("<$quoteTag>first item</$quoteTag>", editText.toHtml())
     }
 
 
@@ -59,8 +52,8 @@ class QuoteTest() {
         editText.append("third item")
         editText.setSelection(0, editText.length())
 
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
     @Test
@@ -74,8 +67,8 @@ class QuoteTest() {
         editText.append("third item")
         editText.setSelection(4, 15) //we partially selected first and second item
 
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>third item", editText.toHtml())
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>third item", editText.toHtml())
     }
 
     @Test
@@ -89,8 +82,8 @@ class QuoteTest() {
         editText.append("third item")
         editText.setSelection(14)
 
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("first item<$listTag>second item</$listTag>third item", editText.toHtml())
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("first item<$quoteTag>second item</$quoteTag>third item", editText.toHtml())
     }
 
 
@@ -99,47 +92,47 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun emptyQuote() {
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag></$listTag>", editText.toHtml())
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun styleSingleEnteredItem() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
-        Assert.assertEquals("<$listTag>first item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item</$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun styleMultipleEnteredItems() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closingPopulatedQuote() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
 
         editText.append("\n")
         editText.append("\n")
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>not in the list", editText.toHtml().toString())
+        editText.append("not in the quote")
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml().toString())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun closingEmptyQuote() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("\n")
         Assert.assertEquals("", editText.toHtml().toString())
     }
@@ -147,30 +140,30 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun extendingQuoteBySplittingItems() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<$listTag>first<br>item</$listTag>", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first<br>item</$quoteTag>", editText.toHtml().toString())
     }
 
 
     @Test
     @Throws(Exception::class)
-    fun bulletListSplitWithToolbar() {
-        editText.fromHtml("<$listTag>first item<br>second item<br>third item</$listTag>")
+    fun quoteSplitWithToolbar() {
+        editText.fromHtml("<$quoteTag>first item<br>second item<br>third item</$quoteTag>")
         editText.setSelection(14)
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item</$listTag>second item<$listTag>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun removeQuoteStyling() {
-        editText.fromHtml("<$listTag>first item</$listTag>")
+        editText.fromHtml("<$quoteTag>first item</$quoteTag>")
         editText.setSelection(1)
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("first item", editText.toHtml())
     }
@@ -178,17 +171,17 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun removeQuoteStylingForPartialSelection() {
-        editText.fromHtml("<$listTag>first item</$listTag>")
+        editText.fromHtml("<$quoteTag>first item</$quoteTag>")
         editText.setSelection(2, 4)
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("first item", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun removeBulletListStylingForMultilinePartialSelection() {
-        editText.toggleFormatting(listType)
+    fun removeQuoteStylingForMultilinePartialSelection() {
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -200,19 +193,19 @@ class QuoteTest() {
         editText.append("fourth item")
         editText.append("\n")
         editText.append("\n")
-        editText.append("not in list")
+        editText.append("not in quote")
 
         editText.setSelection(firstMark, secondMark)
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item</$listTag>second item<br>third item<$listTag>fourth item</$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<br>third item<$quoteTag>fourth item</$quoteTag>not in quote", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun emptyQuoteSurroundedBytItems() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         val firstMark = editText.length()
@@ -223,14 +216,14 @@ class QuoteTest() {
 
         editText.text.delete(firstMark - 1, secondMart - 2)
 
-        Assert.assertEquals("<$listTag>first item<br><br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br><br>third item</$quoteTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun trailingEmptyBulletPoint() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -239,119 +232,132 @@ class QuoteTest() {
         val mark = editText.length()
         editText.append("\n")
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item<br></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
         editText.append("\n")
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
 
-        editText.append("not in list")
+        editText.append("not in quote")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item<br></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in quote", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun openQuoteByAddingNewline() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>not in list")
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
 
-        editText.text.insert(editText.text.indexOf("\nnot in list")-1, "\nthird item")
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>not in list", editText.toHtml())
+        val mark = editText.text.indexOf("second item") + "second item".length
+
+        editText.text.insert(mark, "\n")
+        editText.text.insert(mark+1, "third item")
+
+
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in quote", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun openListByAppendingTextToTheEnd() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>not in list")
+    fun openQuoteByAppendingTextToTheEnd() {
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
         editText.setSelection(editText.length())
-        editText.text.insert(editText.text.indexOf("not in list") - 1, " (appended)")
-        Assert.assertEquals("<$listTag>first item<br>second item (appended)</$listTag>not in list", editText.toHtml())
+
+        editText.text.insert(editText.text.indexOf("\n\nnot in quote"), " (appended)")
+
+        Assert.assertEquals("<$quoteTag>first item<br>second item (appended)</$quoteTag>not in quote", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openQuoteByMovingOutsideTextInsideIt() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>")
-        editText.append("not in list")
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
+        editText.append("not in quote")
 
-        editText.text.delete(editText.text.indexOf("not in list"), editText.text.indexOf("not in list"))
-        Assert.assertEquals("<$listTag>first item<br>second itemnot in list</$listTag>", editText.toHtml())
+        editText.text.delete(editText.text.indexOf("not in quote"), editText.text.indexOf("not in quote"))
+        Assert.assertEquals("<$quoteTag>first item<br>second itemnot in quote</$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun listRemainsClosedWhenLastCharacterIsDeleted() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>not in list")
+    fun quoteRemainsClosedWhenLastCharacterIsDeleted() {
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
         editText.setSelection(editText.length())
 
+        val mark = editText.text.indexOf("second item")+"second item".length;
+
         //delete last character from "second item"
-        editText.text.delete(editText.text.indexOf("not in list") - 2, editText.text.indexOf("not in list") - 1)
-        Assert.assertEquals("<$listTag>first item<br>second ite</$listTag>not in list", editText.toHtml())
+        editText.text.delete(mark-1, mark)
+        Assert.assertEquals("<$quoteTag>first item<br>second ite</$quoteTag>not in quote", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openingAndReopeningOfQuote() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>")
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
         editText.setSelection(editText.length())
 
         editText.append("\n")
         editText.append("third item")
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
         editText.append("\n")
         editText.append("\n")
         val mark = editText.length() - 1
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>not in the list", editText.toHtml())
+        editText.append("not in the quote")
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in the quote", editText.toHtml())
         editText.append("\n")
         editText.append("foo")
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in the quote<br>foo", editText.toHtml())
 
-        //reopen list
+        //reopen quote
         editText.text.delete(mark, mark + 1)
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third itemnot in the list</$listTag>foo", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third itemnot in the quote</$quoteTag>foo", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun closeList() {
-        editText.fromHtml("<$listTag>first item<br>second item</$listTag>")
+    fun closeQuote() {
+        editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
         editText.setSelection(editText.length())
 
+        Assert.assertEquals("first item\nsecond item", editText.text.toString())
         editText.append("\n")
+        Assert.assertEquals("first item\nsecond item\n\u200B", editText.text.toString())
         val mark = editText.length() - 1
 
-        editText.text.delete(mark, mark + 1)
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>not in the list", editText.toHtml())
+        editText.text.delete(editText.length()-1, editText.length())
+        Assert.assertEquals("first item\nsecond item\n", editText.text.toString())
+
+        editText.append("not in the quote")
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
-    fun handleListReopeningAfterLastElementDeletion() {
-        editText.fromHtml("<$listTag>first item<br>second item<br>third item</$listTag>")
+    fun handlequoteReopeningAfterLastElementDeletion() {
+        editText.fromHtml("<$quoteTag>first item<br>second item<br>third item</$quoteTag>")
         editText.setSelection(editText.length())
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>not in the list", editText.toHtml())
+        editText.append("not in the quote")
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
-        Assert.assertEquals("<$listTag>first item<br>second item addition</$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the quote") - 1, " addition")
+        Assert.assertEquals("<$quoteTag>first item<br>second item addition</$quoteTag>not in the quote", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
-        Assert.assertEquals("<$listTag>first item<br>second item addition<br>third item</$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the quote") - 1, "\n")
+        editText.text.insert(editText.text.indexOf("not in the quote") - 1, "third item")
+        Assert.assertEquals("<$quoteTag>first item<br>second item addition<br>third item</$quoteTag>not in the quote", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun additionToClosedQuote() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -360,18 +366,18 @@ class QuoteTest() {
 
         editText.append("\n")
         editText.append("\n")
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag>first item<br>second item</$listTag>not in the list", editText.toHtml().toString())
+        editText.append("not in the quote")
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml().toString())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag>first item<br>second item (addition)</$listTag>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first item<br>second item (addition)</$quoteTag>not in the quote", editText.toHtml().toString())
     }
 
     @Test
     @Throws(Exception::class)
     fun addItemToQuoteFromBottom() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
@@ -380,9 +386,9 @@ class QuoteTest() {
         editText.append("third item")
         editText.setSelection(editText.length())
 
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
 
@@ -393,21 +399,21 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("second item")
         editText.setSelection(editText.length())
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("\n")
         editText.append("third item")
 
         editText.setSelection(0)
 
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun addItemToListFromInside() {
-        editText.toggleFormatting(listType)
+    fun addItemToQuoteFromInside() {
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("\n")
@@ -415,35 +421,35 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("third item")
         editText.setSelection(editText.length())
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item</$listTag>second item<$listTag>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
         editText.setSelection(15)
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$listTag>first item<br>second item<br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun appendToQuoteFromTopAtFirstLine() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
         editText.append("second item")
         editText.setSelection(0)
         editText.text.insert(0,"addition ")
 
-        Assert.assertEquals("<$listTag>addition first item<br>second item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>addition first item<br>second item</$quoteTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
-    fun appendToListFromTop() {
-        editText.append("not in list")
+    fun appendToQuoteFromTop() {
+        editText.append("not in quote")
         editText.append("\n")
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         val mark = editText.length() - 1
         editText.append("first item")
         editText.append("\n")
@@ -452,14 +458,14 @@ class QuoteTest() {
         editText.setSelection(mark)
         editText.text.insert(mark,"addition ")
 
-        Assert.assertEquals("not in list<$listTag>addition first item<br>second item</$listTag>", editText.toHtml())
+        Assert.assertEquals("not in quote<$quoteTag>addition first item<br>second item</$quoteTag>", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun deleteFirstItemWithKeyboard() {
-        editText.toggleFormatting(listType)
+        editText.toggleFormatting(formattingType)
         editText.append("first item")
         val firstMark = editText.length()
         editText.append("\n")
@@ -468,12 +474,19 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("third item")
         editText.setSelection(0)
+
+        Assert.assertEquals("first item\nsecond item\nthird item", editText.text.toString())
+
         editText.text.delete(firstMark+1,secondMark)
 
-        Assert.assertEquals("<$listTag>first item<br><br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("first item\n\nthird item", editText.text.toString())
+
+        Assert.assertEquals("<$quoteTag>first item<br><br>third item</$quoteTag>", editText.toHtml())
 
         editText.text.delete(0,firstMark)
 
-        Assert.assertEquals("<$listTag><br>third item</$listTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag><br>third item</$quoteTag>", editText.toHtml())
     }
+
+
 }

@@ -26,6 +26,7 @@ import android.text.TextUtils
 import android.text.style.*
 import org.wordpress.aztec.spans.*
 import java.util.*
+import java.util.regex.Pattern
 
 class AztecParser {
 
@@ -84,7 +85,7 @@ class AztecParser {
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is QuoteSpan) {
-                    withinQuoteThenList(out, text, i, next++, (styles[0] as AztecListSpan).getTag())
+                    withinQuoteThenList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
                 } else if (styles[0] is QuoteSpan && styles[1] is AztecListSpan) {
                     withinListThenQuote(out, text, i, next++, (styles[1] as AztecListSpan).getTag())
                 } else {
@@ -94,7 +95,7 @@ class AztecParser {
                 if (styles[0] is AztecListSpan) {
                     withinList(out, text, i, next, (styles[0] as AztecListSpan).getTag())
                 } else if (styles[0] is QuoteSpan) {
-                    withinQuote(out, text, i, next++)
+                    withinQuote(out, text, i, next)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else {
@@ -155,7 +156,10 @@ class AztecParser {
 
             val lineEnd = lineStart + lineLength
 
-            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
+            val isBlockElementLineBreak = isLastLineInList && lineLength == 1 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
+
+            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList) ||
+                    isBlockElementLineBreak) {
                 continue
             }
 
@@ -200,7 +204,10 @@ class AztecParser {
             var nl = 0
             while (next < end && text[next] == '\n') {
                 next++
-                nl++
+                if (text.getSpans(next, next, BlockElementLinebreak::class.java).size == 0) {
+                    nl++
+                }
+
             }
 
             //account for possible zero-width joiner at the end of the line
@@ -399,7 +406,9 @@ class AztecParser {
                     }
                 }
             } else if (c.toInt() > 0x7E || c < ' ') {
-                out.append("&#").append(c.toInt()).append(";")
+                if (c != '\n'){
+                    out.append("&#").append(c.toInt()).append(";")
+                }
             } else if (c == ' ') {
                 while (i + 1 < end && text[i + 1] == ' ') {
                     out.append("&nbsp;")
@@ -415,14 +424,17 @@ class AztecParser {
     }
 
     private fun tidy(html: String): String {
-        return html.replace("</ul>(<br>)?".toRegex(), "</ul>")
-                .replace("(<br>)*<ul>?".toRegex(), "<ul>")
-                .replace("</ol>(<br>)?".toRegex(), "</ol>")
-                .replace("(<br>)*<ol>?".toRegex(), "<ol>")
-                .replace("</blockquote>(<br>)?".toRegex(), "</blockquote>")
-                .replace("&#8203;", "")
-                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
-                .replace("(<br>)*</li>".toRegex(), "</li>")
 
+
+        return html
+                .replace("(?<=[^>]|^)(<br>)<ul>?".toRegex(), "<ul>")
+                .replace("(?<=[^>]|^)(<br>)<ol>?".toRegex(), "<ol>")
+                .replace("(?<=[^>]|^)(<br>)<blockquote>?".toRegex(), "<blockquote>")
+                .replace(Pattern.compile("(</ol>)(<br>)?").toRegex(), "</ol>")
+                .replace(Pattern.compile("(</ul>)(<br>)?").toRegex(), "</ul>")
+                .replace("</blockquote><br>", "</blockquote>")
+                .replace("&#8203;", "")
+                .replace("(<br>)</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</li>".toRegex(), "</li>")
     }
 }

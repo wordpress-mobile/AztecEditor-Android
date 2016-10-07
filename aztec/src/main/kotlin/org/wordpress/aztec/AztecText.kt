@@ -654,7 +654,7 @@ class AztecText : EditText, TextWatcher {
                 applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
-            removeList()
+            removeBlockStyle()
         }
     }
 
@@ -667,7 +667,7 @@ class AztecText : EditText, TextWatcher {
                 applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            removeList()
+            removeBlockStyle()
         }
     }
 
@@ -713,7 +713,7 @@ class AztecText : EditText, TextWatcher {
                 }
 
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    removeList()
+                    removeBlockStyle()
                 } else {
                     editableText.setSpan(makeBlockSpan(listType), startOfList + 1, endOfList, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
@@ -769,7 +769,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
+    private fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd) {
         val spans = editableText.getSpans(start, end, AztecBlockSpan::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
@@ -779,7 +779,7 @@ class AztecText : EditText, TextWatcher {
 
 
         val spanStart = editableText.getSpanStart(span)
-        val spanEnd = editableText.getSpanEnd(span)
+        var spanEnd = editableText.getSpanEnd(span)
 
         val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
 
@@ -799,6 +799,12 @@ class AztecText : EditText, TextWatcher {
         }
 
         if (spanExtendsBeyondLine) {
+            if (editableText[endOfLine] == '\n') {
+                disableTextChangedListener()
+                editableText.delete(endOfLine, endOfLine + 1)
+                spanEnd--
+            }
+
             editableText.setSpan(makeBlockSpan(span.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
@@ -864,80 +870,7 @@ class AztecText : EditText, TextWatcher {
         if (valid) {
             applyBlockStyle(TextFormat.FORMAT_QUOTE)
         } else {
-            quoteInvalid()
-        }
-    }
-
-    private fun quoteValid() {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-
-        for (i in lines.indices) {
-            if (containQuote(i)) {
-                continue
-            }
-
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1 // \n
-            }
-
-            val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
-                continue
-            }
-
-            var quoteStart = 0
-            var quoteEnd = 0
-
-            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
-                quoteStart = lineStart
-                quoteEnd = lineEnd
-            }
-
-            if (quoteStart < quoteEnd) {
-                editableText.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), quoteStart, quoteEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
-    }
-
-    private fun quoteInvalid() {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-
-        for (i in lines.indices) {
-            if (!containQuote(i)) {
-                continue
-            }
-
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
-            val lineEnd = lineStart + lines[i].length
-            if (lineStart >= lineEnd) {
-                continue
-            }
-
-            var quoteStart = 0
-            var quoteEnd = 0
-
-            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
-                quoteStart = lineStart
-                quoteEnd = lineEnd
-            }
-
-            if (quoteStart < quoteEnd) {
-                val spans = editableText.getSpans(quoteStart, quoteEnd, QuoteSpan::class.java)
-                for (span in spans) {
-                    editableText.removeSpan(span)
-                }
-            }
+            removeBlockStyle()
         }
     }
 
@@ -1417,7 +1350,7 @@ class AztecText : EditText, TextWatcher {
             disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
-            removeList()
+            removeBlockStyle()
             disableTextChangedListener()
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)

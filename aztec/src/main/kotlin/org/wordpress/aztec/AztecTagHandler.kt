@@ -24,10 +24,8 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
+import android.text.style.QuoteSpan
+import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
 
@@ -35,6 +33,7 @@ class AztecTagHandler : Html.TagHandler {
 
     private class Ul
     private class Ol
+    private class Blockquote
     private class Strike
 
     private var order = 0
@@ -43,7 +42,9 @@ class AztecTagHandler : Html.TagHandler {
         when (tag.toLowerCase()) {
             LIST_LI -> {
                 if (!opening) {
+                    val mark = output.length
                     output.append("\n")
+                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 return true
             }
@@ -65,7 +66,9 @@ class AztecTagHandler : Html.TagHandler {
             }
             LIST_UL -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
+                    val mark = output.length
                     output.append("\n\n")
+                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 if (opening) {
                     start(output, Ul())
@@ -76,12 +79,27 @@ class AztecTagHandler : Html.TagHandler {
             }
             LIST_OL -> {
                 if (output.length > 0 && output[output.length - 1] != '\n') {
+                    val mark = output.length
                     output.append("\n\n")
+                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 if (opening) {
                     start(output, Ol())
                 } else {
                     end(output, Ol::class.java, AztecOrderedListSpan())
+                }
+                return true
+            }
+            BLOCKQUOTE -> {
+                if (output.length > 0 && output[output.length - 1] != '\n') {
+                    val mark = output.length
+                    output.append("\n\n")
+                    output.setSpan(BlockElementLinebreak(), mark, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                if (opening) {
+                    start(output, Blockquote())
+                } else {
+                    end(output, Blockquote::class.java, QuoteSpan())
                 }
                 return true
             }
@@ -129,6 +147,7 @@ class AztecTagHandler : Html.TagHandler {
         private val STRIKETHROUGH_DEL = "del"
         private val DIV = "div"
         private val SPAN = "span"
+        private val BLOCKQUOTE = "blockquote"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)

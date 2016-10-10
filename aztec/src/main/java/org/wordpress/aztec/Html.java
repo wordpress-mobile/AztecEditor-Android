@@ -48,6 +48,8 @@ import android.text.style.UnderlineSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
+import org.wordpress.aztec.spans.AztecSpan;
+import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
@@ -268,15 +270,9 @@ public class Html {
                     CharacterStyle.class);
 
             for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof StyleSpan) {
-                    int s = ((StyleSpan) style[j]).getStyle();
-
-                    if ((s & Typeface.BOLD) != 0) {
-                        out.append("<b>");
-                    }
-                    if ((s & Typeface.ITALIC) != 0) {
-                        out.append("<i>");
-                    }
+                if (style[j] instanceof AztecStyleSpan) {
+                    AztecStyleSpan styleSpan = (AztecStyleSpan)style[j];
+                    out.append(styleSpan.getStartTag());
                 }
                 if (style[j] instanceof TypefaceSpan) {
                     String s = ((TypefaceSpan) style[j]).getFamily();
@@ -359,14 +355,8 @@ public class Html {
                     }
                 }
                 if (style[j] instanceof StyleSpan) {
-                    int s = ((StyleSpan) style[j]).getStyle();
-
-                    if ((s & Typeface.BOLD) != 0) {
-                        out.append("</b>");
-                    }
-                    if ((s & Typeface.ITALIC) != 0) {
-                        out.append("</i>");
-                    }
+                    AztecStyleSpan styleSpan = (AztecStyleSpan)style[j];
+                    out.append(styleSpan.getEndTag());
                 }
             }
         }
@@ -587,17 +577,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
+            endStyle(mSpannableStringBuilder, Typeface.BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
-            end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
+            endStyle(mSpannableStringBuilder, Typeface.BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
             end(mSpannableStringBuilder, Big.class, new RelativeSizeSpan(1.25f));
         } else if (tag.equalsIgnoreCase("small")) {
@@ -677,6 +667,30 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (where != len) {
             text.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
+    private static void endStyle(SpannableStringBuilder text, int style) {
+        int len = text.length();
+        Object obj;
+        AztecStyleSpan newSpan;
+        if (style == Typeface.BOLD) {
+            Bold bold = (Bold)getLast(text, Bold.class);
+            obj = bold;
+            newSpan = new AztecStyleSpan("b", Html.stringifyAttributes(bold.attributes).toString(), Typeface.BOLD);
+        } else if (style == Typeface.ITALIC) {
+            Italic italic = (Italic)getLast(text, Italic.class);
+            obj = italic;
+            newSpan = new AztecStyleSpan("i", Html.stringifyAttributes(italic.attributes).toString(), Typeface.ITALIC);
+        } else {
+            throw new IllegalArgumentException("Style not supported");
+        }
+
+        int where = text.getSpanStart(obj);
+        text.removeSpan(obj);
+
+        if (where != len) {
+            text.setSpan(newSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
@@ -803,7 +817,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (where != len) {
             Header h = (Header) obj;
 
-            switch (h.mLevel) {
+            switch (h.level) {
                 case 0:
                     text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1,
                                 Html.stringifyAttributes(h.attributes).toString()),
@@ -958,9 +972,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Unknown {
         public StringBuilder rawHtml;
-
-        public Unknown() {
-        }
     }
 
     private static class Bold {
@@ -1049,11 +1060,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private static class Header {
-        private int mLevel;
+        private int level;
         Attributes attributes;
 
         public Header(int level, Attributes attributes) {
-            mLevel = level;
+            this.level = level;
             this.attributes = attributes;
         }
     }

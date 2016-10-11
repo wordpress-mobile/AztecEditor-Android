@@ -354,7 +354,7 @@ public class Html {
                         out.append("</tt>");
                     }
                 }
-                if (style[j] instanceof StyleSpan) {
+                if (style[j] instanceof AztecStyleSpan) {
                     AztecStyleSpan styleSpan = (AztecStyleSpan)style[j];
                     out.append(styleSpan.getEndTag());
                 }

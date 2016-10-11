@@ -83,16 +83,16 @@ class AztecParser {
 
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
             if (styles.size == 2) {
-                if (styles[0] is AztecSpan && styles[1] is QuoteSpan) {
-                    withinQuoteThenList(out, text, i, next++, styles[0] as AztecSpan)
-                } else if (styles[0] is QuoteSpan && styles[1] is AztecSpan) {
-                    withinListThenQuote(out, text, i, next++, styles[1] as AztecSpan)
+                if (styles[0] is AztecListSpan && styles[1] is QuoteSpan) {
+                    withinQuoteThenList(out, text, i, next++, styles[0] as AztecListSpan)
+                } else if (styles[0] is QuoteSpan && styles[1] is AztecListSpan) {
+                    withinListThenQuote(out, text, i, next++, styles[1] as AztecListSpan)
                 } else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
-                if (styles[0] is AztecSpan) {
-                    withinList(out, text, i, next, styles[0] as AztecSpan)
+                if (styles[0] is AztecListSpan) {
+                    withinList(out, text, i, next, styles[0] as AztecListSpan)
                 } else if (styles[0] is QuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
@@ -117,13 +117,13 @@ class AztecParser {
         out.append("</li></${list.getEndTag()}>")
     }
 
-    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
+    private fun withinQuoteThenList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
         out.append("<blockquote>")
         withinList(out, text, start, end, list)
         out.append("</blockquote>")
     }
 
-    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
+    private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
         var newStart = start
         var newEnd = end - 1
 
@@ -133,7 +133,6 @@ class AztecParser {
             if (text.length < newEnd + 1) {
                 newEnd += 1
             }
-
         }
 
         out.append("<${list.getStartTag()}>")
@@ -232,32 +231,12 @@ class AztecParser {
                 for (j in spans.indices) {
                     val span = spans[j]
 
-                    if (span is AztecHeadingSpan) {
-                        out.append("<")
-                        out.append(span.getStartTag())
-                        out.append(">")
-                    }
-
-                    if (span is StyleSpan) {
-                        val style = span.style
-
-                        if (style and Typeface.BOLD != 0) {
-                            out.append("<b>")
-                        }
-
-                        if (style and Typeface.ITALIC != 0) {
-                            out.append("<i>")
-                        }
+                    if (span is AztecContentSpan) {
+                        out.append("<${span.getStartTag()}>")
                     }
 
                     if (span is UnderlineSpan) {
                         out.append("<u>")
-                    }
-
-                    if (span is AztecStrikethroughSpan) {
-                        out.append("<")
-                        out.append(span.getStartTag())
-                        out.append(">")
                     }
 
                     if (span is URLSpan) {
@@ -289,36 +268,16 @@ class AztecParser {
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
 
-                    if (span is AztecHeadingSpan) {
-                        out.append("</")
-                        out.append(span.getEndTag())
-                        out.append(">")
+                    if (span is AztecContentSpan) {
+                        out.append("</${span.getEndTag()}>")
                     }
 
                     if (span is URLSpan) {
                         out.append("</a>")
                     }
 
-                    if (span is AztecStrikethroughSpan) {
-                        out.append("</")
-                        out.append(span.getEndTag())
-                        out.append(">")
-                    }
-
                     if (span is UnderlineSpan) {
                         out.append("</u>")
-                    }
-
-                    if (span is StyleSpan) {
-                        val style = span.style
-
-                        if (style and Typeface.BOLD != 0) {
-                            out.append("</b>")
-                        }
-
-                        if (style and Typeface.ITALIC != 0) {
-                            out.append("</i>")
-                        }
                     }
 
                     if (span is CommentSpan) {

@@ -24,7 +24,7 @@ import android.text.Layout
 import android.text.style.LineBackgroundSpan
 import android.text.style.QuoteSpan
 
-class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
+class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan { // AztecContentSpan
 
     private var quoteBackground: Int = 0
     private var quoteColor: Int = 0

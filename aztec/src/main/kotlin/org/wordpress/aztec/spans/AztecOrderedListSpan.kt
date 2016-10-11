@@ -25,7 +25,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
 
-class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecSpan {
+class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
     private final val TAG = "ol"
 

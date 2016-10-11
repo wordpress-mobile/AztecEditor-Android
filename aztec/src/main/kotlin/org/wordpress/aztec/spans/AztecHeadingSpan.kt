@@ -4,7 +4,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
 
-class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: String? = null) : MetricAffectingSpan(), AztecSpan {
+class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: String? = null) : MetricAffectingSpan(), AztecContentSpan {
 
     override var attributes: String? = attrs
 

@@ -25,7 +25,7 @@ import android.text.Layout
 import android.text.TextUtils
 import android.text.style.BulletSpan
 
-class AztecUnorderedListSpan : BulletSpan, AztecSpan {
+class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
     private final val TAG = "ul"
 

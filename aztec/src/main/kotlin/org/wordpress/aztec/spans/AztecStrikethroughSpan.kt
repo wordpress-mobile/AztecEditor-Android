@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.StrikethroughSpan
 
-class AztecStrikethroughSpan() : StrikethroughSpan(), AztecSpan {
+class AztecStrikethroughSpan() : StrikethroughSpan(), AztecContentSpan {
 
     private var tag: String = "del"
 

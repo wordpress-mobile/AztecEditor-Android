@@ -21,7 +21,7 @@ import android.os.Parcel
 import android.text.TextPaint
 import android.text.style.URLSpan
 
-class AztecURLSpan : URLSpan {
+class AztecURLSpan : URLSpan { // AztecContentSpan
     private var linkColor = 0
     private var linkUnderline = true
 

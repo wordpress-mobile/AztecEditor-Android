@@ -45,6 +45,9 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         this.attributes = attributes
     }
 
+    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int) : this(textColor, textMargin, bulletWidth, textPadding, null) {
+    }
+
     constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int, attributes: String?) : super(textMargin) {
         this.textColor = textColor
         this.textMargin = textMargin

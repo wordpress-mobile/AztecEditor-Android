@@ -45,6 +45,9 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         this.attributes = attributes
     }
 
+    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int) : this(textColor, textMargin, bulletWidth, textPadding, null) {
+    }
+
     constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String?) {
         this.bulletColor = bulletColor
         this.bulletMargin = bulletMargin

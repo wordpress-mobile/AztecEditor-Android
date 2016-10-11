@@ -382,28 +382,28 @@ class AztecText : EditText, TextWatcher {
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeListSpan(textFormat: TextFormat): LeadingMarginSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
         }
     }
 
 
-    fun makeListSpan(spanType: Class<AztecSpan>): LeadingMarginSpan {
+    fun makeListSpan(spanType: Class<AztecListSpan>): LeadingMarginSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, null)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
         }
     }
 
     fun makeInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
-            TextFormat.FORMAT_BOLD -> return StyleSpan(Typeface.BOLD)
-            TextFormat.FORMAT_ITALIC -> return StyleSpan(Typeface.ITALIC)
+            TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
+            TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINED -> return UnderlineSpan()
-            else -> return StyleSpan(Typeface.NORMAL)
+            else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
 

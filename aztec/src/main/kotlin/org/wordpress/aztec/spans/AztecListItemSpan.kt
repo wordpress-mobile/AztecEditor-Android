@@ -15,6 +15,9 @@ class AztecListItemSpan : CharacterStyle, AztecSpan {
     }
 
     override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
         return TAG + attributes
     }
 

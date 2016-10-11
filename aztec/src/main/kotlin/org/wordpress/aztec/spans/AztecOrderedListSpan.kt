@@ -69,6 +69,9 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     }
 
     override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
         return TAG + attributes
     }
 

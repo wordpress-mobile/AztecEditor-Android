@@ -15,6 +15,9 @@ class AztecStrikethroughSpan() : StrikethroughSpan(), AztecContentSpan {
     }
 
     override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return tag
+        }
         return tag + attributes
     }
 

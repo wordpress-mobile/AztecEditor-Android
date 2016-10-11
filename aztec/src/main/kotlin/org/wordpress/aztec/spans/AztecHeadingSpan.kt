@@ -27,6 +27,9 @@ class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: St
     }
 
     override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return getTag()
+        }
         return getTag() + attributes
     }
 

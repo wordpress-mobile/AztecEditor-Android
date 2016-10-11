@@ -119,7 +119,7 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun end(output: Editable, kind: Class<*>) {
-        val last = getLast(output, kind) as AztecSpan
+        val last = getLast(output, kind)
         val start = output.getSpanStart(last)
         val end = output.length
 

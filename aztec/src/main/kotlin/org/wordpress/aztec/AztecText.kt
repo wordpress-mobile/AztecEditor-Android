@@ -669,7 +669,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
 
         if (spans.isEmpty()) return
 
@@ -767,7 +767,7 @@ class AztecText : EditText, TextWatcher {
 
 
     private fun removeList(start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
         //check if the span extends
         if (spans.isEmpty()) return
 
@@ -1432,7 +1432,7 @@ class AztecText : EditText, TextWatcher {
             }
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             //Add ZWJ to the new line at the end of list
-            val listSpans = getText().getSpans(inputStart, inputStart, AztecSpan::class.java)
+            val listSpans = getText().getSpans(inputStart, inputStart, AztecListSpan::class.java)
             if (!listSpans.isEmpty() && text.getSpanEnd(listSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
                 text.insert(inputStart + 1, "\u200B")

@@ -111,7 +111,7 @@ class AztecParser {
         out.append(unknownHtmlSpan.getRawHtml())
     }
 
-    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecSpan) {
+    private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
         out.append("<${list.getStartTag()}><li>")
         withinQuote(out, text, start, end)
         out.append("</li></${list.getEndTag()}>")

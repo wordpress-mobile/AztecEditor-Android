@@ -43,6 +43,7 @@ import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
+import org.wordpress.aztec.spans.AztecQuoteSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
@@ -599,7 +600,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_QUOTE);
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, Monospace.class,
                     new TypefaceSpan("monospace"));
@@ -690,6 +691,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             case FORMAT_UNDERLINED:
                 marker = (AttributedMarker)getLast(text, Underline.class);
                 newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
+                break;
+            case FORMAT_QUOTE:
+                marker = (AttributedMarker)getLast(text, Blockquote.class);
+                newSpan = new AztecQuoteSpan(Html.stringifyAttributes(marker.attributes).toString());
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

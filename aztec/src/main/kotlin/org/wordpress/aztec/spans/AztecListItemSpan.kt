@@ -8,9 +8,9 @@ class AztecListItemSpan : CharacterStyle, AztecSpan {
 
     private final val TAG = "li"
 
-    override var attributes: String? = null
+    override var attributes: String?
 
-    constructor(attributes: String?) : super() {
+    constructor(attributes: String? = null) : super() {
         this.attributes = attributes
     }
 

@@ -265,7 +265,7 @@ class QuoteTest() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
         editText.setSelection(editText.length())
 
-        editText.text.insert(editText.text.indexOf("\n\nnot in quote"), " (appended)")
+        editText.text.insert(editText.text.indexOf("\nnot in quote"), " (appended)")
 
         Assert.assertEquals("<$quoteTag>first item<br>second item (appended)</$quoteTag>not in quote", editText.toHtml())
     }

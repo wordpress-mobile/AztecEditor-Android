@@ -82,8 +82,8 @@ class AztecTagHandler : Html.TagHandler {
 
     private fun handleBlockElement(output: Editable, opening: Boolean, mark: Any, replaces: Any) {
         if (output.length > 0 && output[output.length - 1] != '\n') {
-            output.append("\n\n")
-            output.setSpan(BlockElementLinebreak(), output.length - 2, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            output.append("\n")
+            output.setSpan(BlockElementLinebreak(), output.length - 1, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         if (opening) {
             start(output, mark)

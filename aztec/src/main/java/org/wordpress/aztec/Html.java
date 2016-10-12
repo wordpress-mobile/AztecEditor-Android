@@ -47,6 +47,7 @@ import android.text.style.UnderlineSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
@@ -470,7 +471,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan) {
+            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan || obj[i] instanceof QuoteSpan) {
                 continue;
             }
             int start = mSpannableStringBuilder.getSpanStart(obj[i]);

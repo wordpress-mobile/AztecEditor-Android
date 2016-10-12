@@ -982,71 +982,65 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         public StringBuilder rawHtml;
     }
 
-    private static class Bold {
+    private static class AttributedMarker {
         Attributes attributes;
+    }
+
+    private static class Bold extends AttributedMarker {
         Bold(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Italic {
-        Attributes attributes;
+    private static class Italic extends AttributedMarker {
         Italic(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Underline {
-        Attributes attributes;
+    private static class Underline extends AttributedMarker {
         Underline(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Big {
-        Attributes attributes;
+    private static class Big extends AttributedMarker {
         Big(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Small {
-        Attributes attributes;
+    private static class Small extends AttributedMarker {
         Small(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Monospace {
-        Attributes attributes;
+    private static class Monospace extends AttributedMarker {
         Monospace(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Blockquote {
-        Attributes attributes;
+    private static class Blockquote extends AttributedMarker {
         Blockquote(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Super {
-        Attributes attributes;
+    private static class Super extends AttributedMarker {
         Super(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Sub {
-        Attributes attributes;
+    private static class Sub extends AttributedMarker {
         Sub(Attributes attributes) {
             this.attributes = attributes;
         }
     }
 
-    private static class Font {
-        Attributes attributes;
+    private static class Font extends AttributedMarker {
         String color;
         String face;
 
@@ -1057,9 +1051,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static class Href {
+    private static class Href extends AttributedMarker {
         String href;
-        Attributes attributes;
 
         Href(Attributes attributes) {
             this.attributes = attributes;
@@ -1067,9 +1060,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static class Header {
+    private static class Header extends AttributedMarker {
         private int level;
-        Attributes attributes;
 
         public Header(int level, Attributes attributes) {
             this.level = level;

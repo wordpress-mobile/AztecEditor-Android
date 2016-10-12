@@ -125,7 +125,31 @@ class AztecParser {
 
     private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         var newStart = start
-        var newEnd = end - 1
+        var newEnd = if (start == end - 1) {
+            end
+        } else {
+            end - 1
+        }
+
+
+        val hasTrailingEmptyItem = text[newEnd] == '\u200B' && text[newEnd-1] == '\n'
+
+        if (text[newEnd] == '\u200B') {
+            newEnd -= 1
+        }
+
+
+        val originalString = text.substring(newStart..newEnd)
+        val newString = text.substring(newStart..newEnd).replace("[\n]+$".toRegex(), "")
+
+
+        val newlinesAtTheEndOfAString = originalString.length - newString.length
+
+        newEnd = if (newlinesAtTheEndOfAString >= 1) {
+            newEnd - newlinesAtTheEndOfAString + 1
+        } else {
+            newEnd - newlinesAtTheEndOfAString
+        }
 
         if (text[newStart] == '\n') {
             newStart += 1
@@ -133,8 +157,9 @@ class AztecParser {
             if (text.length < newEnd + 1) {
                 newEnd += 1
             }
-
         }
+
+
 
         out.append("<$listTag>")
         val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
@@ -155,7 +180,7 @@ class AztecParser {
 
             val lineEnd = lineStart + lineLength
 
-            val isBlockElementLineBreak = isLastLineInList && lineLength == 1 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
+            val isBlockElementLineBreak = !lineIsZWJ && isLastLineInList && lineLength == 1 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
 
             if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) ||
                     (lineLength == 0 && isLastLineInList) || isBlockElementLineBreak) {
@@ -166,6 +191,11 @@ class AztecParser {
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
+
+        if(hasTrailingEmptyItem){
+            out.append("<li></li>")
+        }
+
         out.append("</$listTag>")
     }
 
@@ -431,7 +461,7 @@ class AztecParser {
                 .replace("(</ul>)(<br>)?".toRegex(), "</ul>")
                 .replace("(</blockquote>)<br>?".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
-                .replace("(<br>)</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
                 .replace("(<br>)*</li>".toRegex(), "</li>")
     }
 }

@@ -23,21 +23,15 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
-import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.ParagraphStyle;
 import android.text.style.QuoteSpan;
 import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
@@ -47,9 +41,10 @@ import android.text.style.UnderlineSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
-import org.wordpress.aztec.spans.AztecSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
+import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
@@ -585,17 +580,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            endStyle(mSpannableStringBuilder, Typeface.BOLD);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
-            endStyle(mSpannableStringBuilder, Typeface.BOLD);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
-            endStyle(mSpannableStringBuilder, Typeface.ITALIC);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
             end(mSpannableStringBuilder, Big.class, new RelativeSizeSpan(1.25f));
         } else if (tag.equalsIgnoreCase("small")) {
@@ -611,7 +606,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("a")) {
             endA(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("u")) {
-            end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
         } else if (tag.equalsIgnoreCase("sup")) {
             end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
         } else if (tag.equalsIgnoreCase("sub")) {
@@ -678,24 +673,30 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endStyle(SpannableStringBuilder text, int style) {
+    private static void endAttributedSpan(SpannableStringBuilder text, TextFormat textFormat) {
         int len = text.length();
-        Object obj;
-        AztecStyleSpan newSpan;
-        if (style == Typeface.BOLD) {
-            Bold bold = (Bold)getLast(text, Bold.class);
-            obj = bold;
-            newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(bold.attributes).toString());
-        } else if (style == Typeface.ITALIC) {
-            Italic italic = (Italic)getLast(text, Italic.class);
-            obj = italic;
-            newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(italic.attributes).toString());
-        } else {
-            throw new IllegalArgumentException("Style not supported");
+        AttributedMarker marker;
+        AztecContentSpan newSpan;
+
+        switch (textFormat) {
+            case FORMAT_BOLD:
+                marker = (AttributedMarker)getLast(text, Bold.class);
+                newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
+                break;
+            case FORMAT_ITALIC:
+                marker = (AttributedMarker)getLast(text, Italic.class);
+                newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
+                break;
+            case FORMAT_UNDERLINED:
+                marker = (AttributedMarker)getLast(text, Underline.class);
+                newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
+                break;
+            default:
+                throw new IllegalArgumentException("Style not supported");
         }
 
-        int where = text.getSpanStart(obj);
-        text.removeSpan(obj);
+        int where = text.getSpanStart(marker);
+        text.removeSpan(marker);
 
         if (where != len) {
             text.setSpan(newSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

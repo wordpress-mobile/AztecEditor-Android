@@ -402,7 +402,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINED -> return UnderlineSpan()
+            TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

@@ -235,10 +235,6 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is UnderlineSpan) {
-                        out.append("<u>")
-                    }
-
                     if (span is URLSpan) {
                         out.append("<a href=\"")
                         out.append(span.url)
@@ -274,10 +270,6 @@ class AztecParser {
 
                     if (span is URLSpan) {
                         out.append("</a>")
-                    }
-
-                    if (span is UnderlineSpan) {
-                        out.append("</u>")
                     }
 
                     if (span is CommentSpan) {

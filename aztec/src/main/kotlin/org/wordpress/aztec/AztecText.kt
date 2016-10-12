@@ -760,6 +760,9 @@ class AztecText : EditText, TextWatcher {
 
             editableText.setSpan(spanToApply, startOfBlock, endOfBlock, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
 
+            //remove any special linebreak spans we might had inside span
+            val modifiedNewlineSpans = editableText.getSpans(startOfBlock, endOfBlock, BlockElementLinebreak::class.java)
+            modifiedNewlineSpans.forEach { editableText.removeSpan(it) }
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
@@ -1352,11 +1355,24 @@ class AztecText : EditText, TextWatcher {
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             removeBlockStyle()
             disableTextChangedListener()
+
+            var textSizeBefore = text.length
+
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
                 text.delete(inputStart - 2, inputStart)
             }
+
+            val lastCharacterIndex = textChangedEvent.inputEnd - (textSizeBefore - text.length) - 1
+
+            if (lastCharacterIndex >= 0) {
+                val lastCharacter = text[lastCharacterIndex]
+                if (lastCharacter == '\n') {
+                    text.setSpan(BlockElementLinebreak(), lastCharacterIndex - 1, lastCharacterIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
             //Add ZWJ to the new line at the end of block spans
             val blockSpans = getText().getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
@@ -1365,6 +1381,8 @@ class AztecText : EditText, TextWatcher {
                 text.insert(inputStart + 1, "\u200B")
             }
         }
+
+
     }
 
 

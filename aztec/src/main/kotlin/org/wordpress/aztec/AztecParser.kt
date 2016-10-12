@@ -131,25 +131,22 @@ class AztecParser {
             end - 1
         }
 
+        //if the list ends with newline followed by zwj this means that there is empty element at the end
+        val hasTrailingEmptyItem = text[newEnd] == '\u200B' && text[newEnd - 1] == '\n'
 
-        val hasTrailingEmptyItem = text[newEnd] == '\u200B' && text[newEnd-1] == '\n'
-
+        //if the line ends with zwj move index to the left
         if (text[newEnd] == '\u200B') {
             newEnd -= 1
         }
 
+        val listContent = text.substring(newStart..newEnd)
+        val trimmedListContent = text.substring(newStart..newEnd).replace("[\n]+$".toRegex(), "")
 
-        val originalString = text.substring(newStart..newEnd)
-        val newString = text.substring(newStart..newEnd).replace("[\n]+$".toRegex(), "")
+        val newlinesAtTheEndOfAList = listContent.length - trimmedListContent.length
 
 
-        val newlinesAtTheEndOfAString = originalString.length - newString.length
-
-        newEnd = if (newlinesAtTheEndOfAString >= 1) {
-            newEnd - newlinesAtTheEndOfAString + 1
-        } else {
-            newEnd - newlinesAtTheEndOfAString
-        }
+        //move index to avoid all the newlines at the end of the list
+        newEnd -= newlinesAtTheEndOfAList
 
         if (text[newStart] == '\n') {
             newStart += 1
@@ -173,17 +170,13 @@ class AztecParser {
                 lineStart += lines[j].length + 1
             }
 
-            val isAtTheEndOfText = text.length == lineStart + 1
-
-            val lineIsZWJ = lineLength == 1 && lines[i][0] == '\u200B'
             val isLastLineInList = lines.indices.last == i
 
             val lineEnd = lineStart + lineLength
 
-            val isBlockElementLineBreak = !lineIsZWJ && isLastLineInList && lineLength == 1 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
+//            val isBlockElementLineBreak = isLastLineInList && lineLength == 0 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
 
-            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) ||
-                    (lineLength == 0 && isLastLineInList) || isBlockElementLineBreak) {
+            if ((lineLength == 0 && isLastLineInList)) {
                 continue
             }
 
@@ -192,7 +185,8 @@ class AztecParser {
             out.append("</li>")
         }
 
-        if(hasTrailingEmptyItem){
+        //add empty element to the end of a list
+        if (hasTrailingEmptyItem) {
             out.append("<li></li>")
         }
 
@@ -232,11 +226,10 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                next++
                 if (text.getSpans(next, next, BlockElementLinebreak::class.java).size == 0) {
                     nl++
                 }
-
+                next++
             }
 
             //account for possible zero-width joiner at the end of the line
@@ -452,14 +445,15 @@ class AztecParser {
         }
     }
 
+    //In addition to tydiyng app we are triming all the <br>'s around block elements
     private fun tidy(html: String): String {
         return html
-                .replace("(?<=[^>]|^)(<br>)<ul>?".toRegex(), "<ul>")
-                .replace("(?<=[^>]|^)(<br>)<ol>?".toRegex(), "<ol>")
-                .replace("(?<=[^>]|^)(<br>)<blockquote>?".toRegex(), "<blockquote>")
-                .replace("(</ol>)(<br>)?".toRegex(), "</ol>")
-                .replace("(</ul>)(<br>)?".toRegex(), "</ul>")
-                .replace("(</blockquote>)<br>?".toRegex(), "</blockquote>")
+                .replace("(<br>)*<ul>".toRegex(), "<ul>")
+                .replace("(<br>)*<ol>".toRegex(), "<ol>")
+                .replace("(<br>)*<blockquote>".toRegex(), "<blockquote>")
+                .replace("(</ol>)(<br>)*".toRegex(), "</ol>")
+                .replace("(</ul>)(<br>)*".toRegex(), "</ul>")
+                .replace("(</blockquote>)(<br>)*".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
                 .replace("(<br>)*</li>".toRegex(), "</li>")

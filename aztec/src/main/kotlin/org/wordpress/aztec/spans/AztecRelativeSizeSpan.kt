@@ -2,24 +2,18 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Typeface
 import android.text.TextUtils
+import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 
-class AztecStyleSpan : StyleSpan, AztecContentSpan {
+class AztecRelativeSizeSpan : RelativeSizeSpan, AztecContentSpan {
 
     var tag: String = ""
     override var attributes: String?
 
-    constructor(style: Int, attributes: String? = null) : super(style) {
+    @JvmOverloads
+    constructor(tag: String, size: Float, attributes: String? = null) : super(size) {
+        this.tag = tag
         this.attributes = attributes
-
-        when (style) {
-            Typeface.BOLD -> {
-                tag = "b"
-            }
-            Typeface.ITALIC -> {
-                tag = "i"
-            }
-        }
     }
 
     override fun getStartTag(): String {

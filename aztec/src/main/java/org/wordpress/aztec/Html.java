@@ -44,6 +44,7 @@ import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecQuoteSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
@@ -594,9 +595,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("i")) {
             endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
-            end(mSpannableStringBuilder, Big.class, new RelativeSizeSpan(1.25f));
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BIG);
         } else if (tag.equalsIgnoreCase("small")) {
-            end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SMALL);
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
@@ -678,28 +679,50 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private static void endAttributedSpan(SpannableStringBuilder text, TextFormat textFormat) {
         int len = text.length();
         AttributedMarker marker;
-        AztecContentSpan newSpan;
+        AztecContentSpan newSpan = null;
 
         switch (textFormat) {
             case FORMAT_BOLD:
                 marker = (AttributedMarker)getLast(text, Bold.class);
-                newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
+                if (marker != null) {
+                    newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
+                }
                 break;
             case FORMAT_ITALIC:
                 marker = (AttributedMarker)getLast(text, Italic.class);
-                newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
+                if (marker != null) {
+                    newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
+                }
                 break;
             case FORMAT_UNDERLINED:
                 marker = (AttributedMarker)getLast(text, Underline.class);
-                newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
+                if (marker != null) {
+                    newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
                 break;
             case FORMAT_QUOTE:
                 marker = (AttributedMarker)getLast(text, Blockquote.class);
-                newSpan = new AztecQuoteSpan(Html.stringifyAttributes(marker.attributes).toString());
+                if (marker != null) {
+                    newSpan = new AztecQuoteSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
                 break;
             case FORMAT_LINK:
                 marker = (AttributedMarker)getLast(text, Href.class);
-                newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
+                if (marker != null) {
+                    newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_BIG:
+                marker = (AttributedMarker)getLast(text, Big.class);
+                if (marker != null) {
+                    newSpan = new AztecRelativeSizeSpan("big", 1.25f, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SMALL:
+                marker = (AttributedMarker)getLast(text, Small.class);
+                if (marker != null) {
+                    newSpan = new AztecRelativeSizeSpan("small", 0.8f, Html.stringifyAttributes(marker.attributes).toString());
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");
@@ -708,7 +731,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         int where = text.getSpanStart(marker);
         text.removeSpan(marker);
 
-        if (where != len) {
+        if (where != len && newSpan != null) {
             text.setSpan(newSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }

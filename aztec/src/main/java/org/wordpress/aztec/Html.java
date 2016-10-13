@@ -792,8 +792,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         text.removeSpan(obj);
 
-        if (where != len) {
-            Font f = (Font) obj;
+        Font f = (Font) obj;
+        if (f != null && where != len) {
 
             if (!TextUtils.isEmpty(f.color)) {
                 if (f.color.startsWith("@")) {

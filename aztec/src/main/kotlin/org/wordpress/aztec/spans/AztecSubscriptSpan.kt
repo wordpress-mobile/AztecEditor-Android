@@ -9,7 +9,7 @@ import android.text.style.SuperscriptSpan
 
 class AztecSubscriptSpan : SubscriptSpan, AztecContentSpan {
 
-    var TAG: String = "sub"
+    private final var TAG: String = "sub"
     override var attributes: String?
 
     @JvmOverloads

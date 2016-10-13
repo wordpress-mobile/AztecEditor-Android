@@ -1110,7 +1110,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         var attributes = getAttributes(end, start)
-        attributes = attributes?.replace("href=\".*\"".toRegex(), "href=\"$cleanLink\"")
+        attributes = attributes?.replace("href=[\"'].*[\"']".toRegex(), "href=\"$cleanLink\"")
 
         linkValid(cleanLink, start, newEnd, attributes)
     }

@@ -240,7 +240,7 @@ class QuoteTest() {
         editText.append("not in quote")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in quote", editText.toHtml())
+        Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag><br>not in quote", editText.toHtml())
     }
 
 
@@ -351,6 +351,7 @@ class QuoteTest() {
 
         editText.text.insert(editText.text.indexOf("not in the quote") - 1, "\n")
         editText.text.insert(editText.text.indexOf("not in the quote") - 1, "third item")
+        Assert.assertEquals("first item\nsecond item addition\nthird item\nnot in the quote", editText.text.toString())
         Assert.assertEquals("<$quoteTag>first item<br>second item addition<br>third item</$quoteTag>not in the quote", editText.toHtml())
     }
 

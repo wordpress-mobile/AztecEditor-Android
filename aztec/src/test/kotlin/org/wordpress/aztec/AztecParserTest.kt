@@ -34,7 +34,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_QUOTE_WITH_BULLETS = "<blockquote><ul><li>Bullet</li></ul></blockquote>"
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
-    private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe>"
+    private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
                     "<div class=\"first\">" +

@@ -235,12 +235,6 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is URLSpan) {
-                        out.append("<a href=\"")
-                        out.append(span.url)
-                        out.append("\">")
-                    }
-
                     if (span is ImageSpan && span !is UnknownHtmlSpan) {
                         out.append("<img src=\"")
                         out.append(span.source)
@@ -266,10 +260,6 @@ class AztecParser {
 
                     if (span is AztecContentSpan) {
                         out.append("</${span.getEndTag()}>")
-                    }
-
-                    if (span is URLSpan) {
-                        out.append("</a>")
                     }
 
                     if (span is CommentSpan) {

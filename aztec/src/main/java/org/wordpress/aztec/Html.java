@@ -45,6 +45,7 @@ import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecQuoteSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
+import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
@@ -528,7 +529,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("tt")) {
             start(mSpannableStringBuilder, new Monospace(attributes));
         } else if (tag.equalsIgnoreCase("a")) {
-            startA(mSpannableStringBuilder, attributes);
+            start(mSpannableStringBuilder, new Href(attributes));
         } else if (tag.equalsIgnoreCase("u")) {
             start(mSpannableStringBuilder, new Underline(attributes));
         } else if (tag.equalsIgnoreCase("sup")) {
@@ -605,7 +606,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, Monospace.class,
                     new TypefaceSpan("monospace"));
         } else if (tag.equalsIgnoreCase("a")) {
-            endA(mSpannableStringBuilder);
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
             endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
         } else if (tag.equalsIgnoreCase("sup")) {
@@ -696,6 +697,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 marker = (AttributedMarker)getLast(text, Blockquote.class);
                 newSpan = new AztecQuoteSpan(Html.stringifyAttributes(marker.attributes).toString());
                 break;
+            case FORMAT_LINK:
+                marker = (AttributedMarker)getLast(text, Href.class);
+                newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
+                break;
             default:
                 throw new IllegalArgumentException("Style not supported");
         }
@@ -771,28 +776,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
             if (f.face != null) {
                 text.setSpan(new TypefaceSpan(f.face), where, len,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-    }
-
-    private static void startA(SpannableStringBuilder text, Attributes attributes) {
-        int len = text.length();
-        text.setSpan(new Href(attributes), len, len, Spannable.SPAN_MARK_MARK);
-    }
-
-    private static void endA(SpannableStringBuilder text) {
-        int len = text.length();
-        Object obj = getLast(text, Href.class);
-        int where = text.getSpanStart(obj);
-
-        text.removeSpan(obj);
-
-        if (where != len) {
-            Href h = (Href) obj;
-
-            if (h.href != null) {
-                text.setSpan(new URLSpan(h.href), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -1058,11 +1041,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private static class Href extends AttributedMarker {
-        String href;
-
         Href(Attributes attributes) {
             this.attributes = attributes;
-            href = attributes.getValue("", "href");
         }
     }
 

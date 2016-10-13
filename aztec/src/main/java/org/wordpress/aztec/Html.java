@@ -48,6 +48,7 @@ import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
 import org.wordpress.aztec.spans.AztecSuperscriptSpan;
+import org.wordpress.aztec.spans.AztecTypefaceSpan;
 import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
@@ -606,8 +607,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             handleP(mSpannableStringBuilder);
             endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_QUOTE);
         } else if (tag.equalsIgnoreCase("tt")) {
-            end(mSpannableStringBuilder, Monospace.class,
-                    new TypefaceSpan("monospace"));
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
         } else if (tag.equalsIgnoreCase("a")) {
             endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
@@ -736,6 +736,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 marker = (AttributedMarker)getLast(text, Sub.class);
                 if (marker != null) {
                     newSpan = new AztecSubscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_MONOSPACE:
+                marker = (AttributedMarker)getLast(text, Monospace.class);
+                if (marker != null) {
+                    newSpan = new AztecTypefaceSpan("tt", "monospace", Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             default:

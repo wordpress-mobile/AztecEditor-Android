@@ -717,8 +717,6 @@ class AztecText : EditText, TextWatcher {
                 } else {
                     editableText.setSpan(makeBlockSpan(listType), startOfBlock + 1, endOfBlock, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }
-
-
             }
 
         } else {
@@ -757,12 +755,7 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
-
             editableText.setSpan(spanToApply, startOfBlock, endOfBlock, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-
-            //remove any special linebreak spans we might had inside span
-            val modifiedNewlineSpans = editableText.getSpans(startOfBlock, endOfBlock, BlockElementLinebreak::class.java)
-            modifiedNewlineSpans.forEach { editableText.removeSpan(it) }
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
             if (isEmptyLine) {
@@ -1356,21 +1349,10 @@ class AztecText : EditText, TextWatcher {
             removeBlockStyle()
             disableTextChangedListener()
 
-            var textSizeBefore = text.length
-
             if (inputStart == 1) {
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
                 text.delete(inputStart - 2, inputStart)
-            }
-
-            val lastCharacterIndex = textChangedEvent.inputEnd - (textSizeBefore - text.length) - 1
-
-            if (lastCharacterIndex >= 0) {
-                val lastCharacter = text[lastCharacterIndex]
-                if (lastCharacter == '\n') {
-                    text.setSpan(BlockElementLinebreak(), lastCharacterIndex - 1, lastCharacterIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
             }
 
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
@@ -1454,9 +1436,43 @@ class AztecText : EditText, TextWatcher {
 
     fun toHtml(): String {
         val parser = AztecParser()
+        //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
+        markBlockElementLineBreaks()
         val output = SpannableStringBuilder(text)
+
+        //clear block element line break spans in case we are using toHtml() multiple times without clearing EditText
+        clearBlockElementLineBreaks()
+
         BaseInputConnection.removeComposingSpans(output)
         return Format.clearFormatting(parser.toHtml(output))
+    }
+
+    fun clearBlockElementLineBreaks() {
+        text.getSpans(0, text.length, BlockElementLinebreak::class.java).forEach { text.removeSpan(it) }
+    }
+
+
+    fun markBlockElementLineBreaks() {
+        text.getSpans(0, text.length, AztecBlockSpan::class.java).forEach {
+            val spanStart = text.getSpanStart(it)
+            val spanEnd = text.getSpanEnd(it)
+
+            if (spanStart > 0 && text[spanStart - 1] == '\n') {
+                text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+            //special case for listview with trailing empty line followed by newline
+            if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
+                    && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                    && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+        }
     }
 
     fun toFormattedHtml(): String {

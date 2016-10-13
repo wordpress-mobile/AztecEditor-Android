@@ -445,17 +445,9 @@ class AztecParser {
         }
     }
 
-    //In addition to tydiyng app we are triming all the <br>'s around block elements
     private fun tidy(html: String): String {
         return html
-                .replace("(<br>)*<ul>".toRegex(), "<ul>")
-                .replace("(<br>)*<ol>".toRegex(), "<ol>")
-                .replace("(<br>)*<blockquote>".toRegex(), "<blockquote>")
-                .replace("(</ol>)(<br>)*".toRegex(), "</ol>")
-                .replace("(</ul>)(<br>)*".toRegex(), "</ul>")
-                .replace("(</blockquote>)(<br>)*".toRegex(), "</blockquote>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
-                .replace("(<br>)*</li>".toRegex(), "</li>")
     }
 }

@@ -46,6 +46,8 @@ import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecQuoteSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
+import org.wordpress.aztec.spans.AztecSubscriptSpan;
+import org.wordpress.aztec.spans.AztecSuperscriptSpan;
 import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
@@ -611,9 +613,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("u")) {
             endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
         } else if (tag.equalsIgnoreCase("sup")) {
-            end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
-            end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
+            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -722,6 +724,18 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 marker = (AttributedMarker)getLast(text, Small.class);
                 if (marker != null) {
                     newSpan = new AztecRelativeSizeSpan("small", 0.8f, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SUPERSCRIPT:
+                marker = (AttributedMarker)getLast(text, Super.class);
+                if (marker != null) {
+                    newSpan = new AztecSuperscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SUBSCRIPT:
+                marker = (AttributedMarker)getLast(text, Sub.class);
+                if (marker != null) {
+                    newSpan = new AztecSubscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             default:

@@ -35,6 +35,8 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
 
     val rect = Rect()
 
+
+
     constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int) {
         this.quoteBackground = quoteBackground
         this.quoteColor = quoteColor
@@ -50,6 +52,8 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
         this.quoteWidth = src.readInt()
         this.quotePadding = src.readInt()
     }
+
+    constructor() : super()
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         super.writeToParcel(dest, flags)

@@ -24,16 +24,15 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
-import android.text.style.QuoteSpan
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
 
-    private class Ul
-    private class Ol
-    private class Blockquote
+    private class Ul : AztecMarkingSpan
+    private class Ol : AztecMarkingSpan
+    private class Blockquote : AztecMarkingSpan
     private class Strike
 
     private var order = 0
@@ -41,9 +40,8 @@ class AztecTagHandler : Html.TagHandler {
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?): Boolean {
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                if (!opening) {
+                if (!opening && output.length > 0 && output[output.length - 1] != '\n') {
                     output.append("\n")
-                    output.setSpan(BlockElementLinebreak(), output.length - 1, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 return true
             }
@@ -72,7 +70,7 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             BLOCKQUOTE -> {
-                handleBlockElement(output, opening, Blockquote(), QuoteSpan())
+                handleBlockElement(output, opening, Blockquote(), AztecQuoteSpan())
                 return true
             }
 
@@ -81,15 +79,28 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, mark: Any, replaces: Any) {
-        if (output.length > 0 && output[output.length - 1] != '\n') {
+        val nestedInBlockElement = isNestedInBlockElement(output, opening)
+
+        if (!nestedInBlockElement && output.length > 0 && (output[output.length - 1] != '\n' || opening)) {
             output.append("\n")
-            output.setSpan(BlockElementLinebreak(), output.length - 1, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        } else if (replaces is AztecQuoteSpan && !opening && nestedInBlockElement){
+            output.append("\n")
         }
+
         if (opening) {
             start(output, mark)
         } else {
             end(output, mark.javaClass, replaces)
         }
+
+
+    }
+
+    fun isNestedInBlockElement(output: Editable, opening: Boolean): Boolean {
+        val spanLookupIndex = if (opening) output.length else output.length - 1
+        val minNumberOfSpans = if (opening) 0 else 1
+
+        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecMarkingSpan::class.java).size > minNumberOfSpans
     }
 
 

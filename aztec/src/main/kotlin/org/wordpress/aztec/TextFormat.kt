@@ -23,5 +23,6 @@ enum class TextFormat {
     FORMAT_SMALL,
     FORMAT_SUPERSCRIPT,
     FORMAT_SUBSCRIPT,
+    FORMAT_FONT,
     FORMAT_MONOSPACE
 }

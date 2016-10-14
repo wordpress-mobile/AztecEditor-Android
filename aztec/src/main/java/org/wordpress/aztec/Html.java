@@ -30,17 +30,12 @@ import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.ParagraphStyle;
-import android.text.style.QuoteSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.SubscriptSpan;
-import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
-import android.text.style.URLSpan;
-import android.text.style.UnderlineSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.w3c.dom.Text;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecQuoteSpan;
@@ -52,6 +47,7 @@ import org.wordpress.aztec.spans.AztecTypefaceSpan;
 import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
+import org.wordpress.aztec.spans.FontSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
 import org.xml.sax.Attributes;
@@ -526,7 +522,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("small")) {
             start(mSpannableStringBuilder, new Small(attributes));
         } else if (tag.equalsIgnoreCase("font")) {
-            startFont(mSpannableStringBuilder, attributes);
+            start(mSpannableStringBuilder, new Font(attributes));
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
             start(mSpannableStringBuilder, new Blockquote(attributes));
@@ -586,36 +582,36 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("p")) {
             handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_BIG);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BIG);
         } else if (tag.equalsIgnoreCase("small")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SMALL);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SMALL);
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("blockquote")) {
             handleP(mSpannableStringBuilder);
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_QUOTE);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_QUOTE);
         } else if (tag.equalsIgnoreCase("tt")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
         } else if (tag.equalsIgnoreCase("a")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_LINK);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
         } else if (tag.equalsIgnoreCase("sup")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
-            endAttributedSpan(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -665,20 +661,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.setSpan(mark, len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void end(SpannableStringBuilder text, Class kind,
-                            Object repl) {
-        int len = text.length();
-        Object obj = getLast(text, kind);
-        int where = text.getSpanStart(obj);
-
-        text.removeSpan(obj);
-
-        if (where != len) {
-            text.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private static void endAttributedSpan(SpannableStringBuilder text, TextFormat textFormat) {
+    private static void end(SpannableStringBuilder text, TextFormat textFormat) {
         int len = text.length();
         AttributedMarker marker;
         AztecContentSpan newSpan = null;
@@ -744,6 +727,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     newSpan = new AztecTypefaceSpan("tt", "monospace", Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
+            case FORMAT_FONT:
+                marker = (AttributedMarker)getLast(text, Font.class);
+                if (marker != null) {
+                    newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Style not supported");
         }
@@ -778,27 +767,21 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private static void startFont(SpannableStringBuilder text,
-                                  Attributes attributes) {
-
-        int len = text.length();
-        text.setSpan(new Font(attributes), len, len, Spannable.SPAN_MARK_MARK);
-    }
-
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();
-        Object obj = getLast(text, Font.class);
-        int where = text.getSpanStart(obj);
+        Font font = (Font)getLast(text, Font.class);
+        int where = text.getSpanStart(font);
 
-        text.removeSpan(obj);
+        end(text, TextFormat.FORMAT_FONT);
 
-        Font f = (Font) obj;
-        if (f != null && where != len) {
+        if (font != null && where != len) {
 
-            if (!TextUtils.isEmpty(f.color)) {
-                if (f.color.startsWith("@")) {
+            String color = font.attributes.getValue("color");
+
+            if (!TextUtils.isEmpty(color)) {
+                if (color.startsWith("@")) {
                     Resources res = Resources.getSystem();
-                    String name = f.color.substring(1);
+                    String name = color.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
                         ColorStateList colors = res.getColorStateList(colorRes);
@@ -807,18 +790,23 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 } else {
-                    // int c = Color.getHtmlColor(f.color);
-                    int c = Color.GREEN; // TODO: read from html color
-                    if (c != -1) {
-                        text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
-                                where, len,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    try {
+                        int c = Color.parseColor(color);
+                        if (c != -1) {
+                            text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
+                                    where, len,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    } catch (Exception e) {
+                        // unknown color
                     }
                 }
             }
 
-            if (f.face != null) {
-                text.setSpan(new TypefaceSpan(f.face), where, len,
+            String face = font.attributes.getValue("face");
+
+            if (face != null) {
+                text.setSpan(new TypefaceSpan(face), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -1073,13 +1061,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private static class Font extends AttributedMarker {
-        String color;
-        String face;
-
         Font(Attributes attributes) {
             this.attributes = attributes;
-            color = attributes.getValue("", "color");
-            face = attributes.getValue("", "face");
         }
     }
 

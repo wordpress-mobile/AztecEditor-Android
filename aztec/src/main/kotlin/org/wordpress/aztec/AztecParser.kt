@@ -61,9 +61,8 @@ class AztecParser {
         return tidy(out.toString())
     }
 
-    //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
-
     //TODO tidy up the logic
+    //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
     fun markBlockElementLineBreaks(input: Spanned): Spanned {
         val text = SpannableStringBuilder(input)
 
@@ -71,9 +70,9 @@ class AztecParser {
             val spanStart = text.getSpanStart(it)
             val spanEnd = text.getSpanEnd(it)
 
-            val followongBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).size > 0
+            val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).size > 0
 
-            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followongBlockElement) {
+            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
                 text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 

@@ -222,7 +222,7 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun trailingEmptyBulletPoint() {
+    fun trailingEmptyLine() {
         editText.toggleFormatting(formattingType)
         editText.append("first item")
         editText.append("\n")
@@ -253,7 +253,7 @@ class QuoteTest() {
         val mark = editText.text.indexOf("second item") + "second item".length
 
         editText.text.insert(mark, "\n")
-        editText.text.insert(mark+1, "third item")
+        editText.text.insert(mark + 1, "third item")
 
 
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in quote", editText.toHtml())
@@ -286,10 +286,10 @@ class QuoteTest() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
         editText.setSelection(editText.length())
 
-        val mark = editText.text.indexOf("second item")+"second item".length;
+        val mark = editText.text.indexOf("second item") + "second item".length;
 
         //delete last character from "second item"
-        editText.text.delete(mark-1, mark)
+        editText.text.delete(mark - 1, mark)
         Assert.assertEquals("<$quoteTag>first item<br>second ite</$quoteTag>not in quote", editText.toHtml())
     }
 
@@ -327,7 +327,7 @@ class QuoteTest() {
         Assert.assertEquals("first item\nsecond item\n\u200B", editText.text.toString())
         val mark = editText.length() - 1
 
-        editText.text.delete(editText.length()-1, editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
         Assert.assertEquals("first item\nsecond item\n", editText.text.toString())
 
         editText.append("not in the quote")
@@ -440,7 +440,7 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("second item")
         editText.setSelection(0)
-        editText.text.insert(0,"addition ")
+        editText.text.insert(0, "addition ")
 
         Assert.assertEquals("<$quoteTag>addition first item<br>second item</$quoteTag>", editText.toHtml())
     }
@@ -457,7 +457,7 @@ class QuoteTest() {
         editText.append("second item")
 
         editText.setSelection(mark)
-        editText.text.insert(mark,"addition ")
+        editText.text.insert(mark, "addition ")
 
         Assert.assertEquals("not in quote<$quoteTag>addition first item<br>second item</$quoteTag>", editText.toHtml())
     }
@@ -478,16 +478,15 @@ class QuoteTest() {
 
         Assert.assertEquals("first item\nsecond item\nthird item", editText.text.toString())
 
-        editText.text.delete(firstMark+1,secondMark)
+        editText.text.delete(firstMark + 1, secondMark)
 
         Assert.assertEquals("first item\n\nthird item", editText.text.toString())
 
         Assert.assertEquals("<$quoteTag>first item<br><br>third item</$quoteTag>", editText.toHtml())
 
-        editText.text.delete(0,firstMark)
+        editText.text.delete(0, firstMark)
 
         Assert.assertEquals("<$quoteTag><br>third item</$quoteTag>", editText.toHtml())
     }
-
 
 }

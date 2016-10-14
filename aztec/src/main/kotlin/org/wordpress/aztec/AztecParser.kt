@@ -41,12 +41,14 @@ class AztecParser {
     fun toHtml(text: Spanned): String {
         val out = StringBuilder()
 
+        val cleanedUpText = markBlockElementLineBreaks(text)
+
         // add a marker to the end of the text to aid nested group parsing
-        val data = SpannableStringBuilder(text).append('\u200B')
+        val data = SpannableStringBuilder(cleanedUpText).append('\u200B')
 
-        resetHiddenTagParser(text)
+        resetHiddenTagParser(cleanedUpText)
 
-        val hidden = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
+        val hidden = cleanedUpText.getSpans(0, cleanedUpText.length, HiddenHtmlSpan::class.java)
         hiddenSpans = IntArray(hidden.size * 2)
         hidden.forEach {
             hiddenSpans[hiddenIndex++] = it.startOrder
@@ -58,6 +60,42 @@ class AztecParser {
         withinHtml(out, data)
         return tidy(out.toString())
     }
+
+    //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
+
+    //TODO tidy up the logic
+    fun markBlockElementLineBreaks(input: Spanned): Spanned {
+        val text = SpannableStringBuilder(input)
+
+        text.getSpans(0, text.length, AztecBlockSpan::class.java).forEach {
+            val spanStart = text.getSpanStart(it)
+            val spanEnd = text.getSpanEnd(it)
+
+            val followongBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).size > 0
+
+            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followongBlockElement) {
+                text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+            //special case for listview with trailing empty line followed by newline
+            if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
+                    && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+        }
+
+        return text
+    }
+
 
     private fun resetHiddenTagParser(text: Spanned) {
         // keeps track of the next span to be closed
@@ -125,28 +163,7 @@ class AztecParser {
 
     private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, listTag: String) {
         var newStart = start
-        var newEnd = if (start == end - 1) {
-            end
-        } else {
-            end - 1
-        }
-
-        //if the list ends with newline followed by zwj this means that there is empty element at the end
-        val hasTrailingEmptyItem = text[newEnd] == '\u200B' && text[newEnd - 1] == '\n'
-
-        //if the line ends with zwj move index to the left
-        if (text[newEnd] == '\u200B') {
-            newEnd -= 1
-        }
-
-        val listContent = text.substring(newStart..newEnd)
-        val trimmedListContent = text.substring(newStart..newEnd).replace("[\n]+$".toRegex(), "")
-
-        val newlinesAtTheEndOfAList = listContent.length - trimmedListContent.length
-
-
-        //move index to avoid all the newlines at the end of the list
-        newEnd -= newlinesAtTheEndOfAList
+        var newEnd = end - 1
 
         if (text[newStart] == '\n') {
             newStart += 1
@@ -154,9 +171,8 @@ class AztecParser {
             if (text.length < newEnd + 1) {
                 newEnd += 1
             }
+
         }
-
-
 
         out.append("<$listTag>")
         val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
@@ -170,13 +186,14 @@ class AztecParser {
                 lineStart += lines[j].length + 1
             }
 
+            val isAtTheEndOfText = text.length == lineStart + 1
+
+            val lineIsZWJ = lineLength == 1 && lines[i][0] == '\u200B'
             val isLastLineInList = lines.indices.last == i
 
             val lineEnd = lineStart + lineLength
 
-//            val isBlockElementLineBreak = isLastLineInList && lineLength == 0 && text.getSpans(newStart + lineStart, newStart + lineStart, BlockElementLinebreak::class.java).size > 0
-
-            if ((lineLength == 0 && isLastLineInList)) {
+            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
 
@@ -184,14 +201,9 @@ class AztecParser {
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
-
-        //add empty element to the end of a list
-        if (hasTrailingEmptyItem) {
-            out.append("<li></li>")
-        }
-
         out.append("</$listTag>")
     }
+
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         var next: Int
@@ -448,6 +460,7 @@ class AztecParser {
     private fun tidy(html: String): String {
         return html
                 .replace("&#8203;", "")
+                .replace("(<br>)*</li>".toRegex(), "</li>")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
     }
 }

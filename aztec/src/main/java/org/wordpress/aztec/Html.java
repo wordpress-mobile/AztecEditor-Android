@@ -48,6 +48,7 @@ import android.text.style.UnderlineSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
@@ -774,6 +775,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         int where = text.getSpanStart(obj);
 
         text.removeSpan(obj);
+
+        // TODO: this is temp fix
+        if(where > 0 && text.getSpans(where-1,where-1, AztecListSpan.class).length > 0){
+            where -=1;
+        }
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else

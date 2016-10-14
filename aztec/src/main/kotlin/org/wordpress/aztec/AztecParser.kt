@@ -460,7 +460,6 @@ class AztecParser {
     private fun tidy(html: String): String {
         return html
                 .replace("&#8203;", "")
-                .replace("(<br>)*</li>".toRegex(), "</li>")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
     }
 }

@@ -35,7 +35,19 @@ class AztecParser {
     internal var hiddenSpans: IntArray = IntArray(0)
 
     fun fromHtml(source: String, context: Context): Spanned {
-        return Html.fromHtml(source, null, AztecTagHandler(), context)
+        val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
+
+        //fix ranges of block block elements
+        val blockSpans = spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java)
+        blockSpans.forEach {
+            val spanStart = spanned.getSpanStart(it)
+            var spanEnd = spanned.getSpanEnd(it)
+            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            spanned.removeSpan(it)
+            spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        return spanned
     }
 
     fun toHtml(text: Spanned): String {

@@ -17,7 +17,6 @@ import org.robolectric.annotation.Config
 class BlockElementsTest {
 
     lateinit var editText: AztecText
-    private var parser = AztecParser()
 
     /**
      * Initialize variables.
@@ -69,7 +68,6 @@ class BlockElementsTest {
         editText.append("list")
         editText.setSelection(editText.length())
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        Assert.assertEquals("some text<br><blockquote>quote</blockquote><br><ul><li>list</li></ul>", editText.toHtml())
         editText.append("\n")
         editText.append("\n")
         editText.append("\n")

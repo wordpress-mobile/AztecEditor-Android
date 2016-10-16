@@ -420,9 +420,9 @@ class AztecText : EditText, TextWatcher {
                 return false
             } else {
                 val before = editableText.getSpans(start - 1, start, CharacterStyle::class.java)
-                        .filter { it -> isSameInlineSpanType(it,spanToCheck)}
+                        .filter { it -> isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, CharacterStyle::class.java)
-                        .filter { isSameInlineSpanType(it,spanToCheck)}
+                        .filter { isSameInlineSpanType(it, spanToCheck) }
                 return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
             }
         } else {
@@ -1289,7 +1289,6 @@ class AztecText : EditText, TextWatcher {
             enableTextChangedListener()
             return
         }
-
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, CharacterStyle::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
@@ -1305,7 +1304,7 @@ class AztecText : EditText, TextWatcher {
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
-                text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+                text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
             } else {
                 text.removeSpan(it)
             }
@@ -1315,6 +1314,7 @@ class AztecText : EditText, TextWatcher {
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         //if text is pasted do nothing, except for optimizing inline spans
         if (textWasPasted) {
+            switchToAztecStyle(text, textChangedEvent.inputStart, textChangedEvent.inputStart + textChangedEvent.count)
             joinStyleSpans(0, text.length) //TODO: see how this affects performance
             textWasPasted = false
             return
@@ -1557,6 +1557,14 @@ class AztecText : EditText, TextWatcher {
             val spanEnd = editable.getSpanEnd(span)
             editable.removeSpan(span)
             editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val strikeThroughSpans = editable.getSpans(start, end, StrikethroughSpan::class.java)
+        for (span in strikeThroughSpans) {
+            val spanStart = editable.getSpanStart(span)
+            val spanEnd = editable.getSpanEnd(span)
+            editable.removeSpan(span)
+            editable.setSpan(AztecStrikethroughSpan(), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

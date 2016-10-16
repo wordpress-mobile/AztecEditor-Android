@@ -419,9 +419,11 @@ class AztecText : EditText, TextWatcher {
             if (start - 1 < 0 || start + 1 > editableText.length) {
                 return false
             } else {
-                val before = editableText.getSpans(start - 1, start, CharacterStyle::class.java)
-                val after = editableText.getSpans(start, start + 1, CharacterStyle::class.java)
-                return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
+                val spansAtPoint = editableText.getSpans(start, start, CharacterStyle::class.java)
+                spansAtPoint.forEach {
+                    if (isSameInlineSpanType(it, spanToCheck)) return@containsInlineStyle true
+                }
+                return false
             }
         } else {
             val builder = StringBuilder()
@@ -1212,9 +1214,9 @@ class AztecText : EditText, TextWatcher {
         isNewStyleSelected = false
     }
 
-    private fun clearInlineStyles(start: Int, end: Int) {
+    private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
         getAppliedStyles(start, end).forEach {
-            if (!selectedStyles.contains(it)) {
+            if (!selectedStyles.contains(it) || ignoreSelectedStyles) {
                 when (it) {
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
@@ -1320,10 +1322,10 @@ class AztecText : EditText, TextWatcher {
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd)
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
 
         //trailing styling
-        if (!formattingHasChanged()) return
+        if (!formattingHasChanged() || textChangedEvent.isNewLine()) return
 
         if (formattingIsApplied()) {
             for (item in selectedStyles) {

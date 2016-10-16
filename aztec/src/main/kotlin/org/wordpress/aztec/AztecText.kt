@@ -27,9 +27,9 @@ import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
@@ -57,6 +57,7 @@ class AztecText : EditText, TextWatcher {
     private val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
+    private var textWasPasted = false
 
     lateinit var history: History
 
@@ -475,9 +476,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -514,9 +515,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -535,7 +536,8 @@ class AztecText : EditText, TextWatcher {
                         editableText.setSpan(AztecHeadingSpan(Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_6 ->
                         editableText.setSpan(AztecHeadingSpan(Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }
@@ -887,9 +889,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -922,9 +924,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -1244,7 +1246,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_UNORDERED_LIST -> unorderedListValid(!contains(TextFormat.FORMAT_UNORDERED_LIST))
             TextFormat.FORMAT_ORDERED_LIST -> orderedListValid(!contains(TextFormat.FORMAT_ORDERED_LIST))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -1297,7 +1300,6 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
@@ -1309,6 +1311,13 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+        //if text is pasted do nothing, except for optimizing inline spans
+        if (textWasPasted) {
+            joinStyleSpans(0, text.length) //TODO: see how this affects performance
+            textWasPasted = false
+            return
+        }
+
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd)
@@ -1568,5 +1577,12 @@ class AztecText : EditText, TextWatcher {
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
+    }
+
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        when (id) {
+            android.R.id.paste -> textWasPasted = true
+        }
+        return super.onTextContextMenuItem(id)
     }
 }

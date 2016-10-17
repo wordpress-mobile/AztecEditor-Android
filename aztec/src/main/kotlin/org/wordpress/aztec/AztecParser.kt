@@ -93,7 +93,7 @@ class AztecParser {
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is AztecListSpan) {
-                    withinList(out, text, i, next++, styles[0] as AztecListSpan)
+                    withinList(out, text, i, next, styles[0] as AztecListSpan)
                 } else if (styles[0] is AztecQuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {

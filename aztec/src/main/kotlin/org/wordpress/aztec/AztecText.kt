@@ -1027,7 +1027,7 @@ class AztecText : EditText, TextWatcher {
                 url = urlSpan.url
             }
 
-            if (anchor.equals(url)) {
+            if (anchor == url) {
                 anchor = ""
             }
         }
@@ -1559,6 +1559,15 @@ class AztecText : EditText, TextWatcher {
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
             editable.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)
+        for (span in paragraphSpans) {
+            val spanStart = editable.getSpanStart(span)
+            var spanEnd = editable.getSpanEnd(span)
+            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            editable.removeSpan(span)
+            editable.setSpan(ParagraphSpan(span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)

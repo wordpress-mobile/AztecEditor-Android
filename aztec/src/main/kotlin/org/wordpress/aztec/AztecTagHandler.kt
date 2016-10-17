@@ -61,30 +61,35 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n\n")
-                }
                 if (opening) {
+                    spaceBlocksOut(output)
                     start(output, AztecUnorderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
                     end(output, AztecUnorderedListSpan::class.java)
+                    spaceBlocksOut(output)
                 }
                 return true
             }
             LIST_OL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n\n")
-                }
                 if (opening) {
+                    spaceBlocksOut(output)
                     start(output, AztecOrderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
                     end(output, AztecOrderedListSpan::class.java)
+                    spaceBlocksOut(output)
                 }
                 return true
             }
 
         }
         return false
+    }
+
+    private fun spaceBlocksOut(output: Editable) {
+        if (output.length > 0) {
+            if (output[output.length - 1] != '\n') output.append("\n")
+            if (output.length > 1 && output[output.length - 2] != '\n') output.append("\n")
+        }
     }
 
     private fun start(output: Editable, mark: Any) {

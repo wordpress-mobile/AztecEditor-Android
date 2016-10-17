@@ -48,6 +48,7 @@ import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
+import org.wordpress.aztec.spans.ParagraphSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
 import org.xml.sax.Attributes;
@@ -503,8 +504,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("b")) {
@@ -536,6 +535,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
             start(mSpannableStringBuilder, new Sub(attributes));
+        } else if (tag.equalsIgnoreCase("p")) {
+            handleP(mSpannableStringBuilder);
+            start(mSpannableStringBuilder, new Paragraph(attributes));
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -579,8 +581,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
@@ -612,6 +612,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+        } else if (tag.equalsIgnoreCase("p")) {
+            handleP(mSpannableStringBuilder);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_PARAGRAPH);
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -731,6 +734,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 marker = (AttributedMarker)getLast(text, Font.class);
                 if (marker != null) {
                     newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_PARAGRAPH:
+                marker = (AttributedMarker)getLast(text, Paragraph.class);
+                if (marker != null) {
+                    newSpan = new ParagraphSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             default:
@@ -1068,6 +1077,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Href extends AttributedMarker {
         Href(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Paragraph extends AttributedMarker {
+        Paragraph(Attributes attributes) {
             this.attributes = attributes;
         }
     }

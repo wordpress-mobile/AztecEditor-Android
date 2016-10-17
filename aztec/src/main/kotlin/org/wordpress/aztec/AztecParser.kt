@@ -92,11 +92,14 @@ class AztecParser {
                 }
             } else if (styles.size == 1) {
                 if (styles[0] is AztecListSpan) {
-                    withinList(out, text, i, next, styles[0] as AztecListSpan)
+                    withinList(out, text, i, next++, styles[0] as AztecListSpan)
                 } else if (styles[0] is AztecQuoteSpan) {
                     withinQuote(out, text, i, next++)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
+                } else if (styles[0] is ParagraphSpan) {
+                    withinParagraph(out, text, i, next++)
+                    next++
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -168,6 +171,27 @@ class AztecParser {
             out.append("</li>")
         }
         out.append("</${list.getEndTag()}>")
+    }
+
+    private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+        var next: Int
+
+        var i = start
+        while (i < end) {
+            next = text.nextSpanTransition(i, end, ParagraphSpan::class.java)
+
+            val paragraphs = text.getSpans(i, next, ParagraphSpan::class.java)
+            for (paragraph in paragraphs) {
+                out.append("<${paragraph.getStartTag()}>")
+            }
+
+            withinContent(out, text, i, next)
+
+            for (paragraph in paragraphs) {
+                out.append("</${paragraph.getEndTag()}>")
+            }
+            i = next
+        }
     }
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {

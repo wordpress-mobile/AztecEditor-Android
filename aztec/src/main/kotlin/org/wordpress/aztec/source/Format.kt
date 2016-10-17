@@ -1,17 +1,35 @@
 package org.wordpress.aztec.source
 
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.util.regex.Pattern
 
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol"
+    private val block = "div|span|br|blockquote|ul|ol|li"
 
     fun addFormatting(content: String): String {
+        val settings = Document.OutputSettings()
+//        settings.prettyPrint(false).indentAmount(0)
         // let's use Jsoup for HTML formatting for now because it works out of the box
-        val doc = Jsoup.parseBodyFragment(content)
-        return doc.body().html()
+        val doc = Jsoup.parseBodyFragment(content).outputSettings(settings)
+
+
+//        |(<(/?(?!$block).)>\\n(?!<($block)>))
+
+       val brOne = replaceAll(doc.body().html(),"[^\n](<br>)","\n$1")
+
+        val brTwo = replaceAll(brOne,"(<br>)[^\n]","$1\n")
+
+        val a = replaceAll(brTwo,"(?<!</?$block>)\n<(/?(?!$block).)>","<$1>")
+
+        val b = replaceAll(a,"<(/?(?!$block).)>\n(?!</?($block)>)","<$1>")
+
+
+
+
+        return b
     }
 
     fun clearFormatting(html: String): String {
@@ -19,9 +37,9 @@ object Format {
         return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
     }
 
-    private fun replaceAll(content: String, pattern: String, replacement: String): String  {
+    private fun replaceAll(content: String, pattern: String, replacement: String): String {
         val p = Pattern.compile(pattern);
-        val  m = p.matcher(content);
+        val m = p.matcher(content);
         return m.replaceAll(replacement);
     }
 

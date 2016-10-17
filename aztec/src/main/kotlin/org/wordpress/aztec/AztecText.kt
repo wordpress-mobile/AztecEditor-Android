@@ -27,9 +27,9 @@ import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
@@ -57,6 +57,7 @@ class AztecText : EditText, TextWatcher {
     private val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
+    private var textWasPasted = false
 
     lateinit var history: History
 
@@ -419,7 +420,9 @@ class AztecText : EditText, TextWatcher {
                 return false
             } else {
                 val before = editableText.getSpans(start - 1, start, CharacterStyle::class.java)
+                        .filter { it -> isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, CharacterStyle::class.java)
+                        .filter { isSameInlineSpanType(it, spanToCheck) }
                 return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
             }
         } else {
@@ -475,9 +478,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -514,9 +517,9 @@ class AztecText : EditText, TextWatcher {
             var headingEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -535,7 +538,8 @@ class AztecText : EditText, TextWatcher {
                         editableText.setSpan(AztecHeadingSpan(Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_6 ->
                         editableText.setSpan(AztecHeadingSpan(Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }
@@ -887,9 +891,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -922,9 +926,9 @@ class AztecText : EditText, TextWatcher {
             var quoteEnd = 0
 
             if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 quoteStart = lineStart
                 quoteEnd = lineEnd
             }
@@ -1210,9 +1214,9 @@ class AztecText : EditText, TextWatcher {
         isNewStyleSelected = false
     }
 
-    private fun clearInlineStyles(start: Int, end: Int) {
+    private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
         getAppliedStyles(start, end).forEach {
-            if (!selectedStyles.contains(it)) {
+            if (!selectedStyles.contains(it) || ignoreSelectedStyles) {
                 when (it) {
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
@@ -1244,7 +1248,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_UNORDERED_LIST -> unorderedListValid(!contains(TextFormat.FORMAT_UNORDERED_LIST))
             TextFormat.FORMAT_ORDERED_LIST -> orderedListValid(!contains(TextFormat.FORMAT_ORDERED_LIST))
             TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -1284,7 +1289,6 @@ class AztecText : EditText, TextWatcher {
             enableTextChangedListener()
             return
         }
-
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, CharacterStyle::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
@@ -1297,11 +1301,10 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
-                text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+                text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
             } else {
                 text.removeSpan(it)
             }
@@ -1309,12 +1312,20 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+        //if text is pasted do nothing, except for optimizing inline spans
+        if (textWasPasted) {
+            switchToAztecStyle(text, textChangedEvent.inputStart, textChangedEvent.inputStart + textChangedEvent.count)
+            joinStyleSpans(0, text.length) //TODO: see how this affects performance
+            textWasPasted = false
+            return
+        }
+
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd)
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
 
         //trailing styling
-        if (!formattingHasChanged()) return
+        if (!formattingHasChanged() || textChangedEvent.isNewLine()) return
 
         if (formattingIsApplied()) {
             for (item in selectedStyles) {
@@ -1547,6 +1558,14 @@ class AztecText : EditText, TextWatcher {
             editable.removeSpan(span)
             editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+        val strikeThroughSpans = editable.getSpans(start, end, StrikethroughSpan::class.java)
+        for (span in strikeThroughSpans) {
+            val spanStart = editable.getSpanStart(span)
+            val spanEnd = editable.getSpanEnd(span)
+            editable.removeSpan(span)
+            editable.setSpan(AztecStrikethroughSpan(), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     fun disableTextChangedListener() {
@@ -1568,5 +1587,12 @@ class AztecText : EditText, TextWatcher {
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
+    }
+
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        when (id) {
+            android.R.id.paste -> textWasPasted = true
+        }
+        return super.onTextContextMenuItem(id)
     }
 }

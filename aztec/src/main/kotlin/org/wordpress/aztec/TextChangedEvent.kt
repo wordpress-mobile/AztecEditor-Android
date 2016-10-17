@@ -3,7 +3,6 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spanned
 import org.wordpress.aztec.spans.AztecListSpan
-import org.wordpress.aztec.spans.AztecSpan
 
 
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {

@@ -19,11 +19,12 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.graphics.Typeface
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.style.*
+import android.text.style.CharacterStyle
+import android.text.style.ImageSpan
+import android.text.style.ParagraphStyle
 import org.wordpress.aztec.spans.*
 import java.util.*
 

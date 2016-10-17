@@ -1,11 +1,7 @@
 package org.wordpress.aztec.spans
 
-import android.graphics.Typeface
 import android.text.TextUtils
-import android.text.style.RelativeSizeSpan
-import android.text.style.StyleSpan
 import android.text.style.SubscriptSpan
-import android.text.style.SuperscriptSpan
 
 class AztecSubscriptSpan : SubscriptSpan, AztecContentSpan {
 

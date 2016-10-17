@@ -1,7 +1,7 @@
 package org.wordpress.aztec.spans
 
 import android.text.TextUtils
-import android.text.style.*
+import android.text.style.TypefaceSpan
 
 class AztecTypefaceSpan : TypefaceSpan, AztecContentSpan {
 

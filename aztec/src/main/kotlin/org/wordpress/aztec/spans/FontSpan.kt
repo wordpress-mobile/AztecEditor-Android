@@ -1,9 +1,8 @@
 package org.wordpress.aztec.spans
 
-import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.*
+import android.text.style.CharacterStyle
 
 class FontSpan : CharacterStyle, AztecContentSpan {
 

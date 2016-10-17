@@ -21,15 +21,17 @@ import android.content.Context
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.text.*
-import android.text.style.*
+import android.text.style.CharacterStyle
+import android.text.style.LeadingMarginSpan
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.spans.AztecHeadingSpan.Heading
-import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 

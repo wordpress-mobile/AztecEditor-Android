@@ -25,6 +25,7 @@ import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.CharacterStyle
 import android.text.style.LeadingMarginSpan
+import android.text.style.ParagraphStyle
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.Patterns

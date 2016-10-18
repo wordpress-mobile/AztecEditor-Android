@@ -23,15 +23,18 @@ import android.content.Context
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.text.*
-import android.text.style.*
+import android.text.style.CharacterStyle
+import android.text.style.LeadingMarginSpan
+import android.text.style.ParagraphStyle
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecHeadingSpan.Heading
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
@@ -401,11 +404,11 @@ class AztecText : EditText, TextWatcher {
 
     fun makeInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
-            TextFormat.FORMAT_BOLD -> return StyleSpan(Typeface.BOLD)
-            TextFormat.FORMAT_ITALIC -> return StyleSpan(Typeface.ITALIC)
+            TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
+            TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINED -> return UnderlineSpan()
-            else -> return StyleSpan(Typeface.NORMAL)
+            TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
 
@@ -628,17 +631,17 @@ class AztecText : EditText, TextWatcher {
         for (span in spans) {
             when (textFormat) {
                 TextFormat.FORMAT_HEADING_1 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H1)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H1)
                 TextFormat.FORMAT_HEADING_2 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H2)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H2)
                 TextFormat.FORMAT_HEADING_3 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H3)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H3)
                 TextFormat.FORMAT_HEADING_4 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H4)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H4)
                 TextFormat.FORMAT_HEADING_5 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H5)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H5)
                 TextFormat.FORMAT_HEADING_6 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H6)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H6)
                 else -> return false
             }
         }
@@ -935,7 +938,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (quoteStart < quoteEnd) {
-                val spans = editableText.getSpans(quoteStart, quoteEnd, QuoteSpan::class.java)
+                val spans = editableText.getSpans(quoteStart, quoteEnd, AztecQuoteSpan::class.java)
                 for (span in spans) {
                     editableText.removeSpan(span)
                 }
@@ -992,7 +995,7 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, QuoteSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
         return spans.size > 0
     }
 
@@ -1002,7 +1005,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun isUrlSelected(): Boolean {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
         return !urlSpans.isEmpty()
     }
 
@@ -1017,7 +1020,7 @@ class AztecText : EditText, TextWatcher {
             anchor = if (selectionStart == selectionEnd) "" else getSelectedText()
 
         } else {
-            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
             val urlSpan = urlSpans[0]
 
             val spanStart = editableText.getSpanStart(urlSpan)
@@ -1032,7 +1035,7 @@ class AztecText : EditText, TextWatcher {
                 url = urlSpan.url
             }
 
-            if (anchor.equals(url)) {
+            if (anchor == url) {
                 anchor = ""
             }
         }
@@ -1056,7 +1059,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getUrlSpanBounds(): Pair<Int, Int> {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
 
         val spanStart = text.getSpanStart(urlSpans[0])
         val spanEnd = text.getSpanEnd(urlSpans[0])
@@ -1114,7 +1117,19 @@ class AztecText : EditText, TextWatcher {
             newEnd = start + anchor!!.length
         }
 
-        linkValid(link, start, newEnd)
+        var attributes = getAttributes(end, start)
+        attributes = attributes?.replace("href=[\"'].*[\"']".toRegex(), "href=\"$cleanLink\"")
+
+        linkValid(cleanLink, start, newEnd, attributes)
+    }
+
+    private fun getAttributes(end: Int, start: Int): String? {
+        val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
+        var attributes: String? = null
+        if (urlSpans != null && urlSpans.size > 0) {
+            attributes = urlSpans[0].attributes
+        }
+        return attributes
     }
 
     fun removeLink() {
@@ -1124,13 +1139,13 @@ class AztecText : EditText, TextWatcher {
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
-    private fun linkValid(link: String, start: Int, end: Int) {
+    private fun linkValid(link: String, start: Int, end: Int, attributes: String? = null) {
         if (start >= end) {
             return
         }
 
         linkInvalid(start, end)
-        editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         onSelectionChanged(end, end)
     }
 
@@ -1139,7 +1154,7 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        val spans = editableText.getSpans(start, end, URLSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecURLSpan::class.java)
         for (span in spans) {
             editableText.removeSpan(span)
         }
@@ -1154,15 +1169,15 @@ class AztecText : EditText, TextWatcher {
             if (start - 1 < 0 || start + 1 > editableText.length) {
                 return false
             } else {
-                val before = editableText.getSpans(start - 1, start, URLSpan::class.java)
-                val after = editableText.getSpans(start, start + 1, URLSpan::class.java)
+                val before = editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
+                val after = editableText.getSpans(start, start + 1, AztecURLSpan::class.java)
                 return before.size > 0 && after.size > 0
             }
         } else {
             val builder = StringBuilder()
 
             for (i in start..end - 1) {
-                if (editableText.getSpans(i, i + 1, URLSpan::class.java).size > 0) {
+                if (editableText.getSpans(i, i + 1, AztecURLSpan::class.java).size > 0) {
                     builder.append(editableText.subSequence(i, i + 1).toString())
                 }
             }
@@ -1344,6 +1359,15 @@ class AztecText : EditText, TextWatcher {
 
 
     fun handleLists(text: Editable, textChangedEvent: TextChangedEvent) {
+
+        // preserve the attributes on the previous list item when adding a new one
+        if (textChangedEvent.isNewLine() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
+            val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
+            if (spans.size == 1) {
+                text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+
         val inputStart = textChangedEvent.inputStart
 
         val spanToClose = textChangedEvent.getListSpanToClose(text)
@@ -1517,13 +1541,13 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        val bulletSpans = editable.getSpans(start, end, BulletSpan::class.java)
+        val bulletSpans = editable.getSpans(start, end, AztecUnorderedListSpan::class.java)
         for (span in bulletSpans) {
             val spanStart = editable.getSpanStart(span)
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         val orderedListSpan = editable.getSpans(start, end, AztecOrderedListSpan::class.java)
@@ -1532,24 +1556,33 @@ class AztecText : EditText, TextWatcher {
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        val quoteSpans = editable.getSpans(start, end, QuoteSpan::class.java)
+        val quoteSpans = editable.getSpans(start, end, AztecQuoteSpan::class.java)
         for (span in quoteSpans) {
             val spanStart = editable.getSpanStart(span)
             var spanEnd = editable.getSpanEnd(span)
             spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
             editable.removeSpan(span)
-            editable.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        val urlSpans = editable.getSpans(start, end, URLSpan::class.java)
+        val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)
+        for (span in paragraphSpans) {
+            val spanStart = editable.getSpanStart(span)
+            var spanEnd = editable.getSpanEnd(span)
+            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            editable.removeSpan(span)
+            editable.setSpan(ParagraphSpan(span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {
             val spanStart = editable.getSpanStart(span)
             val spanEnd = editable.getSpanEnd(span)
             editable.removeSpan(span)
-            editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

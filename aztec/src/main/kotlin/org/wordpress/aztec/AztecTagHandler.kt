@@ -24,34 +24,31 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
-
-    private class Ul
-    private class Ol
-    private class Strike
 
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?) : Boolean {
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                if (!opening) {
+                if (opening) {
+                    start(output, AztecListItemSpan(Html.stringifyAttributes(attributes).toString()))
+                }
+                else {
                     output.append("\n")
+                    endList(output)
                 }
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
                 if (opening) {
-                    start(output, Strike())
+                    start(output, AztecStrikethroughSpan(tag, Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Strike::class.java, AztecStrikethroughSpan(tag))
+                    end(output, AztecStrikethroughSpan::class.java)
                 }
                 return true
             }
@@ -64,30 +61,32 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n\n")
-                }
+                spaceBlocksOut(output)
                 if (opening) {
-                    start(output, Ul())
+                    start(output, AztecUnorderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Ul::class.java, AztecUnorderedListSpan())
+                    end(output, AztecUnorderedListSpan::class.java)
                 }
                 return true
             }
             LIST_OL -> {
-                if (output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n\n")
-                }
+                spaceBlocksOut(output)
                 if (opening) {
-                    start(output, Ol())
+                    start(output, AztecOrderedListSpan(Html.stringifyAttributes(attributes).toString()))
                 } else {
-                    end(output, Ol::class.java, AztecOrderedListSpan())
+                    end(output, AztecOrderedListSpan::class.java)
                 }
                 return true
             }
 
         }
         return false
+    }
+
+    private fun spaceBlocksOut(output: Editable) {
+        if (output.length > 0 && output[output.length - 1] != '\n') {
+            output.append("\n\n")
+        }
     }
 
     private fun start(output: Editable, mark: Any) {
@@ -104,19 +103,31 @@ class AztecTagHandler : Html.TagHandler {
             if (start != end) {
                 output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
+            else {
+                output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
         }
     }
 
-    private fun end(output: Editable, kind: Class<*>, vararg replaces: Any) {
+    private fun endList(output: Editable) {
+        val last = getLast(output, AztecListItemSpan::class.java)
+        if (last != null) {
+            val mark = output.length
+
+            if (mark >= 0) {
+                output.setSpan(last, mark - 1, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+    }
+
+    private fun end(output: Editable, kind: Class<*>) {
         val last = getLast(output, kind)
         val start = output.getSpanStart(last)
         val end = output.length
-        output.removeSpan(last)
 
+        output.removeSpan(last) // important to keep the correct order of spans!
         if (start != end) {
-            for (replace in replaces) {
-                output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+            output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

@@ -66,10 +66,7 @@ class MainActivity : AppCompatActivity() {
         source.displayStyledAndFormattedHtml(aztec.toHtml())
         aztec.fromHtml(source.getPureHtml())
 
-        aztec.setSelection(aztec.editableText.length)
         aztec.history.clearHistory()
-
-        // ImageGetter coming soon...
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

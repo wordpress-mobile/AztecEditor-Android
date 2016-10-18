@@ -42,8 +42,8 @@ class AztecTagHandler : Html.TagHandler {
                     start(output, AztecListItemSpan(attributeString))
                 } else
                     if (output.length > 0 && output[output.length - 1] != '\n') {
-                        output.append("\n")
                         endList(output)
+                        output.append("\n")
                     }
                 return true
             }
@@ -124,8 +124,7 @@ class AztecTagHandler : Html.TagHandler {
 
             if (start != end) {
                 output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            else {
+            } else {
                 output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
             }
         }
@@ -134,10 +133,11 @@ class AztecTagHandler : Html.TagHandler {
     private fun endList(output: Editable) {
         val last = getLast(output, AztecListItemSpan::class.java)
         if (last != null) {
-            val mark = output.length
+            val start = output.getSpanStart(last)
+            val end = output.length
 
-            if (mark >= 0) {
-                output.setSpan(last, mark - 1, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (end >= 0) {
+                output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }

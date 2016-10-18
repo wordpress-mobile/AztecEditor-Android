@@ -1580,21 +1580,18 @@ class AztecText : EditText, TextWatcher {
         var max = text.length
 
         if (isFocused) {
-            val selStart = selectionStart
-            val selEnd = selectionEnd
-
-            min = Math.max(0, Math.min(selStart, selEnd))
-            max = Math.max(0, Math.max(selStart, selEnd))
+            min = Math.max(0, Math.min(selectionStart, selectionEnd))
+            max = Math.max(0, Math.max(selectionStart, selectionEnd))
         }
 
         when (id) {
-            android.R.id.paste -> paste(min, max)
+            android.R.id.paste -> paste(text, min, max)
             android.R.id.copy -> {
-                copy()
+                copy(text, min, max)
                 clearFocus() //hide text action menu
             }
             android.R.id.cut -> {
-                copy()
+                copy(text, min, max)
                 text.delete(min, max) //this will hide text action menu
             }
             else -> return super.onTextContextMenuItem(id)
@@ -1604,8 +1601,8 @@ class AztecText : EditText, TextWatcher {
     }
 
     //Convert selected text to html and add it to clipboard
-    fun copy() {
-        val selectedText = text.subSequence(selectionStart, selectionEnd)
+    fun copy(editable: Editable, start: Int, end: Int) {
+        val selectedText = editable.subSequence(start, end)
         val parser = AztecParser()
         val output = SpannableStringBuilder(selectedText)
 
@@ -1621,7 +1618,7 @@ class AztecText : EditText, TextWatcher {
 
 
     //copied from TextView with some changes
-    private fun paste(min: Int, max: Int) {
+    private fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         if (clip != null) {
@@ -1632,13 +1629,13 @@ class AztecText : EditText, TextWatcher {
 
                 val builder = SpannableStringBuilder()
                 builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
-                Selection.setSelection(text, max)
+                Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
-                text.replace(min, max, builder)
+                editable.replace(min, max, builder)
                 enableTextChangedListener()
 
-                joinStyleSpans(0, text.length) //TODO: see how this affects performance
+                joinStyleSpans(0, editable.length) //TODO: see how this affects performance
             }
         }
     }

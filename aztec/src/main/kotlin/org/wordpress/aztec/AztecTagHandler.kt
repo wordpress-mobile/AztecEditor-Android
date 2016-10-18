@@ -30,26 +30,28 @@ import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
 
-    private class Ul : AztecMarkingSpan
-    private class Ol : AztecMarkingSpan
-    private class Blockquote : AztecMarkingSpan
-    private class Strike
-
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?): Boolean {
+
+        val attributeString = Html.stringifyAttributes(attributes).toString()
+
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                if (!opening && output.length > 0 && output[output.length - 1] != '\n') {
-                    output.append("\n")
-                }
+                if (opening) {
+                    start(output, AztecListItemSpan(attributeString))
+                } else
+                    if (output.length > 0 && output[output.length - 1] != '\n') {
+                        output.append("\n")
+                        endList(output)
+                    }
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
                 if (opening) {
-                    start(output, Strike())
+                    start(output, AztecStrikethroughSpan(tag, attributeString))
                 } else {
-                    end(output, Strike::class.java, AztecStrikethroughSpan(tag))
+                    end(output, AztecStrikethroughSpan::class.java)
                 }
                 return true
             }
@@ -62,41 +64,41 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                handleBlockElement(output, opening, Ul(), AztecUnorderedListSpan())
+                handleBlockElement(output, opening, AztecUnorderedListSpan(attributeString))
                 return true
             }
             LIST_OL -> {
-                handleBlockElement(output, opening, Ol(), AztecOrderedListSpan())
+                handleBlockElement(output, opening, AztecOrderedListSpan(attributeString))
                 return true
             }
             BLOCKQUOTE -> {
-                handleBlockElement(output, opening, Blockquote(), AztecQuoteSpan())
+                handleBlockElement(output, opening, AztecQuoteSpan(attributeString))
                 return true
             }
+
 
         }
         return false
     }
 
-    private fun handleBlockElement(output: Editable, opening: Boolean, mark: Any, replaces: Any) {
-
-        if(output.length > 0){
+    private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
+        if (output.length > 0) {
             val nestedInBlockElement = isNestedInBlockElement(output, opening)
 
             val followingBlockElement = opening &&
-                    output.getSpans(output.length -1,output.length -1, AztecBlockSpan::class.java).size >0
+                    output.getSpans(output.length - 1, output.length - 1, AztecBlockSpan::class.java).size > 0
 
             if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
                 output.append("\n")
-            } else if (replaces is AztecQuoteSpan && !opening && nestedInBlockElement){
+            } else if (span is AztecQuoteSpan && !opening && nestedInBlockElement) {
                 output.append("\n")
             }
         }
 
         if (opening) {
-            start(output, mark)
+            start(output, span)
         } else {
-            end(output, mark.javaClass, replaces)
+            end(output, span.javaClass)
         }
 
     }
@@ -105,7 +107,7 @@ class AztecTagHandler : Html.TagHandler {
         val spanLookupIndex = if (opening) output.length else output.length - 1
         val minNumberOfSpans = if (opening) 0 else 1
 
-        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecMarkingSpan::class.java).size > minNumberOfSpans
+        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecBlockSpan::class.java).size > minNumberOfSpans
     }
 
 
@@ -123,19 +125,31 @@ class AztecTagHandler : Html.TagHandler {
             if (start != end) {
                 output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
+            else {
+                output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
         }
     }
 
-    private fun end(output: Editable, kind: Class<*>, vararg replaces: Any) {
+    private fun endList(output: Editable) {
+        val last = getLast(output, AztecListItemSpan::class.java)
+        if (last != null) {
+            val mark = output.length
+
+            if (mark >= 0) {
+                output.setSpan(last, mark - 1, mark, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+    }
+
+    private fun end(output: Editable, kind: Class<*>) {
         val last = getLast(output, kind)
         val start = output.getSpanStart(last)
         val end = output.length
-        output.removeSpan(last)
 
+        output.removeSpan(last) // important to keep the correct order of spans!
         if (start != end) {
-            for (replace in replaces) {
-                output.setSpan(replace, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+            output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

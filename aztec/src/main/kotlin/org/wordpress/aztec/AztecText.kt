@@ -17,19 +17,24 @@
 
 package org.wordpress.aztec
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.text.*
-import android.text.style.*
+import android.text.style.CharacterStyle
+import android.text.style.LeadingMarginSpan
+import android.text.style.ParagraphStyle
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import org.wordpress.aztec.AztecHeadingSpan.Heading
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecHeadingSpan.Heading
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
@@ -401,11 +406,11 @@ class AztecText : EditText, TextWatcher {
 
     fun makeInlineSpan(textFormat: TextFormat): CharacterStyle {
         when (textFormat) {
-            TextFormat.FORMAT_BOLD -> return StyleSpan(Typeface.BOLD)
-            TextFormat.FORMAT_ITALIC -> return StyleSpan(Typeface.ITALIC)
+            TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
+            TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINED -> return UnderlineSpan()
-            else -> return StyleSpan(Typeface.NORMAL)
+            TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
 
@@ -421,7 +426,9 @@ class AztecText : EditText, TextWatcher {
                 return false
             } else {
                 val before = editableText.getSpans(start - 1, start, CharacterStyle::class.java)
+                        .filter { it -> isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, CharacterStyle::class.java)
+                        .filter { isSameInlineSpanType(it, spanToCheck) }
                 return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
             }
         } else {
@@ -626,17 +633,17 @@ class AztecText : EditText, TextWatcher {
         for (span in spans) {
             when (textFormat) {
                 TextFormat.FORMAT_HEADING_1 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H1)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H1)
                 TextFormat.FORMAT_HEADING_2 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H2)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H2)
                 TextFormat.FORMAT_HEADING_3 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H3)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H3)
                 TextFormat.FORMAT_HEADING_4 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H4)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H4)
                 TextFormat.FORMAT_HEADING_5 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H5)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H5)
                 TextFormat.FORMAT_HEADING_6 ->
-                    return span.mHeading.equals(AztecHeadingSpan.Heading.H6)
+                    return span.heading.equals(AztecHeadingSpan.Heading.H6)
                 else -> return false
             }
         }
@@ -764,8 +771,8 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    private fun removeBlockStyle(textFormat: TextFormat){
-        removeBlockStyle(selectionStart,selectionEnd,makeBlockSpan(textFormat).javaClass)
+    private fun removeBlockStyle(textFormat: TextFormat) {
+        removeBlockStyle(selectionStart, selectionEnd, makeBlockSpan(textFormat).javaClass)
     }
 
     private fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd,
@@ -804,7 +811,6 @@ class AztecText : EditText, TextWatcher {
             }
 
         }
-
 
 
     }
@@ -923,7 +929,7 @@ class AztecText : EditText, TextWatcher {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, QuoteSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
         return spans.size > 0
     }
 
@@ -933,7 +939,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun isUrlSelected(): Boolean {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
         return !urlSpans.isEmpty()
     }
 
@@ -948,7 +954,7 @@ class AztecText : EditText, TextWatcher {
             anchor = if (selectionStart == selectionEnd) "" else getSelectedText()
 
         } else {
-            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
             val urlSpan = urlSpans[0]
 
             val spanStart = editableText.getSpanStart(urlSpan)
@@ -963,7 +969,7 @@ class AztecText : EditText, TextWatcher {
                 url = urlSpan.url
             }
 
-            if (anchor.equals(url)) {
+            if (anchor == url) {
                 anchor = ""
             }
         }
@@ -987,7 +993,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getUrlSpanBounds(): Pair<Int, Int> {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, URLSpan::class.java)
+        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
 
         val spanStart = text.getSpanStart(urlSpans[0])
         val spanEnd = text.getSpanEnd(urlSpans[0])
@@ -1045,7 +1051,19 @@ class AztecText : EditText, TextWatcher {
             newEnd = start + anchor!!.length
         }
 
-        linkValid(link, start, newEnd)
+        var attributes = getAttributes(end, start)
+        attributes = attributes?.replace("href=[\"'].*[\"']".toRegex(), "href=\"$cleanLink\"")
+
+        linkValid(cleanLink, start, newEnd, attributes)
+    }
+
+    private fun getAttributes(end: Int, start: Int): String? {
+        val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
+        var attributes: String? = null
+        if (urlSpans != null && urlSpans.size > 0) {
+            attributes = urlSpans[0].attributes
+        }
+        return attributes
     }
 
     fun removeLink() {
@@ -1055,13 +1073,13 @@ class AztecText : EditText, TextWatcher {
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
-    private fun linkValid(link: String, start: Int, end: Int) {
+    private fun linkValid(link: String, start: Int, end: Int, attributes: String? = null) {
         if (start >= end) {
             return
         }
 
         linkInvalid(start, end)
-        editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        editableText.setSpan(AztecURLSpan(link, linkColor, linkUnderline, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         onSelectionChanged(end, end)
     }
 
@@ -1070,7 +1088,7 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        val spans = editableText.getSpans(start, end, URLSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecURLSpan::class.java)
         for (span in spans) {
             editableText.removeSpan(span)
         }
@@ -1085,15 +1103,15 @@ class AztecText : EditText, TextWatcher {
             if (start - 1 < 0 || start + 1 > editableText.length) {
                 return false
             } else {
-                val before = editableText.getSpans(start - 1, start, URLSpan::class.java)
-                val after = editableText.getSpans(start, start + 1, URLSpan::class.java)
+                val before = editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
+                val after = editableText.getSpans(start, start + 1, AztecURLSpan::class.java)
                 return before.size > 0 && after.size > 0
             }
         } else {
             val builder = StringBuilder()
 
             for (i in start..end - 1) {
-                if (editableText.getSpans(i, i + 1, URLSpan::class.java).size > 0) {
+                if (editableText.getSpans(i, i + 1, AztecURLSpan::class.java).size > 0) {
                     builder.append(editableText.subSequence(i, i + 1).toString())
                 }
             }
@@ -1146,9 +1164,9 @@ class AztecText : EditText, TextWatcher {
         isNewStyleSelected = false
     }
 
-    private fun clearInlineStyles(start: Int, end: Int) {
+    private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
         getAppliedStyles(start, end).forEach {
-            if (!selectedStyles.contains(it)) {
+            if (!selectedStyles.contains(it) || ignoreSelectedStyles) {
                 when (it) {
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
@@ -1221,7 +1239,6 @@ class AztecText : EditText, TextWatcher {
             enableTextChangedListener()
             return
         }
-
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, CharacterStyle::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
@@ -1237,7 +1254,7 @@ class AztecText : EditText, TextWatcher {
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
-                text.setSpan(it, 1, text.getSpanEnd(it), text.getSpanFlags(it))
+                text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
             } else {
                 text.removeSpan(it)
             }
@@ -1247,10 +1264,10 @@ class AztecText : EditText, TextWatcher {
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd)
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
 
         //trailing styling
-        if (!formattingHasChanged()) return
+        if (!formattingHasChanged() || textChangedEvent.isNewLine()) return
 
         if (formattingIsApplied()) {
             for (item in selectedStyles) {
@@ -1276,6 +1293,13 @@ class AztecText : EditText, TextWatcher {
 
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+        // preserve the attributes on the previous list item when adding a new one
+        if (textChangedEvent.isNewLine() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
+            val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
+            if (spans.size == 1) {
+                text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
         val inputStart = textChangedEvent.inputStart
 
         val spanToClose = textChangedEvent.getBlockSpansToClose(text)
@@ -1292,7 +1316,7 @@ class AztecText : EditText, TextWatcher {
                     disableTextChangedListener()
                     text.insert(spanStart, "\u200B")
                 } else
-                    //case for when we remove block element row from other lines of EditText end the next line is empty
+                //case for when we remove block element row from other lines of EditText end the next line is empty
                     if (text[spanStart] == '\n') {
                         spanStart += 1
 
@@ -1457,13 +1481,23 @@ class AztecText : EditText, TextWatcher {
             editable.setSpan(makeBlockSpan(it.javaClass), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        val urlSpans = editable.getSpans(start, end, URLSpan::class.java)
+        val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)
+        for (span in paragraphSpans) {
+            val spanStart = editable.getSpanStart(span)
+            var spanEnd = editable.getSpanEnd(span)
+            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            editable.removeSpan(span)
+            editable.setSpan(ParagraphSpan(span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {
             val spanStart = editable.getSpanStart(span)
             val spanEnd = editable.getSpanEnd(span)
             editable.removeSpan(span)
-            editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
     }
 
     fun disableTextChangedListener() {
@@ -1486,4 +1520,72 @@ class AztecText : EditText, TextWatcher {
         setSelection(selStart, selEnd)
         enableTextChangedListener()
     }
+
+    //logic party copied from TextView
+    override fun onTextContextMenuItem(id: Int): Boolean {
+        var min = 0
+        var max = text.length
+
+        if (isFocused) {
+            min = Math.max(0, Math.min(selectionStart, selectionEnd))
+            max = Math.max(0, Math.max(selectionStart, selectionEnd))
+        }
+
+        when (id) {
+            android.R.id.paste -> paste(text, min, max)
+            android.R.id.copy -> {
+                copy(text, min, max)
+                clearFocus() //hide text action menu
+            }
+            android.R.id.cut -> {
+                copy(text, min, max)
+                text.delete(min, max) //this will hide text action menu
+            }
+            else -> return super.onTextContextMenuItem(id)
+        }
+
+        return true
+    }
+
+    //Convert selected text to html and add it to clipboard
+    fun copy(editable: Editable, start: Int, end: Int) {
+        val selectedText = editable.subSequence(start, end)
+        val parser = AztecParser()
+        val output = SpannableStringBuilder(selectedText)
+
+        //Strip block elements untill we figure out copy paste completely
+        output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
+
+        BaseInputConnection.removeComposingSpans(output)
+        val html = Format.clearFormatting(parser.toHtml(output))
+
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        clipboard.primaryClip = ClipData.newPlainText(null, html)
+    }
+
+
+    //copied from TextView with some changes
+    fun paste(editable: Editable, min: Int, max: Int) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = clipboard.primaryClip
+        if (clip != null) {
+            val parser = AztecParser()
+
+            for (i in 0..clip.itemCount - 1) {
+                val textToPaste = clip.getItemAt(i).coerceToText(context)
+
+                val builder = SpannableStringBuilder()
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
+                Selection.setSelection(editable, max)
+
+                disableTextChangedListener()
+                editable.replace(min, max, builder)
+                enableTextChangedListener()
+
+                joinStyleSpans(0, editable.length) //TODO: see how this affects performance
+            }
+        }
+    }
+
+
 }

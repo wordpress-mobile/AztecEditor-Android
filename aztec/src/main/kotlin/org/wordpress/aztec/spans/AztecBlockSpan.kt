@@ -1,5 +1,5 @@
 package org.wordpress.aztec.spans
 
 
-interface AztecBlockSpan {
+interface AztecBlockSpan : AztecContentSpan {
 }

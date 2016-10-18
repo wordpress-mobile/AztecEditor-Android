@@ -1,26 +1,29 @@
 package org.wordpress.aztec.demo
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.TextUtils
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.*
-import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 
 class MainActivity : AppCompatActivity() {
     companion object {
+        private val HEADING =
+                "<h1>Heading 1</h1><br>" +
+                "<h2>Heading 2</h2><br>" +
+                "<h3>Heading 3</h3><br>" +
+                "<h4>Heading 4</h4><br>" +
+                "<h5>Heading 5</h5><br>" +
+                "<h6>Heading 6</h6><br>"
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"
         private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
-        private val BULLET = "<ul><li>asdfg</li></ul>"
+        private val ORDERED = "<ol><li>Ordered</li></ol>"
+        private val UNORDERED = "<ul><li>Unordered</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + BULLET + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
+        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
     }
 
     private lateinit var aztec: AztecText

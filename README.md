@@ -3,51 +3,46 @@
 
 [![Build Status](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android)
 
-Note: this project was forked from https://github.com/mthli/Knife but has
-been converted to Kotlin and will be deeply modified.
-
 Aztec (extend EditText) is a rich text editor component for writing HTML
 documents in Android.
 
 Support Android 4.0+
 
-# Build
+# Build and test
+
+Build the library, build the example project and run unit tests:
 
 ```shell
 $ ./gradlew build
 ```
 
+Run unit tests only:
+
+```shell
+$ ./gradlew test
+```
+
+Note: there is no instrumentation tests at the moment.
+
 # Integrate in your project
 
-TODO
+The library is not ready for prime time yet, so it's not distributed on maven
+central. Brave developers can either use the project as a source distribution
+or have fun with jitpack at their own risk:
+
+```gradle
+compile ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAPSHOT')
+```
+
+When Aztec is ready, we'll publish the artifact in maven.
 
 ## Reference
 
-* [Spans, a Powerful Concept.](http://flavienlaurent.com/blog/2014/01/31/spans/ "Spans, a Powerful Concept.")
-* [Spanned | Android Developers](http://developer.android.com/reference/android/text/Spanned.html "Spanned | Android
-Developers")
-* [core/java/android/text/Html.java - Google Git](https://android.googlesource
-.com/platform/frameworks/base/+/master/core/java/android/text/Html.java "core/java/android/text/Html.java - Google Git")
-
-## Thanks
-
-* [Knife](https://github.com/mthli/Knife)
+* [Spans, a Powerful Concept](http://flavienlaurent.com/blog/2014/01/31/spans/ "Spans, a Powerful Concept.").
+* [Spanned, Android Reference Documentation](http://developer.android.com/reference/android/text/Spanned.html "Spanned | Android Developers").
+* Aztec was inspired by [Knife](https://github.com/mthli/Knife).
 
 ## License
 
-```text
-Copyright 2016 Automattic
-Copyright 2015 Matthew Lee
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Aztec is an Open Source project covered by the
+[GNU General Public License version 2](LICENSE.md).

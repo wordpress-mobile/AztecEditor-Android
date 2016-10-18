@@ -17,6 +17,8 @@
 
 package org.wordpress.aztec
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
@@ -57,7 +59,6 @@ class AztecText : EditText, TextWatcher {
     private val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
-    private var textWasPasted = false
 
     lateinit var history: History
 
@@ -1312,14 +1313,6 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
-        //if text is pasted do nothing, except for optimizing inline spans
-        if (textWasPasted) {
-            switchToAztecStyle(text, textChangedEvent.inputStart, textChangedEvent.inputStart + textChangedEvent.count)
-            joinStyleSpans(0, text.length) //TODO: see how this affects performance
-            textWasPasted = false
-            return
-        }
-
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
@@ -1558,14 +1551,6 @@ class AztecText : EditText, TextWatcher {
             editable.removeSpan(span)
             editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-
-        val strikeThroughSpans = editable.getSpans(start, end, StrikethroughSpan::class.java)
-        for (span in strikeThroughSpans) {
-            val spanStart = editable.getSpanStart(span)
-            val spanEnd = editable.getSpanEnd(span)
-            editable.removeSpan(span)
-            editable.setSpan(AztecStrikethroughSpan(), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
     }
 
     fun disableTextChangedListener() {
@@ -1589,10 +1574,71 @@ class AztecText : EditText, TextWatcher {
         enableTextChangedListener()
     }
 
+    //logic party copied from TextView
     override fun onTextContextMenuItem(id: Int): Boolean {
-        when (id) {
-            android.R.id.paste -> textWasPasted = true
+        var min = 0
+        var max = text.length
+
+        if (isFocused) {
+            min = Math.max(0, Math.min(selectionStart, selectionEnd))
+            max = Math.max(0, Math.max(selectionStart, selectionEnd))
         }
-        return super.onTextContextMenuItem(id)
+
+        when (id) {
+            android.R.id.paste -> paste(text, min, max)
+            android.R.id.copy -> {
+                copy(text, min, max)
+                clearFocus() //hide text action menu
+            }
+            android.R.id.cut -> {
+                copy(text, min, max)
+                text.delete(min, max) //this will hide text action menu
+            }
+            else -> return super.onTextContextMenuItem(id)
+        }
+
+        return true
     }
+
+    //Convert selected text to html and add it to clipboard
+    fun copy(editable: Editable, start: Int, end: Int) {
+        val selectedText = editable.subSequence(start, end)
+        val parser = AztecParser()
+        val output = SpannableStringBuilder(selectedText)
+
+        //Strip block elements untill we figure out copy paste completely
+        output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
+
+        BaseInputConnection.removeComposingSpans(output)
+        val html = Format.clearFormatting(parser.toHtml(output))
+
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        clipboard.primaryClip = ClipData.newPlainText(null, html)
+    }
+
+
+    //copied from TextView with some changes
+    private fun paste(editable: Editable, min: Int, max: Int) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = clipboard.primaryClip
+        if (clip != null) {
+            val parser = AztecParser()
+
+            for (i in 0..clip.itemCount - 1) {
+                val textToPaste = clip.getItemAt(i).coerceToText(context)
+
+                val builder = SpannableStringBuilder()
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
+                Selection.setSelection(editable, max)
+
+                disableTextChangedListener()
+                editable.replace(min, max, builder)
+                enableTextChangedListener()
+
+                joinStyleSpans(0, editable.length) //TODO: see how this affects performance
+            }
+        }
+    }
+
+
 }

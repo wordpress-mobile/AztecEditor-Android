@@ -1551,14 +1551,6 @@ class AztecText : EditText, TextWatcher {
             editable.removeSpan(span)
             editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-
-        val strikeThroughSpans = editable.getSpans(start, end, StrikethroughSpan::class.java)
-        for (span in strikeThroughSpans) {
-            val spanStart = editable.getSpanStart(span)
-            val spanEnd = editable.getSpanEnd(span)
-            editable.removeSpan(span)
-            editable.setSpan(AztecStrikethroughSpan(), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
     }
 
     fun disableTextChangedListener() {

@@ -823,7 +823,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.star_on);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);

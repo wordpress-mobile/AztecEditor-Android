@@ -1,4 +1,5 @@
 package org.wordpress.aztec.spans
 
-interface AztecListSpan : AztecSpan {
+
+interface AztecListSpan : AztecBlockSpan {
 }

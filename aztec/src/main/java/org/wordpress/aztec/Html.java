@@ -35,9 +35,10 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.w3c.dom.Text;
+import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
+import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.AztecQuoteSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
@@ -412,7 +413,6 @@ public class Html {
 //    }
 
 //  endregion
-
     public static StringBuilder stringifyAttributes(Attributes attributes) {
         StringBuilder sb = new StringBuilder();
         if (attributes != null) {
@@ -469,7 +469,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan) {
+            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan) {
                 continue;
             }
             int start = mSpannableStringBuilder.getSpanStart(obj[i]);
@@ -522,9 +522,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Small(attributes));
         } else if (tag.equalsIgnoreCase("font")) {
             start(mSpannableStringBuilder, new Font(attributes));
-        } else if (tag.equalsIgnoreCase("blockquote")) {
-            handleP(mSpannableStringBuilder);
-            start(mSpannableStringBuilder, new Blockquote(attributes));
         } else if (tag.equalsIgnoreCase("tt")) {
             start(mSpannableStringBuilder, new Monospace(attributes));
         } else if (tag.equalsIgnoreCase("a")) {
@@ -599,9 +596,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SMALL);
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("blockquote")) {
-            handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, TextFormat.FORMAT_QUOTE);
         } else if (tag.equalsIgnoreCase("tt")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
         } else if (tag.equalsIgnoreCase("a")) {
@@ -671,73 +665,67 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         switch (textFormat) {
             case FORMAT_BOLD:
-                marker = (AttributedMarker)getLast(text, Bold.class);
+                marker = (AttributedMarker) getLast(text, Bold.class);
                 if (marker != null) {
                     newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_ITALIC:
-                marker = (AttributedMarker)getLast(text, Italic.class);
+                marker = (AttributedMarker) getLast(text, Italic.class);
                 if (marker != null) {
                     newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_UNDERLINED:
-                marker = (AttributedMarker)getLast(text, Underline.class);
+                marker = (AttributedMarker) getLast(text, Underline.class);
                 if (marker != null) {
                     newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
-            case FORMAT_QUOTE:
-                marker = (AttributedMarker)getLast(text, Blockquote.class);
-                if (marker != null) {
-                    newSpan = new AztecQuoteSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
-                break;
             case FORMAT_LINK:
-                marker = (AttributedMarker)getLast(text, Href.class);
+                marker = (AttributedMarker) getLast(text, Href.class);
                 if (marker != null) {
                     newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_BIG:
-                marker = (AttributedMarker)getLast(text, Big.class);
+                marker = (AttributedMarker) getLast(text, Big.class);
                 if (marker != null) {
                     newSpan = new AztecRelativeSizeSpan("big", 1.25f, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_SMALL:
-                marker = (AttributedMarker)getLast(text, Small.class);
+                marker = (AttributedMarker) getLast(text, Small.class);
                 if (marker != null) {
                     newSpan = new AztecRelativeSizeSpan("small", 0.8f, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_SUPERSCRIPT:
-                marker = (AttributedMarker)getLast(text, Super.class);
+                marker = (AttributedMarker) getLast(text, Super.class);
                 if (marker != null) {
                     newSpan = new AztecSuperscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_SUBSCRIPT:
-                marker = (AttributedMarker)getLast(text, Sub.class);
+                marker = (AttributedMarker) getLast(text, Sub.class);
                 if (marker != null) {
                     newSpan = new AztecSubscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_MONOSPACE:
-                marker = (AttributedMarker)getLast(text, Monospace.class);
+                marker = (AttributedMarker) getLast(text, Monospace.class);
                 if (marker != null) {
                     newSpan = new AztecTypefaceSpan("tt", "monospace", Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_FONT:
-                marker = (AttributedMarker)getLast(text, Font.class);
+                marker = (AttributedMarker) getLast(text, Font.class);
                 if (marker != null) {
                     newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_PARAGRAPH:
-                marker = (AttributedMarker)getLast(text, Paragraph.class);
+                marker = (AttributedMarker) getLast(text, Paragraph.class);
                 if (marker != null) {
                     newSpan = new ParagraphSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
@@ -778,7 +766,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();
-        Font font = (Font)getLast(text, Font.class);
+        Font font = (Font) getLast(text, Font.class);
         int where = text.getSpanStart(font);
 
         end(text, TextFormat.FORMAT_FONT);
@@ -828,6 +816,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         text.removeSpan(obj);
 
+        // TODO: this is temp fix
+        if (where > 0 && text.getSpans(where - 1, where - 1, AztecListSpan.class).length > 0) {
+            where -= 1;
+        }
+
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
             UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.star_on);
@@ -857,12 +850,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             switch (h.level) {
                 case 0:
                     text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1,
-                                Html.stringifyAttributes(h.attributes).toString()),
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 1:
                     text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2,
-                                Html.stringifyAttributes(h.attributes).toString()),
+                                    Html.stringifyAttributes(h.attributes).toString()),
                             where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     break;
                 case 2:
@@ -1047,12 +1040,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Monospace extends AttributedMarker {
         Monospace(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Blockquote extends AttributedMarker {
-        Blockquote(Attributes attributes) {
             this.attributes = attributes;
         }
     }

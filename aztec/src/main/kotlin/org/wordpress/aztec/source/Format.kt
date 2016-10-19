@@ -1,35 +1,21 @@
 package org.wordpress.aztec.source
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.util.regex.Pattern
 
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol|li"
+    private val block = "div|span|br|blockquote|ul|ol|li|h1|h2|h3|h4|h5|h6"
 
     fun addFormatting(content: String): String {
-        val settings = Document.OutputSettings()
-//        settings.prettyPrint(false).indentAmount(0)
-        // let's use Jsoup for HTML formatting for now because it works out of the box
-        val doc = Jsoup.parseBodyFragment(content).outputSettings(settings)
+        val doc = Jsoup.parseBodyFragment(content)
 
+        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?$block>)\n<(/?(?!$block).)>", "<$1>")
+        val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
+        val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
-//        |(<(/?(?!$block).)>\\n(?!<($block)>))
-
-       val brOne = replaceAll(doc.body().html(),"[^\n](<br>)","\n$1")
-
-        val brTwo = replaceAll(brOne,"(<br>)[^\n]","$1\n")
-
-        val a = replaceAll(brTwo,"(?<!</?$block>)\n<(/?(?!$block).)>","<$1>")
-
-        val b = replaceAll(a,"<(/?(?!$block).)>\n(?!</?($block)>)","<$1>")
-
-
-
-
-        return b
+        return newlineToTheRight
     }
 
     fun clearFormatting(html: String): String {

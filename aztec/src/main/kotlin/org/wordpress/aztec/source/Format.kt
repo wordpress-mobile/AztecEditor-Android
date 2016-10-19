@@ -11,11 +11,12 @@ object Format {
     fun addFormatting(content: String): String {
         val doc = Jsoup.parseBodyFragment(content)
 
+        //remove newline around all non block elements
         val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?$block>)\n<(/?(?!$block).)>", "<$1>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
-        return newlineToTheRight
+        return fixBrNewlines
     }
 
     fun clearFormatting(html: String): String {

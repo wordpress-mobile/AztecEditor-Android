@@ -1,15 +1,15 @@
 package org.wordpress.aztec.spans
 
 import android.text.TextUtils
-import android.text.style.StrikethroughSpan
+import android.text.style.RelativeSizeSpan
 
-class AztecStrikethroughSpan() : StrikethroughSpan(), AztecContentSpan {
+class AztecRelativeSizeSpan : RelativeSizeSpan, AztecContentSpan {
 
-    private var tag: String = "del"
+    var tag: String = ""
+    override var attributes: String?
 
-    override var attributes: String? = null
-
-    constructor(tag: String, attributes: String?) : this() {
+    @JvmOverloads
+    constructor(tag: String, size: Float, attributes: String? = null) : super(size) {
         this.tag = tag
         this.attributes = attributes
     }

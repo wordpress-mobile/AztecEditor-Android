@@ -22,35 +22,42 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
 
 class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
-    override fun getTag(): String {
-        return "ol"
-    }
+    private final val TAG = "ol"
 
     private var textColor: Int = 0
     private var textMargin: Int = 0
     private var textPadding: Int = 0
     private var bulletWidth: Int = 0 //we are using bullet width to maintain same margin with bullet list
 
+    override var attributes: String? = null
 
     //used for marking
     constructor() : super(0) {
+        attributes = null
     }
 
-    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int) : super(textMargin) {
+    constructor(attributes: String) : super(0) {
+        this.attributes = attributes
+    }
+
+    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int, attributes: String? = null) : super(textMargin) {
         this.textColor = textColor
         this.textMargin = textMargin
         this.bulletWidth = bulletWidth
         this.textPadding = textPadding
+        this.attributes = attributes
     }
 
     constructor(src: Parcel) : super(src) {
         this.textColor = src.readInt()
         this.textMargin = src.readInt()
         this.textPadding = src.readInt()
+        this.attributes = src.readString()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -58,6 +65,18 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         dest.writeInt(textColor)
         dest.writeInt(textMargin)
         dest.writeInt(textPadding)
+        dest.writeString(attributes)
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 
     override fun getLeadingMargin(first: Boolean): Int {

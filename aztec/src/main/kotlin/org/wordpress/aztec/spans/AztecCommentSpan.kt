@@ -8,6 +8,7 @@ import android.text.style.ImageSpan
 
 class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
     companion object {
+        private val rect: Rect = Rect()
         private val HTML_MORE: String = "more"
         private val HTML_PAGE: String = "nextpage"
     }
@@ -34,7 +35,8 @@ class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(dra
 
     private fun getBounds(drawable: Drawable): Rect {
         if (drawable.intrinsicWidth === 0) {
-            return Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            rect.set(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            return rect
         }
 
         val width = context.resources.displayMetrics.widthPixels

@@ -1128,7 +1128,6 @@ class AztecText : EditText, TextWatcher {
 
         editableText.setSpan(
                 AztecCommentSpan(
-                        comment,
                         context,
                         when (comment) {
                             AztecCommentSpan.Comment.MORE -> resources.getDrawable(R.drawable.img_more)

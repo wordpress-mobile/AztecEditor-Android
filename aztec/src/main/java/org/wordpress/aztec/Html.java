@@ -1000,7 +1000,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
             mSpannableStringBuilder.setSpan(
                     new AztecCommentSpan(
-                            AztecCommentSpan.Comment.MORE,
                             mContext,
                             mContext.getResources().getDrawable(R.drawable.img_more)
                     ),
@@ -1011,7 +1010,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
             mSpannableStringBuilder.setSpan(
                     new AztecCommentSpan(
-                            AztecCommentSpan.Comment.PAGE,
                             mContext,
                             mContext.getResources().getDrawable(R.drawable.img_page)
                     ),

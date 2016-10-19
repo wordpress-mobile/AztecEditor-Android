@@ -1123,7 +1123,7 @@ class AztecText : EditText, TextWatcher {
     fun applyComment(comment: AztecCommentSpan.Comment) {
         editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + "\n")
         setSelection(selectionEnd - 1 - comment.html.length, selectionEnd - 1)
-        removeInlineStylesFromRange(selectionStart, selectionEnd)
+        removeInlineStylesFromRange(selectionStart, selectionEnd + 1)
         setSelection(selectionEnd)
 
         editableText.setSpan(

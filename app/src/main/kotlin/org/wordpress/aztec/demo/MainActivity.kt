@@ -8,6 +8,7 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -54,7 +55,6 @@ class MainActivity : AppCompatActivity() {
 
         aztec = findViewById(R.id.aztec) as AztecText
         source = findViewById(R.id.source) as SourceViewEditText
-        source.history = aztec.history
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
@@ -65,8 +65,20 @@ class MainActivity : AppCompatActivity() {
         aztec.fromHtml(source.getPureHtml())
 
         aztec.setSelection(aztec.editableText.length)
-        aztec.history.clearHistory()
+        if (savedInstanceState != null) {
+            val array = ArrayList(savedInstanceState.getStringArrayList("historyList"))
+            val list = LinkedList<String>()
 
+            for (item in array) {
+                list.add(item)
+            }
+
+            aztec.history.historyList = list
+            aztec.history.historyCursor = savedInstanceState.getInt("historyCursor")
+            aztec.history.inputLast = savedInstanceState.getString("inputLast")
+        }
+
+        source.history = aztec.history
         // ImageGetter coming soon...
     }
 
@@ -94,5 +106,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    override fun onSaveInstanceState(saveInstanceState: Bundle?) {
+        saveInstanceState?.putStringArrayList("historyList", ArrayList<String>(aztec.history.historyList))
+        saveInstanceState?.putInt("historyCursor", aztec.history.historyCursor)
+        saveInstanceState?.putString("inputLast", aztec.history.inputLast)
+        super.onSaveInstanceState(saveInstanceState)
     }
 }

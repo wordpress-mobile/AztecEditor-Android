@@ -55,6 +55,7 @@
 
             <org.wordpress.aztec.source.SourceViewEditText
                 android:id="@+id/source"
+                android:hint="@string/source_hint"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:paddingTop="16dp"

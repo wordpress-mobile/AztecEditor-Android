@@ -27,8 +27,10 @@ class MainActivity : AppCompatActivity() {
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"
-        private val COMMENT = "<!--This is a comment--><br>"
-        private val HIDDEN = 
+        private val COMMENT = "<!--Comment--><br>"
+        private val COMMENT_MORE = "<!--more--><br>"
+        private val COMMENT_PAGE = "<!--nextpage--><br>"
+        private val HIDDEN =
                 "<span></span>" +
                 "<div class=\"first\">" +
                 "    <div class=\"second\">" +
@@ -41,7 +43,7 @@ class MainActivity : AppCompatActivity() {
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + UNKNOWN + COMMENT + HIDDEN
+        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + HIDDEN + COMMENT + COMMENT_MORE + COMMENT_PAGE + UNKNOWN
     }
 
     private lateinit var aztec: AztecText
@@ -64,10 +66,7 @@ class MainActivity : AppCompatActivity() {
         source.displayStyledAndFormattedHtml(aztec.toHtml())
         aztec.fromHtml(source.getPureHtml())
 
-        aztec.setSelection(aztec.editableText.length)
         aztec.history.clearHistory()
-
-        // ImageGetter coming soon...
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

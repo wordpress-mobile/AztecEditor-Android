@@ -2,8 +2,8 @@
 
 <resources>
 
-    <color name="blue_200">#ff90caf9</color>
-    <color name="blue_500">#ff2196f3</color>
-    <color name="blue_700">#ff1976d2</color>
+    <color name="blue_light">#ff78dcfa</color>
+    <color name="blue_medium">#ff00aadc</color>
+    <color name="blue_wordpress">#ff0087be</color>
 
 </resources>

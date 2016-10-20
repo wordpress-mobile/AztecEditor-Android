@@ -7,8 +7,7 @@ import java.util.*
 class History(val historyEnabled: Boolean, val historySize: Int) {
     var historyCursor = 0
     var historyList = LinkedList<String>()
-
-    lateinit var inputLast: String
+    var inputLast: String = ""
 
     private var historyWorking = false
 

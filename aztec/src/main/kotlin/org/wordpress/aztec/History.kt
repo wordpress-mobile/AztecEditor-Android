@@ -5,14 +5,13 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class History(val historyEnabled: Boolean, val historySize: Int) {
-
-    public val historyList = LinkedList<String>()
-
-    private lateinit var inputBefore: String
-    private lateinit var inputLast: String
+    var historyCursor = 0
+    var historyList = LinkedList<String>()
+    var inputLast: String = ""
 
     private var historyWorking = false
-    private var historyCursor = 0
+
+    private lateinit var inputBefore: String
 
     fun beforeTextChanged(text: String) {
         if (historyEnabled && !historyWorking) {

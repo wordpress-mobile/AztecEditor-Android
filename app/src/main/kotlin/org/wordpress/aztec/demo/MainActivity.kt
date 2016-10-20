@@ -8,6 +8,7 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -56,7 +57,6 @@ class MainActivity : AppCompatActivity() {
 
         aztec = findViewById(R.id.aztec) as AztecText
         source = findViewById(R.id.source) as SourceViewEditText
-        source.history = aztec.history
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         source.displayStyledAndFormattedHtml(aztec.toHtml())
         aztec.fromHtml(source.getPureHtml())
 
-        aztec.history.clearHistory()
+        source.history = aztec.history
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

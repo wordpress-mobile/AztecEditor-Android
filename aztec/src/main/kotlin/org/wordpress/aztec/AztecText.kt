@@ -21,6 +21,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.text.*
 import android.text.style.CharacterStyle
@@ -132,6 +135,45 @@ class AztecText : EditText, TextWatcher {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         removeTextChangedListener(this)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val savedState = state as SavedState
+        super.onRestoreInstanceState(savedState.superState)
+        val customState = savedState.state
+        val array = ArrayList(customState.getStringArrayList("historyList"))
+        val list = LinkedList<String>()
+
+        for (item in array) {
+            list.add(item)
+        }
+
+        history.historyList = list
+        history.historyCursor = customState.getInt("historyCursor")
+        history.inputLast = customState.getString("inputLast")
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val savedState = SavedState(superState)
+        val bundle = Bundle()
+        bundle.putStringArrayList("historyList", ArrayList<String>(history.historyList))
+        bundle.putInt("historyCursor", history.historyCursor)
+        bundle.putString("inputLast", history.inputLast)
+        savedState.state = bundle
+        return savedState
+    }
+
+    internal class SavedState : BaseSavedState {
+        var state: Bundle = Bundle()
+
+        constructor(superState: Parcelable) : super(superState) {
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeBundle(state)
+        }
     }
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {

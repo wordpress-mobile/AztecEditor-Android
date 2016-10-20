@@ -65,19 +65,6 @@ class MainActivity : AppCompatActivity() {
         aztec.fromHtml(source.getPureHtml())
 
         aztec.setSelection(aztec.editableText.length)
-        if (savedInstanceState != null) {
-            val array = ArrayList(savedInstanceState.getStringArrayList("historyList"))
-            val list = LinkedList<String>()
-
-            for (item in array) {
-                list.add(item)
-            }
-
-            aztec.history.historyList = list
-            aztec.history.historyCursor = savedInstanceState.getInt("historyCursor")
-            aztec.history.inputLast = savedInstanceState.getString("inputLast")
-        }
-
         source.history = aztec.history
         // ImageGetter coming soon...
     }
@@ -106,12 +93,5 @@ class MainActivity : AppCompatActivity() {
         }
 
         return true
-    }
-
-    override fun onSaveInstanceState(saveInstanceState: Bundle?) {
-        saveInstanceState?.putStringArrayList("historyList", ArrayList<String>(aztec.history.historyList))
-        saveInstanceState?.putInt("historyCursor", aztec.history.historyCursor)
-        saveInstanceState?.putString("inputLast", aztec.history.inputLast)
-        super.onSaveInstanceState(saveInstanceState)
     }
 }

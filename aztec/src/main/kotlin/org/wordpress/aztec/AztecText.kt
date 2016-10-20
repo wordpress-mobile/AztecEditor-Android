@@ -383,7 +383,6 @@ class AztecText : EditText, TextWatcher {
         joinStyleSpans(start, end)
     }
 
-
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null): AztecBlockSpan {
         when (textFormat) {
@@ -665,7 +664,6 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-
     fun unorderedListValid(valid: Boolean) {
         if (valid) {
             if (containsList(TextFormat.FORMAT_ORDERED_LIST, selectionStart, selectionEnd)) {
@@ -868,7 +866,6 @@ class AztecText : EditText, TextWatcher {
         val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat).javaClass)
         return spans.size > 0
     }
-
 
     // QuoteSpan ===================================================================================
 
@@ -1122,22 +1119,27 @@ class AztecText : EditText, TextWatcher {
 
     fun applyComment(comment: AztecCommentSpan.Comment) {
         editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + "\n")
-        setSelection(selectionEnd - 1 - comment.html.length, selectionEnd - 1)
+        setSelection(selectionEnd - 1 - comment.html.length, selectionEnd - 1)  // -1's are for \n's
+        removeHeadingStylesFromRange(selectionStart, selectionEnd + 1)
         removeInlineStylesFromRange(selectionStart, selectionEnd + 1)
-        setSelection(selectionEnd)
+        removeBlockStylesFromRange(selectionStart, selectionEnd + 1)
+
+        val span = AztecCommentSpan(
+                context,
+                when (comment) {
+                    AztecCommentSpan.Comment.MORE -> resources.getDrawable(R.drawable.img_more)
+                    AztecCommentSpan.Comment.PAGE -> resources.getDrawable(R.drawable.img_page)
+                }
+        )
 
         editableText.setSpan(
-                AztecCommentSpan(
-                        context,
-                        when (comment) {
-                            AztecCommentSpan.Comment.MORE -> resources.getDrawable(R.drawable.img_more)
-                            AztecCommentSpan.Comment.PAGE -> resources.getDrawable(R.drawable.img_page)
-                        }
-                ),
-                selectionEnd - comment.html.length,
+                span,
+                selectionStart,
                 selectionEnd,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
+
+        setSelection(selectionEnd + 1)
     }
 
     fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
@@ -1223,7 +1225,6 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-
     fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
             TextFormat.FORMAT_HEADING_1,
@@ -1270,7 +1271,6 @@ class AztecText : EditText, TextWatcher {
         handleInlineStyling(text, textChangedEventDetails)
     }
 
-
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
             if (text.length >= 1) {
@@ -1310,7 +1310,6 @@ class AztecText : EditText, TextWatcher {
 
         setFormattingChangesApplied()
     }
-
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         // preserve the attributes on the previous list item when adding a new one
@@ -1410,7 +1409,6 @@ class AztecText : EditText, TextWatcher {
 
 
     }
-
 
     fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
         val startOfLine: Int
@@ -1541,6 +1539,20 @@ class AztecText : EditText, TextWatcher {
         enableTextChangedListener()
     }
 
+    private fun removeBlockStylesFromRange(start: Int, end: Int) {
+        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_ORDERED_LIST).javaClass)
+        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_UNORDERED_LIST).javaClass)
+        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_QUOTE).javaClass)
+    }
+
+    private fun removeHeadingStylesFromRange(start: Int, end: Int) {
+        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+
+        for (span in spans) {
+            editableText.removeSpan(span)
+        }
+    }
+
     fun removeInlineStylesFromRange(start: Int, end: Int) {
         removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
         removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
@@ -1589,7 +1601,6 @@ class AztecText : EditText, TextWatcher {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText(null, html)
     }
-
 
     //copied from TextView with some changes
     private fun paste(editable: Editable, min: Int, max: Int) {

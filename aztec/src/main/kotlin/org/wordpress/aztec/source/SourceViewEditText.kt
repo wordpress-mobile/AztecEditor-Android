@@ -1,6 +1,9 @@
 package org.wordpress.aztec.source
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
 import android.text.Editable
@@ -21,7 +24,7 @@ class SourceViewEditText : EditText, TextWatcher {
 
     private var styleTextWatcher: HtmlStyleTextWatcher? = null
 
-    public var history: History? = null
+    lateinit var history: History
 
     private var consumeEditEvent: Boolean = true
 
@@ -61,6 +64,34 @@ class SourceViewEditText : EditText, TextWatcher {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         removeTextChangedListener(this)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val savedState = state as SavedState
+        super.onRestoreInstanceState(savedState.superState)
+        val customState = savedState.state
+        visibility = customState.getInt("visibility")
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val savedState = SavedState(superState)
+        val bundle = Bundle()
+        bundle.putInt("visibility", visibility)
+        savedState.state = bundle
+        return savedState
+    }
+
+    internal class SavedState : BaseSavedState {
+        var state: Bundle = Bundle()
+
+        constructor(superState: Parcelable) : super(superState) {
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeBundle(state)
+        }
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {

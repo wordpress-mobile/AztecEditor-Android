@@ -151,6 +151,7 @@ class AztecText : EditText, TextWatcher {
         history.historyList = list
         history.historyCursor = customState.getInt("historyCursor")
         history.inputLast = customState.getString("inputLast")
+        visibility = customState.getInt("visibility")
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -160,6 +161,7 @@ class AztecText : EditText, TextWatcher {
         bundle.putStringArrayList("historyList", ArrayList<String>(history.historyList))
         bundle.putInt("historyCursor", history.historyCursor)
         bundle.putString("inputLast", history.inputLast)
+        bundle.putInt("visibility", visibility)
         savedState.state = bundle
         return savedState
     }

@@ -189,7 +189,6 @@ class AztecText : EditText, TextWatcher {
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
             if (firstSpan is HiddenHtmlSpan) return false
-
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -774,14 +773,15 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd,
-                                 spanType: Class<AztecBlockSpan> = AztecBlockSpan::class.java) {
+                                 spanType: Class<AztecBlockSpan> = AztecBlockSpan::class.java, ignoreLineBounds: Boolean = false) {
         val spans = editableText.getSpans(start, end, spanType)
         spans.forEach {
 
             val spanStart = editableText.getSpanStart(it)
             var spanEnd = editableText.getSpanEnd(it)
 
-            val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
+            //if splitting block set a range that would be excluded from it
+            val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end) else getSelectedTextBounds(editableText, start, end)
 
             val startOfLine = boundsOfSelectedText.start
             val endOfLine = boundsOfSelectedText.endInclusive
@@ -799,7 +799,7 @@ class AztecText : EditText, TextWatcher {
             }
 
             if (spanExtendsBeyondLine) {
-                if (editableText[endOfLine] == '\n') {
+                if (editableText[endOfLine] == '\n' && !ignoreLineBounds) {
                     disableTextChangedListener()
                     editableText.delete(endOfLine, endOfLine + 1)
                     spanEnd--
@@ -1118,11 +1118,24 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun applyComment(comment: AztecCommentSpan.Comment) {
-        editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + "\n")
-        setSelection(selectionEnd - 1 - comment.html.length, selectionEnd - 1)  // -1's are for \n's
-        removeHeadingStylesFromRange(selectionStart, selectionEnd + 1)
-        removeInlineStylesFromRange(selectionStart, selectionEnd + 1)
-        removeBlockStylesFromRange(selectionStart, selectionEnd + 1)
+        //check if we add a comment into a block element, at the end of the line, but not at the end of last line
+        var applyingOnTheEndOfBlockLine = false
+        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
+            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
+                applyingOnTheEndOfBlockLine = true
+                return@forEach
+            }
+        }
+
+        val commentStartIndex = selectionStart + 1
+        val commentEndIndex = selectionStart + comment.html.length + 1
+
+        disableTextChangedListener()
+        editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
+
+        removeBlockStylesFromRange(commentStartIndex, commentEndIndex + 1, true)
+        removeHeadingStylesFromRange(commentStartIndex, commentEndIndex + 1)
+        removeInlineStylesFromRange(commentStartIndex, commentEndIndex + 1)
 
         val span = AztecCommentSpan(
                 context,
@@ -1134,12 +1147,12 @@ class AztecText : EditText, TextWatcher {
 
         editableText.setSpan(
                 span,
-                selectionStart,
-                selectionEnd,
+                commentStartIndex,
+                commentEndIndex,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        setSelection(selectionEnd + 1)
+        setSelection(commentEndIndex + 1)
     }
 
     fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
@@ -1339,7 +1352,7 @@ class AztecText : EditText, TextWatcher {
                     if (text[spanStart] == '\n') {
                         spanStart += 1
 
-                        if (text[spanStart] == '\n' && text.length >= spanEnd) {
+                        if (text[spanStart] == '\n' && text.length >= spanEnd && text.length > spanStart) {
                             spanEnd += 1
                             disableTextChangedListener()
                             text.insert(spanStart, "\u200B")
@@ -1539,10 +1552,8 @@ class AztecText : EditText, TextWatcher {
         enableTextChangedListener()
     }
 
-    private fun removeBlockStylesFromRange(start: Int, end: Int) {
-        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_ORDERED_LIST).javaClass)
-        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_UNORDERED_LIST).javaClass)
-        removeBlockStyle(start, end, makeBlockSpan(TextFormat.FORMAT_QUOTE).javaClass)
+    private fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
+        removeBlockStyle(start, end, AztecBlockSpan::class.java, ignoreLineBounds)
     }
 
     private fun removeHeadingStylesFromRange(start: Int, end: Int) {

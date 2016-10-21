@@ -188,6 +188,8 @@ class AztecText : EditText, TextWatcher {
 
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
+            if (firstSpan is HiddenHtmlSpan) return false
+            
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -1153,7 +1155,7 @@ class AztecText : EditText, TextWatcher {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        setSelection(commentEndIndex)
+        setSelection(commentEndIndex+1)
     }
 
     fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {

@@ -189,7 +189,6 @@ class AztecText : EditText, TextWatcher {
     fun isSameInlineSpanType(firstSpan: CharacterStyle, secondSpan: CharacterStyle): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
             if (firstSpan is HiddenHtmlSpan) return false
-            
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -806,8 +805,6 @@ class AztecText : EditText, TextWatcher {
                     spanEnd--
                 }
 
-
-
                 editableText.setSpan(makeBlockSpan(it.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
@@ -1136,9 +1133,9 @@ class AztecText : EditText, TextWatcher {
         disableTextChangedListener()
         editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
 
-        removeBlockStylesFromRange(commentStartIndex, commentEndIndex, true)
-        removeHeadingStylesFromRange(commentStartIndex, commentEndIndex)
-        removeInlineStylesFromRange(commentStartIndex, commentEndIndex)
+        removeBlockStylesFromRange(commentStartIndex, commentEndIndex + 1, true)
+        removeHeadingStylesFromRange(commentStartIndex, commentEndIndex + 1)
+        removeInlineStylesFromRange(commentStartIndex, commentEndIndex + 1)
 
         val span = AztecCommentSpan(
                 context,
@@ -1155,7 +1152,7 @@ class AztecText : EditText, TextWatcher {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        setSelection(commentEndIndex+1)
+        setSelection(commentEndIndex + 1)
     }
 
     fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {

@@ -8,14 +8,18 @@ import java.util.*
 
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {
 
-    val inputStart = start
+
     val inputEnd = start + countOfCharacters
-    val count = countOfCharacters
+
 
     val numberOfAddedCharacters = countOfCharacters - before
     val numberOfRemovedCharacters = before - countOfCharacters
 
     val isAddingCharacters = numberOfAddedCharacters > numberOfRemovedCharacters
+
+    val count = if (isAddingCharacters) numberOfAddedCharacters else Math.abs(numberOfRemovedCharacters)
+
+    val inputStart = if (isAddingCharacters) inputEnd - count else inputEnd + count
 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (start >= 1 && count > 0) {
@@ -49,8 +53,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
                 val spans = editableText.getSpans(start, start, AztecBlockSpan::class.java)
 
                 spans.forEach {
-
-                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
+                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd]
                     if (previousCharacter == '\n') return@forEach
 
                     val deletingLastCharacter = !isAddingCharacters && text.length == inputEnd
@@ -89,7 +92,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
         val spansToClose = ArrayList<AztecBlockSpan>()
 
-        if (start > 0 && count == 0) {
+        if (start > 0 && count == 1) {
             if (text[start - 1] != '\n') return spansToClose
 
             val spans = editableText.getSpans(start, start, AztecBlockSpan::class.java)

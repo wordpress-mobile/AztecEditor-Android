@@ -36,10 +36,10 @@ import android.text.style.TypefaceSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
-import org.wordpress.aztec.spans.AztecQuoteSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
@@ -996,8 +996,35 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         String comment = new String(chars, start, length);
         int spanStart = mSpannableStringBuilder.length();
         mSpannableStringBuilder.append(comment);
-        mSpannableStringBuilder.setSpan(new CommentSpan(),
-                spanStart, mSpannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
+            mSpannableStringBuilder.setSpan(
+                    new AztecCommentSpan(
+                            mContext,
+                            mContext.getResources().getDrawable(R.drawable.img_more)
+                    ),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
+            mSpannableStringBuilder.setSpan(
+                    new AztecCommentSpan(
+                            mContext,
+                            mContext.getResources().getDrawable(R.drawable.img_page)
+                    ),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        } else {
+            mSpannableStringBuilder.setSpan(
+                    new CommentSpan(),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
     }
 
     private static class Unknown {

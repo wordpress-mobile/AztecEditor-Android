@@ -1,6 +1,5 @@
 package org.wordpress.aztec
 
-
 import android.app.Activity
 import android.widget.ToggleButton
 import org.junit.Assert
@@ -12,7 +11,6 @@ import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-
 
 /**
  * Combined test for toolbar and inline styles.
@@ -32,8 +30,9 @@ class AztecToolbarTest {
     lateinit var bulletListButton: ToggleButton
     lateinit var numberedListButton: ToggleButton
     lateinit var linkButton: ToggleButton
+    lateinit var moreButton: ToggleButton
+    lateinit var pageButton: ToggleButton
     lateinit var htmlButton: ToggleButton
-
 
     /**
      * Initialize variables.
@@ -43,7 +42,6 @@ class AztecToolbarTest {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
         sourceText = SourceViewEditText(activity)
-
 
         activity.setContentView(editText)
         toolbar = AztecToolbar(activity)
@@ -56,10 +54,10 @@ class AztecToolbarTest {
         bulletListButton = toolbar.findViewById(R.id.format_bar_button_ul) as ToggleButton
         numberedListButton = toolbar.findViewById(R.id.format_bar_button_ol) as ToggleButton
         linkButton = toolbar.findViewById(R.id.format_bar_button_link) as ToggleButton
+        moreButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
+        pageButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html) as ToggleButton
-
     }
-
 
     /**
      * Testing initial state of the editor and a toolbar.
@@ -75,6 +73,8 @@ class AztecToolbarTest {
         Assert.assertFalse(bulletListButton.isChecked)
         Assert.assertFalse(numberedListButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
+        Assert.assertFalse(moreButton.isChecked)
+        Assert.assertFalse(pageButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
 
         Assert.assertTrue(editText.isEmpty())
@@ -98,7 +98,6 @@ class AztecToolbarTest {
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
     }
-
 
     /**
      * Select text and toggle bold button.
@@ -162,7 +161,6 @@ class AztecToolbarTest {
         Assert.assertEquals("italic", editText.toHtml())
     }
 
-
     /**
      * Toggle bold Strikethrough and type.
      *
@@ -181,7 +179,6 @@ class AztecToolbarTest {
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
     }
-
 
     /**
      * Select text and toggle Strikethrough button.
@@ -204,7 +201,6 @@ class AztecToolbarTest {
 
         Assert.assertEquals("strike", editText.toHtml())
     }
-
 
     /**
      * Select parts of text and apply formatting to it.
@@ -291,7 +287,6 @@ class AztecToolbarTest {
         Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>normal", editText.toHtml())
     }
 
-
     /**
      * Test toggle state of formatting button as we move selection to differently styled text
      *
@@ -333,7 +328,6 @@ class AztecToolbarTest {
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
-
     }
 
     /**
@@ -380,7 +374,6 @@ class AztecToolbarTest {
         Assert.assertEquals("<b>bol</b><b><del>dstrike</del></b>", editText.toHtml())
     }
 
-
     /**
      * Select part of text with one common style applied to it and other style applied to part of it
      * ("italic" from <b>bold</b><b><i>italic</i></b>) and remove partially applied style (italic) form it
@@ -401,7 +394,6 @@ class AztecToolbarTest {
 
         Assert.assertEquals("<b>bolditalic</b>", editText.toHtml())
     }
-
 
     /**
      * Select whole text with one common style applied to it and another style applied to part of it
@@ -444,7 +436,6 @@ class AztecToolbarTest {
         Assert.assertEquals("bolditalic", editText.toHtml())
     }
 
-
     /**
      * Clear edit text and check that all buttons are not toggled.
      *
@@ -468,7 +459,6 @@ class AztecToolbarTest {
         Assert.assertFalse(htmlButton.isChecked)
     }
 
-
     /**
      * Toggle bullet list button and type.
      *
@@ -490,7 +480,6 @@ class AztecToolbarTest {
         Assert.assertEquals("bullet", editText.toHtml())
     }
 
-
     /**
      * Test styling inside HiddenHtmlSpan
      *
@@ -503,7 +492,8 @@ class AztecToolbarTest {
 
         editText.setSelection(0, 3)
         boldButton.performClick()
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>", editText.toHtml())
+        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>",
+                editText.toHtml())
 
         editText.setSelection(4, 8)
         italicButton.performClick()
@@ -543,5 +533,93 @@ class AztecToolbarTest {
 
         htmlButton.performClick()
         TestUtils.equalsIgnoreWhitespace("", sourceText.text.toString())
+    }
+
+    /**
+     * Insert comment at selection when More format toolbar button is tapped.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun insertMoreWithButton() {
+        editText.fromHtml("")
+        moreButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<!--more-->", sourceText.text.toString())
+
+        // Select location.
+        editText.fromHtml("<b>Bold</b>")
+        editText.setSelection(3)
+        moreButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--more--><br><b>d</b><br>", sourceText.text.toString())
+
+        // Select characters.
+        editText.fromHtml("<b>Bold</b>")
+        editText.setSelection(2, 3)
+        moreButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>B</b><br><!--more--><br><b>d</b><br>", sourceText.text.toString())
+
+        // Select characters across lines.
+        editText.fromHtml("<b>Bold</b><br><i>Italic</i><br>")
+        editText.setSelection(3, 5)
+        moreButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--more--><br><i>talic</i><br>", sourceText.text.toString())
+    }
+
+    /**
+     * Insert comment when <!--more--> is input.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun insertMoreWithCode() {
+        editText.fromHtml("")
+        sourceText.append("<!--more-->")
+        TestUtils.equalsIgnoreWhitespace("more", editText.text.toString())
+    }
+
+    /**
+     * Insert comment at selection when Page Break format toolbar button is tapped.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun insertPageWithButton() {
+        editText.fromHtml("")
+        pageButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<!--nextpage-->", sourceText.text.toString())
+
+        // Select location.
+        editText.fromHtml("<b>Bold</b>")
+        editText.setSelection(3)
+        pageButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--nextpage--><br><b>d</b><br>", sourceText.text.toString())
+
+        // Select characters.
+        editText.fromHtml("<b>Bold</b>")
+        editText.setSelection(2, 3)
+        pageButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>B</b><br><!--nextpage--><br><b>d</b><br>", sourceText.text.toString())
+
+        // Select characters across lines.
+        editText.fromHtml("<b>Bold</b><br><i>Italic</i><br>")
+        editText.setSelection(3, 5)
+        pageButton.performClick()
+        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--nextpage--><br><i>talic</i><br>", sourceText.text.toString())
+    }
+
+    /**
+     * Insert comment when <!--nextpage--> is input.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun insertPageWithCode() {
+        editText.fromHtml("")
+        sourceText.append("<!--nextpage-->")
+        TestUtils.equalsIgnoreWhitespace("nextpage", editText.text.toString())
     }
 }

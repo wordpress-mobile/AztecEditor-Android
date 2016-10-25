@@ -1263,6 +1263,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toggleFormatting(textFormat: TextFormat) {
+
+        history.beforeTextChanged(toFormattedHtml())
+
         when (textFormat) {
             TextFormat.FORMAT_PARAGRAPH -> heading(false, textFormat)
             TextFormat.FORMAT_HEADING_1,
@@ -1280,6 +1283,8 @@ class AztecText : EditText, TextWatcher {
             else -> {
             }
         }
+
+        history.handleHistory(this)
     }
 
     fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {

@@ -109,16 +109,16 @@ class SourceViewEditText : EditText, TextWatcher {
             return
         }
 
-        history?.handleHistory(this)
+        history.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 
     fun redo() {
-        history?.redo(this)
+        history.redo(this)
     }
 
     fun undo() {
-        history?.undo(this)
+        history.undo(this)
     }
 
     fun displayStyledAndFormattedHtml(source: String) {

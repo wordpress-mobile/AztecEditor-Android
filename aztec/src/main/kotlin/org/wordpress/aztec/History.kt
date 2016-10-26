@@ -76,6 +76,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
         editText.isFocusable = true
         editText.isFocusableInTouchMode = true
+        editText.requestFocus()
     }
 
     fun undo(editText: EditText) {
@@ -96,6 +97,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
         editText.isFocusable = true
         editText.isFocusableInTouchMode = true
+        editText.requestFocus()
     }
 
     private fun setTextFromHistory(editText: EditText) {

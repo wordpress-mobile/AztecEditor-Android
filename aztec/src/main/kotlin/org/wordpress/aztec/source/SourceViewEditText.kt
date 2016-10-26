@@ -131,7 +131,7 @@ class SourceViewEditText : EditText, TextWatcher {
     fun displayStyledHtml(source: String) {
         val styledHtml = styleHtml(source)
         disableTextChangedListener()
-        text = styledHtml
+        setTextKeepState(styledHtml)
         enableTextChangedListener()
     }
 

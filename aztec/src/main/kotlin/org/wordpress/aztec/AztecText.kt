@@ -1534,7 +1534,7 @@ class AztecText : EditText, TextWatcher {
         builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
-        text = builder
+        setTextKeepState(builder)
         enableTextChangedListener()
     }
 

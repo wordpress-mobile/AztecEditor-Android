@@ -1323,10 +1323,9 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun reapplyCarriedInlineOverSpans() = carryOverSpans?.forEach {
+    fun reapplyCarriedOverInlineSpans() = carryOverSpans?.forEach {
         editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
-
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         carryOverInlineSpans(start, count, after)
@@ -1337,7 +1336,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        reapplyCarriedInlineOverSpans()
+        reapplyCarriedOverInlineSpans()
         textChangedEventDetails = TextChangedEvent(text, start, before, count)
     }
 
@@ -1346,7 +1345,6 @@ class AztecText : EditText, TextWatcher {
             enableTextChangedListener()
             return
         }
-
 
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, AztecInlineSpan::class.java)

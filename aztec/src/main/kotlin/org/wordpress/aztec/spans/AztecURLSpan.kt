@@ -22,7 +22,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.URLSpan
 
-class AztecURLSpan : URLSpan, AztecContentSpan {
+class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
 
     private final val TAG: String = "a"
 

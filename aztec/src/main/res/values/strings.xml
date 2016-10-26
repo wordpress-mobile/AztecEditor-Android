@@ -16,6 +16,7 @@
     <string name="format_bar_description_quote">Block quote</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_more">More</string>
+    <string name="format_bar_description_page">Page Break</string>
     <string name="format_bar_description_media">Media</string>
     <string name="format_bar_description_ul">Unordered list</string>
     <string name="format_bar_description_ol">Ordered list</string>

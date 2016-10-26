@@ -16,6 +16,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecCommentSpan
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
@@ -207,6 +208,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (action) {
             ToolbarAction.HEADING -> headingMenu?.show()
             ToolbarAction.LINK -> showLinkDialog()
+            ToolbarAction.MORE -> editor!!.applyComment(AztecCommentSpan.Comment.MORE)
+            ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
                     sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())

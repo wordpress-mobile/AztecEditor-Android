@@ -59,13 +59,16 @@ class AztecParser {
         // add a marker to the end of the text to aid nested group parsing
         val data = SpannableStringBuilder(cleanedUpText).append('\u200B')
 
-        resetHiddenTagParser(cleanedUpText)
+        resetHiddenTagParser(data)
 
-        val hidden = cleanedUpText.getSpans(0, cleanedUpText.length, HiddenHtmlSpan::class.java)
+        val hidden = data.getSpans(0, data.length, HiddenHtmlSpan::class.java)
         hiddenSpans = IntArray(hidden.size * 2)
         hidden.forEach {
             hiddenSpans[hiddenIndex++] = it.startOrder
             hiddenSpans[hiddenIndex++] = it.endOrder
+
+            // make sure every hidden span is attached to a character
+            data.insert(data.getSpanStart(it), "" + '\uFEFF')
         }
         hiddenIndex = 0
         Arrays.sort(hiddenSpans)
@@ -443,5 +446,6 @@ class AztecParser {
         return html
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("&#65279;", "")
     }
 }

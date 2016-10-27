@@ -1528,21 +1528,37 @@ class AztecText : EditText, TextWatcher {
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
     }
 
+    fun consumeCursorPosition(text: SpannableStringBuilder): Int {
+        var cursorPosition = 0
+
+        text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
+            cursorPosition = text.getSpanStart(it)
+            text.removeSpan(it)
+        }
+
+        return cursorPosition
+    }
+
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
         builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
+        val cursorPosition = consumeCursorPosition(builder)
         text = builder
         enableTextChangedListener()
+        setSelection(cursorPosition)
     }
 
-    fun toHtml(): String {
+    fun toHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
         BaseInputConnection.removeComposingSpans(output)
-        return Format.clearFormatting(parser.toHtml(output))
+
+        val html = if (withCursorTag) parser.toHtmlWithCursorTag(output, selectionEnd) else parser.toHtml(output)
+
+        return Format.clearFormatting(html)
     }
 
     fun toFormattedHtml(): String {

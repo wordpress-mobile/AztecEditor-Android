@@ -14,6 +14,7 @@ import android.widget.EditText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.util.TypefaceCache
+import java.util.*
 
 class SourceViewEditText : EditText, TextWatcher {
 
@@ -123,9 +124,26 @@ class SourceViewEditText : EditText, TextWatcher {
 
     fun displayStyledAndFormattedHtml(source: String) {
         val styledHtml = styleHtml(Format.addFormatting(source))
+
         disableTextChangedListener()
+        val cursorPosition = consumeCursorTag(styledHtml)
         text = styledHtml
         enableTextChangedListener()
+
+        setSelection(cursorPosition)
+    }
+
+    fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {
+        val possibleTags = ArrayList<String>()
+        possibleTags.add("\n <aztec_cursor></aztec_cursor>")
+        possibleTags.add("\n<aztec_cursor></aztec_cursor>")
+        possibleTags.add("<aztec_cursor></aztec_cursor>")
+
+        val cursorTagIndex = styledHtml.indexOfAny(possibleTags)
+        if (cursorTagIndex < 0) return 0
+
+        styledHtml.delete(cursorTagIndex, styledHtml.indexOf("</aztec_cursor>") + "</aztec_cursor>".length)
+        return cursorTagIndex
     }
 
     fun displayStyledHtml(source: String) {
@@ -141,7 +159,38 @@ class SourceViewEditText : EditText, TextWatcher {
         return styledHtml
     }
 
-    fun getPureHtml() : String {
+    fun isCursorInsideTag(): Boolean {
+
+        val indexOfFirstClosingBracketOnTheRight = text.indexOf(">", selectionEnd)
+        val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
+
+        val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
+                indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight
+
+
+        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd)
+        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd)
+
+        val isThereOpeningBracketBeforeClosingBracket = indexOfFirstOpeningBracketOnTheLeft != -1 &&
+                indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft
+
+        return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
+
+    }
+
+
+    fun getPureHtml(withCursorTag: Boolean = false): String {
+        if (withCursorTag) {
+            disableTextChangedListener()
+            if (!isCursorInsideTag()) {
+                text.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
+            } else {
+                text.insert(text.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
+            }
+            enableTextChangedListener()
+        }
+
+
         return Format.clearFormatting(text.toString())
     }
 

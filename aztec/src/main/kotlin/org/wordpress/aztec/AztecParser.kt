@@ -34,6 +34,9 @@ class AztecParser {
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var hiddenSpans: IntArray = IntArray(0)
+    internal var spanCursorPosition = 0
+    internal var htmlCursorPositon = 0
+
 
     fun fromHtml(source: String, context: Context): Spanned {
         val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
@@ -49,6 +52,13 @@ class AztecParser {
         }
 
         return spanned
+    }
+
+    fun toHtmlWithCursorTag(text: Spanned, cursorPosition: Int): String {
+        spanCursorPosition = cursorPosition
+        val html = toHtml(text)
+        spanCursorPosition = 0
+        return html
     }
 
     fun toHtml(text: Spanned): String {
@@ -70,6 +80,7 @@ class AztecParser {
         hiddenIndex = 0
         Arrays.sort(hiddenSpans)
 
+        htmlCursorPositon = 0
         withinHtml(out, data)
         return tidy(out.toString())
     }
@@ -300,9 +311,16 @@ class AztecParser {
 
         run {
             var i = start
+            var isCursorInside: Boolean
 
             while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
+
+                if (spanCursorPosition in i..end && spanCursorPosition > 0) {
+                    isCursorInside = true
+                } else {
+                    isCursorInside = false
+                }
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
@@ -328,9 +346,15 @@ class AztecParser {
                     if (span is HiddenHtmlSpan) {
                         parseHiddenSpans(i, out, span, text)
                     }
+
+
                 }
 
                 withinStyle(out, text, i, next)
+
+                if (isCursorInside) {
+                    out.insert(out.length - (end - spanCursorPosition), "<aztec_cursor></aztec_cursor>")
+                }
 
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
@@ -346,7 +370,10 @@ class AztecParser {
                     if (span is HiddenHtmlSpan) {
                         parseHiddenSpans(next, out, span, text)
                     }
+
                 }
+
+
 
                 if (start == end)
                     break

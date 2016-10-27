@@ -212,14 +212,15 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
-                    sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
+                    sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
 
                     editor!!.visibility = View.GONE
                     sourceEditor!!.visibility = View.VISIBLE
+                    sourceEditor!!.requestFocus()
 
                     toggleHtmlMode(true)
                 } else {
-                    editor!!.fromHtml(sourceEditor!!.getPureHtml())
+                    editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
 
                     editor!!.visibility = View.VISIBLE
                     sourceEditor!!.visibility = View.GONE
@@ -260,7 +261,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
         }
-	}
+    }
 
     private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return

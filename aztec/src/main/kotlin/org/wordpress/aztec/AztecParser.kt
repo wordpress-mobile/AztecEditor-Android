@@ -68,7 +68,11 @@ class AztecParser {
             hiddenSpans[hiddenIndex++] = it.endOrder
 
             // make sure every hidden span is attached to a character
-            data.insert(data.getSpanStart(it), "" + '\uFEFF')
+            val start = data.getSpanStart(it)
+            val end = data.getSpanEnd(it)
+            if (start == end && data[start] == '\n') {
+                data.insert(start, "" + '\uFEFF')
+            }
         }
         hiddenIndex = 0
         Arrays.sort(hiddenSpans)

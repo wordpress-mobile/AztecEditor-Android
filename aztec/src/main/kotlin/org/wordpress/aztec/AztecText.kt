@@ -505,7 +505,7 @@ class AztecText : EditText, TextWatcher {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
-            if (!containHeading(i)) {
+            if (!containsHeading(i)) {
                 continue
             }
 
@@ -594,7 +594,7 @@ class AztecText : EditText, TextWatcher {
         refreshText()
     }
 
-    private fun containHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    private fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -627,7 +627,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    private fun containHeading(index: Int): Boolean {
+    private fun containsHeading(index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {
@@ -1293,7 +1293,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return containHeading(format, selStart, selEnd)
+            TextFormat.FORMAT_HEADING_6 -> return containsHeading(format, selStart, selEnd)
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)

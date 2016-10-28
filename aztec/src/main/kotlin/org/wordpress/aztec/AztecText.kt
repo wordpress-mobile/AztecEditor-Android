@@ -447,6 +447,12 @@ class AztecText : EditText, TextWatcher {
 
     fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
         when (textFormat) {
+            TextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan(Heading.H1)
+            TextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan(Heading.H2)
+            TextFormat.FORMAT_HEADING_3 -> return AztecHeadingSpan(Heading.H3)
+            TextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan(Heading.H4)
+            TextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan(Heading.H5)
+            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(Heading.H6)
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
@@ -505,7 +511,7 @@ class AztecText : EditText, TextWatcher {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
-            if (!containHeading(i)) {
+            if (!containsHeading(i)) {
                 continue
             }
 
@@ -594,7 +600,7 @@ class AztecText : EditText, TextWatcher {
         refreshText()
     }
 
-    private fun containHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    private fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -627,7 +633,7 @@ class AztecText : EditText, TextWatcher {
         return true
     }
 
-    private fun containHeading(index: Int): Boolean {
+    private fun containsHeading(index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {
@@ -1293,7 +1299,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return containHeading(format, selStart, selEnd)
+            TextFormat.FORMAT_HEADING_6 -> return containsHeading(format, selStart, selEnd)
             TextFormat.FORMAT_BOLD -> return containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
             TextFormat.FORMAT_UNDERLINED -> return containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
@@ -1378,14 +1384,18 @@ class AztecText : EditText, TextWatcher {
         if (formattingIsApplied()) {
             for (item in selectedStyles) {
                 when (item) {
-                    TextFormat.FORMAT_BOLD -> if (!contains(item, textChangedEvent.inputStart, textChangedEvent.inputStart)) {
-                        applyInlineStyle(TextFormat.FORMAT_BOLD, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                    TextFormat.FORMAT_HEADING_1,
+                    TextFormat.FORMAT_HEADING_2,
+                    TextFormat.FORMAT_HEADING_3,
+                    TextFormat.FORMAT_HEADING_4,
+                    TextFormat.FORMAT_HEADING_5,
+                    TextFormat.FORMAT_HEADING_6 -> if (contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
-                    TextFormat.FORMAT_ITALIC -> if (!contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
-                        applyInlineStyle(TextFormat.FORMAT_ITALIC, textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                    }
+                    TextFormat.FORMAT_BOLD,
+                    TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH -> if (!contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
-                        applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
                         //do nothing

@@ -1360,10 +1360,12 @@ class AztecText : EditText, TextWatcher {
                     TextFormat.FORMAT_HEADING_3,
                     TextFormat.FORMAT_HEADING_4,
                     TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6,
+                    TextFormat.FORMAT_HEADING_6 -> if (contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                    }
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
-                    TextFormat.FORMAT_STRIKETHROUGH -> if (contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                    TextFormat.FORMAT_STRIKETHROUGH -> if (!contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {

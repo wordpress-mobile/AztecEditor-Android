@@ -235,11 +235,13 @@ class AztecText : EditText, TextWatcher {
 
     fun isSameInlineSpanType(firstSpan: AztecInlineSpan, secondSpan: AztecInlineSpan): Boolean {
         if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
-            //special check for StyleSpan and AztecHeadingSpan
+            //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
+            }else{
+                return true
             }
-            return true
+
         }
 
         return false

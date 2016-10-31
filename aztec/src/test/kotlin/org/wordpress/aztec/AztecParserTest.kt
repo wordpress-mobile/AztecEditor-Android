@@ -59,6 +59,8 @@ class AztecParserTest : AndroidTestCase() {
             "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
                     "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
 
+    private val HTML_HIDDEN_WITH_NO_TEXT = "<br><br><div></div><br><br>"
+
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_BULLET = "Bullet\n\n"
     private val SPAN_COMMENT = "Comment\n\n"
@@ -525,6 +527,22 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlNestedInterleaving_isEqual() {
         val input =
                 HTML_NESTED_INTERLEAVING
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse hidden HTML with no text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHiddenHtmlWithNoTextToSpanToHtmlNestedInterleaving_isEqual() {
+        val input =
+                HTML_HIDDEN_WITH_NO_TEXT
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

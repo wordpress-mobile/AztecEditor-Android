@@ -29,6 +29,7 @@ import android.text.*
 import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.StyleSpan
+import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.Patterns
 import android.view.inputmethod.BaseInputConnection
@@ -237,9 +238,10 @@ class AztecText : EditText, TextWatcher {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-            } else {
+            }else{
                 return true
             }
+
         }
 
         return false
@@ -338,7 +340,7 @@ class AztecText : EditText, TextWatcher {
         var precedingSpan: AztecInlineSpan? = null
         var followingSpan: AztecInlineSpan? = null
 
-        if (start > 1) {
+        if (start >= 1) {
             val previousSpans = editableText.getSpans(start - 1, start, AztecInlineSpan::class.java)
             previousSpans.forEach {
                 if (isSameInlineSpanType(it, spanToApply)) {
@@ -349,7 +351,14 @@ class AztecText : EditText, TextWatcher {
 
             if (precedingSpan != null) {
                 val spanStart = editableText.getSpanStart(precedingSpan)
-                editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                val spanEnd = editableText.getSpanEnd(precedingSpan)
+
+                if (spanEnd > start) {
+                    return@applyInlineStyle  //we are adding text inside span - no need to do anything special
+                } else {
+                    editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+
             }
         }
 
@@ -1257,7 +1266,7 @@ class AztecText : EditText, TextWatcher {
                     TextFormat.FORMAT_HEADING_3,
                     TextFormat.FORMAT_HEADING_4,
                     TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6 -> return removeInlineStyle(it, start, end)
+                    TextFormat.FORMAT_HEADING_6 -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, start, end)
@@ -1328,15 +1337,20 @@ class AztecText : EditText, TextWatcher {
                 val spanStart = editableText.getSpanStart(it)
                 val spanEnd = editableText.getSpanEnd(it)
 
-                if (spanStart == start || spanEnd == count + start) {
-                    carryOverSpans.add(CarryOverSpan(it, editableText.getSpanStart(it), editableText.getSpanEnd(it)))
+
+                if ((spanStart == start || spanEnd == count + start) && spanEnd < after) {
+                    editableText.removeSpan(it)
+                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
                 }
             }
         }
     }
 
-    fun reapplyCarriedOverInlineSpans() = carryOverSpans?.forEach {
-        editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    fun reapplyCarriedOverInlineSpans() {
+        carryOverSpans?.forEach {
+            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        carryOverSpans?.clear()
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
@@ -1581,14 +1595,15 @@ class AztecText : EditText, TextWatcher {
     fun toHtml(): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
-        BaseInputConnection.removeComposingSpans(output)
+
+        clearMetaSpans(output)
         return Format.clearFormatting(parser.toHtml(output))
     }
 
     fun toFormattedHtml(): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
-        BaseInputConnection.removeComposingSpans(output)
+        clearMetaSpans(output)
         return Format.addFormatting(parser.toHtml(output))
     }
 
@@ -1694,8 +1709,7 @@ class AztecText : EditText, TextWatcher {
 
         //Strip block elements untill we figure out copy paste completely
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
-
-        BaseInputConnection.removeComposingSpans(output)
+        clearMetaSpans(output)
         val html = Format.clearFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
@@ -1723,5 +1737,10 @@ class AztecText : EditText, TextWatcher {
                 joinStyleSpans(0, editable.length) //TODO: see how this affects performance
             }
         }
+    }
+
+    fun clearMetaSpans(text: Spannable) {
+        BaseInputConnection.removeComposingSpans(text)
+        text.getSpans(0, text.length, SuggestionSpan::class.java).forEach { text.removeSpan(it) }
     }
 }

@@ -48,7 +48,7 @@ class AttributeTest {
         private val TT = "<tt t=\"T\">Monospace</tt>"
         private val BIG = "<big b=\"B\">Big</big>"
         private val SMALL = "<small s=\"S\">Small</small>"
-        private val P = "<p p=\"P\">Paragraph</p>" + BOLD_NO_ATTRS
+        private val P = "<p p=\"P\">Paragraph</p>"
         private val MIXED = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED +
                 UNORDERED + QUOTE + LINK + COMMENT + COMMENT_MORE + COMMENT_PAGE +
                 UNKNOWN + LIST + SUB + SUP + FONT + TT + BIG + SMALL + P

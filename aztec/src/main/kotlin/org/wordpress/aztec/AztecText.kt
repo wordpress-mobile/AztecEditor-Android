@@ -1252,6 +1252,12 @@ class AztecText : EditText, TextWatcher {
         getAppliedStyles(start, end).forEach {
             if (!selectedStyles.contains(it) || ignoreSelectedStyles) {
                 when (it) {
+                    TextFormat.FORMAT_HEADING_1,
+                    TextFormat.FORMAT_HEADING_2,
+                    TextFormat.FORMAT_HEADING_3,
+                    TextFormat.FORMAT_HEADING_4,
+                    TextFormat.FORMAT_HEADING_5,
+                    TextFormat.FORMAT_HEADING_6 -> return removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
                     TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, start, end)

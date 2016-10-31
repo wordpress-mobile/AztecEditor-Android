@@ -1,7 +1,7 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.text.SpannableString
+import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,7 +9,8 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
  * Testing attribute preservation for supported HTML elements
@@ -42,6 +43,7 @@ class AttributeTest {
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
+        private val LIST_WITH_EMPTY_ITEMS = "<ul><li></li><li a=\"1\">1</li><li></li></ul>"
         private val SUB = "<sub i=\"I\">Sub</sub>"
         private val SUP = "<sup i=\"I\">Sup</sup>"
         private val FONT = "<font i=\"I\">Font</font>"
@@ -256,25 +258,34 @@ class AttributeTest {
         Assert.assertEquals(expected, output)
     }
 
+    //TODO: After fixing list item attribute preservation, uncomment this
+//    @Test
+//    @Throws(Exception::class)
+//    fun listWithEmptyItemsAttributes() {
+//        val input = LIST_WITH_EMPTY_ITEMS
+//        val output = editText.fromHtml(input)
+//        Assert.assertEquals(input, output)
+//    }
+
     @Test
     @Throws(Exception::class)
-    fun mixedInlineAndBlockElementsWithoutExtraSpacing() {
-        editText.append("some text")
+    fun appendItemToList() {
+        val input = LIST
+        val originalItem = "<li a=\"1\">Ordered</li>"
+        editText.fromHtml(input)
         editText.append("\n")
-        editText.append("quote")
-        editText.setSelection(editText.length())
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("some text<blockquote>quote</blockquote>", editText.toHtml())
-        editText.setSelection(editText.length())
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("list")
-        editText.setSelection(editText.length())
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("some text")
+        editText.append("after")
+        Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
+    }
 
-        Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul>some text", editText.toHtml())
+    @Test
+    @Throws(Exception::class)
+    fun prependItemToList() {
+        val input = LIST
+        val originalItem = "<li a=\"1\">Ordered</li>"
+        editText.fromHtml(input)
+        editText.setSelection(0)
+        editText.text.insert(0, "before\n")
+        Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
     }
 }

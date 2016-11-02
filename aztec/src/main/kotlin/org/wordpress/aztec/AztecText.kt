@@ -440,17 +440,17 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
             TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, attrs)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return ParagraphSpan(attrs)
         }
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): LeadingMarginSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): AztecBlockSpan {
         when (spanType) {
             AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
             AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
             AztecQuoteSpan::class.java -> return AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, attrs)
-            else -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding)
+            else -> return ParagraphSpan(attrs)
         }
     }
 

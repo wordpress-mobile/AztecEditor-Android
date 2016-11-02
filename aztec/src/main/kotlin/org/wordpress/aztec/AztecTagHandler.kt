@@ -75,7 +75,10 @@ class AztecTagHandler : Html.TagHandler {
                 handleBlockElement(output, opening, AztecQuoteSpan(attributeString))
                 return true
             }
-
+            PARAGRAPH -> {
+                handleBlockElement(output, opening, ParagraphSpan(attributeString))
+                return true
+            }
 
         }
         return false
@@ -163,6 +166,7 @@ class AztecTagHandler : Html.TagHandler {
         private val DIV = "div"
         private val SPAN = "span"
         private val BLOCKQUOTE = "blockquote"
+        private val PARAGRAPH = "p"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)

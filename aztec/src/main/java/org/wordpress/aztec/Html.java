@@ -532,9 +532,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
             start(mSpannableStringBuilder, new Sub(attributes));
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
-            start(mSpannableStringBuilder, new Paragraph(attributes));
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
@@ -606,32 +603,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, TextFormat.FORMAT_PARAGRAPH);
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
-        }
-    }
-
-    private static void handleP(SpannableStringBuilder text) {
-        int len = text.length();
-
-        if (len >= 1 && text.charAt(len - 1) == '\n') {
-            if (len >= 2 && text.charAt(len - 2) == '\n') {
-                return;
-            }
-
-            text.append("\n");
-            return;
-        }
-
-        if (len != 0) {
-            text.append("\n\n");
         }
     }
 

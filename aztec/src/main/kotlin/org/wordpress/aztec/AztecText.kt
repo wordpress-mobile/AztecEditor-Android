@@ -1556,9 +1556,11 @@ class AztecText : EditText, TextWatcher {
         val output = SpannableStringBuilder(text)
         BaseInputConnection.removeComposingSpans(output)
 
-        val html = if (withCursorTag) parser.toHtmlWithCursorTag(output, selectionEnd) else parser.toHtml(output)
+        if (withCursorTag && selectionEnd > 0) {
+            output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
+        }
 
-        return Format.clearFormatting(html)
+        return Format.clearFormatting(parser.toHtml(output, withCursorTag))
     }
 
     fun toFormattedHtml(): String {

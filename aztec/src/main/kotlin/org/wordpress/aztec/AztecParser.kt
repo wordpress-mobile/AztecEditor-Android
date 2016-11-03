@@ -155,8 +155,7 @@ class AztecParser {
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else if (styles[0] is ParagraphSpan) {
-                    withinParagraph(out, text, i, next++)
-                    next++
+                    withinParagraph(out, text, i, next)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -449,7 +448,8 @@ class AztecParser {
     private fun tidy(html: String): String {
         return html
                 .replace("&#8203;", "")
-                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
                 .replace("&#65279;", "")
+                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(<br>)*</p>".toRegex(), "</p>")
     }
 }

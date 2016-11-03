@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol|li|h1|h2|h3|h4|h5|h6"
+    private val block = "div|span|br|blockquote|ul|ol|li|h1|h2|h3|h4|h5|h6|p"
 
     fun addFormatting(content: String): String {
         val doc = Jsoup.parseBodyFragment(content)

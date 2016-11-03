@@ -131,7 +131,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun initView() {
-        View.inflate(context, R.layout.format_bar, this)
+        View.inflate(context, R.layout.aztec_format_bar, this)
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)

@@ -38,6 +38,7 @@ import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
+import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
@@ -504,6 +505,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
+        } else if (tag.equalsIgnoreCase("aztec_cursor")) {
+            start(mSpannableStringBuilder, new AztecCursorSpan());
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("b")) {
@@ -603,12 +606,25 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+        } else if (tag.equalsIgnoreCase("aztec_cursor")) {
+            endCursor(mSpannableStringBuilder);
         } else if (tag.length() == 2 &&
                 Character.toLowerCase(tag.charAt(0)) == 'h' &&
                 tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
             endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
+        }
+    }
+
+    private static void endCursor(SpannableStringBuilder text) {
+        Object last = getLast(text, AztecCursorSpan.class);
+        int start = text.getSpanStart(last);
+        int end = text.length();
+
+        text.removeSpan(last);
+        if (start == end) {
+            text.setSpan(last, start, end, Spanned.SPAN_MARK_MARK);
         }
     }
 

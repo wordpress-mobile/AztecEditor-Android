@@ -10,9 +10,11 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.View
 import android.widget.EditText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
+import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.TypefaceCache
 
 class SourceViewEditText : EditText, TextWatcher {
@@ -121,11 +123,37 @@ class SourceViewEditText : EditText, TextWatcher {
         history.undo(this)
     }
 
+    override fun setVisibility(visibility: Int) {
+        val selectionBefore = selectionStart
+        super.setVisibility(visibility)
+
+        //There are some cases when changing visibility affects cursor position in EditText, so we making sure it's in
+        //a correct place
+        if (visibility == View.VISIBLE) {
+            requestFocus()
+            if (selectionBefore != selectionStart) {
+                setSelection(0)
+            }
+        }
+    }
+
     fun displayStyledAndFormattedHtml(source: String) {
         val styledHtml = styleHtml(Format.addFormatting(source))
+
         disableTextChangedListener()
+        val cursorPosition = consumeCursorTag(styledHtml)
         text = styledHtml
         enableTextChangedListener()
+
+        if (cursorPosition > 0)
+            setSelection(cursorPosition)
+    }
+
+    fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {
+        val cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
+        if (cursorTagIndex < 0) return 0
+        styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
+        return cursorTagIndex
     }
 
     fun displayStyledHtml(source: String) {
@@ -141,7 +169,35 @@ class SourceViewEditText : EditText, TextWatcher {
         return styledHtml
     }
 
-    fun getPureHtml() : String {
+    fun isCursorInsideTag(): Boolean {
+        val indexOfFirstClosingBracketOnTheRight = text.indexOf(">", selectionEnd)
+        val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
+
+        val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
+                indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight
+
+        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd)
+        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd)
+
+        val isThereOpeningBracketBeforeClosingBracket = indexOfFirstOpeningBracketOnTheLeft != -1 &&
+                indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft
+
+        return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
+    }
+
+
+    fun getPureHtml(withCursorTag: Boolean = false): String {
+        if (withCursorTag) {
+            disableTextChangedListener()
+            if (!isCursorInsideTag()) {
+                text.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
+            } else {
+                text.insert(text.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
+            }
+            enableTextChangedListener()
+        }
+
+
         return Format.clearFormatting(text.toString())
     }
 

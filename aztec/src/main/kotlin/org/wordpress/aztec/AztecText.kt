@@ -238,7 +238,7 @@ class AztecText : EditText, TextWatcher {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-            }else{
+            } else {
                 return true
             }
 
@@ -1582,22 +1582,41 @@ class AztecText : EditText, TextWatcher {
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
     }
 
+    fun consumeCursorPosition(text: SpannableStringBuilder): Int {
+        var cursorPosition = 0
+
+        text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
+            cursorPosition = text.getSpanStart(it)
+            text.removeSpan(it)
+        }
+
+        return cursorPosition
+    }
+
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
         builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
+        val cursorPosition = consumeCursorPosition(builder)
+
         setTextKeepState(builder)
         enableTextChangedListener()
+        setSelection(cursorPosition)
     }
 
-    fun toHtml(): String {
+    fun toHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
 
         clearMetaSpans(output)
-        return Format.clearFormatting(parser.toHtml(output))
+
+        if (withCursorTag && selectionEnd > 0) {
+            output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
+        }
+
+        return Format.clearFormatting(parser.toHtml(output, withCursorTag))
     }
 
     fun toFormattedHtml(): String {

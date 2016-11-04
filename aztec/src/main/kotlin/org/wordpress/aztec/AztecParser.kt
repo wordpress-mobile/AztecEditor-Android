@@ -36,11 +36,6 @@ class AztecParser {
     internal var hiddenSpans: IntArray = IntArray(0)
     internal var spanCursorPosition = -1
 
-    companion object {
-        val AZTEC_CURSOR_TAG = "aztec_cursor"
-    }
-
-
     fun fromHtml(source: String, context: Context): Spanned {
         val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
 
@@ -84,9 +79,9 @@ class AztecParser {
         Arrays.sort(hiddenSpans)
 
         if (withCursor) {
-            val cursorSpan = data.getSpans(0, data.length, AztecCursorSpan::class.java) //there can be only one cursor
-            if (!cursorSpan.isEmpty()) {
-                spanCursorPosition = data.getSpanStart(cursorSpan[0])
+            val cursorSpans = data.getSpans(0, data.length, AztecCursorSpan::class.java)
+            if (!cursorSpans.isEmpty()) { //there can be only one cursor
+                spanCursorPosition = data.getSpanStart(cursorSpans[0])
             }
         } else {
             spanCursorPosition = -1
@@ -241,9 +236,11 @@ class AztecParser {
                 out.append("<li>")
             }
 
-            //special case when cursor might be in empty list item
-            if ((lineLength == 0 || lineIsZWJ) && listContent.getSpans(lineStart, lineEnd, AztecCursorSpan::class.java).size > 0) {
-                out.append(AZTEC_CURSOR_TAG)
+            //special case for when cursor might be in empty list item
+            if ((lineLength == 0 || lineIsZWJ)
+                    && !listContent.getSpans(lineStart, lineEnd, AztecCursorSpan::class.java).isEmpty()
+                    && !containsCursor(out)) {
+                out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
             }
 
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
@@ -362,14 +359,12 @@ class AztecParser {
                     if (span is HiddenHtmlSpan) {
                         parseHiddenSpans(i, out, span, text)
                     }
-
-
                 }
 
                 withinStyle(out, text, i, next)
 
-                if (spanCursorPosition != -1 && localCursorPosition != -1 && out.indexOf(AZTEC_CURSOR_TAG) == -1) {
-                    out.insert(out.length - (next - localCursorPosition), AZTEC_CURSOR_TAG)
+                if (spanCursorPosition != -1 && localCursorPosition != -1 && !containsCursor(out)) {
+                    out.insert(out.length - (next - localCursorPosition), AztecCursorSpan.AZTEC_CURSOR_TAG)
                 }
 
                 for (j in spans.indices.reversed()) {
@@ -386,10 +381,7 @@ class AztecParser {
                     if (span is HiddenHtmlSpan) {
                         parseHiddenSpans(next, out, span, text)
                     }
-
                 }
-
-
 
                 if (start == end)
                     break
@@ -400,12 +392,15 @@ class AztecParser {
 
         for (i in 0..nl - 1) {
             //in case cursor the is near <br> tag
-            if (end + i == spanCursorPosition && out.indexOf(AZTEC_CURSOR_TAG) == -1) {
-                out.append(AZTEC_CURSOR_TAG)
+            if (end + i == spanCursorPosition && !containsCursor(out)) {
+                out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
             }
             out.append("<br>")
-
         }
+    }
+
+    fun containsCursor(text: CharSequence): Boolean {
+        return text.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG) != -1
     }
 
     fun getLocalCursorPosition(text: Spanned, start: Int, end: Int): Int {

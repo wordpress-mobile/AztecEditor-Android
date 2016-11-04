@@ -51,13 +51,10 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         if (count >= 0) {
 
             if (text.length > inputStart)  {
-                val spans = editableText.getSpans(start, start, AztecBlockSpan::class.java)
+                val spans = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
 
                 spans.forEach {
-
-                    if((isAddingCharacters && inputStart == 0) || (!isAddingCharacters && inputEnd == 0)) return@forEach
-
-                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
+                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd]
 
                     if (previousCharacter == '\n') return@forEach
 

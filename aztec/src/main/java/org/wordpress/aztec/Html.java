@@ -606,9 +606,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, TextFormat.FORMAT_PARAGRAPH);
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             endCursor(mSpannableStringBuilder);
         } else if (tag.length() == 2 &&
@@ -628,23 +625,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.removeSpan(last);
         if (start == end) {
             text.setSpan(last, start, end, Spanned.SPAN_MARK_MARK);
-        }
-    }
-
-    private static void handleP(SpannableStringBuilder text) {
-        int len = text.length();
-
-        if (len >= 1 && text.charAt(len - 1) == '\n') {
-            if (len >= 2 && text.charAt(len - 2) == '\n') {
-                return;
-            }
-
-            text.append("\n");
-            return;
-        }
-
-        if (len != 0) {
-            text.append("\n\n");
         }
     }
 

@@ -12,9 +12,9 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.View
 import android.widget.EditText
-import org.wordpress.aztec.AztecParser
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
+import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.TypefaceCache
 
 class SourceViewEditText : EditText, TextWatcher {
@@ -150,9 +150,9 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {
-        val cursorTagIndex = styledHtml.indexOf(AztecParser.AZTEC_CURSOR_TAG)
+        val cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
         if (cursorTagIndex < 0) return 0
-        styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecParser.AZTEC_CURSOR_TAG.length)
+        styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
         return cursorTagIndex
     }
 
@@ -170,13 +170,11 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     fun isCursorInsideTag(): Boolean {
-
         val indexOfFirstClosingBracketOnTheRight = text.indexOf(">", selectionEnd)
         val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
 
         val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
                 indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight
-
 
         val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd)
         val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd)
@@ -185,7 +183,6 @@ class SourceViewEditText : EditText, TextWatcher {
                 indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft
 
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
-
     }
 
 

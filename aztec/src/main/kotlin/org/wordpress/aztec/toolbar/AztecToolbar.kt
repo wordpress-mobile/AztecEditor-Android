@@ -216,7 +216,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     editor!!.visibility = View.GONE
                     sourceEditor!!.visibility = View.VISIBLE
-                    sourceEditor!!.requestFocus()
 
                     toggleHtmlMode(true)
                 } else {

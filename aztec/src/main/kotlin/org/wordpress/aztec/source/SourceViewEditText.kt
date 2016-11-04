@@ -10,11 +10,12 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.View
 import android.widget.EditText
+import org.wordpress.aztec.AztecParser
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.util.TypefaceCache
-import java.util.*
 
 class SourceViewEditText : EditText, TextWatcher {
 
@@ -122,6 +123,20 @@ class SourceViewEditText : EditText, TextWatcher {
         history?.undo(this)
     }
 
+    override fun setVisibility(visibility: Int) {
+        val selectionBefore = selectionStart
+        super.setVisibility(visibility)
+
+        //There are some cases when changing visibility affects cursor position in EditText, so we making sure it's in
+        //a correct place
+        if (visibility == View.VISIBLE) {
+            requestFocus()
+            if (selectionBefore != selectionStart) {
+                setSelection(0)
+            }
+        }
+    }
+
     fun displayStyledAndFormattedHtml(source: String) {
         val styledHtml = styleHtml(Format.addFormatting(source))
 
@@ -130,19 +145,14 @@ class SourceViewEditText : EditText, TextWatcher {
         text = styledHtml
         enableTextChangedListener()
 
-        setSelection(cursorPosition)
+        if (cursorPosition > 0)
+            setSelection(cursorPosition)
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {
-        val possibleTags = ArrayList<String>()
-        possibleTags.add("\n <aztec_cursor></aztec_cursor>")
-        possibleTags.add("\n<aztec_cursor></aztec_cursor>")
-        possibleTags.add("<aztec_cursor></aztec_cursor>")
-
-        val cursorTagIndex = styledHtml.indexOfAny(possibleTags)
+        val cursorTagIndex = styledHtml.indexOf(AztecParser.AZTEC_CURSOR_TAG)
         if (cursorTagIndex < 0) return 0
-
-        styledHtml.delete(cursorTagIndex, styledHtml.indexOf("</aztec_cursor>") + "</aztec_cursor>".length)
+        styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecParser.AZTEC_CURSOR_TAG.length)
         return cursorTagIndex
     }
 

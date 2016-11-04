@@ -45,10 +45,12 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
         val spansToClose = ArrayList<AztecBlockSpan>()
         if (count >= 0) {
-            if (text.length > inputStart) {
+            if (text.length > inputStart)  {
                 val spans = editableText.getSpans(start, start, AztecBlockSpan::class.java)
 
                 spans.forEach {
+
+                    if((isAddingCharacters && inputStart == 0) || (!isAddingCharacters && inputEnd == 0)) return@forEach
 
                     val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
                     if (previousCharacter == '\n') return@forEach

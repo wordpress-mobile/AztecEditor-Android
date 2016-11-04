@@ -244,8 +244,6 @@ class AztecParser {
             }
 
             withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
-
-
             out.append("</li>")
         }
         out.append("</${list.getEndTag()}>")
@@ -328,12 +326,11 @@ class AztecParser {
 
         run {
             var i = start
-            var localCursorPosition: Int  //cursor position relevant to the part of text we are parsing
 
             while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-                localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
+               val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {

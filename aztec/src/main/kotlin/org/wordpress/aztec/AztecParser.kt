@@ -34,7 +34,7 @@ class AztecParser {
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var hiddenSpans: IntArray = IntArray(0)
-    internal var spanCursorPosition = 0
+    internal var spanCursorPosition = -1
 
     companion object {
         val AZTEC_CURSOR_TAG = "aztec_cursor"
@@ -82,7 +82,7 @@ class AztecParser {
                 spanCursorPosition = data.getSpanStart(cursorSpan[0])
             }
         } else {
-            spanCursorPosition = 0
+            spanCursorPosition = -1
         }
 
         withinHtml(out, data)
@@ -203,8 +203,10 @@ class AztecParser {
             }
         }
 
+        val listContent = text.subSequence(newStart..newEnd) as Spanned
+
         out.append("<${list.getStartTag()}>")
-        val lines = TextUtils.split(text.substring(newStart..newEnd), "\n")
+        val lines = TextUtils.split(listContent.toString(), "\n")
 
         for (i in lines.indices) {
 
@@ -232,11 +234,13 @@ class AztecParser {
             } else {
                 out.append("<li>")
             }
-            withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
 
-//            if (lineEnd + newStart == spanCursorPosition && spanCursorPosition > 0 && out.indexOf("<$AZTEC_CURSOR_TAG></$AZTEC_CURSOR_TAG>") == -1) {
-//                out.append("<$AZTEC_CURSOR_TAG></$AZTEC_CURSOR_TAG>")
-//            }
+            //special case when cursor might be in empty list item
+            if ((lineLength == 0 || lineIsZWJ) && listContent.getSpans(lineStart, lineEnd, AztecCursorSpan::class.java).size > 0) {
+                out.append(AZTEC_CURSOR_TAG)
+            }
+
+            withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
 
 
             out.append("</li>")
@@ -321,13 +325,12 @@ class AztecParser {
 
         run {
             var i = start
-            var localCursorPosition = 0  //cursor position relevant to the part of text we are parsing
+            var localCursorPosition: Int  //cursor position relevant to the part of text we are parsing
 
             while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
                 localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
-
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
@@ -359,7 +362,7 @@ class AztecParser {
 
                 withinStyle(out, text, i, next)
 
-                if (localCursorPosition != -1 && out.indexOf(AZTEC_CURSOR_TAG) == -1) {
+                if (spanCursorPosition != -1 && localCursorPosition != -1 && out.indexOf(AZTEC_CURSOR_TAG) == -1) {
                     out.insert(out.length - (next - localCursorPosition), AZTEC_CURSOR_TAG)
                 }
 
@@ -409,7 +412,7 @@ class AztecParser {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
 
-                //special case for list
+                //special case for when cursor is before list
                 val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).size > 0
 
                 if (isBeforeList && (cursorPosition == spanStart || cursorPosition == spanEnd)) {
@@ -502,7 +505,6 @@ class AztecParser {
 
     private fun tidy(html: String): String {
         return html
-                .replace("_-$AZTEC_CURSOR_TAG-_", "<$AZTEC_CURSOR_TAG></$AZTEC_CURSOR_TAG>")
                 .replace("&#8203;", "")
                 .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
     }

@@ -16,7 +16,7 @@ object Format {
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
-        return fixBrNewlines
+        return fixBrNewlines.trim()
     }
 
     fun clearFormatting(html: String): String {

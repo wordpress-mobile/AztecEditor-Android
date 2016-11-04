@@ -111,16 +111,16 @@ class SourceViewEditText : EditText, TextWatcher {
             return
         }
 
-        history?.handleHistory(this)
+        history.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 
     fun redo() {
-        history?.redo(this)
+        history.redo(this)
     }
 
     fun undo() {
-        history?.undo(this)
+        history.undo(this)
     }
 
     override fun setVisibility(visibility: Int) {
@@ -159,7 +159,7 @@ class SourceViewEditText : EditText, TextWatcher {
     fun displayStyledHtml(source: String) {
         val styledHtml = styleHtml(source)
         disableTextChangedListener()
-        text = styledHtml
+        setTextKeepState(styledHtml)
         enableTextChangedListener()
     }
 

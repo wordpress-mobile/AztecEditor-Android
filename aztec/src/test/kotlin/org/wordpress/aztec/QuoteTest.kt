@@ -325,7 +325,6 @@ class QuoteTest() {
         Assert.assertEquals("first item\nsecond item", editText.text.toString())
         editText.append("\n")
         Assert.assertEquals("first item\nsecond item\n\u200B", editText.text.toString())
-        val mark = editText.length() - 1
 
         editText.text.delete(editText.length() - 1, editText.length())
         Assert.assertEquals("first item\nsecond item\n", editText.text.toString())
@@ -486,7 +485,7 @@ class QuoteTest() {
 
         editText.text.delete(0, firstMark)
 
-        Assert.assertEquals("<$quoteTag><br>third item</$quoteTag>", editText.toHtml())
+        Assert.assertEquals("<$quoteTag><br><br>third item</$quoteTag>", editText.toHtml())
     }
 
 }

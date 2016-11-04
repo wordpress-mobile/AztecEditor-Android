@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.ParagraphStyle
 
-class ParagraphSpan : ParagraphStyle, AztecContentSpan {
+class ParagraphSpan : ParagraphStyle, AztecBlockSpan {
 
     private final var TAG: String = "p"
     override var attributes: String?

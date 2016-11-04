@@ -38,4 +38,9 @@
     <string name="link_enter_url_text">Link text (optional)</string>
     <string name="create_a_link">Create a link</string>
 
+    <!-- MEDIA -->
+    <string name="media_camera">Camera</string>
+    <string name="media_photos">Photos</string>
+    <string name="media_library">Library</string>
+
 </resources>

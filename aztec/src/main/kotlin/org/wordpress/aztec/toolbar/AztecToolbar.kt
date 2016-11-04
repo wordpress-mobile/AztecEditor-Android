@@ -21,6 +21,7 @@ import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var addLinkDialog: AlertDialog? = null
+    private var addMediaDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
@@ -42,7 +43,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         bundle.putParcelable("superState", super.onSaveInstanceState())
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
-            bundle.putBoolean("isUrlDialogVisible", true)
+            bundle.putBoolean("isLinkDialogVisible", true)
 
             val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
             val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
@@ -51,24 +52,31 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             bundle.putString("retainedAnchor", anchorInput.text.toString())
         }
 
+        if (addMediaDialog != null && addMediaDialog!!.isShowing) {
+            bundle.putBoolean("isMediaDialogVisible", true)
+        }
+
         return bundle
     }
-
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         var superState = state
 
         if (state is Bundle) {
-            val isDialogVisible = state.getBoolean("isUrlDialogVisible")
             superState = state.getParcelable("superState")
 
-            if (isDialogVisible) {
+            if (state.getBoolean("isLinkDialogVisible")) {
                 val retainedUrl = state.getString("retainedUrl", "")
                 val retainedAnchor = state.getString("retainedAnchor", "")
 
                 showLinkDialog(retainedUrl, retainedAnchor)
             }
+
+            if (state.getBoolean("isMediaDialogVisible")) {
+                showMediaDialog()
+            }
         }
+
         super.onRestoreInstanceState(superState)
     }
 
@@ -207,6 +215,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         //other toolbar action
         when (action) {
             ToolbarAction.HEADING -> headingMenu?.show()
+            ToolbarAction.ADD_MEDIA -> showMediaDialog()
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.MORE -> editor!!.applyComment(AztecCommentSpan.Comment.MORE)
             ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
@@ -231,7 +240,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
     private fun selectHeaderMenu(textFormat: TextFormat?) {
@@ -288,7 +296,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
             editor!!.link(linkText, anchorText)
-
         })
 
         if (editor!!.isUrlSelected()) {
@@ -303,6 +310,34 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         addLinkDialog = builder.create()
         addLinkDialog!!.show()
+    }
 
+    private fun showMediaDialog() {
+        if (!isEditorAttached()) return
+
+        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_media, null)
+
+        val camera = dialog.findViewById(R.id.media_camera)
+        camera.setOnClickListener({
+            Toast.makeText(context, "Camera", Toast.LENGTH_SHORT).show()
+            addMediaDialog?.dismiss()
+        })
+
+        val photos = dialog.findViewById(R.id.media_photos)
+        photos.setOnClickListener({
+            Toast.makeText(context, "Photos", Toast.LENGTH_SHORT).show()
+            addMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(R.id.media_library)
+        library.setOnClickListener({
+            Toast.makeText(context, "Library", Toast.LENGTH_SHORT).show()
+            addMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialog)
+        addMediaDialog = builder.create()
+        addMediaDialog!!.show()
     }
 }

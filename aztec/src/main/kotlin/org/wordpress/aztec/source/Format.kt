@@ -1,7 +1,6 @@
 package org.wordpress.aztec.source
 
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.util.regex.Pattern
 
 object Format {
@@ -10,8 +9,7 @@ object Format {
     private val block = "h1|h2|h3|h4|h5|h6|div|span|br|blockquote|ul|ol|li"
 
     fun addFormatting(content: String): String {
-        val settings = Document.OutputSettings().prettyPrint(true).outline(true)
-        val doc = Jsoup.parseBodyFragment(content).outputSettings(settings)
+        val doc = Jsoup.parseBodyFragment(content)
 
         //remove newline around all non block elements
         val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?$block>)\n<(/?(?!$block).)>", "<$1>")

@@ -39,12 +39,12 @@
     <string name="create_a_link">Create a link</string>
 
     <!-- MEDIA -->
-    <string name="media_camera">Camera</string>
-    <string name="media_gallery">Gallery</string>
-    <string name="media_library">Library</string>
-    <string name="media_photo">Photo</string>
-    <string name="media_photos">Photos</string>
-    <string name="media_video">Video</string>
-    <string name="media_videos">Videos</string>
+    <string name="media_dialog_camera">Device camera</string>
+    <string name="media_dialog_library">Media library</string>
+    <string name="media_dialog_photos">Device photos</string>
+    <string name="media_dialog_videos">Device videos</string>
+    <string name="media_popup_gallery">Gallery</string>
+    <string name="media_popup_photo">Photo</string>
+    <string name="media_popup_video">Video</string>
 
 </resources>

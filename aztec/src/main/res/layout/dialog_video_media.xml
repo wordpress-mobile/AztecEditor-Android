@@ -26,7 +26,7 @@
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
         android:paddingStart="@dimen/margin_dialog"
-        android:text="@string/media_camera"
+        android:text="@string/media_dialog_camera"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
@@ -47,7 +47,7 @@
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
         android:paddingStart="@dimen/margin_dialog"
-        android:text="@string/media_videos"
+        android:text="@string/media_dialog_videos"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
@@ -68,7 +68,7 @@
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
         android:paddingStart="@dimen/margin_dialog"
-        android:text="@string/media_library"
+        android:text="@string/media_dialog_library"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 

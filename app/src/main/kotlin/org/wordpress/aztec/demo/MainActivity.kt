@@ -54,8 +54,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + HIDDEN + COMMENT + COMMENT_MORE + COMMENT_PAGE + UNKNOWN
     }
 
-    private val MEDIA_CAMERA_PERMISSION_REQUEST_CODE: Int = 1001
-    private val MEDIA_PHOTOS_PERMISSION_REQUEST_CODE: Int = 1002
+    private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001
+    private val MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE: Int = 1002
+    private val MEDIA_PHOTOS_PERMISSION_REQUEST_CODE: Int = 1003
+    private val MEDIA_VIDEOS_PERMISSION_REQUEST_CODE: Int = 1004
 
     private lateinit var aztec: AztecText
     private lateinit var source: SourceViewEditText
@@ -107,14 +109,14 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     }
 
     override fun onCameraPhotoMediaOptionSelected() {
-        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
+        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivity(intent)
         }
     }
 
     override fun onCameraVideoMediaOptionSelected() {
-        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
+        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
             startActivity(intent)
         }
@@ -140,7 +142,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
-            MEDIA_CAMERA_PERMISSION_REQUEST_CODE -> {
+            MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE,
+            MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE -> {
                 var isPermissionDenied = false
 
                 for (i in grantResults.indices) {
@@ -161,11 +164,20 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 if (isPermissionDenied) {
                     ToastUtils.showToast(this, getString(R.string.permission_required_media_camera))
                 } else {
-                    val intent = Intent("android.media.action.IMAGE_CAPTURE")
-                    startActivity(intent)
+                    when (requestCode) {
+                        MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE -> {
+                            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                            startActivity(intent)
+                        }
+                        MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE -> {
+                            val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
+                            startActivity(intent)
+                        }
+                    }
                 }
             }
-            MEDIA_PHOTOS_PERMISSION_REQUEST_CODE -> {
+            MEDIA_PHOTOS_PERMISSION_REQUEST_CODE,
+            MEDIA_VIDEOS_PERMISSION_REQUEST_CODE -> {
                 var isPermissionDenied = false
 
                 for (i in grantResults.indices) {
@@ -178,11 +190,27 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                     }
                 }
 
-                if (isPermissionDenied) {
-                    ToastUtils.showToast(this, getString(R.string.permission_required_media_photos))
-                } else {
-                    val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    startActivity(intent)
+                when (requestCode) {
+                    MEDIA_PHOTOS_PERMISSION_REQUEST_CODE -> {
+                        if (isPermissionDenied) {
+                            ToastUtils.showToast(this, getString(R.string.permission_required_media_photos))
+                        } else {
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                            intent.addCategory(Intent.CATEGORY_OPENABLE)
+                            intent.type = "image/*"
+                            startActivity(intent)
+                        }
+                    }
+                    MEDIA_VIDEOS_PERMISSION_REQUEST_CODE -> {
+                        if (isPermissionDenied) {
+                            ToastUtils.showToast(this, getString(R.string.permission_required_media_videos))
+                        } else {
+                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                            intent.addCategory(Intent.CATEGORY_OPENABLE)
+                            intent.type = "video/*"
+                            startActivity(intent)
+                        }
+                    }
                 }
             }
             else -> {

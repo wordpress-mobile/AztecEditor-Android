@@ -393,24 +393,24 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val camera = dialog.findViewById(R.id.media_camera)
         camera.setOnClickListener({
             mediaOptionSelectedListener?.onCameraVideoMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
+            addVideoMediaDialog?.dismiss()
         })
 
         val videos = dialog.findViewById(R.id.media_videos)
         videos.setOnClickListener({
             mediaOptionSelectedListener?.onVideosMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
+            addVideoMediaDialog?.dismiss()
         })
 
         val library = dialog.findViewById(R.id.media_library)
         library.setOnClickListener({
             Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
-            addPhotoMediaDialog?.dismiss()
+            addVideoMediaDialog?.dismiss()
         })
 
         val builder = AlertDialog.Builder(context)
         builder.setView(dialog)
-        addPhotoMediaDialog = builder.create()
-        addPhotoMediaDialog!!.show()
+        addVideoMediaDialog = builder.create()
+        addVideoMediaDialog!!.show()
     }
 }

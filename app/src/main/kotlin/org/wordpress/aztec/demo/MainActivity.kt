@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -107,14 +108,14 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
     override fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent("android.media.action.IMAGE_CAPTURE")
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivity(intent)
         }
     }
 
     override fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent("android.media.action.VIDEO_CAMERA")
+            val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
             startActivity(intent)
         }
     }

@@ -1,16 +1,22 @@
 package org.wordpress.aztec.demo
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import org.wordpress.android.util.PermissionUtils
+import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-import java.util.*
+import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1><br>" +
@@ -47,6 +53,9 @@ class MainActivity : AppCompatActivity() {
         private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + HIDDEN + COMMENT + COMMENT_MORE + COMMENT_PAGE + UNKNOWN
     }
 
+    private val MEDIA_CAMERA_PERMISSION_REQUEST_CODE: Int = 1001
+    private val MEDIA_PHOTOS_PERMISSION_REQUEST_CODE: Int = 1002
+
     private lateinit var aztec: AztecText
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
@@ -60,6 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
+        formattingToolbar.setMediaOptionSelectedListener(this)
 
         // initialize the text & HTML
         aztec.fromHtml(EXAMPLE)
@@ -93,5 +103,69 @@ class MainActivity : AppCompatActivity() {
         }
 
         return true
+    }
+
+    override fun onCameraMediaOptionSelected() {
+        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
+            Toast.makeText(this, "Launch camera", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onPhotosMediaOptionSelected() {
+        if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
+            Toast.makeText(this, "Show photos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            MEDIA_CAMERA_PERMISSION_REQUEST_CODE -> {
+                var isPermissionDenied = false
+
+                for (i in grantResults.indices) {
+                    when (permissions[i]) {
+                        Manifest.permission.CAMERA -> {
+                            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                                isPermissionDenied = true
+                            }
+                        }
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                                isPermissionDenied = true
+                            }
+                        }
+                    }
+                }
+
+                if (isPermissionDenied) {
+                    ToastUtils.showToast(this, getString(R.string.permission_required_media_camera))
+                } else {
+                    Toast.makeText(this, "Launch camera", Toast.LENGTH_SHORT).show()
+                }
+            }
+            MEDIA_PHOTOS_PERMISSION_REQUEST_CODE -> {
+                var isPermissionDenied = false
+
+                for (i in grantResults.indices) {
+                    when (permissions[i]) {
+                        Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                                isPermissionDenied = true
+                            }
+                        }
+                    }
+                }
+
+                if (isPermissionDenied) {
+                    ToastUtils.showToast(this, getString(R.string.permission_required_media_photos))
+                } else {
+                    Toast.makeText(this, "Show photos", Toast.LENGTH_SHORT).show()
+                }
+            }
+            else -> {
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

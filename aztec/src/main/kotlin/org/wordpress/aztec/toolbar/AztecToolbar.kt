@@ -24,6 +24,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var addMediaDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
+    private var mediaOptionSelectedListener: OnMediaOptionSelectedListener? = null
     private var sourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
@@ -36,6 +37,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         initView()
+    }
+
+    interface OnMediaOptionSelectedListener {
+        fun onCameraMediaOptionSelected()
+        fun onPhotosMediaOptionSelected()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -136,6 +142,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
+    }
+
+    fun setMediaOptionSelectedListener(listener: OnMediaOptionSelectedListener) {
+        mediaOptionSelectedListener = listener
     }
 
     private fun initView() {
@@ -319,19 +329,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val camera = dialog.findViewById(R.id.media_camera)
         camera.setOnClickListener({
-            Toast.makeText(context, "Camera", Toast.LENGTH_SHORT).show()
+            mediaOptionSelectedListener?.onCameraMediaOptionSelected()
             addMediaDialog?.dismiss()
         })
 
         val photos = dialog.findViewById(R.id.media_photos)
         photos.setOnClickListener({
-            Toast.makeText(context, "Photos", Toast.LENGTH_SHORT).show()
+            mediaOptionSelectedListener?.onPhotosMediaOptionSelected()
             addMediaDialog?.dismiss()
         })
 
         val library = dialog.findViewById(R.id.media_library)
         library.setOnClickListener({
-            Toast.makeText(context, "Library", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
             addMediaDialog?.dismiss()
         })
 

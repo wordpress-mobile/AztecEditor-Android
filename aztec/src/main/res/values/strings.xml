@@ -45,5 +45,6 @@
     <string name="media_photo">Photo</string>
     <string name="media_photos">Photos</string>
     <string name="media_video">Video</string>
+    <string name="media_videos">Videos</string>
 
 </resources>

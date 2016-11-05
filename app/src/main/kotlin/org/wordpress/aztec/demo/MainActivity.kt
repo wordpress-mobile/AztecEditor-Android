@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
@@ -106,14 +105,28 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         return true
     }
 
-    override fun onCameraMediaOptionSelected() {
+    override fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
             val intent = Intent("android.media.action.IMAGE_CAPTURE")
             startActivity(intent)
         }
     }
 
+    override fun onCameraVideoMediaOptionSelected() {
+        if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
+            val intent = Intent("android.media.action.VIDEO_CAMERA")
+            startActivity(intent)
+        }
+    }
+
     override fun onPhotosMediaOptionSelected() {
+        if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
+            val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivity(intent)
+        }
+    }
+
+    override fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivity(intent)

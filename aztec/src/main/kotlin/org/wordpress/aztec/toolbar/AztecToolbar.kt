@@ -21,7 +21,8 @@ import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var addLinkDialog: AlertDialog? = null
-    private var addMediaDialog: AlertDialog? = null
+    private var addPhotoMediaDialog: AlertDialog? = null
+    private var addVideoMediaDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
     private var mediaMenu: PopupMenu? = null
@@ -41,8 +42,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     interface OnMediaOptionSelectedListener {
-        fun onCameraMediaOptionSelected()
+        fun onCameraPhotoMediaOptionSelected()
+        fun onCameraVideoMediaOptionSelected()
         fun onPhotosMediaOptionSelected()
+        fun onVideosMediaOptionSelected()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -59,8 +62,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             bundle.putString("retainedAnchor", anchorInput.text.toString())
         }
 
-        if (addMediaDialog != null && addMediaDialog!!.isShowing) {
-            bundle.putBoolean("isMediaDialogVisible", true)
+        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isPhotoMediaDialogVisible", true)
+        }
+
+        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isVideoMediaDialogVisible", true)
         }
 
         return bundle
@@ -79,8 +86,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 showLinkDialog(retainedUrl, retainedAnchor)
             }
 
-            if (state.getBoolean("isMediaDialogVisible")) {
-                showMediaDialog()
+            if (state.getBoolean("isPhotoMediaDialogVisible")) {
+                showPhotoMediaDialog()
+            }
+
+            if (state.getBoolean("isVideoMediaDialogVisible")) {
+                showVideoMediaDialog()
             }
         }
 
@@ -98,12 +109,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
-            R.id.photo -> {
-                showMediaDialog()
-                return true
-            }
             R.id.gallery -> {
                 Toast.makeText(context, "Launch gallery", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.photo -> {
+                showPhotoMediaDialog()
+                return true
+            }
+            R.id.video -> {
+                showVideoMediaDialog()
                 return true
             }
             R.id.paragraph -> {
@@ -341,32 +356,61 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         addLinkDialog!!.show()
     }
 
-    private fun showMediaDialog() {
+    private fun showPhotoMediaDialog() {
         if (!isEditorAttached()) return
 
-        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_media, null)
+        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_photo_media, null)
 
         val camera = dialog.findViewById(R.id.media_camera)
         camera.setOnClickListener({
-            mediaOptionSelectedListener?.onCameraMediaOptionSelected()
-            addMediaDialog?.dismiss()
+            mediaOptionSelectedListener?.onCameraPhotoMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
         })
 
         val photos = dialog.findViewById(R.id.media_photos)
         photos.setOnClickListener({
             mediaOptionSelectedListener?.onPhotosMediaOptionSelected()
-            addMediaDialog?.dismiss()
+            addPhotoMediaDialog?.dismiss()
         })
 
         val library = dialog.findViewById(R.id.media_library)
         library.setOnClickListener({
             Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
-            addMediaDialog?.dismiss()
+            addPhotoMediaDialog?.dismiss()
         })
 
         val builder = AlertDialog.Builder(context)
         builder.setView(dialog)
-        addMediaDialog = builder.create()
-        addMediaDialog!!.show()
+        addPhotoMediaDialog = builder.create()
+        addPhotoMediaDialog!!.show()
+    }
+
+    private fun showVideoMediaDialog() {
+        if (!isEditorAttached()) return
+
+        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_video_media, null)
+
+        val camera = dialog.findViewById(R.id.media_camera)
+        camera.setOnClickListener({
+            mediaOptionSelectedListener?.onCameraVideoMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val videos = dialog.findViewById(R.id.media_videos)
+        videos.setOnClickListener({
+            mediaOptionSelectedListener?.onVideosMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(R.id.media_library)
+        library.setOnClickListener({
+            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialog)
+        addPhotoMediaDialog = builder.create()
+        addPhotoMediaDialog!!.show()
     }
 }

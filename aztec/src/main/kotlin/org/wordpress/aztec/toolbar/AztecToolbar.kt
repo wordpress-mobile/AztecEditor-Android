@@ -24,6 +24,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var addMediaDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
+    private var mediaMenu: PopupMenu? = null
     private var mediaOptionSelectedListener: OnMediaOptionSelectedListener? = null
     private var sourceEditor: SourceViewEditText? = null
 
@@ -97,6 +98,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
+            R.id.photo -> {
+                showMediaDialog()
+                return true
+            }
+            R.id.gallery -> {
+                Toast.makeText(context, "Launch gallery", Toast.LENGTH_SHORT).show()
+                return true
+            }
             R.id.paragraph -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
@@ -155,7 +164,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
-            if (toolbarAction.equals(ToolbarAction.HEADING)) {
+            if (toolbarAction == ToolbarAction.ADD_MEDIA) {
+                setMediaMenu(findViewById(toolbarAction.buttonId))
+            }
+
+            if (toolbarAction == ToolbarAction.HEADING) {
                 setHeaderMenu(findViewById(toolbarAction.buttonId))
             }
         }
@@ -224,8 +237,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
+            ToolbarAction.ADD_MEDIA -> mediaMenu?.show()
             ToolbarAction.HEADING -> headingMenu?.show()
-            ToolbarAction.ADD_MEDIA -> showMediaDialog()
             ToolbarAction.LINK -> showLinkDialog()
             ToolbarAction.MORE -> editor!!.applyComment(AztecCommentSpan.Comment.MORE)
             ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
@@ -268,6 +281,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
+    }
+
+    private fun setMediaMenu(view: View) {
+        mediaMenu = PopupMenu(context, view)
+        mediaMenu?.setOnMenuItemClickListener(this)
+        mediaMenu?.inflate(R.menu.media)
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

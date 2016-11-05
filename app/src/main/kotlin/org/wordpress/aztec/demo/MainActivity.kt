@@ -1,6 +1,7 @@
 package org.wordpress.aztec.demo
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
@@ -107,13 +108,15 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
     override fun onCameraMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PERMISSION_REQUEST_CODE)) {
-            Toast.makeText(this, "Launch camera", Toast.LENGTH_SHORT).show()
+            val intent = Intent("android.media.action.IMAGE_CAPTURE")
+            startActivity(intent)
         }
     }
 
     override fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            Toast.makeText(this, "Show photos", Toast.LENGTH_SHORT).show()
+            val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivity(intent)
         }
     }
 
@@ -140,7 +143,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 if (isPermissionDenied) {
                     ToastUtils.showToast(this, getString(R.string.permission_required_media_camera))
                 } else {
-                    Toast.makeText(this, "Launch camera", Toast.LENGTH_SHORT).show()
+                    val intent = Intent("android.media.action.IMAGE_CAPTURE")
+                    startActivity(intent)
                 }
             }
             MEDIA_PHOTOS_PERMISSION_REQUEST_CODE -> {
@@ -159,7 +163,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 if (isPermissionDenied) {
                     ToastUtils.showToast(this, getString(R.string.permission_required_media_photos))
                 } else {
-                    Toast.makeText(this, "Show photos", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivity(intent)
                 }
             }
             else -> {

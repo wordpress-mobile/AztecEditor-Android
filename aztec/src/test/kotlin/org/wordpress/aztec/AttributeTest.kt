@@ -258,14 +258,14 @@ class AttributeTest {
         Assert.assertEquals(expected, output)
     }
 
-    //TODO: After fixing list item attribute preservation, uncomment this
-//    @Test
-//    @Throws(Exception::class)
-//    fun listWithEmptyItemsAttributes() {
-//        val input = LIST_WITH_EMPTY_ITEMS
-//        val output = editText.fromHtml(input)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun listWithEmptyItemsAttributes() {
+        val input = LIST_WITH_EMPTY_ITEMS
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
 
     @Test
     @Throws(Exception::class)

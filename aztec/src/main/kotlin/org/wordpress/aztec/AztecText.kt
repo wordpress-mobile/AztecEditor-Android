@@ -689,17 +689,17 @@ class AztecText : EditText, TextWatcher {
         for (span in spans) {
             when (textFormat) {
                 TextFormat.FORMAT_HEADING_1 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H1)
+                    return span.heading == AztecHeadingSpan.Heading.H1
                 TextFormat.FORMAT_HEADING_2 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H2)
+                    return span.heading == AztecHeadingSpan.Heading.H2
                 TextFormat.FORMAT_HEADING_3 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H3)
+                    return span.heading == AztecHeadingSpan.Heading.H3
                 TextFormat.FORMAT_HEADING_4 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H4)
+                    return span.heading == AztecHeadingSpan.Heading.H4
                 TextFormat.FORMAT_HEADING_5 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H5)
+                    return span.heading == AztecHeadingSpan.Heading.H5
                 TextFormat.FORMAT_HEADING_6 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H6)
+                    return span.heading == AztecHeadingSpan.Heading.H6
                 else -> return false
             }
         }

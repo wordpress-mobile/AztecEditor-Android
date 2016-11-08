@@ -504,6 +504,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.delete(0,firstMark)
 
-        Assert.assertEquals("<$listTag><li></li><li>third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li></li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
 }

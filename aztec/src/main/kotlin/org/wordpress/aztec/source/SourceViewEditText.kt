@@ -153,6 +153,10 @@ class SourceViewEditText : EditText, TextWatcher {
         val cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
         if (cursorTagIndex < 0) return 0
         styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
+
+        //if something went wrong make sure to remove cursor tag
+        styledHtml.replace(AztecCursorSpan.AZTEC_CURSOR_TAG.toRegex(), "")
+
         return cursorTagIndex
     }
 

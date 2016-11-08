@@ -13,7 +13,8 @@
 
     <item
         android:id="@+id/video"
-        android:title="@string/media_popup_video" >
+        android:title="@string/media_popup_video"
+        android:visible="false" >
     </item>
 
 </menu>

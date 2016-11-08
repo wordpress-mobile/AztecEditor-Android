@@ -43,7 +43,8 @@ class AttributeTest {
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
-        private val LIST_WITH_EMPTY_ITEMS = "<ul><li></li><li a=\"1\">1</li><li></li></ul>"
+        private val LIST_WITH_EMPTY_ITEMS = "a<ul><li></li><li></li><li a=\"1\">1</li><li></li><li></li></ul>b"
+        private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
         private val SUB = "<sub i=\"I\">Sub</sub>"
         private val SUP = "<sup i=\"I\">Sup</sup>"
         private val FONT = "<font i=\"I\">Font</font>"
@@ -262,6 +263,15 @@ class AttributeTest {
     @Throws(Exception::class)
     fun listWithEmptyItemsAttributes() {
         val input = LIST_WITH_EMPTY_ITEMS
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun listWithEmptyItemsAndLineBreakAfterItAttributes() {
+        val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
         editText.fromHtml(input)
         val output = editText.toHtml()
         Assert.assertEquals(input, output)

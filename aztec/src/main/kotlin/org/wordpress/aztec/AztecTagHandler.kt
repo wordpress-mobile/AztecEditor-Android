@@ -40,11 +40,10 @@ class AztecTagHandler : Html.TagHandler {
             LIST_LI -> {
                 if (opening) {
                     start(output, AztecListItemSpan(attributeString))
-                } else
-                    if (output.length > 0 && output[output.length - 1] != '\n') {
-                        endList(output)
-                        output.append("\n")
-                    }
+                } else {
+                    endList(output)
+                    output.append("\n")
+                }
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {

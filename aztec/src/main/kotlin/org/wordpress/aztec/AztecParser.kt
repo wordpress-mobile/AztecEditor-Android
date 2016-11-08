@@ -195,18 +195,16 @@ class AztecParser {
     }
 
     private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
-        var newStart = start
-        var newEnd = end - 1
+        var newEnd = end
+        if (end == text.length || text[end] != '\n')
+            newEnd--
 
-        if (text[newStart] == '\n') {
-            newStart += 1
+        val listContent = text.subSequence(start..newEnd) as Spanned
 
-            if (text.length < newEnd + 1) {
-                newEnd += 1
-            }
+        val listStart = text.getSpanStart(list)
+        if (start != listStart) {
+            return
         }
-
-        val listContent = text.subSequence(newStart..newEnd) as Spanned
 
         out.append("<${list.getStartTag()}>")
         val lines = TextUtils.split(listContent.toString(), "\n")
@@ -230,7 +228,7 @@ class AztecParser {
             if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
-            val itemSpans = text.getSpans(newStart + lineStart, newStart + lineStart + lineLength, AztecListItemSpan::class.java)
+            val itemSpans = text.getSpans(start + lineStart, start + lineStart + lineLength, AztecListItemSpan::class.java)
 
             if (itemSpans.size > 0) {
                 out.append("<li${itemSpans[0].attributes}>")
@@ -245,7 +243,7 @@ class AztecParser {
                 out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
             }
 
-            withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
+            withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
         out.append("</${list.getEndTag()}>")

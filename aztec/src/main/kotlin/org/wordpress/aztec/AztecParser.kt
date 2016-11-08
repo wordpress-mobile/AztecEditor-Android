@@ -37,7 +37,9 @@ class AztecParser {
     internal var spanCursorPosition = -1
 
     fun fromHtml(source: String, context: Context): Spanned {
-        val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
+
+        val tidySource = tidy(source)
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
 
         //fix ranges of block block elements
         val blockSpans = spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java)
@@ -505,7 +507,8 @@ class AztecParser {
         return html
                 .replace("&#8203;", "")
                 .replace("&#65279;", "")
-                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
-                .replace("(<br>)*</p>".toRegex(), "</p>")
+                .replace("(</? ?br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(</? ?br>)*</p>".toRegex(), "</p>")
+                .replace("(</? ?br>)*</li>".toRegex(), "</li>")
     }
 }

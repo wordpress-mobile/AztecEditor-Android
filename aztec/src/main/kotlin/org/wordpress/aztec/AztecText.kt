@@ -32,6 +32,7 @@ import android.text.style.StyleSpan
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.Patterns
+import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -1761,5 +1762,13 @@ class AztecText : EditText, TextWatcher {
     fun clearMetaSpans(text: Spannable) {
         BaseInputConnection.removeComposingSpans(text)
         text.getSpans(0, text.length, SuggestionSpan::class.java).forEach { text.removeSpan(it) }
+    }
+
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+
+        if (visibility == View.VISIBLE) {
+            requestFocus()
+        }
     }
 }

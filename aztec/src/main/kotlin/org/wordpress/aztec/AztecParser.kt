@@ -330,7 +330,7 @@ class AztecParser {
             while (i < end || start == end) {
                 next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-               val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
+                val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
 
                 val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
@@ -405,6 +405,20 @@ class AztecParser {
 
         text.getSpans(start, end, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
+
+            //if the cursor is inside unknown html span we need to account for html inside it
+            if (text.getSpans(start, end, UnknownHtmlSpan::class.java).isNotEmpty()) {
+                val unknownSpan = text.getSpans(start, end, UnknownHtmlSpan::class.java)[0]
+
+                val unknownSpanStart = text.getSpanStart(unknownSpan)
+                val unknownSpanEnd = text.getSpanEnd(unknownSpan)
+
+                if (cursorPosition == unknownSpanStart) {
+                    return unknownSpanEnd - unknownSpan.getRawHtml().length
+                } else if (cursorPosition == unknownSpanEnd) {
+                    return unknownSpanEnd
+                }
+            }
 
             text.getSpans(start, end, BlockElementLinebreak::class.java).forEach {
                 val spanStart = text.getSpanStart(it)

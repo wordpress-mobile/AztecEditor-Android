@@ -178,7 +178,8 @@ class SourceViewEditText : EditText, TextWatcher {
         val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
 
         val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
-                indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight
+                ((indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight)
+                        || indexOfFirstOpeningBracketOnTheRight == -1)
 
         val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd)
         val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd)

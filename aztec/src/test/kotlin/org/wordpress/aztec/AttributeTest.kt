@@ -286,6 +286,10 @@ class AttributeTest {
         editText.append("\n")
         editText.append("after")
         Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ol><li></li>$originalItem<li>after</li></ol>", editText.toHtml())
+        editText.append("\n")
+        Assert.assertEquals("<ol><li></li>$originalItem<li>after</li><li></li></ol>", editText.toHtml())
     }
 
     @Test
@@ -297,5 +301,11 @@ class AttributeTest {
         editText.setSelection(0)
         editText.text.insert(0, "before\n")
         Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ol><li></li><li>before</li>$originalItem</ol>", editText.toHtml())
+        editText.append("\n")
+        Assert.assertEquals("<ol><li></li><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
+        editText.text.delete(0, 1)
+        Assert.assertEquals("<ol><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
     }
 }

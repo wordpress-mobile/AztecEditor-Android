@@ -153,6 +153,10 @@ class SourceViewEditText : EditText, TextWatcher {
         val cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
         if (cursorTagIndex < 0) return 0
         styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
+
+        //if something went wrong make sure to remove cursor tag
+        styledHtml.replace(AztecCursorSpan.AZTEC_CURSOR_TAG.toRegex(), "")
+
         return cursorTagIndex
     }
 
@@ -174,13 +178,14 @@ class SourceViewEditText : EditText, TextWatcher {
         val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
 
         val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
-                indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight
+                ((indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight)
+                        || indexOfFirstOpeningBracketOnTheRight == -1)
 
-        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd)
-        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd)
+        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd-1)
+        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd-1)
 
         val isThereOpeningBracketBeforeClosingBracket = indexOfFirstOpeningBracketOnTheLeft != -1 &&
-                indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft
+                ((indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft) || indexOfFirstClosingBracketOnTheLeft == -1 )
 
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
     }

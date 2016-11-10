@@ -84,11 +84,11 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
-        if (output.length > 0) {
+        if (output.isNotEmpty()) {
             val nestedInBlockElement = isNestedInBlockElement(output, opening)
 
             val followingBlockElement = opening &&
-                    output.getSpans(output.length - 1, output.length - 1, AztecBlockSpan::class.java).size > 0
+                    output.getSpans(output.length - 1, output.length - 1, AztecBlockSpan::class.java).isNotEmpty()
 
             if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
                 output.append("\n")
@@ -170,7 +170,7 @@ class AztecTagHandler : Html.TagHandler {
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)
 
-            if (spans.size == 0) {
+            if (spans.isEmpty()) {
                 return null
             } else {
                 for (i in spans.size downTo 1) {
@@ -186,7 +186,7 @@ class AztecTagHandler : Html.TagHandler {
         private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {
             val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
 
-            if (spans.size == 0) {
+            if (spans.isEmpty()) {
                 return null
             } else {
                 for (i in spans.size downTo 1) {

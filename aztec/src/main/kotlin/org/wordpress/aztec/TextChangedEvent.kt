@@ -112,7 +112,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
             }
 
 
-        } else if (startIndex == 0 && count == 1 && text.length > 0) {
+        } else if (startIndex == 0 && count == 1 && text.isNotEmpty()) {
             val spansAfterInput = editableText.getSpans(startIndex + 1, startIndex + 1, AztecBlockSpan::class.java)
             spansAfterInput.forEach {
                 spansToClose.add(it)

@@ -235,7 +235,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun isSameInlineSpanType(firstSpan: AztecInlineSpan, secondSpan: AztecInlineSpan): Boolean {
-        if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
+        if (firstSpan.javaClass == secondSpan.javaClass) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -486,7 +486,7 @@ class AztecText : EditText, TextWatcher {
                         .filter { it -> isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, AztecInlineSpan::class.java)
                         .filter { isSameInlineSpanType(it, spanToCheck) }
-                return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
+                return before.isNotEmpty() && after.isNotEmpty() && isSameInlineSpanType(before[0], after[0])
             }
         } else {
             val builder = StringBuilder()
@@ -663,7 +663,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
@@ -1161,13 +1161,13 @@ class AztecText : EditText, TextWatcher {
             } else {
                 val before = editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
                 val after = editableText.getSpans(start, start + 1, AztecURLSpan::class.java)
-                return before.size > 0 && after.size > 0
+                return before.isNotEmpty() && after.isNotEmpty()
             }
         } else {
             val builder = StringBuilder()
 
             for (i in start..end - 1) {
-                if (editableText.getSpans(i, i + 1, AztecURLSpan::class.java).size > 0) {
+                if (editableText.getSpans(i, i + 1, AztecURLSpan::class.java).isNotEmpty()) {
                     builder.append(editableText.subSequence(i, i + 1).toString())
                 }
             }
@@ -1386,7 +1386,7 @@ class AztecText : EditText, TextWatcher {
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
-            if (text.length >= 1) {
+            if (text.isNotEmpty()) {
                 text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
             } else {
                 text.removeSpan(it)

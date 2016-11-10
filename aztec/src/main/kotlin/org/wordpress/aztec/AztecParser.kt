@@ -102,7 +102,7 @@ class AztecParser {
             val spanStart = text.getSpanStart(it)
             val spanEnd = text.getSpanEnd(it)
 
-            val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).size > 0
+            val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).isNotEmpty()
 
             if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
                 text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

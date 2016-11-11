@@ -65,7 +65,7 @@ class AztecCommentTest() : AndroidTestCase() {
         val html = HTML_LIST_ORDERED + HTML_LIST_UNORDERED + HTML_QUOTE
         editText.fromHtml(html)
         editText.setSelection(2, 20) // select between second character of ordered list and second character of quote (includes newline characters)
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SELECTED_1$HTML_COMMENT_MORE$HTML_QUOTE_SPLIT_2", editText.toHtml())
     }
@@ -83,7 +83,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(editText.length()) // select after list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_MORE<br>", editText.toHtml())
     }
@@ -101,7 +101,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(editText.length()) // select after quote
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_MORE<br>", editText.toHtml())
     }
@@ -119,7 +119,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(editText.length()) // select after list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_MORE<br>", editText.toHtml())
     }
@@ -137,7 +137,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(0) // select before list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_LIST_ORDERED", editText.toHtml())
     }
@@ -155,7 +155,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(0) // select before quote
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_QUOTE", editText.toHtml())
     }
@@ -173,7 +173,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(0) // select before list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_LIST_UNORDERED", editText.toHtml())
     }
@@ -192,7 +192,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2) // select after second character in list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SPLIT_1$HTML_COMMENT_MORE$HTML_LIST_ORDERED_SPLIT_2", editText.toHtml())
     }
@@ -211,7 +211,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2) // select after second character in quote
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_QUOTE_SPLIT_1$HTML_COMMENT_MORE$HTML_QUOTE_SPLIT_2", editText.toHtml())
     }
@@ -230,7 +230,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2) // select after second character in list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED_SPLIT_1$HTML_COMMENT_MORE$HTML_LIST_UNORDERED_SPLIT_2", editText.toHtml())
     }
@@ -249,7 +249,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SELECTED_1$HTML_COMMENT_MORE$HTML_LIST_ORDERED_SELECTED_2", editText.toHtml())
     }
@@ -268,7 +268,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2, 4) // select between second and fourth character in quote
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_QUOTE_SELECTED_1$HTML_COMMENT_MORE$HTML_QUOTE_SELECTED_2", editText.toHtml())
     }
@@ -287,7 +287,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
-        editText.applyComment(AztecCommentSpan.Comment.MORE)
+        editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED_SELECTED_1$HTML_COMMENT_MORE$HTML_LIST_UNORDERED_SELECTED_2", editText.toHtml())
     }
@@ -307,7 +307,7 @@ class AztecCommentTest() : AndroidTestCase() {
         val html = HTML_LIST_ORDERED + HTML_LIST_UNORDERED + HTML_QUOTE
         editText.fromHtml(html)
         editText.setSelection(2, 20) // select between second character of ordered list and second character of quote (includes newline characters)
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SELECTED_1$HTML_COMMENT_PAGE$HTML_QUOTE_SPLIT_2", editText.toHtml())
     }
@@ -325,7 +325,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(editText.length()) // select after list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_PAGE<br>", editText.toHtml())
     }
@@ -343,7 +343,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(editText.length()) // select after quote
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_PAGE<br>", editText.toHtml())
     }
@@ -361,7 +361,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(editText.length()) // select after list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_PAGE<br>", editText.toHtml())
     }
@@ -379,7 +379,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(0) // select before list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_LIST_ORDERED", editText.toHtml())
     }
@@ -397,7 +397,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(0) // select before quote
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_QUOTE", editText.toHtml())
     }
@@ -415,7 +415,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(0) // select before list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED", editText.toHtml())
     }
@@ -434,7 +434,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2) // select after second character in list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SPLIT_1$HTML_COMMENT_PAGE$HTML_LIST_ORDERED_SPLIT_2", editText.toHtml())
     }
@@ -453,7 +453,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2) // select after second character in quote
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_QUOTE_SPLIT_1$HTML_COMMENT_PAGE$HTML_QUOTE_SPLIT_2", editText.toHtml())
     }
@@ -472,7 +472,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2) // select after second character in list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED_SPLIT_1$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED_SPLIT_2", editText.toHtml())
     }
@@ -491,7 +491,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_ORDERED_SELECTED_1$HTML_COMMENT_PAGE$HTML_LIST_ORDERED_SELECTED_2", editText.toHtml())
     }
@@ -510,7 +510,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2, 4) // select between second and fourth character in quote
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_QUOTE_SELECTED_1$HTML_COMMENT_PAGE$HTML_QUOTE_SELECTED_2", editText.toHtml())
     }
@@ -529,7 +529,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
-        editText.applyComment(AztecCommentSpan.Comment.PAGE)
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
         Assert.assertEquals("$HTML_LIST_UNORDERED_SELECTED_1$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED_SELECTED_2", editText.toHtml())
     }

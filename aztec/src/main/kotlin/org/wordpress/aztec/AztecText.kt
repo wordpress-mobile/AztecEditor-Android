@@ -1378,6 +1378,23 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
+        if (textChangedEventDetails.isAfterZ()) {
+            // deleting character after z deletes also z
+            disableTextChangedListener()
+            text.delete(textChangedEventDetails.inputStart - 2, textChangedEventDetails.inputStart - 1)
+        } else if (textChangedEventDetails.isBeforeZ()) {
+            // adding \n before z moves \n after it (not implemented below)
+            disableTextChangedListener()
+            text.delete(textChangedEventDetails.inputEnd - 1, textChangedEventDetails.inputEnd)
+            disableTextChangedListener()
+            text.insert(textChangedEventDetails.inputEnd + 1, "\n")
+            setSelection(textChangedEventDetails.inputEnd)
+        }
+
+        // z should only exist by itself?
+        // list items should not be inclusive_inclusive?
+        //
+
         history.handleHistory(this)
 
         handleBlockStyling(text, textChangedEventDetails)

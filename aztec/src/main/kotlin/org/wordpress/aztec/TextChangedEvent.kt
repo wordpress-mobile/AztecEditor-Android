@@ -3,6 +3,7 @@ package org.wordpress.aztec
 import android.text.Editable
 import android.text.Spanned
 import org.wordpress.aztec.spans.AztecBlockSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
 import java.util.*
 
 
@@ -25,6 +26,23 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         if (text.length > inputStart && inputStart >= 1 && count > 0) {
             val previousCharacter = text[inputStart - 1]
             return previousCharacter == '\u200B'
+        }
+        return false
+    }
+
+    fun isAfterZ(): Boolean {
+        if (!isAddingCharacters && inputStart > 1 && count > 0) {
+            val previousCharacter = text[inputStart - 2]
+            return previousCharacter == AztecListItemSpan.MARKER
+        }
+        return false
+    }
+
+    fun isBeforeZ(): Boolean {
+        if (isAddingCharacters && inputEnd < text.length && count > 0) {
+            val previousCharacter = text[inputEnd - 1]
+            val nextCharacter = text[inputEnd]
+            return previousCharacter == '\n' && nextCharacter == AztecListItemSpan.MARKER
         }
         return false
     }

@@ -10,12 +10,19 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class BlockFormatter(editor: AztecText) {
+class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) {
+
+    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int)
+    data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int)
 
     val editor: AztecText
+    val listStyle: ListStyle
+    val quoteStyle: QuoteStyle
 
     init {
         this.editor = editor
+        this.listStyle = listStyle
+        this.quoteStyle = quoteStyle
     }
 
     fun toggleOrderedList() {
@@ -186,7 +193,6 @@ class BlockFormatter(editor: AztecText) {
 
                 editor.editableText.setSpan(makeBlockSpan(it.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-
         }
     }
 
@@ -194,9 +200,9 @@ class BlockFormatter(editor: AztecText) {
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(editor.bulletColor, editor.bulletMargin, editor.bulletWidth, editor.bulletPadding, attrs)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(editor.bulletColor, editor.bulletMargin, editor.bulletWidth, editor.bulletPadding, attrs)
-            TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(editor.quoteBackground, editor.quoteColor, editor.quoteMargin, editor.quoteWidth, editor.quotePadding, attrs)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs)
+            TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }
@@ -204,9 +210,9 @@ class BlockFormatter(editor: AztecText) {
 
     fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): AztecBlockSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(editor.bulletColor, editor.bulletMargin, editor.bulletWidth, editor.bulletPadding, attrs)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(editor.bulletColor, editor.bulletMargin, editor.bulletWidth, editor.bulletPadding, attrs)
-            AztecQuoteSpan::class.java -> return AztecQuoteSpan(editor.quoteBackground, editor.quoteColor, editor.quoteMargin, editor.quoteWidth, editor.quotePadding, attrs)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs)
+            AztecQuoteSpan::class.java -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }

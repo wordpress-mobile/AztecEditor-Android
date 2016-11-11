@@ -21,6 +21,7 @@ import android.os.Parcel
 import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.URLSpan
+import org.wordpress.aztec.formatting.LinkFormatter
 
 class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
 
@@ -39,9 +40,9 @@ class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
         }
     }
 
-    constructor(url: String, linkColor: Int, linkUnderline: Boolean, attributes: String? = null) : this(url, attributes) {
-        this.linkColor = linkColor
-        this.linkUnderline = linkUnderline
+    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String? = null) : this(url, attributes) {
+        this.linkColor = linkStyle.linkColor
+        this.linkUnderline = linkStyle.linkUnderline
     }
 
     constructor(src: Parcel) : super(src) {

@@ -44,24 +44,8 @@ import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
 
 class AztecText : EditText, TextWatcher {
-
-    var bulletColor = ContextCompat.getColor(context, R.color.bullet)
-    var bulletMargin = resources.getDimensionPixelSize(R.dimen.bullet_margin)
-    var bulletPadding = resources.getDimensionPixelSize(R.dimen.bullet_padding)
-    var bulletWidth = resources.getDimensionPixelSize(R.dimen.bullet_width)
-
-    var linkColor = ContextCompat.getColor(context, R.color.link)
-    var linkUnderline = resources.getBoolean(R.bool.link_underline)
-
-    var quoteBackground = ContextCompat.getColor(context, R.color.quote_background)
-    var quoteColor = ContextCompat.getColor(context, R.color.quote)
-    var quoteMargin = resources.getDimensionPixelSize(R.dimen.quote_margin)
-    var quotePadding = resources.getDimensionPixelSize(R.dimen.quote_padding)
-    var quoteWidth = resources.getDimensionPixelSize(R.dimen.quote_width)
-
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
-
 
     private var addLinkDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
@@ -79,9 +63,9 @@ class AztecText : EditText, TextWatcher {
 
 
     val inlineFormatter: InlineFormatter
-    val blockFormatter: BlockFormatter
+    lateinit var blockFormatter: BlockFormatter
     val lineBlockFormatter: LineBlockFormatter
-    val linkFormatter: LinkFormatter
+    lateinit var linkFormatter: LinkFormatter
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -89,9 +73,7 @@ class AztecText : EditText, TextWatcher {
 
     init {
         inlineFormatter = InlineFormatter(this)
-        blockFormatter = BlockFormatter(this)
         lineBlockFormatter = LineBlockFormatter(this)
-        linkFormatter = LinkFormatter(this)
     }
 
 
@@ -124,19 +106,28 @@ class AztecText : EditText, TextWatcher {
         setBackgroundColor(array.getColor(R.styleable.AztecText_backgroundColor, ContextCompat.getColor(context, R.color.background)))
         setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
         setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
-        bulletColor = array.getColor(R.styleable.AztecText_bulletColor, bulletColor)
-        bulletPadding = array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, bulletPadding)
-        bulletMargin = array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, bulletMargin)
-        bulletWidth = array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, bulletWidth)
+
         historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
-        linkColor = array.getColor(R.styleable.AztecText_linkColor, linkColor)
-        linkUnderline = array.getBoolean(R.styleable.AztecText_linkUnderline, linkUnderline)
-        quoteBackground = array.getColor(R.styleable.AztecText_quoteBackground, quoteBackground)
-        quoteColor = array.getColor(R.styleable.AztecText_quoteColor, quoteColor)
-        quotePadding = array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, quotePadding)
-        quoteMargin = array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, quoteMargin)
-        quoteWidth = array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, quoteWidth)
+
+        blockFormatter = BlockFormatter(this,
+                BlockFormatter.ListStyle(
+                        array.getColor(R.styleable.AztecText_bulletColor, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0)),
+                BlockFormatter.QuoteStyle(
+                        array.getColor(R.styleable.AztecText_quoteBackground, 0),
+                        array.getColor(R.styleable.AztecText_quoteColor, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0)
+                ))
+
+        linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
+                R.styleable.AztecText_linkColor, 0),
+                array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
+
         array.recycle()
 
         if (historyEnable && historySize <= 0) {
@@ -466,9 +457,8 @@ class AztecText : EditText, TextWatcher {
             val spanStart = editable.getSpanStart(span)
             val spanEnd = editable.getSpanEnd(span)
             editable.removeSpan(span)
-            editable.setSpan(AztecURLSpan(span.url, linkColor, linkUnderline, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(linkFormatter.makeUrlSpan(span.url, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-
     }
 
     fun disableTextChangedListener() {

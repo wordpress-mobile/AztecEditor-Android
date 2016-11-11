@@ -8,12 +8,16 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecURLSpan
 
 
-class LinkFormatter(editor: AztecText) {
+class LinkFormatter(editor: AztecText, linkStyle: LinkStyle) {
+
+    data class LinkStyle(val linkColor: Int, val linkUnderline: Boolean)
 
     val editor: AztecText
+    val linkStyle: LinkStyle
 
     init {
         this.editor = editor
+        this.linkStyle = linkStyle
     }
 
 
@@ -136,6 +140,9 @@ class LinkFormatter(editor: AztecText) {
         return attributes
     }
 
+    fun makeUrlSpan(url: String, attrs: String? = null): AztecURLSpan {
+        return AztecURLSpan(url, linkStyle, attrs)
+    }
 
     private fun linkValid(link: String, start: Int, end: Int, attributes: String? = null) {
         if (start >= end) {
@@ -143,7 +150,7 @@ class LinkFormatter(editor: AztecText) {
         }
 
         linkInvalid(start, end)
-        editor.editableText.setSpan(AztecURLSpan(link, editor.linkColor, editor.linkUnderline, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        editor.editableText.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         editor.onSelectionChanged(end, end)
     }
 
@@ -167,7 +174,7 @@ class LinkFormatter(editor: AztecText) {
             if (start - 1 < 0 || start + 1 > editor.editableText.length) {
                 return false
             } else {
-                val before =editor.editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
+                val before = editor.editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
                 val after = editor.editableText.getSpans(start, start + 1, AztecURLSpan::class.java)
                 return before.size > 0 && after.size > 0
             }

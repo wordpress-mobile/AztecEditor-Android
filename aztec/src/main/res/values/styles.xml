@@ -21,4 +21,24 @@
         <item name="android:background">@color/sourceview_separator</item>
     </style>
 
+    <style name="AztecTextStyle">
+        <item name="android:textCursorDrawable">?attr/textColor</item>
+        <item name="backgroundColor">@android:color/transparent</item>
+        <item name="bulletColor">@color/blue_medium</item>
+        <item name="bulletMargin">@dimen/bullet_margin</item>
+        <item name="bulletPadding">@dimen/bullet_padding</item>
+        <item name="bulletWidth">@dimen/bullet_width</item>
+        <item name="lineSpacingExtra">@dimen/spacing_extra</item>
+        <item name="lineSpacingMultiplier">@dimen/spacing_multiplier</item>
+        <item name="linkColor">@color/blue_wordpress</item>
+        <item name="linkUnderline">false</item>
+        <item name="quoteBackground">@color/blue_wordpress</item>
+        <item name="quoteColor">@color/blue_medium</item>
+        <item name="quoteMargin">@dimen/quote_margin</item>
+        <item name="quotePadding">@dimen/quote_padding</item>
+        <item name="quoteWidth">@dimen/quote_width</item>
+        <item name="textColor">@android:color/white</item>
+        <item name="textColorHint">@android:color/darker_gray</item>
+    </style>
+
 </resources>

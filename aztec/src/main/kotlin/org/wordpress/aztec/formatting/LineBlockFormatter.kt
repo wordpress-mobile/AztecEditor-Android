@@ -20,6 +20,23 @@ class LineBlockFormatter(editor: AztecText) {
     }
 
 
+    fun applyHeading(textFormat: TextFormat){
+        headingClear()
+
+        if (textFormat != TextFormat.FORMAT_PARAGRAPH) {
+            headingFormat(textFormat)
+        }
+    }
+
+    fun applyMoreComment(){
+        applyComment(AztecCommentSpan.Comment.MORE)
+    }
+
+    fun applyPageComment(){
+        applyComment(AztecCommentSpan.Comment.PAGE)
+    }
+
+
      fun headingClear() {
         val lines = TextUtils.split(editor.editableText.toString(), "\n")
 
@@ -193,17 +210,17 @@ class LineBlockFormatter(editor: AztecText) {
         for (span in spans) {
             when (textFormat) {
                 TextFormat.FORMAT_HEADING_1 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H1)
+                    return span.heading == AztecHeadingSpan.Heading.H1
                 TextFormat.FORMAT_HEADING_2 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H2)
+                    return span.heading == AztecHeadingSpan.Heading.H2
                 TextFormat.FORMAT_HEADING_3 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H3)
+                    return span.heading == AztecHeadingSpan.Heading.H3
                 TextFormat.FORMAT_HEADING_4 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H4)
+                    return span.heading == AztecHeadingSpan.Heading.H4
                 TextFormat.FORMAT_HEADING_5 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H5)
+                    return span.heading == AztecHeadingSpan.Heading.H5
                 TextFormat.FORMAT_HEADING_6 ->
-                    return span.heading.equals(AztecHeadingSpan.Heading.H6)
+                    return span.heading == AztecHeadingSpan.Heading.H6
                 else -> return false
             }
         }
@@ -211,7 +228,11 @@ class LineBlockFormatter(editor: AztecText) {
         return false
     }
 
-
+    private fun getCommentHtml(textFormat: TextFormat): String{
+        if(textFormat == TextFormat.FORMAT_MORE) return AztecCommentSpan.Comment.MORE.html
+        if(textFormat == TextFormat.FORMAT_PAGE) return AztecCommentSpan.Comment.PAGE.html
+        return ""
+    }
 
     fun applyComment(comment: AztecCommentSpan.Comment) {
         //check if we add a comment into a block element, at the end of the line, but not at the end of last line

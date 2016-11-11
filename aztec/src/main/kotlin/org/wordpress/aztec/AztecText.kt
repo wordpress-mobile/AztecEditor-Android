@@ -245,92 +245,6 @@ class AztecText : EditText, TextWatcher {
         setSelectedStyles(getAppliedStyles(if (selStart > 0 && !isTextSelected()) selStart - 1 else selStart, selEnd))
     }
 
-    // Inline Styles ===================================================================================
-
-    private fun bold(valid: Boolean) {
-        if (valid) {
-            inlineFormatter.applyInlineStyle(TextFormat.FORMAT_BOLD, selectionStart, selectionEnd)
-        } else {
-            inlineFormatter.removeInlineStyle(TextFormat.FORMAT_BOLD, selectionStart, selectionEnd)
-        }
-    }
-
-    private fun italic(valid: Boolean) {
-        if (valid) {
-            inlineFormatter.applyInlineStyle(TextFormat.FORMAT_ITALIC, selectionStart, selectionEnd)
-        } else {
-            inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, selectionStart, selectionEnd)
-        }
-    }
-
-    fun underline(valid: Boolean) {
-        if (valid) {
-            inlineFormatter.applyInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionStart, selectionEnd)
-        } else {
-            inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINED, selectionEnd, selectionEnd)
-        }
-    }
-
-    fun strikethrough(valid: Boolean) {
-        if (valid) {
-            inlineFormatter.applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
-        } else {
-            inlineFormatter.removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selectionStart, selectionEnd)
-        }
-    }
-
-
-    // HeadingSpan =================================================================================
-
-    fun heading(format: Boolean, textFormat: TextFormat) {
-        lineBlockFormatter.headingClear()
-
-        if (format) {
-            lineBlockFormatter.headingFormat(textFormat)
-        }
-    }
-
-
-    // BulletSpan ==================================================================================
-
-    fun orderedList(valid: Boolean) {
-        if (valid) {
-            if (blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selectionStart, selectionEnd)) {
-                blockFormatter.switchListType(TextFormat.FORMAT_ORDERED_LIST)
-            } else {
-                blockFormatter.applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
-            }
-        } else {
-            blockFormatter.removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
-        }
-    }
-
-    fun unorderedList(valid: Boolean) {
-        if (valid) {
-            if (blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selectionStart, selectionEnd)) {
-                blockFormatter.switchListType(TextFormat.FORMAT_UNORDERED_LIST)
-            } else {
-                blockFormatter.applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
-            }
-        } else {
-            blockFormatter.removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
-        }
-    }
-
-
-
-
-    // QuoteSpan ===================================================================================
-
-    fun quote(valid: Boolean) {
-        if (valid) {
-            blockFormatter.applyBlockStyle(TextFormat.FORMAT_QUOTE)
-        } else {
-            blockFormatter.removeBlockStyle(TextFormat.FORMAT_QUOTE)
-        }
-    }
-
-
     fun getSelectedText(): String {
         if (selectionStart == -1 || selectionEnd == -1) return ""
         return editableText.substring(selectionStart, selectionEnd)
@@ -372,19 +286,19 @@ class AztecText : EditText, TextWatcher {
         history.beforeTextChanged(toFormattedHtml())
 
         when (textFormat) {
-            TextFormat.FORMAT_PARAGRAPH -> heading(false, textFormat)
+            TextFormat.FORMAT_PARAGRAPH,
             TextFormat.FORMAT_HEADING_1,
             TextFormat.FORMAT_HEADING_2,
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> heading(true, textFormat)
-            TextFormat.FORMAT_BOLD -> bold(!contains(TextFormat.FORMAT_BOLD))
-            TextFormat.FORMAT_ITALIC -> italic(!contains(TextFormat.FORMAT_ITALIC))
-            TextFormat.FORMAT_STRIKETHROUGH -> strikethrough(!contains(TextFormat.FORMAT_STRIKETHROUGH))
-            TextFormat.FORMAT_UNORDERED_LIST -> unorderedList(!contains(TextFormat.FORMAT_UNORDERED_LIST))
-            TextFormat.FORMAT_ORDERED_LIST -> orderedList(!contains(TextFormat.FORMAT_ORDERED_LIST))
-            TextFormat.FORMAT_QUOTE -> quote(!contains(TextFormat.FORMAT_QUOTE))
+            TextFormat.FORMAT_HEADING_6 -> lineBlockFormatter.applyHeading(textFormat)
+            TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
+            TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
+            TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggleStrikethrough()
+            TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
+            TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
+            TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             TextFormat.FORMAT_MORE -> lineBlockFormatter.applyComment(AztecCommentSpan.Comment.MORE)
             TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyComment(AztecCommentSpan.Comment.PAGE)
             else -> {

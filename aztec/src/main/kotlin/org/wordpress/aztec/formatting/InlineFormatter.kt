@@ -23,6 +23,37 @@ class InlineFormatter(editor: AztecText) {
         this.editor = editor
     }
 
+    fun toggleBold(){
+        if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
+            applyInlineStyle(TextFormat.FORMAT_BOLD)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_BOLD)
+        }
+    }
+
+    fun toggleItalic(){
+        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC)) {
+            applyInlineStyle(TextFormat.FORMAT_ITALIC)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_ITALIC)
+        }
+    }
+
+    fun toggleUnderline(){
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINED)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINED)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINED)
+        }
+    }
+
+    fun toggleStrikethrough(){
+        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
+            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        }
+    }
 
     fun carryOverInlineSpans(start: Int, count: Int, after: Int) {
         carryOverSpans.clear()
@@ -107,7 +138,7 @@ class InlineFormatter(editor: AztecText) {
     }
 
 
-    public fun applyInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
+     fun applyInlineStyle(textFormat: TextFormat, start: Int = editor.selectionStart, end: Int = editor.selectionEnd) {
         val spanToApply = makeInlineSpan(textFormat)
 
         if (start >= end) {
@@ -178,7 +209,7 @@ class InlineFormatter(editor: AztecText) {
         joinStyleSpans(start, end)
     }
 
-    fun removeInlineStyle(textFormat: TextFormat, start: Int, end: Int) {
+    fun removeInlineStyle(textFormat: TextFormat, start: Int = editor.selectionStart, end: Int = editor.selectionEnd) {
         //for convenience sake we are initializing the span of same type we are planing to remove
         val spanToRemove = makeInlineSpan(textFormat)
 
@@ -326,7 +357,7 @@ class InlineFormatter(editor: AztecText) {
     }
 
 
-    fun containsInlineStyle(textFormat: TextFormat, start: Int, end: Int): Boolean {
+    fun containsInlineStyle(textFormat: TextFormat, start: Int = editor.selectionStart, end: Int = editor.selectionEnd): Boolean {
         val spanToCheck = makeInlineSpan(textFormat)
 
         if (start > end) {

@@ -18,8 +18,36 @@ class BlockFormatter(editor: AztecText) {
         this.editor = editor
     }
 
-    fun orderedList(){
+    fun toggleOrderedList() {
+        if (!containsList(TextFormat.FORMAT_ORDERED_LIST)) {
+            if (containsList(TextFormat.FORMAT_UNORDERED_LIST)) {
+                switchListType(TextFormat.FORMAT_ORDERED_LIST)
+            } else {
+                applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
+            }
+        } else {
+            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
+        }
+    }
 
+    fun toggleUnorderedList() {
+        if (!containsList(TextFormat.FORMAT_UNORDERED_LIST)) {
+            if (containsList(TextFormat.FORMAT_ORDERED_LIST)) {
+                switchListType(TextFormat.FORMAT_UNORDERED_LIST)
+            } else {
+                applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
+            }
+        } else {
+            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
+        }
+    }
+
+    fun toggleQuote() {
+        if (!containQuote()) {
+            applyBlockStyle(TextFormat.FORMAT_QUOTE)
+        } else {
+            removeBlockStyle(TextFormat.FORMAT_QUOTE)
+        }
     }
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
@@ -292,7 +320,7 @@ class BlockFormatter(editor: AztecText) {
     }
 
 
-    fun containsList(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    fun containsList(textFormat: TextFormat, selStart: Int = editor.selectionStart, selEnd: Int = editor.selectionEnd): Boolean {
         val lines = TextUtils.split(editor.editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -318,7 +346,7 @@ class BlockFormatter(editor: AztecText) {
         if (list.isEmpty()) return false
 
         for (i in list) {
-            if (!containsList(textFormat, i)) {
+            if (!containsList(textFormat, i, editor.editableText)) {
                 return false
             }
         }
@@ -326,7 +354,7 @@ class BlockFormatter(editor: AztecText) {
         return true
     }
 
-    fun containsList(textFormat: TextFormat, index: Int, text: Editable = editor.editableText): Boolean {
+    fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -347,7 +375,7 @@ class BlockFormatter(editor: AztecText) {
     }
 
 
-    fun containQuote(selStart: Int, selEnd: Int): Boolean {
+    fun containQuote(selStart: Int = editor.selectionStart, selEnd: Int = editor.selectionEnd): Boolean {
         val lines = TextUtils.split(editor.editableText.toString(), "\n")
         val list = ArrayList<Int>()
 

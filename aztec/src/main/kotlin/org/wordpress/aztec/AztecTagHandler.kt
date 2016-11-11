@@ -138,9 +138,11 @@ class AztecTagHandler : Html.TagHandler {
             val start = output.getSpanStart(last)
             val end = output.length
 
-            if (end >= 0) {
-                output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (start == end) {
+                output.insert(start, "" + AztecListItemSpan.MARKER)
+//                output.insert(start, "" + '\uFEFF')
             }
+            output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
     }
 

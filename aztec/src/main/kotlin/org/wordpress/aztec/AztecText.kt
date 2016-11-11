@@ -250,7 +250,6 @@ class AztecText : EditText, TextWatcher {
         return editableText.substring(selectionStart, selectionEnd)
     }
 
-
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
         val styles = ArrayList<TextFormat>()
         TextFormat.values().forEach {
@@ -277,7 +276,6 @@ class AztecText : EditText, TextWatcher {
         isNewStyleSelected = false
     }
 
-
     fun isTextSelected(): Boolean {
         return selectionStart != selectionEnd
     }
@@ -299,8 +297,8 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyComment(AztecCommentSpan.Comment.MORE)
-            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyComment(AztecCommentSpan.Comment.PAGE)
+            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
+            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             else -> {
             }
         }

@@ -228,13 +228,7 @@ class LineBlockFormatter(editor: AztecText) {
         return false
     }
 
-    private fun getCommentHtml(textFormat: TextFormat): String{
-        if(textFormat == TextFormat.FORMAT_MORE) return AztecCommentSpan.Comment.MORE.html
-        if(textFormat == TextFormat.FORMAT_PAGE) return AztecCommentSpan.Comment.PAGE.html
-        return ""
-    }
-
-    fun applyComment(comment: AztecCommentSpan.Comment) {
+    private fun applyComment(comment: AztecCommentSpan.Comment) {
         //check if we add a comment into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
         editor.editableText.getSpans(editor.selectionStart, editor.selectionEnd, AztecBlockSpan::class.java).forEach {

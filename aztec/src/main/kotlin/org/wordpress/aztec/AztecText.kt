@@ -62,6 +62,7 @@ class AztecText : EditText, TextWatcher {
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
+    private var previousCursorPosition: Int = 0
 
     private val selectedStyles = ArrayList<TextFormat>()
 
@@ -193,6 +194,23 @@ class AztecText : EditText, TextWatcher {
     }
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+
+        if (selEnd > 0 && selStart == selEnd && text[selEnd - 1] == AztecListItemSpan.MARKER) {
+            if (selEnd == previousCursorPosition - 1) {
+                // moved right
+                setSelection(selStart - 1)
+            } else if (selEnd == previousCursorPosition + 1) {
+                // moved left
+                setSelection(selStart + 1)
+            }
+            return
+        } else if (selEnd > 0 && selStart != selEnd && text[selEnd - 1] == AztecListItemSpan.MARKER) {
+            setSelection(selStart, selEnd - 1)
+            return
+        }
+
+        previousCursorPosition = selEnd
+
         super.onSelectionChanged(selStart, selEnd)
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 

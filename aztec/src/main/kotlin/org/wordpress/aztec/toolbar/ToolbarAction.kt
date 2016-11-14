@@ -10,13 +10,6 @@ import java.util.*
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
     HEADING(R.id.format_bar_button_heading, ToolbarActionType.OTHER, null),
-//    PARAGRAPH(R.id.paragraph, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PARAGRAPH),
-//    HEADING_1(R.id.heading_1, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_1),
-//    HEADING_2(R.id.heading_2, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_2),
-//    HEADING_3(R.id.heading_3, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_3),
-//    HEADING_4(R.id.heading_4, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_4),
-//    HEADING_5(R.id.heading_5, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_5),
-//    HEADING_6(R.id.heading_6, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HEADING_6),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),

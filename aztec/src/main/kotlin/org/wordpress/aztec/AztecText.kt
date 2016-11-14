@@ -366,7 +366,7 @@ class AztecText : EditText, TextWatcher {
         history.handleHistory(this)
 
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
-        inlineFormatter.handleInlineStyling(text, textChangedEventDetails)
+        inlineFormatter.handleInlineStyling(textChangedEventDetails)
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
@@ -605,7 +605,7 @@ class AztecText : EditText, TextWatcher {
 
         val builder = AlertDialog.Builder(context)
 
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null, false)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null)
 
         val urlInput = dialogView.findViewById(R.id.linkURL) as EditText
         val anchorInput = dialogView.findViewById(R.id.linkText) as EditText

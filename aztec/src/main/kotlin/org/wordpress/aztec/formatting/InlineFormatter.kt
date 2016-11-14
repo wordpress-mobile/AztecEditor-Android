@@ -1,7 +1,6 @@
 package org.wordpress.aztec.formatting
 
 import android.graphics.Typeface
-import android.text.Editable
 import android.text.Spanned
 import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecPart
@@ -76,7 +75,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
     }
 
 
-    fun handleInlineStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+    fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())

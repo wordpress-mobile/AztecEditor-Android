@@ -1,5 +1,6 @@
 package org.wordpress.aztec.formatting
 
+import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
@@ -244,8 +245,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val span = AztecCommentSpan(
                 editor.context,
                 when (comment) {
-                    AztecCommentSpan.Comment.MORE -> editor.resources.getDrawable(R.drawable.img_more)
-                    AztecCommentSpan.Comment.PAGE -> editor.resources.getDrawable(R.drawable.img_page)
+                    AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
+                    AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
                 }
         )
 

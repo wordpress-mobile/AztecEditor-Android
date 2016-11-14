@@ -11,16 +11,9 @@ import org.wordpress.aztec.spans.AztecHeadingSpan
 import java.util.*
 
 
-class LineBlockFormatter(editor: AztecText) {
+class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
-    val editor: AztecText
-
-    init {
-        this.editor = editor
-    }
-
-
-    fun applyHeading(textFormat: TextFormat){
+    fun applyHeading(textFormat: TextFormat) {
         headingClear()
 
         if (textFormat != TextFormat.FORMAT_PARAGRAPH) {
@@ -28,17 +21,17 @@ class LineBlockFormatter(editor: AztecText) {
         }
     }
 
-    fun applyMoreComment(){
+    fun applyMoreComment() {
         applyComment(AztecCommentSpan.Comment.MORE)
     }
 
-    fun applyPageComment(){
+    fun applyPageComment() {
         applyComment(AztecCommentSpan.Comment.PAGE)
     }
 
 
-     fun headingClear() {
-        val lines = TextUtils.split(editor.editableText.toString(), "\n")
+    fun headingClear() {
+        val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
             if (!containsHeading(i)) {
@@ -60,19 +53,19 @@ class LineBlockFormatter(editor: AztecText) {
             var headingStart = 0
             var headingEnd = 0
 
-            if ((lineStart <= editor.selectionStart && editor.selectionEnd <= lineEnd) ||
-                    (lineStart >= editor.selectionStart && editor.selectionEnd >= lineEnd) ||
-                    (lineStart <= editor.selectionStart && editor.selectionEnd >= lineEnd && editor.selectionStart <= lineEnd) ||
-                    (lineStart >= editor.selectionStart && editor.selectionEnd <= lineEnd && editor.selectionEnd >= lineStart)) {
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
 
             if (headingStart < headingEnd) {
-                val spans = editor.editableText.getSpans(headingStart, headingEnd, AztecHeadingSpan::class.java)
+                val spans = editableText.getSpans(headingStart, headingEnd, AztecHeadingSpan::class.java)
 
                 for (span in spans) {
-                    editor.editableText.removeSpan(span)
+                    editableText.removeSpan(span)
                 }
             }
         }
@@ -80,8 +73,8 @@ class LineBlockFormatter(editor: AztecText) {
         editor.refreshText()
     }
 
-     fun headingFormat(textFormat: TextFormat) {
-        val lines = TextUtils.split(editor.editableText.toString(), "\n")
+    fun headingFormat(textFormat: TextFormat) {
+        val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
             var lineStart = 0
@@ -99,10 +92,10 @@ class LineBlockFormatter(editor: AztecText) {
             var headingStart = 0
             var headingEnd = 0
 
-            if ((lineStart <= editor.selectionStart && editor.selectionEnd <= lineEnd) ||
-                    (lineStart >= editor.selectionStart && editor.selectionEnd >= lineEnd) ||
-                    (lineStart <= editor.selectionStart && editor.selectionEnd >= lineEnd && editor.selectionStart <= lineEnd) ||
-                    (lineStart >= editor.selectionStart && editor.selectionEnd <= lineEnd && editor.selectionEnd >= lineStart)) {
+            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
                 headingStart = lineStart
                 headingEnd = lineEnd
             }
@@ -110,17 +103,17 @@ class LineBlockFormatter(editor: AztecText) {
             if (headingStart < headingEnd) {
                 when (textFormat) {
                     TextFormat.FORMAT_HEADING_1 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H1), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H1), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_2 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H2), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H2), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_3 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H3), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H3), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_4 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H4), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H4), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_5 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     TextFormat.FORMAT_HEADING_6 ->
-                        editor.editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     else -> {
                     }
                 }
@@ -130,8 +123,8 @@ class LineBlockFormatter(editor: AztecText) {
         editor.refreshText()
     }
 
-     fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
-        val lines = TextUtils.split(editor.editableText.toString(), "\n")
+    fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
@@ -163,8 +156,8 @@ class LineBlockFormatter(editor: AztecText) {
         return true
     }
 
-     fun containsHeading(index: Int): Boolean {
-        val lines = TextUtils.split(editor.editableText.toString(), "\n")
+    fun containsHeading(index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {
             return false
@@ -182,12 +175,12 @@ class LineBlockFormatter(editor: AztecText) {
             return false
         }
 
-        val spans = editor.editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
         return spans.size > 0
     }
 
     private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
-        val lines = TextUtils.split(editor.editableText.toString(), "\n")
+        val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {
             return false
@@ -205,7 +198,7 @@ class LineBlockFormatter(editor: AztecText) {
             return false
         }
 
-        val spans = editor.editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
 
         for (span in spans) {
             when (textFormat) {
@@ -231,18 +224,18 @@ class LineBlockFormatter(editor: AztecText) {
     private fun applyComment(comment: AztecCommentSpan.Comment) {
         //check if we add a comment into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
-        editor.editableText.getSpans(editor.selectionStart, editor.selectionEnd, AztecBlockSpan::class.java).forEach {
-            if (editor.editableText.getSpanEnd(it) > editor.selectionEnd && editor.editableText[editor.selectionEnd] == '\n') {
+        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
+            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
                 applyingOnTheEndOfBlockLine = true
                 return@forEach
             }
         }
 
-        val commentStartIndex = editor.selectionStart + 1
-        val commentEndIndex = editor.selectionStart + comment.html.length + 1
+        val commentStartIndex = selectionStart + 1
+        val commentEndIndex = selectionStart + comment.html.length + 1
 
         editor.disableTextChangedListener()
-        editor.editableText.replace(editor.selectionStart, editor.selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
+        editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
 
         editor.removeBlockStylesFromRange(commentStartIndex, commentEndIndex + 1, true)
         editor.removeHeadingStylesFromRange(commentStartIndex, commentEndIndex + 1)
@@ -256,7 +249,7 @@ class LineBlockFormatter(editor: AztecText) {
                 }
         )
 
-        editor.editableText.setSpan(
+        editableText.setSpan(
                 span,
                 commentStartIndex,
                 commentEndIndex,

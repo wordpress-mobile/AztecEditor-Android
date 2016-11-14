@@ -67,7 +67,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
         val inputStart = textChangedEvent.inputStart
 
-        val spanToClose = textChangedEvent.getBlockSpansToClose(text)
+        val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
             var spanEnd = text.getSpanEnd(it)
             var spanStart = text.getSpanStart(it)
@@ -99,7 +99,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        val spanToOpen = textChangedEvent.getBlockSpanToOpen(text)
+        val spanToOpen = getBlockSpanToOpen(text, textChangedEvent)
         spanToOpen.forEach {
             val textLength = text.length
 
@@ -448,5 +448,86 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         editor.editableText.setSpan(makeBlockSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
         editor.onSelectionChanged(start, end)
+    }
+
+
+    fun getBlockSpanToOpen(editableText: Editable, textChangedEvent: TextChangedEvent): ArrayList<AztecBlockSpan> {
+        val spansToClose = ArrayList<AztecBlockSpan>()
+        if (textChangedEvent.count >= 0) {
+            if (editableText.length > textChangedEvent.inputStart) {
+                val spans = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecBlockSpan::class.java)
+
+                spans.forEach {
+                    val previousCharacter =
+                            if (textChangedEvent.isAddingCharacters) editableText[textChangedEvent.inputStart - 1]
+                            else editableText[textChangedEvent.inputEnd]
+
+                    if (previousCharacter == '\n') return@forEach
+
+                    val deletingLastCharacter = !textChangedEvent.isAddingCharacters && editableText.length == textChangedEvent.inputEnd
+                    if (deletingLastCharacter) return@forEach
+
+                    if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd) {
+                        val lastCharacter = editableText[textChangedEvent.inputEnd]
+                        if (lastCharacter == '\n') return@forEach
+                    }
+
+
+                    val flags = editableText.getSpanFlags(spans[0])
+                    if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
+                        spansToClose.add(it)
+                    }
+                }
+
+                if (spans.isEmpty()) {
+                    val spansAfterInput = editableText.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd, AztecBlockSpan::class.java)
+                    spansAfterInput.forEach {
+                        val flags = editableText.getSpanFlags(spansAfterInput[0])
+                        if (((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) ||
+                                (flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                            spansToClose.add(it)
+                        }
+                    }
+                }
+            }
+        }
+
+        return spansToClose
+
+    }
+
+    fun getBlockSpansToClose(editableText: Editable, textChangedEvent: TextChangedEvent): ArrayList<AztecBlockSpan> {
+        val spansToClose = ArrayList<AztecBlockSpan>()
+
+        val startIndex = if (textChangedEvent.isAddingCharacters) textChangedEvent.inputStart else textChangedEvent.inputEnd
+        if (startIndex > 0 && textChangedEvent.count == 1) {
+            if (editableText[startIndex - 1] != '\n') return spansToClose
+
+            val spans = editableText.getSpans(startIndex, startIndex, AztecBlockSpan::class.java)
+            spans.forEach {
+                val spanStart = editableText.getSpanStart(spans[0])
+                val spanEnd = editableText.getSpanEnd(spans[0])
+
+                if (startIndex == spanStart) {
+                    spansToClose.add(it)
+                } else if (startIndex == spanEnd) {
+                    val flags = editableText.getSpanFlags(spans[0])
+                    if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                        spansToClose.add(it)
+                    }
+                }
+
+            }
+
+
+        } else if (startIndex == 0 && textChangedEvent.count == 1 && editableText.length > 0) {
+            val spansAfterInput = editableText.getSpans(startIndex + 1, startIndex + 1, AztecBlockSpan::class.java)
+            spansAfterInput.forEach {
+                spansToClose.add(it)
+            }
+        }
+
+        return spansToClose
+
     }
 }

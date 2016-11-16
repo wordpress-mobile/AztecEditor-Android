@@ -12,7 +12,7 @@ object Format {
         val doc = Jsoup.parseBodyFragment(content)
 
         //remove newline around all non block elements
-        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
+        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 

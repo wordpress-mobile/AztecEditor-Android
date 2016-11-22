@@ -496,7 +496,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private void handleStartTag(String tag, Attributes attributes) {
         if (mUnknownTagLevel != 0) {
-            if(tag.equalsIgnoreCase("aztec_cursor")){
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
                 handleCursor(mSpannableStringBuilder);
                 return;
             }
@@ -569,7 +569,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private void handleEndTag(String tag) {
         // Unknown tag previously detected
         if (mUnknownTagLevel != 0) {
-            if(tag.equalsIgnoreCase("aztec_cursor")){
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
                 return; //already handled at start tag
             }
             // Swallow closing tag in current Unknown element
@@ -992,6 +992,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     @Override
     public void comment(char[] chars, int start, int length) throws SAXException {
+        if (mUnknownTagLevel != 0) {
+            mUnknown.rawHtml.append("<!--");
+            for (int i = 0; i < length; i++) {
+                mUnknown.rawHtml.append(chars[i + start]);
+            }
+            mUnknown.rawHtml.append("-->");
+            return;
+        }
+
         String comment = new String(chars, start, length);
         int spanStart = mSpannableStringBuilder.length();
         mSpannableStringBuilder.append(comment);

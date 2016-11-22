@@ -37,6 +37,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
+    private val HTML_COMMENT_INSIDE_UNKNOWN = "<unknown><!--more--></unknown>"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
                     "<div class=\"first\">" +
@@ -775,6 +776,22 @@ class AztecParserTest : AndroidTestCase() {
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse comment tag nested inside unknown HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlCommentInsideUnknown_isEqual() {
+        val input =
+                HTML_COMMENT_INSIDE_UNKNOWN
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 }

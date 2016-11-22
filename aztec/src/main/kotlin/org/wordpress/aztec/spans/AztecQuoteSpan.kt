@@ -25,6 +25,7 @@ import android.text.Layout
 import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.QuoteSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
 
 class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
@@ -46,12 +47,12 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
         this.attributes = attributes
     }
 
-    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int, attributes: String? = null) : this(attributes) {
-        this.quoteBackground = quoteBackground
-        this.quoteColor = quoteColor
-        this.quoteMargin = quoteMargin
-        this.quoteWidth = quoteWidth
-        this.quotePadding = quotePadding
+    constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String? = null) : this(attributes) {
+        this.quoteBackground = quoteStyle.quoteBackground
+        this.quoteColor = quoteStyle.quoteColor
+        this.quoteMargin = quoteStyle.quoteMargin
+        this.quoteWidth = quoteStyle.quoteWidth
+        this.quotePadding = quoteStyle.quotePadding
     }
 
     constructor(src: Parcel) : super(src) {

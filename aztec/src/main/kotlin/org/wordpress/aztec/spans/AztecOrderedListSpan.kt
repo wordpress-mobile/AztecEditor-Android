@@ -24,6 +24,7 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
@@ -45,11 +46,11 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         this.attributes = attributes
     }
 
-    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int, attributes: String? = null) : super(textMargin) {
-        this.textColor = textColor
-        this.textMargin = textMargin
-        this.bulletWidth = bulletWidth
-        this.textPadding = textPadding
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String? = null) : super(listStyle.indicatorMargin) {
+        this.textColor = listStyle.indicatorColor
+        this.textMargin = listStyle.indicatorMargin
+        this.bulletWidth = listStyle.indicatorWidth
+        this.textPadding = listStyle.indicatorPadding
         this.attributes = attributes
     }
 

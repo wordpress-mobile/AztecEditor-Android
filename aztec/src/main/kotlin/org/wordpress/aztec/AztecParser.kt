@@ -39,14 +39,18 @@ class AztecParser {
     fun fromHtml(source: String, context: Context): Spanned {
         val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
 
-        //fix ranges of block block elements
-        val blockSpans = spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java)
-        blockSpans.forEach {
-            val spanStart = spanned.getSpanStart(it)
-            var spanEnd = spanned.getSpanEnd(it)
-            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
-            spanned.removeSpan(it)
-            spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        arrayOf(AztecHeadingSpan::class.java, AztecBlockSpan::class.java).forEach { spanClass ->
+            spanned.getSpans(0, spanned.length, spanClass).forEach {
+                val spanStart = spanned.getSpanStart(it)
+                var spanEnd = spanned.getSpanEnd(it)
+                spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
+                spanned.removeSpan(it)
+                spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
+                    spanned.delete(spanned.length - 1, spanned.length)
+                }
+            }
         }
 
         return spanned
@@ -91,37 +95,45 @@ class AztecParser {
         return tidy(out.toString())
     }
 
+
     //TODO tidy up the logic
     //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
     fun markBlockElementLineBreaks(input: Spanned): Spanned {
         val text = SpannableStringBuilder(input)
 
-        text.getSpans(0, text.length, AztecBlockSpan::class.java).forEach {
-            val spanStart = text.getSpanStart(it)
-            val spanEnd = text.getSpanEnd(it)
+        arrayOf(AztecHeadingSpan::class.java, AztecBlockSpan::class.java).forEach {
+            spanClass ->
+            text.getSpans(0, text.length, spanClass).forEach {
+                val spanStart = text.getSpanStart(it)
+                val spanEnd = text.getSpanEnd(it)
 
-            val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecBlockSpan::class.java).size > 0
+                val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, spanClass).isNotEmpty()
 
-            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
-                text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
+                    text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+
+                if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
+                        && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (it is AztecHeadingSpan && text.length > spanEnd && text[spanEnd - 1] == '\n') {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (it is AztecHeadingSpan) {
+                    val nlIndex = text.indexOf("\n", spanStart)
+                    if (nlIndex > spanStart && nlIndex < spanEnd) {
+                        text.setSpan(BlockElementLinebreak(), nlIndex - 1, nlIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
             }
-
-            //special case for listview with trailing empty line followed by newline
-            if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
-                    && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
-                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
-                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
-                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
-                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-
         }
-
         return text
     }
 

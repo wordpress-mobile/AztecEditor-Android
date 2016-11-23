@@ -336,12 +336,12 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
 
     fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
         when (textFormat) {
-            TextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H1)
-            TextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H2)
-            TextFormat.FORMAT_HEADING_3 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H3)
-            TextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H4)
-            TextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H5)
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(AztecHeadingSpan.Heading.H6)
+            TextFormat.FORMAT_HEADING_1,
+            TextFormat.FORMAT_HEADING_2,
+            TextFormat.FORMAT_HEADING_3,
+            TextFormat.FORMAT_HEADING_4,
+            TextFormat.FORMAT_HEADING_5,
+            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat)
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()

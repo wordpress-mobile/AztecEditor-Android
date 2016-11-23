@@ -102,22 +102,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
 
             if (headingStart < headingEnd) {
-                when (textFormat) {
-                    TextFormat.FORMAT_HEADING_1 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H1), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_2 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H2), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_3 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H3), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_4 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H4), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_5 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_6 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else -> {
-                    }
-                }
+                editableText.setSpan(AztecHeadingSpan(textFormat), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

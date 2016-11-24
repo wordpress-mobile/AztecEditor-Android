@@ -118,6 +118,12 @@ class AztecParser {
                 if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
                     text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
+                //Look back and remove any unnecessary BlockElementLinebreak's
+                else if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
+                    text.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).forEach {
+                        text.removeSpan(it)
+                    }
+                }
 
                 if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
                         && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
@@ -130,13 +136,6 @@ class AztecParser {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (it is AztecHeadingSpan && text.length > spanEnd && text[spanEnd - 1] == '\n') {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (it is AztecHeadingSpan) {
-                    val nlIndex = text.indexOf("\n", spanStart)
-                    if (nlIndex > spanStart && nlIndex < spanEnd) {
-                        text.setSpan(BlockElementLinebreak(), nlIndex - 1, nlIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    }
                 }
             }
         }

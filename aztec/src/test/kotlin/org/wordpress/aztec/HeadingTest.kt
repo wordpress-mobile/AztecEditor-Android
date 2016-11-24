@@ -87,6 +87,15 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun splitTwoHeadingsWithNewline() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2>")
+        val mark = editText.text.indexOf("Heading 2")
+        editText.text.insert(mark, "\n")
+        Assert.assertEquals("<h1>Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun changeHeadingOfSingleLine() {
         editText.append("Heading 1")
         editText.toggleFormatting(defaultHeadingFormat)

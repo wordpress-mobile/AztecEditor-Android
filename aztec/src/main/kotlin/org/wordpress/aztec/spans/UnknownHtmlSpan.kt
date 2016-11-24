@@ -6,11 +6,11 @@ import android.text.style.ParagraphStyle
 import android.view.View
 import android.widget.Toast
 
-class UnknownHtmlSpan(rawHtml: StringBuilder, context: Context, drawable: Int) : ImageSpan(context, drawable), ParagraphStyle {
+class UnknownHtmlSpan(rawHtml: StringBuilder, context: Context, drawable: Int) : ImageSpan(context, drawable), ParagraphStyle, AztecCharacterStyleSpan {
 
     val mRawHtml: StringBuilder = rawHtml
 
-    fun getRawHtml() : StringBuilder {
+    fun getRawHtml(): StringBuilder {
         return mRawHtml
     }
 

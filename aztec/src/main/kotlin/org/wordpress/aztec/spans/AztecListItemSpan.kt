@@ -1,10 +1,8 @@
 package org.wordpress.aztec.spans
 
-import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.CharacterStyle
 
-class AztecListItemSpan : CharacterStyle, AztecSpan {
+class AztecListItemSpan : AztecCharacterStyleSpan, AztecSpan {
 
     private final val TAG = "li"
 
@@ -25,6 +23,4 @@ class AztecListItemSpan : CharacterStyle, AztecSpan {
         return TAG
     }
 
-    override fun updateDrawState(p0: TextPaint?) {
-    }
 }

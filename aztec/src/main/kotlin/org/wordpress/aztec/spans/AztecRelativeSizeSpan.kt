@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
 
-class AztecRelativeSizeSpan : RelativeSizeSpan, AztecContentSpan, AztecInlineSpan {
+class AztecRelativeSizeSpan : RelativeSizeSpan, AztecContentSpan, AztecInlineSpan, AztecCharacterStyleSpan {
 
     var tag: String = ""
     override var attributes: String?

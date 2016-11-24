@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.TypefaceSpan
 
-class AztecTypefaceSpan : TypefaceSpan, AztecContentSpan, AztecInlineSpan {
+class AztecTypefaceSpan : TypefaceSpan, AztecContentSpan, AztecInlineSpan, AztecCharacterStyleSpan {
 
     var tag: String
     override var attributes: String?

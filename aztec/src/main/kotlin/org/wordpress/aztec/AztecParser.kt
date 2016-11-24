@@ -64,6 +64,12 @@ class AztecParser {
         // add a marker to the end of the text to aid nested group parsing
         val data = SpannableStringBuilder(cleanedUpText).append('\u200B')
 
+        //if there is no list or hidden html span at the end of the text, then we don't need zwj
+        if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
+                data.getSpans(data.length - 1, data.length, AztecListSpan::class.java).isEmpty()) {
+            data.delete(data.length - 1, data.length)
+        }
+
         resetHiddenTagParser(data)
 
         val hidden = data.getSpans(0, data.length, HiddenHtmlSpan::class.java)
@@ -176,6 +182,8 @@ class AztecParser {
                     withinQuote(out, text, i, next)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
+                } else if (styles[0] is AztecHeadingSpan) {
+                    withinHeading(out, text, i, next, styles[0] as AztecHeadingSpan)
                 } else if (styles[0] is ParagraphSpan) {
                     withinParagraph(out, text, i, next)
                 } else {
@@ -282,6 +290,23 @@ class AztecParser {
         }
     }
 
+    private fun withinHeading(out: StringBuilder, text: Spanned, start: Int, end: Int, headingSpan: AztecHeadingSpan) {
+        val headingContent = text.subSequence(start, end) as Spanned
+        val lines = TextUtils.split(headingContent.toString(), "\n")
+        for (i in lines.indices) {
+            val lineLength = lines[i].length
+
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineEnd = lineStart + lineLength
+
+            if (lineLength == 0) continue
+
+            out.append("<${headingSpan.getStartTag()}>")
+            withinContent(out, headingContent, lineStart, lineEnd)
+            out.append("</${headingSpan.getEndTag()}>")
+
+        }
+    }
 
     private fun withinQuote(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         var next: Int
@@ -344,7 +369,7 @@ class AztecParser {
 
                 val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
 
-                val spans = text.getSpans(i, next, CharacterStyle::class.java)
+                val spans = text.getSpans(i, next, AztecCharacterStyleSpan::class.java)
                 for (j in spans.indices) {
                     val span = spans[j]
 

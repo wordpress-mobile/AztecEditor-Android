@@ -63,7 +63,7 @@ class HeadingTest() {
     fun prependTextToHeading() {
         editText.append("Heading 1")
         editText.toggleFormatting(defaultHeadingFormat)
-        editText.text.insert(0,"inserted")
+        editText.text.insert(0, "inserted")
         Assert.assertEquals("<h1>insertedHeading 1</h1>", editText.toHtml())
     }
 
@@ -107,7 +107,7 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun changeHeadingOfSelectedMultilineText() {
         editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2>")
-        editText.setSelection(0,editText.length())
+        editText.setSelection(0, editText.length())
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
         Assert.assertEquals("<h2>Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
     }
@@ -118,6 +118,7 @@ class HeadingTest() {
         editText.fromHtml("<ol><li>Item 1</li><li>Item 2</li></ol>")
         editText.setSelection(0)
         editText.toggleFormatting(defaultHeadingFormat)
+        Assert.assertEquals("<ol><li><h1>Item 1</h1></li><li>Item 2</li></ol>", editText.toHtml())
     }
 
     @Test
@@ -125,7 +126,15 @@ class HeadingTest() {
     fun applyHeadingToTextInsideQuote() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         editText.toggleFormatting(defaultHeadingFormat)
-        editText.fromHtml("<blockquote><h1>Quote</h1></blockquote>")
+        Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyQuoteToHeading() {
+        editText.fromHtml("<h1>Quote</h1>")
+        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
     }
 
     @Test
@@ -153,7 +162,7 @@ class HeadingTest() {
     fun applyTextStyleToHeading() {
         editText.append("Heading 1")
         editText.toggleFormatting(defaultHeadingFormat)
-        editText.setSelection(0,editText.length())
+        editText.setSelection(0, editText.length())
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h1><b>Heading 1</b></h1>", editText.toHtml())
     }
@@ -163,7 +172,7 @@ class HeadingTest() {
     fun applyTextStyleToPartiallySelectedHeading() {
         editText.append("Heading 1")
         editText.toggleFormatting(defaultHeadingFormat)
-        editText.setSelection(0,3)
+        editText.setSelection(0, 3)
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h1><b>Hea</b>ding 1</h1>", editText.toHtml())
     }

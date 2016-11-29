@@ -22,7 +22,6 @@ import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.style.CharacterStyle
 import android.text.style.ImageSpan
 import android.text.style.ParagraphStyle
 import org.wordpress.aztec.spans.*
@@ -39,17 +38,15 @@ class AztecParser {
     fun fromHtml(source: String, context: Context): Spanned {
         val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
 
-        arrayOf(AztecHeadingSpan::class.java, AztecBlockSpan::class.java).forEach { spanClass ->
-            spanned.getSpans(0, spanned.length, spanClass).forEach {
-                val spanStart = spanned.getSpanStart(it)
-                var spanEnd = spanned.getSpanEnd(it)
-                spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
-                spanned.removeSpan(it)
-                spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+            val spanStart = spanned.getSpanStart(it)
+            var spanEnd = spanned.getSpanEnd(it)
+            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            spanned.removeSpan(it)
+            spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
-                    spanned.delete(spanned.length - 1, spanned.length)
-                }
+            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
+                spanned.delete(spanned.length - 1, spanned.length)
             }
         }
 
@@ -107,35 +104,44 @@ class AztecParser {
     fun markBlockElementLineBreaks(input: Spanned): Spanned {
         val text = SpannableStringBuilder(input)
 
-        arrayOf(AztecHeadingSpan::class.java, AztecBlockSpan::class.java).forEach {
-            spanClass ->
-            text.getSpans(0, text.length, spanClass).forEach {
-                val spanStart = text.getSpanStart(it)
-                val spanEnd = text.getSpanEnd(it)
+        text.getSpans(0, text.length, AztecLineBlockSpan::class.java).forEach {
+            val spanStart = text.getSpanStart(it)
+            val spanEnd = text.getSpanEnd(it)
 
-                val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, spanClass).isNotEmpty()
+            val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecLineBlockSpan::class.java).isNotEmpty()
 
-                if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
-                    text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
+                text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            //Look back and remove any unnecessary BlockElementLinebreak's
+            else if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
+                text.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).forEach {
+                    val sps = text.getSpanStart(it)
+                    val spd = text.getSpanEnd(it)
+                    text.setSpan(it, sps - 1, spd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-                //Look back and remove any unnecessary BlockElementLinebreak's
-                else if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
-                    text.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).forEach {
-                        text.removeSpan(it)
+            }
+
+            if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
+                    && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                    && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (it is AztecHeadingSpan && text.length > spanEnd && text[spanEnd - 1] == '\n') {
+                text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else if (it is AztecHeadingSpan) {
+                var nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", spanStart)
+                while (nlIndex >= 0) {
+                    if (nlIndex > spanStart && nlIndex < spanEnd) {
+                        text.setSpan(BlockElementLinebreak(), nlIndex - 1, nlIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
                     }
-                }
-
-                if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
-                        && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -166,12 +172,17 @@ class AztecParser {
             next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
 
             val styles = text.getSpans(i, next, ParagraphStyle::class.java)
+
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {
                     withinQuoteThenList(out, text, i, next, styles[0] as AztecListSpan, styles[1] as AztecQuoteSpan)
                 } else if (styles[0] is AztecQuoteSpan && styles[1] is AztecListSpan) {
                     withinListThenQuote(out, text, i, next++, styles[1] as AztecListSpan, styles[0] as AztecQuoteSpan)
-                } else {
+                }
+//                else if (styles[0] is AztecHeadingSpan || styles[1] is AztecHeadingSpan) {
+//                    withinListThenQuote(out, text, i, next++, styles[1] as AztecListSpan, styles[0] as AztecQuoteSpan)
+//                }
+                else {
                     withinContent(out, text, i, next)
                 }
             } else if (styles.size == 1) {
@@ -181,9 +192,11 @@ class AztecParser {
                     withinQuote(out, text, i, next)
                 } else if (styles[0] is UnknownHtmlSpan) {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
-                } else if (styles[0] is AztecHeadingSpan) {
-                    withinHeading(out, text, i, next, styles[0] as AztecHeadingSpan)
-                } else if (styles[0] is ParagraphSpan) {
+                }
+//                else if (styles[0] is AztecHeadingSpan) {
+//                    withinHeading(out, text, i, next, styles[0] as AztecHeadingSpan)
+//                }
+                else if (styles[0] is ParagraphSpan) {
                     withinParagraph(out, text, i, next)
                 } else {
                     withinContent(out, text, i, next)
@@ -249,7 +262,7 @@ class AztecParser {
             }
             val itemSpans = text.getSpans(newStart + lineStart, newStart + lineStart + lineLength, AztecListItemSpan::class.java)
 
-            if (itemSpans.size > 0) {
+            if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
             } else {
                 out.append("<li>")
@@ -289,8 +302,7 @@ class AztecParser {
         }
     }
 
-    private fun withinHeading(out: StringBuilder, text: Spanned, start: Int, end: Int, headingSpan: AztecHeadingSpan) {
-        val headingContent = text.subSequence(start, end) as Spanned
+    private fun withinHeading(out: StringBuilder, headingContent: Spanned, span: AztecHeadingSpan) {
         val lines = TextUtils.split(headingContent.toString(), "\n")
         for (i in lines.indices) {
             val lineLength = lines[i].length
@@ -300,10 +312,9 @@ class AztecParser {
 
             if (lineLength == 0) continue
 
-            out.append("<${headingSpan.getStartTag()}>")
-            withinContent(out, headingContent, lineStart, lineEnd)
-            out.append("</${headingSpan.getEndTag()}>")
-
+            out.append("<${span.getStartTag()}>")
+            withinContent(out, headingContent, lineStart, lineEnd, true)
+            out.append("</${span.getEndTag()}>")
         }
     }
 
@@ -328,7 +339,7 @@ class AztecParser {
         }
     }
 
-    private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int) {
+    private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
         var next: Int
 
         var i = start
@@ -340,7 +351,7 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                if (text.getSpans(next, next, BlockElementLinebreak::class.java).size == 0) {
+                if (text.getSpans(next, next, BlockElementLinebreak::class.java).isEmpty()) {
                     nl++
                 }
                 next++
@@ -349,7 +360,7 @@ class AztecParser {
             //account for possible zero-width joiner at the end of the line
             val zwjModifer = if (text[next - 1] == '\u200B') 1 else 0
 
-            withinParagraph(out, text, i, next - nl - zwjModifer, nl)
+            withinParagraph(out, text, i, next - nl - zwjModifer, nl, ignoreHeading)
 
             i = next
         }
@@ -357,14 +368,34 @@ class AztecParser {
 
     // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Aztec.
-    private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int) {
+    private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int, ignoreHeading: Boolean = false) {
         var next: Int
+
+        if (!ignoreHeading) {
+
+            var skip = false
+
+            text.getSpans(start, end, AztecHeadingSpan::class.java).forEach {
+                withinHeading(out, text.subSequence(start, end) as Spanned, it)
+                skip = true
+            }
+            if (skip) {
+                for (i in 0..nl - 1) {
+                    if (end + i == spanCursorPosition && !containsCursor(out)) {
+                        out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
+                    }
+                    out.append("<br>")
+                }
+                return@withinParagraph
+            }
+        }
+
 
         run {
             var i = start
 
             while (i < end || start == end) {
-                next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
+                next = text.nextSpanTransition(i, end, AztecCharacterStyleSpan::class.java)
 
                 val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
 
@@ -461,7 +492,7 @@ class AztecParser {
                 val spanEnd = text.getSpanEnd(it)
 
                 //special case for when cursor is before list
-                val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).size > 0
+                val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).isNotEmpty()
 
                 if (isBeforeList && (cursorPosition == spanStart || cursorPosition == spanEnd)) {
                     cursorPosition = -1

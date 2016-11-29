@@ -3,10 +3,9 @@ package org.wordpress.aztec.spans
 import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
-import android.text.style.ParagraphStyle
 import org.wordpress.aztec.TextFormat
 
-class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String? = null) : MetricAffectingSpan(), ParagraphStyle, AztecContentSpan, AztecInlineSpan {
+class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String? = null) : MetricAffectingSpan(), AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan {
 
     lateinit var heading: Heading
     override var attributes: String? = attrs

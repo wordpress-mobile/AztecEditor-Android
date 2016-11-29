@@ -136,13 +136,13 @@ class AztecTagHandler : Html.TagHandler {
         val last = getLast(output, AztecListItemSpan::class.java)
         if (last != null) {
             val start = output.getSpanStart(last)
-            val end = output.length
+            var end = output.length
 
             if (start == end) {
                 output.insert(start, "" + AztecListItemSpan.MARKER)
-//                output.insert(start, "" + '\uFEFF')
+                end++
             }
-            output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+            output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

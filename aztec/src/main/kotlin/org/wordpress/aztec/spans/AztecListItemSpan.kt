@@ -2,7 +2,7 @@ package org.wordpress.aztec.spans
 
 import android.text.TextUtils
 
-class AztecListItemSpan : AztecCharacterStyleSpan, AztecSpan {
+class AztecListItemSpan : AztecSpan {
 
     private final val TAG = "li"
 

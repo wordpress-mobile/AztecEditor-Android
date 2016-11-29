@@ -22,6 +22,7 @@ import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
+import android.text.style.CharacterStyle
 import android.text.style.ImageSpan
 import android.text.style.ParagraphStyle
 import org.wordpress.aztec.spans.*
@@ -296,7 +297,11 @@ class AztecParser {
     }
 
     private fun withinHeading(out: StringBuilder, headingContent: Spanned, span: AztecHeadingSpan) {
-        val lines = TextUtils.split(headingContent.toString(), "\n")
+        //remove the heading span from the text we are about to process
+        val cleanHeading = SpannableStringBuilder(headingContent)
+        cleanHeading.removeSpan(span)
+
+        val lines = TextUtils.split(cleanHeading.toString(), "\n")
         for (i in lines.indices) {
             val lineLength = lines[i].length
 
@@ -306,7 +311,7 @@ class AztecParser {
             if (lineLength == 0) continue
 
             out.append("<${span.getStartTag()}>")
-            withinContent(out, headingContent, lineStart, lineEnd, true)
+            withinContent(out, cleanHeading, lineStart, lineEnd, true)
             out.append("</${span.getEndTag()}>")
         }
     }
@@ -387,11 +392,11 @@ class AztecParser {
             var i = start
 
             while (i < end || start == end) {
-                next = text.nextSpanTransition(i, end, AztecCharacterStyleSpan::class.java)
+                next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
                 val localCursorPosition = getLocalCursorPosition(text, if (i > 0) i - 1 else 0, next)
 
-                val spans = text.getSpans(i, next, AztecCharacterStyleSpan::class.java)
+                val spans = text.getSpans(i, next, CharacterStyle::class.java)
                 for (j in spans.indices) {
                     val span = spans[j]
 

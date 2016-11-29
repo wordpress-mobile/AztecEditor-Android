@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.UnderlineSpan
 
-class AztecUnderlineSpan(override var attributes: String? = null) : UnderlineSpan(), AztecContentSpan, AztecInlineSpan, AztecCharacterStyleSpan {
+class AztecUnderlineSpan(override var attributes: String? = null) : UnderlineSpan(), AztecContentSpan, AztecInlineSpan {
 
     private final val TAG = "u"
 

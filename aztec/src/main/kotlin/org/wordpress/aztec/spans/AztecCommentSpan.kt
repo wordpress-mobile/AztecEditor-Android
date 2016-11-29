@@ -6,7 +6,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
 
-class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable), AztecCharacterStyleSpan {
+class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
     companion object {
         private val rect: Rect = Rect()
         private val HTML_MORE: String = "more"

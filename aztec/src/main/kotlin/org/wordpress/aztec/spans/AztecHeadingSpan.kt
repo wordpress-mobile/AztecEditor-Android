@@ -19,7 +19,6 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
         private val SCALE_H5: Float = 1.2f
         private val SCALE_H6: Float = 1.0f
 
-
         fun getTextFormat(tag: String): TextFormat {
             when (tag.toLowerCase()) {
                 "h1" -> return TextFormat.FORMAT_HEADING_1

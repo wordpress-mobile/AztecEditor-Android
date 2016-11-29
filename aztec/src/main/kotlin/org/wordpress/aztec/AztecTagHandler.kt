@@ -33,15 +33,7 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?): Boolean {
-
         val attributeString = Html.stringifyAttributes(attributes).toString()
-
-        if (tag.length == 2 &&
-                Character.toLowerCase(tag[0]) == 'h' &&
-                tag[1] >= '1' && tag[1] <= '6') {
-            handleBlockElement(output, opening, AztecHeadingSpan(tag, attributeString))
-            return true
-        }
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
@@ -64,7 +56,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             DIV, SPAN -> {
                 if (opening) {
-                    start(output, HiddenHtmlSpan(tag, Html.stringifyAttributes(attributes), order++))
+                    start(output, HiddenHtmlSpan(tag, attributeString, order++))
                 } else {
                     endHidden(output, order++)
                 }
@@ -85,6 +77,12 @@ class AztecTagHandler : Html.TagHandler {
             PARAGRAPH -> {
                 handleBlockElement(output, opening, ParagraphSpan(attributeString))
                 return true
+            }
+            else -> {
+                if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
+                    handleBlockElement(output, opening, AztecHeadingSpan(tag, attributeString))
+                    return true
+                }
             }
 
         }
@@ -119,7 +117,6 @@ class AztecTagHandler : Html.TagHandler {
         val minNumberOfSpans = if (opening) 0 else 1
 
         return output.getSpans(spanLookupIndex, spanLookupIndex, AztecLineBlockSpan::class.java).size > minNumberOfSpans
-
     }
 
 
@@ -183,13 +180,9 @@ class AztecTagHandler : Html.TagHandler {
             if (spans.isEmpty()) {
                 return null
             } else {
-                for (i in spans.size downTo 1) {
-                    if (text.getSpanFlags(spans[i - 1]) == Spannable.SPAN_MARK_MARK) {
-                        return spans[i - 1]
-                    }
-                }
-
-                return null
+                return (spans.size downTo 1)
+                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK }
+                        ?.let { spans[it - 1] }
             }
         }
 
@@ -199,14 +192,9 @@ class AztecTagHandler : Html.TagHandler {
             if (spans.isEmpty()) {
                 return null
             } else {
-                for (i in spans.size downTo 1) {
-                    if (text.getSpanFlags(spans[i - 1]) == Spannable.SPAN_MARK_MARK &&
-                            !(spans[i - 1] as HiddenHtmlSpan).isClosed) {
-                        return spans[i - 1]
-                    }
-                }
-
-                return null
+                return (spans.size downTo 1)
+                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK && !(spans[it - 1] as HiddenHtmlSpan).isClosed }
+                        ?.let { spans[it - 1] }
             }
         }
     }

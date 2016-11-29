@@ -31,17 +31,19 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     }
 
     fun isAfterZ(): Boolean {
-        if (!isAddingCharacters && inputStart > 1 && count > 0) {
-            val previousCharacter = text[inputStart - 2]
+        val min = Math.min(inputStart, inputEnd)
+        if (!isAddingCharacters && min > 1 && count > 0) {
+            val previousCharacter = text[min - 2]
             return previousCharacter == AztecListItemSpan.MARKER
         }
         return false
     }
 
     fun isBeforeZ(): Boolean {
-        if (isAddingCharacters && inputEnd < text.length && count > 0) {
-            val previousCharacter = text[inputEnd - 1]
-            val nextCharacter = text[inputEnd]
+        val max = Math.max(inputStart, inputEnd)
+        if (isAddingCharacters && max < text.length && count > 0) {
+            val previousCharacter = text[max - 1]
+            val nextCharacter = text[max]
             return previousCharacter == '\n' && nextCharacter == AztecListItemSpan.MARKER
         }
         return false

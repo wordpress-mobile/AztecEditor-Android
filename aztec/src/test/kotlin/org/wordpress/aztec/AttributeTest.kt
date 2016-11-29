@@ -308,4 +308,24 @@ class AttributeTest {
         editText.text.delete(0, 1)
         Assert.assertEquals("<ol><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun moveItemsAround() {
+        val input = LIST_WITH_ATTRIBUTES
+        editText.fromHtml(input)
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(0, "a")
+        editText.text.insert(1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.append("\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li><li></li></ul>", editText.toHtml())
+        editText.text.append("\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(7, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+    }
 }

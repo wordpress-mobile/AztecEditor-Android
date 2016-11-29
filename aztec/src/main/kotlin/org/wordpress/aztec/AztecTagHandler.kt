@@ -96,8 +96,7 @@ class AztecTagHandler : Html.TagHandler {
             val nestedInBlockElement = isNestedInBlockElement(output, opening)
 
             val followingBlockElement = opening &&
-                    output.getSpans(output.length - 1, output.length - 1,
-                            if (span is AztecHeadingSpan) AztecHeadingSpan::class.java else AztecBlockSpan::class.java).isNotEmpty()
+                    output.getSpans(output.length - 1, output.length - 1, AztecLineBlockSpan::class.java).isNotEmpty()
 
 
             if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
@@ -119,8 +118,8 @@ class AztecTagHandler : Html.TagHandler {
         val spanLookupIndex = if (opening) output.length else output.length - 1
         val minNumberOfSpans = if (opening) 0 else 1
 
-        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecBlockSpan::class.java).size > minNumberOfSpans ||
-                output.getSpans(spanLookupIndex, spanLookupIndex, AztecHeadingSpan::class.java).size > minNumberOfSpans
+        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecLineBlockSpan::class.java).size > minNumberOfSpans
+
     }
 
 

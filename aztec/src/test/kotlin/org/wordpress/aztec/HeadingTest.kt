@@ -83,6 +83,8 @@ class HeadingTest() {
         editText.toggleFormatting(defaultHeadingFormat)
         editText.text.insert(3, "\n")
         Assert.assertEquals("<h1>Hea</h1><h1>ding 1</h1>", editText.toHtml())
+        editText.text.insert(6, "\n")
+        Assert.assertEquals("<h1>Hea</h1><h1>di</h1><h1>ng 1</h1>", editText.toHtml())
     }
 
     @Test
@@ -92,6 +94,15 @@ class HeadingTest() {
         val mark = editText.text.indexOf("Heading 2")
         editText.text.insert(mark, "\n")
         Assert.assertEquals("<h1>Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun splitHeadingAndQuoteWithNewline() {
+        editText.fromHtml("<h1>Heading 1</h1><blockquote>Quote</blockquote>")
+        val mark = editText.text.indexOf("Quote") - 1
+        editText.text.insert(mark, "\n")
+        Assert.assertEquals("<h1>Heading 1</h1><br><blockquote>Quote</blockquote>", editText.toHtml())
     }
 
     @Test
@@ -139,7 +150,7 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
-    fun applyHeadingToTxtSurroundedByLists() {
+    fun applyHeadingToTextSurroundedByLists() {
         editText.fromHtml("<ol><li>Ordered</li></ol>Heading 1<ol><li>Ordered</li></ol>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)
@@ -149,7 +160,7 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
-    fun applyHeadingToTxtSurroundedByQuotes() {
+    fun applyHeadingToTextSurroundedByQuotes() {
         editText.fromHtml("<blockquote>Quote</blockquote>Heading 1<blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)

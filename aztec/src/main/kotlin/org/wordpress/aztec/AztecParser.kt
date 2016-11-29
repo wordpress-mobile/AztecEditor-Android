@@ -230,7 +230,7 @@ class AztecParser {
             }
             val itemSpans = text.getSpans(start + lineStart, start + lineStart + lineLength, AztecListItemSpan::class.java)
 
-            if (itemSpans.size > 0) {
+            if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
             } else {
                 out.append("<li>")
@@ -304,7 +304,7 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                if (text.getSpans(next, next, BlockElementLinebreak::class.java).size == 0) {
+                if (text.getSpans(next, next, BlockElementLinebreak::class.java).isEmpty()) {
                     nl++
                 }
                 next++
@@ -425,7 +425,7 @@ class AztecParser {
                 val spanEnd = text.getSpanEnd(it)
 
                 //special case for when cursor is before list
-                val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).size > 0
+                val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).isNotEmpty()
 
                 if (isBeforeList && (cursorPosition == spanStart || cursorPosition == spanEnd)) {
                     cursorPosition = -1

@@ -122,18 +122,17 @@ class AztecParser {
 
             //AztecHeadingSpan had a bit different logic then the block spans
             if (it is AztecHeadingSpan) {
-                if (text.length > spanEnd && text[spanEnd] == '\n') {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length > spanEnd && text[spanEnd - 1] == '\n') {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else {
-                    //mark all newlines within multiline heading span
-                    var nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", spanStart)
-                    while (nlIndex >= 0) {
-                        if (nlIndex > spanStart && nlIndex < spanEnd) {
-                            text.setSpan(BlockElementLinebreak(), nlIndex - 1, nlIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                            nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
-                        }
+                if (text.length > spanEnd && text[spanEnd - 1] == '\n') {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd - 1, Spanned.SPAN_MARK_MARK)
+                } else if (text.length > spanEnd && text[spanEnd - 1] != '\n' && text[spanEnd] == '\n') {
+                    text.setSpan(BlockElementLinebreak(), spanEnd, spanEnd, Spanned.SPAN_MARK_MARK)
+                }
+
+                var nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", spanStart)
+                while (nlIndex >= 0) {
+                    if (nlIndex > spanStart && nlIndex < spanEnd) {
+                        text.setSpan(BlockElementLinebreak(), nlIndex, nlIndex, Spanned.SPAN_MARK_MARK)
+                        nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
                     }
                 }
             } else {
@@ -349,7 +348,9 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                if (text.getSpans(next, next, BlockElementLinebreak::class.java).isEmpty()) {
+                val isVisualLinebreak = text.getSpans(next, next, BlockElementLinebreak::class.java).isNotEmpty()
+
+                if (!isVisualLinebreak) {
                     nl++
                 }
                 next++

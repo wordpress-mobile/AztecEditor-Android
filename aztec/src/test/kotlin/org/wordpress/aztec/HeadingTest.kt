@@ -70,45 +70,43 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun appendTextToHeading() {
-        editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.append("inserted")
-        Assert.assertEquals("<h1>Heading 1inserted</h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1inserted</h1>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun splitHeadingWithNewline() {
-        editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.text.insert(3, "\n")
-        Assert.assertEquals("<h1>Hea</h1><h1>ding 1</h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\">Hea</h1><h1 foo=\"bar\">ding 1</h1>", editText.toHtml())
         editText.text.insert(6, "\n")
-        Assert.assertEquals("<h1>Hea</h1><h1>di</h1><h1>ng 1</h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\">Hea</h1><h1 foo=\"bar\">di</h1><h1 foo=\"bar\">ng 1</h1>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun splitTwoHeadingsWithNewline() {
-        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2>")
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         val mark = editText.text.indexOf("Heading 2")
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<h1>Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun splitHeadingAndQuoteWithNewline() {
-        editText.fromHtml("<h1>Heading 1</h1><blockquote>Quote</blockquote>")
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Quote") - 1
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<h1>Heading 1</h1><br><blockquote>Quote</blockquote>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><blockquote>Quote</blockquote>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun changeHeadingOfSingleLine() {
-        editText.append("Heading 1")
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.toggleFormatting(defaultHeadingFormat)
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
         Assert.assertEquals("<h2>Heading 1</h2>", editText.toHtml())
@@ -117,7 +115,7 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun changeHeadingOfSelectedMultilineText() {
-        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2>")
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         editText.setSelection(0, editText.length())
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
         Assert.assertEquals("<h2>Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
@@ -143,9 +141,9 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun applyQuoteToHeading() {
-        editText.fromHtml("<h1>Quote</h1>")
+        editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
+        Assert.assertEquals("<blockquote><h1 foo=\"bar\">Quote</h1></blockquote>", editText.toHtml())
     }
 
     @Test
@@ -171,20 +169,18 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun applyTextStyleToHeading() {
-        editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.setSelection(0, editText.length())
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h1><b>Heading 1</b></h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\"><b>Heading 1</b></h1>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun applyTextStyleToPartiallySelectedHeading() {
-        editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.setSelection(0, 3)
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h1><b>Hea</b>ding 1</h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\"><b>Hea</b>ding 1</h1>", editText.toHtml())
     }
 }

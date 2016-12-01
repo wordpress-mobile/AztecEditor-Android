@@ -129,11 +129,9 @@ class AztecParser {
                 }
 
                 var nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", spanStart)
-                while (nlIndex >= 0) {
-                    if (nlIndex > spanStart && nlIndex < spanEnd) {
-                        text.setSpan(BlockElementLinebreak(), nlIndex, nlIndex, Spanned.SPAN_MARK_MARK)
-                        nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
-                    }
+                while (nlIndex >= spanStart && nlIndex < spanEnd) {
+                    text.setSpan(BlockElementLinebreak(), nlIndex, nlIndex, Spanned.SPAN_MARK_MARK)
+                    nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
                 }
             } else {
                 if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd

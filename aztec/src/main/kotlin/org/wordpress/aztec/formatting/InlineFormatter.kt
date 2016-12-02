@@ -242,7 +242,9 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-            } else {
+            }else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
+                return firstSpan.heading == secondSpan.heading
+            }else {
                 return true
             }
 

@@ -1534,10 +1534,8 @@ class AztecText : EditText, TextWatcher {
                     spanEnd += textChangedEvent.count
                 } else if (indexOfLineEnd == -1) {
                     spanEnd = text.length
-                } else {
-                    spanEnd = indexOfLineEnd
                 }
-
+                
                 if (spanEnd <= textLength) {
                     editableText.setSpan(it,
                             text.getSpanStart(it),

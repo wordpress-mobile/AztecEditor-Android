@@ -42,7 +42,6 @@ class AztecTagHandler : Html.TagHandler {
                     start(output, AztecListItemSpan(attributeString))
                 } else {
                     endList(output)
-                    output.append("\n")
                 }
                 return true
             }
@@ -81,6 +80,16 @@ class AztecTagHandler : Html.TagHandler {
 
         }
         return false
+    }
+
+    private fun saveLastItem(opening: Boolean, output: Editable) {
+        if (!opening) {
+            val list = output.getSpans(0, output.length, AztecListSpan::class.java).last()
+            val listStart = output.getSpanStart(list)
+            val listEnd = output.getSpanEnd(list)
+            val listItems = output.getSpans(listStart, listEnd, AztecListItemSpan::class.java)
+            list.lastItem = listItems.last()
+        }
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
@@ -133,17 +142,13 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun endList(output: Editable) {
-        val last = getLast(output, AztecListItemSpan::class.java)
-        if (last != null) {
-            val start = output.getSpanStart(last)
-            var end = output.length
+        val last = getLast(output, AztecListItemSpan::class.java) as AztecListItemSpan
+        output.append("\n")
+        val end = output.length
+        output.setSpan(last, end - 1, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            if (start == end) {
-                output.insert(start, "" + AztecListItemSpan.MARKER)
-                end++
-            }
-            output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        val list = output.getSpans(0, output.length, AztecListSpan::class.java).last()
+        list.lastItem = last
     }
 
     private fun end(output: Editable, kind: Class<*>) {

@@ -228,10 +228,13 @@ class AztecParser {
             if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
                 continue
             }
-            val itemSpans = text.getSpans(start + lineStart, start + lineStart + lineLength, AztecListItemSpan::class.java)
+            val itemSpanStart = start + lineStart + lineLength
+            val itemSpans = text.getSpans(itemSpanStart, itemSpanStart + 1, AztecListItemSpan::class.java)
 
             if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
+            } else if (i == lines.lastIndex) {
+                out.append("<li${list.lastItem.attributes}>")
             } else {
                 out.append("<li>")
             }

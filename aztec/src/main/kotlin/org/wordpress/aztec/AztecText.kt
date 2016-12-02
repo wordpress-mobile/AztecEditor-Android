@@ -454,20 +454,20 @@ class AztecText : EditText, TextWatcher {
     }
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null, lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null, lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
             AztecQuoteSpan::class.java -> return AztecQuoteSpan(quoteBackground, quoteColor, quoteMargin, quoteWidth, quotePadding, attrs)
             else -> return ParagraphSpan(attrs)
         }
@@ -941,7 +941,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat).javaClass)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     // QuoteSpan ===================================================================================
@@ -1396,21 +1396,15 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        // z should only exist by itself?
-        if (textChangedEventDetails.isAfterZ()) {
-            // deleting character after z deletes also z
-            disableTextChangedListener()
-            text.delete(textChangedEventDetails.inputStart - 2, textChangedEventDetails.inputStart - 1)
-        } else if (textChangedEventDetails.isBeforeZ()) {
-            // adding \n before z moves \n after it
-            disableTextChangedListener()
-            text.delete(textChangedEventDetails.inputEnd - 1, textChangedEventDetails.inputEnd)
-            disableTextChangedListener()
-            text.insert(textChangedEventDetails.inputEnd + 1, "\n")
-            setSelection(textChangedEventDetails.inputEnd)
-        }
-
         history.handleHistory(this)
+
+        // preserve the attributes on the previous list item when adding a new one
+        if (textChangedEventDetails.isNewLine() && textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
+            val spans = text.getSpans(textChangedEventDetails.inputEnd, textChangedEventDetails.inputEnd + 1, AztecListItemSpan::class.java)
+            if (spans.size == 1) {
+                text.setSpan(spans[0], textChangedEventDetails.inputStart, textChangedEventDetails.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
 
         handleBlockStyling(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
@@ -1656,7 +1650,13 @@ class AztecText : EditText, TextWatcher {
             val spanStart = editable.getSpanStart(it)
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
-            editable.setSpan(makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            if (it is AztecListSpan) {
+                val iit = it as AztecBlockSpan
+                editable.setSpan(makeBlockSpan(iit.javaClass, it.attributes, it.lastItem), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                editable.setSpan(makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
 
         val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)

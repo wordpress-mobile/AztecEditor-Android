@@ -444,7 +444,12 @@ class AztecText : EditText, TextWatcher {
             val spanStart = editable.getSpanStart(it)
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
-            editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            if (it is AztecListSpan) {
+                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
 
         val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)

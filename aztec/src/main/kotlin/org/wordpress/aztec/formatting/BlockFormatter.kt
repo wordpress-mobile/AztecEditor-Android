@@ -197,20 +197,20 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, lastItem: AztecListItemSpan = AztecListItemSpan(), attrs: String? = null): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null, lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
             AztecQuoteSpan::class.java -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }

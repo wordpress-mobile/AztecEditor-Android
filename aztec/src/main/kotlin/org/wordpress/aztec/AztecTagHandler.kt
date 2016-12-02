@@ -144,7 +144,7 @@ class AztecTagHandler : Html.TagHandler {
         output.setSpan(last, end - 1, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         val list = output.getSpans(0, output.length, AztecListSpan::class.java).last()
-//        list.lastItem = last
+        list.lastItem = last
     }
 
     private fun end(output: Editable, kind: Class<*>) {

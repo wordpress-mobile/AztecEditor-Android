@@ -195,16 +195,16 @@ class AztecText : EditText, TextWatcher {
 
     override fun onSelectionChanged(selStart: Int, selEnd: Int) {
 
-        if (selEnd > 0 && selStart == selEnd && text[selEnd - 1] == AztecListItemSpan.MARKER) {
-            if (selEnd == previousCursorPosition - 1) {
+        if (selEnd < text.length && selStart == selEnd && text[selEnd] == Constants.MAGIC_CHAR) {
+            if (selEnd == previousCursorPosition + 1) {
                 // moved right
-                setSelection(selStart - 1)
-            } else if (selEnd == previousCursorPosition + 1) {
+                setSelection(selEnd + 1)
+            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
                 // moved left
-                setSelection(selStart + 1)
+                setSelection(selEnd - 1)
             }
             return
-        } else if (selEnd > 0 && selStart != selEnd && text[selEnd - 1] == AztecListItemSpan.MARKER) {
+        } else if (selEnd > 0 && selStart != selEnd && text[selEnd - 1] == Constants.MAGIC_CHAR) {
             setSelection(selStart, selEnd - 1)
             return
         }
@@ -810,7 +810,7 @@ class AztecText : EditText, TextWatcher {
 
             if (isEmptyLine) {
                 disableTextChangedListener()
-                editableText.insert(startOfLine, "\u200B")
+                editableText.insert(startOfLine, Constants.ZWJ_STRING)
                 endOfLine += 1
             }
 
@@ -1475,7 +1475,7 @@ class AztecText : EditText, TextWatcher {
                 if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
                     spanEnd += 1
                     disableTextChangedListener()
-                    text.insert(spanStart, "\u200B")
+                    text.insert(spanStart, Constants.ZWJ_STRING)
                 } else
                 //case for when we remove block element row from other lines of EditText end the next line is empty
                     if (text[spanStart] == '\n') {
@@ -1484,7 +1484,7 @@ class AztecText : EditText, TextWatcher {
                         if (text[spanStart] == '\n' && text.length >= spanEnd && text.length > spanStart) {
                             spanEnd += 1
                             disableTextChangedListener()
-                            text.insert(spanStart, "\u200B")
+                            text.insert(spanStart, Constants.ZWJ_STRING)
                         }
                     }
 
@@ -1545,7 +1545,7 @@ class AztecText : EditText, TextWatcher {
             val blockSpans = getText().getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
             if (!blockSpans.isEmpty() && text.getSpanEnd(blockSpans[0]) == inputStart + 1) {
                 disableTextChangedListener()
-                text.insert(inputStart + 1, "\u200B")
+                text.insert(inputStart + 1, Constants.ZWJ_STRING)
             }
         }
     }

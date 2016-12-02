@@ -25,26 +25,26 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (text.length > inputStart && inputStart >= 1 && count > 0) {
             val previousCharacter = text[inputStart - 1]
-            return previousCharacter == '\u200B'
+            return previousCharacter == Constants.ZWJ_CHAR
         }
         return false
     }
 
-    fun isAfterZ(): Boolean {
+    fun isAfterMagicChar(): Boolean {
         val min = Math.min(inputStart, inputEnd)
         if (!isAddingCharacters && min > 1 && count > 0) {
             val previousCharacter = text[min - 2]
-            return previousCharacter == AztecListItemSpan.MARKER
+            return previousCharacter == Constants.MAGIC_CHAR
         }
         return false
     }
 
-    fun isBeforeZ(): Boolean {
+    fun isBeforeMagicChar(): Boolean {
         val max = Math.max(inputStart, inputEnd)
         if (isAddingCharacters && max < text.length && count > 0) {
             val previousCharacter = text[max - 1]
             val nextCharacter = text[max]
-            return previousCharacter == '\n' && nextCharacter == AztecListItemSpan.MARKER
+            return previousCharacter == '\n' && nextCharacter == Constants.MAGIC_CHAR
         }
         return false
     }

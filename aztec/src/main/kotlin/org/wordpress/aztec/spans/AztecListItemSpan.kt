@@ -6,10 +6,6 @@ import android.text.style.CharacterStyle
 
 class AztecListItemSpan : CharacterStyle, AztecSpan {
 
-    companion object {
-        final val MARKER = 'z'
-    }
-
     private final val TAG = "li"
 
     override var attributes: String?

@@ -884,10 +884,7 @@ class AztecText : EditText, TextWatcher {
 
                 editableText.setSpan(makeBlockSpan(it.javaClass), endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-
         }
-
-
     }
 
     private fun containsList(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
@@ -1004,7 +1001,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     fun getSelectedText(): String {
@@ -1134,7 +1131,7 @@ class AztecText : EditText, TextWatcher {
     private fun getAttributes(end: Int, start: Int): String? {
         val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
         var attributes: String? = null
-        if (urlSpans != null && urlSpans.size > 0) {
+        if (urlSpans != null && urlSpans.isNotEmpty()) {
             attributes = urlSpans[0].attributes
         }
         return attributes

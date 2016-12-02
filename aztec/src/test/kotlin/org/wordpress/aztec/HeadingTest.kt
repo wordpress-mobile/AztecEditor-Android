@@ -88,9 +88,15 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun splitTwoHeadingsWithNewline() {
+        //cursor position right before Heading 2
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         val mark = editText.text.indexOf("Heading 2")
         editText.text.insert(mark, "\n")
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
+
+        //alternative cursor position right after Heading 1
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
+        editText.text.insert(mark - 1, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
     }
 
@@ -169,10 +175,10 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun applyTextStyleToHeading() {
-        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
-        editText.setSelection(0, editText.length())
+        editText.fromHtml("<h5>Heading 5</h5><h1 foo=\"bar\">Heading 1</h1><h5>Heading 5</h5>")
+        editText.setSelection(editText.text.indexOf("Heading 1"), editText.text.indexOf("Heading 1") + "Heading 1".length)
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h1 foo=\"bar\"><b>Heading 1</b></h1>", editText.toHtml())
+        Assert.assertEquals("<h5>Heading 5</h5><h1 foo=\"bar\"><b>Heading 1</b></h1><h5>Heading 5</h5>", editText.toHtml())
     }
 
     @Test
@@ -182,5 +188,23 @@ class HeadingTest() {
         editText.setSelection(0, 3)
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h1 foo=\"bar\"><b>Hea</b>ding 1</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun moveHeadingUpToUnstyledLine() {
+        editText.fromHtml("<b>bold</b><h1 foo=\"bar\">Heading 1</h1>")
+        val mark = editText.text.indexOf("Heading 1")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("<b>bold</b>Heading 1", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun moveUnstyledLineUpToHeading() {
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>unstyled")
+        val mark = editText.text.indexOf("unstyled")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1unstyled</h1>", editText.toHtml())
     }
 }

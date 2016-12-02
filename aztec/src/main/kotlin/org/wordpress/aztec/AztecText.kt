@@ -233,7 +233,7 @@ class AztecText : EditText, TextWatcher {
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
-        setSelectedStyles(getAppliedStyles(if (selStart > 0 && !isTextSelected()) selStart - 1 else selStart, selEnd))
+        setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
     fun getSelectedText(): String {
@@ -242,9 +242,19 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
+//        var newSelStart = selectionStart
+//        var newSelEnd = if (editableText.length > selectionEnd) selectionEnd + 1 else selectionEnd
+//
+//        if (selectionStart > 0 && selectionStart < text.length && !isTextSelected() && editableText[selectionStart - 1] != '\n') {
+//            newSelStart--
+//            newSelEnd--
+//        }
+
+        val newSelStart = if (selectionStart > 0 && !isTextSelected()) selectionStart - 1 else selectionStart
+
         val styles = ArrayList<TextFormat>()
         TextFormat.values().forEach {
-            if (contains(it, selectionStart, selectionEnd)) {
+            if (contains(it, newSelStart, selectionEnd)) {
                 styles.add(it)
             }
         }
@@ -317,24 +327,6 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
-        if (contains(TextFormat.FORMAT_HEADING_1, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_1
-        } else if (contains(TextFormat.FORMAT_HEADING_2, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_2
-        } else if (contains(TextFormat.FORMAT_HEADING_3, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_3
-        } else if (contains(TextFormat.FORMAT_HEADING_4, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_4
-        } else if (contains(TextFormat.FORMAT_HEADING_5, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_5
-        } else if (contains(TextFormat.FORMAT_HEADING_6, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_6
-        } else {
-            return null
-        }
-    }
-
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
@@ -367,6 +359,7 @@ class AztecText : EditText, TextWatcher {
 
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

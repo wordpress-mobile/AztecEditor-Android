@@ -1620,7 +1620,7 @@ class AztecText : EditText, TextWatcher {
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
+        builder.append(parser.fromHtml(Format.clearFormatting(source), context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)
@@ -1770,7 +1770,7 @@ class AztecText : EditText, TextWatcher {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context))
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()

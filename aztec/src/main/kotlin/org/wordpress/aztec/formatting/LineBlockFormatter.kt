@@ -5,6 +5,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
+import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecCommentSpan
@@ -30,6 +31,28 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         applyComment(AztecCommentSpan.Comment.PAGE)
     }
 
+    fun handleLineBlockStyling(textChangedEvent: TextChangedEvent) {
+        if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd && textChangedEvent.inputEnd > 0) {
+
+            val charBeforeInputEnd = textChangedEvent.text[textChangedEvent.inputEnd - 1]
+            if (charBeforeInputEnd == '\n') return
+
+            val spanOnTheLeft = editableText.getSpans(textChangedEvent.inputEnd - 1, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).getOrNull(0)
+            val spanOnTheRight = editableText.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecHeadingSpan::class.java).getOrNull(0)
+
+            if (spanOnTheLeft == null && spanOnTheRight != null) {
+                editableText.removeSpan(spanOnTheRight)
+            } else if (spanOnTheLeft != null && spanOnTheRight != null) {
+                if (spanOnTheLeft != spanOnTheRight) {
+                    val leftSpanStart = editableText.getSpanStart(spanOnTheLeft)
+                    val rightSpanEnd = editableText.getSpanEnd(spanOnTheRight)
+                    editableText.removeSpan(spanOnTheRight)
+                    editableText.setSpan(spanOnTheLeft, leftSpanStart, rightSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+
+    }
 
     fun headingClear() {
         val lines = TextUtils.split(editableText.toString(), "\n")

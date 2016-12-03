@@ -242,19 +242,26 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
-//        var newSelStart = selectionStart
-//        var newSelEnd = if (editableText.length > selectionEnd) selectionEnd + 1 else selectionEnd
-//
-//        if (selectionStart > 0 && selectionStart < text.length && !isTextSelected() && editableText[selectionStart - 1] != '\n') {
-//            newSelStart--
-//            newSelEnd--
-//        }
-
-        val newSelStart = if (selectionStart > 0 && !isTextSelected()) selectionStart - 1 else selectionStart
-
         val styles = ArrayList<TextFormat>()
+
+        var newSelStart = if(selectionStart > selectionEnd) selectionEnd else selectionStart
+        var newSelEnd = selectionEnd
+
+        if (editableText.isEmpty()) {
+            return styles
+        }
+
+        if (newSelStart == 0 && newSelEnd == 0) {
+            newSelEnd++
+        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == '\n') {
+            newSelEnd++
+        } else if (newSelStart > 0 && !isTextSelected()) {
+            newSelStart--
+        }
+
+
         TextFormat.values().forEach {
-            if (contains(it, newSelStart, selectionEnd)) {
+            if (contains(it, newSelStart, newSelEnd)) {
                 styles.add(it)
             }
         }
@@ -360,6 +367,10 @@ class AztecText : EditText, TextWatcher {
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
+
+        if (textChangedEventDetails.count > 0 && text.isEmpty()) {
+            onSelectionChanged(0, 0)
+        }
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

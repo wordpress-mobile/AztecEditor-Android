@@ -146,11 +146,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
+            if (getSelectedHeading() != null) {
+                textFormats.add(getSelectedHeading()!!)
+            }
             return editor!!.setSelectedStyles(textFormats)
         }
 
         //if text is selected and action is styling - toggle the style
-        if (action.isStylingAction()) {
+        if (action.isStylingAction() && action != ToolbarAction.HEADING) {
             return editor!!.toggleFormatting(action.textFormat!!)
         }
 
@@ -185,7 +188,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {
         headingMenu?.menu?.getItem(0)?.isChecked = true
-
         textFormats.forEach {
             when (it) {
                 TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
@@ -198,13 +200,23 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
             }
         }
-
     }
 
     private fun setHeaderMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
+    }
+
+    fun getSelectedHeading(): TextFormat? {
+        if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+        else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
+        else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
+        else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
+        else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
+        else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
+
+        return null
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

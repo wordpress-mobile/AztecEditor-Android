@@ -9,7 +9,7 @@ import java.util.*
  */
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
-    HEADING(R.id.format_bar_button_heading, ToolbarActionType.OTHER, null),
+    HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, null),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),

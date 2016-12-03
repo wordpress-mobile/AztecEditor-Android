@@ -11,13 +11,13 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
-    fun toggleBold(){
+    fun toggleBold() {
         if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
             applyInlineStyle(TextFormat.FORMAT_BOLD)
         } else {
@@ -25,7 +25,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
         }
     }
 
-    fun toggleItalic(){
+    fun toggleItalic() {
         if (!containsInlineStyle(TextFormat.FORMAT_ITALIC)) {
             applyInlineStyle(TextFormat.FORMAT_ITALIC)
         } else {
@@ -33,7 +33,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
         }
     }
 
-    fun toggleUnderline(){
+    fun toggleUnderline() {
         if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINED)) {
             applyInlineStyle(TextFormat.FORMAT_UNDERLINED)
         } else {
@@ -41,7 +41,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
         }
     }
 
-    fun toggleStrikethrough(){
+    fun toggleStrikethrough() {
         if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
             applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         } else {
@@ -111,18 +111,21 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
 
 
     private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
+        val newStart = if(start > end) end else start
+
         editor.getAppliedStyles(start, end).forEach {
-            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles) {
+            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
+                    (start > end &&  editableText.length > end  && editableText[end] == '\n' )) {
                 when (it) {
                     TextFormat.FORMAT_HEADING_1,
                     TextFormat.FORMAT_HEADING_2,
                     TextFormat.FORMAT_HEADING_3,
                     TextFormat.FORMAT_HEADING_4,
                     TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6 -> removeInlineStyle(it, start, end)
-                    TextFormat.FORMAT_BOLD -> removeInlineStyle(it, start, end)
-                    TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, start, end)
-                    TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, start, end)
+                    TextFormat.FORMAT_HEADING_6 -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_BOLD -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, newStart, end)
                     else -> {
                         //do nothing
                     }
@@ -132,7 +135,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
     }
 
 
-     fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val spanToApply = makeInlineSpan(textFormat)
 
         if (start >= end) {
@@ -207,11 +210,6 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
         //for convenience sake we are initializing the span of same type we are planing to remove
         val spanToRemove = makeInlineSpan(textFormat)
 
-        if (start >= end) {
-            return
-        }
-
-
         val spans = editableText.getSpans(start, end, AztecInlineSpan::class.java)
         val list = ArrayList<AztecPart>()
 
@@ -242,9 +240,9 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-            }else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
+            } else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
                 return firstSpan.heading == secondSpan.heading
-            }else {
+            } else {
                 return true
             }
 
@@ -262,7 +260,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
             val spansBeforeSelection = editableText.getSpans(start - 1, start, AztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
-
+                if(inSelectionSpanEnd == -1) return@forEach
                 spansBeforeSelection.forEach { outerSpan ->
                     val outerSpanStart = editableText.getSpanStart(outerSpan)
 
@@ -281,7 +279,7 @@ class InlineFormatter(editor: AztecText):AztecFormatter(editor) {
             val spansAfterSelection = editableText.getSpans(end, end + 1, AztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
-
+                if(inSelectionSpanStart == -1) return@forEach
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
 

@@ -122,9 +122,9 @@ class AztecParser {
 
             //AztecHeadingSpan had a bit different logic then the block spans
             if (it is AztecHeadingSpan) {
-                if (text.length > spanEnd && text[spanEnd - 1] == '\n') {
+                if (spanEnd > 0 && text.length > spanEnd && text[spanEnd - 1] == '\n') {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd - 1, Spanned.SPAN_MARK_MARK)
-                } else if (text.length > spanEnd && text[spanEnd - 1] != '\n' && text[spanEnd] == '\n') {
+                } else if (spanEnd > 0 && text.length > spanEnd && text[spanEnd - 1] != '\n' && text[spanEnd] == '\n') {
                     text.setSpan(BlockElementLinebreak(), spanEnd, spanEnd, Spanned.SPAN_MARK_MARK)
                 }
 

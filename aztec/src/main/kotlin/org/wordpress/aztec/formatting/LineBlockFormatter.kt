@@ -39,20 +39,18 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 val spanEnd = editableText.getSpanEnd(spanAtNewLIne)
 
                 val isHeadingSplitRequired = spanStart <= textChangedEvent.inputStart && spanEnd > textChangedEvent.inputEnd
+                //split heading span
                 if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] != '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart, textChangedEvent.inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     editableText.setSpan(spanAtNewLIne.clone(), textChangedEvent.inputStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] == '\n') {
+                }
+                //avoid applying heading span to newline breaks
+                else if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] == '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (!isHeadingSplitRequired && editableText.length > textChangedEvent.inputStart + 1 && editableText[textChangedEvent.inputStart + 1] == '\n') {
-                    editableText.setSpan(spanAtNewLIne, spanStart, spanEnd-1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-
-                val spans = editableText.getSpans(spanStart, spanEnd, AztecHeadingSpan::class.java).getOrNull(0)
-
             }
-
-
         } else if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd && textChangedEvent.inputEnd > 0) {
             val charBeforeInputEnd = textChangedEvent.text[textChangedEvent.inputEnd - 1]
             if (charBeforeInputEnd == '\n') return
@@ -60,9 +58,11 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             val spanOnTheLeft = editableText.getSpans(textChangedEvent.inputEnd - 1, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).getOrNull(0)
             val spanOnTheRight = editableText.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecHeadingSpan::class.java).getOrNull(0)
 
+            //remove heading span if we move it up to line without another heading style applied
             if (spanOnTheLeft == null && spanOnTheRight != null) {
                 editableText.removeSpan(spanOnTheRight)
             } else if (spanOnTheLeft != null && spanOnTheRight != null) {
+                //change the heading span style if we move it up to line with diferent heading style applied
                 if (spanOnTheLeft != spanOnTheRight) {
                     val leftSpanStart = editableText.getSpanStart(spanOnTheLeft)
                     val rightSpanEnd = editableText.getSpanEnd(spanOnTheRight)
@@ -71,7 +71,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 }
             }
         }
-
     }
 
     fun headingClear() {

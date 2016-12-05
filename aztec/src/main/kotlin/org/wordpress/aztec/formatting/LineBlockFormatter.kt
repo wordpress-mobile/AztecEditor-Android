@@ -32,8 +32,28 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun handleLineBlockStyling(textChangedEvent: TextChangedEvent) {
-        if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd && textChangedEvent.inputEnd > 0) {
+        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLine()) {
+            val spanAtNewLIne = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecHeadingSpan::class.java).getOrNull(0)
+            if (spanAtNewLIne != null) {
+                val spanStart = editableText.getSpanStart(spanAtNewLIne)
+                val spanEnd = editableText.getSpanEnd(spanAtNewLIne)
 
+                val isHeadingSplitRequired = spanStart <= textChangedEvent.inputStart && spanEnd > textChangedEvent.inputEnd
+                if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] != '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart, textChangedEvent.inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    editableText.setSpan(spanAtNewLIne.clone(), textChangedEvent.inputStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] == '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (!isHeadingSplitRequired && editableText.length > textChangedEvent.inputStart + 1 && editableText[textChangedEvent.inputStart + 1] == '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart, spanEnd-1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+
+                val spans = editableText.getSpans(spanStart, spanEnd, AztecHeadingSpan::class.java).getOrNull(0)
+
+            }
+
+
+        } else if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd && textChangedEvent.inputEnd > 0) {
             val charBeforeInputEnd = textChangedEvent.text[textChangedEvent.inputEnd - 1]
             if (charBeforeInputEnd == '\n') return
 

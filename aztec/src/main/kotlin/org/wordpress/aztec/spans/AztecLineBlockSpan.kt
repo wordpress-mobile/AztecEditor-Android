@@ -1,4 +1,10 @@
 package org.wordpress.aztec.spans
 
 
-interface AztecLineBlockSpan
+interface AztecLineBlockSpan : Cloneable{
+
+    override public fun clone(): Any {
+        return super.clone()
+    }
+
+}

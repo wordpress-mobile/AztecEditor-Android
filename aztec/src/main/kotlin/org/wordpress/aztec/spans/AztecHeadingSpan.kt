@@ -10,7 +10,6 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     lateinit var heading: Heading
     override var attributes: String? = attrs
 
-
     companion object {
         private val SCALE_H1: Float = 2.0f
         private val SCALE_H2: Float = 1.8f
@@ -94,5 +93,9 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
             else -> {
             }
         }
+    }
+
+    override fun clone(): Any {
+        return AztecHeadingSpan(textFormat, attributes)
     }
 }

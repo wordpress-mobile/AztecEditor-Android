@@ -111,18 +111,12 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
 
 
     private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
-        val newStart = if(start > end) end else start
+        val newStart = if (start > end) end else start
 
         editor.getAppliedStyles(start, end).forEach {
             if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
-                    (start > end &&  editableText.length > end  && editableText[end] == '\n' )) {
+                    (start > end && editableText.length > end && editableText[end] == '\n')) {
                 when (it) {
-                    TextFormat.FORMAT_HEADING_1,
-                    TextFormat.FORMAT_HEADING_2,
-                    TextFormat.FORMAT_HEADING_3,
-                    TextFormat.FORMAT_HEADING_4,
-                    TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6 -> removeInlineStyle(it, newStart, end)
                     TextFormat.FORMAT_BOLD -> removeInlineStyle(it, newStart, end)
                     TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, newStart, end)
                     TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, newStart, end)
@@ -260,7 +254,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             val spansBeforeSelection = editableText.getSpans(start - 1, start, AztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
-                if(inSelectionSpanEnd == -1) return@forEach
+                if (inSelectionSpanEnd == -1) return@forEach
                 spansBeforeSelection.forEach { outerSpan ->
                     val outerSpanStart = editableText.getSpanStart(outerSpan)
 
@@ -279,7 +273,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             val spansAfterSelection = editableText.getSpans(end, end + 1, AztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
-                if(inSelectionSpanStart == -1) return@forEach
+                if (inSelectionSpanStart == -1) return@forEach
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
 

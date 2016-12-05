@@ -93,9 +93,8 @@ class AztecTagHandler : Html.TagHandler {
         if (output.isNotEmpty()) {
             val nestedInBlockElement = isNestedInBlockElement(output, opening)
 
-            val followingBlockElement = opening &&
+            val followingBlockElement = opening && output[output.length-1] == '\n'
                     output.getSpans(output.length - 1, output.length - 1, AztecLineBlockSpan::class.java).isNotEmpty()
-
 
             if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
                 output.append("\n")

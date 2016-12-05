@@ -111,9 +111,9 @@ class AztecParser {
 
             val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecLineBlockSpan::class.java).isNotEmpty()
 
-            if (spanStart > 0 && text[spanStart - 1] == '\n' && !followingBlockElement) {
+            if (spanStart > 2 && text[spanStart - 1] == '\n' && text[spanStart - 2] != '\n' && !followingBlockElement) {
                 text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
+            } else if (spanStart > 2 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
                 //Look back and adjust position any unnecessary BlockElementLinebreak's
                 text.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).forEach {
                     text.setSpan(it, text.getSpanStart(it) - 1, text.getSpanEnd(it) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -122,16 +122,10 @@ class AztecParser {
 
             //AztecHeadingSpan had a bit different logic then the block spans
             if (it is AztecHeadingSpan) {
-                if (spanEnd > 0 && text.length > spanEnd && text[spanEnd - 1] == '\n') {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd - 1, Spanned.SPAN_MARK_MARK)
-                } else if (spanEnd > 0 && text.length > spanEnd && text[spanEnd - 1] != '\n' && text[spanEnd] == '\n') {
+                if (spanEnd > 0 && text.length > spanEnd && text[spanEnd] == '\n') {
                     text.setSpan(BlockElementLinebreak(), spanEnd, spanEnd, Spanned.SPAN_MARK_MARK)
-                }
-
-                var nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", spanStart)
-                while (nlIndex >= spanStart && nlIndex < spanEnd) {
-                    text.setSpan(BlockElementLinebreak(), nlIndex, nlIndex, Spanned.SPAN_MARK_MARK)
-                    nlIndex = text.subSequence(spanStart, spanEnd).indexOf("\n", nlIndex + 1)
+                } else if (spanEnd > 0 && text.length > spanEnd && text[spanEnd - 1] == '\n') {
+                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd - 1, Spanned.SPAN_MARK_MARK)
                 }
             } else {
                 if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
@@ -424,7 +418,10 @@ class AztecParser {
                 withinStyle(out, text, i, next)
 
                 if (spanCursorPosition != -1 && localCursorPosition != -1 && !containsCursor(out)) {
-                    out.insert(out.length - (next - localCursorPosition), AztecCursorSpan.AZTEC_CURSOR_TAG)
+                    //TODO sometimes cursor lands right before > symbol, until we figure out why use modifier to fix it
+                    val cursorInsertionPoint = out.length - (next - localCursorPosition)
+                    val modifier = if (out.length > cursorInsertionPoint && out[cursorInsertionPoint] == '>') 1 else 0
+                    out.insert(cursorInsertionPoint + modifier, AztecCursorSpan.AZTEC_CURSOR_TAG)
                 }
 
                 for (j in spans.indices.reversed()) {
@@ -491,7 +488,7 @@ class AztecParser {
                 val isBeforeList = text.getSpans(spanEnd, spanEnd + 1, AztecListItemSpan::class.java).isNotEmpty()
 
                 if (isBeforeList && (cursorPosition == spanStart || cursorPosition == spanEnd)) {
-                    cursorPosition = -1
+                    cursorPosition--
                 }
             }
         }

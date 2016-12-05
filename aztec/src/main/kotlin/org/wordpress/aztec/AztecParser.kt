@@ -74,7 +74,7 @@ class AztecParser {
             val start = data.getSpanStart(it)
             val end = data.getSpanEnd(it)
             if (start == end && data[start] == '\n') {
-                data.insert(start, "" + '\uFEFF')
+                data.insert(start, "" + Constants.MAGIC_CHAR)
             }
         }
         hiddenIndex = 0
@@ -233,7 +233,7 @@ class AztecParser {
 
             if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
-            } else if (i == lines.lastIndex) {
+            } else if (i == lines.lastIndex && list.lastItem.attributes != null) {
                 out.append("<li${list.lastItem.attributes}>")
             } else {
                 out.append("<li>")

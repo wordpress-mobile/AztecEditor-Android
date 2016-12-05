@@ -77,6 +77,16 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun closeHeadingWithNewline() {
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
+        editText.text.append("\n")
+        editText.text.append("\n")
+        editText.text.append("not heading")
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br>not heading", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun splitHeadingWithNewline() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.text.insert(3, "\n")

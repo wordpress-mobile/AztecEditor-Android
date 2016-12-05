@@ -39,6 +39,7 @@ class AztecParser {
     fun fromHtml(source: String, context: Context): Spanned {
         val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
 
+        //Fix ranges of block/line-block elements
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
             var spanEnd = spanned.getSpanEnd(it)

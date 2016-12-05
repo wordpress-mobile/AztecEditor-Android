@@ -204,10 +204,6 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
         //for convenience sake we are initializing the span of same type we are planing to remove
         val spanToRemove = makeInlineSpan(textFormat)
 
-        if (start > end) {
-            return
-        }
-
         val spans = editableText.getSpans(start, end, AztecInlineSpan::class.java)
         val list = ArrayList<AztecPart>()
 

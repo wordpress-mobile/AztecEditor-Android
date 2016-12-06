@@ -286,6 +286,7 @@ class AttributeTest {
         editText.fromHtml(input)
         editText.text = SpannableStringBuilder(editText.text.trim())
         editText.append("\n")
+        Assert.assertEquals("<ol>$originalItem<li></li></ol>", editText.toHtml())
         editText.append("after")
         Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
         editText.text.insert(0, "\n")

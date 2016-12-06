@@ -1428,10 +1428,26 @@ class AztecText : EditText, TextWatcher {
         history.handleHistory(this)
 
         // preserve the attributes on the previous list item when adding a new one
-        if (textChangedEventDetails.isNewLine() && textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
-            val spans = text.getSpans(textChangedEventDetails.inputEnd, textChangedEventDetails.inputEnd + 1, AztecListItemSpan::class.java)
-            if (spans.size == 1) {
-                text.setSpan(spans[0], textChangedEventDetails.inputStart, textChangedEventDetails.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (textChangedEventDetails.isNewLine()) {
+            // when newline inserted before the list item's newline the item's attributes must be shifted up
+            if (textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
+                val spans = text.getSpans(textChangedEventDetails.inputEnd, textChangedEventDetails.inputEnd + 1, AztecListItemSpan::class.java)
+                if (spans.size == 1) {
+                    text.setSpan(spans[0], textChangedEventDetails.inputStart, textChangedEventDetails.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            } else {
+                // when newline inserted at the end of the list, the item's attributes must be shifted up
+                val lists = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java)
+                if (lists.isNotEmpty()) {
+                    if (text.getSpanEnd(lists[0]) == textChangedEventDetails.inputStart) {
+                        // shift the old last item's attributes up
+                        if (textChangedEventDetails.inputStart == 0 || (textChangedEventDetails.inputStart - 1 >= 0 && text[textChangedEventDetails.inputStart - 1] != '\n')) {
+                            text.setSpan(lists[0].lastItem, textChangedEventDetails.inputStart, textChangedEventDetails.inputStart + 1,  Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                        // reset the new last item's attributes
+                        lists[0].lastItem = AztecListItemSpan()
+                    }
+                }
             }
         }
 

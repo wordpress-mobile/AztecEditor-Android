@@ -35,18 +35,19 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     private var bulletWidth: Int = 0
 
 
-    override var attributes: String? = null
+    override var attributes: String
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
     //used for marking
     constructor() : super(0) {
+        attributes = ""
     }
 
-    constructor(attributes: String) {
+    constructor(attributes: String = "") {
         this.attributes = attributes
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String?, last: AztecListItemSpan) {
+    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String = "", last: AztecListItemSpan) {
         this.bulletColor = bulletColor
         this.bulletMargin = bulletMargin
         this.bulletWidth = bulletWidth

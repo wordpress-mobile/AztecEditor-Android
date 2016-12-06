@@ -34,19 +34,19 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     private var textPadding: Int = 0
     private var bulletWidth: Int = 0 //we are using bullet width to maintain same margin with bullet list
 
-    override var attributes: String? = null
+    override var attributes: String
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
     //used for marking
     constructor() : super(0) {
-        attributes = null
+        attributes = ""
     }
 
     constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int, attributes: String? = null, last: AztecListItemSpan = AztecListItemSpan()) : super(textMargin) {
+    constructor(textColor: Int, textMargin: Int, bulletWidth: Int, textPadding: Int, attributes: String = "", last: AztecListItemSpan = AztecListItemSpan()) : super(textMargin) {
         this.textColor = textColor
         this.textMargin = textMargin
         this.bulletWidth = bulletWidth

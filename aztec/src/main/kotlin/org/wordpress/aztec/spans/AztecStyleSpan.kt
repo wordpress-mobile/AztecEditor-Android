@@ -7,9 +7,9 @@ import android.text.style.StyleSpan
 class AztecStyleSpan : StyleSpan, AztecContentSpan, AztecInlineSpan {
 
     var tag: String = ""
-    override var attributes: String?
+    override var attributes: String
 
-    constructor(style: Int, attributes: String? = null) : super(style) {
+    constructor(style: Int, attributes: String = "") : super(style) {
         this.attributes = attributes
 
         when (style) {

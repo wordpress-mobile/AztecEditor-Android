@@ -6,7 +6,7 @@ import android.text.style.MetricAffectingSpan
 
 class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: String? = null) : MetricAffectingSpan(), AztecContentSpan, AztecInlineSpan {
 
-    override var attributes: String? = attrs
+    override var attributes: String = ""
 
     companion object {
         private val SCALE_H1: Float = 2.0f

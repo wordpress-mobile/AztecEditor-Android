@@ -6,10 +6,10 @@ import android.text.style.ParagraphStyle
 class ParagraphSpan : ParagraphStyle, AztecBlockSpan {
 
     private final var TAG: String = "p"
-    override var attributes: String?
+    override var attributes: String
 
     @JvmOverloads
-    constructor(attributes: String? = null) : super() {
+    constructor(attributes: String = "") : super() {
         this.attributes = attributes
     }
 

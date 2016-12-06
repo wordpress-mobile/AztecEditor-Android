@@ -4,15 +4,9 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.CharacterStyle
 
-class AztecListItemSpan : CharacterStyle, AztecSpan {
+class AztecListItemSpan(override var attributes: String = "") : CharacterStyle(), AztecSpan {
 
     private final val TAG = "li"
-
-    override var attributes: String?
-
-    constructor(attributes: String? = null) : super() {
-        this.attributes = attributes
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {

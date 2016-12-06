@@ -454,7 +454,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null, lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
             TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
@@ -464,7 +464,7 @@ class AztecText : EditText, TextWatcher {
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null, lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (spanType) {
             AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
             AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(bulletColor, bulletMargin, bulletWidth, bulletPadding, attrs, lastItem)
@@ -1128,9 +1128,9 @@ class AztecText : EditText, TextWatcher {
         linkValid(cleanLink, start, newEnd, attributes)
     }
 
-    private fun getAttributes(end: Int, start: Int): String? {
+    private fun getAttributes(end: Int, start: Int): String {
         val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
-        var attributes: String? = null
+        var attributes: String = ""
         if (urlSpans != null && urlSpans.isNotEmpty()) {
             attributes = urlSpans[0].attributes
         }
@@ -1144,7 +1144,7 @@ class AztecText : EditText, TextWatcher {
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
-    private fun linkValid(link: String, start: Int, end: Int, attributes: String? = null) {
+    private fun linkValid(link: String, start: Int, end: Int, attributes: String = "") {
         if (start >= end) {
             return
         }

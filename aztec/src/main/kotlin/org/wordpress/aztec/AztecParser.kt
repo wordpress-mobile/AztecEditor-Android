@@ -233,7 +233,7 @@ class AztecParser {
 
             if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
-            } else if (i == lines.lastIndex && list.lastItem.attributes != null) {
+            } else if (i == lines.lastIndex) {
                 out.append("<li${list.lastItem.attributes}>")
             } else {
                 out.append("<li>")

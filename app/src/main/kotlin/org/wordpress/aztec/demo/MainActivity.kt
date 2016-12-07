@@ -2,10 +2,14 @@ package org.wordpress.aztec.demo
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -15,6 +19,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
@@ -66,6 +71,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     private val MEDIA_VIDEOS_PERMISSION_REQUEST_CODE: Int = 1004
     private val REQUEST_MEDIA_CAMERA_PHOTO: Int = 2001
     private val REQUEST_MEDIA_CAMERA_VIDEO: Int = 2002
+    private val REQUEST_MEDIA_PHOTO: Int = 2003
+    private val REQUEST_MEDIA_VIDEO: Int = 2004
 
     private lateinit var aztec: AztecText
     private lateinit var mediaFile: String
@@ -75,15 +82,25 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
+            var bitmap: Bitmap? = null
+
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
-                    val bitmap = BitmapFactory.decodeFile(mediaPath)
-                    val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
-                    aztec.insertMedia(this, BitmapDrawable(resources, bitmap), source)
+                    bitmap = BitmapFactory.decodeFile(mediaPath)
                 }
                 REQUEST_MEDIA_CAMERA_VIDEO -> {
                 }
+                REQUEST_MEDIA_PHOTO -> {
+                    mediaPath = data?.data.toString()
+                    val stream = contentResolver.openInputStream(Uri.parse(mediaPath))
+                    bitmap = BitmapFactory.decodeStream(stream)
+                }
+                REQUEST_MEDIA_VIDEO -> {
+                }
             }
+
+            val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
+            aztec.insertMedia(this, BitmapDrawable(resources, bitmap), source)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
@@ -162,19 +179,45 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
     override fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            val intent: Intent
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            } else {
+                intent = Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_photo))
+            }
+
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "image/*"
-            startActivity(intent)
+
+            try {
+                startActivityForResult(intent, REQUEST_MEDIA_PHOTO)
+            } catch (exception: ActivityNotFoundException) {
+                AppLog.e(AppLog.T.EDITOR, exception.message)
+                ToastUtils.showToast(this, getString(R.string.error_chooser_photo), ToastUtils.Duration.LONG)
+            }
         }
     }
 
     override fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            val intent: Intent
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            } else {
+                intent = Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_video))
+            }
+
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "video/*"
-            startActivity(intent)
+
+            try {
+                startActivityForResult(intent, REQUEST_MEDIA_VIDEO)
+            } catch (exception: ActivityNotFoundException) {
+                AppLog.e(AppLog.T.EDITOR, exception.message)
+                ToastUtils.showToast(this, getString(R.string.error_chooser_video), ToastUtils.Duration.LONG)
+            }
         }
     }
 

@@ -39,6 +39,8 @@
     <string name="create_a_link">Create a link</string>
 
     <!-- MEDIA -->
+    <string name="error_chooser_photo">No app was found to choose a photo</string>
+    <string name="error_chooser_video">No app was found to choose a video</string>
     <string name="media_dialog_camera">Device camera</string>
     <string name="media_dialog_library">Media library</string>
     <string name="media_dialog_photos">Device photos</string>
@@ -46,5 +48,7 @@
     <string name="media_popup_gallery">Gallery</string>
     <string name="media_popup_photo">Photo</string>
     <string name="media_popup_video">Video</string>
+    <string name="title_select_photo">Select Photo</string>
+    <string name="title_select_video">Select Video</string>
 
 </resources>

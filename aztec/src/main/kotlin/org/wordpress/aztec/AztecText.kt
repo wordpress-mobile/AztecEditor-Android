@@ -21,6 +21,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -40,6 +41,7 @@ import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.spans.AztecHeadingSpan.Heading
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
+
 
 class AztecText : EditText, TextWatcher {
 
@@ -504,6 +506,40 @@ class AztecText : EditText, TextWatcher {
             return editableText.subSequence(start, end).toString() == builder.toString()
         }
 
+    }
+
+    // MediaSpan ===================================================================================
+
+    fun insertMedia(context: Context, drawable: Drawable, source: String) {
+        val span = AztecMediaSpan(context, drawable, source)
+
+        //check if we add a comment into a block element, at the end of the line, but not at the end of last line
+        var applyingOnTheEndOfBlockLine = false
+        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
+            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
+                applyingOnTheEndOfBlockLine = true
+                return@forEach
+            }
+        }
+
+        val mediaStartIndex = selectionStart + 1
+        val mediaEndIndex = selectionStart + span.getHtml().length + 1
+
+        disableTextChangedListener()
+        editableText.replace(selectionStart, selectionEnd, "\n" + span.getHtml() + if (applyingOnTheEndOfBlockLine) "" else "\n")
+
+        removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
+        removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+        removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+
+        editableText.setSpan(
+                span,
+                mediaStartIndex,
+                mediaEndIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        setSelection(mediaEndIndex + 1)
     }
 
     // HeadingSpan =================================================================================

@@ -156,6 +156,8 @@ class AztecParser {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else if (styles[0] is ParagraphSpan) {
                     withinParagraph(out, text, i, next)
+                } else if (styles[0] is AztecMediaSpan) {
+                    withinMedia(styles[0] as AztecMediaSpan, out)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -272,6 +274,10 @@ class AztecParser {
         }
     }
 
+    private fun withinMedia(mediaSpan: AztecMediaSpan, out: StringBuilder) {
+        out.append(mediaSpan.getHtml())
+    }
+
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int) {
         var next: Int
 
@@ -318,7 +324,7 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is ImageSpan && span !is AztecCommentSpan && span !is UnknownHtmlSpan) {
+                    if (span is ImageSpan && span !is AztecCommentSpan && span !is AztecMediaSpan && span !is UnknownHtmlSpan) {
                         out.append("<img src=\"")
                         out.append(span.source)
                         out.append("\">")

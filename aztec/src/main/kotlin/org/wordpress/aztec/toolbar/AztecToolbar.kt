@@ -109,6 +109,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
+            // Media popup menu options
             R.id.gallery -> {
                 Toast.makeText(context, "Launch gallery", Toast.LENGTH_SHORT).show()
                 return true
@@ -121,6 +122,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 showVideoMediaDialog()
                 return true
             }
+            // Heading popup menu options
             R.id.paragraph -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true

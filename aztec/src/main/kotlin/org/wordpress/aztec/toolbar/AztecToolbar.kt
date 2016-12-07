@@ -261,12 +261,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
             ToolbarAction.HTML -> {
                 if (editor!!.visibility == View.VISIBLE) {
-                    sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
+                    if (!editor!!.isMediaAdded) {
+                        sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
 
-                    editor!!.visibility = View.GONE
-                    sourceEditor!!.visibility = View.VISIBLE
+                        editor!!.visibility = View.GONE
+                        sourceEditor!!.visibility = View.VISIBLE
 
-                    toggleHtmlMode(true)
+                        toggleHtmlMode(true)
+                    } else {
+                        toggleButton(findViewById(action.buttonId), false)
+                    }
                 } else {
                     editor!!.fromHtml(sourceEditor!!.getPureHtml())
 

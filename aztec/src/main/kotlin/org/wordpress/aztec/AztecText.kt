@@ -68,6 +68,8 @@ class AztecText : EditText, TextWatcher {
 
     private var isNewStyleSelected = false
 
+    var isMediaAdded = false
+
     lateinit var history: History
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
@@ -541,6 +543,7 @@ class AztecText : EditText, TextWatcher {
         )
 
         setSelection(mediaEndIndex + 1)
+        isMediaAdded = true
     }
 
     // HeadingSpan =================================================================================
@@ -1363,7 +1366,6 @@ class AztecText : EditText, TextWatcher {
             else -> return false
         }
     }
-
 
     fun carryOverInlineSpans(start: Int, count: Int, after: Int) {
         carryOverSpans.clear()

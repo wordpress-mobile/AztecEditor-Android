@@ -270,6 +270,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         toggleHtmlMode(true)
                     } else {
                         toggleButton(findViewById(action.buttonId), false)
+                        showMediaUploadDialog()
                     }
                 } else {
                     editor!!.fromHtml(sourceEditor!!.getPureHtml())
@@ -360,6 +361,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         addLinkDialog = builder.create()
         addLinkDialog!!.show()
+    }
+
+    private fun showMediaUploadDialog() {
+        if (!isEditorAttached()) return
+
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(context.getString(R.string.media_upload_dialog_message))
+        builder.setPositiveButton(context.getString(R.string.media_upload_dialog_positive), null)
+        addVideoMediaDialog = builder.create()
+        addVideoMediaDialog!!.show()
     }
 
     private fun showPhotoMediaDialog() {

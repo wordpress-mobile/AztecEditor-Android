@@ -48,6 +48,8 @@
     <string name="media_popup_gallery">Gallery</string>
     <string name="media_popup_photo">Photo</string>
     <string name="media_popup_video">Video</string>
+    <string name="media_upload_dialog_message">Media must be uploaded before editing HTML.</string>
+    <string name="media_upload_dialog_positive">OK</string>
     <string name="title_select_photo">Select Photo</string>
     <string name="title_select_video">Select Video</string>
 

@@ -47,7 +47,7 @@ class AztecParser {
             spanned.removeSpan(it)
             spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
+            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n' && it !is AztecListSpan) {
                 spanned.delete(spanned.length - 1, spanned.length)
             }
         }
@@ -215,18 +215,8 @@ class AztecParser {
     }
 
     private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
-        var newStart = start
-        var newEnd = end - 1
-
-        if (text[newStart] == '\n') {
-            newStart += 1
-
-            if (text.length < newEnd + 1) {
-                newEnd += 1
-            }
-        }
-
-        val listContent = text.subSequence(newStart..newEnd) as Spanned
+        val newEnd = end - 1
+        val listContent = text.subSequence(start..newEnd) as Spanned
 
         out.append("<${list.getStartTag()}>")
         val lines = TextUtils.split(listContent.toString(), "\n")
@@ -240,16 +230,19 @@ class AztecParser {
 
             val lineIsZWJ = lineLength == 1 && lines[i][0] == '\u200B'
             val isLastLineInList = lines.indices.last == i
-
             val lineEnd = lineStart + lineLength
 
-            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineLength == 0 && isLastLineInList)) {
+            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineStart == lineEnd && isLastLineInList)) {
                 continue
             }
-            val itemSpans = text.getSpans(newStart + lineStart, newStart + lineStart + lineLength, AztecListItemSpan::class.java)
+
+            val itemSpanStart = start + lineStart + lineLength
+            val itemSpans = text.getSpans(itemSpanStart, itemSpanStart + 1, AztecListItemSpan::class.java)
 
             if (itemSpans.isNotEmpty()) {
                 out.append("<li${itemSpans[0].attributes}>")
+//            } else if (i == lines.lastIndex) {
+//                out.append("<li${list.lastItem.attributes}>")
             } else {
                 out.append("<li>")
             }
@@ -261,7 +254,7 @@ class AztecParser {
                 out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
             }
 
-            withinContent(out, text.subSequence(newStart..newEnd) as Spanned, lineStart, lineEnd)
+            withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
             out.append("</li>")
         }
         out.append("</${list.getEndTag()}>")

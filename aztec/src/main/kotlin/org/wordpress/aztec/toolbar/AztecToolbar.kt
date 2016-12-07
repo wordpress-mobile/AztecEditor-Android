@@ -187,6 +187,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {
+        headingMenu?.menu?.getItem(0)?.isChecked = true
         textFormats.forEach {
             when (it) {
                 TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
@@ -196,7 +197,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
                 TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
                 else -> {
-                    headingMenu?.menu?.getItem(0)?.isChecked = true
+
                 }
             }
         }

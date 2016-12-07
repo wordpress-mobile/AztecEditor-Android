@@ -1,11 +1,16 @@
 package org.wordpress.aztec.demo
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +21,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
+import java.io.File
 
 class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback {
     companion object {
@@ -58,10 +64,30 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     private val MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE: Int = 1002
     private val MEDIA_PHOTOS_PERMISSION_REQUEST_CODE: Int = 1003
     private val MEDIA_VIDEOS_PERMISSION_REQUEST_CODE: Int = 1004
+    private val REQUEST_MEDIA_CAMERA_PHOTO: Int = 2001
+    private val REQUEST_MEDIA_CAMERA_VIDEO: Int = 2002
 
     private lateinit var aztec: AztecText
+    private lateinit var mediaFile: String
+    private lateinit var mediaPath: String
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_MEDIA_CAMERA_PHOTO -> {
+                    val bitmap = BitmapFactory.decodeFile(mediaPath)
+                    val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
+                    aztec.insertMedia(this, BitmapDrawable(resources, bitmap), source)
+                }
+                REQUEST_MEDIA_CAMERA_VIDEO -> {
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,14 +137,26 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     override fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivity(intent)
+
+            mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
+            mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
+                    File.separator + "Camera" + File.separator + mediaFile
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID + ".provider", File(mediaPath)))
+
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivityForResult(intent, REQUEST_MEDIA_CAMERA_PHOTO)
+            }
         }
     }
 
     override fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
-            startActivity(intent)
+
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivityForResult(intent, REQUEST_MEDIA_CAMERA_VIDEO)
+            }
         }
     }
 

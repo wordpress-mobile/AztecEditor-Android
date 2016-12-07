@@ -580,7 +580,8 @@ class AztecParser {
         return html
                 .replace("&#8203;", "")
                 .replace("&#65279;", "")
-                .replace("(<br>)*</blockquote>".toRegex(), "</blockquote>")
-                .replace("(<br>)*</p>".toRegex(), "</p>")
+                .replace("(</? ?br>)*</blockquote>".toRegex(), "</blockquote>")
+                .replace("(</? ?br>)*</p>".toRegex(), "</p>")
+                .replace("(</? ?br>)*</li>".toRegex(), "</li>")
     }
 }

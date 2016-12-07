@@ -1420,6 +1420,8 @@ class AztecText : EditText, TextWatcher {
 
         handleBlockStyling(text, textChangedEventDetails)
         handleInlineStyling(text, textChangedEventDetails)
+
+        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

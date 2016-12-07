@@ -3,16 +3,17 @@ package org.wordpress.aztec
 import android.text.Selection
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
+import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
 /**
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
-
-    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
+    override fun onTouchEvent(widget: TextView, text: Spannable, event: MotionEvent): Boolean {
         val action = event.action
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
@@ -29,21 +30,20 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            //made to only react to UnknownClickableSpan, and not to regular links
-            val link = buffer.getSpans(off, off, UnknownClickableSpan::class.java)
+            val spans = text.getSpans(off, off, ClickableSpan::class.java)
 
-            if (link.size != 0) {
+            // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.
+            if (spans.isNotEmpty() && (spans[0] is AztecMediaClickableSpan || spans[0] is UnknownClickableSpan)) {
                 if (action == MotionEvent.ACTION_UP) {
-                    link[0].onClick(widget)
+                    spans[0].onClick(widget)
                 } else {
-                    Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]))
+                    Selection.setSelection(text, text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]))
                 }
 
                 return true
             }
         }
 
-        return super.onTouchEvent(widget, buffer, event)
+        return super.onTouchEvent(widget, text, event)
     }
-
 }

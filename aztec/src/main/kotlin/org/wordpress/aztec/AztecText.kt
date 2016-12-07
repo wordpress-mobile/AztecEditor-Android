@@ -514,9 +514,8 @@ class AztecText : EditText, TextWatcher {
 
     fun insertMedia(context: Context, drawable: Drawable, source: String) {
         val span = AztecMediaSpan(context, drawable, source)
-        AztecMediaClickableSpan(span)
 
-        //check if we add a comment into a block element, at the end of the line, but not at the end of last line
+        //check if we add media into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
         editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
             if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
@@ -537,6 +536,13 @@ class AztecText : EditText, TextWatcher {
 
         editableText.setSpan(
                 span,
+                mediaStartIndex,
+                mediaEndIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        editableText.setSpan(
+                AztecMediaClickableSpan(span),
                 mediaStartIndex,
                 mediaEndIndex,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

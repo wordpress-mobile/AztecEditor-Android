@@ -37,7 +37,8 @@ class AztecParser {
     internal var spanCursorPosition = -1
 
     fun fromHtml(source: String, context: Context): Spanned {
-        val spanned = SpannableStringBuilder(Html.fromHtml(source, null, AztecTagHandler(), context))
+        val tidySource = tidy(source)
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
 
         //Fix ranges of block/line-block elements
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {

@@ -512,6 +512,7 @@ class AztecText : EditText, TextWatcher {
 
     fun insertMedia(context: Context, drawable: Drawable, source: String) {
         val span = AztecMediaSpan(context, drawable, source)
+        AztecMediaClickableSpan(span)
 
         //check if we add a comment into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false

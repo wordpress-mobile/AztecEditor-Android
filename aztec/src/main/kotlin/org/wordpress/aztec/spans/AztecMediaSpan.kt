@@ -6,6 +6,8 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
 import android.text.style.ParagraphStyle
+import android.view.View
+import android.widget.Toast
 
 class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), ParagraphStyle {
     private val html = source
@@ -44,5 +46,9 @@ class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) :
 
     fun getHtml(): String {
         return html
+    }
+
+    fun onClick(view: View) {
+        Toast.makeText(view.context, html, Toast.LENGTH_SHORT).show()
     }
 }

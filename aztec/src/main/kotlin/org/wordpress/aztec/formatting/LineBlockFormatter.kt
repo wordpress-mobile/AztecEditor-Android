@@ -5,6 +5,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
+import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecCommentSpan
@@ -30,6 +31,49 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         applyComment(AztecCommentSpan.Comment.PAGE)
     }
 
+    fun handleLineBlockStyling(textChangedEvent: TextChangedEvent) {
+        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLine()) {
+            val spanAtNewLIne = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecHeadingSpan::class.java).getOrNull(0)
+            if (spanAtNewLIne != null) {
+                val spanStart = editableText.getSpanStart(spanAtNewLIne)
+                val spanEnd = editableText.getSpanEnd(spanAtNewLIne)
+
+                val isHeadingSplitRequired = spanStart <= textChangedEvent.inputStart && spanEnd > textChangedEvent.inputEnd
+                //split heading span
+                if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] != '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart, textChangedEvent.inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    editableText.setSpan(spanAtNewLIne.clone(), textChangedEvent.inputStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                //avoid applying heading span to newline breaks
+                else if (isHeadingSplitRequired && editableText[textChangedEvent.inputStart - 1] == '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if (!isHeadingSplitRequired && editableText.length > textChangedEvent.inputStart + 1 && editableText[textChangedEvent.inputStart + 1] == '\n') {
+                    editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if(!isHeadingSplitRequired && textChangedEvent.inputStart + 1 == spanEnd && editableText[textChangedEvent.inputStart] == '\n'){
+                    editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        } else if (!textChangedEvent.isAddingCharacters && editableText.length > textChangedEvent.inputEnd && textChangedEvent.inputEnd > 0) {
+            val charBeforeInputEnd = textChangedEvent.text[textChangedEvent.inputEnd - 1]
+            if (charBeforeInputEnd == '\n') return
+
+            val spanOnTheLeft = editableText.getSpans(textChangedEvent.inputEnd - 1, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).getOrNull(0)
+            val spanOnTheRight = editableText.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecHeadingSpan::class.java).getOrNull(0)
+
+            //remove heading span if we move it up to line without another heading style applied
+            if (spanOnTheLeft == null && spanOnTheRight != null) {
+                editableText.removeSpan(spanOnTheRight)
+            } else if (spanOnTheLeft != null && spanOnTheRight != null) {
+                //change the heading span style if we move it up to line with diferent heading style applied
+                if (spanOnTheLeft != spanOnTheRight) {
+                    val leftSpanStart = editableText.getSpanStart(spanOnTheLeft)
+                    val rightSpanEnd = editableText.getSpanEnd(spanOnTheRight)
+                    editableText.removeSpan(spanOnTheRight)
+                    editableText.setSpan(spanOnTheLeft, leftSpanStart, rightSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+    }
 
     fun headingClear() {
         val lines = TextUtils.split(editableText.toString(), "\n")
@@ -102,22 +146,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
 
             if (headingStart < headingEnd) {
-                when (textFormat) {
-                    TextFormat.FORMAT_HEADING_1 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H1), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_2 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H2), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_3 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H3), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_4 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H4), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_5 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H5), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    TextFormat.FORMAT_HEADING_6 ->
-                        editableText.setSpan(AztecHeadingSpan(AztecHeadingSpan.Heading.H6), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    else -> {
-                    }
-                }
+                editableText.setSpan(AztecHeadingSpan(textFormat), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

@@ -20,7 +20,6 @@ package org.wordpress.aztec
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -72,48 +71,6 @@ class AztecText : EditText, TextWatcher {
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
-    }
-
-    // MediaSpan ===================================================================================
-
-    fun insertMedia(context: Context, drawable: Drawable, source: String) {
-        val span = AztecMediaSpan(context, drawable, source)
-
-        //check if we add media into a block element, at the end of the line, but not at the end of last line
-        var applyingOnTheEndOfBlockLine = false
-        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
-            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
-                applyingOnTheEndOfBlockLine = true
-                return@forEach
-            }
-        }
-
-        val mediaStartIndex = selectionStart + 1
-        val mediaEndIndex = selectionStart + span.getHtml().length + 1
-
-        disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, "\n" + span.getHtml() + if (applyingOnTheEndOfBlockLine) "" else "\n")
-
-        removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
-        removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
-        removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
-
-        editableText.setSpan(
-                span,
-                mediaStartIndex,
-                mediaEndIndex,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        editableText.setSpan(
-                AztecMediaClickableSpan(span),
-                mediaStartIndex,
-                mediaEndIndex,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        setSelection(mediaEndIndex + 1)
-        isMediaAdded = true
     }
 
     init {

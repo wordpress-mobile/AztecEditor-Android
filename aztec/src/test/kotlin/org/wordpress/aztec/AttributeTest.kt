@@ -43,6 +43,7 @@ class AttributeTest {
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
+        private val LIST_WITH_ATTRIBUTES = "<ul><li a=\"A\"></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>"
         private val LIST_WITH_EMPTY_ITEMS = "a<ul><li></li><li></li><li a=\"1\">1</li><li></li><li></li></ul>b"
         private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
         private val SUB = "<sub i=\"I\">Sub</sub>"

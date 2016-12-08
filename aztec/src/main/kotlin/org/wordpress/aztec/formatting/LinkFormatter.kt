@@ -124,25 +124,25 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
         }
 
         var attributes = getAttributes(end, start)
-        attributes = attributes?.replace("href=[\"'].*[\"']".toRegex(), "href=\"$cleanLink\"")
+        attributes = attributes.replace("href=[\"'].*[\"']".toRegex(), "href=\"$cleanLink\"")
 
         linkValid(cleanLink, start, newEnd, attributes)
     }
 
-    private fun getAttributes(end: Int, start: Int): String? {
+    private fun getAttributes(end: Int, start: Int): String {
         val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
-        var attributes: String? = null
+        var attributes: String = ""
         if (urlSpans != null && urlSpans.size > 0) {
             attributes = urlSpans[0].attributes
         }
         return attributes
     }
 
-    fun makeUrlSpan(url: String, attrs: String? = null): AztecURLSpan {
+    fun makeUrlSpan(url: String, attrs: String = ""): AztecURLSpan {
         return AztecURLSpan(url, linkStyle, attrs)
     }
 
-    private fun linkValid(link: String, start: Int, end: Int, attributes: String? = null) {
+    private fun linkValid(link: String, start: Int, end: Int, attributes: String = "") {
         if (start >= end) {
             return
         }

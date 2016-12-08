@@ -30,17 +30,17 @@ class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
     private var linkColor = 0
     private var linkUnderline = true
 
-    override var attributes: String? = null
+    override var attributes: String = ""
 
-    constructor(url: String, attributes: String? = null) : super(url) {
-        if (attributes == null) {
+    constructor(url: String, attributes: String = "") : super(url) {
+        if (attributes.isEmpty()) {
             this.attributes = " href=\"$url\""
         } else {
             this.attributes = attributes
         }
     }
 
-    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String? = null) : this(url, attributes) {
+    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String = "") : this(url, attributes) {
         this.linkColor = linkStyle.linkColor
         this.linkUnderline = linkStyle.linkUnderline
     }

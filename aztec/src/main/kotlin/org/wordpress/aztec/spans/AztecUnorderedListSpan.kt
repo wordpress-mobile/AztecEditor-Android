@@ -36,7 +36,7 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     private var bulletWidth: Int = 0
 
 
-    override var attributes: String? = null
+    override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
     //used for marking
@@ -47,7 +47,7 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String?, last: AztecListItemSpan) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
         this.bulletColor = listStyle.indicatorColor
         this.bulletMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth

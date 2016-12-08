@@ -3,9 +3,11 @@ package org.wordpress.aztec.spans
 import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
+import org.wordpress.aztec.TextFormat
 
-class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: String? = null) : MetricAffectingSpan(), AztecContentSpan, AztecInlineSpan {
+class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String? = null) : MetricAffectingSpan(), AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan {
 
+    lateinit var heading: Heading
     override var attributes: String? = attrs
 
     companion object {
@@ -15,6 +17,22 @@ class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: St
         private val SCALE_H4: Float = 1.4f
         private val SCALE_H5: Float = 1.2f
         private val SCALE_H6: Float = 1.0f
+
+        fun getTextFormat(tag: String): TextFormat {
+            when (tag.toLowerCase()) {
+                "h1" -> return TextFormat.FORMAT_HEADING_1
+                "h2" -> return TextFormat.FORMAT_HEADING_2
+                "h3" -> return TextFormat.FORMAT_HEADING_3
+                "h4" -> return TextFormat.FORMAT_HEADING_4
+                "h5" -> return TextFormat.FORMAT_HEADING_5
+                "h6" -> return TextFormat.FORMAT_HEADING_6
+                else -> return TextFormat.FORMAT_PARAGRAPH
+            }
+        }
+    }
+
+    constructor(tag: String, attrs: String? = null) : this(getTextFormat(tag), attrs) {
+
     }
 
     enum class Heading constructor(internal val scale: Float) {
@@ -56,5 +74,28 @@ class AztecHeadingSpan @JvmOverloads constructor(val heading: Heading, attrs: St
             SCALE_H6 -> return "h6"
             else -> return "p"
         }
+    }
+
+    init {
+        when (textFormat) {
+            TextFormat.FORMAT_HEADING_1 ->
+                heading = AztecHeadingSpan.Heading.H1
+            TextFormat.FORMAT_HEADING_2 ->
+                heading = AztecHeadingSpan.Heading.H2
+            TextFormat.FORMAT_HEADING_3 ->
+                heading = AztecHeadingSpan.Heading.H3
+            TextFormat.FORMAT_HEADING_4 ->
+                heading = AztecHeadingSpan.Heading.H4
+            TextFormat.FORMAT_HEADING_5 ->
+                heading = AztecHeadingSpan.Heading.H5
+            TextFormat.FORMAT_HEADING_6 ->
+                heading = AztecHeadingSpan.Heading.H6
+            else -> {
+            }
+        }
+    }
+
+    override fun clone(): Any {
+        return AztecHeadingSpan(textFormat, attributes)
     }
 }

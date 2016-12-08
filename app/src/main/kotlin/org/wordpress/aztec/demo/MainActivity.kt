@@ -31,12 +31,12 @@ import java.io.File
 class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback {
     companion object {
         private val HEADING =
-                "<h1>Heading 1</h1><br>" +
-                "<h2>Heading 2</h2><br>" +
-                "<h3>Heading 3</h3><br>" +
-                "<h4>Heading 4</h4><br>" +
-                "<h5>Heading 5</h5><br>" +
-                "<h6>Heading 6</h6><br>"
+                "<h1>Heading 1</h1>" +
+                "<h2>Heading 2</h2>" +
+                "<h3>Heading 3</h3>" +
+                "<h4>Heading 4</h4>" +
+                "<h5>Heading 5</h5>" +
+                "<h6>Heading 6</h6>"
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"

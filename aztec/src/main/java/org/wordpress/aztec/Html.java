@@ -39,7 +39,6 @@ import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
@@ -539,10 +538,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
             start(mSpannableStringBuilder, new Sub(attributes));
-        } else if (tag.length() == 2 &&
-                Character.toLowerCase(tag.charAt(0)) == 'h' &&
-                tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1', attributes));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else {
@@ -613,10 +608,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
-        } else if (tag.length() == 2 &&
-                Character.toLowerCase(tag.charAt(0)) == 'h' &&
-                tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            endHeader(mSpannableStringBuilder);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
         }
@@ -827,57 +818,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
             text.setSpan(unknownClickableSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private static void endHeader(SpannableStringBuilder text) {
-        int len = text.length();
-        Object obj = getLast(text, Header.class);
-
-        int where = text.getSpanStart(obj);
-
-        text.removeSpan(obj);
-
-        // Back off not to change only the text, not the blank line.
-        while (len > where && text.charAt(len - 1) == '\n') {
-            len--;
-        }
-
-        if (where != len) {
-            Header h = (Header) obj;
-
-            switch (h.level) {
-                case 0:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 1:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 2:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 3:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 4:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 5:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6,
-                                    Html.stringifyAttributes(h.attributes).toString()),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-            }
         }
     }
 
@@ -1105,15 +1045,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Paragraph extends AttributedMarker {
         Paragraph(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Header extends AttributedMarker {
-        private int level;
-
-        public Header(int level, Attributes attributes) {
-            this.level = level;
             this.attributes = attributes;
         }
     }

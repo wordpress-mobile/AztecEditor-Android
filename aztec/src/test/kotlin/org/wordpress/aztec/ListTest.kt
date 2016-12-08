@@ -176,6 +176,15 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
+    fun splitTwoListsWithNewline() {
+        editText.fromHtml("<$listTag><li>List 1</li></$listTag><$listTag><li>List 2</li></$listTag>")
+        val mark = editText.text.indexOf("List 2")
+        editText.text.insert(mark, "\n")
+        Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li>List 2</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun removeBulletListStyling() {
         editText.fromHtml("<$listTag><li>first item</li></$listTag>")
         editText.setSelection(1)

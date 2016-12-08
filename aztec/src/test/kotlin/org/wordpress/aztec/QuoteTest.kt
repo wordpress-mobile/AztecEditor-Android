@@ -157,6 +157,14 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun splitTwoQuotesWithNewline() {
+        editText.fromHtml("<blockquote>Quote 1</blockquote><blockquote>Quote 2</blockquote>")
+        val mark = editText.text.indexOf("Quote 2")
+        editText.text.insert(mark, "\n")
+        Assert.assertEquals("<blockquote>Quote 1</blockquote><br><blockquote>Quote 2</blockquote>", editText.toHtml())
+    }
 
     @Test
     @Throws(Exception::class)

@@ -280,7 +280,7 @@ class AztecText : EditText, TextWatcher {
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
-        setSelectedStyles(getAppliedStyles(if (selStart > 0 && !isTextSelected()) selStart - 1 else selStart, selEnd))
+        setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
     fun getSelectedText(): String {
@@ -290,8 +290,25 @@ class AztecText : EditText, TextWatcher {
 
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
         val styles = ArrayList<TextFormat>()
+
+        var newSelStart = if(selectionStart > selectionEnd) selectionEnd else selectionStart
+        var newSelEnd = selectionEnd
+
+        if (editableText.isEmpty()) {
+            return styles
+        }
+
+        if (newSelStart == 0 && newSelEnd == 0) {
+            newSelEnd++
+        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == '\n') {
+            newSelEnd++
+        } else if (newSelStart > 0 && !isTextSelected()) {
+            newSelStart--
+        }
+
+
         TextFormat.values().forEach {
-            if (contains(it, selectionStart, selectionEnd)) {
+            if (contains(it, newSelStart, newSelEnd)) {
                 styles.add(it)
             }
         }
@@ -364,24 +381,6 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun getAppliedHeading(selectionStart: Int, selectionEnd: Int): TextFormat? {
-        if (contains(TextFormat.FORMAT_HEADING_1, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_1
-        } else if (contains(TextFormat.FORMAT_HEADING_2, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_2
-        } else if (contains(TextFormat.FORMAT_HEADING_3, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_3
-        } else if (contains(TextFormat.FORMAT_HEADING_4, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_4
-        } else if (contains(TextFormat.FORMAT_HEADING_5, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_5
-        } else if (contains(TextFormat.FORMAT_HEADING_6, selectionStart, selectionEnd)) {
-            return TextFormat.FORMAT_HEADING_6
-        } else {
-            return null
-        }
-    }
-
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
@@ -416,6 +415,12 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
+        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
+
+        if (textChangedEventDetails.count > 0 && text.isEmpty()) {
+            onSelectionChanged(0, 0)
+        }
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
@@ -451,9 +456,12 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun fromHtml(source: String) {
+        disableTextChangedListener()
+        editableText.clear()
+
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), context).trim())
+        builder.append(parser.fromHtml(Format.clearFormatting(source), context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)

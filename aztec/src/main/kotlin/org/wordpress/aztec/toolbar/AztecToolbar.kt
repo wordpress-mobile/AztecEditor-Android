@@ -2,10 +2,8 @@ package org.wordpress.aztec.toolbar
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
-import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -54,16 +52,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val bundle = Bundle()
         bundle.putParcelable("superState", super.onSaveInstanceState())
 
-        if (addLinkDialog != null && addLinkDialog!!.isShowing) {
-            bundle.putBoolean("isLinkDialogVisible", true)
-
-            val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
-            val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
-
-            bundle.putString("retainedUrl", urlInput.text.toString())
-            bundle.putString("retainedAnchor", anchorInput.text.toString())
-        }
-
         if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
             bundle.putBoolean("isPhotoMediaDialogVisible", true)
         }
@@ -80,13 +68,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         if (state is Bundle) {
             superState = state.getParcelable("superState")
-
-            if (state.getBoolean("isLinkDialogVisible")) {
-                val retainedUrl = state.getString("retainedUrl", "")
-                val retainedAnchor = state.getString("retainedAnchor", "")
-
-                showLinkDialog(retainedUrl, retainedAnchor)
-            }
 
             if (state.getBoolean("isPhotoMediaDialogVisible")) {
                 showPhotoMediaDialog()

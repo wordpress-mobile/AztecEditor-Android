@@ -1,10 +1,10 @@
 package org.wordpress.aztec.toolbar
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -16,7 +16,6 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecCommentSpan
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
@@ -256,34 +255,34 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (action) {
             ToolbarAction.ADD_MEDIA -> mediaMenu?.show()
             ToolbarAction.HEADING -> headingMenu?.show()
-            ToolbarAction.LINK -> showLinkDialog()
-            ToolbarAction.MORE -> editor!!.applyComment(AztecCommentSpan.Comment.MORE)
-            ToolbarAction.PAGE -> editor!!.applyComment(AztecCommentSpan.Comment.PAGE)
-            ToolbarAction.HTML -> {
-                if (editor!!.visibility == View.VISIBLE) {
-                    if (!editor!!.isMediaAdded) {
-                        sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml())
-
-                        editor!!.visibility = View.GONE
-                        sourceEditor!!.visibility = View.VISIBLE
-
-                        toggleHtmlMode(true)
-                    } else {
-                        toggleButton(findViewById(action.buttonId), false)
-                        showMediaUploadDialog()
-                    }
-                } else {
-                    editor!!.fromHtml(sourceEditor!!.getPureHtml())
-
-                    editor!!.visibility = View.VISIBLE
-                    sourceEditor!!.visibility = View.GONE
-
-                    toggleHtmlMode(false)
-                }
-            }
+            ToolbarAction.LINK -> editor!!.showLinkDialog()
+            ToolbarAction.HTML -> toggleEditorMode()
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun toggleEditorMode(){
+        if (editor!!.visibility == View.VISIBLE) {
+            if (!editor!!.isMediaAdded) {
+                sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
+
+                editor!!.visibility = View.GONE
+                sourceEditor!!.visibility = View.VISIBLE
+
+                toggleHtmlMode(true)
+            } else {
+                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
+                showMediaUploadDialog()
+            }
+        } else {
+            editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+
+            editor!!.visibility = View.VISIBLE
+            sourceEditor!!.visibility = View.GONE
+
+            toggleHtmlMode(false)
         }
     }
 
@@ -324,7 +323,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         if (!isEditorAttached()) return
 
-        val urlAndAnchor = editor!!.getSelectedUrlWithAnchor()
+        val urlAndAnchor = editor!!.linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
         val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
@@ -349,7 +348,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             editor!!.link(linkText, anchorText)
         })
 
-        if (editor!!.isUrlSelected()) {
+        if (editor!!.linkFormatter.isUrlSelected()) {
             builder.setNeutralButton(R.string.dialog_button_remove_link, DialogInterface.OnClickListener { dialogInterface, i ->
                 editor!!.removeLink()
             })

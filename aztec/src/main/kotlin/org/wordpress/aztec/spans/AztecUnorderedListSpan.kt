@@ -24,6 +24,7 @@ import android.os.Parcel
 import android.text.Layout
 import android.text.TextUtils
 import android.text.style.BulletSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
@@ -45,11 +46,11 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         this.attributes = attributes
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String? = null) {
-        this.bulletColor = bulletColor
-        this.bulletMargin = bulletMargin
-        this.bulletWidth = bulletWidth
-        this.bulletPadding = bulletPadding
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String? = null) {
+        this.bulletColor = listStyle.indicatorColor
+        this.bulletMargin = listStyle.indicatorMargin
+        this.bulletWidth = listStyle.indicatorWidth
+        this.bulletPadding = listStyle.indicatorPadding
         this.attributes = attributes
     }
 

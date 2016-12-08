@@ -38,6 +38,7 @@ import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
+import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
@@ -495,6 +496,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private void handleStartTag(String tag, Attributes attributes) {
         if (mUnknownTagLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                handleCursor(mSpannableStringBuilder);
+                return;
+            }
             // Swallow opening tag and attributes in current Unknown element
             mUnknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
             mUnknownTagLevel += 1;
@@ -504,6 +509,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
+        } else if (tag.equalsIgnoreCase("aztec_cursor")) {
+            handleCursor(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
             start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("b")) {
@@ -562,6 +569,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private void handleEndTag(String tag) {
         // Unknown tag previously detected
         if (mUnknownTagLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                return; //already handled at start tag
+            }
             // Swallow closing tag in current Unknown element
             mUnknown.rawHtml.append("</").append(tag).append(">");
             mUnknownTagLevel -= 1;
@@ -610,6 +620,18 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
         }
+    }
+
+    private static void handleCursor(SpannableStringBuilder text) {
+        int start = text.length();
+
+        Object[] unknownSpans = text.getSpans(start, start, Unknown.class);
+
+        if (unknownSpans.length > 0) {
+            start = text.getSpanStart(unknownSpans[0]);
+        }
+
+        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_MARK_MARK);
     }
 
     private static void handleBr(SpannableStringBuilder text) {
@@ -970,6 +992,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     @Override
     public void comment(char[] chars, int start, int length) throws SAXException {
+        if (mUnknownTagLevel != 0) {
+            mUnknown.rawHtml.append("<!--");
+            for (int i = 0; i < length; i++) {
+                mUnknown.rawHtml.append(chars[i + start]);
+            }
+            mUnknown.rawHtml.append("-->");
+            return;
+        }
+
         String comment = new String(chars, start, length);
         int spanStart = mSpannableStringBuilder.length();
         mSpannableStringBuilder.append(comment);

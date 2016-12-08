@@ -247,12 +247,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 } else {
                     when (requestCode) {
                         MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE -> {
-                            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                            startActivity(intent)
+                            onCameraPhotoMediaOptionSelected()
                         }
                         MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE -> {
-                            val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
-                            startActivity(intent)
+                            onCameraVideoMediaOptionSelected()
                         }
                     }
                 }
@@ -276,20 +274,14 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                         if (isPermissionDenied) {
                             ToastUtils.showToast(this, getString(R.string.permission_required_media_photos))
                         } else {
-                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                            intent.addCategory(Intent.CATEGORY_OPENABLE)
-                            intent.type = "image/*"
-                            startActivity(intent)
+                            onPhotosMediaOptionSelected()
                         }
                     }
                     MEDIA_VIDEOS_PERMISSION_REQUEST_CODE -> {
                         if (isPermissionDenied) {
                             ToastUtils.showToast(this, getString(R.string.permission_required_media_videos))
                         } else {
-                            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                            intent.addCategory(Intent.CATEGORY_OPENABLE)
-                            intent.type = "video/*"
-                            startActivity(intent)
+                            onVideosMediaOptionSelected()
                         }
                     }
                 }

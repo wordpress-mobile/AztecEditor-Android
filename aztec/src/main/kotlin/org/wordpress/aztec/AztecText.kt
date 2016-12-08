@@ -406,6 +406,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun fromHtml(source: String) {
+        disableTextChangedListener()
         editableText.clear()
 
         val builder = SpannableStringBuilder()

@@ -19,7 +19,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (text.length > inputStart && inputStart >= 1 && count > 0) {
             val previousCharacter = text[inputStart - 1]
-            return previousCharacter == '\u200B'
+            return previousCharacter == Constants.ZWJ_CHAR
         }
         return false
     }

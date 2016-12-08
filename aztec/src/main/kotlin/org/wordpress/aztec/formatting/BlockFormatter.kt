@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
@@ -77,7 +78,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
                     spanEnd += 1
                     editor.disableTextChangedListener()
-                    text.insert(spanStart, "\u200B")
+                    text.insert(spanStart, Constants.ZWJ_STRING)
                 } else
                 //case for when we remove block element row from other lines of EditText end the next line is empty
                     if (text[spanStart] == '\n') {
@@ -86,7 +87,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                         if (text[spanStart] == '\n' && text.length >= spanEnd && text.length > spanStart) {
                             spanEnd += 1
                             editor.disableTextChangedListener()
-                            text.insert(spanStart, "\u200B")
+                            text.insert(spanStart, Constants.ZWJ_STRING)
                         }
                     }
 
@@ -147,7 +148,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val blockSpans = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
             if (!blockSpans.isEmpty() && text.getSpanEnd(blockSpans[0]) == inputStart + 1) {
                 editor.disableTextChangedListener()
-                text.insert(inputStart + 1, "\u200B")
+                text.insert(inputStart + 1, Constants.ZWJ_STRING)
             }
         }
     }
@@ -288,7 +289,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
             if (isEmptyLine) {
                 editor.disableTextChangedListener()
-                editableText.insert(startOfLine, "\u200B")
+                editableText.insert(startOfLine, Constants.ZWJ_STRING)
                 endOfLine += 1
             }
 

@@ -62,7 +62,7 @@ class AztecParser {
         val cleanedUpText = markBlockElementLineBreaks(text)
 
         // add a marker to the end of the text to aid nested group parsing
-        val data = SpannableStringBuilder(cleanedUpText).append('\u200B')
+        val data = SpannableStringBuilder(cleanedUpText).append(Constants.ZWJ_CHAR)
 
         //if there is no list or hidden html span at the end of the text, then we don't need zwj
         if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
@@ -82,7 +82,7 @@ class AztecParser {
             val start = data.getSpanStart(it)
             val end = data.getSpanEnd(it)
             if (start == end && data[start] == '\n') {
-                data.insert(start, "" + '\uFEFF')
+                data.insert(start, "" + Constants.MAGIC_CHAR)
             }
         }
         hiddenIndex = 0
@@ -131,15 +131,15 @@ class AztecParser {
                 }
             } else {
                 if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
-                        && (text[spanEnd - 1] == '\u200B' || text[spanEnd - 2] == '\n')) {
+                        && (text[spanEnd - 1] == Constants.ZWJ_CHAR || text[spanEnd - 2] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd - 2] == '\n')) {
+                        && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd - 2] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
-                        && (text[spanEnd - 1] == '\u200B' && text[spanEnd] == '\n')) {
+                        && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length > spanEnd && (text[spanEnd] == '\u200B' || text[spanEnd] == '\n')) {
+                } else if (text.length > spanEnd && (text[spanEnd] == Constants.ZWJ_CHAR || text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
@@ -229,7 +229,7 @@ class AztecParser {
 
             val isAtTheEndOfText = text.length == lineStart + 1
 
-            val lineIsZWJ = lineLength == 1 && lines[i][0] == '\u200B'
+            val lineIsZWJ = lineLength == 1 && lines[i][0] == Constants.ZWJ_CHAR
             val isLastLineInList = lines.indices.last == i
             val lineEnd = lineStart + lineLength
 
@@ -344,7 +344,7 @@ class AztecParser {
             }
 
             //account for possible zero-width joiner at the end of the line
-            val zwjModifer = if (text[next - 1] == '\u200B') 1 else 0
+            val zwjModifer = if (text[next - 1] == Constants.ZWJ_CHAR) 1 else 0
 
             withinParagraph(out, text, i, next - nl - zwjModifer, nl, ignoreHeading)
 
@@ -532,7 +532,7 @@ class AztecParser {
         while (i < end) {
             val c = text[i]
 
-            if (c == '\u200B') {
+            if (c == Constants.ZWJ_CHAR) {
                 i++
                 continue
             }

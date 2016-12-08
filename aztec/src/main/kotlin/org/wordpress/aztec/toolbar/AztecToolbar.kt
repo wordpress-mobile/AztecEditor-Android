@@ -61,6 +61,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             if (state.getBoolean("isVideoMediaDialogVisible")) {
                 showVideoMediaDialog()
             }
+
+            if (state.getBoolean("isMediaUploadDialogVisible")) {
+                showMediaUploadDialog()
+            }
         }
 
         super.onRestoreInstanceState(superState)
@@ -76,6 +80,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
             bundle.putBoolean("isVideoMediaDialogVisible", true)
+        }
+
+        if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
+            bundle.putBoolean("isMediaUploadDialogVisible", true)
         }
 
         return bundle

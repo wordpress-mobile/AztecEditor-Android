@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
             }
 
             val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
-            aztec.lineBlockFormatter.insertMedia(this, BitmapDrawable(resources, bitmap), source)
+            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), source)
         }
 
         super.onActivityResult(requestCode, resultCode, data)

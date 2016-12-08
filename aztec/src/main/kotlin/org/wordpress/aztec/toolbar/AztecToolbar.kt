@@ -1,9 +1,9 @@
 package org.wordpress.aztec.toolbar
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -20,9 +20,9 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
-    private var addLinkDialog: AlertDialog? = null
     private var addPhotoMediaDialog: AlertDialog? = null
     private var addVideoMediaDialog: AlertDialog? = null
+    private var mediaUploadDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
     private var mediaMenu: PopupMenu? = null
@@ -48,21 +48,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         fun onVideosMediaOptionSelected()
     }
 
-    override fun onSaveInstanceState(): Parcelable {
-        val bundle = Bundle()
-        bundle.putParcelable("superState", super.onSaveInstanceState())
-
-        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
-            bundle.putBoolean("isPhotoMediaDialogVisible", true)
-        }
-
-        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
-            bundle.putBoolean("isVideoMediaDialogVisible", true)
-        }
-
-        return bundle
-    }
-
     override fun onRestoreInstanceState(state: Parcelable?) {
         var superState = state
 
@@ -81,11 +66,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         super.onRestoreInstanceState(superState)
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        if (addLinkDialog != null && addLinkDialog!!.isShowing) {
-            addLinkDialog!!.dismiss()
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable("superState", super.onSaveInstanceState())
+
+        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isPhotoMediaDialogVisible", true)
         }
+
+        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isVideoMediaDialogVisible", true)
+        }
+
+        return bundle
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -308,8 +301,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val builder = AlertDialog.Builder(context)
         builder.setMessage(context.getString(R.string.media_upload_dialog_message))
         builder.setPositiveButton(context.getString(R.string.media_upload_dialog_positive), null)
-        addVideoMediaDialog = builder.create()
-        addVideoMediaDialog!!.show()
+        mediaUploadDialog = builder.create()
+        mediaUploadDialog!!.show()
     }
 
     private fun showPhotoMediaDialog() {

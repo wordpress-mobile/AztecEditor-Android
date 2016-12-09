@@ -113,9 +113,9 @@ class AztecParser {
 
             val followingBlockElement = spanStart - 2 > 0 && text.getSpans(spanStart - 2, spanStart - 2, AztecLineBlockSpan::class.java).isNotEmpty()
 
-            if (spanStart > 2 && text[spanStart - 1] == '\n' && text[spanStart - 2] != '\n' && !followingBlockElement) {
+            if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] != '\n' && !followingBlockElement) {
                 text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else if (spanStart > 2 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
+            } else if (spanStart > 1 && text[spanStart - 1] == '\n' && text[spanStart - 2] == '\n' && followingBlockElement) {
                 //Look back and adjust position any unnecessary BlockElementLinebreak's
                 text.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).forEach {
                     text.setSpan(it, text.getSpanStart(it) - 1, text.getSpanEnd(it) - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

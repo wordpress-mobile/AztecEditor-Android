@@ -28,7 +28,7 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
         if (isAddingCharacters) {
             val currentCharacter = text[inputStart]
             if (currentCharacter == '\n' ||
-                    (inputStart - 1 > 0 && text[inputStart - 1] == '\n' &&
+                    (inputStart - 1 >= 0 && text[inputStart - 1] == '\n' &&
                             currentCharacter == Constants.ZWJ_CHAR)) {
                 return true
             }

@@ -403,6 +403,20 @@ class AztecText : EditText, TextWatcher {
             val lists = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java)
             if (lists.isNotEmpty()) {
                 val listEnd = text.getSpanEnd(lists[0])
+//
+                // when newline inserted before the list item's newline the item's attributes must be shifted up
+                if (textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
+                    val spans = text.getSpans(textChangedEventDetails.inputEnd, textChangedEventDetails.inputEnd + 1, AztecListItemSpan::class.java)
+                    spans.forEach {
+                        if (text.getSpanStart(it) == textChangedEventDetails.inputEnd && text.getSpanEnd(it) == textChangedEventDetails.inputEnd + 1) {
+                            var spanStart = textChangedEventDetails.inputStart
+                            if (text[textChangedEventDetails.inputStart] == Constants.ZWJ_CHAR) {
+                                spanStart--
+                            }
+                            text.setSpan(it, spanStart, spanStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                    }
+                }
 
                 if (textChangedEventDetails.inputEnd == listEnd) {
                     var prevNewline = textChangedEventDetails.inputStart

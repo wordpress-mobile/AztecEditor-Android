@@ -415,7 +415,7 @@ class AztecParser {
                 if (spanCursorPosition != -1 && localCursorPosition != -1 && !containsCursor(out)) {
                     //TODO sometimes cursor lands right before > symbol, until we figure out why use modifier to fix it
                     val cursorInsertionPoint = out.length - (next - localCursorPosition)
-                    val modifier = if (out.length > cursorInsertionPoint && out[cursorInsertionPoint] == '>') 1 else 0
+                    val modifier = if (out.length > cursorInsertionPoint && cursorInsertionPoint >= 0 && out[cursorInsertionPoint] == '>') 1 else 0
                     out.insert(cursorInsertionPoint + modifier, AztecCursorSpan.AZTEC_CURSOR_TAG)
                 }
 

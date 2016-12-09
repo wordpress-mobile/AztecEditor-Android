@@ -358,11 +358,15 @@ class AztecText : EditText, TextWatcher {
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
+        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR)
+            setSelection(selectionEnd + 1)
+
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
+
         carryOverDeletedListItemAttributes(count, start, text)
     }
 

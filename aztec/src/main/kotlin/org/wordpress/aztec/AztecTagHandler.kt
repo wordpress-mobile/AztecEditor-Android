@@ -105,6 +105,9 @@ class AztecTagHandler : Html.TagHandler {
         if (opening) {
             start(output, span)
         } else {
+            if (output.length > 1 && output[output.length - 1] == '\n' && output[output.length - 2] == '\n') {
+                output.insert(output.length - 1, Constants.ZWJ_STRING)
+            }
             end(output, span.javaClass)
         }
 

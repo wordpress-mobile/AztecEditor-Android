@@ -314,6 +314,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun openingAndReopeningOfList() {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
 
         editText.append("\n")
         editText.append("third item")

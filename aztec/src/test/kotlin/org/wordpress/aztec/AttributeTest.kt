@@ -304,6 +304,7 @@ class AttributeTest {
         Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem</ol>", editText.toHtml())
+        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
         editText.text.delete(0, 1)

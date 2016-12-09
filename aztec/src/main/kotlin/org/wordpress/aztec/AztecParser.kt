@@ -105,22 +105,23 @@ class AztecParser {
         }
     }
 
+    data class SpanToReset(val span: AztecSpan, val start: Int, val end: Int)
+
     fun adjustNestedSpanOrder(spanned: Editable) {
         spanned.getSpans(0, spanned.length, AztecSpan::class.java).forEach { outsideSpan ->
             val spanStart = spanned.getSpanStart(outsideSpan)
             val spanEnd = spanned.getSpanEnd(outsideSpan)
 
-            val spansToReset = ArrayList<AztecSpan>()
-
+            val spansToReset = ArrayList<SpanToReset>()
 
             spanned.getSpans(spanStart, spanEnd, AztecSpan::class.java).forEach innerLoop@ { nestedSpan ->
                 if (outsideSpan == nestedSpan) return@innerLoop
 
                 val nestedSpanStart = spanned.getSpanStart(nestedSpan)
                 val nestedSpanEnd = spanned.getSpanEnd(nestedSpan)
-                if (nestedSpanStart == spanStart && nestedSpanEnd == spanEnd) {
+                if (nestedSpanStart == spanStart || nestedSpanEnd == spanEnd) {
                     spanned.removeSpan(nestedSpan)
-                    spansToReset.add(nestedSpan)
+                    spansToReset.add(SpanToReset(nestedSpan, nestedSpanStart, nestedSpanEnd))
                 }
             }
 
@@ -128,8 +129,8 @@ class AztecParser {
                 spanned.removeSpan(outsideSpan)
                 spanned.setSpan(outsideSpan, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                spansToReset.forEach { nestedSpan ->
-                    spanned.setSpan(nestedSpan, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spansToReset.forEach { spanToReset ->
+                    spanned.setSpan(spanToReset.span, spanToReset.start, spanToReset.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }

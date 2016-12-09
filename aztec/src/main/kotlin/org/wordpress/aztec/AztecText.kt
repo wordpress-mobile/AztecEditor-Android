@@ -393,6 +393,29 @@ class AztecText : EditText, TextWatcher {
         if (textChangedEventDetails.count > 0 && text.isEmpty()) {
             onSelectionChanged(0, 0)
         }
+
+        // preserve the attributes on the previous list item when adding a new one
+        realignAttributesWhenAddingItem(text)
+    }
+
+    private fun realignAttributesWhenAddingItem(text: Editable) {
+        if (textChangedEventDetails.isNewLine()) {
+            val lists = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java)
+            if (lists.isNotEmpty()) {
+                val listEnd = text.getSpanEnd(lists[0])
+
+                if (textChangedEventDetails.inputEnd == listEnd) {
+                    var prevNewline = textChangedEventDetails.inputStart
+                    if (text[prevNewline] == Constants.ZWJ_CHAR) {
+                        prevNewline--
+                    }
+
+                    // reset the new last item's attributes
+                    text.setSpan(lists[0].lastItem, prevNewline, prevNewline + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    lists[0].lastItem = AztecListItemSpan()
+                }
+            }
+        }
     }
 
     private fun carryOverDeletedListItemAttributes(count: Int, start: Int, text: CharSequence) {

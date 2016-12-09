@@ -44,7 +44,7 @@ class AztecParser {
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
             var spanEnd = spanned.getSpanEnd(it)
-            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
+            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n' && it !is AztecListSpan) spanEnd - 1 else spanEnd
             spanned.removeSpan(it)
             spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 

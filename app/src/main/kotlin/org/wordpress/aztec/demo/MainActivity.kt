@@ -44,7 +44,23 @@ class MainActivity : AppCompatActivity() {
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + HIDDEN + COMMENT + COMMENT_MORE + COMMENT_PAGE + UNKNOWN
+        private val CODE = "<code>if (value == 5) printf(value)</code><br>"
+        private val EXAMPLE =
+                HEADING +
+                BOLD +
+                ITALIC +
+                UNDERLINE +
+                STRIKETHROUGH +
+                ORDERED +
+                UNORDERED +
+                QUOTE +
+                LINK +
+                HIDDEN +
+                COMMENT +
+                COMMENT_MORE +
+                COMMENT_PAGE +
+                CODE +
+                UNKNOWN
     }
 
     private lateinit var aztec: AztecText

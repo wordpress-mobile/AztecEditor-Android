@@ -62,7 +62,7 @@ class AztecText : EditText, TextWatcher {
     lateinit var history: History
 
 
-    val inlineFormatter: InlineFormatter
+    lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
     val lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
@@ -72,7 +72,6 @@ class AztecText : EditText, TextWatcher {
     }
 
     init {
-        inlineFormatter = InlineFormatter(this)
         lineBlockFormatter = LineBlockFormatter(this)
     }
 
@@ -109,6 +108,11 @@ class AztecText : EditText, TextWatcher {
 
         historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
+
+        inlineFormatter = InlineFormatter(this,
+                InlineFormatter.CodeStyle(
+                        array.getColor(R.styleable.AztecText_codeBackground, 0),
+                        array.getColor(R.styleable.AztecText_codeColor, 0)))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
@@ -290,6 +294,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
             TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
+            TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
             else -> {
             }
         }
@@ -313,6 +318,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
+            TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false
         }
     }
@@ -459,6 +465,14 @@ class AztecText : EditText, TextWatcher {
             editable.removeSpan(span)
             editable.setSpan(linkFormatter.makeUrlSpan(span.url, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+        val codeSpans = editable.getSpans(start, end, AztecCodeSpan::class.java)
+        codeSpans.forEach {
+            val spanStart = editable.getSpanStart(it)
+            val spanEnd = editable.getSpanEnd(it)
+            editable.removeSpan(it)
+            editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     fun disableTextChangedListener() {
@@ -495,6 +509,7 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINED, start, end)
+        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
     }
 
 

@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,8 +8,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
  * Testing attribute preservation for supported HTML elements
@@ -31,8 +28,7 @@ class AttributeTest {
         private val BOLD_NO_ATTRS = "<b>Bold</b>"
         private val ITALIC = "<i i=\"I\">Italic</i>"
         private val UNDERLINE = "<u j=\"J\">Underline</u>"
-        private val NESTED = "<i a=\"A\"><b><u class=\"klass\">Nested</u></b><i>"
-        private val NESTED_REVERSED = "<u class=\"klass\"><b><i a=\"A\">Nested</i></b></u>"
+        private val NESTED = "<i a=\"A\"><b><u class=\"klass\">Nested</u></b></i>"
         private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s>" // <s> or <strike> or <del>
         private val ORDERED = "<ol l=\"L\"><li>Ordered</li></ol>"
         private val UNORDERED = "<ul m=\"M\"><li>Unordered</li></ul>"
@@ -108,10 +104,9 @@ class AttributeTest {
     @Throws(Exception::class)
     fun nestedAttributes() {
         val input = NESTED
-        val expected = NESTED_REVERSED
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(expected, output)
+        Assert.assertEquals(input, output)
     }
 
     @Test
@@ -252,7 +247,7 @@ class AttributeTest {
     @Throws(Exception::class)
     fun mixedAttributes() {
         val input = MIXED + NESTED
-        val expected = MIXED + NESTED_REVERSED
+        val expected = MIXED + NESTED
         editText.fromHtml(input)
         val output = editText.toHtml()
         Assert.assertEquals(expected, output)

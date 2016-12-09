@@ -61,7 +61,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_NESTED_INTERLEAVING =
             "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
                     "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
-
+    private val HTML_NESTED_INLINE = "<u><i><b>Nested</b></i></u>"
     private val HTML_HIDDEN_WITH_NO_TEXT = "<br><br><div></div><br><br>"
 
     private val SPAN_BOLD = "Bold\n\n"
@@ -867,6 +867,21 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlLineBreakBetweenHeaders_isEqual() {
         val input = HTML_SINGLE_HEADER + "<br>" + HTML_SINGLE_HEADER
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse HTML of nested inline text style to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlNestedInlineStyles_isEqual() {
+        val input = HTML_NESTED_INLINE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

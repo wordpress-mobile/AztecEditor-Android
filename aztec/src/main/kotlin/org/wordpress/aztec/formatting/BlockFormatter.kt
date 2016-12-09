@@ -84,7 +84,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     if (text[spanStart] == '\n') {
                         spanStart += 1
 
-                        if (text[spanStart] == '\n' && text.length >= spanEnd && text.length > spanStart) {
+                        if (spanStart < text.length && text[spanStart] == '\n' &&
+                                text.length >= spanEnd && text.length > spanStart) {
                             spanEnd += 1
                             editor.disableTextChangedListener()
                             text.insert(spanStart, Constants.ZWJ_STRING)

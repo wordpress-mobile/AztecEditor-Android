@@ -54,6 +54,7 @@ class AztecText : EditText, TextWatcher {
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
     private var isViewInitialized = false
+    private var previousCursorPosition = 0
 
     val selectedStyles = ArrayList<TextFormat>()
 
@@ -230,10 +231,30 @@ class AztecText : EditText, TextWatcher {
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
+        if (isCursorBeforeZwjChar(selEnd, selStart)) return
+
+        previousCursorPosition = selEnd
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
+    }
+
+    private fun isCursorBeforeZwjChar(selEnd: Int, selStart: Int): Boolean {
+        if (selEnd < text.length && selStart == selEnd && text[selEnd] == Constants.ZWJ_CHAR) {
+            if (selEnd == previousCursorPosition + 1) {
+                // moved right
+                setSelection(selEnd + 1)
+            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
+                // moved left
+                setSelection(selEnd - 1)
+            }
+            return true
+        } else if (selEnd > 0 && selStart != selEnd && text[selEnd - 1] == Constants.ZWJ_CHAR) {
+            setSelection(selStart, selEnd - 1)
+            return true
+        }
+        return false
     }
 
     fun getSelectedText(): String {

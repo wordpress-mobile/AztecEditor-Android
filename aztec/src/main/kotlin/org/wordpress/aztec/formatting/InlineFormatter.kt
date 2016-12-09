@@ -78,10 +78,10 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLineButNotAtTheBeginning())
 
         //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isNewLine()) return
+        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
 
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {

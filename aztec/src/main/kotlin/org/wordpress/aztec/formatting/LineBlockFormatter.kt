@@ -32,7 +32,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun handleLineBlockStyling(textChangedEvent: TextChangedEvent) {
-        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLine()) {
+        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             val spanAtNewLIne = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecHeadingSpan::class.java).getOrNull(0)
             if (spanAtNewLIne != null) {
                 val spanStart = editableText.getSpanStart(spanAtNewLIne)

@@ -58,7 +58,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         // preserve the attributes on the previous list item when adding a new one
-        if (textChangedEvent.isNewLine() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
+        if (textChangedEvent.isNewLineButNotAtTheBeginning() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
             val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
             if (spans.size == 1) {
                 text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -130,10 +130,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLine()) {
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
             editor.disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             removeBlockStyle()
             editor.disableTextChangedListener()
 
@@ -143,7 +143,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.delete(inputStart - 2, inputStart)
             }
 
-        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             //Add ZWJ to the new line at the end of block spans
             val blockSpans = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
             if (!blockSpans.isEmpty() && text.getSpanEnd(blockSpans[0]) == inputStart + 1) {

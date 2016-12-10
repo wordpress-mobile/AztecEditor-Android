@@ -63,7 +63,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
             var spanEnd = text.getSpanEnd(it)
-            var spanStart = text.getSpanStart(it)
+            val spanStart = text.getSpanStart(it)
 
             if (spanEnd == spanStart) {
                 editableText.removeSpan(it)
@@ -315,12 +315,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart > lineEnd) {
                 continue
             }
@@ -334,13 +331,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containsList(textFormat, i, editableText)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containsList(textFormat, it, editableText) }
     }
 
     fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
@@ -349,18 +340,15 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             return false
         }
 
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
+
         if (start > end) {
             return false
         }
 
         val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat).javaClass)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
 
@@ -369,12 +357,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart >= lineEnd) {
                 continue
             }
@@ -388,13 +373,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containQuote(i)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containQuote(it) }
     }
 
     fun containQuote(index: Int): Boolean {
@@ -403,18 +382,15 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             return false
         }
 
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
+
         if (start >= end) {
             return false
         }
 
         val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -503,7 +479,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
 
 
-        } else if (startIndex == 0 && textChangedEvent.count == 1 && editableText.length > 0) {
+        } else if (startIndex == 0 && textChangedEvent.count == 1 && editableText.isNotEmpty()) {
             val spansAfterInput = editableText.getSpans(startIndex + 1, startIndex + 1, AztecBlockSpan::class.java)
             spansAfterInput.forEach {
                 spansToClose.add(it)

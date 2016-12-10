@@ -141,7 +141,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
 
@@ -150,7 +150,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun closingEmptyList() {
         editText.toggleFormatting(listType)
         editText.append("\n")
-        Assert.assertEquals("", editText.toHtml().toString())
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test
@@ -159,7 +159,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<$listTag><li>first</li><li>item</li></$listTag>", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first</li><li>item</li></$listTag>", editText.toHtml())
     }
 
 
@@ -380,11 +380,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
@@ -394,17 +394,17 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         val oppositeTextFormat = if (listType == TextFormat.FORMAT_ORDERED_LIST)
             TextFormat.FORMAT_UNORDERED_LIST else TextFormat.FORMAT_ORDERED_LIST
 
-        val oppositeTag = if (listTag.equals("ol")) "ul" else "ol"
+        val oppositeTag = if (listTag == "ol") "ul" else "ol"
 
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.toggleFormatting(oppositeTextFormat)
 
-        Assert.assertEquals("<$oppositeTag><li>first item</li><li>second item</li><li>third item</li></$oppositeTag>", editText.toHtml().toString())
+        Assert.assertEquals("<$oppositeTag><li>first item</li><li>second item</li><li>third item</li></$oppositeTag>", editText.toHtml())
 
         editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml().toString())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
     }
 
 

@@ -25,7 +25,7 @@ import org.wordpress.aztec.formatting.LinkFormatter
 
 class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
 
-    private final val TAG: String = "a"
+    private val TAG: String = "a"
 
     private var linkColor = 0
     private var linkUnderline = true

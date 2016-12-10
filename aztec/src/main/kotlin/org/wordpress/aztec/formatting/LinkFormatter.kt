@@ -132,7 +132,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
     private fun getAttributes(end: Int, start: Int): String {
         val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
         var attributes: String = ""
-        if (urlSpans != null && urlSpans.size > 0) {
+        if (urlSpans != null && urlSpans.isNotEmpty()) {
             attributes = urlSpans[0].attributes
         }
         return attributes
@@ -174,16 +174,14 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
             } else {
                 val before = editableText.getSpans(start - 1, start, AztecURLSpan::class.java)
                 val after = editableText.getSpans(start, start + 1, AztecURLSpan::class.java)
-                return before.size > 0 && after.size > 0
+                return before.isNotEmpty() && after.isNotEmpty()
             }
         } else {
             val builder = StringBuilder()
 
-            for (i in start..end - 1) {
-                if (editableText.getSpans(i, i + 1, AztecURLSpan::class.java).size > 0) {
-                    builder.append(editableText.subSequence(i, i + 1).toString())
-                }
-            }
+            (start..end - 1)
+                    .filter { editableText.getSpans(it, it + 1, AztecURLSpan::class.java).isNotEmpty() }
+                    .forEach { builder.append(editableText.subSequence(it, it + 1).toString()) }
 
             return editableText.subSequence(start, end).toString() == builder.toString()
         }

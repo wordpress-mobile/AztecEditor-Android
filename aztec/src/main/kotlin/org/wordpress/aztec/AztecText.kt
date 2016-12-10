@@ -163,9 +163,7 @@ class AztecText : EditText, TextWatcher {
         val array = ArrayList(customState.getStringArrayList("historyList"))
         val list = LinkedList<String>()
 
-        for (item in array) {
-            list.add(item)
-        }
+        list += array
 
         history.historyList = list
         history.historyCursor = customState.getInt("historyCursor")
@@ -183,7 +181,7 @@ class AztecText : EditText, TextWatcher {
 
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState() : Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()

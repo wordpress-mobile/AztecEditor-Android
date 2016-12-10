@@ -5,7 +5,7 @@ import android.text.style.SuperscriptSpan
 
 class AztecSuperscriptSpan : SuperscriptSpan, AztecContentSpan, AztecInlineSpan {
 
-    private final var TAG: String = "sup"
+    private var TAG: String = "sup"
     override var attributes: String
 
     @JvmOverloads

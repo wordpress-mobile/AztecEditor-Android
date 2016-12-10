@@ -4,7 +4,7 @@ import android.text.TextUtils
 
 class AztecListItemSpan : AztecSpan {
 
-    private final val TAG = "li"
+    private val TAG = "li"
 
     override var attributes: String
 

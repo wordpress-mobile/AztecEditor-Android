@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,8 +8,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
  * Testing attribute preservation for supported HTML elements

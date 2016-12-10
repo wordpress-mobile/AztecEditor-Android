@@ -5,7 +5,7 @@ import android.text.style.UnderlineSpan
 
 class AztecUnderlineSpan(override var attributes: String = "") : UnderlineSpan(), AztecContentSpan, AztecInlineSpan {
 
-    private final val TAG = "u"
+    private val TAG = "u"
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {

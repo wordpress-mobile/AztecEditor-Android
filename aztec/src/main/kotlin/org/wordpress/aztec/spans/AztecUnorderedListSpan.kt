@@ -28,7 +28,7 @@ import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
-    private final val TAG = "ul"
+    private val TAG = "ul"
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0

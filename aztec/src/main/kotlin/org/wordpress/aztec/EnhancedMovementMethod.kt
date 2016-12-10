@@ -32,7 +32,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             //made to only react to UnknownClickableSpan, and not to regular links
             val link = buffer.getSpans(off, off, UnknownClickableSpan::class.java)
 
-            if (link.size != 0) {
+            if (link.isNotEmpty()) {
                 if (action == MotionEvent.ACTION_UP) {
                     link[0].onClick(widget)
                 } else {

@@ -230,7 +230,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
 
 
     fun isSameInlineSpanType(firstSpan: AztecInlineSpan, secondSpan: AztecInlineSpan): Boolean {
-        if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
+        if (firstSpan.javaClass == secondSpan.javaClass) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -246,7 +246,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     //TODO: Check if there is more efficient way to tidy spans
-    public fun joinStyleSpans(start: Int, end: Int) {
+    fun joinStyleSpans(start: Int, end: Int) {
         //joins spans on the left
         if (start > 1) {
             val spansInSelection = editableText.getSpans(start, end, AztecInlineSpan::class.java)
@@ -360,7 +360,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
                         .filter { it -> isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, AztecInlineSpan::class.java)
                         .filter { isSameInlineSpanType(it, spanToCheck) }
-                return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
+                return before.isNotEmpty() && after.isNotEmpty() && isSameInlineSpanType(before[0], after[0])
             }
         } else {
             val builder = StringBuilder()

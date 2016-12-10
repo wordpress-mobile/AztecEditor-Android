@@ -136,10 +136,8 @@ object HtmlStyleUtils {
     fun clearSpans(content: Spannable, spanStart: Int, spanEnd: Int) {
         val spans = content.getSpans(spanStart, spanEnd, CharacterStyle::class.java)
 
-        for (span in spans) {
-            if (span is ForegroundColorSpan || span is StyleSpan || span is RelativeSizeSpan) {
-                content.removeSpan(span)
-            }
-        }
+        spans
+                .filter { it is ForegroundColorSpan || it is StyleSpan || it is RelativeSizeSpan }
+                .forEach { content.removeSpan(it) }
     }
 }

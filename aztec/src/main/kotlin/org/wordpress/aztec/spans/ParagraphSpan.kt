@@ -5,7 +5,7 @@ import android.text.style.ParagraphStyle
 
 class ParagraphSpan : ParagraphStyle, AztecBlockSpan {
 
-    private final var TAG: String = "p"
+    private var TAG: String = "p"
     override var attributes: String
 
     @JvmOverloads

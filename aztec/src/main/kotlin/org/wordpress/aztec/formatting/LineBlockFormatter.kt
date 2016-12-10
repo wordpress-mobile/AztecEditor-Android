@@ -83,12 +83,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 continue
             }
 
-            var lineStart = 0
-
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -122,12 +117,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
-            var lineStart = 0
-
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -158,12 +148,9 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart >= lineEnd) {
                 continue
             }
@@ -177,13 +164,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containHeadingType(textFormat, i)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containHeadingType(textFormat, it) }
     }
 
     fun containsHeading(index: Int): Boolean {
@@ -193,12 +174,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return false
         }
 
-        var start = 0
-
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -206,7 +182,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
 
         val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
@@ -216,12 +192,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return false
         }
 
-        var start = 0
-
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {

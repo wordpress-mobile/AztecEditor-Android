@@ -5,7 +5,7 @@ import android.text.style.SubscriptSpan
 
 class AztecSubscriptSpan : SubscriptSpan, AztecContentSpan, AztecInlineSpan {
 
-    private final var TAG: String = "sub"
+    private var TAG: String = "sub"
     override var attributes: String
 
     @JvmOverloads

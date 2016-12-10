@@ -25,9 +25,9 @@ object Format {
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {
-        val p = Pattern.compile(pattern);
-        val m = p.matcher(content);
-        return m.replaceAll(replacement);
+        val p = Pattern.compile(pattern)
+        val m = p.matcher(content)
+        return m.replaceAll(replacement)
     }
 
     /**

@@ -6,7 +6,7 @@ import android.text.style.CharacterStyle
 
 class FontSpan : CharacterStyle, AztecContentSpan, AztecInlineSpan {
 
-    private final var TAG: String = "font"
+    private var TAG: String = "font"
     override var attributes: String
 
     @JvmOverloads

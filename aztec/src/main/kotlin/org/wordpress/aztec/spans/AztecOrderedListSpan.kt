@@ -28,7 +28,7 @@ import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
-    private final val TAG = "ol"
+    private val TAG = "ol"
 
     private var textColor: Int = 0
     private var textMargin: Int = 0

@@ -39,8 +39,7 @@ class AztecTagHandler : Html.TagHandler {
             LIST_LI -> {
                 if (opening) {
                     start(output, AztecListItemSpan(attributeString))
-                } else
-                {
+                } else {
                     endList(output)
                 }
                 return true

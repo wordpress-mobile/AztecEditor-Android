@@ -385,8 +385,6 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        history.handleHistory(this)
-
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
@@ -397,6 +395,9 @@ class AztecText : EditText, TextWatcher {
 
         // preserve the attributes on the previous list item when adding a new one
         realignAttributesWhenAddingItem(text)
+
+        history.handleHistory(this)
+
     }
 
     private fun realignAttributesWhenAddingItem(text: Editable) {

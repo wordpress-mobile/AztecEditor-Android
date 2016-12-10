@@ -10,7 +10,7 @@ class UnknownHtmlSpan(rawHtml: StringBuilder, context: Context, drawable: Int) :
 
     val mRawHtml: StringBuilder = rawHtml
 
-    fun getRawHtml(): StringBuilder {
+    fun getRawHtml() : StringBuilder {
         return mRawHtml
     }
 

@@ -495,6 +495,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun fromHtml(source: String) {
+        disableTextChangedListener()
+        editableText.clear()
+
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
         builder.append(parser.fromHtml(Format.clearFormatting(source), context))

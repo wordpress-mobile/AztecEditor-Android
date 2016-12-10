@@ -57,13 +57,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
-        // preserve the attributes on the previous list item when adding a new one
-        if (textChangedEvent.isNewLineButNotAtTheBeginning() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
-            val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
-            if (spans.size == 1) {
-                text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
+
         val inputStart = textChangedEvent.inputStart
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
@@ -75,22 +69,11 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 editableText.removeSpan(it)
             } else if (spanEnd <= text.length) {
                 //case for when we remove block element row from first line of EditText end the next line is empty
-                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
+                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n' && !textChangedEvent.isAddingCharacters) {
                     spanEnd += 1
                     editor.disableTextChangedListener()
                     text.insert(spanStart, Constants.ZWJ_STRING)
-                } else
-                //case for when we remove block element row from other lines of EditText end the next line is empty
-                    if (text[spanStart] == '\n') {
-                        spanStart += 1
-
-                        if (spanStart < text.length && text[spanStart] == '\n' &&
-                                text.length >= spanEnd && text.length > spanStart) {
-                            spanEnd += 1
-                            editor.disableTextChangedListener()
-                            text.insert(spanStart, Constants.ZWJ_STRING)
-                        }
-                    }
+                }
 
                 editableText.setSpan(it,
                         spanStart,

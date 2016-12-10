@@ -231,7 +231,7 @@ class AztecText : EditText, TextWatcher {
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
-        if (isCursorBeforeZwjChar(selEnd, selStart)) return
+        if (selStart == selEnd && isCursorBeforeZwjChar(selEnd)) return
 
         previousCursorPosition = selEnd
 
@@ -240,8 +240,8 @@ class AztecText : EditText, TextWatcher {
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
-    private fun isCursorBeforeZwjChar(selEnd: Int, selStart: Int): Boolean {
-        if (selEnd < text.length && selStart == selEnd && text[selEnd] == Constants.ZWJ_CHAR) {
+    private fun isCursorBeforeZwjChar(selEnd: Int): Boolean {
+        if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
             if (selEnd == previousCursorPosition + 1) {
                 // moved right
                 setSelection(selEnd + 1)
@@ -249,9 +249,6 @@ class AztecText : EditText, TextWatcher {
                 // moved left
                 setSelection(selEnd - 1)
             }
-            return true
-        } else if (selEnd > 0 && selStart != selEnd && text[selEnd - 1] == Constants.ZWJ_CHAR) {
-            setSelection(selStart, selEnd - 1)
             return true
         }
         return false

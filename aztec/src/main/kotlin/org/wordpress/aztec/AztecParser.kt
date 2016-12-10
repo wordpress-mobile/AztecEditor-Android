@@ -220,30 +220,32 @@ class AztecParser {
         val listContent = text.subSequence(start..newEnd) as Spanned
 
         out.append("<${list.getStartTag()}>")
-        val lines = TextUtils.split(listContent.toString(), "\n")
+        var lines = TextUtils.split(listContent.toString(), "\n")
+
+        val isAtTheEndOfText = text.length == listContent.length
+        if (lines.isNotEmpty() && lines.last().length == 1 && isAtTheEndOfText && lines.last()[0] == Constants.ZWJ_CHAR) {
+            lines = lines.take(lines.size - 1).toTypedArray()
+        }
 
         for (i in lines.indices) {
 
             val lineLength = lines[i].length
             val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-
-            val isAtTheEndOfText = text.length == lineStart + 1
-
             val lineIsZWJ = lineLength == 1 && lines[i][0] == Constants.ZWJ_CHAR
             val isLastLineInList = lines.indices.last == i
             val lineEnd = lineStart + lineLength
 
-            if (lineStart > lineEnd || (isAtTheEndOfText && lineIsZWJ) || (lineStart == lineEnd && isLastLineInList)) {
+            if (lineStart > lineEnd || (lineStart == lineEnd && isLastLineInList)) {
                 continue
             }
 
             val itemSpanStart = start + lineStart + lineLength
             val itemSpans = text.getSpans(itemSpanStart, itemSpanStart + 1, AztecListItemSpan::class.java)
 
-            if (itemSpans.isNotEmpty()) {
-                out.append("<li${itemSpans[0].attributes}>")
-            } else if (i == lines.lastIndex) {
+            if (i == lines.lastIndex) {
                 out.append("<li${list.lastItem.attributes}>")
+            } else if (itemSpans.isNotEmpty()) {
+                out.append("<li${itemSpans[0].attributes}>")
             } else {
                 out.append("<li>")
             }

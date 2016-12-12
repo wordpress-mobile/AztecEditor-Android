@@ -48,7 +48,7 @@ class AztecParser {
             spanned.removeSpan(it)
             spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n' && it !is AztecListSpan) {
+            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
                 spanned.delete(spanned.length - 1, spanned.length)
             }
         }

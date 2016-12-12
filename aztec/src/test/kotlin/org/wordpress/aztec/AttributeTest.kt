@@ -42,10 +42,7 @@ class AttributeTest {
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
         private val LIST_WITH_ATTRIBUTES = "<ul><li a=\"A\"></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>"
         private val LIST_WITH_EMPTY_ITEMS = "a<ul><li></li><li></li><li a=\"1\">1</li><li></li><li></li></ul>b"
-
-        // TODO: broken due to issue #139 (https://github.com/wordpress-mobile/WordPress-Aztec-Android/issues/139)
-//        private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<br><ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
-
+        private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<br><ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
         private val SUB = "<sub i=\"I\">Sub</sub>"
         private val SUP = "<sup i=\"I\">Sup</sup>"
         private val FONT = "<font i=\"I\">Font</font>"
@@ -269,14 +266,14 @@ class AttributeTest {
         Assert.assertEquals(input, output)
     }
 
-//    @Test
-//    @Throws(Exception::class)
-//    fun listWithEmptyItemsAndLineBreakAfterItAttributes() {
-//        val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
-//        editText.fromHtml(input)
-//        val output = editText.toHtml()
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun listWithEmptyItemsAndLineBreakAfterItAttributes() {
+        val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input.replace("<li></li></ul>", "</ul>"), output)
+    }
 
     @Test
     @Throws(Exception::class)
@@ -284,7 +281,6 @@ class AttributeTest {
         val input = LIST
         val originalItem = "<li a=\"1\">Ordered</li>"
         editText.fromHtml(input)
-        editText.text.delete(editText.length() - 1, editText.length())
 
         editText.append("\n")
         editText.append("after")
@@ -306,7 +302,6 @@ class AttributeTest {
         Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem</ol>", editText.toHtml())
-        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
         editText.text.delete(0, 1)
@@ -318,7 +313,6 @@ class AttributeTest {
     fun moveItemsAround() {
         val input = LIST_WITH_ATTRIBUTES
         editText.fromHtml(input)
-        editText.text.delete(editText.length() - 1, editText.length())
         editText.setSelection(0)
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())

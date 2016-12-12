@@ -47,10 +47,10 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     }
 
     constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.indicatorMargin) {
-        this.textColor = textColor
-        this.textMargin = textMargin
-        this.bulletWidth = bulletWidth
-        this.textPadding = textPadding
+        this.textColor = listStyle.indicatorColor
+        this.textMargin = listStyle.indicatorMargin
+        this.bulletWidth = listStyle.indicatorWidth
+        this.textPadding = listStyle.indicatorPadding
         this.attributes = attributes
         this.lastItem = last
     }

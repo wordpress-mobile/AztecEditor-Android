@@ -515,4 +515,22 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li></li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun addMultipleEmptyItemsWithKeyboard() {
+        editText.toggleFormatting(listType)
+        editText.append("item")
+        editText.append("\n")
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<$listTag><li></li><li>item</li></$listTag>", editText.toHtml())
+
+        editText.text.insert(1, "\n")
+        editText.text.insert(2, "\n")
+        Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag>", editText.toHtml())
+
+        editText.append("\n")
+        editText.append("\n")
+        Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag><br>", editText.toHtml())
+    }
 }

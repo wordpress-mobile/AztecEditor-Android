@@ -44,11 +44,17 @@ class AztecParser {
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
             var spanEnd = spanned.getSpanEnd(it)
-            spanEnd = if (0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n') spanEnd - 1 else spanEnd
+
+            val willReduceSpan = 0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n'
+            val willDeleteLastChar = spanEnd == spanned.length && spanned[spanEnd - 1] == '\n'
+            val isListWithEmptyLastItem = it is AztecListSpan &&
+                    spanned[spanEnd - 1] == '\n' && (spanEnd - spanStart == 1 || spanned[spanEnd - 2] == '\n')
+
+            spanEnd = if (willReduceSpan && !isListWithEmptyLastItem) spanEnd - 1 else spanEnd
             spanned.removeSpan(it)
             spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-            if (spanEnd == spanned.length && spanned[spanEnd - 1] == '\n') {
+            if (willDeleteLastChar && !isListWithEmptyLastItem) {
                 spanned.delete(spanned.length - 1, spanned.length)
             }
         }
@@ -109,7 +115,7 @@ class AztecParser {
 
         text.getSpans(0, text.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = text.getSpanStart(it)
-            val spanEnd = text.getSpanEnd(it)
+            var spanEnd = text.getSpanEnd(it)
 
             val lookbehindRange = if (spanStart > 0 && text[spanStart - 1] == '\n') spanStart - 1 else spanStart - 2
             val isFollowingBlockElement = lookbehindRange > 0 && text.getSpans(lookbehindRange, lookbehindRange, AztecLineBlockSpan::class.java).isNotEmpty()
@@ -132,9 +138,9 @@ class AztecParser {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd - 1, Spanned.SPAN_MARK_MARK)
                 }
             } else {
-                if (it is AztecListSpan && spanEnd - 1 > spanStart && text.length > spanEnd
-                        && (text[spanEnd - 1] == Constants.ZWJ_CHAR || text[spanEnd - 2] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (it is AztecListSpan && spanEnd + 1 < text.length && text[spanEnd] == '\n' && spanEnd > 0 && text[spanEnd - 1] != '\n') {
+                    spanEnd++
+                    text.setSpan(it, spanStart, spanEnd, Spanned.SPAN_MARK_MARK)
                 } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd - 2] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -142,7 +148,9 @@ class AztecParser {
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length > spanEnd && spanEnd - 1 > spanStart && (text[spanEnd] == Constants.ZWJ_CHAR || text[spanEnd] == '\n')) {
-                    text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if (!(it is AztecListSpan && spanEnd - spanStart > 1 && text[spanEnd - 1] == '\n' && text[spanEnd - 2] == '\n')) {
+                        text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
                 }
             }
 

@@ -261,7 +261,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
                 for (i in grantResults.indices) {
                     when (permissions[i]) {
-                        Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
                             if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
                                 isPermissionDenied = true
                             }

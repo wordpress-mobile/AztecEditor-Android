@@ -1,6 +1,7 @@
 package org.wordpress.aztec
 
 import android.app.Activity
+import android.text.SpannableString
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -399,5 +400,23 @@ class AttributeTest {
         val indexB = editText.text.indexOf('b')
         editText.text.insert(indexB, "\n")
         Assert.assertEquals("<ol><li>a</li><li a=\"B\">b</li><li c=\"C\">c</li></ol>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  orderedListWithTrailingEmptyItemAndLinebreakAttribute() {
+        val input = "<ol><li>Ordered item</li><li a=\"A\"></li></ol><br>1"
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  orderedListFollowedByLinebreakAttribute() {
+        val input = "<ol><li>Ordered item</li><li a=\"A\">b</li></ol><br>1"
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
     }
 }

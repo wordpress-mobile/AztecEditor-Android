@@ -95,9 +95,9 @@ class AztecParser {
         Arrays.sort(hiddenSpans)
 
         if (withCursor) {
-            val cursorSpans = data.getSpans(0, data.length, AztecCursorSpan::class.java)
-            if (!cursorSpans.isEmpty()) { //there can be only one cursor
-                spanCursorPosition = data.getSpanStart(cursorSpans[0])
+            val cursorSpan = data.getSpans(0, data.length, AztecCursorSpan::class.java).firstOrNull()
+            if (cursorSpan != null) { //there can be only one cursor
+                spanCursorPosition = data.getSpanStart(cursorSpan)
             }
         } else {
             spanCursorPosition = -1
@@ -480,9 +480,8 @@ class AztecParser {
             cursorPosition = text.getSpanStart(it)
 
             //if the cursor is inside unknown html span we need to account for html inside it
-            if (text.getSpans(start, end, UnknownHtmlSpan::class.java).isNotEmpty()) {
-                val unknownSpan = text.getSpans(start, end, UnknownHtmlSpan::class.java)[0]
-
+            val unknownSpan = text.getSpans(start, end, UnknownHtmlSpan::class.java).firstOrNull()
+            if (unknownSpan != null) {
                 val unknownSpanStart = text.getSpanStart(unknownSpan)
                 val unknownSpanEnd = text.getSpanEnd(unknownSpan)
 

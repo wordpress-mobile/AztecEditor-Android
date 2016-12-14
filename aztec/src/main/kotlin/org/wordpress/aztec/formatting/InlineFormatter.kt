@@ -358,9 +358,11 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             } else {
                 val before = editableText.getSpans(start - 1, start, AztecInlineSpan::class.java)
                         .filter { it -> isSameInlineSpanType(it, spanToCheck) }
+                        .firstOrNull()
                 val after = editableText.getSpans(start, start + 1, AztecInlineSpan::class.java)
                         .filter { isSameInlineSpanType(it, spanToCheck) }
-                return before.isNotEmpty() && after.isNotEmpty() && isSameInlineSpanType(before[0], after[0])
+                        .firstOrNull()
+                return before != null && after != null && isSameInlineSpanType(before, after)
             }
         } else {
             val builder = StringBuilder()

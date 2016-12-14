@@ -35,8 +35,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
             anchor = if (selectionStart == selectionEnd) "" else editor.getSelectedText()
 
         } else {
-            val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
-            val urlSpan = urlSpans[0]
+            val urlSpan = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java).first()
 
             val spanStart = editableText.getSpanStart(urlSpan)
             val spanEnd = editableText.getSpanEnd(urlSpan)
@@ -74,10 +73,10 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
     }
 
     fun getUrlSpanBounds(): Pair<Int, Int> {
-        val urlSpans = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java)
+        val urlSpan = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java).first()
 
-        val spanStart = editableText.getSpanStart(urlSpans[0])
-        val spanEnd = editableText.getSpanEnd(urlSpans[0])
+        val spanStart = editableText.getSpanStart(urlSpan)
+        val spanEnd = editableText.getSpanEnd(urlSpan)
 
         if (selectionStart < spanStart || selectionEnd > spanEnd) {
             //looks like some text that is not part of the url was included in selection
@@ -130,10 +129,10 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
     }
 
     private fun getAttributes(end: Int, start: Int): String {
-        val urlSpans = editableText.getSpans(start, end, AztecURLSpan::class.java)
+        val urlSpan = editableText.getSpans(start, end, AztecURLSpan::class.java).firstOrNull()
         var attributes: String = ""
-        if (urlSpans != null && urlSpans.isNotEmpty()) {
-            attributes = urlSpans[0].attributes
+        if (urlSpan != null) {
+            attributes = urlSpan.attributes
         }
         return attributes
     }

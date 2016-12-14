@@ -129,8 +129,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             //Add ZWJ to the new line at the end of block spans
-            val blockSpans = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
-            if (!blockSpans.isEmpty() && text.getSpanEnd(blockSpans[0]) == inputStart + 1) {
+            val blockSpan = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
+            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1) {
                 editor.disableTextChangedListener()
                 text.insert(inputStart + 1, Constants.ZWJ_STRING)
             }
@@ -284,18 +284,18 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
             if (startOfLine != 0) {
-                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
-                if (!spansOnPreviousLine.isEmpty()) {
-                    startOfBlock = editableText.getSpanStart(spansOnPreviousLine[0])
-                    editableText.removeSpan(spansOnPreviousLine[0])
+                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass).firstOrNull()
+                if (spansOnPreviousLine != null) {
+                    startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
+                    editableText.removeSpan(spansOnPreviousLine)
                 }
             }
 
             if (endOfLine != editableText.length) {
-                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
-                if (!spanOnNextLine.isEmpty()) {
-                    endOfBlock = editableText.getSpanEnd(spanOnNextLine[0])
-                    editableText.removeSpan(spanOnNextLine[0])
+                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass).firstOrNull()
+                if (spanOnNextLine != null) {
+                    endOfBlock = editableText.getSpanEnd(spanOnNextLine)
+                    editableText.removeSpan(spanOnNextLine)
                 }
             }
 
@@ -394,19 +394,16 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
+        if (existingListSpan != null) {
+            val spanStart = editableText.getSpanStart(existingListSpan)
+            val spanEnd = editableText.getSpanEnd(existingListSpan)
+            val spanFlags = editableText.getSpanFlags(existingListSpan)
+            editableText.removeSpan(existingListSpan)
 
-        if (spans.isEmpty()) return
-
-        val existingListSpan = spans[0]
-
-        val spanStart = editableText.getSpanStart(existingListSpan)
-        val spanEnd = editableText.getSpanEnd(existingListSpan)
-        val spanFlags = editableText.getSpanFlags(existingListSpan)
-        editableText.removeSpan(existingListSpan)
-
-        editableText.setSpan(makeBlockSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
-        editor.onSelectionChanged(start, end)
+            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
+            editor.onSelectionChanged(start, end)
+        }
     }
 
 

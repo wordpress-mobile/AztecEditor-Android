@@ -30,13 +30,12 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
             //made to only react to UnknownClickableSpan, and not to regular links
-            val link = buffer.getSpans(off, off, UnknownClickableSpan::class.java)
-
-            if (link.isNotEmpty()) {
+            val link = buffer.getSpans(off, off, UnknownClickableSpan::class.java).firstOrNull()
+            if (link != null) {
                 if (action == MotionEvent.ACTION_UP) {
-                    link[0].onClick(widget)
+                    link.onClick(widget)
                 } else {
-                    Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]))
+                    Selection.setSelection(buffer, buffer.getSpanStart(link), buffer.getSpanEnd(link))
                 }
 
                 return true

@@ -400,9 +400,9 @@ class AztecText : EditText, TextWatcher {
 
     private fun realignAttributesWhenAddingItem(text: Editable) {
         if (textChangedEventDetails.isNewLine()) {
-            val lists = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java)
-            if (lists.isNotEmpty()) {
-                val listEnd = text.getSpanEnd(lists[0])
+            val list = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java).firstOrNull()
+            if (list != null) {
+                val listEnd = text.getSpanEnd(list)
 
                 // when newline inserted before the list item's newline the item's attributes must be shifted up
                 if (textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
@@ -425,8 +425,8 @@ class AztecText : EditText, TextWatcher {
                     }
 
                     // reset the new last item's attributes
-                    text.setSpan(lists[0].lastItem, prevNewline, prevNewline + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    lists[0].lastItem = AztecListItemSpan()
+                    text.setSpan(list.lastItem, prevNewline, prevNewline + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    list.lastItem = AztecListItemSpan()
                 }
             }
         }
@@ -435,27 +435,26 @@ class AztecText : EditText, TextWatcher {
     private fun carryOverDeletedListItemAttributes(count: Int, start: Int, text: CharSequence) {
         // when deleting a list item we need to preserve the top item's span
         if (count != 0 && text[start] == '\n') {
-            val items = this.text.getSpans(start, start + count, AztecListItemSpan::class.java)
-            if (items.isNotEmpty()) {
-                val lists = this.text.getSpans(start, start + count, AztecListSpan::class.java)
-                if (lists.isNotEmpty()) {
-                    val list = lists[0]
+            val item = this.text.getSpans(start, start + count, AztecListItemSpan::class.java).firstOrNull()
+            if (item != null) {
+                val list = this.text.getSpans(start, start + count, AztecListSpan::class.java).firstOrNull()
+                if (list != null) {
                     val listEnd = this.text.getSpanEnd(list)
 
                     // find the index of the next remaining list item's newline
                     val next = text.indexOf('\n', start + count)
                     if (next != -1 && next < listEnd) {
                         // remove the old list item's span
-                        val oldSpan = this.text.getSpans(next, next + 1, AztecListItemSpan::class.java)
-                        if (oldSpan.isNotEmpty()) {
-                            this.text.removeSpan(oldSpan[0])
+                        val oldSpan = this.text.getSpans(next, next + 1, AztecListItemSpan::class.java).firstOrNull()
+                        if (oldSpan != null) {
+                            this.text.removeSpan(oldSpan)
                         }
 
                         // reapply the top item's span
-                        this.text.setSpan(items[0], next, next + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        this.text.setSpan(item, next, next + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     } else {
                         // if the last item's newline is missing, it's span is in the list span
-                        list.lastItem = items[0]
+                        list.lastItem = item
                     }
                 }
             }

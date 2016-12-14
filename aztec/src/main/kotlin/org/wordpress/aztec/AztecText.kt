@@ -171,6 +171,9 @@ class AztecText : EditText, TextWatcher {
         history.inputLast = customState.getString("inputLast")
         visibility = customState.getInt("visibility")
 
+        val retainedHtml = customState.getString("html")
+        fromHtml(retainedHtml)
+
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
 
         if (isDialogVisible) {
@@ -190,6 +193,7 @@ class AztecText : EditText, TextWatcher {
         bundle.putInt("historyCursor", history.historyCursor)
         bundle.putString("inputLast", history.inputLast)
         bundle.putInt("visibility", visibility)
+        bundle.putString("html", toHtml(true))
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean("isUrlDialogVisible", true)

@@ -937,4 +937,31 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun  parseHtmlToSpanToHtmlOrderedListWithTrailingEmptyItem_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li></ol>"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  parseHtmlToSpanToHtmlUnorderedListWithLinebreak_isEqual() {
+        val input = "<ul><li>a</li></ul><br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  parseHtmlToSpanToHtmlOrderedListWithTrailingEmptyItemAndLinebreak_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li><br>1</ol>"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

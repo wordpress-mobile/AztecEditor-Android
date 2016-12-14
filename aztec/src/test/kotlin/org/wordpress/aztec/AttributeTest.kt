@@ -273,7 +273,7 @@ class AttributeTest {
         val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(input.replace("<li></li></ul>", "</ul>"), output)
+        Assert.assertEquals(input, output)
     }
 
     @Test

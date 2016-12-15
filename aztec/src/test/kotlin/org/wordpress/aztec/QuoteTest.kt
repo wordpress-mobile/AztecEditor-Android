@@ -125,7 +125,7 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the quote")
-        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
 
@@ -134,7 +134,7 @@ class QuoteTest() {
     fun closingEmptyQuote() {
         editText.toggleFormatting(formattingType)
         editText.append("\n")
-        Assert.assertEquals("", editText.toHtml().toString())
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test
@@ -143,7 +143,7 @@ class QuoteTest() {
         editText.toggleFormatting(formattingType)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<$quoteTag>first<br>item</$quoteTag>", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first<br>item</$quoteTag>", editText.toHtml())
     }
 
 
@@ -294,7 +294,7 @@ class QuoteTest() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
         editText.setSelection(editText.length())
 
-        val mark = editText.text.indexOf("second item") + "second item".length;
+        val mark = editText.text.indexOf("second item") + "second item".length
 
         //delete last character from "second item"
         editText.text.delete(mark - 1, mark)
@@ -375,11 +375,11 @@ class QuoteTest() {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the quote")
-        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$quoteTag>first item<br>second item (addition)</$quoteTag>not in the quote", editText.toHtml().toString())
+        Assert.assertEquals("<$quoteTag>first item<br>second item (addition)</$quoteTag>not in the quote", editText.toHtml())
     }
 
     @Test

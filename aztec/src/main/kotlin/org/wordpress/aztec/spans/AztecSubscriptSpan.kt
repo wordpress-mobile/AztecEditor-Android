@@ -5,11 +5,11 @@ import android.text.style.SubscriptSpan
 
 class AztecSubscriptSpan : SubscriptSpan, AztecContentSpan, AztecInlineSpan {
 
-    private final var TAG: String = "sub"
-    override var attributes: String?
+    private var TAG: String = "sub"
+    override var attributes: String
 
     @JvmOverloads
-    constructor(attributes: String? = null) : super() {
+    constructor(attributes: String = "") : super() {
         this.attributes = attributes
     }
 

@@ -54,10 +54,13 @@ class AztecText : EditText, TextWatcher {
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
     private var isViewInitialized = false
+    private var previousCursorPosition = 0
 
     val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
+
+    var isMediaAdded = false
 
     lateinit var history: History
 
@@ -75,7 +78,6 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter = InlineFormatter(this)
         lineBlockFormatter = LineBlockFormatter(this)
     }
-
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -162,9 +164,7 @@ class AztecText : EditText, TextWatcher {
         val array = ArrayList(customState.getStringArrayList("historyList"))
         val list = LinkedList<String>()
 
-        for (item in array) {
-            list.add(item)
-        }
+        list += array
 
         history.historyList = list
         history.historyCursor = customState.getInt("historyCursor")
@@ -180,9 +180,10 @@ class AztecText : EditText, TextWatcher {
             showLinkDialog(retainedUrl, retainedAnchor)
         }
 
+        isMediaAdded = customState.getBoolean("isMediaAdded")
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState() : Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
@@ -200,6 +201,8 @@ class AztecText : EditText, TextWatcher {
             bundle.putString("retainedUrl", urlInput.text.toString())
             bundle.putString("retainedAnchor", anchorInput.text.toString())
         }
+
+        bundle.putBoolean("isMediaAdded", isMediaAdded)
 
         savedState.state = bundle
         return savedState
@@ -230,10 +233,27 @@ class AztecText : EditText, TextWatcher {
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
+        if (selStart == selEnd && movedCursorIfBeforeZwjChar(selEnd)) return
+
+        previousCursorPosition = selEnd
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
+    }
+
+    private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
+        if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
+            if (selEnd == previousCursorPosition + 1) {
+                // moved right
+                setSelection(selEnd + 1)
+            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
+                // moved left
+                setSelection(selEnd - 1)
+            }
+            return true
+        }
+        return false
     }
 
     fun getSelectedText(): String {
@@ -337,11 +357,16 @@ class AztecText : EditText, TextWatcher {
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
+        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR)
+            setSelection(selectionEnd + 1)
+
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
+
+        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -362,20 +387,27 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        history.handleHistory(this)
-
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+
+        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         if (textChangedEventDetails.count > 0 && text.isEmpty()) {
             onSelectionChanged(0, 0)
         }
+
+        // preserve the attributes on the previous list item when adding a new one
+        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails)
+
+        history.handleHistory(this)
+
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
         text.getSpans(0, 0, spanClass).forEach {
-            if (text.length >= 1) {
+            if (text.isNotEmpty()) {
                 text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
             } else {
                 text.removeSpan(it)
@@ -392,7 +424,7 @@ class AztecText : EditText, TextWatcher {
         history.undo(this)
     }
 
-// Helper ======================================================================================
+    // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
         var cursorPosition = 0
@@ -447,7 +479,12 @@ class AztecText : EditText, TextWatcher {
             val spanStart = editable.getSpanStart(it)
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
-            editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            if (it is AztecListSpan) {
+                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            } else {
+                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
 
         val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)

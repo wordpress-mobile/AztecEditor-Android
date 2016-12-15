@@ -23,7 +23,7 @@ class AztecHtmlSchema : HTMLSchema() {
     private fun fixLinkElement() {
         val iframe = getElementType("a")
 
-        var index = iframe.atts().getIndex("shape")
+        val index = iframe.atts().getIndex("shape")
         iframe.atts().setValue(index, null)
     }
 }

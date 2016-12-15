@@ -21,13 +21,14 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
+    private val HTML_BULLET_LIST_WITH_EMPTY_ITEM = "<ul><li>item</li><li></li><li>item 2</li></ul>"
+    private val HTML_NUMBERED_LIST_WITH_EMPTY_ITEM = "<ol><li>item</li><li></li><li>item 2</li></ol>"
     private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
     private val HTML_ORDERED_LIST = "<ol><li>Ordered item</li></ol>"
     private val HTML_ORDERED_LIST_WITH_WHITE_SPACE = "<ol><li>Ordered item<br></br></li></ol>"
     private val HTML_ORDERED_LIST_WITH_QUOTE = "<ol><li><blockquote>Quote</blockquote></li></ol>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_SINGLE_HEADER = "<h1>Heading 1</h1>"
-    private val HTML_HEADER_SURROUNDED_BY_TEXT = "text<h1>Heading 1</h1>text"
     private val HTML_HEADER = "<h1>Heading 1</h1><br><br><h2>Heading 2</h2><br><br><h3>Heading 3</h3><br><br><h4>Heading 4</h4><br><br><h5>Heading 5</h5><br><br><h6>Heading 6</h6><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
@@ -229,6 +230,53 @@ class AztecParserTest : AndroidTestCase() {
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_ORDERED_LIST, output)
+    }
+
+    /**
+     * Parse ordered list surrounded text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListSurroundedByText_isEqual() {
+        val input = "1" + HTML_ORDERED_LIST + "2"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+
+    /**
+     * Parse ordered list surrounded text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListSurroundedByNewlineAndText_isEqual() {
+        val input = "1<br>$HTML_ORDERED_LIST<br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+
+    /**
+     * Parse ordered lists with text inbetween from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListsWithTextInbetween_isEqual() {
+        val input = HTML_ORDERED_LIST + "1" + HTML_ORDERED_LIST
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
     }
 
     /**
@@ -551,6 +599,24 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun preserveBulletListWithEmptyListItem() {
+        val input = HTML_BULLET_LIST_WITH_EMPTY_ITEM
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun preserveNumberedListWithEmptyListItem() {
+        val input = HTML_NUMBERED_LIST_WITH_EMPTY_ITEM
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
     /**
      * Parse all text from span to HTML to span.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
@@ -821,7 +887,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlSingleHeaderSurroundedByText_isEqual() {
-        val input = HTML_HEADER_SURROUNDED_BY_TEXT
+        val input = "1" + HTML_SINGLE_HEADER + "1"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -882,6 +948,42 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedInlineStyles_isEqual() {
         val input = HTML_NESTED_INLINE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListWithTrailingEmptyItem_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li></ol>"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlUnorderedListWithLinebreak_isEqual() {
+        val input = "<ul><li>a</li></ul><br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListWithTrailingEmptyItemAndLinebreak_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li></ol><br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlUnorderedListFollowedByLinebreak_isEqual() {
+        val input = "<ol><li>Ordered item</li><li>b</li></ol><br>1"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

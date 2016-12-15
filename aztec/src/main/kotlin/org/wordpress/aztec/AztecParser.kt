@@ -19,6 +19,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
+import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -40,24 +41,9 @@ class AztecParser {
         val tidySource = tidy(source)
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
 
-        //Fix ranges of block/line-block elements
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
-            val spanStart = spanned.getSpanStart(it)
-            var spanEnd = spanned.getSpanEnd(it)
+        adjustNestedSpanOrder(spanned)
+        fixBlockElementsRanges(spanned)
 
-            val willReduceSpan = 0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n'
-            val willDeleteLastChar = spanEnd == spanned.length && spanned[spanEnd - 1] == '\n'
-            val isListWithEmptyLastItem = it is AztecListSpan &&
-                    spanned[spanEnd - 1] == '\n' && (spanEnd - spanStart == 1 || spanned[spanEnd - 2] == '\n')
-
-            spanEnd = if (willReduceSpan && !isListWithEmptyLastItem) spanEnd - 1 else spanEnd
-            spanned.removeSpan(it)
-            spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            if (willDeleteLastChar && !isListWithEmptyLastItem) {
-                spanned.delete(spanned.length - 1, spanned.length)
-            }
-        }
 
         return spanned
     }
@@ -107,6 +93,57 @@ class AztecParser {
         return tidy(out.toString())
     }
 
+    fun fixBlockElementsRanges(spanned: Editable) {
+        //Fix ranges of block/line-block elements
+        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+            val spanStart = spanned.getSpanStart(it)
+            var spanEnd = spanned.getSpanEnd(it)
+
+            val willReduceSpan = 0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n'
+            val willDeleteLastChar = spanEnd == spanned.length && spanned[spanEnd - 1] == '\n'
+            val isListWithEmptyLastItem = it is AztecListSpan &&
+                    spanned[spanEnd - 1] == '\n' && (spanEnd - spanStart == 1 || spanned[spanEnd - 2] == '\n')
+
+            spanEnd = if (willReduceSpan && !isListWithEmptyLastItem) spanEnd - 1 else spanEnd
+            spanned.removeSpan(it)
+            spanned.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            if (willDeleteLastChar && !isListWithEmptyLastItem) {
+                spanned.delete(spanned.length - 1, spanned.length)
+            }
+        }
+    }
+
+    data class SpanToReset(val span: AztecSpan, val start: Int, val end: Int)
+
+    fun adjustNestedSpanOrder(spanned: Editable) {
+        spanned.getSpans(0, spanned.length, AztecSpan::class.java).forEach { outsideSpan ->
+            val spanStart = spanned.getSpanStart(outsideSpan)
+            val spanEnd = spanned.getSpanEnd(outsideSpan)
+
+            val spansToReset = ArrayList<SpanToReset>()
+
+            spanned.getSpans(spanStart, spanEnd, AztecSpan::class.java).forEach innerLoop@ { nestedSpan ->
+                if (outsideSpan == nestedSpan) return@innerLoop
+
+                val nestedSpanStart = spanned.getSpanStart(nestedSpan)
+                val nestedSpanEnd = spanned.getSpanEnd(nestedSpan)
+                if (nestedSpanStart == spanStart || nestedSpanEnd == spanEnd) {
+                    spanned.removeSpan(nestedSpan)
+                    spansToReset.add(SpanToReset(nestedSpan, nestedSpanStart, nestedSpanEnd))
+                }
+            }
+
+            if (spansToReset.isNotEmpty()) {
+                spanned.removeSpan(outsideSpan)
+                spanned.setSpan(outsideSpan, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                spansToReset.forEach { spanToReset ->
+                    spanned.setSpan(spanToReset.span, spanToReset.start, spanToReset.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+    }
 
     //TODO tidy up the logic
     //Apply special span to \n that enclose block elements in editor mode to avoid converting them to <br>
@@ -184,9 +221,9 @@ class AztecParser {
 
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {
-                    withinQuoteThenList(out, text, i, next, styles[0] as AztecListSpan, styles[1] as AztecQuoteSpan)
+                    withinListThenQuote(out, text, i, next++, styles[0] as AztecListSpan)
                 } else if (styles[0] is AztecQuoteSpan && styles[1] is AztecListSpan) {
-                    withinListThenQuote(out, text, i, next++, styles[1] as AztecListSpan)
+                    withinQuoteThenList(out, text, i, next, styles[1] as AztecListSpan, styles[0] as AztecQuoteSpan)
                 } else {
                     withinContent(out, text, i, next)
                 }

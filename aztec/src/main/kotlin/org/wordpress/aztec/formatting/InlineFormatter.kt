@@ -367,7 +367,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
         }
     }
 
-    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String? = null): AztecInlineSpan {
+    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String = ""): AztecInlineSpan {
         when (spanType) {
             AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
             else -> return AztecStyleSpan(Typeface.NORMAL)

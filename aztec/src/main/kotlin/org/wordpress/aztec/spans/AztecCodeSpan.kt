@@ -33,13 +33,13 @@ class AztecCodeSpan : CharacterStyle, UpdateAppearance, ParcelableSpan, AztecCon
     private var codeBackground: Int = 0
     private var codeColor: Int = 0
 
-    override var attributes: String? = null
+    override var attributes: String = ""
 
-    constructor(attributes: String? = null) : super() {
+    constructor(attributes: String = "") : super() {
         this.attributes = attributes
     }
 
-    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String? = null) : this(attributes) {
+    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String = "") : this(attributes) {
         this.codeBackground = codeStyle.codeBackground
         this.codeColor = codeStyle.codeColor
     }

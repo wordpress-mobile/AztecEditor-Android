@@ -59,6 +59,8 @@ class AztecText : EditText, TextWatcher {
 
     private var isNewStyleSelected = false
 
+    var isMediaAdded = false
+
     lateinit var history: History
 
 
@@ -75,7 +77,6 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter = InlineFormatter(this)
         lineBlockFormatter = LineBlockFormatter(this)
     }
-
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -180,6 +181,7 @@ class AztecText : EditText, TextWatcher {
             showLinkDialog(retainedUrl, retainedAnchor)
         }
 
+        isMediaAdded = customState.getBoolean("isMediaAdded")
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -200,6 +202,8 @@ class AztecText : EditText, TextWatcher {
             bundle.putString("retainedUrl", urlInput.text.toString())
             bundle.putString("retainedAnchor", anchorInput.text.toString())
         }
+
+        bundle.putBoolean("isMediaAdded", isMediaAdded)
 
         savedState.state = bundle
         return savedState
@@ -366,6 +370,9 @@ class AztecText : EditText, TextWatcher {
 
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+
+        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         if (textChangedEventDetails.count > 0 && text.isEmpty()) {
@@ -392,7 +399,7 @@ class AztecText : EditText, TextWatcher {
         history.undo(this)
     }
 
-// Helper ======================================================================================
+    // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
         var cursorPosition = 0

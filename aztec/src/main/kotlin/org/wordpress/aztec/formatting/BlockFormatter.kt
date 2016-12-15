@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
@@ -56,39 +57,23 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
-        // preserve the attributes on the previous list item when adding a new one
-        if (textChangedEvent.isNewLine() && textChangedEvent.inputEnd < text.length && text[textChangedEvent.inputEnd] == '\n') {
-            val spans = text.getSpans(textChangedEvent.inputEnd, textChangedEvent.inputEnd + 1, AztecListItemSpan::class.java)
-            if (spans.size == 1) {
-                text.setSpan(spans[0], textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
+
         val inputStart = textChangedEvent.inputStart
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
             var spanEnd = text.getSpanEnd(it)
-            var spanStart = text.getSpanStart(it)
+            val spanStart = text.getSpanStart(it)
 
             if (spanEnd == spanStart) {
                 editableText.removeSpan(it)
             } else if (spanEnd <= text.length) {
                 //case for when we remove block element row from first line of EditText end the next line is empty
-                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n') {
+                if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n' && !textChangedEvent.isAddingCharacters) {
                     spanEnd += 1
                     editor.disableTextChangedListener()
-                    text.insert(spanStart, "\u200B")
-                } else
-                //case for when we remove block element row from other lines of EditText end the next line is empty
-                    if (text[spanStart] == '\n') {
-                        spanStart += 1
-
-                        if (text[spanStart] == '\n' && text.length >= spanEnd && text.length > spanStart) {
-                            spanEnd += 1
-                            editor.disableTextChangedListener()
-                            text.insert(spanStart, "\u200B")
-                        }
-                    }
+                    text.insert(spanStart, Constants.ZWJ_STRING)
+                }
 
                 editableText.setSpan(it,
                         spanStart,
@@ -129,10 +114,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLine()) {
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
             editor.disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             removeBlockStyle()
             editor.disableTextChangedListener()
 
@@ -142,12 +127,12 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.delete(inputStart - 2, inputStart)
             }
 
-        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLine()) {
+        } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             //Add ZWJ to the new line at the end of block spans
-            val blockSpans = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java)
-            if (!blockSpans.isEmpty() && text.getSpanEnd(blockSpans[0]) == inputStart + 1) {
+            val blockSpan = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
+            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1) {
                 editor.disableTextChangedListener()
-                text.insert(inputStart + 1, "\u200B")
+                text.insert(inputStart + 1, Constants.ZWJ_STRING)
             }
         }
     }
@@ -196,20 +181,20 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, lastItem: AztecListItemSpan = AztecListItemSpan(), attrs: String = ""): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String? = null): AztecBlockSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
         when (spanType) {
-            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs)
-            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs)
+            AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
+            AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
             AztecQuoteSpan::class.java -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
@@ -288,7 +273,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
             if (isEmptyLine) {
                 editor.disableTextChangedListener()
-                editableText.insert(startOfLine, "\u200B")
+                editableText.insert(startOfLine, Constants.ZWJ_STRING)
                 endOfLine += 1
             }
 
@@ -299,18 +284,18 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
             if (startOfLine != 0) {
-                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
-                if (!spansOnPreviousLine.isEmpty()) {
-                    startOfBlock = editableText.getSpanStart(spansOnPreviousLine[0])
-                    editableText.removeSpan(spansOnPreviousLine[0])
+                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass).firstOrNull()
+                if (spansOnPreviousLine != null) {
+                    startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
+                    editableText.removeSpan(spansOnPreviousLine)
                 }
             }
 
             if (endOfLine != editableText.length) {
-                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
-                if (!spanOnNextLine.isEmpty()) {
-                    endOfBlock = editableText.getSpanEnd(spanOnNextLine[0])
-                    editableText.removeSpan(spanOnNextLine[0])
+                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass).firstOrNull()
+                if (spanOnNextLine != null) {
+                    endOfBlock = editableText.getSpanEnd(spanOnNextLine)
+                    editableText.removeSpan(spanOnNextLine)
                 }
             }
 
@@ -330,12 +315,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart > lineEnd) {
                 continue
             }
@@ -349,13 +331,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containsList(textFormat, i, editableText)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containsList(textFormat, it, editableText) }
     }
 
     fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
@@ -364,18 +340,15 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             return false
         }
 
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
+
         if (start > end) {
             return false
         }
 
         val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat).javaClass)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
 
@@ -384,12 +357,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart >= lineEnd) {
                 continue
             }
@@ -403,13 +373,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containQuote(i)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containQuote(it) }
     }
 
     fun containQuote(index: Int): Boolean {
@@ -418,34 +382,28 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             return false
         }
 
-        var start = 0
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
+
         if (start >= end) {
             return false
         }
 
         val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
+        if (existingListSpan != null) {
+            val spanStart = editableText.getSpanStart(existingListSpan)
+            val spanEnd = editableText.getSpanEnd(existingListSpan)
+            val spanFlags = editableText.getSpanFlags(existingListSpan)
+            editableText.removeSpan(existingListSpan)
 
-        if (spans.isEmpty()) return
-
-        val existingListSpan = spans[0]
-
-        val spanStart = editableText.getSpanStart(existingListSpan)
-        val spanEnd = editableText.getSpanEnd(existingListSpan)
-        val spanFlags = editableText.getSpanFlags(existingListSpan)
-        editableText.removeSpan(existingListSpan)
-
-        editableText.setSpan(makeBlockSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
-        editor.onSelectionChanged(start, end)
+            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo), spanStart, spanEnd, spanFlags)
+            editor.onSelectionChanged(start, end)
+        }
     }
 
 
@@ -518,7 +476,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
 
 
-        } else if (startIndex == 0 && textChangedEvent.count == 1 && editableText.length > 0) {
+        } else if (startIndex == 0 && textChangedEvent.count == 1 && editableText.isNotEmpty()) {
             val spansAfterInput = editableText.getSpans(startIndex + 1, startIndex + 1, AztecBlockSpan::class.java)
             spansAfterInput.forEach {
                 spansToClose.add(it)
@@ -527,5 +485,68 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         return spansToClose
 
+    }
+
+    fun realignAttributesWhenAddingItem(text: Editable, textChangedEventDetails: TextChangedEvent) {
+        if (textChangedEventDetails.isNewLine()) {
+            val list = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java).firstOrNull()
+            if (list != null) {
+                val listEnd = text.getSpanEnd(list)
+
+                // when newline inserted before the list item's newline the item's attributes must be shifted up
+                if (textChangedEventDetails.inputEnd < text.length && text[textChangedEventDetails.inputEnd] == '\n') {
+                    val spans = text.getSpans(textChangedEventDetails.inputEnd, textChangedEventDetails.inputEnd + 1, AztecListItemSpan::class.java)
+                    spans.forEach {
+                        if (text.getSpanStart(it) == textChangedEventDetails.inputEnd && text.getSpanEnd(it) == textChangedEventDetails.inputEnd + 1) {
+                            var spanStart = textChangedEventDetails.inputStart
+                            if (text[textChangedEventDetails.inputStart] == Constants.ZWJ_CHAR) {
+                                spanStart--
+                            }
+                            text.setSpan(it, spanStart, spanStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                    }
+                }
+
+                if (textChangedEventDetails.inputEnd == listEnd) {
+                    var prevNewline = textChangedEventDetails.inputStart
+                    if (text[prevNewline] == Constants.ZWJ_CHAR) {
+                        prevNewline--
+                    }
+
+                    // reset the new last item's attributes
+                    text.setSpan(list.lastItem, prevNewline, prevNewline + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    list.lastItem = AztecListItemSpan()
+                }
+            }
+        }
+    }
+
+    fun carryOverDeletedListItemAttributes(count: Int, start: Int, changedText: CharSequence, text: Editable) {
+        // when deleting a list item we need to preserve the top item's span
+        if (count != 0 && changedText[start] == '\n') {
+            val item = text.getSpans(start, start + count, AztecListItemSpan::class.java).firstOrNull()
+            if (item != null) {
+                val list = text.getSpans(start, start + count, AztecListSpan::class.java).firstOrNull()
+                if (list != null) {
+                    val listEnd = text.getSpanEnd(list)
+
+                    // find the index of the next remaining list item's newline
+                    val next = changedText.indexOf('\n', start + count)
+                    if (next != -1 && next < listEnd) {
+                        // remove the old list item's span
+                        val oldSpan = text.getSpans(next, next + 1, AztecListItemSpan::class.java).firstOrNull()
+                        if (oldSpan != null) {
+                            text.removeSpan(oldSpan)
+                        }
+
+                        // reapply the top item's span
+                        text.setSpan(item, next, next + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    } else {
+                        // if the last item's newline is missing, it's span is in the list span
+                        list.lastItem = item
+                    }
+                }
+            }
+        }
     }
 }

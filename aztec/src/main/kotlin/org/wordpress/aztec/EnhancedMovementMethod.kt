@@ -30,14 +30,14 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            val spans = text.getSpans(off, off, ClickableSpan::class.java)
+            val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
 
             // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.
-            if (spans.isNotEmpty() && (spans[0] is AztecMediaClickableSpan || spans[0] is UnknownClickableSpan)) {
+            if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
                 if (action == MotionEvent.ACTION_UP) {
-                    spans[0].onClick(widget)
+                    link.onClick(widget)
                 } else {
-                    Selection.setSelection(text, text.getSpanStart(spans[0]), text.getSpanEnd(spans[0]))
+                    Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
                 }
 
                 return true

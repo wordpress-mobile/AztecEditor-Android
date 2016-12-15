@@ -28,30 +28,31 @@ import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
-    private final val TAG = "ol"
+    private val TAG = "ol"
 
     private var textColor: Int = 0
     private var textMargin: Int = 0
     private var textPadding: Int = 0
     private var bulletWidth: Int = 0 //we are using bullet width to maintain same margin with bullet list
 
-    override var attributes: String? = null
+    override var attributes: String = ""
+    override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
     //used for marking
     constructor() : super(0) {
-        attributes = null
     }
 
     constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String? = null) : super(listStyle.indicatorMargin) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.indicatorMargin) {
         this.textColor = listStyle.indicatorColor
         this.textMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
         this.textPadding = listStyle.indicatorPadding
         this.attributes = attributes
+        this.lastItem = last
     }
 
     constructor(src: Parcel) : super(src) {

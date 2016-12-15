@@ -6,11 +6,11 @@ import android.text.style.CharacterStyle
 
 class FontSpan : CharacterStyle, AztecContentSpan, AztecInlineSpan {
 
-    private final var TAG: String = "font"
-    override var attributes: String?
+    private var TAG: String = "font"
+    override var attributes: String
 
     @JvmOverloads
-    constructor(attributes: String? = null) : super() {
+    constructor(attributes: String = "") : super() {
         this.attributes = attributes
     }
 

@@ -6,10 +6,10 @@ import android.text.style.RelativeSizeSpan
 class AztecRelativeSizeSpan : RelativeSizeSpan, AztecContentSpan, AztecInlineSpan {
 
     var tag: String = ""
-    override var attributes: String?
+    override var attributes: String
 
     @JvmOverloads
-    constructor(tag: String, size: Float, attributes: String? = null) : super(size) {
+    constructor(tag: String, size: Float, attributes: String = "") : super(size) {
         this.tag = tag
         this.attributes = attributes
     }

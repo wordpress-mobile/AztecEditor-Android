@@ -11,11 +11,17 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
+    data class CodeStyle(val codeBackground: Int, val codeColor: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
+    val codeStyle: CodeStyle
+
+    init {
+        this.codeStyle = codeStyle
+    }
 
     fun toggleBold() {
         if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
@@ -46,6 +52,14 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         } else {
             removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        }
+    }
+
+    fun toggleCode(){
+        if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
+            applyInlineStyle(TextFormat.FORMAT_CODE)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_CODE)
         }
     }
 
@@ -96,7 +110,8 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
                     }
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
-                    TextFormat.FORMAT_STRIKETHROUGH -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                    TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_CODE -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
@@ -117,9 +132,16 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
                     (start > end && editableText.length > end && editableText[end] == '\n')) {
                 when (it) {
-                    TextFormat.FORMAT_BOLD -> removeInlineStyle(it, newStart, end)
-                    TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, newStart, end)
-                    TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_HEADING_1,
+                    TextFormat.FORMAT_HEADING_2,
+                    TextFormat.FORMAT_HEADING_3,
+                    TextFormat.FORMAT_HEADING_4,
+                    TextFormat.FORMAT_HEADING_5,
+                    TextFormat.FORMAT_HEADING_6,
+                    TextFormat.FORMAT_BOLD,
+                    TextFormat.FORMAT_ITALIC,
+                    TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, end)
                     else -> {
                         //do nothing
                     }
@@ -340,10 +362,17 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
 
+    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String? = null): AztecInlineSpan {
+        when (spanType) {
+            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
+            else -> return AztecStyleSpan(Typeface.NORMAL)
+        }
+    }
 
     fun containsInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd): Boolean {
         val spanToCheck = makeInlineSpan(textFormat)

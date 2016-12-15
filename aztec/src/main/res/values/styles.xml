@@ -37,6 +37,8 @@
         <item name="quoteMargin">@dimen/quote_margin</item>
         <item name="quotePadding">@dimen/quote_padding</item>
         <item name="quoteWidth">@dimen/quote_width</item>
+        <item name="codeBackground">@color/code_background</item>
+        <item name="codeColor">@color/code</item>
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>
     </style>

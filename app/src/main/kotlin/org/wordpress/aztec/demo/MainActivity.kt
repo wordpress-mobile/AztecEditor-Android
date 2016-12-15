@@ -62,7 +62,23 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
-        private val EXAMPLE = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED + UNORDERED + QUOTE + LINK + HIDDEN + COMMENT + COMMENT_MORE + COMMENT_PAGE + UNKNOWN
+        private val CODE = "<code>if (value == 5) printf(value)</code><br>"
+        private val EXAMPLE =
+                HEADING +
+                BOLD +
+                ITALIC +
+                UNDERLINE +
+                STRIKETHROUGH +
+                ORDERED +
+                UNORDERED +
+                QUOTE +
+                LINK +
+                HIDDEN +
+                COMMENT +
+                COMMENT_MORE +
+                COMMENT_PAGE +
+                CODE +
+                UNKNOWN
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001

@@ -161,18 +161,21 @@ class AztecText : EditText, TextWatcher {
         val customState = savedState.state
         val array = ArrayList(customState.getStringArrayList("historyList"))
         val list = LinkedList<String>()
-
-        for (item in array) {
-            list.add(item)
-        }
+        list += array
 
         history.historyList = list
         history.historyCursor = customState.getInt("historyCursor")
         history.inputLast = customState.getString("inputLast")
         visibility = customState.getInt("visibility")
 
-        val retainedHtml = customState.getString("html")
+        val retainedHtml = customState.getString("retained_html")
         fromHtml(retainedHtml)
+
+        val retainedSelectionStart = customState.getInt("selection_start")
+        val retainedSelectionEnd = customState.getInt("selection_end")
+
+        setSelection(retainedSelectionStart, retainedSelectionEnd)
+
 
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
 
@@ -193,7 +196,9 @@ class AztecText : EditText, TextWatcher {
         bundle.putInt("historyCursor", history.historyCursor)
         bundle.putString("inputLast", history.inputLast)
         bundle.putInt("visibility", visibility)
-        bundle.putString("html", toHtml(true))
+        bundle.putString("retained_html", toHtml(false))
+        bundle.putInt("selection_start", selectionStart)
+        bundle.putInt("selection_end", selectionEnd)
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean("isUrlDialogVisible", true)

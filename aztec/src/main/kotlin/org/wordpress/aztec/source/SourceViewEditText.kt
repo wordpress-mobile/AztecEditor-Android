@@ -90,9 +90,26 @@ class SourceViewEditText : EditText, TextWatcher {
         constructor(superState: Parcelable) : super(superState) {
         }
 
+        constructor(parcel: Parcel) : super(parcel) {
+            state = parcel.readBundle(javaClass.classLoader)
+        }
+
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeBundle(state)
+        }
+
+
+        companion object {
+            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState {
+                    return SavedState(source)
+                }
+
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
+            }
         }
     }
 

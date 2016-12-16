@@ -175,6 +175,15 @@ class AztecText : EditText, TextWatcher {
         history.inputLast = customState.getString("inputLast")
         visibility = customState.getInt("visibility")
 
+        val retainedHtml = customState.getString("retained_html")
+        fromHtml(retainedHtml)
+
+        val retainedSelectionStart = customState.getInt("selection_start")
+        val retainedSelectionEnd = customState.getInt("selection_end")
+
+        setSelection(retainedSelectionStart, retainedSelectionEnd)
+
+
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
 
         if (isDialogVisible) {
@@ -195,6 +204,9 @@ class AztecText : EditText, TextWatcher {
         bundle.putInt("historyCursor", history.historyCursor)
         bundle.putString("inputLast", history.inputLast)
         bundle.putInt("visibility", visibility)
+        bundle.putString("retained_html", toHtml(false))
+        bundle.putInt("selection_start", selectionStart)
+        bundle.putInt("selection_end", selectionEnd)
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean("isUrlDialogVisible", true)
@@ -218,9 +230,26 @@ class AztecText : EditText, TextWatcher {
         constructor(superState: Parcelable) : super(superState) {
         }
 
+        constructor(parcel: Parcel) : super(parcel) {
+            state = parcel.readBundle(javaClass.classLoader)
+        }
+
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeBundle(state)
+        }
+
+
+        companion object {
+            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState {
+                    return SavedState(source)
+                }
+
+                override fun newArray(size: Int): Array<SavedState?> {
+                    return arrayOfNulls(size)
+                }
+            }
         }
     }
 
@@ -268,7 +297,7 @@ class AztecText : EditText, TextWatcher {
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
         val styles = ArrayList<TextFormat>()
 
-        var newSelStart = if(selectionStart > selectionEnd) selectionEnd else selectionStart
+        var newSelStart = if (selectionStart > selectionEnd) selectionEnd else selectionStart
         var newSelEnd = selectionEnd
 
         if (editableText.isEmpty()) {

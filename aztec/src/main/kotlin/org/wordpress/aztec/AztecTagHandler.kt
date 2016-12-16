@@ -39,11 +39,9 @@ class AztecTagHandler : Html.TagHandler {
             LIST_LI -> {
                 if (opening) {
                     start(output, AztecListItemSpan(attributeString))
-                } else
-                    if (output.isNotEmpty() && output[output.length - 1] != '\n') {
-                        endList(output)
-                        output.append("\n")
-                    }
+                } else {
+                    endList(output)
+                }
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
@@ -139,15 +137,16 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun endList(output: Editable) {
-        val last = getLast(output, AztecListItemSpan::class.java)
-        if (last != null) {
-            val start = output.getSpanStart(last)
-            val end = output.length
-
-            if (end >= 0) {
-                output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
+        val last = getLast(output, AztecListItemSpan::class.java) as AztecListItemSpan
+        if (output.isEmpty() || output.last() != '\n' ||
+                output.getSpans(output.length, output.length, AztecListItemSpan::class.java).isNotEmpty()) {
+            output.append("\n")
         }
+        val end = output.length
+        output.setSpan(last, end - 1, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        val list = output.getSpans(0, output.length, AztecListSpan::class.java).last()
+        list.lastItem = last
     }
 
     private fun end(output: Editable, kind: Class<*>) {

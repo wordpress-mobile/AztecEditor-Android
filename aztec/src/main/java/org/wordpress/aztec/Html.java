@@ -36,6 +36,7 @@ import android.text.style.TypefaceSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
@@ -538,6 +539,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
             start(mSpannableStringBuilder, new Sub(attributes));
+        } else if (tag.equalsIgnoreCase("code")) {
+            start(mSpannableStringBuilder, new Code(attributes));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else {
@@ -608,6 +611,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
             end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+        } else if (tag.equalsIgnoreCase("code")) {
+            end(mSpannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
         }
@@ -712,6 +717,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 marker = (AttributedMarker) getLast(text, Font.class);
                 if (marker != null) {
                     newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_CODE:
+                marker = (AttributedMarker) getLast(text, Code.class);
+                if (marker != null) {
+                    newSpan = new AztecCodeSpan(Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_PARAGRAPH:
@@ -1033,6 +1044,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Font extends AttributedMarker {
         Font(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Code extends AttributedMarker {
+        Code(Attributes attributes) {
             this.attributes = attributes;
         }
     }

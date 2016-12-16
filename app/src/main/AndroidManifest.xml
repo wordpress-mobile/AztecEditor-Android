@@ -1,18 +1,41 @@
-<manifest package="org.wordpress.aztec.demo"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.wordpress.aztec.demo" >
 
-    <application android:label="@string/app_name"
-                 android:allowBackup="true"
-                 android:icon="@mipmap/ic_launcher">
+    <!-- Required for adding media and requested at runtime -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-        <activity android:name=".MainActivity"
-                  android:windowSoftInputMode="adjustResize|stateHidden"
-                  android:theme="@style/MainActivityTheme">
+    <application
+        android:label="@string/app_name"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher" >
+
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/MainActivityTheme" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+        <!-- Provider for exposing file URIs on Android 7+ -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" >
+            </meta-data>
+
+        </provider>
 
     </application>
 

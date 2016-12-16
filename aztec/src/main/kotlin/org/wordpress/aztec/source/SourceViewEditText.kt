@@ -114,7 +114,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        history?.beforeTextChanged(text.toString())
+        history.beforeTextChanged(text.toString())
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
     }
 

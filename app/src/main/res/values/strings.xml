@@ -17,4 +17,9 @@
     <string name="menu_undo">Undo</string>
     <string name="menu_redo">Redo</string>
 
+    <!-- PERMISSION -->
+    <string name="permission_required_media_camera">Camera and storage permissions required to access camera</string>
+    <string name="permission_required_media_photos">Storage permission required to access photos</string>
+    <string name="permission_required_media_videos">Storage permission required to access videos</string>
+
 </resources>

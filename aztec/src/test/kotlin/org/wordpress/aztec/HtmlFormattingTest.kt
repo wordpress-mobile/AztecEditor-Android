@@ -1,4 +1,4 @@
-package org.wordpress.aztec;
+package org.wordpress.aztec
 
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
@@ -6,9 +6,9 @@ import android.text.SpannableString
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith;
+import org.junit.runner.RunWith
 import org.robolectric.RobolectricGradleTestRunner
-import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricGradleTestRunner::class)

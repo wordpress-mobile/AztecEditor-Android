@@ -11,11 +11,17 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
+    data class CodeStyle(val codeBackground: Int, val codeColor: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
+    val codeStyle: CodeStyle
+
+    init {
+        this.codeStyle = codeStyle
+    }
 
     fun toggleBold() {
         if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
@@ -49,6 +55,14 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
     }
 
+    fun toggleCode(){
+        if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
+            applyInlineStyle(TextFormat.FORMAT_CODE)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_CODE)
+        }
+    }
+
     fun carryOverInlineSpans(start: Int, count: Int, after: Int) {
         carryOverSpans.clear()
 
@@ -78,10 +92,10 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLineButNotAtTheBeginning())
 
         //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isNewLine()) return
+        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
 
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {
@@ -96,7 +110,8 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
                     }
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
-                    TextFormat.FORMAT_STRIKETHROUGH -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                    TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_CODE -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
@@ -117,9 +132,16 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
                     (start > end && editableText.length > end && editableText[end] == '\n')) {
                 when (it) {
-                    TextFormat.FORMAT_BOLD -> removeInlineStyle(it, newStart, end)
-                    TextFormat.FORMAT_ITALIC -> removeInlineStyle(it, newStart, end)
-                    TextFormat.FORMAT_STRIKETHROUGH -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_HEADING_1,
+                    TextFormat.FORMAT_HEADING_2,
+                    TextFormat.FORMAT_HEADING_3,
+                    TextFormat.FORMAT_HEADING_4,
+                    TextFormat.FORMAT_HEADING_5,
+                    TextFormat.FORMAT_HEADING_6,
+                    TextFormat.FORMAT_BOLD,
+                    TextFormat.FORMAT_ITALIC,
+                    TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, end)
                     else -> {
                         //do nothing
                     }
@@ -230,7 +252,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
 
 
     fun isSameInlineSpanType(firstSpan: AztecInlineSpan, secondSpan: AztecInlineSpan): Boolean {
-        if (firstSpan.javaClass.equals(secondSpan.javaClass)) {
+        if (firstSpan.javaClass == secondSpan.javaClass) {
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
@@ -246,7 +268,7 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     //TODO: Check if there is more efficient way to tidy spans
-    public fun joinStyleSpans(start: Int, end: Int) {
+    fun joinStyleSpans(start: Int, end: Int) {
         //joins spans on the left
         if (start > 1) {
             val spansInSelection = editableText.getSpans(start, end, AztecInlineSpan::class.java)
@@ -340,10 +362,17 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
 
+    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String = ""): AztecInlineSpan {
+        when (spanType) {
+            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
+            else -> return AztecStyleSpan(Typeface.NORMAL)
+        }
+    }
 
     fun containsInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd): Boolean {
         val spanToCheck = makeInlineSpan(textFormat)
@@ -358,9 +387,11 @@ class InlineFormatter(editor: AztecText) : AztecFormatter(editor) {
             } else {
                 val before = editableText.getSpans(start - 1, start, AztecInlineSpan::class.java)
                         .filter { it -> isSameInlineSpanType(it, spanToCheck) }
+                        .firstOrNull()
                 val after = editableText.getSpans(start, start + 1, AztecInlineSpan::class.java)
                         .filter { isSameInlineSpanType(it, spanToCheck) }
-                return before.size > 0 && after.size > 0 && isSameInlineSpanType(before[0], after[0])
+                        .firstOrNull()
+                return before != null && after != null && isSameInlineSpanType(before, after)
             }
         } else {
             val builder = StringBuilder()

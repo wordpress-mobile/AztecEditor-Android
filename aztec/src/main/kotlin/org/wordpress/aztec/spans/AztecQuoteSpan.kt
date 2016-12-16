@@ -40,14 +40,14 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
     private var quotePadding: Int = 0
     private var quoteWidth: Int = 0
 
-    override var attributes: String? = null
+    override var attributes: String = ""
 
 
-    constructor(attributes: String? = null) : super() {
+    constructor(attributes: String = "") : super() {
         this.attributes = attributes
     }
 
-    constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String? = null) : this(attributes) {
+    constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String = "") : this(attributes) {
         this.quoteBackground = quoteStyle.quoteBackground
         this.quoteColor = quoteStyle.quoteColor
         this.quoteMargin = quoteStyle.quoteMargin

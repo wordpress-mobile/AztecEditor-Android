@@ -1,7 +1,11 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -16,8 +20,13 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
+    private var addPhotoMediaDialog: AlertDialog? = null
+    private var addVideoMediaDialog: AlertDialog? = null
+    private var mediaUploadDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
+    private var mediaMenu: PopupMenu? = null
+    private var mediaOptionSelectedListener: OnMediaOptionSelectedListener? = null
     private var sourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
@@ -32,10 +41,72 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView()
     }
 
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        item.isChecked = (item.isChecked == false)
+    interface OnMediaOptionSelectedListener {
+        fun onCameraPhotoMediaOptionSelected()
+        fun onCameraVideoMediaOptionSelected()
+        fun onPhotosMediaOptionSelected()
+        fun onVideosMediaOptionSelected()
+    }
 
-        when (item.itemId) {
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        var superState = state
+
+        if (state is Bundle) {
+            superState = state.getParcelable("superState")
+
+            if (state.getBoolean("isPhotoMediaDialogVisible")) {
+                showPhotoMediaDialog()
+            }
+
+            if (state.getBoolean("isVideoMediaDialogVisible")) {
+                showVideoMediaDialog()
+            }
+
+            if (state.getBoolean("isMediaUploadDialogVisible")) {
+                showMediaUploadDialog()
+            }
+        }
+
+        super.onRestoreInstanceState(superState)
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        bundle.putParcelable("superState", super.onSaveInstanceState())
+
+        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isPhotoMediaDialogVisible", true)
+        }
+
+        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
+            bundle.putBoolean("isVideoMediaDialogVisible", true)
+        }
+
+        if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
+            bundle.putBoolean("isMediaUploadDialogVisible", true)
+        }
+
+        return bundle
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.isChecked = (item?.isChecked == false)
+
+        when (item?.itemId) {
+            // Media popup menu options
+            R.id.gallery -> {
+                Toast.makeText(context, "Launch gallery", Toast.LENGTH_SHORT).show()
+                return true
+            }
+            R.id.photo -> {
+                showPhotoMediaDialog()
+                return true
+            }
+            R.id.video -> {
+                showVideoMediaDialog()
+                return true
+            }
+            // Heading popup menu options
             R.id.paragraph -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
@@ -83,12 +154,20 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         })
     }
 
+    fun setMediaOptionSelectedListener(listener: OnMediaOptionSelectedListener) {
+        mediaOptionSelectedListener = listener
+    }
+
     private fun initView() {
         View.inflate(context, R.layout.format_bar, this)
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
+
+            if (toolbarAction == ToolbarAction.ADD_MEDIA) {
+                setMediaMenu(findViewById(toolbarAction.buttonId))
+            }
 
             if (toolbarAction == ToolbarAction.HEADING) {
                 setHeaderMenu(findViewById(toolbarAction.buttonId))
@@ -159,6 +238,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
+            ToolbarAction.ADD_MEDIA -> mediaMenu?.show()
             ToolbarAction.HEADING -> headingMenu?.show()
             ToolbarAction.LINK -> editor!!.showLinkDialog()
             ToolbarAction.HTML -> toggleEditorMode()
@@ -170,15 +250,18 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
+            if (!editor!!.isMediaAdded) {
+                sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
+                editor!!.visibility = View.GONE
+                sourceEditor!!.visibility = View.VISIBLE
 
-            editor!!.visibility = View.GONE
-            sourceEditor!!.visibility = View.VISIBLE
-
-            toggleHtmlMode(true)
+                toggleHtmlMode(true)
+            } else {
+                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
+                showMediaUploadDialog()
+            }
         } else {
             editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
-
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 
@@ -209,6 +292,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         headingMenu?.inflate(R.menu.heading)
     }
 
+    private fun setMediaMenu(view: View) {
+        mediaMenu = PopupMenu(context, view)
+        mediaMenu?.setOnMenuItemClickListener(this)
+        mediaMenu?.inflate(R.menu.media)
+    }
+
     fun getSelectedHeading(): TextFormat? {
         if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
         else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
@@ -228,7 +317,73 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
         }
+	}
+
+    private fun showMediaUploadDialog() {
+        if (!isEditorAttached()) return
+
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(context.getString(R.string.media_upload_dialog_message))
+        builder.setPositiveButton(context.getString(R.string.media_upload_dialog_positive), null)
+        mediaUploadDialog = builder.create()
+        mediaUploadDialog!!.show()
     }
 
+    private fun showPhotoMediaDialog() {
+        if (!isEditorAttached()) return
 
+        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_photo_media, null)
+
+        val camera = dialog.findViewById(R.id.media_camera)
+        camera.setOnClickListener({
+            mediaOptionSelectedListener?.onCameraPhotoMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val photos = dialog.findViewById(R.id.media_photos)
+        photos.setOnClickListener({
+            mediaOptionSelectedListener?.onPhotosMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(R.id.media_library)
+        library.setOnClickListener({
+            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialog)
+        addPhotoMediaDialog = builder.create()
+        addPhotoMediaDialog!!.show()
+    }
+
+    private fun showVideoMediaDialog() {
+        if (!isEditorAttached()) return
+
+        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_video_media, null)
+
+        val camera = dialog.findViewById(R.id.media_camera)
+        camera.setOnClickListener({
+            mediaOptionSelectedListener?.onCameraVideoMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val videos = dialog.findViewById(R.id.media_videos)
+        videos.setOnClickListener({
+            mediaOptionSelectedListener?.onVideosMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(R.id.media_library)
+        library.setOnClickListener({
+            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(context)
+        builder.setView(dialog)
+        addVideoMediaDialog = builder.create()
+        addVideoMediaDialog!!.show()
+    }
 }

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.formatting
 
+import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.text.TextUtils
@@ -7,9 +8,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
-import org.wordpress.aztec.spans.AztecBlockSpan
-import org.wordpress.aztec.spans.AztecCommentSpan
-import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.*
 import java.util.*
 
 
@@ -32,7 +31,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun handleLineBlockStyling(textChangedEvent: TextChangedEvent) {
-        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLine()) {
+        if (textChangedEvent.isAddingCharacters && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             val spanAtNewLIne = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecHeadingSpan::class.java).getOrNull(0)
             if (spanAtNewLIne != null) {
                 val spanStart = editableText.getSpanStart(spanAtNewLIne)
@@ -83,12 +82,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 continue
             }
 
-            var lineStart = 0
-
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -122,12 +116,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         for (i in lines.indices) {
-            var lineStart = 0
-
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -158,12 +147,9 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            var lineStart = 0
-            for (j in 0..i - 1) {
-                lineStart += lines[j].length + 1
-            }
-
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
+
             if (lineStart >= lineEnd) {
                 continue
             }
@@ -177,13 +163,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         if (list.isEmpty()) return false
 
-        for (i in list) {
-            if (!containHeadingType(textFormat, i)) {
-                return false
-            }
-        }
-
-        return true
+        return list.any { containHeadingType(textFormat, it) }
     }
 
     fun containsHeading(index: Int): Boolean {
@@ -193,12 +173,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return false
         }
 
-        var start = 0
-
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -206,7 +181,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
 
         val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
-        return spans.size > 0
+        return spans.isNotEmpty()
     }
 
     private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
@@ -216,12 +191,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return false
         }
 
-        var start = 0
-
-        for (i in 0..index - 1) {
-            start += lines[i].length + 1
-        }
-
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -289,5 +259,43 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.setSelection(commentEndIndex + 1)
     }
 
+    fun insertMedia(drawable: Drawable, source: String) {
+        //check if we add media into a block element, at the end of the line, but not at the end of last line
+        var applyingOnTheEndOfBlockLine = false
+        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
+            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
+                applyingOnTheEndOfBlockLine = true
+                return@forEach
+            }
+        }
 
+        val mediaStartIndex = selectionStart + 1
+        val mediaEndIndex = selectionStart + source.length + 1
+
+        editor.disableTextChangedListener()
+        editableText.replace(selectionStart, selectionEnd, "\n" + source + if (applyingOnTheEndOfBlockLine) "" else "\n")
+
+        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
+        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+
+        val span = AztecMediaSpan(editor.context, drawable, source)
+
+        editableText.setSpan(
+                span,
+                mediaStartIndex,
+                mediaEndIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        editableText.setSpan(
+                AztecMediaClickableSpan(span),
+                mediaStartIndex,
+                mediaEndIndex,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        editor.setSelection(mediaEndIndex + 1)
+        editor.isMediaAdded = true
+    }
 }

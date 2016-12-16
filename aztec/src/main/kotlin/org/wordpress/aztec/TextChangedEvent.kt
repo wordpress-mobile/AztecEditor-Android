@@ -19,12 +19,24 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (text.length > inputStart && inputStart >= 1 && count > 0) {
             val previousCharacter = text[inputStart - 1]
-            return previousCharacter == '\u200B'
+            return previousCharacter == Constants.ZWJ_CHAR
         }
         return false
     }
 
-    fun isNewLine(): Boolean {
+    fun isNewLine() : Boolean {
+        if (isAddingCharacters) {
+            val currentCharacter = text[inputStart]
+            if (currentCharacter == '\n' ||
+                    (inputStart - 1 >= 0 && text[inputStart - 1] == '\n' &&
+                            currentCharacter == Constants.ZWJ_CHAR)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isNewLineButNotAtTheBeginning() : Boolean {
         if (!isAddingCharacters) return false
 
         if (inputStart >= 1 && count == 1) {
@@ -39,6 +51,5 @@ data class TextChangedEvent(val text: CharSequence, val start: Int, val before: 
 
         return false
     }
-
 }
 

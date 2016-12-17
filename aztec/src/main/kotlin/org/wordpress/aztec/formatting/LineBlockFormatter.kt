@@ -154,9 +154,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 continue
             }
 
-            if (lineStart <= selStart && selEnd <= lineEnd) {
-                list.add(i)
-            } else if (selStart <= lineStart && lineEnd <= selEnd) {
+            /**
+             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
+             *                                                  multiple lines (before and/or after), current entirely selected
+             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (after), current partially or entirely selected
+             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (before), current partially or entirely selected
+             */
+            if ((lineStart >= selStart && selEnd >= lineEnd)
+                    || (lineStart <= selEnd && selEnd <= lineEnd)
+                    || (lineStart <= selStart && selStart <= lineEnd)) {
                 list.add(i)
             }
         }

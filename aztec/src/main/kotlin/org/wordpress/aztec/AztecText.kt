@@ -417,12 +417,19 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
+        val paragraphSpans = text.getSpans(0, text.length, ParagraphStyle::class.java)
+        paragraphSpans.forEach {
+            if (text.getSpanStart(it) == text.getSpanEnd(it)) {
+                text.removeSpan(it)
+            }
+        }
+
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, AztecInlineSpan::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
+        blockFormatter.handleBlockStyling(text, textBeforeChange, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()

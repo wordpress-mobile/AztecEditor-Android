@@ -277,12 +277,13 @@ class AztecText : EditText, TextWatcher {
 
     private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
         if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
-            if (selEnd == previousCursorPosition + 1) {
-                // moved right
-                setSelection(selEnd + 1)
-            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
+            if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
                 // moved left
                 setSelection(selEnd - 1)
+            }
+            else {
+                // moved right or dropped to right to the left of ZWJ
+                setSelection(selEnd + 1)
             }
             return true
         }

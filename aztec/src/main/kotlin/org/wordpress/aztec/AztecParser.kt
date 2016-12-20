@@ -117,8 +117,7 @@ class AztecParser {
 
             val willReduceSpan = 0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n'
             val willDeleteLastChar = spanEnd == spanned.length && spanned[spanEnd - 1] == '\n'
-            val isListWithEmptyLastItem = it is AztecListSpan &&
-                    spanned[spanEnd - 1] == '\n' && (spanEnd - spanStart == 1 || spanned[spanEnd - 2] == '\n')
+            val isListWithEmptyLastItem = it is AztecListSpan && spanEnd - spanStart == 1
 
             spanEnd = if (willReduceSpan && !isListWithEmptyLastItem) spanEnd - 1 else spanEnd
             spanned.removeSpan(it)
@@ -201,7 +200,7 @@ class AztecParser {
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length > spanEnd && spanEnd - 1 > spanStart && (text[spanEnd] == Constants.ZWJ_CHAR || text[spanEnd] == '\n')) {
-                    if (!(it is AztecListSpan && spanEnd - spanStart > 1 && text[spanEnd - 1] == '\n' && text[spanEnd - 2] == '\n')) {
+                    if (!(it is AztecListSpan && spanEnd - spanStart > 1 && text[spanEnd - 1] == '\n')) {
                         text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }

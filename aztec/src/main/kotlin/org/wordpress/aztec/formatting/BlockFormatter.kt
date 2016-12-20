@@ -56,9 +56,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+    fun handleBlockStyling(text: Editable, before: CharSequence, textChangedEvent: TextChangedEvent) {
 
         val inputStart = textChangedEvent.inputStart
+        val inputEnd = textChangedEvent.inputEnd
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
@@ -105,7 +106,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     spanEnd = indexOfLineEnd
                 }
 
-                if (spanEnd <= textLength) {
+                if (spanEnd <= textLength && (spanEnd - 2 < 0 || text[spanEnd - 2] != Constants.ZWJ_CHAR)) {
                     editableText.setSpan(it,
                             text.getSpanStart(it),
                             spanEnd,
@@ -130,9 +131,35 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             //Add ZWJ to the new line at the end of block spans
             val blockSpan = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
-            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1) {
-                editor.disableTextChangedListener()
-                text.insert(inputStart + 1, Constants.ZWJ_STRING)
+            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1 ||
+                    (text.getSpanEnd(blockSpan) == inputStart + 2 && text[inputStart + 1] == '\n')) {
+                if (inputEnd == text.length || text[inputEnd] == '\n') {
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart + 1, Constants.ZWJ_STRING)
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        } else if (!textChangedEvent.isAddingCharacters) {
+            // when deleting characters, manage closing of lists
+            val list = text.getSpans(inputEnd, inputEnd, AztecListSpan::class.java).firstOrNull()
+            if (list != null) {
+                val spanStart = text.getSpanStart(list)
+                val spanEnd = text.getSpanEnd(list)
+                if (spanEnd - spanStart > 0 && inputEnd == spanEnd && text[inputEnd - 1] == '\n') {
+                    if (before[inputEnd] != Constants.ZWJ_CHAR) {
+                        // add ZWJ at the beginning of line when last regular char deleted
+                        editor.disableTextChangedListener()
+                        text.insert(inputEnd, Constants.ZWJ_STRING)
+                        text.setSpan(list, spanStart, spanEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    } else if (inputEnd - 2 < spanStart || text[inputEnd - 2] == '\n') {
+                        // if ZWJ char got just delted, add it to the line above if it's empty
+                        editor.disableTextChangedListener()
+                        text.insert(inputEnd - 1, Constants.ZWJ_STRING)
+                        text.setSpan(list, spanStart, spanEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
             }
         }
     }

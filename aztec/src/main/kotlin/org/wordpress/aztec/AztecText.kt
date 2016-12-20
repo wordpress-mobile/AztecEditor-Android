@@ -62,8 +62,9 @@ class AztecText : EditText, TextWatcher {
 
     var isMediaAdded = false
 
-    lateinit var history: History
+    var textBeforeChange: CharSequence = ""
 
+    lateinit var history: History
 
     lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
@@ -395,6 +396,8 @@ class AztecText : EditText, TextWatcher {
 
         if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR)
             setSelection(selectionEnd + 1)
+
+        textBeforeChange = this.text.toString()
 
         inlineFormatter.carryOverInlineSpans(start, count, after)
 

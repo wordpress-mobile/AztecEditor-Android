@@ -41,9 +41,9 @@ class AztecParser {
         val tidySource = tidy(source)
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
 
+        addZwjCharToBlockSpans(spanned)
         adjustNestedSpanOrder(spanned)
         fixBlockElementsRanges(spanned)
-
 
         return spanned
     }
@@ -91,6 +91,22 @@ class AztecParser {
 
         withinHtml(out, data)
         return tidy(out.toString())
+    }
+
+    private fun addZwjCharToBlockSpans(spanned: SpannableStringBuilder) {
+        // add ZWJ char after newline of block spans so they can be closed by hitting enter
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
+            val start = spanned.getSpanStart(it)
+            val end = spanned.getSpanEnd(it)
+
+            if (spanned[end - 1] == '\n' && (end - start == 1 || spanned[end - 2] == '\n')) {
+                spanned.insert(end - 1, Constants.ZWJ_STRING)
+
+                if (end - start == 1) {
+                    spanned.setSpan(it, start, end + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
     }
 
     fun fixBlockElementsRanges(spanned: Editable) {

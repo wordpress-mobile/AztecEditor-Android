@@ -535,4 +535,37 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag><br>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun closeListWithEmptyLineBelowIt() {
+        editText.fromHtml("<$listTag><li>Ordered</li></$listTag><br>not in list")
+
+        //remove newline after list (put cursor on newline after list and press backspace)
+        val mark = editText.text.indexOf("Ordered") + "Ordered".length
+        editText.text.delete(mark, mark + 1)
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
+
+        //press enter twice after at the end of the list to add new item and then remove it and close list
+        editText.setSelection(mark)
+        editText.text.insert(mark, "\n")
+
+        // must add 2 because of the extra ZWJ char
+        editText.setSelection(mark + 2)
+        editText.text.insert(mark + 2, "\n")
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br><br>not in list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun closeListWithTrailingEmptyItem() {
+        editText.fromHtml("<$listTag><li>Ordered</li><li></li></$listTag>")
+
+        //insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
+        val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 2 because of the extra ZWJ char
+        editText.setSelection(mark)
+        editText.text.insert(editText.selectionEnd, "\n")
+
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br>", editText.toHtml())
+    }
 }

@@ -47,7 +47,7 @@ class BlockElementsTest {
         editText.append("\n")
         editText.append("some text")
 
-        Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul>some text", editText.toHtml())
+        Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul><br>some text", editText.toHtml())
     }
 
 
@@ -73,7 +73,7 @@ class BlockElementsTest {
         editText.append("\n")
         editText.append("some text")
 
-        Assert.assertEquals("some text<br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br>some text", editText.toHtml())
+        Assert.assertEquals("some text<br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br><br>some text", editText.toHtml())
     }
 
 }

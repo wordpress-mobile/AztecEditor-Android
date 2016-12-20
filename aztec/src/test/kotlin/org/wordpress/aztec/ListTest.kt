@@ -141,7 +141,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
     }
 
 
@@ -223,7 +223,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag><br>not in list", editText.toHtml())
     }
 
 
@@ -260,12 +260,12 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>", editText.toHtml())
         editText.append("\n")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>", editText.toHtml())
 
         editText.append("not in list")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag><br>not in list", editText.toHtml())
     }
 
 
@@ -322,13 +322,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         val mark = editText.length() - 1
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
         editText.append("\n")
         editText.append("foo")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list<br>foo", editText.toHtml())
 
         //reopen list
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(mark - 1, mark + 1)
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
 
@@ -355,15 +355,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
+        editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, " addition")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag><br>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, "\n")
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, "third item")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
     }
 
     @Test
@@ -379,11 +380,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag><br>not in the list", editText.toHtml())
     }
 
     @Test
@@ -416,6 +417,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("second item")
         editText.append("\n")
         editText.append("\n")
+        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("third item")
         editText.setSelection(editText.length())
 
@@ -450,6 +452,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("first item")
         editText.append("\n")
         editText.append("\n")
+        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("second item")
         editText.append("\n")
         editText.append("third item")
@@ -521,7 +524,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addMultipleEmptyItemsWithKeyboard() {
         editText.toggleFormatting(listType)
         editText.append("item")
-        editText.append("\n")
         editText.text.insert(0, "\n")
         Assert.assertEquals("<$listTag><li></li><li>item</li></$listTag>", editText.toHtml())
 

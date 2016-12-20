@@ -126,6 +126,12 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
                 text.delete(inputStart - 2, inputStart)
+
+                // After closing a list add an extra newline
+                if (text.getSpans(inputStart - 2, inputStart - 2, AztecListSpan::class.java).isNotEmpty()) {
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart - 2, "\n")
+                }
             }
 
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {

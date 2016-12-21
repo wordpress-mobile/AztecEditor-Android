@@ -106,7 +106,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     spanEnd = indexOfLineEnd
                 }
 
-                if (spanEnd <= textLength && (spanEnd - 2 < 0 || text[spanEnd - 2] != Constants.ZWJ_CHAR)) {
+                if (spanEnd <= textLength) {
                     editableText.setSpan(it,
                             text.getSpanStart(it),
                             spanEnd,
@@ -160,7 +160,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                         text.insert(inputEnd, Constants.ZWJ_STRING)
                         text.setSpan(list, spanStart, spanEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     } else if (inputEnd - 2 < spanStart || text[inputEnd - 2] == '\n') {
-                        // if ZWJ char got just delted, add it to the line above if it's empty
+                        // if ZWJ char got just deleted, add it to the line above if it's empty
                         editor.disableTextChangedListener()
                         text.insert(inputEnd - 1, Constants.ZWJ_STRING)
                         text.setSpan(list, spanStart, spanEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

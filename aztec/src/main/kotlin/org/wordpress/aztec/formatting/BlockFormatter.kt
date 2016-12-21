@@ -118,6 +118,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
             editor.disableTextChangedListener()
             text.delete(inputStart - 1, inputStart)
+        } else if (!textChangedEvent.isAddingCharacters && inputEnd > 0 && before[inputEnd] == Constants.ZWJ_CHAR) {
+            editor.disableTextChangedListener()
+            text.delete(inputEnd - 1, inputEnd)
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             removeBlockStyle()
             editor.disableTextChangedListener()

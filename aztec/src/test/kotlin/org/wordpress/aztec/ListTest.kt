@@ -339,6 +339,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.setSelection(editText.length())
 
         editText.append("\n")
+        editText.append("\n")
         val mark = editText.length() - 1
 
         editText.text.delete(mark, mark + 1)
@@ -574,17 +575,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addLinebreaksAfterListWithEmptyItem() {
         editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>after")
 
-        val mark = editText.text.indexOf("after")
-        editText.text.insert(mark, "\n")
+        editText.text.insert(editText.text.indexOf("after"), "\n")
         Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
 
-        editText.text.insert(mark, "\n")
+        editText.text.insert(editText.text.indexOf("after"), "\n")
         Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br><br>after", editText.toHtml())
 
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
         Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
 
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
         Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag>after", editText.toHtml())
     }
 
@@ -593,17 +593,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addLinebreaksAfterListWithNonEmptyItem() {
         editText.fromHtml("<$listTag><li>item</li><li>item2</li></$listTag>after")
 
-        val mark = editText.text.indexOf("after")
-        editText.text.insert(mark, "\n")
+        editText.text.insert(editText.text.indexOf("after"), "\n")
         Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
 
-        editText.text.insert(mark, "\n")
+        editText.text.insert(editText.text.indexOf("after"), "\n")
         Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br><br>after", editText.toHtml())
 
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
         Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
 
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
         Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag>after", editText.toHtml())
     }
 

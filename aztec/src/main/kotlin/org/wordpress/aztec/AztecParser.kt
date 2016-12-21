@@ -286,8 +286,7 @@ class AztecParser {
         out.append("<${list.getStartTag()}>")
         var lines = TextUtils.split(listContent.toString(), "\n")
 
-        val isAtTheEndOfText = text.length == listContent.length
-        if (lines.isNotEmpty() && lines.last().length == 1 && isAtTheEndOfText && lines.last()[0] == Constants.ZWJ_CHAR) {
+        if (lines.isNotEmpty() && lines.last().isEmpty()) {
             lines = lines.take(lines.size - 1).toTypedArray()
         }
 

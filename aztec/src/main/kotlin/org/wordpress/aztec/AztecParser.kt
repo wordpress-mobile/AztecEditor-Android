@@ -196,7 +196,7 @@ class AztecParser {
                 } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd - 2] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                } else if (text.length > spanEnd && spanEnd - 2 > spanStart
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length > spanEnd && spanEnd - 1 > spanStart && (text[spanEnd] == Constants.ZWJ_CHAR || text[spanEnd] == '\n')) {

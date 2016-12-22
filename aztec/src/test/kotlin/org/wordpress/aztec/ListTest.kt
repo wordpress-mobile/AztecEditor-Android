@@ -652,10 +652,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun deleteEmptyListItemWithBackspace() {
         editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
 
+        editText.setSelection(editText.text.length)
         editText.append("\n")
         editText.text.delete(editText.text.length - 1, editText.text.length)
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
 
+        editText.append("\n")
+        editText.append("\n")
+        editText.text.delete(editText.text.length - 1, editText.text.length)
         editText.append("c")
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
 

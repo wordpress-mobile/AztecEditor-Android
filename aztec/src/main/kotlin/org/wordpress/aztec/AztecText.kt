@@ -392,16 +392,16 @@ class AztecText : EditText, TextWatcher {
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR)
+        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR) {
             setSelection(selectionEnd + 1)
+        }
 
+        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
-
-        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -424,10 +424,9 @@ class AztecText : EditText, TextWatcher {
 
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
-
-        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         if (textChangedEventDetails.count > 0 && text.isEmpty()) {
             onSelectionChanged(0, 0)
@@ -437,7 +436,6 @@ class AztecText : EditText, TextWatcher {
         blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails)
 
         history.handleHistory(this)
-
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

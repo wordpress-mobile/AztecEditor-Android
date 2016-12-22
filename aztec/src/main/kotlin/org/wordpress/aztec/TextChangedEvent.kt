@@ -1,20 +1,48 @@
 package org.wordpress.aztec
 
-
-data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {
-
-
-    val inputEnd = start + countOfCharacters
+import android.text.Spannable
+import org.wordpress.aztec.spans.AztecBlockSpan
 
 
-    val numberOfAddedCharacters = countOfCharacters - before
-    val numberOfRemovedCharacters = before - countOfCharacters
+data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBlockEnd: Boolean = false, val blockSpanStart: Int = -1) {
 
-    val isAddingCharacters = numberOfAddedCharacters > numberOfRemovedCharacters
+    var text: CharSequence = ""
+    var before: Int = 0
+    var start: Int = 0
+    var countOfCharacters: Int = 0
 
-    val count = if (isAddingCharacters) numberOfAddedCharacters else Math.abs(numberOfRemovedCharacters)
+    var inputEnd = start + countOfCharacters
 
-    val inputStart = if (isAddingCharacters) inputEnd - count else inputEnd + count
+    var numberOfAddedCharacters = countOfCharacters - before
+    var numberOfRemovedCharacters = before - countOfCharacters
+
+    var isAddingCharacters = numberOfAddedCharacters > numberOfRemovedCharacters
+
+    var count = if (isAddingCharacters) numberOfAddedCharacters else Math.abs(numberOfRemovedCharacters)
+
+    var inputStart = if (isAddingCharacters) inputEnd - count else inputEnd + count
+
+    constructor(text: CharSequence, start: Int, before: Int, count: Int) : this() {
+        this.text = text
+        this.start = start
+        this.before = before
+        this.countOfCharacters = count
+
+        initialize()
+    }
+
+    fun initialize() {
+        inputEnd = start + countOfCharacters
+
+        numberOfAddedCharacters = countOfCharacters - before
+        numberOfRemovedCharacters = before - countOfCharacters
+
+        isAddingCharacters = numberOfAddedCharacters > numberOfRemovedCharacters
+
+        count = if (isAddingCharacters) numberOfAddedCharacters else Math.abs(numberOfRemovedCharacters)
+
+        inputStart = if (isAddingCharacters) inputEnd - count else inputEnd + count
+    }
 
     fun isAfterZeroWidthJoiner(): Boolean {
         if (text.length > inputStart && inputStart >= 1 && count > 0) {

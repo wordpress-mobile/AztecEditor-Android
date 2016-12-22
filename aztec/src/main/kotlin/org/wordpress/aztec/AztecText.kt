@@ -62,8 +62,6 @@ class AztecText : EditText, TextWatcher {
 
     var isMediaAdded = false
 
-    var textBeforeChange: CharSequence = ""
-
     lateinit var history: History
 
     lateinit var inlineFormatter: InlineFormatter
@@ -394,10 +392,11 @@ class AztecText : EditText, TextWatcher {
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR)
+        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR) {
             setSelection(selectionEnd + 1)
+        }
 
-        textBeforeChange = this.text.toString()
+        prepareTextChangeEventDetails(after, count, start, text)
 
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
@@ -408,11 +407,38 @@ class AztecText : EditText, TextWatcher {
         blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
     }
 
+    private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
+        var deletedFromBlock = false
+        var blockStart = -1
+        var blockEnd = -1
+        if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
+            val block = this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).firstOrNull()
+            if (block != null) {
+                blockStart = this.text.getSpanStart(block)
+                blockEnd = this.text.getSpanEnd(block)
+                deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
+                        (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
+                        (start == 0 || text[start - 1] == '\n')
+            }
+        }
+
+        if (deletedFromBlock) {
+            textChangedEventDetails = TextChangedEvent(this.text.toString(), deletedFromBlock, blockStart)
+        } else {
+            textChangedEventDetails = TextChangedEvent(this.text.toString())
+        }
+    }
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
         inlineFormatter.reapplyCarriedOverInlineSpans()
-        textChangedEventDetails = TextChangedEvent(text, start, before, count)
+
+        textChangedEventDetails.before = before
+        textChangedEventDetails.text = text
+        textChangedEventDetails.countOfCharacters = count
+        textChangedEventDetails.start = start
+        textChangedEventDetails.initialize()
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -433,7 +459,7 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        blockFormatter.handleBlockStyling(text, textBeforeChange, textChangedEventDetails)
+        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()

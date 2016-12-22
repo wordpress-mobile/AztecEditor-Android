@@ -335,8 +335,10 @@ class QuoteTest() {
         Assert.assertEquals("first item\nsecond item\n" + Constants.ZWJ_STRING, editText.text.toString())
 
         editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("first item\nsecond item\n", editText.text.toString())
+        Assert.assertEquals("first item\nsecond item", editText.text.toString())
 
+        editText.append("\n")
+        editText.append("\n")
         editText.append("not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }

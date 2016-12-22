@@ -45,8 +45,9 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
     }
 
     fun isAfterZeroWidthJoiner(): Boolean {
-        if (text.length > inputStart && inputStart >= 1 && count > 0) {
-            val previousCharacter = text[inputStart - 1]
+        val before = Math.min(inputStart, inputEnd)
+        if (text.length > before && before >= 1 && count > 0) {
+            val previousCharacter = text[before - 1]
             return previousCharacter == Constants.ZWJ_CHAR
         }
         return false

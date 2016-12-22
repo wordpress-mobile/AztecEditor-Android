@@ -115,9 +115,21 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+        if (!textChangedEvent.isAddingCharacters && textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
+            if (blockSpan != null) {
+                editor.disableTextChangedListener()
+                val before = Math.min(inputStart, inputEnd)
+                text.delete(before - 1, before)
+
+                val newline = text.indexOf('\n', before)
+                val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
+                text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
             editor.disableTextChangedListener()
-            text.delete(inputStart - 1, inputStart)
+            val before = Math.min(inputStart, inputEnd)
+            text.delete(before - 1, before)
         } else if (!textChangedEvent.isAddingCharacters && inputEnd > 0 && textChangedEvent.textBefore[inputEnd] == Constants.ZWJ_CHAR) {
             editor.disableTextChangedListener()
             text.delete(inputEnd - 1, inputEnd)
@@ -152,7 +164,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         } else if (textChangedEvent.deletedFromBlockEnd) {
             // when deleting characters, manage closing of lists
-            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull()
+            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecListSpan::class.java).firstOrNull()
             if (list != null) {
                 val spanStart = textChangedEvent.blockSpanStart
                 val spanEnd = text.getSpanEnd(list)

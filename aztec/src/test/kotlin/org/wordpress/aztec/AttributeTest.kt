@@ -341,11 +341,8 @@ class AttributeTest {
         editText.append("\n")
         Assert.assertTrue(editText.toHtml().endsWith("<li></li></ol>"))
         editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertTrue(editText.text.endsWith("\n"))
         Assert.assertTrue(editText.toHtml().endsWith(originalItem))
-        editText.text.delete(editText.length() - 1, editText.length())
         Assert.assertFalse(editText.text.endsWith("\n"))
-        Assert.assertTrue(editText.toHtml().endsWith(originalItem))
     }
 
     @Test

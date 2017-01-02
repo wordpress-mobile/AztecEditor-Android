@@ -233,13 +233,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
-        val firstMark = editText.length()
         editText.append("second item")
         editText.append("\n")
-        val secondMart = editText.length()
         editText.append("third item")
 
-        editText.text.delete(firstMark - 1, secondMart - 2)
+        val start = editText.text.indexOf("second item")
+        val end = start + "second item".length
+
+        editText.text.delete(start, end)
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
@@ -609,18 +610,18 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun deleteTextFromLastItemAndCheckForZwjChar() {
-        editText.fromHtml("<$listTag><li>item</li><li></li><li>item2</li></$listTag>after")
+        editText.fromHtml("<$listTag><li>item</li><li></li><li></li><li>item2</li></$listTag>after")
 
         Assert.assertTrue(editText.text.indexOf(Constants.ZWJ_CHAR) == -1)
 
         val mark = editText.text.indexOf("item2")
         editText.text.delete(mark, mark + "item2".length)
         Assert.assertEquals(editText.text[mark], Constants.ZWJ_CHAR)
-        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
 
         editText.text.delete(mark, mark + 1)
+        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
         Assert.assertEquals(editText.text[mark - 1], Constants.ZWJ_CHAR)
-        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag>after", editText.toHtml())
     }
 
 
@@ -642,6 +643,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addTwoNewlinesAfterList() {
         editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
 
+        editText.setSelection(editText.length())
         editText.append("\n")
         editText.append("\n")
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
@@ -661,6 +663,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.text.delete(editText.text.length - 1, editText.text.length)
         editText.append("c")
+        Assert.assertEquals("a\nb\nc", editText.text.toString())
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
 
         editText.text.delete(editText.text.length - 1, editText.text.length)

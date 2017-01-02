@@ -346,11 +346,12 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun handlequoteReopeningAfterLastElementDeletion() {
+    fun handleQuoteReopeningAfterLastElementDeletion() {
         editText.fromHtml("<$quoteTag>first item<br>second item<br>third item</$quoteTag>")
         editText.setSelection(editText.length())
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
+        editText.text.append("\n")
 
         editText.append("not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())

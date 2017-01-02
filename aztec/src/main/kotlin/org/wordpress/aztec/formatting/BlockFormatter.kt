@@ -115,25 +115,23 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        if (!textChangedEvent.isAddingCharacters && textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
-            if (blockSpan != null) {
-                editor.disableTextChangedListener()
-                val before = Math.min(inputStart, inputEnd)
-                text.delete(before - 1, before)
-
-                val newline = text.indexOf('\n', before)
-                val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
-                text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        } else if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // adding a character next to a ZWJ char deletes it
             editor.disableTextChangedListener()
             val before = Math.min(inputStart, inputEnd)
             text.delete(before - 1, before)
-        } else if (!textChangedEvent.isAddingCharacters && inputEnd > 0 && textChangedEvent.textBefore[inputEnd] == Constants.ZWJ_CHAR) {
-            editor.disableTextChangedListener()
-            text.delete(inputEnd - 1, inputEnd)
+
+            if (!textChangedEvent.isAddingCharacters) {
+                val blockSpan = editableText.getSpans(before - 1, before - 1, AztecBlockSpan::class.java).firstOrNull()
+                if (blockSpan != null) {
+                    val newline = text.indexOf('\n', before - 1)
+                    val end = if (newline != -1) Math.min(text.length, newline) else text.length
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // double enter deletes the last item and adds a linebreak
             removeBlockStyle()
             editor.disableTextChangedListener()
 
@@ -150,7 +148,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
 
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            //Add ZWJ to the new line at the end of block spans
+            // add ZWJ to the new line at the end of block spans
             val blockSpan = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
             if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1 ||
                     (text.getSpanEnd(blockSpan) == inputStart + 2 && text[inputStart + 1] == '\n')) {
@@ -164,7 +162,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         } else if (textChangedEvent.deletedFromBlockEnd) {
             // when deleting characters, manage closing of lists
-            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecListSpan::class.java).firstOrNull()
+            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull()
             if (list != null) {
                 val spanStart = textChangedEvent.blockSpanStart
                 val spanEnd = text.getSpanEnd(list)
@@ -179,8 +177,29 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     // if ZWJ char got just deleted, add it to the line above if it's empty
                     editor.disableTextChangedListener()
                     text.insert(inputEnd - 1, Constants.ZWJ_STRING)
-                    text.setSpan(list, spanStart, spanEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    // delete the last newline
+                    editor.disableTextChangedListener()
+                    text.delete(inputEnd, inputEnd + 1)
+                } else {
+                    // delete the last newline
+                    editor.disableTextChangedListener()
+                    text.delete(spanEnd - 1, spanEnd)
                 }
+            }
+        } else if (!textChangedEvent.isAddingCharacters && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // backspace on a line right after a list attaches the line to the last item
+            val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
+            val before = Math.min(inputStart, inputEnd)
+            if (blockSpan != null && before - 1 > 0 && text.getSpanEnd(blockSpan) == before) {
+                if (textChangedEvent.textBefore[before] == Constants.ZWJ_CHAR) {
+                    editor.disableTextChangedListener()
+                    text.delete(before - 1, before)
+                }
+
+                val newline = text.indexOf('\n', before)
+                val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
+                text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -535,8 +554,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
     }
 
-    fun realignAttributesWhenAddingItem(text: Editable, textChangedEventDetails: TextChangedEvent) {
-        if (textChangedEventDetails.isNewLine()) {
+    fun realignAttributesWhenAddingItem(text: Editable, textChangedEventDetails: TextChangedEvent, newline: Boolean) {
+        if (newline) {
             val list = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java).firstOrNull()
             if (list != null) {
                 val listEnd = text.getSpanEnd(list)

@@ -398,13 +398,12 @@ class AztecText : EditText, TextWatcher {
 
         prepareTextChangeEventDetails(after, count, start, text)
 
+        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
-
-        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
     }
 
     private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
@@ -462,10 +461,9 @@ class AztecText : EditText, TextWatcher {
         val newLine = textChangedEventDetails.isNewLine()
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
-
-        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         if (textChangedEventDetails.count > 0 && text.isEmpty()) {
             onSelectionChanged(0, 0)
@@ -475,7 +473,6 @@ class AztecText : EditText, TextWatcher {
         blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
-
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

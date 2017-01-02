@@ -90,12 +90,12 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
 
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
+        //trailing styling
+        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
+
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLineButNotAtTheBeginning())
-
-        //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
 
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {

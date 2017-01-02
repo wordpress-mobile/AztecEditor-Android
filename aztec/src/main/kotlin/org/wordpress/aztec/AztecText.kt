@@ -459,6 +459,7 @@ class AztecText : EditText, TextWatcher {
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
+        val newLine = textChangedEventDetails.isNewLine()
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
 
@@ -471,7 +472,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         // preserve the attributes on the previous list item when adding a new one
-        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails)
+        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
 

@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,8 +8,6 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricGradleTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
  * Testing attribute preservation for supported HTML elements
@@ -31,8 +28,7 @@ class AttributeTest {
         private val BOLD_NO_ATTRS = "<b>Bold</b>"
         private val ITALIC = "<i i=\"I\">Italic</i>"
         private val UNDERLINE = "<u j=\"J\">Underline</u>"
-        private val NESTED = "<i a=\"A\"><b><u class=\"klass\">Nested</u></b><i>"
-        private val NESTED_REVERSED = "<u class=\"klass\"><b><i a=\"A\">Nested</i></b></u>"
+        private val NESTED = "<i a=\"A\"><b><u class=\"klass\">Nested</u></b></i>"
         private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s>" // <s> or <strike> or <del>
         private val ORDERED = "<ol l=\"L\"><li>Ordered</li></ol>"
         private val UNORDERED = "<ul m=\"M\"><li>Unordered</li></ul>"
@@ -43,7 +39,10 @@ class AttributeTest {
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
-        private val LIST_WITH_EMPTY_ITEMS = "<ul><li></li><li a=\"1\">1</li><li></li></ul>"
+        private val LIST_WITH_ATTRIBUTES = "<ul><li a=\"A\"></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>"
+        private val LIST_WITH_NON_EMPTY_ITEMS = "<ol><li a=\"B\">ab</li><li c=\"C\">c</li></ol>"
+        private val LIST_WITH_EMPTY_ITEMS = "a<ul><li a=\"A\"></li><li></li><li a=\"1\">1</li><li></li><li b=\"B\"></li></ul>b"
+        private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<br><ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
         private val SUB = "<sub i=\"I\">Sub</sub>"
         private val SUP = "<sup i=\"I\">Sup</sup>"
         private val FONT = "<font i=\"I\">Font</font>"
@@ -108,10 +107,9 @@ class AttributeTest {
     @Throws(Exception::class)
     fun nestedAttributes() {
         val input = NESTED
-        val expected = NESTED_REVERSED
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(expected, output)
+        Assert.assertEquals(input, output)
     }
 
     @Test
@@ -252,20 +250,29 @@ class AttributeTest {
     @Throws(Exception::class)
     fun mixedAttributes() {
         val input = MIXED + NESTED
-        val expected = MIXED + NESTED_REVERSED
+        val expected = MIXED + NESTED
         editText.fromHtml(input)
         val output = editText.toHtml()
         Assert.assertEquals(expected, output)
     }
 
-    //TODO: After fixing list item attribute preservation, uncomment this
-//    @Test
-//    @Throws(Exception::class)
-//    fun listWithEmptyItemsAttributes() {
-//        val input = LIST_WITH_EMPTY_ITEMS
-//        val output = editText.fromHtml(input)
-//        Assert.assertEquals(input, output)
-//    }
+    @Test
+    @Throws(Exception::class)
+    fun listWithEmptyItemsAttributes() {
+        val input = LIST_WITH_EMPTY_ITEMS
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun listWithEmptyItemsAndLineBreakAfterItAttributes() {
+        val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
 
     @Test
     @Throws(Exception::class)
@@ -273,9 +280,14 @@ class AttributeTest {
         val input = LIST
         val originalItem = "<li a=\"1\">Ordered</li>"
         editText.fromHtml(input)
+
         editText.append("\n")
         editText.append("after")
         Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ol><li></li>$originalItem<li>after</li></ol>", editText.toHtml())
+        editText.append("\n")
+        Assert.assertEquals("<ol><li></li>$originalItem<li>after</li><li></li></ol>", editText.toHtml())
     }
 
     @Test
@@ -287,5 +299,121 @@ class AttributeTest {
         editText.setSelection(0)
         editText.text.insert(0, "before\n")
         Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ol><li></li><li>before</li>$originalItem</ol>", editText.toHtml())
+        editText.append("\n")
+        Assert.assertEquals("<ol><li></li><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
+        editText.text.delete(0, 1)
+        Assert.assertEquals("<ol><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun moveItemsAround() {
+        val input = LIST_WITH_ATTRIBUTES
+        editText.fromHtml(input)
+        editText.setSelection(0)
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(0, "a")
+        editText.text.insert(1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(0, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.append("\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li><li></li></ul>", editText.toHtml())
+        editText.setSelection(editText.length())
+        editText.text.append("\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(7, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun lastItemOfListAttributePreservation() {
+        val input = LIST
+        val originalItem = "<li a=\"1\">Ordered</li></ol>"
+        editText.fromHtml(input)
+
+        editText.text.insert(0, "\n")
+        Assert.assertTrue(editText.toHtml().endsWith(originalItem))
+        editText.append("\n")
+        Assert.assertTrue(editText.toHtml().endsWith("<li></li></ol>"))
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertTrue(editText.text.endsWith("\n"))
+        Assert.assertTrue(editText.toHtml().endsWith(originalItem))
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertFalse(editText.text.endsWith("\n"))
+        Assert.assertTrue(editText.toHtml().endsWith(originalItem))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updateLastItemOfListAttribute() {
+        val input = LIST_WITH_ATTRIBUTES
+        editText.fromHtml(input)
+
+        Assert.assertTrue(editText.toHtml().endsWith("<li c=\"C\">c</li></ul>"))
+        editText.text.delete(editText.length() - 2, editText.length())
+        Assert.assertTrue(editText.text.endsWith("b"))
+        Assert.assertTrue(editText.toHtml().endsWith("<li b=\"B\">b</li></ul>"))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun listItemAttributePreservationWhenAddingNewItems() {
+        val input = LIST_WITH_ATTRIBUTES
+        editText.fromHtml(input)
+
+        val indexA = editText.text.indexOf('a')
+        editText.text.insert(indexA + 1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        val indexB = editText.text.indexOf('b')
+        editText.text.insert(indexB + 1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun splittingListItemShouldPushAttributesDown() {
+        val input = LIST_WITH_ATTRIBUTES
+        editText.fromHtml(input)
+
+        val indexA = editText.text.indexOf('a')
+        editText.text.insert(indexA + 1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        val indexB = editText.text.indexOf('b')
+        editText.text.insert(indexB + 1, "\n")
+        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deletingBottomListItemShouldPreserveTopItemAttributes() {
+        val input = LIST_WITH_NON_EMPTY_ITEMS
+        editText.fromHtml(input)
+
+        val indexB = editText.text.indexOf('b')
+        editText.text.insert(indexB, "\n")
+        Assert.assertEquals("<ol><li>a</li><li a=\"B\">b</li><li c=\"C\">c</li></ol>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  orderedListWithTrailingEmptyItemAndLinebreakAttribute() {
+        val input = "<ol><li>Ordered item</li><li a=\"A\"></li></ol><br>1"
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun  orderedListFollowedByLinebreakAttribute() {
+        val input = "<ol><li>Ordered item</li><li a=\"A\">b</li></ol><br>1"
+        editText.fromHtml(input)
+        val output = editText.toHtml()
+        Assert.assertEquals(input, output)
     }
 }

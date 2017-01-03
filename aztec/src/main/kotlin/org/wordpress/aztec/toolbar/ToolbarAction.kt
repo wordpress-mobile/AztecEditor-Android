@@ -9,7 +9,7 @@ import java.util.*
  */
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
-    HEADING(R.id.format_bar_button_heading, ToolbarActionType.OTHER, null),
+    HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, null),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),
@@ -17,8 +17,8 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     ORDERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_ORDERED_LIST),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
-    MORE(R.id.format_bar_button_more, ToolbarActionType.OTHER, TextFormat.FORMAT_MORE),
-    PAGE(R.id.format_bar_button_page, ToolbarActionType.OTHER, TextFormat.FORMAT_PAGE),
+    MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_MORE),
+    PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PAGE),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);
 
     companion object {
@@ -41,6 +41,6 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     }
 
     fun isStylingAction(): Boolean {
-        return actionType == ToolbarActionType.INLINE_STYLE || actionType == ToolbarActionType.BLOCK_STYLE
+        return actionType != ToolbarActionType.OTHER
     }
 }

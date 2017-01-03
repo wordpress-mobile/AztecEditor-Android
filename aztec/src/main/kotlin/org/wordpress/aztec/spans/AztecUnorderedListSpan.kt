@@ -24,10 +24,11 @@ import android.os.Parcel
 import android.text.Layout
 import android.text.TextUtils
 import android.text.style.BulletSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
-    private final val TAG = "ul"
+    private val TAG = "ul"
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
@@ -35,22 +36,24 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     private var bulletWidth: Int = 0
 
 
+    override var attributes: String = ""
+    override var lastItem: AztecListItemSpan = AztecListItemSpan()
+
     //used for marking
     constructor() : super(0) {
     }
-
-    override var attributes: String? = null
 
     constructor(attributes: String) {
         this.attributes = attributes
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int, attributes: String? = null) {
-        this.bulletColor = bulletColor
-        this.bulletMargin = bulletMargin
-        this.bulletWidth = bulletWidth
-        this.bulletPadding = bulletPadding
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+        this.bulletColor = listStyle.indicatorColor
+        this.bulletMargin = listStyle.indicatorMargin
+        this.bulletWidth = listStyle.indicatorWidth
+        this.bulletPadding = listStyle.indicatorPadding
         this.attributes = attributes
+        this.lastItem = last
     }
 
     constructor(src: Parcel) : super(src) {

@@ -6,10 +6,10 @@ import android.text.style.TypefaceSpan
 class AztecTypefaceSpan : TypefaceSpan, AztecContentSpan, AztecInlineSpan {
 
     var tag: String
-    override var attributes: String?
+    override var attributes: String
 
     @JvmOverloads
-    constructor(tag: String, family: String, attributes: String? = null) : super(family) {
+    constructor(tag: String, family: String, attributes: String = "") : super(family) {
         this.tag = tag
         this.attributes = attributes
     }

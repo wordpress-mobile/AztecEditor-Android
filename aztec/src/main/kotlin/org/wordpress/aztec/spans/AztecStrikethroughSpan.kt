@@ -7,9 +7,9 @@ class AztecStrikethroughSpan() : StrikethroughSpan(), AztecContentSpan, AztecInl
 
     private var tag: String = "del"
 
-    override var attributes: String? = null
+    override var attributes: String = ""
 
-    constructor(tag: String, attributes: String?) : this() {
+    constructor(tag: String, attributes: String) : this() {
         this.tag = tag
         this.attributes = attributes
     }

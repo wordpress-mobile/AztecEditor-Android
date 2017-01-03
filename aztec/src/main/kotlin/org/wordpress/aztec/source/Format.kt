@@ -6,13 +6,13 @@ import java.util.regex.Pattern
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol|li|h1|h2|h3|h4|h5|h6|p"
+    private val block = "div|span|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6"
 
     fun addFormatting(content: String): String {
         val doc = Jsoup.parseBodyFragment(content)
 
         //remove newline around all non block elements
-        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?$block>)\n<(/?(?!$block).)>", "<$1>")
+        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
@@ -25,9 +25,9 @@ object Format {
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {
-        val p = Pattern.compile(pattern);
-        val m = p.matcher(content);
-        return m.replaceAll(replacement);
+        val p = Pattern.compile(pattern)
+        val m = p.matcher(content)
+        return m.replaceAll(replacement)
     }
 
     /**

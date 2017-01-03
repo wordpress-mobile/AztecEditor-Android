@@ -101,7 +101,7 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      * *
      * @return the range of characters to re-apply spans to
      */
-    protected fun getRespanRangeForChangedOpeningSymbol(content: Editable, openingSymbol: String): SpanRange? {
+    private fun getRespanRangeForChangedOpeningSymbol(content: Editable, openingSymbol: String): SpanRange? {
         // For simplicity, re-parse the document if text was replaced
         if (lastOperation == Operation.REPLACE) {
             return SpanRange(0, content.length)
@@ -137,7 +137,7 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      * *
      * @return the range of characters to re-apply spans to
      */
-    protected fun getRespanRangeForChangedClosingSymbol(content: Editable, closingSymbol: String): SpanRange? {
+    private fun getRespanRangeForChangedClosingSymbol(content: Editable, closingSymbol: String): SpanRange? {
         // For simplicity, re-parse the document if text was replaced
         if (lastOperation == Operation.REPLACE) {
             return SpanRange(0, content.length)
@@ -168,7 +168,7 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      * *
      * @return the range of characters to re-apply spans to
      */
-    protected fun getRespanRangeForNormalText(content: Editable, openingSymbol: String): SpanRange? {
+    private fun getRespanRangeForNormalText(content: Editable, openingSymbol: String): SpanRange? {
         val closingSymbol = getMatchingSymbol(openingSymbol)
 
         val openingTagLoc = content.toString().lastIndexOf(openingSymbol, offset)
@@ -188,7 +188,7 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
      * *
      * @param spanRange the range within `content` to be re-styled
      */
-    protected fun updateSpans(content: Spannable, spanRange: SpanRange) {
+    private fun updateSpans(content: Spannable, spanRange: SpanRange) {
         var spanStart = spanRange.openingTagLoc
         var spanEnd = spanRange.closingTagLoc
 
@@ -223,5 +223,5 @@ class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt privat
     /**
      * Stores a pair of integers describing a range of values.
      */
-    protected class SpanRange(val openingTagLoc: Int, val closingTagLoc: Int)
+    private class SpanRange(val openingTagLoc: Int, val closingTagLoc: Int)
 }

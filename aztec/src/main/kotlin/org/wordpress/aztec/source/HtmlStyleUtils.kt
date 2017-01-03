@@ -8,6 +8,7 @@ import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import org.wordpress.aztec.spans.AztecStyleSpan
 import java.util.regex.Pattern
 
 object HtmlStyleUtils {
@@ -116,7 +117,7 @@ object HtmlStyleUtils {
                 REGEX_HTML_COMMENTS -> content.setSpan(ForegroundColorSpan(attributeColor), matchStart, matchEnd, SPANNABLE_FLAGS)
                 REGEX_HTML_ENTITIES -> {
                     content.setSpan(ForegroundColorSpan(tagColor), matchStart, matchEnd, SPANNABLE_FLAGS)
-                    content.setSpan(StyleSpan(Typeface.BOLD), matchStart, matchEnd, SPANNABLE_FLAGS)
+                    content.setSpan(AztecStyleSpan(Typeface.BOLD), matchStart, matchEnd, SPANNABLE_FLAGS)
                     content.setSpan(RelativeSizeSpan(0.75f), matchStart, matchEnd, SPANNABLE_FLAGS)
                 }
             }
@@ -135,10 +136,8 @@ object HtmlStyleUtils {
     fun clearSpans(content: Spannable, spanStart: Int, spanEnd: Int) {
         val spans = content.getSpans(spanStart, spanEnd, CharacterStyle::class.java)
 
-        for (span in spans) {
-            if (span is ForegroundColorSpan || span is StyleSpan || span is RelativeSizeSpan) {
-                content.removeSpan(span)
-            }
-        }
+        spans
+                .filter { it is ForegroundColorSpan || it is StyleSpan || it is RelativeSizeSpan }
+                .forEach { content.removeSpan(it) }
     }
 }

@@ -5,14 +5,13 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class History(val historyEnabled: Boolean, val historySize: Int) {
-
-    public val historyList = LinkedList<String>()
-
-    private lateinit var inputBefore: String
-    private lateinit var inputLast: String
+    var historyCursor = 0
+    var historyList = LinkedList<String>()
+    var inputLast: String = ""
 
     private var historyWorking = false
-    private var historyCursor = 0
+
+    private lateinit var inputBefore: String
 
     fun beforeTextChanged(text: String) {
         if (historyEnabled && !historyWorking) {
@@ -36,13 +35,13 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return
         }
 
+        while (historyCursor != historyList.size && historyCursor >= 0) {
+            historyList.removeAt(historyCursor)
+        }
+
         if (historyList.size >= historySize) {
             historyList.removeAt(0)
             historyCursor--
-        }
-
-        while (historyCursor != historyList.size) {
-            historyList.removeAt(historyCursor)
         }
 
         historyList.add(inputBefore)
@@ -55,6 +54,9 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         }
 
         historyWorking = true
+
+        editText.isFocusable = false
+        editText.isFocusableInTouchMode = false
 
         if (historyCursor >= historyList.size - 1) {
             historyCursor = historyList.size
@@ -70,8 +72,11 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             setTextFromHistory(editText)
         }
 
-        editText.setSelection(editText.editableText.length)
         historyWorking = false
+
+        editText.isFocusable = true
+        editText.isFocusableInTouchMode = true
+        editText.requestFocus()
     }
 
     fun undo(editText: EditText) {
@@ -82,10 +87,17 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         historyWorking = true
         historyCursor--
 
+        editText.isFocusable = false
+        editText.isFocusableInTouchMode = false
+
+
         setTextFromHistory(editText)
 
-        editText.setSelection(editText.editableText.length)
         historyWorking = false
+
+        editText.isFocusable = true
+        editText.isFocusableInTouchMode = true
+        editText.requestFocus()
     }
 
     private fun setTextFromHistory(editText: EditText) {

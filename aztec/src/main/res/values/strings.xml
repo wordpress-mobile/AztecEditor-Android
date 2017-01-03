@@ -16,6 +16,7 @@
     <string name="format_bar_description_quote">Block quote</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_more">More</string>
+    <string name="format_bar_description_page">Page Break</string>
     <string name="format_bar_description_media">Media</string>
     <string name="format_bar_description_ul">Unordered list</string>
     <string name="format_bar_description_ol">Ordered list</string>
@@ -36,5 +37,20 @@
     <string name="link_enter_url">URL</string>
     <string name="link_enter_url_text">Link text (optional)</string>
     <string name="create_a_link">Create a link</string>
+
+    <!-- MEDIA -->
+    <string name="error_chooser_photo">No app was found to choose a photo</string>
+    <string name="error_chooser_video">No app was found to choose a video</string>
+    <string name="media_dialog_camera">Device camera</string>
+    <string name="media_dialog_library">Media library</string>
+    <string name="media_dialog_photos">Device photos</string>
+    <string name="media_dialog_videos">Device videos</string>
+    <string name="media_popup_gallery">Gallery</string>
+    <string name="media_popup_photo">Photo</string>
+    <string name="media_popup_video">Video</string>
+    <string name="media_upload_dialog_message">Media must be uploaded before editing HTML.</string>
+    <string name="media_upload_dialog_positive">OK</string>
+    <string name="title_select_photo">Select Photo</string>
+    <string name="title_select_video">Select Video</string>
 
 </resources>

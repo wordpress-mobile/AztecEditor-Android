@@ -19,12 +19,20 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.os.Parcel
 import android.text.Layout
+import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.QuoteSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
+
+class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
+
+    val rect = Rect()
+
+    private val TAG: String = "blockquote"
 
     private var quoteBackground: Int = 0
     private var quoteColor: Int = 0
@@ -32,12 +40,19 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
     private var quotePadding: Int = 0
     private var quoteWidth: Int = 0
 
-    constructor(quoteBackground: Int, quoteColor: Int, quoteMargin: Int, quoteWidth: Int, quotePadding: Int) {
-        this.quoteBackground = quoteBackground
-        this.quoteColor = quoteColor
-        this.quoteMargin = quoteMargin
-        this.quoteWidth = quoteWidth
-        this.quotePadding = quotePadding
+    override var attributes: String = ""
+
+
+    constructor(attributes: String = "") : super() {
+        this.attributes = attributes
+    }
+
+    constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String = "") : this(attributes) {
+        this.quoteBackground = quoteStyle.quoteBackground
+        this.quoteColor = quoteStyle.quoteColor
+        this.quoteMargin = quoteStyle.quoteMargin
+        this.quoteWidth = quoteStyle.quoteWidth
+        this.quotePadding = quoteStyle.quotePadding
     }
 
     constructor(src: Parcel) : super(src) {
@@ -55,6 +70,17 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
         dest.writeInt(quoteMargin)
         dest.writeInt(quoteWidth)
         dest.writeInt(quotePadding)
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -82,7 +108,10 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan {
                                 lnum: Int) {
         val paintColor = p.color
         p.color = quoteBackground
-        c.drawRect(left.toFloat() + quoteMargin, top.toFloat(), right.toFloat(), bottom.toFloat(), p)
+
+        rect.set(left + quoteMargin, top, right, bottom)
+
+        c.drawRect(rect, p)
         p.color = paintColor
     }
 }

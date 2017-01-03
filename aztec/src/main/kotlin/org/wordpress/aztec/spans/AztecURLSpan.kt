@@ -19,15 +19,30 @@ package org.wordpress.aztec.spans
 
 import android.os.Parcel
 import android.text.TextPaint
+import android.text.TextUtils
 import android.text.style.URLSpan
+import org.wordpress.aztec.formatting.LinkFormatter
 
-class AztecURLSpan : URLSpan {
+class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
+
+    private val TAG: String = "a"
+
     private var linkColor = 0
     private var linkUnderline = true
 
-    constructor(url: String, linkColor: Int, linkUnderline: Boolean) : super(url) {
-        this.linkColor = linkColor
-        this.linkUnderline = linkUnderline
+    override var attributes: String = ""
+
+    constructor(url: String, attributes: String = "") : super(url) {
+        if (attributes.isEmpty()) {
+            this.attributes = " href=\"$url\""
+        } else {
+            this.attributes = attributes
+        }
+    }
+
+    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String = "") : this(url, attributes) {
+        this.linkColor = linkStyle.linkColor
+        this.linkUnderline = linkStyle.linkUnderline
     }
 
     constructor(src: Parcel) : super(src) {
@@ -44,5 +59,16 @@ class AztecURLSpan : URLSpan {
     override fun updateDrawState(ds: TextPaint) {
         ds.color = if (linkColor != 0) linkColor else ds.linkColor
         ds.isUnderlineText = linkUnderline
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 }

@@ -22,13 +22,13 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
+import android.text.TextUtils
 import android.text.style.BulletSpan
+import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
 
-    override fun getTag(): String {
-        return "ul"
-    }
+    private val TAG = "ul"
 
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
@@ -36,15 +36,24 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     private var bulletWidth: Int = 0
 
 
+    override var attributes: String = ""
+    override var lastItem: AztecListItemSpan = AztecListItemSpan()
+
     //used for marking
     constructor() : super(0) {
     }
 
-    constructor(bulletColor: Int, bulletMargin: Int, bulletWidth: Int, bulletPadding: Int) {
-        this.bulletColor = bulletColor
-        this.bulletMargin = bulletMargin
-        this.bulletWidth = bulletWidth
-        this.bulletPadding = bulletPadding
+    constructor(attributes: String) {
+        this.attributes = attributes
+    }
+
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+        this.bulletColor = listStyle.indicatorColor
+        this.bulletMargin = listStyle.indicatorMargin
+        this.bulletWidth = listStyle.indicatorWidth
+        this.bulletPadding = listStyle.indicatorPadding
+        this.attributes = attributes
+        this.lastItem = last
     }
 
     constructor(src: Parcel) : super(src) {
@@ -52,6 +61,18 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         this.bulletMargin = src.readInt()
         this.bulletWidth = src.readInt()
         this.bulletPadding = src.readInt()
+        this.attributes = src.readString()
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -60,6 +81,7 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         dest.writeInt(bulletMargin)
         dest.writeInt(bulletWidth)
         dest.writeInt(bulletPadding)
+        dest.writeString(attributes)
     }
 
     override fun getLeadingMargin(first: Boolean): Int {

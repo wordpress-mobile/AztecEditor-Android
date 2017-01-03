@@ -1,114 +1,55 @@
 package org.wordpress.aztec
 
-import android.text.Editable
-import android.text.Spanned
-import org.wordpress.aztec.spans.AztecListSpan
-
 
 data class TextChangedEvent(val text: CharSequence, val start: Int, val before: Int, val countOfCharacters: Int) {
 
-    val inputStart = start
+
     val inputEnd = start + countOfCharacters
-    val count = countOfCharacters
+
 
     val numberOfAddedCharacters = countOfCharacters - before
     val numberOfRemovedCharacters = before - countOfCharacters
 
     val isAddingCharacters = numberOfAddedCharacters > numberOfRemovedCharacters
 
+    val count = if (isAddingCharacters) numberOfAddedCharacters else Math.abs(numberOfRemovedCharacters)
+
+    val inputStart = if (isAddingCharacters) inputEnd - count else inputEnd + count
+
     fun isAfterZeroWidthJoiner(): Boolean {
-        if (start >= 1 && count > 0) {
-            val previousCharacter = text[start - 1]
-            return previousCharacter == '\u200B'
+        if (text.length > inputStart && inputStart >= 1 && count > 0) {
+            val previousCharacter = text[inputStart - 1]
+            return previousCharacter == Constants.ZWJ_CHAR
         }
         return false
     }
 
-    fun isNewLine(): Boolean {
+    fun isNewLine() : Boolean {
+        if (isAddingCharacters) {
+            val currentCharacter = text[inputStart]
+            if (currentCharacter == '\n' ||
+                    (inputStart - 1 >= 0 && text[inputStart - 1] == '\n' &&
+                            currentCharacter == Constants.ZWJ_CHAR)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isNewLineButNotAtTheBeginning() : Boolean {
         if (!isAddingCharacters) return false
 
-        if (start >= 1 && count == 1) {
-            val currentCharacter = text[start]
+        if (inputStart >= 1 && count == 1) {
+            val currentCharacter = text[inputStart]
             //special case for newline at the end of EditText
-            if (text.length == start + 1 && currentCharacter == '\n') {
+            if (text.length == inputStart + 1 && currentCharacter == '\n') {
                 return true
-            } else if (text.length > start + 1 && currentCharacter == '\n') {
+            } else if (text.length > inputStart + 1 && currentCharacter == '\n') {
                 return true
             }
         }
 
         return false
     }
-
-    fun getListSpanToOpen(editableText: Editable): AztecListSpan? {
-        if (count >= 0) {
-            if (text.length > start) {
-                val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
-                if (!spans.isEmpty()) {
-                    val previousCharacter = if (isAddingCharacters) text[inputStart - 1] else text[inputEnd - 1]
-                    if (previousCharacter == '\n') return null
-
-                    val deletingLastCharacter = !isAddingCharacters && text.length == inputEnd
-                    if (deletingLastCharacter) return null
-
-                    if (!isAddingCharacters && text.length > inputEnd) {
-                        val lastCharacter = text[inputEnd]
-                        if (lastCharacter == '\n') return null
-                    }
-
-
-                    val flags = editableText.getSpanFlags(spans[0])
-                    if ((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
-                        return spans[0]
-                    }
-                } else {
-                    val spansAfterInput = editableText.getSpans(inputEnd, inputEnd, AztecListSpan::class.java)
-                    if (!spansAfterInput.isEmpty()) {
-                        val flags = editableText.getSpanFlags(spansAfterInput[0])
-                        if (((flags and Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) ||
-                                (flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
-                            return spansAfterInput[0]
-                        }
-                    }
-                }
-            }
-        }
-
-        return null
-
-    }
-
-    fun getListSpanToClose(editableText: Editable): AztecListSpan? {
-        if (start > 0 && count == 0) {
-            if (text[start - 1] != '\n') return null
-
-            val spans = editableText.getSpans(start, start, AztecListSpan::class.java)
-            if (!spans.isEmpty()) {
-
-                val spanStart = editableText.getSpanStart(spans[0])
-                val spanEnd = editableText.getSpanEnd(spans[0])
-
-                if (start == spanStart) {
-                    return spans[0]
-                } else if (start == spanEnd) {
-                    val flags = editableText.getSpanFlags(spans[0])
-                    if ((flags and Spanned.SPAN_EXCLUSIVE_INCLUSIVE) == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
-                        return spans[0]
-                    }
-                }
-            }
-
-        } else if (start == 0 && count == 0 && text.length > 0) {
-            val spansAfterInput = editableText.getSpans(start + 1, start + 1, AztecListSpan::class.java)
-            if (!spansAfterInput.isEmpty()) {
-                return spansAfterInput[0]
-            }
-        }
-
-        return null
-
-    }
-
-
 }
 

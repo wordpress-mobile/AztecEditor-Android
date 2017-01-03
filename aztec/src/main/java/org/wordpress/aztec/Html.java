@@ -23,31 +23,34 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
-import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
-import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.ParagraphStyle;
-import android.text.style.QuoteSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.SubscriptSpan;
-import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
-import android.text.style.URLSpan;
-import android.text.style.UnderlineSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecCodeSpan;
+import org.wordpress.aztec.spans.AztecCommentSpan;
+import org.wordpress.aztec.spans.AztecContentSpan;
+import org.wordpress.aztec.spans.AztecCursorSpan;
+import org.wordpress.aztec.spans.AztecListSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
+import org.wordpress.aztec.spans.AztecStyleSpan;
+import org.wordpress.aztec.spans.AztecSubscriptSpan;
+import org.wordpress.aztec.spans.AztecSuperscriptSpan;
+import org.wordpress.aztec.spans.AztecTypefaceSpan;
+import org.wordpress.aztec.spans.AztecURLSpan;
+import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
+import org.wordpress.aztec.spans.FontSpan;
+import org.wordpress.aztec.spans.ParagraphSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
 import org.xml.sax.Attributes;
@@ -150,6 +153,8 @@ public class Html {
         return converter.convert();
     }
 
+//  region Unused Code
+
     /**
      * Returns an HTML representation of the provided Spanned text. A best effort is
      * made to add HTML tags corresponding to spans. Also note that HTML metacharacters
@@ -158,270 +163,265 @@ public class Html {
      * @param text input text to convert
      * @return string containing input converted to HTML
      */
-    public static String toHtml(Spanned text) {
-        StringBuilder out = new StringBuilder();
-        withinHtml(out, text);
-        return out.toString();
-    }
+//    public static String toHtml(Spanned text) {
+//        StringBuilder out = new StringBuilder();
+//        withinHtml(out, text);
+//        return out.toString();
+//    }
 
     /**
      * Returns an HTML escaped representation of the given plain text.
      */
-    public static String escapeHtml(CharSequence text) {
-        StringBuilder out = new StringBuilder();
-        withinStyle(out, text, 0, text.length());
-        return out.toString();
-    }
+//    public static String escapeHtml(CharSequence text) {
+//        StringBuilder out = new StringBuilder();
+//        withinStyle(out, text, 0, text.length());
+//        return out.toString();
+//    }
 
-    private static void withinHtml(StringBuilder out, Spanned text) {
-        int len = text.length();
+//    private static void withinHtml(StringBuilder out, Spanned text) {
+//        int len = text.length();
+//
+//        int next;
+//        for (int i = 0; i < text.length(); i = next) {
+//            next = text.nextSpanTransition(i, len, ParagraphStyle.class);
+//            ParagraphStyle[] style = text.getSpans(i, next, ParagraphStyle.class);
+//            String elements = " ";
+//            boolean needDiv = false;
+//
+//            for (int j = 0; j < style.length; j++) {
+//                if (style[j] instanceof AlignmentSpan) {
+//                    Layout.Alignment align =
+//                            ((AlignmentSpan) style[j]).getAlignment();
+//                    needDiv = true;
+//                    if (align == Layout.Alignment.ALIGN_CENTER) {
+//                        elements = "align=\"center\" " + elements;
+//                    } else if (align == Layout.Alignment.ALIGN_OPPOSITE) {
+//                        elements = "align=\"right\" " + elements;
+//                    } else {
+//                        elements = "align=\"left\" " + elements;
+//                    }
+//                }
+//            }
+//            if (needDiv) {
+//                out.append("<div ").append(elements).append(">");
+//            }
+//
+//            withinDiv(out, text, i, next);
+//
+//            if (needDiv) {
+//                out.append("</div>");
+//            }
+//        }
+//    }
 
-        int next;
-        for (int i = 0; i < text.length(); i = next) {
-            next = text.nextSpanTransition(i, len, ParagraphStyle.class);
-            ParagraphStyle[] style = text.getSpans(i, next, ParagraphStyle.class);
-            String elements = " ";
-            boolean needDiv = false;
+//    private static void withinDiv(StringBuilder out, Spanned text,
+//                                  int start, int end) {
+//        int next;
+//        for (int i = start; i < end; i = next) {
+//            next = text.nextSpanTransition(i, end, QuoteSpan.class);
+//            QuoteSpan[] quotes = text.getSpans(i, next, QuoteSpan.class);
+//
+//            for (QuoteSpan quote : quotes) {
+//                out.append("<blockquote>");
+//            }
+//
+//            withinBlockquote(out, text, i, next);
+//
+//            for (QuoteSpan quote : quotes) {
+//                out.append("</blockquote>\n");
+//            }
+//        }
+//    }
 
-            for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof AlignmentSpan) {
-                    Layout.Alignment align =
-                            ((AlignmentSpan) style[j]).getAlignment();
-                    needDiv = true;
-                    if (align == Layout.Alignment.ALIGN_CENTER) {
-                        elements = "align=\"center\" " + elements;
-                    } else if (align == Layout.Alignment.ALIGN_OPPOSITE) {
-                        elements = "align=\"right\" " + elements;
-                    } else {
-                        elements = "align=\"left\" " + elements;
-                    }
-                }
-            }
-            if (needDiv) {
-                out.append("<div ").append(elements).append(">");
-            }
-
-            withinDiv(out, text, i, next);
-
-            if (needDiv) {
-                out.append("</div>");
-            }
-        }
-    }
-
-    private static void withinDiv(StringBuilder out, Spanned text,
-                                  int start, int end) {
-        int next;
-        for (int i = start; i < end; i = next) {
-            next = text.nextSpanTransition(i, end, QuoteSpan.class);
-            QuoteSpan[] quotes = text.getSpans(i, next, QuoteSpan.class);
-
-            for (QuoteSpan quote : quotes) {
-                out.append("<blockquote>");
-            }
-
-            withinBlockquote(out, text, i, next);
-
-            for (QuoteSpan quote : quotes) {
-                out.append("</blockquote>\n");
-            }
-        }
-    }
-
-    private static void withinBlockquote(StringBuilder out, Spanned text,
-                                         int start, int end) {
-        out.append(text);
-
-        int next;
-        for (int i = start; i < end; i = next) {
-            next = TextUtils.indexOf(text, '\n', i, end);
-            if (next < 0) {
-                next = end;
-            }
-
-            int nl = 0;
-
-            while (next < end && text.charAt(next) == '\n') {
-                nl++;
-                next++;
-            }
-
-            if (withinParagraph(out, text, i, next - nl, nl, next == end)) {
-                /* Paragraph should be closed */
-                out.append("</p>\n");
-                out.append(text);
-            }
-        }
-
-        out.append("</p>\n");
-    }
+//    private static void withinBlockquote(StringBuilder out, Spanned text,
+//                                         int start, int end) {
+//        out.append(text);
+//
+//        int next;
+//        for (int i = start; i < end; i = next) {
+//            next = TextUtils.indexOf(text, '\n', i, end);
+//            if (next < 0) {
+//                next = end;
+//            }
+//
+//            int nl = 0;
+//
+//            while (next < end && text.charAt(next) == '\n') {
+//                nl++;
+//                next++;
+//            }
+//
+//            if (withinParagraph(out, text, i, next - nl, nl, next == end)) {
+//                /* Paragraph should be closed */
+//                out.append("</p>\n");
+//                out.append(text);
+//            }
+//        }
+//
+//        out.append("</p>\n");
+//    }
 
     /* Returns true if the caller should close and reopen the paragraph. */
-    private static boolean withinParagraph(StringBuilder out, Spanned text,
-                                           int start, int end, int nl,
-                                           boolean last) {
-        int next;
-        for (int i = start; i < end; i = next) {
-            next = text.nextSpanTransition(i, end, CharacterStyle.class);
-            CharacterStyle[] style = text.getSpans(i, next,
-                    CharacterStyle.class);
+//    private static boolean withinParagraph(StringBuilder out, Spanned text,
+//                                           int start, int end, int nl,
+//                                           boolean last) {
+//        int next;
+//        for (int i = start; i < end; i = next) {
+//            next = text.nextSpanTransition(i, end, CharacterStyle.class);
+//            CharacterStyle[] style = text.getSpans(i, next,
+//                    CharacterStyle.class);
+//
+//            for (int j = 0; j < style.length; j++) {
+//                if (style[j] instanceof AztecStyleSpan) {
+//                    AztecStyleSpan styleSpan = (AztecStyleSpan)style[j];
+//                    out.append("<");
+//                    out.append(styleSpan.getStartTag());
+//                    out.append(">");
+//                }
+//                if (style[j] instanceof TypefaceSpan) {
+//                    String s = ((TypefaceSpan) style[j]).getFamily();
+//
+//                    if ("monospace".equals(s)) {
+//                        out.append("<tt>");
+//                    }
+//                }
+//                if (style[j] instanceof SuperscriptSpan) {
+//                    out.append("<sup>");
+//                }
+//                if (style[j] instanceof SubscriptSpan) {
+//                    out.append("<sub>");
+//                }
+//                if (style[j] instanceof UnderlineSpan) {
+//                    out.append("<u>");
+//                }
+//                if (style[j] instanceof StrikethroughSpan) {
+//                    out.append("<strike>");
+//                }
+//                if (style[j] instanceof URLSpan) {
+//                    out.append("<a href=\"");
+//                    out.append(((URLSpan) style[j]).getURL());
+//                    out.append("\">");
+//                }
+//                if (style[j] instanceof ImageSpan) {
+//                    out.append("<img src=\"");
+//                    out.append(((ImageSpan) style[j]).getSource());
+//                    out.append("\">");
+//
+//                    // Don't output the dummy character underlying the image.
+//                    i = next;
+//                }
+//                if (style[j] instanceof AbsoluteSizeSpan) {
+//                    out.append("<font size =\"");
+//                    out.append(((AbsoluteSizeSpan) style[j]).getSize() / 6);
+//                    out.append("\">");
+//                }
+//                if (style[j] instanceof ForegroundColorSpan) {
+//                    out.append("<font color =\"#");
+//                    String color = Integer.toHexString(((ForegroundColorSpan)
+//                            style[j]).getForegroundColor() + 0x01000000);
+//                    while (color.length() < 6) {
+//                        color = "0" + color;
+//                    }
+//                    out.append(color);
+//                    out.append("\">");
+//                }
+//            }
+//
+//            withinStyle(out, text, i, next);
+//
+//            for (int j = style.length - 1; j >= 0; j--) {
+//                if (style[j] instanceof ForegroundColorSpan) {
+//                    out.append("</font>");
+//                }
+//                if (style[j] instanceof AbsoluteSizeSpan) {
+//                    out.append("</font>");
+//                }
+//                if (style[j] instanceof URLSpan) {
+//                    out.append("</a>");
+//                }
+//                if (style[j] instanceof StrikethroughSpan) {
+//                    out.append("</strike>");
+//                }
+//                if (style[j] instanceof UnderlineSpan) {
+//                    out.append("</u>");
+//                }
+//                if (style[j] instanceof SubscriptSpan) {
+//                    out.append("</sub>");
+//                }
+//                if (style[j] instanceof SuperscriptSpan) {
+//                    out.append("</sup>");
+//                }
+//                if (style[j] instanceof TypefaceSpan) {
+//                    String s = ((TypefaceSpan) style[j]).getFamily();
+//
+//                    if (s.equals("monospace")) {
+//                        out.append("</tt>");
+//                    }
+//                }
+//                if (style[j] instanceof AztecStyleSpan) {
+//                    AztecStyleSpan styleSpan = (AztecStyleSpan)style[j];
+//                    out.append("<");
+//                    out.append(styleSpan.getEndTag());
+//                    out.append("/>");
+//                }
+//            }
+//        }
+//
+//        if (nl == 1) {
+//            out.append("<br>\n");
+//            return false;
+//        } else {
+//            for (int i = 2; i < nl; i++) {
+//                out.append("<br>");
+//            }
+//            return !last;
+//        }
+//    }
 
-            for (int j = 0; j < style.length; j++) {
-                if (style[j] instanceof StyleSpan) {
-                    int s = ((StyleSpan) style[j]).getStyle();
+//    private static void withinStyle(StringBuilder out, CharSequence text,
+//                                    int start, int end) {
+//        for (int i = start; i < end; i++) {
+//            char c = text.charAt(i);
+//
+//            if (c == '<') {
+//                out.append("&lt;");
+//            } else if (c == '>') {
+//                out.append("&gt;");
+//            } else if (c == '&') {
+//                out.append("&amp;");
+//            } else if (c >= 0xD800 && c <= 0xDFFF) {
+//                if (c < 0xDC00 && i + 1 < end) {
+//                    char d = text.charAt(i + 1);
+//                    if (d >= 0xDC00 && d <= 0xDFFF) {
+//                        i++;
+//                        int codepoint = 0x010000 | (int) c - 0xD800 << 10 | (int) d - 0xDC00;
+//                        out.append("&#").append(codepoint).append(";");
+//                    }
+//                }
+//            } else if (c > 0x7E || c < ' ') {
+//                out.append("&#").append((int) c).append(";");
+//            } else if (c == ' ') {
+//                while (i + 1 < end && text.charAt(i + 1) == ' ') {
+//                    out.append("&nbsp;");
+//                    i++;
+//                }
+//
+//                out.append(' ');
+//            } else {
+//                out.append(c);
+//            }
+//        }
+//    }
 
-                    if ((s & Typeface.BOLD) != 0) {
-                        out.append("<b>");
-                    }
-                    if ((s & Typeface.ITALIC) != 0) {
-                        out.append("<i>");
-                    }
-                }
-                if (style[j] instanceof TypefaceSpan) {
-                    String s = ((TypefaceSpan) style[j]).getFamily();
-
-                    if ("monospace".equals(s)) {
-                        out.append("<tt>");
-                    }
-                }
-                if (style[j] instanceof SuperscriptSpan) {
-                    out.append("<sup>");
-                }
-                if (style[j] instanceof SubscriptSpan) {
-                    out.append("<sub>");
-                }
-                if (style[j] instanceof UnderlineSpan) {
-                    out.append("<u>");
-                }
-                if (style[j] instanceof StrikethroughSpan) {
-                    out.append("<strike>");
-                }
-                if (style[j] instanceof URLSpan) {
-                    out.append("<a href=\"");
-                    out.append(((URLSpan) style[j]).getURL());
-                    out.append("\">");
-                }
-                if (style[j] instanceof ImageSpan) {
-                    out.append("<img src=\"");
-                    out.append(((ImageSpan) style[j]).getSource());
-                    out.append("\">");
-
-                    // Don't output the dummy character underlying the image.
-                    i = next;
-                }
-                if (style[j] instanceof AbsoluteSizeSpan) {
-                    out.append("<font size =\"");
-                    out.append(((AbsoluteSizeSpan) style[j]).getSize() / 6);
-                    out.append("\">");
-                }
-                if (style[j] instanceof ForegroundColorSpan) {
-                    out.append("<font color =\"#");
-                    String color = Integer.toHexString(((ForegroundColorSpan)
-                            style[j]).getForegroundColor() + 0x01000000);
-                    while (color.length() < 6) {
-                        color = "0" + color;
-                    }
-                    out.append(color);
-                    out.append("\">");
-                }
-            }
-
-            withinStyle(out, text, i, next);
-
-            for (int j = style.length - 1; j >= 0; j--) {
-                if (style[j] instanceof ForegroundColorSpan) {
-                    out.append("</font>");
-                }
-                if (style[j] instanceof AbsoluteSizeSpan) {
-                    out.append("</font>");
-                }
-                if (style[j] instanceof URLSpan) {
-                    out.append("</a>");
-                }
-                if (style[j] instanceof StrikethroughSpan) {
-                    out.append("</strike>");
-                }
-                if (style[j] instanceof UnderlineSpan) {
-                    out.append("</u>");
-                }
-                if (style[j] instanceof SubscriptSpan) {
-                    out.append("</sub>");
-                }
-                if (style[j] instanceof SuperscriptSpan) {
-                    out.append("</sup>");
-                }
-                if (style[j] instanceof TypefaceSpan) {
-                    String s = ((TypefaceSpan) style[j]).getFamily();
-
-                    if (s.equals("monospace")) {
-                        out.append("</tt>");
-                    }
-                }
-                if (style[j] instanceof StyleSpan) {
-                    int s = ((StyleSpan) style[j]).getStyle();
-
-                    if ((s & Typeface.BOLD) != 0) {
-                        out.append("</b>");
-                    }
-                    if ((s & Typeface.ITALIC) != 0) {
-                        out.append("</i>");
-                    }
-                }
-            }
-        }
-
-        if (nl == 1) {
-            out.append("<br>\n");
-            return false;
-        } else {
-            for (int i = 2; i < nl; i++) {
-                out.append("<br>");
-            }
-            return !last;
-        }
-    }
-
-    private static void withinStyle(StringBuilder out, CharSequence text,
-                                    int start, int end) {
-        for (int i = start; i < end; i++) {
-            char c = text.charAt(i);
-
-            if (c == '<') {
-                out.append("&lt;");
-            } else if (c == '>') {
-                out.append("&gt;");
-            } else if (c == '&') {
-                out.append("&amp;");
-            } else if (c >= 0xD800 && c <= 0xDFFF) {
-                if (c < 0xDC00 && i + 1 < end) {
-                    char d = text.charAt(i + 1);
-                    if (d >= 0xDC00 && d <= 0xDFFF) {
-                        i++;
-                        int codepoint = 0x010000 | (int) c - 0xD800 << 10 | (int) d - 0xDC00;
-                        out.append("&#").append(codepoint).append(";");
-                    }
-                }
-            } else if (c > 0x7E || c < ' ') {
-                out.append("&#").append((int) c).append(";");
-            } else if (c == ' ') {
-                while (i + 1 < end && text.charAt(i + 1) == ' ') {
-                    out.append("&nbsp;");
-                    i++;
-                }
-
-                out.append(' ');
-            } else {
-                out.append(c);
-            }
-        }
-    }
-
+//  endregion
     public static StringBuilder stringifyAttributes(Attributes attributes) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < attributes.getLength(); i++) {
-            // separate attributes by a space character
-            sb.append(' ');
-            sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+        if (attributes != null) {
+            for (int i = 0; i < attributes.getLength(); i++) {
+                // separate attributes by a space character
+                sb.append(' ');
+                sb.append(attributes.getLocalName(i)).append("=\"").append(attributes.getValue(i)).append('"');
+            }
         }
         return sb;
     }
@@ -470,7 +470,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = mSpannableStringBuilder.getSpans(0, mSpannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan) {
+            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan) {
                 continue;
             }
             int start = mSpannableStringBuilder.getSpanStart(obj[i]);
@@ -496,6 +496,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private void handleStartTag(String tag, Attributes attributes) {
         if (mUnknownTagLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                handleCursor(mSpannableStringBuilder);
+                return;
+            }
             // Swallow opening tag and attributes in current Unknown element
             mUnknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
             mUnknownTagLevel += 1;
@@ -505,43 +509,38 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
+        } else if (tag.equalsIgnoreCase("aztec_cursor")) {
+            handleCursor(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(mSpannableStringBuilder, new Bold());
+            start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("b")) {
-            start(mSpannableStringBuilder, new Bold());
+            start(mSpannableStringBuilder, new Bold(attributes));
         } else if (tag.equalsIgnoreCase("em")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("i")) {
-            start(mSpannableStringBuilder, new Italic());
+            start(mSpannableStringBuilder, new Italic(attributes));
         } else if (tag.equalsIgnoreCase("big")) {
-            start(mSpannableStringBuilder, new Big());
+            start(mSpannableStringBuilder, new Big(attributes));
         } else if (tag.equalsIgnoreCase("small")) {
-            start(mSpannableStringBuilder, new Small());
+            start(mSpannableStringBuilder, new Small(attributes));
         } else if (tag.equalsIgnoreCase("font")) {
-            startFont(mSpannableStringBuilder, attributes);
-        } else if (tag.equalsIgnoreCase("blockquote")) {
-            handleP(mSpannableStringBuilder);
-            start(mSpannableStringBuilder, new Blockquote());
+            start(mSpannableStringBuilder, new Font(attributes));
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(mSpannableStringBuilder, new Monospace());
+            start(mSpannableStringBuilder, new Monospace(attributes));
         } else if (tag.equalsIgnoreCase("a")) {
-            startA(mSpannableStringBuilder, attributes);
+            start(mSpannableStringBuilder, new Href(attributes));
         } else if (tag.equalsIgnoreCase("u")) {
-            start(mSpannableStringBuilder, new Underline());
+            start(mSpannableStringBuilder, new Underline(attributes));
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(mSpannableStringBuilder, new Super());
+            start(mSpannableStringBuilder, new Super(attributes));
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(mSpannableStringBuilder, new Sub());
-        } else if (tag.length() == 2 &&
-                Character.toLowerCase(tag.charAt(0)) == 'h' &&
-                tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            start(mSpannableStringBuilder, new Header(tag.charAt(1) - '1'));
+            start(mSpannableStringBuilder, new Sub(attributes));
+        } else if (tag.equalsIgnoreCase("code")) {
+            start(mSpannableStringBuilder, new Code(attributes));
         } else if (tag.equalsIgnoreCase("img")) {
             startImg(mSpannableStringBuilder, attributes, mImageGetter);
         } else {
@@ -568,6 +567,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private void handleEndTag(String tag) {
         // Unknown tag previously detected
         if (mUnknownTagLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                return; //already handled at start tag
+            }
             // Swallow closing tag in current Unknown element
             mUnknown.rawHtml.append("</").append(tag).append(">");
             mUnknownTagLevel -= 1;
@@ -581,64 +583,51 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (tag.equalsIgnoreCase("br")) {
             handleBr(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("p")) {
-            handleP(mSpannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
-            end(mSpannableStringBuilder, Bold.class, new StyleSpan(Typeface.BOLD));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
-            end(mSpannableStringBuilder, Italic.class, new StyleSpan(Typeface.ITALIC));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
-            end(mSpannableStringBuilder, Big.class, new RelativeSizeSpan(1.25f));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_BIG);
         } else if (tag.equalsIgnoreCase("small")) {
-            end(mSpannableStringBuilder, Small.class, new RelativeSizeSpan(0.8f));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SMALL);
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(mSpannableStringBuilder);
-        } else if (tag.equalsIgnoreCase("blockquote")) {
-            handleP(mSpannableStringBuilder);
-            end(mSpannableStringBuilder, Blockquote.class, new QuoteSpan());
         } else if (tag.equalsIgnoreCase("tt")) {
-            end(mSpannableStringBuilder, Monospace.class,
-                    new TypefaceSpan("monospace"));
+            end(mSpannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
         } else if (tag.equalsIgnoreCase("a")) {
-            endA(mSpannableStringBuilder);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
-            end(mSpannableStringBuilder, Underline.class, new UnderlineSpan());
+            end(mSpannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
         } else if (tag.equalsIgnoreCase("sup")) {
-            end(mSpannableStringBuilder, Super.class, new SuperscriptSpan());
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
-            end(mSpannableStringBuilder, Sub.class, new SubscriptSpan());
-        } else if (tag.length() == 2 &&
-                Character.toLowerCase(tag.charAt(0)) == 'h' &&
-                tag.charAt(1) >= '1' && tag.charAt(1) <= '6') {
-            endHeader(mSpannableStringBuilder);
+            end(mSpannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+        } else if (tag.equalsIgnoreCase("code")) {
+            end(mSpannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (mTagHandler != null) {
             mTagHandler.handleTag(false, tag, mSpannableStringBuilder, mReader, null);
         }
     }
 
-    private static void handleP(SpannableStringBuilder text) {
-        int len = text.length();
+    private static void handleCursor(SpannableStringBuilder text) {
+        int start = text.length();
 
-        if (len >= 1 && text.charAt(len - 1) == '\n') {
-            if (len >= 2 && text.charAt(len - 2) == '\n') {
-                return;
-            }
+        Object[] unknownSpans = text.getSpans(start, start, Unknown.class);
 
-            text.append("\n");
-            return;
+        if (unknownSpans.length > 0) {
+            start = text.getSpanStart(unknownSpans[0]);
         }
 
-        if (len != 0) {
-            text.append("\n\n");
-        }
+        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_MARK_MARK);
     }
 
     private static void handleBr(SpannableStringBuilder text) {
@@ -664,16 +653,93 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.setSpan(mark, len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void end(SpannableStringBuilder text, Class kind,
-                            Object repl) {
+    private static void end(SpannableStringBuilder text, TextFormat textFormat) {
         int len = text.length();
-        Object obj = getLast(text, kind);
-        int where = text.getSpanStart(obj);
+        AttributedMarker marker;
+        AztecContentSpan newSpan = null;
 
-        text.removeSpan(obj);
+        switch (textFormat) {
+            case FORMAT_BOLD:
+                marker = (AttributedMarker) getLast(text, Bold.class);
+                if (marker != null) {
+                    newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_ITALIC:
+                marker = (AttributedMarker) getLast(text, Italic.class);
+                if (marker != null) {
+                    newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_UNDERLINED:
+                marker = (AttributedMarker) getLast(text, Underline.class);
+                if (marker != null) {
+                    newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_LINK:
+                marker = (AttributedMarker) getLast(text, Href.class);
+                if (marker != null) {
+                    newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_BIG:
+                marker = (AttributedMarker) getLast(text, Big.class);
+                if (marker != null) {
+                    newSpan = new AztecRelativeSizeSpan("big", 1.25f, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SMALL:
+                marker = (AttributedMarker) getLast(text, Small.class);
+                if (marker != null) {
+                    newSpan = new AztecRelativeSizeSpan("small", 0.8f, Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SUPERSCRIPT:
+                marker = (AttributedMarker) getLast(text, Super.class);
+                if (marker != null) {
+                    newSpan = new AztecSuperscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_SUBSCRIPT:
+                marker = (AttributedMarker) getLast(text, Sub.class);
+                if (marker != null) {
+                    newSpan = new AztecSubscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_MONOSPACE:
+                marker = (AttributedMarker) getLast(text, Monospace.class);
+                if (marker != null) {
+                    newSpan = new AztecTypefaceSpan("tt", "monospace", Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_FONT:
+                marker = (AttributedMarker) getLast(text, Font.class);
+                if (marker != null) {
+                    newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_CODE:
+                marker = (AttributedMarker) getLast(text, Code.class);
+                if (marker != null) {
+                    newSpan = new AztecCodeSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            case FORMAT_PARAGRAPH:
+                marker = (AttributedMarker) getLast(text, Paragraph.class);
+                if (marker != null) {
+                    newSpan = new ParagraphSpan(Html.stringifyAttributes(marker.attributes).toString());
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Style not supported");
+        }
 
-        if (where != len) {
-            text.setSpan(repl, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        int where = text.getSpanStart(marker);
+        text.removeSpan(marker);
+
+        if (where != len && newSpan != null) {
+            text.setSpan(newSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
@@ -699,29 +765,21 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
-    private static void startFont(SpannableStringBuilder text,
-                                  Attributes attributes) {
-        String color = attributes.getValue("", "color");
-        String face = attributes.getValue("", "face");
-
-        int len = text.length();
-        text.setSpan(new Font(color, face), len, len, Spannable.SPAN_MARK_MARK);
-    }
-
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();
-        Object obj = getLast(text, Font.class);
-        int where = text.getSpanStart(obj);
+        Font font = (Font) getLast(text, Font.class);
+        int where = text.getSpanStart(font);
 
-        text.removeSpan(obj);
+        end(text, TextFormat.FORMAT_FONT);
 
-        if (where != len) {
-            Font f = (Font) obj;
+        if (font != null && where != len) {
 
-            if (!TextUtils.isEmpty(f.mColor)) {
-                if (f.mColor.startsWith("@")) {
+            String color = font.attributes.getValue("color");
+
+            if (!TextUtils.isEmpty(color)) {
+                if (color.startsWith("@")) {
                     Resources res = Resources.getSystem();
-                    String name = f.mColor.substring(1);
+                    String name = color.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
                         ColorStateList colors = res.getColorStateList(colorRes);
@@ -730,42 +788,23 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 } else {
-                    // int c = Color.getHtmlColor(f.mColor);
-                    int c = Color.GREEN; // TODO: read from html color
-                    if (c != -1) {
-                        text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
-                                where, len,
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    try {
+                        int c = Color.parseColor(color);
+                        if (c != -1) {
+                            text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
+                                    where, len,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    } catch (Exception e) {
+                        // unknown color
                     }
                 }
             }
 
-            if (f.mFace != null) {
-                text.setSpan(new TypefaceSpan(f.mFace), where, len,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-    }
+            String face = font.attributes.getValue("face");
 
-    private static void startA(SpannableStringBuilder text, Attributes attributes) {
-        String href = attributes.getValue("", "href");
-
-        int len = text.length();
-        text.setSpan(new Href(href), len, len, Spannable.SPAN_MARK_MARK);
-    }
-
-    private static void endA(SpannableStringBuilder text) {
-        int len = text.length();
-        Object obj = getLast(text, Href.class);
-        int where = text.getSpanStart(obj);
-
-        text.removeSpan(obj);
-
-        if (where != len) {
-            Href h = (Href) obj;
-
-            if (h.mHref != null) {
-                text.setSpan(new URLSpan(h.mHref), where, len,
+            if (face != null) {
+                text.setSpan(new TypefaceSpan(face), where, len,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -778,58 +817,18 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         text.removeSpan(obj);
 
+        // TODO: this is temp fix
+        if (where > 0 && text.getSpans(where - 1, where - 1, AztecListSpan.class).length > 0) {
+            where -= 1;
+        }
+
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.star_on);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
             text.setSpan(unknownClickableSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-    }
-
-    private static void endHeader(SpannableStringBuilder text) {
-        int len = text.length();
-        Object obj = getLast(text, Header.class);
-
-        int where = text.getSpanStart(obj);
-
-        text.removeSpan(obj);
-
-        // Back off not to change only the text, not the blank line.
-        while (len > where && text.charAt(len - 1) == '\n') {
-            len--;
-        }
-
-        if (where != len) {
-            Header h = (Header) obj;
-
-            switch (h.mLevel) {
-                case 0:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H1),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 1:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H2),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 2:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H3),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 3:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H4),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 4:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H5),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-                case 5:
-                    text.setSpan(new AztecHeadingSpan(AztecHeadingSpan.Heading.H6),
-                            where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    break;
-            }
         }
     }
 
@@ -944,70 +943,126 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     @Override
     public void comment(char[] chars, int start, int length) throws SAXException {
+        if (mUnknownTagLevel != 0) {
+            mUnknown.rawHtml.append("<!--");
+            for (int i = 0; i < length; i++) {
+                mUnknown.rawHtml.append(chars[i + start]);
+            }
+            mUnknown.rawHtml.append("-->");
+            return;
+        }
+
         String comment = new String(chars, start, length);
         int spanStart = mSpannableStringBuilder.length();
         mSpannableStringBuilder.append(comment);
-        mSpannableStringBuilder.setSpan(new CommentSpan(),
-                spanStart, mSpannableStringBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
+            mSpannableStringBuilder.setSpan(
+                    new AztecCommentSpan(
+                            mContext,
+                            mContext.getResources().getDrawable(R.drawable.img_more)
+                    ),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
+            mSpannableStringBuilder.setSpan(
+                    new AztecCommentSpan(
+                            mContext,
+                            mContext.getResources().getDrawable(R.drawable.img_page)
+                    ),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        } else {
+            mSpannableStringBuilder.setSpan(
+                    new CommentSpan(),
+                    spanStart,
+                    mSpannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
     }
 
     private static class Unknown {
         public StringBuilder rawHtml;
+    }
 
-        public Unknown() {
+    private static class AttributedMarker {
+        Attributes attributes;
+    }
+
+    private static class Bold extends AttributedMarker {
+        Bold(Attributes attributes) {
+            this.attributes = attributes;
         }
     }
 
-    private static class Bold {
-    }
-
-    private static class Italic {
-    }
-
-    private static class Underline {
-    }
-
-    private static class Big {
-    }
-
-    private static class Small {
-    }
-
-    private static class Monospace {
-    }
-
-    private static class Blockquote {
-    }
-
-    private static class Super {
-    }
-
-    private static class Sub {
-    }
-
-    private static class Font {
-        public String mColor;
-        public String mFace;
-
-        public Font(String color, String face) {
-            mColor = color;
-            mFace = face;
+    private static class Italic extends AttributedMarker {
+        Italic(Attributes attributes) {
+            this.attributes = attributes;
         }
     }
 
-    private static class Href {
-        public String mHref;
-
-        public Href(String href) {
-            mHref = href;
+    private static class Underline extends AttributedMarker {
+        Underline(Attributes attributes) {
+            this.attributes = attributes;
         }
     }
 
-    private static class Header {
-        private int mLevel;
+    private static class Big extends AttributedMarker {
+        Big(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
 
-        public Header(int level) {
-            mLevel = level;
+    private static class Small extends AttributedMarker {
+        Small(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Monospace extends AttributedMarker {
+        Monospace(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Super extends AttributedMarker {
+        Super(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Sub extends AttributedMarker {
+        Sub(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Font extends AttributedMarker {
+        Font(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Code extends AttributedMarker {
+        Code(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Href extends AttributedMarker {
+        Href(Attributes attributes) {
+            this.attributes = attributes;
+        }
+    }
+
+    private static class Paragraph extends AttributedMarker {
+        Paragraph(Attributes attributes) {
+            this.attributes = attributes;
         }
     }
 }

@@ -1,15 +1,27 @@
 package org.wordpress.aztec.spans
 
+import android.text.TextUtils
 import android.text.style.StrikethroughSpan
 
-class AztecStrikethroughSpan(tag: String) : StrikethroughSpan() {
+class AztecStrikethroughSpan() : StrikethroughSpan(), AztecContentSpan, AztecInlineSpan {
 
-    private var mTag: String = tag
+    private var tag: String = "del"
 
-    //default tag
-    constructor() : this("del")
+    override var attributes: String = ""
 
-    fun getTag(): String {
-        return mTag
+    constructor(tag: String, attributes: String) : this() {
+        this.tag = tag
+        this.attributes = attributes
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return tag
+        }
+        return tag + attributes
+    }
+
+    override fun getEndTag(): String {
+        return tag
     }
 }

@@ -27,6 +27,7 @@
     <dimen name="link_dialog_margin_inner">4dp</dimen>
     <dimen name="link_dialog_margin_outer">16dp</dimen>
 
+    <dimen name="margin_dialog">24dp</dimen>
     <dimen name="margin_extra_small">2dp</dimen>
     <dimen name="margin_small">4dp</dimen>
     <dimen name="margin_medium">8dp</dimen>

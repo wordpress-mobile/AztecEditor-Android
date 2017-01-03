@@ -1,7 +1,6 @@
 package org.wordpress.aztec.spans
 
-interface AztecListSpan {
 
-    fun getTag(): String
-
+interface AztecListSpan : AztecBlockSpan {
+    var lastItem: AztecListItemSpan
 }

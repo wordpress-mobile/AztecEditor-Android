@@ -6,15 +6,15 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 
 /**
  * Testing quote behaviour.
  */
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class HeadingTest() {
 
     val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1

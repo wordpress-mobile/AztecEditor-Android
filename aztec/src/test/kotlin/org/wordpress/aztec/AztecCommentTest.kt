@@ -9,15 +9,15 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.spans.AztecCommentSpan
 
 /**
  * Tests for special comments ([AztecCommentSpan.Comment.MORE] and [AztecCommentSpan.Comment.PAGE])
  */
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class AztecCommentTest() : AndroidTestCase() {
     lateinit var editText: AztecText
 

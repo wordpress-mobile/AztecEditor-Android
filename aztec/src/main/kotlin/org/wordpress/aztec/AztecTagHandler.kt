@@ -94,9 +94,8 @@ class AztecTagHandler : Html.TagHandler {
             val followingBlockElement = opening && output[output.length-1] == '\n' &&
                     output.getSpans(output.length - 1, output.length - 1, AztecLineBlockSpan::class.java).isNotEmpty()
 
-            if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
-                output.append("\n")
-            } else if (span is AztecQuoteSpan && !opening && nestedInBlockElement) {
+            if ((!followingBlockElement && !nestedInBlockElement && output.last() != '\n') ||
+                    (span is AztecQuoteSpan && nestedInBlockElement && !opening)) {
                 output.append("\n")
             }
         }

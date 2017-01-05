@@ -6,10 +6,11 @@ android:
   components:
     - extra-android-m2repository
     - extra-android-support
+    - extra-google-m2repository
     - platform-tools
     - tools
-    - build-tools-24.0.0
-    - android-24
+    - build-tools-24.0.3
+    - android-25
 
 env:
   global:

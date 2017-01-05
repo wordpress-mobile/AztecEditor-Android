@@ -4,13 +4,13 @@
     <item android:id="@+id/undo"
           android:title="@string/menu_undo"
           android:icon="@drawable/ic_action_undo"
-          android:showAsAction="ifRoom">
+          android:showAsAction="always">
     </item>
 
     <item android:id="@+id/redo"
           android:title="@string/menu_redo"
           android:icon="@drawable/ic_action_redo"
-          android:showAsAction="ifRoom">
+          android:showAsAction="always">
     </item>
 
 </menu>

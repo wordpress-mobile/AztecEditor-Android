@@ -88,7 +88,7 @@ public class Html {
          * setBounds() on your Drawable if it doesn't already have
          * its bounds set.
          */
-        void loadImage(String source, Html.ImageGetter.Callbacks callbacks);
+        void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth);
 
         interface Callbacks {
             void onImageLoaded(Drawable drawable);
@@ -755,6 +755,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         // TODO: we should some placeholder drawable while loading imges
         Drawable loadingDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_indeterminate_horizontal);
+
         loadingDrawable.setBounds(0, 0, loadingDrawable.getIntrinsicWidth(), loadingDrawable.getIntrinsicHeight());
         final ImageSpan imageSpan = new ImageSpan(loadingDrawable, src);
 

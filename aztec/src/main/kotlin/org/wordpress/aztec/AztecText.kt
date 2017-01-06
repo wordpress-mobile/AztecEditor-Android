@@ -510,6 +510,9 @@ class AztecText : EditText, TextWatcher {
                     private fun replaceImage(drawable: Drawable?) {
                         val start = text.getSpanStart(it)
                         val end = text.getSpanEnd(it)
+
+                        if (start == -1 || end == -1) return
+
                         text.removeSpan(it)
 
                         val newImageSpan = ImageSpan(drawable, it.source)
@@ -517,7 +520,8 @@ class AztecText : EditText, TextWatcher {
                         text.setSpan(newImageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
-                imageGetter?.loadImage(it.source, callbacks)
+
+                imageGetter?.loadImage(it.source, callbacks, context.resources.displayMetrics.widthPixels)
             }
         }
     }

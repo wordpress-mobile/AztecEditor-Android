@@ -164,8 +164,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlBold_isEqual() {
-        val input =
-                HTML_BOLD
+        val input = HTML_BOLD
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -180,8 +179,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListUnordered_isEqual() {
-        val input =
-                HTML_LIST_UNORDERED
+        val input = HTML_LIST_UNORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -196,8 +194,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListUnorderedWithQuote_isEqual() {
-        val input =
-                HTML_LIST_UNORDERED_WITH_QUOTE
+        val input = HTML_LIST_UNORDERED_WITH_QUOTE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -227,8 +224,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListUnorderedWhiteSpace_isEqual() {
-        val input =
-                HTML_LIST_UNORDERED_WITH_WHITE_SPACE
+        val input = HTML_LIST_UNORDERED_WITH_WHITE_SPACE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_LIST_UNORDERED, output)
@@ -243,8 +239,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListOrdered_isEqual() {
-        val input =
-                HTML_LIST_ORDERED
+        val input = HTML_LIST_ORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -259,8 +254,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListOrderedWithQuote_isEqual() {
-        val input =
-                HTML_LIST_ORDERED_WITH_QUOTE
+        val input = HTML_LIST_ORDERED_WITH_QUOTE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -290,8 +284,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListOrderedWhiteSpace_isEqual() {
-        val input =
-                HTML_LIST_ORDERED_WITH_WHITE_SPACE
+        val input = HTML_LIST_ORDERED_WITH_WHITE_SPACE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_LIST_ORDERED, output)
@@ -417,8 +410,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlComment_isEqual() {
-        val input =
-                HTML_COMMENT
+        val input = HTML_COMMENT
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -434,10 +426,8 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlHeading_isEqual() {
-        val input =
-                HTML_HEADING_ALL
-        val parsed =
-                HTML_HEADING_ALL_PARSED
+        val input = HTML_HEADING_ALL
+        val parsed = HTML_HEADING_ALL_PARSED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(parsed, output)
@@ -452,8 +442,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlItalic_isEqual() {
-        val input =
-                HTML_ITALIC
+        val input = HTML_ITALIC
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -468,8 +457,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlLink_isEqual() {
-        val input =
-                HTML_LINK
+        val input = HTML_LINK
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -484,8 +472,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlMore_isEqual() {
-        val input =
-                HTML_MORE
+        val input = HTML_MORE
         val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -500,8 +487,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlPage_isEqual() {
-        val input =
-                HTML_PAGE
+        val input = HTML_PAGE
         val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -516,8 +502,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuote_isEqual() {
-        val input =
-                HTML_QUOTE
+        val input = HTML_QUOTE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -532,8 +517,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuoteWithWhiteSpace_isEqual() {
-        val input =
-                HTML_QUOTE_WITH_WHITE_SPACE
+        val input = HTML_QUOTE_WITH_WHITE_SPACE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(HTML_QUOTE, output)
@@ -548,8 +532,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuoteWithListOrdered_isEqual() {
-        val input =
-                HTML_QUOTE_WITH_LIST_ORDERED
+        val input = HTML_QUOTE_WITH_LIST_ORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -564,8 +547,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuoteWithListUnordered_isEqual() {
-        val input =
-                HTML_QUOTE_WITH_LIST_UNORDERED
+        val input = HTML_QUOTE_WITH_LIST_UNORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -580,8 +562,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
-        val input =
-                HTML_STRIKETHROUGH
+        val input = HTML_STRIKETHROUGH
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -611,8 +592,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlUnknown_isEqual() {
-        val input =
-                HTML_UNKNOWN
+        val input = HTML_UNKNOWN
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -627,8 +607,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedMixed_isEqual() {
-        val input =
-                HTML_NESTED_MIXED
+        val input = HTML_NESTED_MIXED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -644,8 +623,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedMixedTwice_isEqual() {
-        val input =
-                HTML_NESTED_MIXED
+        val input = HTML_NESTED_MIXED
         val span = SpannableString(mParser.fromHtml(input, context))
         Assert.assertEquals(input, mParser.toHtml(span))
         Assert.assertEquals(input, mParser.toHtml(span))
@@ -660,8 +638,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedEmpty_isEqual() {
-        val input =
-                HTML_NESTED_EMPTY
+        val input = HTML_NESTED_EMPTY
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -676,8 +653,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedEmptyEnd_isEqual() {
-        val input =
-                HTML_NESTED_EMPTY_END
+        val input = HTML_NESTED_EMPTY_END
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -692,8 +668,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedEmptyStart_isEqual() {
-        val input =
-                HTML_NESTED_EMPTY_START
+        val input = HTML_NESTED_EMPTY_START
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -708,8 +683,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedNonEmpty_isEqual() {
-        val input =
-                HTML_NESTED_WITH_TEXT
+        val input = HTML_NESTED_WITH_TEXT
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -724,8 +698,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlNestedInterleaving_isEqual() {
-        val input =
-                HTML_NESTED_INTERLEAVING
+        val input = HTML_NESTED_INTERLEAVING
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -740,8 +713,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHiddenHtmlWithNoTextToSpanToHtmlNestedInterleaving_isEqual() {
-        val input =
-                HTML_HIDDEN_WITH_NO_TEXT
+        val input = HTML_HIDDEN_WITH_NO_TEXT
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -800,9 +772,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanBold_isEqual() {
-        val input = SpannableString(
-                SPAN_BOLD
-        )
+        val input = SpannableString(SPAN_BOLD)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -817,9 +787,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanListOrdered_isEqual() {
-        val input = SpannableString(
-                SPAN_LIST_ORDERED
-        )
+        val input = SpannableString(SPAN_LIST_ORDERED)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -834,9 +802,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanListUnordered_isEqual() {
-        val input = SpannableString(
-                SPAN_LIST_UNORDERED
-        )
+        val input = SpannableString(SPAN_LIST_UNORDERED)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -851,9 +817,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanComment_isEqual() {
-        val input = SpannableString(
-                SPAN_COMMENT
-        )
+        val input = SpannableString(SPAN_COMMENT)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -868,9 +832,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanHeading_isEqual() {
-        val input = SpannableString(
-                SPAN_HEADING
-        )
+        val input = SpannableString(SPAN_HEADING)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -885,9 +847,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanItalic_isEqual() {
-        val input = SpannableString(
-                SPAN_ITALIC
-        )
+        val input = SpannableString(SPAN_ITALIC)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -902,9 +862,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanLink_isEqual() {
-        val input = SpannableString(
-                SPAN_LINK
-        )
+        val input = SpannableString(SPAN_LINK)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -919,9 +877,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanMore_isEqual() {
-        val input = SpannableString(
-                SPAN_MORE
-        )
+        val input = SpannableString(SPAN_MORE)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -936,9 +892,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanPage_isEqual() {
-        val input = SpannableString(
-                SPAN_PAGE
-        )
+        val input = SpannableString(SPAN_PAGE)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -953,9 +907,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanQuote_isEqual() {
-        val input = SpannableString(
-                SPAN_QUOTE
-        )
+        val input = SpannableString(SPAN_QUOTE)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -970,9 +922,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanStrikethrough_isEqual() {
-        val input = SpannableString(
-                SPAN_STRIKETHROUGH
-        )
+        val input = SpannableString(SPAN_STRIKETHROUGH)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -987,9 +937,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanUnderline_isEqual() {
-        val input = SpannableString(
-                SPAN_UNDERLINE
-        )
+        val input = SpannableString(SPAN_UNDERLINE)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -1004,9 +952,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanUnknown_isEqual() {
-        val input = SpannableString(
-                SPAN_UNKNOWN
-        )
+        val input = SpannableString(SPAN_UNKNOWN)
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
         Assert.assertEquals(input, output)
@@ -1021,8 +967,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlCommentInsideUnknown_isEqual() {
-        val input =
-                HTML_COMMENT_INSIDE_UNKNOWN
+        val input = HTML_COMMENT_INSIDE_UNKNOWN
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

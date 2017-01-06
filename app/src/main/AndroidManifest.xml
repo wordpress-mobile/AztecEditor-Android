@@ -2,6 +2,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.wordpress.aztec.demo" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Required for adding media and requested at runtime -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

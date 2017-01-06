@@ -22,6 +22,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_BULLET = "<ul><li>Bullet</li></ul>"
     private val HTML_BULLET_WITH_WHITE_SPACE = "<ul><li>Bullet<br></br></li></ul>"
     private val HTML_BULLET_LIST_WITH_EMPTY_ITEM = "<ul><li>item</li><li></li><li>item 2</li></ul>"
+    private val HTML_NUMBERED_LIST = "<ol><li>Ordered</li></ol>"
     private val HTML_NUMBERED_LIST_WITH_EMPTY_ITEM = "<ol><li>item</li><li></li><li>item 2</li></ol>"
     private val HTML_BULLET_WITH_QUOTE = "<ul><li><blockquote>Quote</blockquote></li></ul>"
     private val HTML_ORDERED_LIST = "<ol><li>Ordered item</li></ol>"
@@ -306,6 +307,70 @@ class AztecParserTest : AndroidTestCase() {
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse block elements with preceding newline from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
+     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlLinebreakFollowedByBlock_isEqual() {
+        var input: String
+        var output: String
+        var parsed: String
+        var span: SpannableString
+
+        input = "<br>$HTML_SINGLE_HEADER"
+        span = SpannableString(mParser.fromHtml(input, context))
+        Assert.assertEquals("\nHeading 1", span.toString())
+        output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+
+        input = "Text<br>$HTML_SINGLE_HEADER"
+        parsed = input.replace("<br>", "")
+        span = SpannableString(mParser.fromHtml(input, context))
+        output = mParser.toHtml(span)
+        Assert.assertEquals(parsed, output)
+
+        input = "<br>$HTML_QUOTE"
+        span = SpannableString(mParser.fromHtml(input, context))
+        Assert.assertEquals("\nQuote", span.toString())
+        output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+
+        input = "Text<br>$HTML_QUOTE"
+        parsed = input.replace("<br>", "")
+        span = SpannableString(mParser.fromHtml(input, context))
+        output = mParser.toHtml(span)
+        Assert.assertEquals(parsed, output)
+
+        input = "<br>$HTML_NUMBERED_LIST"
+        span = SpannableString(mParser.fromHtml(input, context))
+        Assert.assertEquals("\nOrdered", span.toString())
+        output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+
+        input = "Text<br>$HTML_NUMBERED_LIST"
+        parsed = input.replace("<br>", "")
+        span = SpannableString(mParser.fromHtml(input, context))
+        output = mParser.toHtml(span)
+        Assert.assertEquals(parsed, output)
+
+        input = "<br>$HTML_BULLET"
+        span = SpannableString(mParser.fromHtml(input, context))
+        Assert.assertEquals("\nBullet", span.toString())
+        output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+
+        input = "Text<br>$HTML_BULLET"
+        parsed = input.replace("<br>", "")
+        span = SpannableString(mParser.fromHtml(input, context))
+        output = mParser.toHtml(span)
+        Assert.assertEquals(parsed, output)
     }
 
     /**

@@ -37,6 +37,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_PAGE = "<!--nextpage-->"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
     private val HTML_QUOTE_WITH_LIST_ORDERED = "<blockquote><ol><li>Ordered</li></ol></blockquote>"
+    private val HTML_QUOTE_WITH_LIST_UNORDERED = "<blockquote><ul><li>Unordered</li></ul></blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
@@ -114,6 +115,8 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_QUOTE +
                 HTML_LINK +
                 HTML_UNKNOWN +
+                HTML_QUOTE_WITH_LIST_ORDERED +
+                HTML_QUOTE_WITH_LIST_UNORDERED +
                 HTML_COMMENT +
                 HTML_NESTED_MIXED +
                 HTML_NESTED_EMPTY_END +
@@ -137,6 +140,8 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_QUOTE +
                 HTML_LINK +
                 HTML_UNKNOWN_PARSED +
+                HTML_QUOTE_WITH_LIST_ORDERED +
+                HTML_QUOTE_WITH_LIST_UNORDERED +
                 HTML_COMMENT +
                 HTML_NESTED_MIXED +
                 HTML_NESTED_EMPTY_END +
@@ -515,6 +520,22 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlQuoteWithListOrdered_isEqual() {
         val input =
                 HTML_QUOTE_WITH_LIST_ORDERED
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse quote with unordered list from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlQuoteWithListUnordered_isEqual() {
+        val input =
+                HTML_QUOTE_WITH_LIST_UNORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

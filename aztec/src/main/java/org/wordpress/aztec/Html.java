@@ -19,9 +19,12 @@ package org.wordpress.aztec;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -117,7 +120,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, Context context) {
-        return fromHtml(source, null, null, context);
+        return fromHtml(source, null, context);
     }
 
     /**
@@ -138,8 +141,7 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, ImageGetter imageGetter,
-                                   TagHandler tagHandler, Context context) {
+    public static Spanned fromHtml(String source, TagHandler tagHandler, Context context) {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -153,7 +155,7 @@ public class Html {
         }
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, imageGetter, tagHandler,
+                new HtmlToSpannedConverter(source, tagHandler,
                         parser, context);
         return converter.convert();
     }
@@ -444,16 +446,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private String mSource;
     private XMLReader mReader;
     private SpannableStringBuilder spannableStringBuilder;
-    private Html.ImageGetter imageGetter;
     private Html.TagHandler tagHandler;
     private Context context;
 
     public HtmlToSpannedConverter(
-            String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler,
+            String source, Html.TagHandler tagHandler,
             Parser parser, Context context) {
         mSource = source;
         spannableStringBuilder = new SpannableStringBuilder();
-        this.imageGetter = imageGetter;
         this.tagHandler = tagHandler;
         mReader = parser;
         this.context = context;
@@ -547,7 +547,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             start(spannableStringBuilder, new Code(attributes));
         } else if (tag.equalsIgnoreCase("img")) {
-            startImg(spannableStringBuilder, attributes, imageGetter, context);
+            startImg(spannableStringBuilder, attributes, context);
         } else {
             if (tagHandler != null) {
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, mReader, attributes);
@@ -748,25 +748,18 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void startImg(SpannableStringBuilder text,
-                                 Attributes attributes, Html.ImageGetter img) {
-        String src = attributes.getValue("", "src");
-        Drawable d = null;
+    private static void startImg(final SpannableStringBuilder text,
+                                 Attributes attributes, final Context context) {
+        final String src = attributes.getValue("", "src");
+        final int start = text.length();
 
-        if (img != null) {
-            d = img.getDrawable(src);
-        }
+        // TODO: we should some placeholder drawable while loading imges
+        Drawable loadingDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_indeterminate_horizontal);
+        loadingDrawable.setBounds(0, 0, loadingDrawable.getIntrinsicWidth(), loadingDrawable.getIntrinsicHeight());
+        final ImageSpan imageSpan = new ImageSpan(loadingDrawable, src);
 
-        if (d == null) {
-            // TODO: we need a placeholder image here
-            d = Resources.getSystem().getDrawable(android.R.drawable.ic_menu_report_image);
-            d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-        }
-
-        int len = text.length();
         text.append("\uFFFC");
-
-        text.setSpan(new ImageSpan(d, src), len, text.length(),
+        text.setSpan(imageSpan, start, text.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 

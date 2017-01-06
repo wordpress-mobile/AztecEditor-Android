@@ -39,7 +39,8 @@ class AztecParser {
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
+
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), context))
 
         adjustNestedSpanOrder(spanned)
         fixBlockElementsRanges(spanned)

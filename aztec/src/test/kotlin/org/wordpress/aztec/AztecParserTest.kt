@@ -28,9 +28,9 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_LIST_UNORDERED_WITH_QUOTE = "<ul><li><blockquote>Unordered Quote</blockquote></li></ul>"
     private val HTML_LIST_UNORDERED_WITH_WHITE_SPACE = "<ul><li>Unordered<br></br></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
-    private val HTML_SINGLE_HEADER = "<h1>Heading 1</h1>"
-    private val HTML_HEADER = "<h1>Heading 1</h1><br><br><h2>Heading 2</h2><br><br><h3>Heading 3</h3><br><br><h4>Heading 4</h4><br><br><h5>Heading 5</h5><br><br><h6>Heading 6</h6><br><br>"
-    private val HTML_HEADER_PARSED = "<h1>Heading 1</h1><br><h2>Heading 2</h2><br><h3>Heading 3</h3><br><h4>Heading 4</h4><br><h5>Heading 5</h5><br><h6>Heading 6</h6><br><br>"
+    private val HTML_HEADING_ALL = "<h1>Heading 1</h1><br><br><h2>Heading 2</h2><br><br><h3>Heading 3</h3><br><br><h4>Heading 4</h4><br><br><h5>Heading 5</h5><br><br><h6>Heading 6</h6><br><br>"
+    private val HTML_HEADING_ALL_PARSED = "<h1>Heading 1</h1><br><h2>Heading 2</h2><br><h3>Heading 3</h3><br><h4>Heading 4</h4><br><h5>Heading 5</h5><br><h6>Heading 6</h6><br><br>"
+    private val HTML_HEADING_ONE = "<h1>Heading 1</h1>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
     private val HTML_MORE = "<!--more-->"
@@ -70,7 +70,7 @@ class AztecParserTest : AndroidTestCase() {
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_LIST_ORDERED = "Ordered\n\n"
     private val SPAN_COMMENT = "Comment\n\n"
-    private val SPAN_HEADER = "Heading 1\n\nHeading 2\n\nHeading 3\n\nHeading 4\n\nHeading 5\n\nHeading 6\n\n"
+    private val SPAN_HEADING = "Heading 1\n\nHeading 2\n\nHeading 3\n\nHeading 4\n\nHeading 5\n\nHeading 6\n\n"
     private val SPAN_ITALIC = "Italic\n\n"
     private val SPAN_LINK = "Link\n\n"
     private val SPAN_MORE = "more\n\n"
@@ -99,7 +99,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlAll_isEqual() {
         val input =
-                HTML_HEADER +
+                HTML_HEADING_ALL +
                 HTML_BOLD +
                 HTML_ITALIC +
                 HTML_UNDERLINE +
@@ -122,7 +122,7 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_NESTED_INTERLEAVING
 
         val parsed =
-                HTML_HEADER_PARSED +
+                HTML_HEADING_ALL_PARSED +
                 HTML_BOLD +
                 HTML_ITALIC +
                 HTML_UNDERLINE +
@@ -323,13 +323,13 @@ class AztecParserTest : AndroidTestCase() {
         var parsed: String
         var span: SpannableString
 
-        input = "<br>$HTML_SINGLE_HEADER"
+        input = "<br>$HTML_HEADING_ONE"
         span = SpannableString(mParser.fromHtml(input, context))
         Assert.assertEquals("\nHeading 1", span.toString())
         output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
 
-        input = "Text<br>$HTML_SINGLE_HEADER"
+        input = "Text<br>$HTML_HEADING_ONE"
         parsed = input.replace("<br>", "")
         span = SpannableString(mParser.fromHtml(input, context))
         output = mParser.toHtml(span)
@@ -399,9 +399,9 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlHeading_isEqual() {
         val input =
-                HTML_HEADER
+                HTML_HEADING_ALL
         val parsed =
-                HTML_HEADER_PARSED
+                HTML_HEADING_ALL_PARSED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(parsed, output)
@@ -723,7 +723,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanAll_isEqual() {
         val input = SpannableString(
-                SPAN_HEADER +
+                SPAN_HEADING +
                 SPAN_BOLD +
                 SPAN_ITALIC +
                 SPAN_UNDERLINE +
@@ -799,7 +799,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseSpanToHtmlToSpanHeading_isEqual() {
         val input = SpannableString(
-                SPAN_HEADER
+                SPAN_HEADING
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)
@@ -959,75 +959,75 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse single header HTML to span to HTML.  If input and output are equal with
+     * Parse single heading HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlSingleHeader_isEqual() {
-        val input = HTML_SINGLE_HEADER
+    fun parseHtmlToSpanToHtmlSingleHeading_isEqual() {
+        val input = HTML_HEADING_ONE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
     /**
-     * Parse HTML of header surrounded by text to span to HTML.  If input and output are equal with
+     * Parse HTML of heading surrounded by text to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlSingleHeaderSurroundedByText_isEqual() {
-        val input = "1" + HTML_SINGLE_HEADER + "1"
+    fun parseHtmlToSpanToHtmlSingleHeadingSurroundedByText_isEqual() {
+        val input = "1" + HTML_HEADING_ONE + "1"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
     /**
-     * Parse HTML of header surrounded by list to span to HTML.  If input and output are equal with
+     * Parse HTML of heading surrounded by list to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlHeaderSurroundedByList_isEqual() {
-        val input = HTML_LIST_ORDERED + HTML_SINGLE_HEADER + HTML_LIST_ORDERED
+    fun parseHtmlToSpanToHtmlHeadingSurroundedByList_isEqual() {
+        val input = HTML_LIST_ORDERED + HTML_HEADING_ONE + HTML_LIST_ORDERED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
     /**
-     * Parse HTML of header surrounded by quote to span to HTML.  If input and output are equal with
+     * Parse HTML of heading surrounded by quote to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlHeaderSurroundedByQuote_isEqual() {
-        val input = HTML_QUOTE + HTML_SINGLE_HEADER + HTML_QUOTE
+    fun parseHtmlToSpanToHtmlHeadingSurroundedByQuote_isEqual() {
+        val input = HTML_QUOTE + HTML_HEADING_ONE + HTML_QUOTE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
 
     /**
-     * Parse HTML of header surrounded by quote to span to HTML.  If input and output are equal with
+     * Parse HTML of heading surrounded by quote to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlLineBreakBetweenHeaders_isEqual() {
-        val input = HTML_SINGLE_HEADER + "<br>" + HTML_SINGLE_HEADER
+    fun parseHtmlToSpanToHtmlLineBreakBetweenHeadings_isEqual() {
+        val input = HTML_HEADING_ONE + "<br>" + HTML_HEADING_ONE
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

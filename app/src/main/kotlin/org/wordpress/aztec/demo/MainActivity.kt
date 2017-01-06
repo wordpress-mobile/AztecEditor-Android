@@ -63,7 +63,9 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 "</div>" +
                 "<br>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
+        private val IMG = "<img src=\"http://4k.com/wp-content/uploads/2014/06/4k-image-santiago.jpg\" />"
         private val EXAMPLE =
+                IMG +
                 HEADING +
                 BOLD +
                 ITALIC +
@@ -127,15 +129,17 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+        aztec.imageGetter = PicassoImageLoader(this)
+
         source = findViewById(R.id.source) as SourceViewEditText
+
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
         formattingToolbar.setMediaOptionSelectedListener(this)
 
         // initialize the text & HTML
-        aztec.fromHtml(EXAMPLE)
-        source.displayStyledAndFormattedHtml(aztec.toHtml())
+        source.displayStyledAndFormattedHtml(EXAMPLE)
         aztec.fromHtml(source.getPureHtml())
 
         source.history = aztec.history

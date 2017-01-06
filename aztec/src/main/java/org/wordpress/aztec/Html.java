@@ -97,12 +97,12 @@ public class Html {
      * Is notified when HTML tags are encountered that the parser does
      * not know how to interpret.
      */
-    public static interface TagHandler {
+    public interface TagHandler {
         /**
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        public boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader, Attributes attributes);
+        boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader, Attributes attributes);
     }
 
     private Html() {

@@ -108,10 +108,10 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_STRIKETHROUGH +
                 HTML_LIST_ORDERED +
                 HTML_LIST_ORDERED_WITH_EMPTY_ITEM +
-// TODO:                HTML_LIST_ORDERED_WITH_QUOTE +
+                HTML_LIST_ORDERED_WITH_QUOTE +
                 HTML_LIST_UNORDERED +
                 HTML_LIST_UNORDERED_WITH_EMPTY_ITEM +
-// TODO:                HTML_LIST_UNORDERED_WITH_QUOTE +
+                HTML_LIST_UNORDERED_WITH_QUOTE +
                 HTML_QUOTE +
                 HTML_LINK +
                 HTML_UNKNOWN +
@@ -133,10 +133,10 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_STRIKETHROUGH +
                 HTML_LIST_ORDERED +
                 HTML_LIST_ORDERED_WITH_EMPTY_ITEM +
-// TODO:                HTML_LIST_ORDERED_WITH_QUOTE +
+                HTML_LIST_ORDERED_WITH_QUOTE +
                 HTML_LIST_UNORDERED +
                 HTML_LIST_UNORDERED_WITH_EMPTY_ITEM +
-// TODO:                HTML_LIST_UNORDERED_WITH_QUOTE +
+                HTML_LIST_UNORDERED_WITH_QUOTE +
                 HTML_QUOTE +
                 HTML_LINK +
                 HTML_UNKNOWN_PARSED +

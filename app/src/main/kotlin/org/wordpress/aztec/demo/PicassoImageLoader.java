@@ -43,6 +43,7 @@ public class PicassoImageLoader implements Html.ImageGetter {
             }
         };
         targets.put(source, target);
+        //noinspection SuspiciousNameCombination
         picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().into(target);
     }
 }

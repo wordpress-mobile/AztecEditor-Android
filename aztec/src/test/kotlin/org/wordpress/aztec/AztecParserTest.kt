@@ -786,7 +786,7 @@ class AztecParserTest : AndroidTestCase() {
      */
     @Test
     @Throws(Exception::class)
-    fun parseSpanToHtmlToSpanOrdered_isEqual() {
+    fun parseSpanToHtmlToSpanListOrdered_isEqual() {
         val input = SpannableString(
                 SPAN_LIST_ORDERED
         )
@@ -803,7 +803,7 @@ class AztecParserTest : AndroidTestCase() {
      */
     @Test
     @Throws(Exception::class)
-    fun parseSpanToHtmlToSpanUnordered_isEqual() {
+    fun parseSpanToHtmlToSpanListUnordered_isEqual() {
         val input = SpannableString(
                 SPAN_LIST_UNORDERED
         )

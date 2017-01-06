@@ -43,6 +43,7 @@ class AttributeTest {
         private val LIST_WITH_NON_EMPTY_ITEMS = "<ol><li a=\"B\">ab</li><li c=\"C\">c</li></ol>"
         private val LIST_WITH_EMPTY_ITEMS = "a<ul><li a=\"A\"></li><li></li><li a=\"1\">1</li><li></li><li b=\"B\"></li></ul>b"
         private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<br><ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
+        private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK_PARSED = "a<ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
         private val SUB = "<sub i=\"I\">Sub</sub>"
         private val SUP = "<sup i=\"I\">Sup</sup>"
         private val FONT = "<font i=\"I\">Font</font>"
@@ -269,9 +270,10 @@ class AttributeTest {
     @Throws(Exception::class)
     fun listWithEmptyItemsAndLineBreakAfterItAttributes() {
         val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
+        val parsed = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK_PARSED
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(input, output)
+        Assert.assertEquals(parsed, output)
     }
 
     @Test

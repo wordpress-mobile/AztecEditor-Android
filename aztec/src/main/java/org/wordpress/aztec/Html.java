@@ -75,7 +75,7 @@ public class Html {
     /**
      * Retrieves images for HTML &lt;img&gt; tags.
      */
-    public static interface ImageGetter {
+    public interface ImageGetter {
         /**
          * This method is called when the HTML parser encounters an
          * &lt;img&gt; tag.  The <code>source</code> argument is the
@@ -85,7 +85,12 @@ public class Html {
          * setBounds() on your Drawable if it doesn't already have
          * its bounds set.
          */
-        public Drawable getDrawable(String source);
+        void loadImage(String source, Html.ImageGetter.Callbacks callbacks);
+
+        interface Callbacks {
+            void onImageLoaded(Drawable drawable);
+            void onImageLoadingFailed();
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
+import android.support.v4.util.ArrayMap
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -129,7 +130,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
-        aztec.imageGetter = PicassoImageLoader(this)
+
+        val targets: Map<String, com.squareup.picasso.Target> = ArrayMap()
+        aztec.imageGetter = PicassoImageLoader(this, targets)
+        aztec.tag = targets
 
         source = findViewById(R.id.source) as SourceViewEditText
 

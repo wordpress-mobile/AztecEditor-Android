@@ -10,16 +10,20 @@ import com.squareup.picasso.Target;
 
 import org.wordpress.aztec.Html;
 
+import java.util.Map;
+
 public class PicassoImageLoader implements Html.ImageGetter {
 
     private Context context;
+    private Map<String, Target> targets;
 
-    public PicassoImageLoader(Context context) {
+    public PicassoImageLoader(Context context, Map<String, Target> targets) {
         this.context = context;
+        this.targets = targets;
     }
 
     @Override
-    public void loadImage(String source, final Callbacks callbacks) {
+    public void loadImage(String source, final Callbacks callbacks, int maxWidth) {
         Picasso picasso = Picasso.with(context);
         picasso.setLoggingEnabled(true);
 
@@ -38,6 +42,7 @@ public class PicassoImageLoader implements Html.ImageGetter {
             public void onPrepareLoad(Drawable placeHolderDrawable) {
             }
         };
-        picasso.load(source).into(target);
+        targets.put(source, target);
+        picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().into(target);
     }
 }

@@ -30,6 +30,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_SINGLE_HEADER = "<h1>Heading 1</h1>"
     private val HTML_HEADER = "<h1>Heading 1</h1><br><br><h2>Heading 2</h2><br><br><h3>Heading 3</h3><br><br><h4>Heading 4</h4><br><br><h5>Heading 5</h5><br><br><h6>Heading 6</h6><br><br>"
+    private val HTML_HEADER_PARSED = "<h1>Heading 1</h1><br><h2>Heading 2</h2><br><h3>Heading 3</h3><br><h4>Heading 4</h4><br><h5>Heading 5</h5><br><h6>Heading 6</h6><br><br>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
     private val HTML_MORE = "<!--more-->"
@@ -40,28 +41,29 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
+    private val HTML_UNKNOWN_PARSED = "<iframe class=\"classic\">Menu</iframe><br>"
     private val HTML_COMMENT_INSIDE_UNKNOWN = "<unknown><!--more--></unknown>"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
-                    "<div class=\"first\">" +
-                    "<div class=\"second\">" +
-                    "<div class=\"third\">" +
-                    "Div<br><span><b>b</b></span><br>Hidden" +
-                    "</div>" +
-                    "<div class=\"fourth\"></div>" +
-                    "<div class=\"fifth\"></div>" +
-                    "</div>" +
-                    "<span class=\"second last\"></span>" +
-                    "<span></span><div><div><div><span></span></div></div></div><div></div>" +
-                    "</div>" +
-                    "<br><br>"
+            "<div class=\"first\">" +
+            "<div class=\"second\">" +
+            "<div class=\"third\">" +
+            "Div<br><span><b>b</b></span><br>Hidden" +
+            "</div>" +
+            "<div class=\"fourth\"></div>" +
+            "<div class=\"fifth\"></div>" +
+            "</div>" +
+            "<span class=\"second last\"></span>" +
+            "<span></span><div><div><div><span></span></div></div></div><div></div>" +
+            "</div>" +
+            "<br><br>"
     private val HTML_NESTED_EMPTY_END = "1<span></span><div><div><div><span></span>a</div><div></div><div></div></div><span></span></div>"
     private val HTML_NESTED_EMPTY_START = "<span></span><div><div><div><span></span></div><div></div></div><span></span></div>1"
     private val HTML_NESTED_EMPTY = "<span></span><div><div><div><span></span></div></div></div><div></div>"
     private val HTML_NESTED_WITH_TEXT = "<div>1<div>2<div>3<span>4</span>5</div>6</div>7</div>"
     private val HTML_NESTED_INTERLEAVING =
             "<div><div><div><span></span><div></div><span></span></div></div></div><br>" +
-                    "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
+            "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
     private val HTML_NESTED_INLINE = "<u><i><b>Nested</b></i></u>"
     private val HTML_HIDDEN_WITH_NO_TEXT = "<br><br><div></div><br><br>"
 
@@ -87,8 +89,9 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse all text from HTML to span to HTML.  If input and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.
+     * Parse all text from HTML to span to HTML.  If parsed and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
+     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
      *
      * @throws Exception
      */
@@ -97,27 +100,53 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlAll_isEqual() {
         val input =
                 HTML_HEADER +
-                        HTML_BOLD +
-                        HTML_ITALIC +
-                        HTML_UNDERLINE +
-                        HTML_STRIKETHROUGH +
-                        HTML_BULLET +
-                        HTML_QUOTE +
-                        HTML_LINK +
-                        HTML_BULLET_WITH_QUOTE +
-                        HTML_UNKNOWN +
-                        HTML_QUOTE_WITH_BULLETS +
-                        HTML_COMMENT +
-                        HTML_NESTED_MIXED +
-                        HTML_NESTED_EMPTY_END +
-                        HTML_NESTED_EMPTY_START +
-                        HTML_NESTED_EMPTY +
-                        HTML_NESTED_WITH_TEXT +
-                        HTML_NESTED_INTERLEAVING
+                HTML_BOLD +
+                HTML_ITALIC +
+                HTML_UNDERLINE +
+                HTML_STRIKETHROUGH +
+                HTML_ORDERED_LIST +
+                HTML_NUMBERED_LIST_WITH_EMPTY_ITEM +
+//                HTML_LIST_ORDERED_WITH_QUOTE +
+                HTML_BULLET +
+                HTML_BULLET_LIST_WITH_EMPTY_ITEM +
+//                HTML_LIST_UNORDERED_WITH_QUOTE +
+                HTML_QUOTE +
+                HTML_LINK +
+                HTML_UNKNOWN +
+                HTML_COMMENT +
+                HTML_NESTED_MIXED +
+                HTML_NESTED_EMPTY_END +
+                HTML_NESTED_EMPTY_START +
+                HTML_NESTED_EMPTY +
+                HTML_NESTED_WITH_TEXT +
+                HTML_NESTED_INTERLEAVING
+
+        val parsed =
+                HTML_HEADER_PARSED +
+                HTML_BOLD +
+                HTML_ITALIC +
+                HTML_UNDERLINE +
+                HTML_STRIKETHROUGH +
+                HTML_ORDERED_LIST +
+                HTML_NUMBERED_LIST_WITH_EMPTY_ITEM +
+//                HTML_LIST_ORDERED_WITH_QUOTE +
+                HTML_BULLET +
+                HTML_BULLET_LIST_WITH_EMPTY_ITEM +
+//                HTML_LIST_UNORDERED_WITH_QUOTE +
+                HTML_QUOTE +
+                HTML_LINK +
+                HTML_UNKNOWN_PARSED +
+                HTML_COMMENT +
+                HTML_NESTED_MIXED +
+                HTML_NESTED_EMPTY_END +
+                HTML_NESTED_EMPTY_START +
+                HTML_NESTED_EMPTY +
+                HTML_NESTED_WITH_TEXT +
+                HTML_NESTED_INTERLEAVING
 
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(input, output)
+        Assert.assertEquals(parsed, output)
     }
 
     /**
@@ -247,22 +276,22 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
-
     /**
-     * Parse ordered list surrounded text from HTML to span to HTML.  If input and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.
+     * Parse ordered list surrounded text from HTML to span to HTML.  If parsed and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
+     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlOrderedListSurroundedByNewlineAndText_isEqual() {
-        val input = "1<br>$HTML_ORDERED_LIST<br>1"
+    fun parseHtmlToSpanToHtmlListOrderedSurroundedByNewlineAndText_isEqual() {
+        val input = "1<br>$HTML_ORDERED_LIST<br>2"
+        val parsed = "1$HTML_ORDERED_LIST<br>2"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(input, output)
+        Assert.assertEquals(parsed, output)
     }
-
 
     /**
      * Parse ordered lists with text inbetween from HTML to span to HTML.  If input and output are equal with
@@ -296,8 +325,9 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse heading text from HTML to span to HTML.  If input and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.
+     * Parse heading text from HTML to span to HTML.  If parsed and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
+     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
      *
      * @throws Exception
      */
@@ -306,9 +336,11 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlHeading_isEqual() {
         val input =
                 HTML_HEADER
+        val parsed =
+                HTML_HEADER_PARSED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(input, output)
+        Assert.assertEquals(parsed, output)
     }
 
     /**
@@ -628,15 +660,14 @@ class AztecParserTest : AndroidTestCase() {
     fun parseSpanToHtmlToSpanAll_isEqual() {
         val input = SpannableString(
                 SPAN_HEADER +
-                        SPAN_BOLD +
-                        SPAN_ITALIC +
-                        SPAN_UNDERLINE +
-                        SPAN_STRIKETHROUGH +
-                        SPAN_BULLET +
-                        SPAN_QUOTE +
-                        SPAN_LINK +
-                        SPAN_UNKNOWN +
-                        SPAN_COMMENT
+                SPAN_BOLD +
+                SPAN_ITALIC +
+                SPAN_UNDERLINE +
+                SPAN_STRIKETHROUGH +
+                SPAN_QUOTE +
+                SPAN_LINK +
+                SPAN_UNKNOWN +
+                SPAN_COMMENT
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)

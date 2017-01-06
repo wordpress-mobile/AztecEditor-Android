@@ -204,6 +204,21 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
+     * Parse unordered list with quote surrounded by text from HTML to span to HTML.  If parsed and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListUnorderedWithQuoteSurroundedByText_isEqual() {
+        val input = "One" + HTML_LIST_UNORDERED_WITH_QUOTE + "Two"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
      * Parse unordered list with white space text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
@@ -236,7 +251,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse ordered lists with quote from HTML to span to HTML.  If input and output are equal with
+     * Parse ordered list with quote from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
@@ -246,6 +261,21 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlListOrderedWithQuote_isEqual() {
         val input =
                 HTML_LIST_ORDERED_WITH_QUOTE
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse ordered list with quote surrounded by text from HTML to span to HTML.  If parsed and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListOrderedWithQuoteSurroundedByText_isEqual() {
+        val input = "One" + HTML_LIST_ORDERED_WITH_QUOTE + "Two"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

@@ -69,6 +69,7 @@ class AztecParserTest : AndroidTestCase() {
 
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_LIST_ORDERED = "Ordered\n\n"
+    private val SPAN_LIST_UNORDERED = "Unordered\n\n"
     private val SPAN_COMMENT = "Comment\n\n"
     private val SPAN_HEADING = "Heading 1\n\nHeading 2\n\nHeading 3\n\nHeading 4\n\nHeading 5\n\nHeading 6\n\n"
     private val SPAN_ITALIC = "Italic\n\n"
@@ -728,6 +729,7 @@ class AztecParserTest : AndroidTestCase() {
                 SPAN_ITALIC +
                 SPAN_UNDERLINE +
                 SPAN_STRIKETHROUGH +
+                SPAN_LIST_UNORDERED +
                 SPAN_QUOTE +
                 SPAN_LINK +
                 SPAN_UNKNOWN +
@@ -766,6 +768,23 @@ class AztecParserTest : AndroidTestCase() {
     fun parseSpanToHtmlToSpanOrdered_isEqual() {
         val input = SpannableString(
                 SPAN_LIST_ORDERED
+        )
+        val html = mParser.toHtml(input)
+        val output = mParser.fromHtml(html, context)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse unordered list text from span to HTML to span.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseSpanToHtmlToSpanUnordered_isEqual() {
+        val input = SpannableString(
+                SPAN_LIST_UNORDERED
         )
         val html = mParser.toHtml(input)
         val output = mParser.fromHtml(html, context)

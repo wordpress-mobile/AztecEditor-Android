@@ -1,20 +1,16 @@
 package org.wordpress.aztec.glideloader
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.drawable.Drawable
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.Request
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 
 import org.wordpress.aztec.Html
-
-import java.util.Locale
 
 class GlideImageLoader(private val context: Context) : Html.ImageGetter {
 

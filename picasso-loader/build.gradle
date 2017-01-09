@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
@@ -20,6 +21,7 @@ android {
 
 dependencies {
     compile project(':aztec')
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
 }

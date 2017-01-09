@@ -1,1 +1,1 @@
-include ':app', ':aztec', ':glide-loader'
+include ':app', ':aztec', ':glide-loader', ':picasso-loader'

@@ -1,4 +1,4 @@
-package org.wordpress.aztec.demo;
+package org.wordpress.aztec.picassoloader;
 
 import android.content.Context;
 import android.graphics.Bitmap;

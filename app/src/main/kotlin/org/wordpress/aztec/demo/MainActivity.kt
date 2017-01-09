@@ -131,9 +131,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
         aztec = findViewById(R.id.aztec) as AztecText
 
-        val targets: Map<String, com.squareup.picasso.Target> = ArrayMap()
-        aztec.imageGetter = PicassoImageLoader(this, targets)
-        aztec.tag = targets
+        aztec.imageGetter = PicassoImageLoader(this, aztec)
 
         source = findViewById(R.id.source) as SourceViewEditText
 

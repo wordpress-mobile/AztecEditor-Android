@@ -1,4 +1,4 @@
-package org.wordpress.aztec.demo;
+package org.wordpress.aztec.glideloader;
 
 import android.content.Context;
 import android.content.res.Resources;

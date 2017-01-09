@@ -24,6 +24,7 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
@@ -131,7 +132,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
         aztec = findViewById(R.id.aztec) as AztecText
 
-        aztec.imageGetter = PicassoImageLoader(this, aztec)
+//        aztec.imageGetter = PicassoImageLoader(this, aztec)
+        aztec.imageGetter = GlideImageLoader(this)
 
         source = findViewById(R.id.source) as SourceViewEditText
 

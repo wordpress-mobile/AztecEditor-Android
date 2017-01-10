@@ -695,4 +695,72 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("a\nc", editText.text.toString())
         Assert.assertEquals("<$listTag><li>a</li><li>c</li></$listTag>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteSecondEmptyLineAndTestForZwjCharOnFirst() {
+        editText.fromHtml("<$listTag><li></li><li></li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteLastItemFromList() {
+        editText.fromHtml("<$listTag><li>a</li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("", editText.text.toString())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteLastItemFromListWithTextAbove() {
+        editText.fromHtml("abc<$listTag><li>a</li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals("abc\n" + Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("abc<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("abc\n", editText.text.toString())
+        Assert.assertEquals("abc<br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addTwoLinesThenDeleteTheList() {
+        editText.fromHtml("<$listTag><li></li></$listTag>")
+
+        editText.append("a")
+        editText.append("\n")
+        editText.append("b")
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("a\n" + Constants.ZWJ_CHAR, editText.text.toString())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("a", editText.text.toString())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("", editText.text.toString())
+        Assert.assertEquals("", editText.toHtml())
+    }
 }

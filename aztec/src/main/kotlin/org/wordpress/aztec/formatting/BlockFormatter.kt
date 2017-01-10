@@ -66,9 +66,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             var spanEnd = text.getSpanEnd(it)
             val spanStart = text.getSpanStart(it)
 
-            if (spanEnd == spanStart) {
-                editableText.removeSpan(it)
-            } else if (spanEnd <= text.length) {
+            if (spanEnd != spanStart && spanEnd <= text.length) {
                 //case for when we remove block element row from first line of EditText end the next line is empty
                 if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n' && !textChangedEvent.isAddingCharacters) {
                     spanEnd += 1
@@ -173,18 +171,24 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
                     val newSpanEnd = if (inputEnd > spanEnd) spanEnd + 2 else spanEnd + 1
                     text.setSpan(list, spanStart, newSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (inputEnd - 2 < spanStart || text[inputEnd - 2] == '\n') {
+                } else if ((inputEnd - 2 >= spanStart && text[inputEnd - 2] == '\n') || inputEnd - 1 == spanStart) {
                     // if ZWJ char got just deleted, add it to the line above if it's empty
                     editor.disableTextChangedListener()
                     text.insert(inputEnd - 1, Constants.ZWJ_STRING)
 
+                    if (inputEnd - 1 < spanStart + 1) {
+                        text.setSpan(list, inputEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
                     // delete the last newline
                     editor.disableTextChangedListener()
                     text.delete(inputEnd, inputEnd + 1)
-                } else {
+                } else if (spanEnd > 0 && spanStart != spanEnd) {
                     // delete the last newline
                     editor.disableTextChangedListener()
                     text.delete(spanEnd - 1, spanEnd)
+                } else {
+                    text.removeSpan(list)
                 }
             }
         } else if (!textChangedEvent.isAddingCharacters && !textChangedEvent.isNewLineButNotAtTheBeginning()) {

@@ -418,6 +418,12 @@ class AztecText : EditText, TextWatcher {
                 deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
                         (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
                         (start == 0 || text[start - 1] == '\n')
+
+                // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
+                // because we want to allow a block span with empty text (such as list with a single empty first item)
+                if (deletedFromBlock && after == 0 && blockEnd - blockStart == count) {
+                    this.text.setSpan(block, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
             }
         }
 
@@ -446,12 +452,6 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
-        val paragraphSpans = text.getSpans(0, text.length, ParagraphStyle::class.java)
-        paragraphSpans.forEach {
-            if (text.getSpanStart(it) == text.getSpanEnd(it)) {
-                text.removeSpan(it)
-            }
-        }
 
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, AztecInlineSpan::class.java)

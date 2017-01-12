@@ -1064,4 +1064,13 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListUnorderedFollowedByUnknwonHtml_isEqual() {
+        val input = HTML_LIST_UNORDERED + HTML_UNKNOWN
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

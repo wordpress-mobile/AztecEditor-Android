@@ -289,10 +289,9 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListOrderedSurroundedByNewlineAndText_isEqual() {
         val input = "1<br>$HTML_LIST_ORDERED<br>2"
-        val parsed = "1$HTML_LIST_ORDERED<br>2"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
     }
 
     /**
@@ -322,7 +321,6 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlLinebreakFollowedByBlock_isEqual() {
         var input: String
         var output: String
-        var parsed: String
         var span: SpannableString
 
         input = "<br>$HTML_HEADING_ONE"
@@ -332,10 +330,9 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
 
         input = "Text<br>$HTML_HEADING_ONE"
-        parsed = input.replace("<br>", "")
         span = SpannableString(mParser.fromHtml(input, context))
         output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
 
         input = "<br>$HTML_QUOTE"
         span = SpannableString(mParser.fromHtml(input, context))
@@ -344,10 +341,9 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
 
         input = "Text<br>$HTML_QUOTE"
-        parsed = input.replace("<br>", "")
         span = SpannableString(mParser.fromHtml(input, context))
         output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
 
         input = "<br>$HTML_LIST_ORDERED"
         span = SpannableString(mParser.fromHtml(input, context))
@@ -356,10 +352,9 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
 
         input = "Text<br>$HTML_LIST_ORDERED"
-        parsed = input.replace("<br>", "")
         span = SpannableString(mParser.fromHtml(input, context))
         output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
 
         input = "<br>$HTML_LIST_UNORDERED"
         span = SpannableString(mParser.fromHtml(input, context))
@@ -368,10 +363,9 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
 
         input = "Text<br>$HTML_LIST_UNORDERED"
-        parsed = input.replace("<br>", "")
         span = SpannableString(mParser.fromHtml(input, context))
         output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
     }
 
     /**

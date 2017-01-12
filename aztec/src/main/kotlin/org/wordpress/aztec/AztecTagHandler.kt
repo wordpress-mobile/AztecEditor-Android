@@ -96,7 +96,7 @@ class AztecTagHandler : Html.TagHandler {
 
             if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
                 output.append("\n")
-            } else if (span is AztecQuoteSpan && !opening && nestedInBlockElement) {
+            } else if (span !is AztecListSpan && !opening && nestedInBlockElement) {
                 output.append("\n")
             }
         }

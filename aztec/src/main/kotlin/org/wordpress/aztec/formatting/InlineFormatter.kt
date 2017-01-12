@@ -413,7 +413,5 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
 
             return !styledText.isEmpty() && selectedText.contains(styledText)
         }
-
     }
 }
-

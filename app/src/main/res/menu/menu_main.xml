@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/undo"
           android:title="@string/menu_undo"
           android:icon="@drawable/ic_action_undo"
-          app:showAsAction="ifRoom">
+          android:showAsAction="always">
     </item>
 
     <item android:id="@+id/redo"
           android:title="@string/menu_redo"
           android:icon="@drawable/ic_action_redo"
-          app:showAsAction="ifRoom">
+          android:showAsAction="always">
     </item>
 
 </menu>

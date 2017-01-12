@@ -188,7 +188,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse unordered list with white space text from HTML to span to HTML.  If input and output are equal with
+     * Parse unordered list with white space text from HTML to span to HTML.  If input without white space and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
@@ -248,7 +248,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse ordered list with white space text from HTML to span to HTML.  If input and output are equal with
+     * Parse ordered list with white space text from HTML to span to HTML.  If input without white space and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception

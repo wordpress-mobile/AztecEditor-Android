@@ -89,9 +89,8 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse all text from HTML to span to HTML.  If parsed and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
-     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
+     * Parse all text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
@@ -174,7 +173,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse unordered list with quote surrounded by text from HTML to span to HTML.  If parsed and output are equal with
+     * Parse unordered list with quote surrounded by text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
@@ -234,7 +233,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse ordered list with quote surrounded by text from HTML to span to HTML.  If parsed and output are equal with
+     * Parse ordered list with quote surrounded by text from HTML to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
@@ -279,9 +278,8 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse ordered list surrounded text from HTML to span to HTML.  If parsed and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
-     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
+     * Parse ordered list surrounded text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
@@ -312,8 +310,7 @@ class AztecParserTest : AndroidTestCase() {
     // TODO: Uncomment when the extra newline issue gets fixed
     /**
      * Parse block elements with preceding newline from HTML to span to HTML.  If input and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
-     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
+     * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */
@@ -385,9 +382,8 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse heading text from HTML to span to HTML.  If parsed and output are equal with
-     * the same length and corresponding characters, [AztecParser] is correct.  When block elements
-     * replace preceding <br> with [BlockElementLinebreak], input will not equal output.
+     * Parse heading text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
      */

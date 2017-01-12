@@ -817,11 +817,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         text.removeSpan(obj);
 
-        // TODO: this is temp fix
-        if (where > 0 && text.getSpans(where - 1, where - 1, AztecListSpan.class).length > 0) {
-            where -= 1;
-        }
-
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
             UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help);

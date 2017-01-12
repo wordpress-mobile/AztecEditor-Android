@@ -1073,4 +1073,19 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    /**
+     * Parse HTML of header with single character surounded by other headers to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlSingleCharHeaderSurroundedByHeaders_isEqual() {
+        val input = "<h1>Heading 1</h1><h2>2</h2><h3>Heading 3</h3>"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

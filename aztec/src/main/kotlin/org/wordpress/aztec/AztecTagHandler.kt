@@ -106,7 +106,6 @@ class AztecTagHandler : Html.TagHandler {
         } else {
             end(output, span.javaClass)
         }
-
     }
 
     fun isNestedInBlockElement(output: Editable, opening: Boolean): Boolean {

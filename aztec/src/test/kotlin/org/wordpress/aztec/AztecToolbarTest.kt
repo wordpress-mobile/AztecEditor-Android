@@ -300,44 +300,34 @@ class AztecToolbarTest {
         //cursor is at bold text
         editText.setSelection(2)
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
+
 
         //cursor is at bold/italic text
         editText.setSelection(7)
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertTrue(italicButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
 
-        //bold and bold/italic styles selected
+        //bold text with mixed italic style is selected
         editText.setSelection(2, 7)
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
 
-        //cursor is at italic text
-        editText.setSelection(15)
-        Assert.assertFalse(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
-
-        //cursor is at strikethrough text
+        //unstyled text selected
         editText.setSelection(22)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertTrue(strikeThroughButton.isChecked)
 
-        //cursor is at unstyled text
-        editText.setSelection(28)
+        //unstyled text selected
+        editText.setSelection(15)
         Assert.assertFalse(boldButton.isChecked)
-        Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertTrue(italicButton.isChecked)
 
         //whole text selected
         editText.setSelection(0, editText.length() - 1)
-        Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
-        Assert.assertTrue(strikeThroughButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
+        Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
     }
 
     /**
@@ -348,18 +338,18 @@ class AztecToolbarTest {
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleItalicPartialSelection() {
+    fun extendStyle() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         val selectedText = editText.text.substring(3, 5)
         Assert.assertEquals("di", selectedText) //sanity check
 
         editText.setSelection(3, 5)
-        Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
 
+        Assert.assertTrue(boldButton.isChecked)
         italicButton.performClick()
-        Assert.assertEquals("<b>boldi</b><b><i>talic</i></b>", editText.toHtml())
+
+        Assert.assertEquals("<b>bol</b><b><i>ditalic</i></b>", editText.toHtml())
     }
 
     /**
@@ -370,18 +360,18 @@ class AztecToolbarTest {
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleStrikethroughPartialSelection() {
+    fun extendStyleStrikethrough() {
         editText.fromHtml("<b>bold</b><b><del>strike</del></b>")
 
         val selectedText = editText.text.substring(3, 5)
         Assert.assertEquals("ds", selectedText) //sanity check
 
         editText.setSelection(3, 5)
-        Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(strikeThroughButton.isChecked)
 
+        Assert.assertTrue(boldButton.isChecked)
         strikeThroughButton.performClick()
-        Assert.assertEquals("<b>bolds</b><b><del>trike</del></b>", editText.toHtml())
+
+        Assert.assertEquals("<b>bol</b><b><del>dstrike</del></b>", editText.toHtml())
     }
 
     /**
@@ -413,13 +403,14 @@ class AztecToolbarTest {
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleFromWholeSelection() {
+    fun extendStyleToWholeSelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         editText.setSelection(0, editText.length())
 
         italicButton.performClick()
-        Assert.assertEquals("<b>bolditalic</b>", editText.toHtml())
+
+        Assert.assertEquals("<b><i>bolditalic</i></b>", editText.toHtml())
     }
 
     /**
@@ -429,22 +420,20 @@ class AztecToolbarTest {
      */
     @Test
     @Throws(Exception::class)
-    fun removeAndApplyStyleFromWholeSelection() {
+    fun removeStyleFromWholeSelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         editText.setSelection(0, editText.length())
 
         boldButton.performClick()
-        Assert.assertEquals("bold<i>italic</i>", editText.toHtml())
 
-        italicButton.performClick()
-        Assert.assertEquals("bolditalic", editText.toHtml())
+        Assert.assertEquals("bold<i>italic</i>", editText.toHtml())
 
         italicButton.performClick()
         Assert.assertEquals("<i>bolditalic</i>", editText.toHtml())
 
-        boldButton.performClick()
-        Assert.assertEquals("<i><b>bolditalic</b></i>", editText.toHtml())
+        italicButton.performClick()
+        Assert.assertEquals("bolditalic", editText.toHtml())
     }
 
     /**

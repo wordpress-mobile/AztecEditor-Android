@@ -399,7 +399,6 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
             // Make sure no duplicate characters be added
             for (i in start..end - 1) {
                 val spans = editableText.getSpans(i, i + 1, AztecInlineSpan::class.java)
-
                 for (span in spans) {
                     if (isSameInlineSpanType(span, spanToCheck)) {
                         builder.append(editableText.subSequence(i, i + 1).toString())
@@ -408,10 +407,9 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
                 }
             }
 
-            val selectedText = editableText.subSequence(start, end).toString().replace("\n", "")
-            val styledText = builder.toString()
-
-            return !styledText.isEmpty() && selectedText.contains(styledText)
+            return editableText.subSequence(start, end).toString() == builder.toString()
         }
+
     }
 }
+

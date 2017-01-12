@@ -29,7 +29,6 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_LIST_UNORDERED_WITH_WHITE_SPACE = "<ul><li>Unordered<br></br></li></ul>"
     private val HTML_COMMENT = "<!--Comment--><br><br>"
     private val HTML_HEADING_ALL = "<h1>Heading 1</h1><br><br><h2>Heading 2</h2><br><br><h3>Heading 3</h3><br><br><h4>Heading 4</h4><br><br><h5>Heading 5</h5><br><br><h6>Heading 6</h6><br><br>"
-    private val HTML_HEADING_ALL_PARSED = "<h1>Heading 1</h1><br><h2>Heading 2</h2><br><h3>Heading 3</h3><br><h4>Heading 4</h4><br><h5>Heading 5</h5><br><h6>Heading 6</h6><br><br>"
     private val HTML_HEADING_ONE = "<h1>Heading 1</h1>"
     private val HTML_ITALIC = "<i>Italic</i><br><br>"
     private val HTML_LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
@@ -42,7 +41,6 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
-    private val HTML_UNKNOWN_PARSED = "<iframe class=\"classic\">Menu</iframe><br>"
     private val HTML_COMMENT_INSIDE_UNKNOWN = "<unknown><!--more--></unknown>"
     private val HTML_NESTED_MIXED =
             "<span></span>" +
@@ -125,34 +123,9 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_NESTED_WITH_TEXT +
                 HTML_NESTED_INTERLEAVING
 
-        val parsed =
-                HTML_HEADING_ALL_PARSED +
-                HTML_BOLD +
-                HTML_ITALIC +
-                HTML_UNDERLINE +
-                HTML_STRIKETHROUGH +
-                HTML_LIST_ORDERED +
-                HTML_LIST_ORDERED_WITH_EMPTY_ITEM +
-                HTML_LIST_ORDERED_WITH_QUOTE +
-                HTML_LIST_UNORDERED +
-                HTML_LIST_UNORDERED_WITH_EMPTY_ITEM +
-                HTML_LIST_UNORDERED_WITH_QUOTE +
-                HTML_QUOTE +
-                HTML_LINK +
-                HTML_UNKNOWN_PARSED +
-                HTML_QUOTE_WITH_LIST_ORDERED +
-                HTML_QUOTE_WITH_LIST_UNORDERED +
-                HTML_COMMENT +
-                HTML_NESTED_MIXED +
-                HTML_NESTED_EMPTY_END +
-                HTML_NESTED_EMPTY_START +
-                HTML_NESTED_EMPTY +
-                HTML_NESTED_WITH_TEXT +
-                HTML_NESTED_INTERLEAVING
-
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
     }
 
     /**
@@ -427,10 +400,9 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlHeading_isEqual() {
         val input = HTML_HEADING_ALL
-        val parsed = HTML_HEADING_ALL_PARSED
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
-        Assert.assertEquals(parsed, output)
+        Assert.assertEquals(input, output)
     }
 
     /**

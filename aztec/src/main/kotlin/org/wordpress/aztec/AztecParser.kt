@@ -221,7 +221,7 @@ class AztecParser {
 
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {
-                    withinListThenQuote(out, text, i, next++, styles[0] as AztecListSpan)
+                    withinListThenQuote(out, text, i, next, styles[0] as AztecListSpan)
                 } else if (styles[0] is AztecQuoteSpan && styles[1] is AztecListSpan) {
                     withinQuoteThenList(out, text, i, next, styles[1] as AztecListSpan, styles[0] as AztecQuoteSpan)
                 } else {

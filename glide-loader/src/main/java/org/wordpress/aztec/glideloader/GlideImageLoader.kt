@@ -16,25 +16,25 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
         Glide.with(context).load(source).fitCenter().into(object : Target<GlideDrawable> {
-            override fun onLoadStarted(placeholder: Drawable) {
+            override fun onLoadStarted(placeholder: Drawable?) {
                 val r = context.resources
             }
 
-            override fun onLoadFailed(e: Exception, errorDrawable: Drawable) {
+            override fun onLoadFailed(e: Exception?, errorDrawable: Drawable?) {
                 callbacks.onImageLoadingFailed()
             }
 
-            override fun onResourceReady(resource: GlideDrawable, glideAnimation: GlideAnimation<in GlideDrawable>) {
+            override fun onResourceReady(resource: GlideDrawable?, glideAnimation: GlideAnimation<in GlideDrawable>?) {
                 callbacks.onImageLoaded(resource)
             }
 
-            override fun onLoadCleared(placeholder: Drawable) {}
+            override fun onLoadCleared(placeholder: Drawable?) {}
 
-            override fun getSize(cb: SizeReadyCallback) {
-                cb.onSizeReady(maxWidth, Target.SIZE_ORIGINAL)
+            override fun getSize(cb: SizeReadyCallback?) {
+                cb?.onSizeReady(maxWidth, Target.SIZE_ORIGINAL)
             }
 
-            override fun setRequest(request: Request) {
+            override fun setRequest(request: Request?) {
 
             }
 

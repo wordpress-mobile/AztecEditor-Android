@@ -27,17 +27,17 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
         picasso.isLoggingEnabled = true
 
         val target = object : Target {
-            override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
                 callbacks.onImageLoaded(BitmapDrawable(context.resources, bitmap))
                 targets.remove(source)
             }
 
-            override fun onBitmapFailed(errorDrawable: Drawable) {
+            override fun onBitmapFailed(errorDrawable: Drawable?) {
                 callbacks.onImageLoadingFailed()
                 targets.remove(source)
             }
 
-            override fun onPrepareLoad(placeHolderDrawable: Drawable) {}
+            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
         }
 
         // add a strong reference to the target until it's called or the view gets destroyed

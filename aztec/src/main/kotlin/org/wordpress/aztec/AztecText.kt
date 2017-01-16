@@ -503,7 +503,7 @@ class AztecText : EditText, TextWatcher {
                     }
 
                     override fun onImageLoadingFailed() {
-                        val drawable = ContextCompat.getDrawable(context, android.R.drawable.ic_menu_report_image)
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
                         replaceImage(drawable)
                     }
 

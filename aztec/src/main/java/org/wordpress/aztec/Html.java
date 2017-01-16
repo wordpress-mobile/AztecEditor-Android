@@ -752,7 +752,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         final int start = text.length();
 
         // TODO: we should some placeholder drawable while loading imges
-        Drawable loadingDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_indeterminate_horizontal);
+        Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
 
         loadingDrawable.setBounds(0, 0, loadingDrawable.getIntrinsicWidth(), loadingDrawable.getIntrinsicHeight());
         final ImageSpan imageSpan = new ImageSpan(loadingDrawable, src);

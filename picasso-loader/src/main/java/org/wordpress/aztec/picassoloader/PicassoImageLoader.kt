@@ -32,12 +32,12 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
                 targets.remove(source)
             }
 
-            override fun onBitmapFailed(errorDrawable: Drawable?) {
+            override fun onBitmapFailed(errorDrawable: Drawable) {
                 callbacks.onImageLoadingFailed()
                 targets.remove(source)
             }
 
-            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+            override fun onPrepareLoad(placeHolderDrawable: Drawable) {}
         }
 
         // add a strong reference to the target until it's called or the view gets destroyed

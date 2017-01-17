@@ -20,12 +20,14 @@ package org.wordpress.aztec
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.*
+import android.text.style.ImageSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
@@ -69,6 +71,8 @@ class AztecText : EditText, TextWatcher {
     lateinit var blockFormatter: BlockFormatter
     val lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
+
+    var imageGetter: Html.ImageGetter? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -484,6 +488,42 @@ class AztecText : EditText, TextWatcher {
         setTextKeepState(builder)
         enableTextChangedListener()
         setSelection(cursorPosition)
+
+        loadImages()
+    }
+
+    private fun loadImages() {
+        val spans = this.text.getSpans(0, text.length, ImageSpan::class.java)
+        spans.forEach {
+            if (it !is AztecMediaSpan && it !is UnknownHtmlSpan && it !is AztecCommentSpan) {
+                val callbacks = object : Html.ImageGetter.Callbacks {
+
+                    override fun onImageLoaded(drawable: Drawable?) {
+                        replaceImage(drawable)
+                    }
+
+                    override fun onImageLoadingFailed() {
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
+                        replaceImage(drawable)
+                    }
+
+                    private fun replaceImage(drawable: Drawable?) {
+                        val start = text.getSpanStart(it)
+                        val end = text.getSpanEnd(it)
+
+                        if (start == -1 || end == -1) return
+
+                        text.removeSpan(it)
+
+                        val newImageSpan = ImageSpan(drawable, it.source)
+                        drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+                        text.setSpan(newImageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
+
+                imageGetter?.loadImage(it.source, callbacks, context.resources.displayMetrics.widthPixels)
+            }
+        }
     }
 
     fun toHtml(withCursorTag: Boolean = false): String {

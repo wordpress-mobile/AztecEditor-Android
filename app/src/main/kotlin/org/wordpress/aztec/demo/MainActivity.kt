@@ -23,6 +23,7 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
@@ -63,7 +64,9 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 "</div>" +
                 "<br>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
+        private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EXAMPLE =
+                IMG +
                 HEADING +
                 BOLD +
                 ITALIC +
@@ -127,6 +130,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         setContentView(R.layout.activity_main)
 
         aztec = findViewById(R.id.aztec) as AztecText
+
+        aztec.imageGetter = PicassoImageLoader(this, aztec)
+//        aztec.imageGetter = GlideImageLoader(this)
+
         source = findViewById(R.id.source) as SourceViewEditText
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
@@ -134,8 +141,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         formattingToolbar.setMediaOptionSelectedListener(this)
 
         // initialize the text & HTML
-        aztec.fromHtml(EXAMPLE)
-        source.displayStyledAndFormattedHtml(aztec.toHtml())
+        source.displayStyledAndFormattedHtml(EXAMPLE)
         aztec.fromHtml(source.getPureHtml())
 
         source.history = aztec.history

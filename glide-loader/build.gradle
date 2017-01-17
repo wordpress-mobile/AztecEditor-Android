@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
@@ -6,29 +6,23 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        applicationId "org.wordpress.aztec"
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-    }
 
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':aztec')
-    compile project(':glide-loader')
-    compile project(':picasso-loader')
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'org.wordpress:utils:1.14.0'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
 }

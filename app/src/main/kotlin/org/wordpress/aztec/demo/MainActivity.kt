@@ -23,7 +23,6 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -65,7 +64,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 "</div>" +
                 "<br>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
-        private val IMG = "<img src=\"http://4k.com/wp-content/uploads/2014/06/4k-image-santiago.jpg\" />"
+        private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EXAMPLE =
                 IMG +
                 HEADING +

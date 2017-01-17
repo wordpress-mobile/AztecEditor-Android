@@ -2,6 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.wordpress.aztec.demo" >
 
+    <!-- Required for downloading images -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Required for adding media and requested at runtime -->

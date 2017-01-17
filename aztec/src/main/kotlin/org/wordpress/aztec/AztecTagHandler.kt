@@ -88,15 +88,15 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
-        if (output.isNotEmpty()) {
+        if (output.isNotBlank()) {
             val nestedInBlockElement = isNestedInBlockElement(output, opening)
 
-            val followingBlockElement = opening && output[output.length-1] == '\n' &&
-                    output.getSpans(output.length - 1, output.length - 1, AztecLineBlockSpan::class.java).isNotEmpty()
+            val followingBlockElement = opening && output.last() == '\n' &&
+                    output.getSpans(output.lastIndex, output.lastIndex, AztecLineBlockSpan::class.java).isNotEmpty()
 
-            if (!followingBlockElement && !nestedInBlockElement && (output[output.length - 1] != '\n' || opening)) {
+            if (!followingBlockElement && !nestedInBlockElement && (output.last() != '\n' || opening)) {
                 output.append("\n")
-            } else if (span is AztecQuoteSpan && !opening && nestedInBlockElement) {
+            } else if (span !is AztecListSpan && !opening && nestedInBlockElement) {
                 output.append("\n")
             }
         }
@@ -106,7 +106,6 @@ class AztecTagHandler : Html.TagHandler {
         } else {
             end(output, span.javaClass)
         }
-
     }
 
     fun isNestedInBlockElement(output: Editable, opening: Boolean): Boolean {

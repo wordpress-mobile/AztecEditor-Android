@@ -35,7 +35,6 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
             }
 
             override fun setRequest(request: Request?) {
-
             }
 
             override fun getRequest(): Request? {
@@ -43,15 +42,12 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
             }
 
             override fun onStart() {
-
             }
 
             override fun onStop() {
-
             }
 
             override fun onDestroy() {
-
             }
         })
     }

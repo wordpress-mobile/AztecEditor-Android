@@ -136,7 +136,6 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
         source = findViewById(R.id.source) as SourceViewEditText
 
-
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
         formattingToolbar.setMediaOptionSelectedListener(this)

@@ -19,9 +19,9 @@ import org.wordpress.aztec.util.TypefaceCache
 
 class SourceViewEditText : EditText, TextWatcher {
 
-    @ColorInt var tagColor = ContextCompat.getColor(context, R.color.tag_color)
+    @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)
         internal set
-    @ColorInt var attributeColor = ContextCompat.getColor(context, R.color.attribute_color)
+    @ColorInt var attributeColor = ContextCompat.getColor(context, R.color.html_attribute)
         internal set
 
     private var styleTextWatcher: HtmlStyleTextWatcher? = null

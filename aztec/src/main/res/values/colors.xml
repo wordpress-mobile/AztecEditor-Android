@@ -10,13 +10,16 @@
     <color name="quote_background">@color/grey_lighten_30</color>
     <color name="code">@color/white</color>
     <color name="code_background">@color/grey_darken_10</color>
+    <color name="html_attribute">@color/grey</color>
+    <color name="html_tag">@color/blue_wordpress</color>
     <color name="text">@color/grey_dark</color>
     <color name="text_hint">@color/grey_disabled</color>
 
     <!-- TOOLBAR -->
     <color name="format_bar_background">#fff9fbfc</color>
-    <color name="format_bar_button_highlighted_color">@color/blue_wordpress</color>
-    <color name="format_bar_button_normal_color">@color/grey_lighten_10</color>
+    <color name="format_bar_button">@color/grey</color>
+    <color name="format_bar_button_disabled">@color/grey_lighten_30</color>
+    <color name="format_bar_button_highlighted">@color/blue_wordpress</color>
     <color name="format_bar_divider">@color/grey_lighten_10</color>
     <color name="format_bar_ripple_animation">@color/grey_lighten_10</color>
 
@@ -30,11 +33,11 @@
     <color name="sourceview_separator">@color/grey_lighten_30</color>
     <color name="sourceview_placeholder_text">@color/grey</color>
 
-    <!-- HTML CODE STYLE -->
-    <color name="tag_color">@color/blue_wordpress</color>
-    <color name="attribute_color">@color/grey</color>
-
     <!-- STANDARD -->
+    <color name="grey_8_40">#66888888</color>
+    <color name="grey_a_40">#66aaaaaa</color>
+    <color name="grey_b">#ffbbbbbb</color>
+    <color name="grey_c">#ffcccccc</color>
     <color name="grey_e">#ffeeeeee</color>
     <color name="white">#ffffffff</color>
 
@@ -47,4 +50,5 @@
     <color name="grey_lighten_10">#ffa8bece</color>
     <color name="grey_lighten_30">#ffe9eff3</color>
     <color name="grey_darken_10">#668eaa</color>
+
 </resources>

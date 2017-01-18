@@ -17,7 +17,7 @@
 
     <!-- TOOLBAR -->
     <color name="format_bar_background">#fff9fbfc</color>
-    <color name="format_bar_button_default">@color/grey_lighten_10</color>
+    <color name="format_bar_button">@color/grey</color>
     <color name="format_bar_button_disabled">@color/grey_lighten_30</color>
     <color name="format_bar_button_highlighted">@color/blue_wordpress</color>
     <color name="format_bar_divider">@color/grey_lighten_10</color>

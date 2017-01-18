@@ -4,11 +4,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:height="44dp"
     android:width="44dp"
-    android:viewportHeight="44.0"
-    android:viewportWidth="44.0" >
+    android:viewportHeight="44"
+    android:viewportWidth="44" >
 
+    <!-- @color/grey_lighten_30 -->
     <path
-        android:fillColor="#E8EEF2"
+        android:fillColor="#ffa8bece"
         android:pathData="M19.4,26.6L14.8,22l4.6-4.6L18,16l-6,6l6,6L19.4,26.6z M24.6,26.6l4.6-4.6l-4.6-4.6L26,16l6,6l-6,6C26,28,24.6,26.6,24.6,26.6z" >
     </path>
 

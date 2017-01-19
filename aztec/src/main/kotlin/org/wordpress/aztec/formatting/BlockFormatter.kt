@@ -93,7 +93,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                         inputStart,
                         spanEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else {
+            } else if (textChangedEvent.isAddingCharacters) {
                 val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
 
                 if (indexOfLineEnd == spanEnd) {
@@ -195,6 +195,13 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             // backspace on a line right after a list attaches the line to the last item
             val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
             val before = Math.min(inputStart, inputEnd)
+            val spanEnd = text.getSpanEnd(blockSpan)
+            val spanStart = text.getSpanStart(blockSpan)
+
+            if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
+                text.setSpan(blockSpan, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
             if (blockSpan != null && before - 1 > 0 && text.getSpanEnd(blockSpan) == before) {
                 if (textChangedEvent.textBefore[before] == Constants.ZWJ_CHAR) {
                     editor.disableTextChangedListener()

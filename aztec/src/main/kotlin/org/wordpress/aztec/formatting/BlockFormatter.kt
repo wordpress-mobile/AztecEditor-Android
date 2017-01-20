@@ -59,15 +59,14 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
 
         val inputStart = textChangedEvent.inputStart
+        val inputEnd = textChangedEvent.inputEnd
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
             var spanEnd = text.getSpanEnd(it)
             val spanStart = text.getSpanStart(it)
 
-            if (spanEnd == spanStart) {
-                editableText.removeSpan(it)
-            } else if (spanEnd <= text.length) {
+            if (spanEnd != spanStart && spanEnd <= text.length) {
                 //case for when we remove block element row from first line of EditText end the next line is empty
                 if (inputStart == 0 && spanStart > 0 && text[spanStart] == '\n' && !textChangedEvent.isAddingCharacters) {
                     spanEnd += 1
@@ -94,7 +93,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                         inputStart,
                         spanEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else {
+            } else if (textChangedEvent.isAddingCharacters) {
                 val indexOfLineEnd = text.indexOf('\n', spanEnd - 1, true)
 
                 if (indexOfLineEnd == spanEnd) {
@@ -115,9 +114,22 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
 
         if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // adding a character next to a ZWJ char deletes it
             editor.disableTextChangedListener()
-            text.delete(inputStart - 1, inputStart)
+            val before = Math.min(inputStart, inputEnd)
+            text.delete(before - 1, before)
+
+            if (!textChangedEvent.isAddingCharacters) {
+                val blockSpan = editableText.getSpans(before - 1, before - 1, AztecBlockSpan::class.java).firstOrNull()
+                if (blockSpan != null) {
+                    val newline = text.indexOf('\n', before - 1)
+                    val end = if (newline != -1) Math.min(text.length, newline) else text.length
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // double enter deletes the last item and adds a linebreak
             removeBlockStyle()
             editor.disableTextChangedListener()
 
@@ -125,14 +137,80 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.delete(inputStart - 1, inputStart + 1)
             } else {
                 text.delete(inputStart - 2, inputStart)
+
+                // After closing a list add an extra newline
+                if (text.getSpans(inputStart - 2, inputStart - 2, AztecListSpan::class.java).isNotEmpty()) {
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart - 2, "\n")
+                }
             }
 
         } else if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            //Add ZWJ to the new line at the end of block spans
+            // add ZWJ to the new line at the end of block spans
             val blockSpan = editableText.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
-            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1) {
-                editor.disableTextChangedListener()
-                text.insert(inputStart + 1, Constants.ZWJ_STRING)
+            if (blockSpan != null && text.getSpanEnd(blockSpan) == inputStart + 1 ||
+                    (text.getSpanEnd(blockSpan) == inputStart + 2 && text[inputStart + 1] == '\n')) {
+                if (inputEnd == text.length || text[inputEnd] == '\n') {
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart + 1, Constants.ZWJ_STRING)
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    text.setSpan(blockSpan, text.getSpanStart(blockSpan), inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        } else if (textChangedEvent.deletedFromBlockEnd) {
+            // when deleting characters, manage closing of lists
+            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull()
+            if (list != null) {
+                val spanStart = textChangedEvent.blockSpanStart
+                val spanEnd = text.getSpanEnd(list)
+                if (textChangedEvent.textBefore[inputEnd] != Constants.ZWJ_CHAR) {
+                    // add ZWJ at the beginning of line when last regular char deleted
+                    editor.disableTextChangedListener()
+                    text.insert(inputEnd, Constants.ZWJ_STRING)
+
+                    val newSpanEnd = if (inputEnd > spanEnd) spanEnd + 2 else spanEnd + 1
+                    text.setSpan(list, spanStart, newSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else if ((inputEnd - 2 >= spanStart && text[inputEnd - 2] == '\n') || inputEnd - 1 == spanStart) {
+                    // if ZWJ char got just deleted, add it to the line above if it's empty
+                    editor.disableTextChangedListener()
+                    text.insert(inputEnd - 1, Constants.ZWJ_STRING)
+
+                    if (inputEnd - 1 < spanStart + 1) {
+                        text.setSpan(list, inputEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    // delete the last newline
+                    editor.disableTextChangedListener()
+                    text.delete(inputEnd, inputEnd + 1)
+                } else if (spanEnd > 0 && spanStart != spanEnd) {
+                    // delete the last newline
+                    editor.disableTextChangedListener()
+                    text.delete(spanEnd - 1, spanEnd)
+                } else {
+                    text.removeSpan(list)
+                }
+            }
+        } else if (!textChangedEvent.isAddingCharacters && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            // backspace on a line right after a list attaches the line to the last item
+            val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
+            val before = Math.min(inputStart, inputEnd)
+            val spanEnd = text.getSpanEnd(blockSpan)
+            val spanStart = text.getSpanStart(blockSpan)
+
+            if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
+                text.setSpan(blockSpan, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
+            if (blockSpan != null && before - 1 > 0 && text.getSpanEnd(blockSpan) == before) {
+                if (textChangedEvent.textBefore[before] == Constants.ZWJ_CHAR) {
+                    editor.disableTextChangedListener()
+                    text.delete(before - 1, before)
+                }
+
+                val newline = text.indexOf('\n', before)
+                val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
+                text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -503,8 +581,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
     }
 
-    fun realignAttributesWhenAddingItem(text: Editable, textChangedEventDetails: TextChangedEvent) {
-        if (textChangedEventDetails.isNewLine()) {
+    fun realignAttributesWhenAddingItem(text: Editable, textChangedEventDetails: TextChangedEvent, newline: Boolean) {
+        if (newline) {
             val list = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart, AztecListSpan::class.java).firstOrNull()
             if (list != null) {
                 val listEnd = text.getSpanEnd(list)

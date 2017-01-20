@@ -39,11 +39,12 @@ class AztecParser {
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, null, AztecTagHandler(), context))
 
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), context))
+
+        addZwjCharToBlockSpans(spanned)
         adjustNestedSpanOrder(spanned)
         fixBlockElementsRanges(spanned)
-
 
         return spanned
     }
@@ -93,6 +94,22 @@ class AztecParser {
         return tidy(out.toString())
     }
 
+    private fun addZwjCharToBlockSpans(spanned: SpannableStringBuilder) {
+        // add ZWJ char after newline of block spans so they can be closed by hitting enter
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
+            val start = spanned.getSpanStart(it)
+            val end = spanned.getSpanEnd(it)
+
+            if (spanned[end - 1] == '\n' && (end - start == 1 || spanned[end - 2] == '\n')) {
+                spanned.insert(end - 1, Constants.ZWJ_STRING)
+
+                if (end - start == 1) {
+                    spanned.setSpan(it, start, end + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+    }
+
     fun fixBlockElementsRanges(spanned: Editable) {
         //Fix ranges of block/line-block elements
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
@@ -101,8 +118,7 @@ class AztecParser {
 
             val willReduceSpan = 0 < spanEnd && spanEnd < spanned.length && spanned[spanEnd] == '\n'
             val willDeleteLastChar = spanEnd == spanned.length && spanned[spanEnd - 1] == '\n'
-            val isListWithEmptyLastItem = it is AztecListSpan &&
-                    spanned[spanEnd - 1] == '\n' && (spanEnd - spanStart == 1 || spanned[spanEnd - 2] == '\n')
+            val isListWithEmptyLastItem = it is AztecListSpan && spanEnd - spanStart == 1
 
             spanEnd = if (willReduceSpan && !isListWithEmptyLastItem) spanEnd - 1 else spanEnd
             spanned.removeSpan(it)
@@ -181,11 +197,11 @@ class AztecParser {
                 } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd - 2] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 2, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if (text.length >= spanEnd && spanEnd - 2 > spanStart
+                } else if (text.length > spanEnd && spanEnd - 2 > spanStart
                         && (text[spanEnd - 1] == Constants.ZWJ_CHAR && text[spanEnd] == '\n')) {
                     text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (text.length > spanEnd && spanEnd - 1 > spanStart && (text[spanEnd] == Constants.ZWJ_CHAR || text[spanEnd] == '\n')) {
-                    if (!(it is AztecListSpan && spanEnd - spanStart > 1 && text[spanEnd - 1] == '\n' && text[spanEnd - 2] == '\n')) {
+                    if (!(it is AztecListSpan && spanEnd - spanStart > 1 && text[spanEnd - 1] == '\n')) {
                         text.setSpan(BlockElementLinebreak(), spanEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
@@ -221,7 +237,7 @@ class AztecParser {
 
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {
-                    withinListThenQuote(out, text, i, next++, styles[0] as AztecListSpan)
+                    withinListThenQuote(out, text, i, next, styles[0] as AztecListSpan)
                 } else if (styles[0] is AztecQuoteSpan && styles[1] is AztecListSpan) {
                     withinQuoteThenList(out, text, i, next, styles[1] as AztecListSpan, styles[0] as AztecQuoteSpan)
                 } else {
@@ -271,8 +287,7 @@ class AztecParser {
         out.append("<${list.getStartTag()}>")
         var lines = TextUtils.split(listContent.toString(), "\n")
 
-        val isAtTheEndOfText = text.length == listContent.length
-        if (lines.isNotEmpty() && lines.last().length == 1 && isAtTheEndOfText && lines.last()[0] == Constants.ZWJ_CHAR) {
+        if (lines.isNotEmpty() && lines.last().isEmpty()) {
             lines = lines.take(lines.size - 1).toTypedArray()
         }
 

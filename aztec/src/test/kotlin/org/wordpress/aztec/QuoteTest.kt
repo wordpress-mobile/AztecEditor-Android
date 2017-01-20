@@ -7,15 +7,15 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricGradleTestRunner
+import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 
 /**
  * Testing quote behaviour.
  */
-@RunWith(RobolectricGradleTestRunner::class)
-@Config(constants = BuildConfig::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class QuoteTest() {
 
     val formattingType = TextFormat.FORMAT_QUOTE
@@ -332,11 +332,13 @@ class QuoteTest() {
 
         Assert.assertEquals("first item\nsecond item", editText.text.toString())
         editText.append("\n")
-        Assert.assertEquals("first item\nsecond item\n\u200B", editText.text.toString())
+        Assert.assertEquals("first item\nsecond item\n" + Constants.ZWJ_STRING, editText.text.toString())
 
         editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("first item\nsecond item\n", editText.text.toString())
+        Assert.assertEquals("first item\nsecond item", editText.text.toString())
 
+        editText.append("\n")
+        editText.append("\n")
         editText.append("not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
@@ -344,11 +346,12 @@ class QuoteTest() {
 
     @Test
     @Throws(Exception::class)
-    fun handlequoteReopeningAfterLastElementDeletion() {
+    fun handleQuoteReopeningAfterLastElementDeletion() {
         editText.fromHtml("<$quoteTag>first item<br>second item<br>third item</$quoteTag>")
         editText.setSelection(editText.length())
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
+        editText.text.append("\n")
 
         editText.append("not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())

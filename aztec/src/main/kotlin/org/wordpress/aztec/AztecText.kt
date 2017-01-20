@@ -20,12 +20,14 @@ package org.wordpress.aztec
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.*
+import android.text.style.ImageSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
@@ -64,11 +66,12 @@ class AztecText : EditText, TextWatcher {
 
     lateinit var history: History
 
-
     lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
     val lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
+
+    var imageGetter: Html.ImageGetter? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -277,12 +280,13 @@ class AztecText : EditText, TextWatcher {
 
     private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
         if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
-            if (selEnd == previousCursorPosition + 1) {
-                // moved right
-                setSelection(selEnd + 1)
-            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
+            if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
                 // moved left
                 setSelection(selEnd - 1)
+            }
+            else {
+                // moved right or dropped to right to the left of ZWJ
+                setSelection(selEnd + 1)
             }
             return true
         }
@@ -396,6 +400,8 @@ class AztecText : EditText, TextWatcher {
             setSelection(selectionEnd + 1)
         }
 
+        prepareTextChangeEventDetails(after, count, start, text)
+
         blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
@@ -404,11 +410,44 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
+        var deletedFromBlock = false
+        var blockStart = -1
+        var blockEnd = -1
+        if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
+            val block = this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).firstOrNull()
+            if (block != null) {
+                blockStart = this.text.getSpanStart(block)
+                blockEnd = this.text.getSpanEnd(block)
+                deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
+                        (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
+                        (start == 0 || text[start - 1] == '\n')
+
+                // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
+                // because we want to allow a block span with empty text (such as list with a single empty first item)
+                if (deletedFromBlock && after == 0 && blockEnd - blockStart == count) {
+                    this.text.setSpan(block, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+            }
+        }
+
+        if (deletedFromBlock) {
+            textChangedEventDetails = TextChangedEvent(this.text.toString(), deletedFromBlock, blockStart)
+        } else {
+            textChangedEventDetails = TextChangedEvent(this.text.toString())
+        }
+    }
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
         inlineFormatter.reapplyCarriedOverInlineSpans()
-        textChangedEventDetails = TextChangedEvent(text, start, before, count)
+
+        textChangedEventDetails.before = before
+        textChangedEventDetails.text = text
+        textChangedEventDetails.countOfCharacters = count
+        textChangedEventDetails.start = start
+        textChangedEventDetails.initialize()
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -417,11 +456,13 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
+
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, AztecInlineSpan::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
+        val newLine = textChangedEventDetails.isNewLine()
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
@@ -433,7 +474,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         // preserve the attributes on the previous list item when adding a new one
-        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails)
+        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
     }
@@ -484,6 +525,42 @@ class AztecText : EditText, TextWatcher {
         setTextKeepState(builder)
         enableTextChangedListener()
         setSelection(cursorPosition)
+
+        loadImages()
+    }
+
+    private fun loadImages() {
+        val spans = this.text.getSpans(0, text.length, ImageSpan::class.java)
+        spans.forEach {
+            if (it !is AztecMediaSpan && it !is UnknownHtmlSpan && it !is AztecCommentSpan) {
+                val callbacks = object : Html.ImageGetter.Callbacks {
+
+                    override fun onImageLoaded(drawable: Drawable?) {
+                        replaceImage(drawable)
+                    }
+
+                    override fun onImageLoadingFailed() {
+                        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
+                        replaceImage(drawable)
+                    }
+
+                    private fun replaceImage(drawable: Drawable?) {
+                        val start = text.getSpanStart(it)
+                        val end = text.getSpanEnd(it)
+
+                        if (start == -1 || end == -1) return
+
+                        text.removeSpan(it)
+
+                        val newImageSpan = ImageSpan(drawable, it.source)
+                        drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+                        text.setSpan(newImageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
+
+                imageGetter?.loadImage(it.source, callbacks, context.resources.displayMetrics.widthPixels)
+            }
+        }
     }
 
     fun toHtml(withCursorTag: Boolean = false): String {

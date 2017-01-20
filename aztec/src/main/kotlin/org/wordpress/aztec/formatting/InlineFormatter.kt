@@ -72,7 +72,6 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
                 val spanStart = editableText.getSpanStart(it)
                 val spanEnd = editableText.getSpanEnd(it)
 
-
                 if ((spanStart == start || spanEnd == count + start) && spanEnd < after) {
                     editableText.removeSpan(it)
                     carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))

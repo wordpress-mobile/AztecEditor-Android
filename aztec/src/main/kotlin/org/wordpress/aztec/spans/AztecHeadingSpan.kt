@@ -11,12 +11,12 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     override var attributes: String = attrs
 
     companion object {
-        private val SCALE_H1: Float = 2.0f
-        private val SCALE_H2: Float = 1.8f
-        private val SCALE_H3: Float = 1.6f
-        private val SCALE_H4: Float = 1.4f
-        private val SCALE_H5: Float = 1.2f
-        private val SCALE_H6: Float = 1.0f
+        private val SCALE_H1: Float = 1.73f
+        private val SCALE_H2: Float = 1.32f
+        private val SCALE_H3: Float = 1.02f
+        private val SCALE_H4: Float = 0.87f
+        private val SCALE_H5: Float = 0.72f
+        private val SCALE_H6: Float = 0.60f
 
         fun getTextFormat(tag: String): TextFormat {
             when (tag.toLowerCase()) {

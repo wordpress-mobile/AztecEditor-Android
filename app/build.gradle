@@ -29,6 +29,7 @@ dependencies {
     compile project(':aztec')
     compile project(':glide-loader')
     compile project(':picasso-loader')
+    compile "com.android.support:appcompat-v7:25.1.0"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'org.wordpress:utils:1.14.0'
+    compile "org.wordpress:utils:1.14.0"
 }

@@ -1055,7 +1055,7 @@ class AztecParserTest : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListUnorderedFollowedByLinebreak_isEqual() {
-        val input = "<ol><li>Ordered item</li><li>b</li></ol><br>1"
+        val input = "<ul><li>Ordered item</li><li>b</li></ul><br>1"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
@@ -1080,6 +1080,42 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlSingleCharHeaderSurroundedByHeaders_isEqual() {
         val input = "<h1>Heading 1</h1><h2>2</h2><h3>Heading 3</h3>"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlOrderedListWithTrailingEmptyItemAnd2Linebreaks_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li></ol><br><br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlUnorderedListFollowedBy2Linebreaks_isEqual() {
+        val input = "<ul><li>Ordered item</li><li>b</li></ul><br><br>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListWithEmptyItemFollowedByText_isEqual() {
+        val input = "<ol><li>Ordered item</li><li></li></ol>1"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListWithNonEmptyItemsFollowedByText_isEqual() {
+        val input = "<ol><li>Ordered item</li><li>a</li></ol>1"
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

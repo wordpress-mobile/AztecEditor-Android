@@ -66,7 +66,6 @@ class AztecText : EditText, TextWatcher {
 
     lateinit var history: History
 
-
     lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
     val lineBlockFormatter: LineBlockFormatter
@@ -281,12 +280,13 @@ class AztecText : EditText, TextWatcher {
 
     private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
         if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
-            if (selEnd == previousCursorPosition + 1) {
-                // moved right
-                setSelection(selEnd + 1)
-            } else if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
+            if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
                 // moved left
                 setSelection(selEnd - 1)
+            }
+            else {
+                // moved right or dropped to right to the left of ZWJ
+                setSelection(selEnd + 1)
             }
             return true
         }
@@ -400,6 +400,8 @@ class AztecText : EditText, TextWatcher {
             setSelection(selectionEnd + 1)
         }
 
+        prepareTextChangeEventDetails(after, count, start, text)
+
         blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
         inlineFormatter.carryOverInlineSpans(start, count, after)
 
@@ -408,11 +410,44 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
+        var deletedFromBlock = false
+        var blockStart = -1
+        var blockEnd = -1
+        if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
+            val block = this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).firstOrNull()
+            if (block != null) {
+                blockStart = this.text.getSpanStart(block)
+                blockEnd = this.text.getSpanEnd(block)
+                deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
+                        (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
+                        (start == 0 || text[start - 1] == '\n')
+
+                // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
+                // because we want to allow a block span with empty text (such as list with a single empty first item)
+                if (deletedFromBlock && after == 0 && blockEnd - blockStart == count) {
+                    this.text.setSpan(block, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                }
+            }
+        }
+
+        if (deletedFromBlock) {
+            textChangedEventDetails = TextChangedEvent(this.text.toString(), deletedFromBlock, blockStart)
+        } else {
+            textChangedEventDetails = TextChangedEvent(this.text.toString())
+        }
+    }
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
         inlineFormatter.reapplyCarriedOverInlineSpans()
-        textChangedEventDetails = TextChangedEvent(text, start, before, count)
+
+        textChangedEventDetails.before = before
+        textChangedEventDetails.text = text
+        textChangedEventDetails.countOfCharacters = count
+        textChangedEventDetails.start = start
+        textChangedEventDetails.initialize()
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -421,11 +456,13 @@ class AztecText : EditText, TextWatcher {
             return
         }
 
+
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, AztecInlineSpan::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
+        val newLine = textChangedEventDetails.isNewLine()
         blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
@@ -437,7 +474,7 @@ class AztecText : EditText, TextWatcher {
         }
 
         // preserve the attributes on the previous list item when adding a new one
-        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails)
+        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
     }

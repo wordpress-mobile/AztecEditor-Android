@@ -141,7 +141,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
     }
 
 
@@ -223,7 +223,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag><br>not in list", editText.toHtml())
     }
 
 
@@ -233,13 +233,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         editText.append("first item")
         editText.append("\n")
-        val firstMark = editText.length()
         editText.append("second item")
         editText.append("\n")
-        val secondMart = editText.length()
         editText.append("third item")
 
-        editText.text.delete(firstMark - 1, secondMart - 2)
+        val start = editText.text.indexOf("second item")
+        val end = start + "second item".length
+
+        editText.text.delete(start, end)
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
@@ -260,12 +261,12 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>", editText.toHtml())
         editText.append("\n")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>", editText.toHtml())
 
         editText.append("not in list")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag><br>not in list", editText.toHtml())
     }
 
 
@@ -322,13 +323,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         val mark = editText.length() - 1
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
         editText.append("\n")
         editText.append("foo")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list<br>foo", editText.toHtml())
 
         //reopen list
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(mark - 1, mark + 1)
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
 
@@ -338,6 +339,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
+        editText.append("\n")
         editText.append("\n")
         val mark = editText.length() - 1
 
@@ -355,15 +357,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
+        editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, " addition")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag><br>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
-        editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, "\n")
+        editText.text.insert(editText.text.indexOf("not in the list") - 2, "third item")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
     }
 
     @Test
@@ -379,11 +382,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag><br>not in the list", editText.toHtml())
     }
 
     @Test
@@ -416,6 +419,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("second item")
         editText.append("\n")
         editText.append("\n")
+        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("third item")
         editText.setSelection(editText.length())
 
@@ -450,6 +454,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("first item")
         editText.append("\n")
         editText.append("\n")
+        editText.text.delete(editText.length() - 1, editText.length())
         editText.append("second item")
         editText.append("\n")
         editText.append("third item")
@@ -521,7 +526,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addMultipleEmptyItemsWithKeyboard() {
         editText.toggleFormatting(listType)
         editText.append("item")
-        editText.append("\n")
         editText.text.insert(0, "\n")
         Assert.assertEquals("<$listTag><li></li><li>item</li></$listTag>", editText.toHtml())
 
@@ -532,5 +536,231 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("\n")
         editText.append("\n")
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun closeListWithEmptyLineBelowIt() {
+        editText.fromHtml("<$listTag><li>Ordered</li></$listTag><br>not in list")
+
+        //remove newline after list (put cursor on newline after list and press backspace)
+        val mark = editText.text.indexOf("Ordered") + "Ordered".length
+        editText.text.delete(mark, mark + 1)
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
+
+        //press enter twice after at the end of the list to add new item and then remove it and close list
+        editText.setSelection(mark)
+        editText.text.insert(mark, "\n")
+
+        // must add 2 because of the extra ZWJ char
+        editText.setSelection(mark + 2)
+        editText.text.insert(mark + 2, "\n")
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br><br>not in list", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun closeListWithTrailingEmptyItem() {
+        editText.fromHtml("<$listTag><li>Ordered</li><li></li></$listTag>")
+
+        //insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
+        val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 2 because of the extra ZWJ char
+        editText.setSelection(mark)
+        editText.text.insert(editText.selectionEnd, "\n")
+
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addLinebreaksAfterListWithEmptyItem() {
+        editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>after")
+
+        editText.text.insert(editText.text.indexOf("after"), "\n")
+        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
+
+        editText.text.insert(editText.text.indexOf("after"), "\n")
+        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br><br>after", editText.toHtml())
+
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
+        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
+
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
+        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag>after", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addLinebreaksAfterListWithNonEmptyItem() {
+        editText.fromHtml("<$listTag><li>item</li><li>item2</li></$listTag>after")
+
+        editText.text.insert(editText.text.indexOf("after"), "\n")
+        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
+
+        editText.text.insert(editText.text.indexOf("after"), "\n")
+        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br><br>after", editText.toHtml())
+
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
+        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
+
+        editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
+        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag>after", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteTextFromLastItemAndCheckForZwjChar() {
+        editText.fromHtml("<$listTag><li>item</li><li></li><li></li><li>item2</li></$listTag>after")
+
+        Assert.assertTrue(editText.text.indexOf(Constants.ZWJ_CHAR) == -1)
+
+        val mark = editText.text.indexOf("item2")
+        editText.text.delete(mark, mark + "item2".length)
+        Assert.assertEquals(editText.text[mark], Constants.ZWJ_CHAR)
+        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
+
+        editText.text.delete(mark, mark + 1)
+        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
+        Assert.assertEquals(editText.text[mark - 1], Constants.ZWJ_CHAR)
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun checkIfZwjCharAddedToLastEmptyListItem() {
+        editText.fromHtml("before<$listTag><li>item</li><li></li><li></li></$listTag>after")
+
+        val mark = editText.text.indexOf("after") - 2
+        Assert.assertEquals(editText.text[mark], Constants.ZWJ_CHAR)
+
+        editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>")
+
+        Assert.assertEquals(editText.text.last(), Constants.ZWJ_CHAR)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addTwoNewlinesAfterList() {
+        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.append("\n")
+        editText.append("\n")
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteEmptyListItemWithBackspace() {
+        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
+
+        editText.setSelection(editText.text.length)
+        editText.append("\n")
+        editText.text.delete(editText.text.length - 1, editText.text.length)
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+
+        editText.append("\n")
+        editText.append("\n")
+        editText.text.delete(editText.text.length - 1, editText.text.length)
+        editText.append("c")
+        Assert.assertEquals("a\nb\nc", editText.text.toString())
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
+
+        editText.text.delete(editText.text.length - 1, editText.text.length)
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun appendTextToLastItemWithBacskpace() {
+        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>c")
+
+        val mark = editText.text.indexOf("c")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("<$listTag><li>a</li><li>bc</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun appendTextToEmptyLastItemWithBacskpace() {
+        editText.fromHtml("<$listTag><li>a</li><li></li><li></li></$listTag>c")
+
+        var mark = editText.text.indexOf("c")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("a\n\nc", editText.text.toString())
+        Assert.assertEquals("<$listTag><li>a</li><li></li><li>c</li></$listTag>", editText.toHtml())
+
+        mark = editText.text.indexOf("c")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("a\nc", editText.text.toString())
+        Assert.assertEquals("<$listTag><li>a</li><li>c</li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteSecondEmptyLineAndTestForZwjCharOnFirst() {
+        editText.fromHtml("<$listTag><li></li><li></li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteLastItemFromList() {
+        editText.fromHtml("<$listTag><li>a</li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("", editText.text.toString())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteLastItemFromListWithTextAbove() {
+        editText.fromHtml("abc<$listTag><li>a</li></$listTag>")
+
+        editText.setSelection(editText.length())
+        editText.text.delete(editText.length() - 1, editText.length())
+
+        Assert.assertEquals("abc\n" + Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("abc<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("abc\n", editText.text.toString())
+        Assert.assertEquals("abc<br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addTwoLinesThenDeleteTheList() {
+        editText.fromHtml("<$listTag><li></li></$listTag>")
+
+        editText.append("a")
+        editText.append("\n")
+        editText.append("b")
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("a\n" + Constants.ZWJ_CHAR, editText.text.toString())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("a", editText.text.toString())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("", editText.text.toString())
+        Assert.assertEquals("", editText.toHtml())
     }
 }

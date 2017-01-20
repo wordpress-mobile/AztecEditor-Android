@@ -324,9 +324,9 @@ class AttributeTest {
         Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li><li></li></ul>", editText.toHtml())
         editText.setSelection(editText.length())
         editText.text.append("\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul><br>", editText.toHtml())
         editText.text.insert(7, "\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul><br>", editText.toHtml())
     }
 
     @Test
@@ -341,11 +341,8 @@ class AttributeTest {
         editText.append("\n")
         Assert.assertTrue(editText.toHtml().endsWith("<li></li></ol>"))
         editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertTrue(editText.text.endsWith("\n"))
         Assert.assertTrue(editText.toHtml().endsWith(originalItem))
-        editText.text.delete(editText.length() - 1, editText.length())
         Assert.assertFalse(editText.text.endsWith("\n"))
-        Assert.assertTrue(editText.toHtml().endsWith(originalItem))
     }
 
     @Test
@@ -390,13 +387,23 @@ class AttributeTest {
 
     @Test
     @Throws(Exception::class)
-    fun deletingBottomListItemShouldPreserveTopItemAttributes() {
+    fun splittingListItemShouldPreserveAttributeInTheBottomItem() {
         val input = LIST_WITH_NON_EMPTY_ITEMS
         editText.fromHtml(input)
 
         val indexB = editText.text.indexOf('b')
         editText.text.insert(indexB, "\n")
         Assert.assertEquals("<ol><li>a</li><li a=\"B\">b</li><li c=\"C\">c</li></ol>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deletingBottomListItemShouldPreserveTopItemAttributes() {
+        editText.fromHtml("<ol><li>a</li><li a=\"B\">b</li><li c=\"C\">c</li></ol>")
+
+        val indexC = editText.text.indexOf('c')
+        editText.text.delete(indexC - 1, indexC)
+        Assert.assertEquals("<ol><li>a</li><li a=\"B\">bc</li></ol>", editText.toHtml())
     }
 
     @Test
@@ -415,5 +422,16 @@ class AttributeTest {
         editText.fromHtml(input)
         val output = editText.toHtml()
         Assert.assertEquals(input, output)
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun  deletingZwjCharShouldPreserveAttributes() {
+        val input = "<ol><li>a</li><li b=\"B\">b</li></ol>"
+        editText.fromHtml(input)
+
+        editText.text.delete(editText.length() - 1, editText.length())
+        Assert.assertEquals("<ol><li>a</li><li b=\"B\"></li></ol>", editText.toHtml())
     }
 }

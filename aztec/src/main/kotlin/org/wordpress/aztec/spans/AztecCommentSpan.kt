@@ -46,7 +46,7 @@ class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(dra
          * be 16dp.  Therefore, the width of images should be the width of the screen minus
          * 16dp on both sides (i.e. 16 * 2 = 32).
          *
-         * (https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids)
+         * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
          */
         val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
         val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth

@@ -36,6 +36,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
+import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -558,7 +559,15 @@ class AztecText : EditText, TextWatcher {
                     }
                 }
 
-                imageGetter?.loadImage(it.source, callbacks, context.resources.displayMetrics.widthPixels)
+                /*
+                 * Following Android guidelines for keylines and spacing, screen edge margins should
+                 * be 16dp.  Therefore, the width of images should be the width of the screen minus
+                 * 16dp on both sides (i.e. 16 * 2 = 32).
+                 *
+                 * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
+                 */
+                val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
+                imageGetter?.loadImage(it.source, callbacks, width)
             }
         }
     }

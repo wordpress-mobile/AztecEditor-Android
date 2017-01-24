@@ -9,6 +9,8 @@ import android.text.style.ParagraphStyle
 import android.view.View
 import android.widget.Toast
 
+import org.wordpress.android.util.DisplayUtils
+
 class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), ParagraphStyle {
     private val html = source
 
@@ -37,7 +39,14 @@ class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) :
             return rect
         }
 
-        val width = context.resources.displayMetrics.widthPixels
+        /*
+         * Following Android guidelines for keylines and spacing, screen edge margins should
+         * be 16dp.  Therefore, the width of images should be the width of the screen minus
+         * 16dp on both sides (i.e. 16 * 2 = 32).
+         *
+         * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
+         */
+        val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
         val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
         drawable.setBounds(0, 0, width, height)
 

@@ -531,21 +531,21 @@ class AztecText : EditText, TextWatcher {
     }
 
     private fun loadImages() {
-        val spans = this.text.getSpans(0, text.length, ImageSpan::class.java)
+        val spans = this.text.getSpans(0, text.length, AztecMediaSpan::class.java)
         spans.forEach {
-            if (it !is AztecMediaSpan && it !is UnknownHtmlSpan && it !is AztecCommentSpan) {
-                val callbacks = object : Html.ImageGetter.Callbacks {
+            val callbacks = object : Html.ImageGetter.Callbacks {
 
-                    override fun onImageLoaded(drawable: Drawable?) {
-                        replaceImage(drawable)
-                    }
+                override fun onImageLoaded(drawable: Drawable?) {
+                    replaceImage(drawable)
+                }
 
-                    override fun onImageLoadingFailed() {
-                        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
-                        replaceImage(drawable)
-                    }
+                override fun onImageLoadingFailed() {
+                    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
+                    replaceImage(drawable)
+                }
 
-                    private fun replaceImage(drawable: Drawable?) {
+                private fun replaceImage(drawable: Drawable?) {
+                    if (drawable != null) {
                         val start = text.getSpanStart(it)
                         val end = text.getSpanEnd(it)
 
@@ -553,22 +553,21 @@ class AztecText : EditText, TextWatcher {
 
                         text.removeSpan(it)
 
-                        val newImageSpan = ImageSpan(drawable, it.source)
-                        drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+                        val newImageSpan = AztecMediaSpan(context, drawable, it.source)
                         text.setSpan(newImageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
-
-                /*
-                 * Following Android guidelines for keylines and spacing, screen edge margins should
-                 * be 16dp.  Therefore, the width of images should be the width of the screen minus
-                 * 16dp on both sides (i.e. 16 * 2 = 32).
-                 *
-                 * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
-                 */
-                val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
-                imageGetter?.loadImage(it.source, callbacks, width)
             }
+
+            /*
+             * Following Android guidelines for keylines and spacing, screen edge margins should
+             * be 16dp.  Therefore, the width of images should be the width of the screen minus
+             * 16dp on both sides (i.e. 16 * 2 = 32).
+             *
+             * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
+             */
+            val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
+            imageGetter?.loadImage(it.source, callbacks, width)
         }
     }
 

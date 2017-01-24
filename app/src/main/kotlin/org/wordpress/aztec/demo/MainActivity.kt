@@ -118,7 +118,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 }
             }
 
-            val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
+            val source = mediaPath  // Temporary source value.  Replace with URL after uploaded.
             aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), source)
         }
 

@@ -11,7 +11,7 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle):AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int)
@@ -56,10 +56,54 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+    fun tryRemoveBlockStyleFromFirstLine() {
+        editableText.getSpans(0, 0, AztecBlockSpan::class.java).forEach {
+            val spanStart = editableText.getSpanStart(it)
+            val spanEnd = editableText.getSpanEnd(it)
 
+            if (spanStart == 0) {
+                val indexOfNewline = editableText.indexOf('\n', 0)
+
+                if (spanEnd == indexOfNewline) {
+                    editableText.removeSpan(it)
+                    editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+                } else {
+                    editableText.setSpan(it, indexOfNewline + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+                }
+
+            }
+        }
+    }
+
+    fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
         val inputEnd = textChangedEvent.inputEnd
+
+        if (!textChangedEvent.isAddingCharacters) {
+            text.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).forEach {
+                val spanStart = text.getSpanStart(it)
+                val spanEnd = text.getSpanEnd(it)
+
+                //deleted newline before block element
+                if (spanStart == inputEnd && inputEnd > 0 && text[inputEnd - 1] != '\n') {
+                    val indexOfNewline = editableText.indexOf('\n', spanStart)
+
+                    if (spanEnd == indexOfNewline + textChangedEvent.count || indexOfNewline == -1) {
+                        text.removeSpan(it)
+                        editor.disableTextChangedListener()
+                        text.insert(inputEnd, "\n")
+                    } else {
+                        text.setSpan(it, indexOfNewline + textChangedEvent.count, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                        if (indexOfNewline != spanStart) {
+                            editor.disableTextChangedListener()
+                            text.insert(inputEnd, "\n")
+                        }
+                    }
+                }
+            }
+        }
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {

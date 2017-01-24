@@ -42,6 +42,7 @@ import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
+import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
@@ -103,7 +104,7 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        boolean handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader, Attributes attributes);
+        boolean handleTag(boolean opening, String tag, Editable output, Context context, Attributes attributes);
     }
 
     private Html() {
@@ -473,7 +474,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan) {
+            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan || obj[i] instanceof AztecMediaSpan) {
                 continue;
             }
             int start = spannableStringBuilder.getSpanStart(obj[i]);
@@ -544,11 +545,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, new Sub(attributes));
         } else if (tag.equalsIgnoreCase("code")) {
             start(spannableStringBuilder, new Code(attributes));
-        } else if (tag.equalsIgnoreCase("img")) {
-            startImg(spannableStringBuilder, attributes, context);
         } else {
             if (tagHandler != null) {
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, mReader, attributes);
+                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, context, attributes);
                 if (tagHandled) {
                     return;
                 }
@@ -617,7 +616,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, mReader, null);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, context, null);
         }
     }
 
@@ -746,21 +745,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void startImg(final SpannableStringBuilder text,
-                                 Attributes attributes, final Context context) {
-        final String src = attributes.getValue("", "src");
-        final int start = text.length();
-
-        // TODO: we should some placeholder drawable while loading imges
-        Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
-
-        loadingDrawable.setBounds(0, 0, loadingDrawable.getIntrinsicWidth(), loadingDrawable.getIntrinsicHeight());
-        final ImageSpan imageSpan = new ImageSpan(loadingDrawable, src);
-
-        text.append("\uFFFC");
-        text.setSpan(imageSpan, start, text.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
 
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();

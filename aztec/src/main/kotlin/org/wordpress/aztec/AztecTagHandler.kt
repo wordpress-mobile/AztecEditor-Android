@@ -21,8 +21,11 @@
 
 package org.wordpress.aztec
 
+import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
@@ -32,7 +35,7 @@ class AztecTagHandler : Html.TagHandler {
 
     private var order = 0
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader, attributes: Attributes?): Boolean {
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, context: Context, attributes: Attributes?): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
@@ -72,6 +75,13 @@ class AztecTagHandler : Html.TagHandler {
                 handleBlockElement(output, opening, AztecQuoteSpan(attributeString))
                 return true
             }
+            IMAGE -> {
+                handleBlockElement(output, opening, createImageSpan(attributes, context))
+                if (opening) {
+                    output.append("\uFFFC")
+                }
+                return true
+            }
             PARAGRAPH -> {
                 handleBlockElement(output, opening, ParagraphSpan(attributeString))
                 return true
@@ -85,6 +95,12 @@ class AztecTagHandler : Html.TagHandler {
 
         }
         return false
+    }
+
+    private fun createImageSpan(attributes: Attributes?, context: Context) : AztecMediaSpan {
+        val src = attributes?.getValue("", "src") ?: ""
+        val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+        return AztecMediaSpan(context, loadingDrawable, src, Html.stringifyAttributes(attributes).toString())
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
@@ -170,6 +186,7 @@ class AztecTagHandler : Html.TagHandler {
         private val SPAN = "span"
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
+        private val IMAGE = "img"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)

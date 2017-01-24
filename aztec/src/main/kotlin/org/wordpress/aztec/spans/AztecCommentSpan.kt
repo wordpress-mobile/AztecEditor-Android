@@ -6,6 +6,8 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
 
+import org.wordpress.android.util.DisplayUtils
+
 class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
     companion object {
         private val rect: Rect = Rect()
@@ -39,7 +41,14 @@ class AztecCommentSpan(val context: Context, drawable: Drawable) : ImageSpan(dra
             return rect
         }
 
-        val width = context.resources.displayMetrics.widthPixels
+        /*
+         * Following Android guidelines for keylines and spacing, screen edge margins should
+         * be 16dp.  Therefore, the width of images should be the width of the screen minus
+         * 16dp on both sides (i.e. 16 * 2 = 32).
+         *
+         * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
+         */
+        val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
         val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
         drawable.setBounds(0, 0, width, height)
 

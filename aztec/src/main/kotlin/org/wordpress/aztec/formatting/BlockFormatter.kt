@@ -11,7 +11,7 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle):AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int)
@@ -259,17 +259,17 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, lastItem: AztecListItemSpan = AztecListItemSpan(), attrs: String = ""): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, attrs: String = "") : AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, AztecListItemSpan())
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, AztecListItemSpan())
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }
     }
 
 
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()): AztecBlockSpan {
+    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()) : AztecBlockSpan {
         when (spanType) {
             AztecOrderedListSpan::class.java -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
             AztecUnorderedListSpan::class.java -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)

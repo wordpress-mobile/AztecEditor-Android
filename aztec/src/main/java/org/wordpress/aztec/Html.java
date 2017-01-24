@@ -683,7 +683,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             case FORMAT_LINK:
                 marker = (AttributedMarker) getLast(text, Href.class);
                 if (marker != null) {
-                    newSpan = new AztecURLSpan(marker.attributes.getValue("href"), Html.stringifyAttributes(marker.attributes).toString());
+                    String url = marker.attributes.getValue("href") == null ? "" : marker.attributes.getValue("href");
+                    newSpan = new AztecURLSpan(url, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
             case FORMAT_BIG:

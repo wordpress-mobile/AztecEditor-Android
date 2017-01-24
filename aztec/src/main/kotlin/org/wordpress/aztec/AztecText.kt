@@ -32,9 +32,13 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import android.view.inputmethod.InputConnectionWrapper
 import android.widget.EditText
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
@@ -44,6 +48,7 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
 import java.util.*
+
 
 class AztecText : EditText, TextWatcher {
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -148,6 +153,16 @@ class AztecText : EditText, TextWatcher {
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
+        //Detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
+        setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
+                if (selectionStart == 0 && selectionEnd == 0) {
+                    blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                }
+            }
+            false
+        }
+
         isViewInitialized = true
     }
 
@@ -199,7 +214,7 @@ class AztecText : EditText, TextWatcher {
         isMediaAdded = customState.getBoolean("isMediaAdded")
     }
 
-    override fun onSaveInstanceState() : Parcelable {
+    override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
@@ -283,8 +298,7 @@ class AztecText : EditText, TextWatcher {
             if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
                 // moved left
                 setSelection(selEnd - 1)
-            }
-            else {
+            } else {
                 // moved right or dropped to right to the left of ZWJ
                 setSelection(selEnd + 1)
             }
@@ -800,4 +814,39 @@ class AztecText : EditText, TextWatcher {
         addLinkDialog = builder.create()
         addLinkDialog!!.show()
     }
+
+
+    //Custom input connection is used to detect the press of backspace when no characters are deleted
+    //(eg. at 0 index of EditText)
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+        return AztecInputConnection(super.onCreateInputConnection(outAttrs), true)
+    }
+
+    private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
+
+
+        override fun sendKeyEvent(event: KeyEvent): Boolean {
+            if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
+                if (selectionStart == 0 && selectionEnd == 0) {
+                    blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                    return false
+                }
+
+            }
+            return super.sendKeyEvent(event)
+        }
+
+
+        override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
+            // magic: in latest Android, deleteSurroundingText(1, 0) will be called for backspace
+            if (beforeLength == 1 && afterLength == 0) {
+                return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+            }
+
+            return super.deleteSurroundingText(beforeLength, afterLength)
+        }
+
+    }
+
+
 }

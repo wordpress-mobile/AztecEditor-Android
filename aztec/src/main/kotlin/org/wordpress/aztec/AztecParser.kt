@@ -462,15 +462,6 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is ImageSpan && span !is AztecCommentSpan && span !is AztecMediaSpan && span !is UnknownHtmlSpan) {
-                        out.append("<img src=\"")
-                        out.append(span.source)
-                        out.append("\">")
-
-                        // Don't output the dummy character underlying the image.
-                        i = next
-                    }
-
                     if (span is AztecCommentSpan || span is CommentSpan) {
                         out.append("<!--")
                     }

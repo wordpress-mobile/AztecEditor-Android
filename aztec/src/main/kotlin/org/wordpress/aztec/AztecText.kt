@@ -824,7 +824,6 @@ class AztecText : EditText, TextWatcher {
 
     private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
 
-
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
                 if (selectionStart == 0 && selectionEnd == 0) {
@@ -836,17 +835,13 @@ class AztecText : EditText, TextWatcher {
             return super.sendKeyEvent(event)
         }
 
-
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            // magic: in latest Android, deleteSurroundingText(1, 0) will be called for backspace
             if (beforeLength == 1 && afterLength == 0) {
                 return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
             }
 
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
-
     }
-
 
 }

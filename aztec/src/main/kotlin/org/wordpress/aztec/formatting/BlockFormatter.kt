@@ -95,11 +95,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                         text.insert(inputEnd, "\n")
                     } else {
                         text.setSpan(it, indexOfNewline + textChangedEvent.count, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-                        if (indexOfNewline != spanStart) {
-                            editor.disableTextChangedListener()
-                            text.insert(inputEnd, "\n")
-                        }
+                        editor.disableTextChangedListener()
+                        text.insert(inputEnd, "\n")
                     }
                 }
             }

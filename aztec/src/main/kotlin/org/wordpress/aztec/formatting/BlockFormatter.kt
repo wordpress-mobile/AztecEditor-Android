@@ -56,7 +56,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun tryRemoveBlockStyleFromFirstLine() {
+    fun tryRemoveBlockStyleWhenNoCharactersWereDeleted() {
         editableText.getSpans(0, 0, AztecBlockSpan::class.java).forEach {
             val spanStart = editableText.getSpanStart(it)
             val spanEnd = editableText.getSpanEnd(it)
@@ -80,12 +80,12 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         val inputStart = textChangedEvent.inputStart
         val inputEnd = textChangedEvent.inputEnd
 
+        //try to remove block styling when pressing backspace at the beginning of the span
         if (!textChangedEvent.isAddingCharacters) {
             text.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).forEach {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
 
-                //deleted newline before block element
                 if (spanStart != 0 && spanStart == inputEnd && textChangedEvent.textBefore[spanStart] == '\n') {
                     val indexOfNewline = editableText.indexOf('\n', spanStart)
 

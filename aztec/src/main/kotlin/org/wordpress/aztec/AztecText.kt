@@ -157,7 +157,7 @@ class AztecText : EditText, TextWatcher {
         setOnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
                 if (selectionStart == 0 && selectionEnd == 0) {
-                    blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                    blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
                 }
             }
             false
@@ -827,7 +827,7 @@ class AztecText : EditText, TextWatcher {
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
                 if (selectionStart == 0 && selectionEnd == 0) {
-                    blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                    blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
                     return false
                 }
 

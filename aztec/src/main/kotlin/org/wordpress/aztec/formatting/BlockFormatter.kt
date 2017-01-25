@@ -64,7 +64,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             if (spanStart == 0) {
                 val indexOfNewline = editableText.indexOf('\n', 0)
 
-                if (spanEnd == indexOfNewline) {
+                if (spanEnd == indexOfNewline || indexOfNewline == -1) {
                     editableText.removeSpan(it)
                     editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
                 } else {
@@ -86,10 +86,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 val spanEnd = text.getSpanEnd(it)
 
                 //deleted newline before block element
-                if (spanStart == inputEnd && inputEnd > 0 && text[inputEnd - 1] != '\n') {
+                if (spanStart != 0 && spanStart == inputEnd && textChangedEvent.textBefore[spanStart] == '\n') {
                     val indexOfNewline = editableText.indexOf('\n', spanStart)
 
-                    if (spanEnd == indexOfNewline + textChangedEvent.count || indexOfNewline == -1) {
+                    if (spanEnd == indexOfNewline || indexOfNewline == -1) {
                         text.removeSpan(it)
                         editor.disableTextChangedListener()
                         text.insert(inputEnd, "\n")

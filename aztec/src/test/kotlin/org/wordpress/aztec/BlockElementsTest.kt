@@ -87,5 +87,4 @@ class BlockElementsTest {
         Assert.assertEquals("", editText.text.toString())
         Assert.assertEquals("", editText.toHtml())
     }
-
 }

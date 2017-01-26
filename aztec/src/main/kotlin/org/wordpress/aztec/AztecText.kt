@@ -158,7 +158,7 @@ class AztecText : EditText, TextWatcher {
             var consumeKeyEvent = false
             history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
+                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
             if (consumeKeyEvent) {
@@ -831,7 +831,7 @@ class AztecText : EditText, TextWatcher {
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
                 history.beforeTextChanged(toFormattedHtml())
-                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
+                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
                     return false

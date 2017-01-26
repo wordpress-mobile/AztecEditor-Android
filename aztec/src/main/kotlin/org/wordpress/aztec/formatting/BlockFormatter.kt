@@ -56,7 +56,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun tryRemoveBlockStyleWhenNoCharactersWereDeleted(): Boolean {
+    fun tryRemoveBlockStyleFromFirstLine(): Boolean {
         val selectionStart = editor.selectionStart
 
         //try to remove block styling when pressing backspace at the beginning of the span
@@ -229,9 +229,6 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val before = Math.min(inputStart, inputEnd)
             val spanEnd = text.getSpanEnd(blockSpan)
             val spanStart = text.getSpanStart(blockSpan)
-
-            //ignore if not actually attaching a line to the last item
-            if (spanEnd != inputEnd) return
 
             if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
                 text.setSpan(blockSpan, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

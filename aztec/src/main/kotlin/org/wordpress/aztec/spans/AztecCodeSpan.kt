@@ -57,7 +57,7 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, Azt
     }
 
     override fun describeContents(): Int {
-        return 0;
+        return 0
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {

@@ -11,7 +11,7 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle):AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int)
@@ -56,8 +56,37 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
+    fun tryRemoveBlockStyleFromFirstLine(): Boolean {
+        val selectionStart = editor.selectionStart
 
+        //try to remove block styling when pressing backspace at the beginning of the span
+        editableText.getSpans(selectionStart, selectionStart, AztecBlockSpan::class.java).forEach {
+            val spanStart = editableText.getSpanStart(it)
+            var spanEnd = editableText.getSpanEnd(it)
+
+            if (spanStart != selectionStart) return@forEach
+
+            val indexOfNewline = editableText.indexOf('\n', spanStart)
+
+            if (spanStart != 0 && spanEnd == indexOfNewline + 1) {
+                spanEnd--
+            }
+
+            if (spanEnd == indexOfNewline || indexOfNewline == -1) {
+                editableText.removeSpan(it)
+                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+            } else {
+                editableText.setSpan(it, indexOfNewline + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+    fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
         val inputEnd = textChangedEvent.inputEnd
 
@@ -160,7 +189,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         } else if (textChangedEvent.deletedFromBlockEnd) {
             // when deleting characters, manage closing of lists
-            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull()
+            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull {
+                //two spans might share same border, so we need to make sure we are getting the right one
+                text.getSpanStart(it) == textChangedEvent.blockSpanStart
+            }
             if (list != null) {
                 val spanStart = textChangedEvent.blockSpanStart
                 val spanEnd = text.getSpanEnd(list)

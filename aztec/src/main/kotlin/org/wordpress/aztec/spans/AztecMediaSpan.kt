@@ -69,8 +69,7 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, drawable: 
          * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
          */
         if (context != null) {
-            val dpPxRatio = DisplayUtils.dpToPx(context, 1)
-            val width = Math.min(drawable.intrinsicWidth * dpPxRatio, DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32))
+            val width = Math.min(DisplayUtils.dpToPx(context, drawable.intrinsicWidth), DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32))
             val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
             drawable.setBounds(0, 0, width, height)
         }

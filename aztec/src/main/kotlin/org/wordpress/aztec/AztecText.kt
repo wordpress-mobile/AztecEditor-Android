@@ -584,7 +584,7 @@ class AztecText : EditText, TextWatcher {
              *
              * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
              */
-            val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
+            val width = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
             imageGetter?.loadImage(it.source, callbacks, width)
         }
     }

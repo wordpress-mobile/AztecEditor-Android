@@ -44,6 +44,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     interface OnMediaOptionSelectedListener {
         fun onCameraPhotoMediaOptionSelected()
         fun onCameraVideoMediaOptionSelected()
+        fun onGalleryMediaOptionSelected()
         fun onPhotoLibraryMediaOptionSelected()
         fun onPhotosMediaOptionSelected()
         fun onVideoLibraryMediaOptionSelected()
@@ -97,7 +98,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (item?.itemId) {
             // Media popup menu options
             R.id.gallery -> {
-                Toast.makeText(context, "Launch gallery", Toast.LENGTH_SHORT).show()
+                mediaOptionSelectedListener?.onGalleryMediaOptionSelected()
                 return true
             }
             R.id.photo -> {

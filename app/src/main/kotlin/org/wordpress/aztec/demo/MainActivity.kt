@@ -200,6 +200,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
+    override fun onGalleryMediaOptionSelected() {
+        Toast.makeText(this, "Launch gallery", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onPhotoLibraryMediaOptionSelected() {
         Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }

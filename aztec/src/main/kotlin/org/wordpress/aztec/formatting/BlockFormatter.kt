@@ -56,51 +56,39 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    fun tryRemoveBlockStyleWhenNoCharactersWereDeleted() {
-        editableText.getSpans(0, 0, AztecBlockSpan::class.java).forEach {
+    fun tryRemoveBlockStyleWhenNoCharactersWereDeleted(): Boolean {
+        val selectionStart = editor.selectionStart
+
+        //try to remove block styling when pressing backspace at the beginning of the span
+        editableText.getSpans(selectionStart, selectionStart, AztecBlockSpan::class.java).forEach {
             val spanStart = editableText.getSpanStart(it)
-            val spanEnd = editableText.getSpanEnd(it)
+            var spanEnd = editableText.getSpanEnd(it)
 
-            if (spanStart == 0) {
-                val indexOfNewline = editableText.indexOf('\n', 0)
+            if (spanStart != selectionStart) return false
 
-                if (spanEnd == indexOfNewline || indexOfNewline == -1) {
-                    editableText.removeSpan(it)
-                    editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
-                } else {
-                    editableText.setSpan(it, indexOfNewline + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
-                }
+            val indexOfNewline = editableText.indexOf('\n', spanStart)
 
+            if (spanStart != 0 && spanEnd == indexOfNewline + 1) {
+                spanEnd--
             }
+
+            if (spanEnd == indexOfNewline || indexOfNewline == -1) {
+                editableText.removeSpan(it)
+                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+            } else {
+                editableText.setSpan(it, indexOfNewline + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+            }
+
+            return true
         }
+
+        return false
     }
 
     fun handleBlockStyling(text: Editable, textChangedEvent: TextChangedEvent) {
         val inputStart = textChangedEvent.inputStart
         val inputEnd = textChangedEvent.inputEnd
-
-        //try to remove block styling when pressing backspace at the beginning of the span
-        if (!textChangedEvent.isAddingCharacters) {
-            text.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).forEach {
-                val spanStart = text.getSpanStart(it)
-                val spanEnd = text.getSpanEnd(it)
-
-                if (spanStart != 0 && spanStart == inputEnd && textChangedEvent.textBefore[spanStart] == '\n') {
-                    val indexOfNewline = editableText.indexOf('\n', spanStart)
-
-                    if (spanEnd == indexOfNewline || indexOfNewline == -1) {
-                        text.removeSpan(it)
-                        editor.disableTextChangedListener()
-                        text.insert(inputEnd, "\n")
-                    } else {
-                        text.setSpan(it, indexOfNewline + textChangedEvent.count, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        editor.disableTextChangedListener()
-                        text.insert(inputEnd, "\n")
-                    }
-                }
-            }
-        }
 
         val spanToClose = getBlockSpansToClose(text, textChangedEvent)
         spanToClose.forEach {
@@ -238,6 +226,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val before = Math.min(inputStart, inputEnd)
             val spanEnd = text.getSpanEnd(blockSpan)
             val spanStart = text.getSpanStart(blockSpan)
+
+            //ignore if not actually attaching a line to the last item
+            if (spanEnd != inputEnd) return
 
             if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
                 text.setSpan(blockSpan, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

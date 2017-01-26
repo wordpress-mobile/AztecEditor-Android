@@ -155,12 +155,16 @@ class AztecText : EditText, TextWatcher {
 
         //Detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
         setOnKeyListener { v, keyCode, event ->
+            var consumeKeyEvent = false
+            history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                if (selectionStart == 0 && selectionEnd == 0) {
-                    blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
-                }
+                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
             }
-            false
+
+            if (consumeKeyEvent) {
+                history.handleHistory(this@AztecText)
+            }
+            consumeKeyEvent
         }
 
         isViewInitialized = true
@@ -826,8 +830,10 @@ class AztecText : EditText, TextWatcher {
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
-                if (selectionStart == 0 && selectionEnd == 0) {
-                    blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
+                history.beforeTextChanged(toFormattedHtml())
+                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleWhenNoCharactersWereDeleted()
+                if (isStyleRemoved) {
+                    history.handleHistory(this@AztecText)
                     return false
                 }
 

@@ -10,8 +10,10 @@ import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.View
 import android.widget.EditText
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
@@ -25,6 +27,8 @@ class SourceViewEditText : EditText, TextWatcher {
         internal set
 
     private var styleTextWatcher: HtmlStyleTextWatcher? = null
+
+    private var onImeBackListener: AztecText.OnImeBackListener? = null
 
     lateinit var history: History
 
@@ -234,5 +238,16 @@ class SourceViewEditText : EditText, TextWatcher {
 
     fun isTextChangedListenerDisabled(): Boolean {
         return consumeEditEvent
+    }
+
+    fun setOnImeBackListener(listener: AztecText.OnImeBackListener) {
+        this.onImeBackListener = listener
+    }
+
+    override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            onImeBackListener?.onImeBack()
+        }
+        return super.onKeyPreIme(keyCode, event)
     }
 }

@@ -11,4 +11,6 @@
     <dimen name="spacing_extra">4dp</dimen>
     <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 
+    <bool name="is_large_tablet_landscape">false</bool>
+
 </resources>

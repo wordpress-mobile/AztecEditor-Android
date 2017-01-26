@@ -612,7 +612,7 @@ class AztecText : EditText, TextWatcher {
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         val blockSpans = editable.getSpans(start, end, AztecBlockSpan::class.java)
         blockSpans
-                .filter { it !is AztecMediaSpan }
+//                .filter { it !is AztecMediaSpan }
                 .forEach {
                     val spanStart = editable.getSpanStart(it)
                     val spanEnd = editable.getSpanEnd(it)

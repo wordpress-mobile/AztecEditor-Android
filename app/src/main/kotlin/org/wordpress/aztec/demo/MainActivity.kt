@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
@@ -199,6 +200,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
+    override fun onPhotoLibraryMediaOptionSelected() {
+        Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent: Intent
@@ -219,6 +224,10 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 ToastUtils.showToast(this, getString(R.string.error_chooser_photo), ToastUtils.Duration.LONG)
             }
         }
+    }
+
+    override fun onVideoLibraryMediaOptionSelected() {
+        Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }
 
     override fun onVideosMediaOptionSelected() {

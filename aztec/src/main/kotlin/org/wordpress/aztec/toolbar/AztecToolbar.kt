@@ -44,7 +44,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     interface OnMediaOptionSelectedListener {
         fun onCameraPhotoMediaOptionSelected()
         fun onCameraVideoMediaOptionSelected()
+        fun onPhotoLibraryMediaOptionSelected()
         fun onPhotosMediaOptionSelected()
+        fun onVideoLibraryMediaOptionSelected()
         fun onVideosMediaOptionSelected()
     }
 
@@ -348,7 +350,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val library = dialog.findViewById(R.id.media_library)
         library.setOnClickListener({
-            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
+            mediaOptionSelectedListener?.onPhotoLibraryMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
         })
 
@@ -377,7 +379,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val library = dialog.findViewById(R.id.media_library)
         library.setOnClickListener({
-            Toast.makeText(context, "Open library", Toast.LENGTH_SHORT).show()
+            mediaOptionSelectedListener?.onVideoLibraryMediaOptionSelected()
             addVideoMediaDialog?.dismiss()
         })
 

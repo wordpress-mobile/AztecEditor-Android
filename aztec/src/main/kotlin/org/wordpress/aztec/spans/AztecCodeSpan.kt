@@ -22,11 +22,10 @@ import android.os.Parcel
 import android.text.ParcelableSpan
 import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.CharacterStyle
-import android.text.style.UpdateAppearance
+import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.formatting.InlineFormatter
 
-class AztecCodeSpan : CharacterStyle, UpdateAppearance, ParcelableSpan, AztecContentSpan, AztecInlineSpan {
+class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, AztecInlineSpan {
 
     private val TAG: String = "code"
 
@@ -78,6 +77,14 @@ class AztecCodeSpan : CharacterStyle, UpdateAppearance, ParcelableSpan, AztecCon
     }
 
     override fun updateDrawState(tp: TextPaint?) {
+        configureTextPaint(tp)
+    }
+
+    override fun updateMeasureState(tp: TextPaint?) {
+        configureTextPaint(tp)
+    }
+
+    private fun configureTextPaint(tp: TextPaint?) {
         tp?.typeface = Typeface.MONOSPACE
         tp?.bgColor = codeBackground
         tp?.color = codeColor

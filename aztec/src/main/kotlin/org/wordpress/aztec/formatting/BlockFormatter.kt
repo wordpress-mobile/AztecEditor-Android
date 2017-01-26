@@ -64,7 +64,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val spanStart = editableText.getSpanStart(it)
             var spanEnd = editableText.getSpanEnd(it)
 
-            if (spanStart != selectionStart) return false
+            if (spanStart != selectionStart) return@forEach
 
             val indexOfNewline = editableText.indexOf('\n', spanStart)
 
@@ -189,7 +189,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         } else if (textChangedEvent.deletedFromBlockEnd) {
             // when deleting characters, manage closing of lists
-            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull()
+            val list = text.getSpans(textChangedEvent.blockSpanStart, textChangedEvent.blockSpanStart, AztecBlockSpan::class.java).firstOrNull {
+                //two spans might share same border, so we need to make sure we are getting the right one
+                text.getSpanStart(it) == textChangedEvent.blockSpanStart
+            }
             if (list != null) {
                 val spanStart = textChangedEvent.blockSpanStart
                 val spanEnd = text.getSpanEnd(list)

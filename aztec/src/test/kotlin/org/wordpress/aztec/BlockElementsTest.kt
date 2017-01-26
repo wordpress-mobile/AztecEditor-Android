@@ -88,24 +88,4 @@ class BlockElementsTest {
         Assert.assertEquals("", editText.toHtml())
     }
 
-
-    /**
-     * Simulates putting cursor on the first position of block element and pressing backspace.
-     * We can't test this behaviour on the 0 index of EditText because of the way Robolectric handles Key events.
-     */
-    @Test
-    @Throws(Exception::class)
-    fun removeBlockElementStylingWithBackspace() {
-        editText.fromHtml("text<ol><li>Ordered 1</li><li>Ordered 2</li></ol><blockquote>Quote 1<br>Quote 2</blockquote>")
-
-        var mark = editText.text.indexOf("Ordered 1")
-
-        editText.text.delete(mark - 1, mark)
-        Assert.assertEquals("text<br>Ordered 1<ol><li>Ordered 2</li></ol><blockquote>Quote 1<br>Quote 2</blockquote>", editText.toHtml())
-
-        mark = editText.text.indexOf("Quote 1")
-
-        editText.text.delete(mark - 1, mark)
-        Assert.assertEquals("text<br>Ordered 1<ol><li>Ordered 2</li></ol>Quote 1<blockquote>Quote 2</blockquote>", editText.toHtml())
-    }
 }

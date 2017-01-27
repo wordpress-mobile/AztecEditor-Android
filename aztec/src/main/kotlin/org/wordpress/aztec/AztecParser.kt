@@ -318,6 +318,10 @@ class AztecParser {
             }
 
             withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
+
+            // attempt to consume the cursor here to cater for an empty list item
+            consumeCursorIfThere(out, text, itemSpanStart)
+
             out.append("</li>")
         }
         out.append("</${list.getEndTag()}>")

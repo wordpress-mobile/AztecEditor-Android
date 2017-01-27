@@ -613,7 +613,7 @@ class AztecParser {
                     val d = text[i + 1]
                     if (d.toInt() >= 0xDC00 && d.toInt() <= 0xDFFF) {
                         i++
-                        val codepoint = 0x010000 or c.toInt() - 0xD800 shl 10 or d.toInt() - 0xDC00
+                        val codepoint = 0x010000 or ((c.toInt() - 0xD800) shl 10) or (d.toInt() - 0xDC00)
                         out.append("&#").append(codepoint).append(";")
                     }
                 }

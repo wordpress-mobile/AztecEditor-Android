@@ -65,6 +65,7 @@ class AztecParserTest : AndroidTestCase() {
             "<div><span>1</span><br><div>2</div>3<span></span><br>4</div><br><br>5<br><br><div></div>"
     private val HTML_NESTED_INLINE = "<u><i><b>Nested</b></i></u>"
     private val HTML_HIDDEN_WITH_NO_TEXT = "<br><br><div></div><br><br>"
+    private val HTML_EMOJI = "&#128077;&#10084;" // Thumbsup + heart
 
     private val SPAN_BOLD = "Bold\n\n"
     private val SPAN_LIST_ORDERED = "Ordered\n\n"
@@ -120,7 +121,8 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_NESTED_EMPTY_START +
                 HTML_NESTED_EMPTY +
                 HTML_NESTED_WITH_TEXT +
-                HTML_NESTED_INTERLEAVING
+                HTML_NESTED_INTERLEAVING +
+                HTML_EMOJI
 
         val span = SpannableString(mParser.fromHtml(input, context))
         val output = mParser.toHtml(span)

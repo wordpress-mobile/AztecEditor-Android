@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -18,6 +19,7 @@ import android.support.v4.content.FileProvider
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
@@ -30,7 +32,8 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
+        View.OnTouchListener, AztecText.OnImeBackListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -100,6 +103,9 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
+    private var mIsKeyboardOpen = false
+    private var mHideActionBarOnSoftKeyboardUp = false
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             var bitmap: Bitmap? = null
@@ -130,6 +136,12 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Setup hiding the action bar when the soft keyboard is displayed for narrow viewports
+        if (resources.configuration.orientation === Configuration.ORIENTATION_LANDSCAPE
+                && !resources.getBoolean(R.bool.is_large_tablet_landscape)) {
+            mHideActionBarOnSoftKeyboardUp = true
+        }
+
         aztec = findViewById(R.id.aztec) as AztecText
 
         aztec.imageGetter = PicassoImageLoader(this, aztec)
@@ -146,6 +158,96 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         aztec.fromHtml(source.getPureHtml())
 
         source.history = aztec.history
+
+        aztec.setOnImeBackListener(this)
+        aztec.setOnTouchListener(this)
+        source.setOnImeBackListener(this)
+        source.setOnTouchListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mIsKeyboardOpen = false
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        showActionBarIfNeeded()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        // Toggle action bar auto-hiding for the new orientation
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+                && !resources.getBoolean(R.bool.is_large_tablet_landscape)) {
+            mHideActionBarOnSoftKeyboardUp = true
+            hideActionBarIfNeeded()
+        } else {
+            mHideActionBarOnSoftKeyboardUp = false
+            showActionBarIfNeeded()
+        }
+    }
+
+    /**
+     * Returns true if a hardware keyboard is detected, otherwise false.
+     */
+    private fun isHardwareKeyboardPresent(): Boolean {
+        val config = resources.configuration
+        var returnValue = false
+        if (config.keyboard != Configuration.KEYBOARD_NOKEYS) {
+            returnValue = true
+        }
+        return returnValue
+    }
+
+    private fun hideActionBarIfNeeded() {
+
+        val actionBar = supportActionBar
+        if (actionBar != null
+                && !isHardwareKeyboardPresent()
+                && mHideActionBarOnSoftKeyboardUp
+                && mIsKeyboardOpen
+                && actionBar.isShowing) {
+            actionBar!!.hide()
+        }
+    }
+
+    /**
+     * Show the action bar if needed.
+     */
+    private fun showActionBarIfNeeded() {
+
+        val actionBar = supportActionBar
+        if (actionBar != null && !actionBar.isShowing) {
+            actionBar.show()
+        }
+    }
+
+    override fun onTouch(view: View, event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_UP) {
+            // If the WebView or EditText has received a touch event, the keyboard will be displayed and the action bar
+            // should hide
+            mIsKeyboardOpen = true
+            hideActionBarIfNeeded()
+        }
+        return false
+    }
+
+    override fun onBackPressed() {
+        mIsKeyboardOpen = false
+        showActionBarIfNeeded()
+
+        return super.onBackPressed()
+    }
+
+    /**
+     * Intercept back button press while soft keyboard is visible.
+     */
+    override fun onImeBack() {
+        mIsKeyboardOpen = false
+        showActionBarIfNeeded()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

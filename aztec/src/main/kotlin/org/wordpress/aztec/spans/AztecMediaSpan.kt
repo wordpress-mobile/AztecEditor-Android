@@ -93,7 +93,7 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
         }
     }
 
-    fun getHtml() : String {
+    fun getHtml(): String {
         return "<$TAG $attributes />"
     }
 

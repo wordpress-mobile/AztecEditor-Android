@@ -53,7 +53,7 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
         return false
     }
 
-    fun isNewLine() : Boolean {
+    fun isNewLine(): Boolean {
         if (isAddingCharacters) {
             val currentCharacter = text[inputStart]
             if (currentCharacter == '\n' ||
@@ -65,7 +65,7 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
         return false
     }
 
-    fun isNewLineButNotAtTheBeginning() : Boolean {
+    fun isNewLineButNotAtTheBeginning(): Boolean {
         if (!isAddingCharacters) return false
 
         if (inputStart >= 1 && count == 1) {

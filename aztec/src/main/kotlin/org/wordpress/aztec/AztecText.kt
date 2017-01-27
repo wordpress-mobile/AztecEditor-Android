@@ -61,6 +61,8 @@ class AztecText : EditText, TextWatcher {
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
+    private var onImeBackListener: OnImeBackListener? = null
+
     private var isViewInitialized = false
     private var previousCursorPosition = 0
 
@@ -81,6 +83,10 @@ class AztecText : EditText, TextWatcher {
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
+    }
+
+    interface OnImeBackListener {
+        fun onImeBack()
     }
 
     init {
@@ -284,6 +290,17 @@ class AztecText : EditText, TextWatcher {
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
+    }
+
+    fun setOnImeBackListener(listener: OnImeBackListener) {
+        this.onImeBackListener = listener
+    }
+
+    override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            onImeBackListener?.onImeBack()
+        }
+        return super.onKeyPreIme(keyCode, event)
     }
 
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {

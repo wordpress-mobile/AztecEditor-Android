@@ -263,13 +263,13 @@ class AztecParser {
             i = next
         }
 
-        consumeCursorIfThere(out, text, text.length)
+        consumeCursorIfInInput(out, text, text.length)
     }
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {
-        consumeCursorIfThere(out, text, start)
+        consumeCursorIfInInput(out, text, start)
         out.append(unknownHtmlSpan.getRawHtml())
-        consumeCursorIfThere(out, text, end)
+        consumeCursorIfInInput(out, text, end)
     }
 
     private fun withinListThenQuote(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
@@ -320,7 +320,7 @@ class AztecParser {
             withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
 
             // attempt to consume the cursor here to cater for an empty list item
-            consumeCursorIfThere(out, text, itemSpanStart)
+            consumeCursorIfInInput(out, text, itemSpanStart)
 
             out.append("</li>")
         }
@@ -390,9 +390,9 @@ class AztecParser {
     }
 
     private fun withinMedia(out: StringBuilder, text: Spanned, start: Int, end: Int, mediaSpan: AztecMediaSpan) {
-        consumeCursorIfThere(out, text, start)
+        consumeCursorIfInInput(out, text, start)
         out.append(mediaSpan.getHtml())
-        consumeCursorIfThere(out, text, end)
+        consumeCursorIfInInput(out, text, end)
     }
 
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
@@ -440,7 +440,7 @@ class AztecParser {
             if (isHeadingSpanEncountered) {
                 for (i in 0..nl - 1) {
                     out.append("<br>")
-                    consumeCursorIfThere(out, text,  end + i)
+                    consumeCursorIfInInput(out, text,  end + i)
                 }
                 return@withinParagraph
             }
@@ -505,7 +505,7 @@ class AztecParser {
 
         for (i in 0..nl - 1) {
             out.append("<br>")
-            consumeCursorIfThere(out, text,  end + i)
+            consumeCursorIfInInput(out, text,  end + i)
         }
     }
 
@@ -555,7 +555,7 @@ class AztecParser {
                 continue
             }
 
-            consumeCursorIfThere(out, text, i)
+            consumeCursorIfInInput(out, text, i)
 
             if (c == '<') {
                 out.append("&lt;")
@@ -580,7 +580,7 @@ class AztecParser {
                 while (i + 1 < end && text[i + 1] == ' ') {
                     out.append("&nbsp;")
                     i++
-                    consumeCursorIfThere(out, text, i)
+                    consumeCursorIfInInput(out, text, i)
                 }
 
                 out.append(' ')
@@ -591,15 +591,27 @@ class AztecParser {
         }
 
         if (nl == 0 && text.length > i && text[i] == '\n') {
-            consumeCursorIfThere(out, text, i)
+            consumeCursorIfInInput(out, text, i)
         }
     }
 
-    private fun consumeCursorIfThere(out: StringBuilder, text: CharSequence, position: Int) {
+    /**
+     * Append a cursor to the output string if input string has one at the specified position.
+     * Cursor is removed from the input if found at that position.
+     *
+     * The algorithm that uses this function goes like this: While traversing the input (spannable) string and producing
+     *   the output chunk chunk, look for the cursor span in the input string at a location before or after the chunk.
+     *   If cursor is found then remove it while appending a cursor literal to the output string. This way, the cursor
+     *   gets inserted without the need to know which position in the output string corresponds to the position in the
+     *   input string.
+     */
+    private fun consumeCursorIfInInput(out: StringBuilder, text: CharSequence, position: Int) {
         val cursorSpan = (text as SpannableStringBuilder).getSpans(position, position, AztecCursorSpan::class.java)
                 .firstOrNull()
         if (cursorSpan != null) {
             out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
+
+            // remove the cursor mark from the input string. It's work is finished.
             text.removeSpan(cursorSpan)
         }
     }

@@ -13,11 +13,11 @@ import android.view.View
 import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils
 
-class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private var image: Drawable?, val source: String, attributes: String = "") : DynamicDrawableSpan(), AztecSpan  {
+class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private var image: Drawable?, val source: String, attributes: String = "") : DynamicDrawableSpan()  {
 
     private val TAG: String = "img"
 
-    override var attributes: String = ""
+    var attributes: String = ""
 
     companion object {
         private val rect: Rect = Rect()
@@ -40,17 +40,6 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
     fun setDrawable(newDrawable: Drawable?) {
         image = newDrawable
         setBounds(image)
-    }
-
-    override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
-            return TAG
-        }
-        return TAG + attributes
-    }
-
-    override fun getEndTag(): String {
-        return TAG
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
@@ -94,7 +83,7 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
     }
 
     fun getHtml(): String {
-        return "<$TAG $attributes />"
+        return "<$TAG$attributes />"
     }
 
     fun onClick(view: View) {

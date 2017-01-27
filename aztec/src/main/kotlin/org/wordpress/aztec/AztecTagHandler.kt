@@ -76,9 +76,11 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             IMAGE -> {
-                handleBlockElement(output, opening, createImageSpan(attributes, context))
                 if (opening) {
+                    start(output, createImageSpan(attributes, context))
                     output.append("\uFFFC")
+                } else {
+                    end(output, AztecMediaSpan::class.java)
                 }
                 return true
             }

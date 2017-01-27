@@ -252,8 +252,6 @@ class AztecParser {
                     withinUnknown(styles[0] as UnknownHtmlSpan, out)
                 } else if (styles[0] is ParagraphSpan) {
                     withinParagraph(out, text, i, next)
-                } else if (styles[0] is AztecMediaSpan) {
-                    withinMedia(styles[0] as AztecMediaSpan, out)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -389,10 +387,6 @@ class AztecParser {
         }
     }
 
-    private fun withinMedia(mediaSpan: AztecMediaSpan, out: StringBuilder) {
-        out.append(mediaSpan.getHtml())
-    }
-
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
         var next: Int
 
@@ -464,6 +458,11 @@ class AztecParser {
 
                     if (span is AztecCommentSpan || span is CommentSpan) {
                         out.append("<!--")
+                    }
+
+                    if (span is AztecMediaSpan) {
+                        out.append(span.getHtml())
+                        i = next
                     }
 
                     if (span is HiddenHtmlSpan) {

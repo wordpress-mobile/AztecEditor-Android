@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         private val UNDERLINE = "<u>Underline</u><br>"
         private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol><li>Ordered</li></ol>"
-        private val UNORDERED = "<ul><li>Unordered</li></ul>"
+        private val UNORDERED = "<ul><li>Unordered</li><li></li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
         private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"

@@ -262,6 +262,8 @@ class AztecParser {
             }
             i = next
         }
+
+        consumeCursorIfThere(out, text, text.length)
     }
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {

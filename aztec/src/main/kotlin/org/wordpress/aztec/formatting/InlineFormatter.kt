@@ -407,10 +407,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
                 }
             }
 
-            val selectedText = editableText.subSequence(start, end).toString().replace("\n", "")
-            val styledText = builder.toString()
-
-            return !styledText.isEmpty() && selectedText.contains(styledText)
+            return editableText.subSequence(start, end).toString() == builder.toString()
         }
     }
 }

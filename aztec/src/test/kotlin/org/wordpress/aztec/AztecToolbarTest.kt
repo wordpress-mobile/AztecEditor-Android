@@ -288,7 +288,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Test toggle state of formatting button as we move selection to differently styled text
+     * Test toggle state of formatting button as selection moves to differently styled text.
      *
      * @throws Exception
      */
@@ -312,7 +312,7 @@ class AztecToolbarTest {
         //bold and bold/italic styles selected
         editText.setSelection(2, 7)
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
 
         //cursor is at italic text
@@ -335,20 +335,21 @@ class AztecToolbarTest {
 
         //whole text selected
         editText.setSelection(0, editText.length() - 1)
-        Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
-        Assert.assertTrue(strikeThroughButton.isChecked)
+        Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
     }
 
     /**
-     * Select whole text with one common style applied to it and another style applied to part of it
-     * ("di" from <b>bold</b><b><i>italic</i></b>) and extend partially applied style (italic) to other part of selection
+     * Select part of text with one common style (bold) applied to it and another style (italic)
+     * applied to part of it ("di" from <b>bold</b><b><i>italic</i></b>) and extend partially
+     * applied style (italic) to other part of selection.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleItalicPartialSelection() {
+    fun extendStyleItalicPartialSelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         val selectedText = editText.text.substring(3, 5)
@@ -356,21 +357,22 @@ class AztecToolbarTest {
 
         editText.setSelection(3, 5)
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(italicButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
 
         italicButton.performClick()
-        Assert.assertEquals("<b>boldi</b><b><i>talic</i></b>", editText.toHtml())
+        Assert.assertEquals("<b>bol</b><b><i>ditalic</i></b>", editText.toHtml())
     }
 
     /**
-     * Select whole text with one common style applied to it and another style applied to part of it
-     * ("ds" from <b>bold</b><b><del>strike</del></b>) and extend partially applied style (strikethrough) to other part of selection
+     * Select part of text with one common style applied to it (bold) and another style (strikethrough)
+     * applied to part of it ("ds" from <b>bold</b><b><del>strike</del></b>) and extend partially
+     * applied style (strikethrough) to other part of selection.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleStrikethroughPartialSelection() {
+    fun extendStyleStrikethroughPartialSelection() {
         editText.fromHtml("<b>bold</b><b><del>strike</del></b>")
 
         val selectedText = editText.text.substring(3, 5)
@@ -378,21 +380,22 @@ class AztecToolbarTest {
 
         editText.setSelection(3, 5)
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertTrue(strikeThroughButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
 
         strikeThroughButton.performClick()
-        Assert.assertEquals("<b>bolds</b><b><del>trike</del></b>", editText.toHtml())
+        Assert.assertEquals("<b>bol</b><b><del>dstrike</del></b>", editText.toHtml())
     }
 
     /**
-     * Select part of text with one common style applied to it and other style applied to part of it
-     * ("italic" from <b>bold</b><b><i>italic</i></b>) and remove partially applied style (italic) form it
+     * Select part of text with one common style applied (bold) to it and other style (italic)
+     * applied to part of it ("italic" from <b>bold</b><b><i>italic</i></b>) and extend partially
+     * applied style (italic) to other part of selection.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleFromPartialSelection() {
+    fun extendStyleFromPartialSelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         val selectedText = editText.text.substring(4, editText.length())
@@ -406,24 +409,24 @@ class AztecToolbarTest {
     }
 
     /**
-     * Select whole text with one common style applied to it and another style applied to part of it
-     * extend partial style (italic) to whole selection
+     * Select whole text with one common style (bold) applied to it and another style (italic)
+     * applied to part of it and extend partial style (italic) to whole selection.
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun removeStyleFromWholeSelection() {
+    fun extendStyleFromWholeSelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         editText.setSelection(0, editText.length())
 
         italicButton.performClick()
-        Assert.assertEquals("<b>bolditalic</b>", editText.toHtml())
+        Assert.assertEquals("<b><i>bolditalic</i></b>", editText.toHtml())
     }
 
     /**
-     * Select whole text inside editor and remove styles from it while maintaining selection.
+     * Select whole text inside editor and remove/add styles while maintaining selection.
      *
      * @throws Exception
      */
@@ -438,13 +441,13 @@ class AztecToolbarTest {
         Assert.assertEquals("bold<i>italic</i>", editText.toHtml())
 
         italicButton.performClick()
-        Assert.assertEquals("bolditalic", editText.toHtml())
-
-        italicButton.performClick()
         Assert.assertEquals("<i>bolditalic</i>", editText.toHtml())
 
+        italicButton.performClick()
+        Assert.assertEquals("bolditalic", editText.toHtml())
+
         boldButton.performClick()
-        Assert.assertEquals("<i><b>bolditalic</b></i>", editText.toHtml())
+        Assert.assertEquals("<b>bolditalic</b>", editText.toHtml())
     }
 
     /**
@@ -492,7 +495,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Test styling inside HiddenHtmlSpan
+     * Test styling inside HiddenHtmlSpan.
      *
      * @throws Exception
      */
@@ -520,7 +523,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Test the correctness of span-to-HTML conversion after deleting a span from the editor
+     * Test the correctness of span-to-HTML conversion after deleting a span from the editor.
      *
      * @throws Exception
      */

@@ -600,7 +600,7 @@ class AztecParser {
      * Cursor is removed from the input if found at that position.
      *
      * The algorithm that uses this function goes like this: While traversing the input (spannable) string and producing
-     *   the output chunk chunk, look for the cursor span in the input string at a location before or after the chunk.
+     *   the output chunk by chunk, look for the cursor span in the input string at a location before or after the chunk.
      *   If cursor is found then remove it while appending a cursor literal to the output string. This way, the cursor
      *   gets inserted without the need to know which position in the output string corresponds to the position in the
      *   input string.

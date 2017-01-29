@@ -317,7 +317,7 @@ class AztecParser {
                 out.append("<li>")
             }
 
-            withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
+            withinContent(out, text, start + lineStart, start + lineEnd)
 
             // attempt to consume the cursor here to cater for an empty list item
             consumeCursorIfInInput(out, text, itemSpanStart)

@@ -285,11 +285,8 @@ class AztecParser {
     }
 
     private fun withinList(out: StringBuilder, text: Spanned, start: Int, end: Int, list: AztecListSpan) {
-        val newEnd = end - 1
-        val listContent = text.subSequence(start..newEnd) as Spanned
-
         out.append("<${list.getStartTag()}>")
-        var lines = TextUtils.split(listContent.toString(), "\n")
+        var lines = TextUtils.split(text.substring(start, end), "\n")
 
         if (lines.isNotEmpty() && lines.last().isEmpty()) {
             lines = lines.take(lines.size - 1).toTypedArray()
@@ -317,7 +314,7 @@ class AztecParser {
                 out.append("<li>")
             }
 
-            withinContent(out, text.subSequence(start..newEnd) as Spanned, lineStart, lineEnd)
+            withinContent(out, text, start + lineStart, start + lineEnd)
 
             // attempt to consume the cursor here to cater for an empty list item
             consumeCursorIfInInput(out, text, itemSpanStart)

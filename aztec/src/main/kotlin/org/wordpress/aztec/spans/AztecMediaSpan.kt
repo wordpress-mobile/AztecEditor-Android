@@ -10,9 +10,10 @@ import android.view.View
 import android.widget.Toast
 
 import org.wordpress.android.util.DisplayUtils
+import org.xml.sax.Attributes
 
-class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), ParagraphStyle {
-    private val html = source
+class AztecMediaSpan(val context: Context, drawable: Drawable?, var attributes: Attributes) :
+        ImageSpan(drawable) {
 
     companion object {
         private val rect: Rect = Rect()
@@ -54,10 +55,23 @@ class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) :
     }
 
     fun getHtml(): String {
-        return html
+        var sb = StringBuilder()
+        sb.append("<img")
+
+        for (i in 0..attributes.length-1) {
+            sb.append(' ')
+            sb.append(attributes.getLocalName(i))
+            sb.append("=\"")
+            sb.append(attributes.getValue(i))
+            sb.append("\"")
+        }
+        sb.append("/>")
+        return sb.toString()
     }
 
     fun onClick(view: View) {
-        Toast.makeText(view.context, html, Toast.LENGTH_SHORT).show()
+        Toast.makeText(view.context, getHtml(), Toast.LENGTH_SHORT).show()
     }
+
+
 }

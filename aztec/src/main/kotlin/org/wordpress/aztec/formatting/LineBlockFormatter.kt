@@ -9,6 +9,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
+import org.xml.sax.Attributes
 import java.util.*
 
 
@@ -267,7 +268,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.setSelection(commentEndIndex + 1)
     }
 
-    fun insertMedia(drawable: Drawable, source: String) {
+    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
         //check if we add media into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
         editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
@@ -277,17 +278,18 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         }
 
+        val span = AztecMediaSpan(editor.context, drawable, attributes)
+        val html = span.getHtml();
+
         val mediaStartIndex = selectionStart + 1
-        val mediaEndIndex = selectionStart + source.length + 1
+        val mediaEndIndex = selectionStart + html.length + 1
 
         editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, "\n" + source + if (applyingOnTheEndOfBlockLine) "" else "\n")
+        editableText.replace(selectionStart, selectionEnd, "\n" + html + if (applyingOnTheEndOfBlockLine) "" else "\n")
 
         editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
         editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
         editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
-
-        val span = AztecMediaSpan(editor.context, drawable, source)
 
         editableText.setSpan(
                 span,

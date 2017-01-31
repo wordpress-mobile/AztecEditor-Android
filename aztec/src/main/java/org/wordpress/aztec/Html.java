@@ -42,6 +42,7 @@ import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecListSpan;
+import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
@@ -756,7 +757,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
 
         loadingDrawable.setBounds(0, 0, loadingDrawable.getIntrinsicWidth(), loadingDrawable.getIntrinsicHeight());
-        final ImageSpan imageSpan = new ImageSpan(loadingDrawable, src);
+        final AztecMediaSpan imageSpan = new AztecMediaSpan(context, loadingDrawable, attributes);
 
         text.append("\uFFFC");
         text.setSpan(imageSpan, start, text.length(),

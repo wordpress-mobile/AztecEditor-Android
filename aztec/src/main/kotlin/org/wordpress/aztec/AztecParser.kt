@@ -24,7 +24,6 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
-import android.text.style.ImageSpan
 import android.text.style.ParagraphStyle
 import org.wordpress.aztec.spans.*
 import java.util.*
@@ -252,8 +251,6 @@ class AztecParser {
                     withinUnknown(out, text, i, next, styles[0] as UnknownHtmlSpan)
                 } else if (styles[0] is ParagraphSpan) {
                     withinParagraph(out, text, i, next)
-                } else if (styles[0] is AztecMediaSpan) {
-                    withinMedia(out, text, i, next, styles[0] as AztecMediaSpan)
                 } else {
                     withinContent(out, text, i, next)
                 }
@@ -386,12 +383,6 @@ class AztecParser {
         }
     }
 
-    private fun withinMedia(out: StringBuilder, text: Spanned, start: Int, end: Int, mediaSpan: AztecMediaSpan) {
-        consumeCursorIfInInput(out, text, start)
-        out.append(mediaSpan.getHtml())
-        consumeCursorIfInInput(out, text, end)
-    }
-
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
         var next: Int
 
@@ -457,10 +448,8 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is ImageSpan && span !is AztecCommentSpan && span !is AztecMediaSpan && span !is UnknownHtmlSpan) {
-                        out.append("<img src=\"")
-                        out.append(span.source)
-                        out.append("\">")
+                    if (span is AztecMediaSpan && span !is AztecCommentSpan && span !is UnknownHtmlSpan) {
+                        out.append(span.getHtml())
 
                         // Don't output the dummy character underlying the image.
                         i = next

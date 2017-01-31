@@ -30,6 +30,7 @@ import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
+import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
 class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
@@ -127,8 +128,9 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 }
             }
 
-            val source = "<img src=\"$mediaPath\">"  // Temporary source value.  Replace with URL after uploaded.
-            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), source)
+            val attrs = AttributesImpl()
+            attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
+            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), attrs)
         }
 
         super.onActivityResult(requestCode, resultCode, data)

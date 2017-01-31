@@ -20,12 +20,12 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
+    private var aztecToolbarListener: AztecToolbarClickListener? = null
     private var addPhotoMediaDialog: AlertDialog? = null
     private var addVideoMediaDialog: AlertDialog? = null
     private var mediaUploadDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
-    private var mediaMenu: PopupMenu? = null
     private var mediaOptionSelectedListener: OnMediaOptionSelectedListener? = null
     private var sourceEditor: SourceViewEditText? = null
 
@@ -49,6 +49,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         fun onPhotosMediaOptionSelected()
         fun onVideoLibraryMediaOptionSelected()
         fun onVideosMediaOptionSelected()
+    }
+
+    fun setToolbarListener(listener: AztecToolbarClickListener) {
+        aztecToolbarListener = listener
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -168,10 +172,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val button = findViewById(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
-            if (toolbarAction == ToolbarAction.ADD_MEDIA) {
-                setMediaMenu(findViewById(toolbarAction.buttonId))
-            }
-
             if (toolbarAction == ToolbarAction.HEADING) {
                 setHeaderMenu(findViewById(toolbarAction.buttonId))
             }
@@ -241,7 +241,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         //other toolbar action
         when (action) {
-            ToolbarAction.ADD_MEDIA -> mediaMenu?.show()
+            ToolbarAction.ADD_MEDIA -> aztecToolbarListener?.onToolbarAddMediaClicked()
             ToolbarAction.HEADING -> headingMenu?.show()
             ToolbarAction.LINK -> editor!!.showLinkDialog()
             ToolbarAction.HTML -> toggleEditorMode()
@@ -253,16 +253,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-            if (!editor!!.isMediaAdded) {
+//            if (!editor!!.isMediaAdded) {
                 sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
                 editor!!.visibility = View.GONE
                 sourceEditor!!.visibility = View.VISIBLE
 
                 toggleHtmlMode(true)
-            } else {
-                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
-                showMediaUploadDialog()
-            }
+//            } else {
+//                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
+//                showMediaUploadDialog()
+//            }
         } else {
             editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
             editor!!.visibility = View.VISIBLE
@@ -293,12 +293,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
-    }
-
-    private fun setMediaMenu(view: View) {
-        mediaMenu = PopupMenu(context, view)
-        mediaMenu?.setOnMenuItemClickListener(this)
-        mediaMenu?.inflate(R.menu.media)
     }
 
     fun getSelectedHeading(): TextFormat? {

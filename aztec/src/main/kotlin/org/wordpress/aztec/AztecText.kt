@@ -568,7 +568,7 @@ class AztecText : EditText, TextWatcher {
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, ImageSpan::class.java)
         spans.forEach {
-            if (it !is AztecMediaSpan && it !is UnknownHtmlSpan && it !is AztecCommentSpan) {
+            if (it !is UnknownHtmlSpan && it !is AztecCommentSpan) {
                 val callbacks = object : Html.ImageGetter.Callbacks {
 
                     override fun onImageLoaded(drawable: Drawable?) {

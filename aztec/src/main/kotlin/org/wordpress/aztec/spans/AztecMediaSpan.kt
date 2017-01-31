@@ -73,5 +73,7 @@ class AztecMediaSpan(val context: Context, drawable: Drawable?, var attributes: 
         Toast.makeText(view.context, getHtml(), Toast.LENGTH_SHORT).show()
     }
 
-
+    override fun getSource(): String {
+        return attributes.getValue("src")
+    }
 }

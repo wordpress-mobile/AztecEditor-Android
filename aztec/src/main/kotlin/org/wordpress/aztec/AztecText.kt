@@ -48,6 +48,7 @@ import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
+import org.xml.sax.Attributes
 import java.util.*
 
 
@@ -874,4 +875,7 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertMedia(drawable, attributes)
+    }
 }

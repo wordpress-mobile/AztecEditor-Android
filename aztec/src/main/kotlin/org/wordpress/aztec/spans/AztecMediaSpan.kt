@@ -61,14 +61,13 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
     private fun setBounds(drawable: Drawable?) {
         if (drawable != null && context != null) {
             /*
-            * Following Android guidelines for keylines and spacing, screen edge margins should
-            * be 16dp.  Therefore, the width of images should be the width of the screen minus
-            * 16dp on both sides (i.e. 16 * 2 = 32). Also, the images are stretched out to matched
-            * their px size in dp.
+            * Following Android guidelines for keylines and spacing, screen edge margins should be
+            * 16dp.  Therefore, the width of images should be the width of the screen minus 16dp on
+            * both sides (i.e. 16 * 2 = 32).
             *
             * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
             */
-            val width = Math.min(DisplayUtils.dpToPx(context, drawable.intrinsicWidth), DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32))
+            val width = Math.min(drawable.intrinsicWidth, DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32))
             val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
             drawable.setBounds(0, 0, width, height)
         }

@@ -3,12 +3,8 @@ package org.wordpress.aztec.spans
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.text.TextUtils
 import android.text.style.DynamicDrawableSpan
-import android.text.style.ImageSpan
-import android.text.style.ParagraphStyle
 import android.view.View
 import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils

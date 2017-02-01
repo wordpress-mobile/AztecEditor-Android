@@ -22,11 +22,34 @@ import android.graphics.Paint
 import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.LeadingMarginSpan
+import android.text.style.LineHeightSpan
+import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
+class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLayout {
+
+    override fun chooseHeight(p0: CharSequence?, p1: Int, p2: Int, p3: Int, p4: Int, p5: Paint.FontMetricsInt?) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt, paint: TextPaint) {
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        val spanEnd = spanned.getSpanEnd(this)
+
+
+        if (start === spanStart || start < spanStart) {
+            fm.ascent -= 50
+            fm.top -= 50
+        }
+        if (end === spanEnd || spanEnd < end) {
+            fm.descent += 50
+            fm.bottom += 50
+        }
+
+    }
 
     private val TAG = "ol"
 
@@ -39,14 +62,14 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
     //used for marking
-    constructor() : super(0) {
+    constructor() : super() {
     }
 
-    constructor(attributes: String) : super(0) {
+    constructor(attributes: String) : super() {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.indicatorMargin) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super() {
         this.textColor = listStyle.indicatorColor
         this.textMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
@@ -85,12 +108,6 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         return textMargin + 2 * bulletWidth + textPadding
     }
 
-    fun getLineNumber(text: CharSequence, end: Int): Int {
-        val textBeforeBeforeEnd = text.substring(0, end)
-        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
-        return lineIndex + 1
-    }
-
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
@@ -108,6 +125,19 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
         val lineNumber = getLineNumber(listText, end - spanStart)
 
+        var adjustment = 0
+
+        val numberOfLines = text.substring(spanStart..spanEnd - 2).split("\n").count()
+
+        if (numberOfLines > 1 && lineNumber == 1) {
+            adjustment = 0
+        } else if (numberOfLines > 1 && numberOfLines == lineNumber) {
+            adjustment = -50
+        } else if (numberOfLines == 1) {
+            adjustment = -50
+        }
+
+
         val style = p.style
 
         val oldColor = p.color
@@ -118,7 +148,7 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         val textToDraw = lineNumber.toString() + "."
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, bottom - p.descent(), p)
+        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, (bottom - p.descent()) + adjustment, p)
 
         p.color = oldColor
         p.style = style

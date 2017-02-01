@@ -27,7 +27,6 @@ import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.*
-import android.text.style.ImageSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan

@@ -893,7 +893,7 @@ class AztecText : EditText, TextWatcher {
 
     interface AttributePredicate {
         /**
-         * Return true if the attributes list includes the desired key
+         * Return true if the attributes list fulfills some condition
          */
         fun matches(attrs: Attributes): Boolean
     }

@@ -136,13 +136,15 @@ class AztecText : EditText, TextWatcher {
                         array.getColor(R.styleable.AztecText_bulletColor, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0)),
+                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.QuoteStyle(
                         array.getColor(R.styleable.AztecText_quoteBackground, 0),
                         array.getColor(R.styleable.AztecText_quoteColor, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0)
+                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
                 ))
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(

@@ -42,18 +42,19 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
 
 
         if (start === spanStart || start < spanStart) {
-            fm.ascent -= 50
-            fm.top -= 50
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
         }
         if (end === spanEnd || spanEnd < end) {
-            fm.descent += 50
-            fm.bottom += 50
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
         }
 
     }
 
     private val TAG = "ul"
 
+    private var verticalPadding: Int = 0
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
     private var bulletPadding: Int = 0
@@ -63,29 +64,19 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
     override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
-    //used for marking
-    constructor() : super() {
-    }
 
     constructor(attributes: String) {
         this.attributes = attributes
     }
 
     constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+        this.verticalPadding = listStyle.verticalPadding
         this.bulletColor = listStyle.indicatorColor
         this.bulletMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
         this.bulletPadding = listStyle.indicatorPadding
         this.attributes = attributes
         this.lastItem = last
-    }
-
-    constructor(src: Parcel) : super(src) {
-        this.bulletColor = src.readInt()
-        this.bulletMargin = src.readInt()
-        this.bulletWidth = src.readInt()
-        this.bulletPadding = src.readInt()
-        this.attributes = src.readString()
     }
 
     override fun getStartTag(): String {
@@ -136,11 +127,11 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
         val lineNumber = getLineNumber(listText, end - spanStart)
 
         if (numberOfLines > 1 && lineNumber == 1) {
-            adjustment = 50
+            adjustment = verticalPadding
         } else if (numberOfLines > 1 && numberOfLines == lineNumber) {
-            adjustment = -50
+            adjustment = -verticalPadding
         } else if (numberOfLines == 1) {
-            adjustment = -50
+            adjustment = -verticalPadding
         }
 
         if (c.isHardwareAccelerated) {

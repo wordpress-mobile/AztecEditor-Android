@@ -41,18 +41,19 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
 
 
         if (start === spanStart || start < spanStart) {
-            fm.ascent -= 50
-            fm.top -= 50
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
         }
         if (end === spanEnd || spanEnd < end) {
-            fm.descent += 50
-            fm.bottom += 50
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
         }
 
     }
 
     private val TAG = "ol"
 
+    private var verticalPadding: Int = 0
     private var textColor: Int = 0
     private var textMargin: Int = 0
     private var textPadding: Int = 0
@@ -61,28 +62,18 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
     override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
-    //used for marking
-    constructor() : super() {
-    }
-
     constructor(attributes: String) : super() {
         this.attributes = attributes
     }
 
     constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super() {
+        this.verticalPadding = listStyle.verticalPadding
         this.textColor = listStyle.indicatorColor
         this.textMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
         this.textPadding = listStyle.indicatorPadding
         this.attributes = attributes
         this.lastItem = last
-    }
-
-    constructor(src: Parcel) : super(src) {
-        this.textColor = src.readInt()
-        this.textMargin = src.readInt()
-        this.textPadding = src.readInt()
-        this.attributes = src.readString()
     }
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -132,9 +123,9 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
         if (numberOfLines > 1 && lineNumber == 1) {
             adjustment = 0
         } else if (numberOfLines > 1 && numberOfLines == lineNumber) {
-            adjustment = -50
+            adjustment = -verticalPadding
         } else if (numberOfLines == 1) {
-            adjustment = -50
+            adjustment = -verticalPadding
         }
 
 

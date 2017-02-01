@@ -912,4 +912,26 @@ class AztecText : EditText, TextWatcher {
     fun setLevelOverlayProgress(drawable: Drawable, progress: Float): Boolean {
         return (drawable as LayerDrawable).getDrawable(1).setLevel((progress * 10000).toInt())
     }
+
+    fun removeOverlayProgress(attributePredicate: AttributePredicate, attributes: Attributes) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+            if (attributePredicate.matches(it.attributes)) {
+                val start = text.getSpanStart(it)
+                val end = text.getSpanEnd(it)
+
+                val drawable = (it.drawable as? LayerDrawable)?.getDrawable(0)
+
+                text.removeSpan(it)
+
+                text.setSpan(
+                        AztecMediaSpan(context, drawable, attributes),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                invalidate()
+            }
+        }
+    }
 }

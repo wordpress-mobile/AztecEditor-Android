@@ -21,6 +21,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -107,6 +108,10 @@ class AztecText : EditText, TextWatcher {
 
     private fun init(attrs: AttributeSet?) {
         TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
+
+        // It seems that hardware accel makes the progressbar in MediaSpan to not show that it updates.
+        //  Instead, software rendering works. See: https://github.com/koral--/android-gif-drawable/issues/234#issuecomment-165938445
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
         setLineSpacing(
@@ -875,6 +880,36 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(drawable, attributes)
+        lineBlockFormatter.insertMedia(overlayProgress(drawable), attributes)
+    }
+
+    fun setProgressOnMedia(attributePredicate: AttributePredicate, progress: Float) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+            if (attributePredicate.matches(it.attributes)) {
+                if (setLevelOverlayProgress(it.drawable, progress)) invalidate()
+            }
+        }
+    }
+
+    interface AttributePredicate {
+        /**
+         * Return true if the attributes list includes the desired key
+         */
+        fun matches(attrs: Attributes): Boolean
+    }
+
+    fun overlayProgress(drawable: Drawable?): Drawable {
+        val progressDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_horizontal)
+        val layerDrawable = LayerDrawable(arrayOf(drawable, progressDrawable))
+
+        val l = DisplayUtils.dpToPx(context, drawable!!.intrinsicWidth / 4)
+        val t = DisplayUtils.dpToPx(context, drawable!!.intrinsicHeight / 4)
+        layerDrawable.setLayerInset(1, l, t, l, t)
+
+        return layerDrawable
+    }
+
+    fun setLevelOverlayProgress(drawable: Drawable, progress: Float): Boolean {
+        return (drawable as LayerDrawable).getDrawable(1).setLevel((progress * 10000).toInt())
     }
 }

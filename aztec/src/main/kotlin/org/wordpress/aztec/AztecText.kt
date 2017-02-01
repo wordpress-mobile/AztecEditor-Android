@@ -610,7 +610,7 @@ class AztecText : EditText, TextWatcher {
 
         clearMetaSpans(output)
 
-        if (withCursorTag && selectionEnd > 0) {
+        if (withCursorTag) {
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 

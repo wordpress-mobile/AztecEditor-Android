@@ -171,9 +171,21 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {
-        val cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
+        var cursorTagIndex = styledHtml.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
         if (cursorTagIndex < 0) return 0
+
+        val newlineBefore = if (cursorTagIndex > 0) styledHtml[cursorTagIndex - 1] == '\n' else false
+        val newlineAfter = if (cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length + 1 < styledHtml.length)
+            styledHtml[cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length] == '\n' else false
+
         styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
+
+        if (newlineBefore && newlineAfter) {
+            cursorTagIndex--;
+
+            // remove one of the newlines as those are an artefact of the extra formatting applied around the cursor marker
+            styledHtml.delete(cursorTagIndex, cursorTagIndex + 1)
+        }
 
         //if something went wrong make sure to remove cursor tag
         styledHtml.replace(AztecCursorSpan.AZTEC_CURSOR_TAG.toRegex(), "")

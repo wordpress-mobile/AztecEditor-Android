@@ -917,7 +917,7 @@ class AztecText : EditText, TextWatcher {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
                 it.drawable = (it.drawable as? LayerDrawable)?.getDrawable(0)
-
+                it.attributes = attributes
                 invalidate()
             }
         }

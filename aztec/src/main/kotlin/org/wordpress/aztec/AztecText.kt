@@ -606,7 +606,7 @@ class AztecText : EditText, TextWatcher {
              * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
              */
             val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
-            imageGetter?.loadImage(it.source, callbacks, width)
+            imageGetter?.loadImage(it.getSource(), callbacks, width)
         }
     }
 
@@ -909,26 +909,14 @@ class AztecText : EditText, TextWatcher {
         return layerDrawable
     }
 
-    fun setLevelOverlayProgress(drawable: Drawable, progress: Float): Boolean {
+    fun setLevelOverlayProgress(drawable: Drawable?, progress: Float): Boolean {
         return (drawable as LayerDrawable).getDrawable(1).setLevel((progress * 10000).toInt())
     }
 
     fun removeOverlayProgress(attributePredicate: AttributePredicate, attributes: Attributes) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
-                val start = text.getSpanStart(it)
-                val end = text.getSpanEnd(it)
-
-                val drawable = (it.drawable as? LayerDrawable)?.getDrawable(0)
-
-                text.removeSpan(it)
-
-                text.setSpan(
-                        AztecMediaSpan(context, drawable, attributes),
-                        start,
-                        end,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+                it.drawable = (it.drawable as? LayerDrawable)?.getDrawable(0)
 
                 invalidate()
             }

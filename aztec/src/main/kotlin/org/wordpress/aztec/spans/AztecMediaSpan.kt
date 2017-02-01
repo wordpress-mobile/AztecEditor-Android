@@ -1,36 +1,59 @@
 package org.wordpress.aztec.spans
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.text.style.ImageSpan
+import android.text.style.DynamicDrawableSpan
 import android.view.View
 import android.widget.Toast
 
 import org.wordpress.android.util.DisplayUtils
 import org.xml.sax.Attributes
 
-class AztecMediaSpan(val context: Context, drawable: Drawable?, var attributes: Attributes) :
-        ImageSpan(drawable) {
+class AztecMediaSpan(val context: Context, internal var drawable: Drawable?, var attributes: Attributes) :
+        DynamicDrawableSpan() {
 
     companion object {
         private val rect: Rect = Rect()
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val drawable = drawable
-        val bounds = getBounds(drawable)
+        drawable?.let {
+            val bounds = getBounds(it)
 
-        if (metrics != null) {
-            metrics.ascent = -bounds.bottom
-            metrics.descent = 0
+            if (metrics != null) {
+                metrics.ascent = -bounds.bottom
+                metrics.descent = 0
 
-            metrics.top = metrics.ascent
-            metrics.bottom = 0
+                metrics.top = metrics.ascent
+                metrics.bottom = 0
+            }
+
+            return bounds.right
         }
 
-        return bounds.right
+        return 0
+    }
+
+    override fun getDrawable(): Drawable? {
+        return drawable
+    }
+
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        canvas.save()
+
+        if (drawable != null) {
+            var transY = bottom - drawable!!.bounds.bottom
+            if (mVerticalAlignment == ALIGN_BASELINE) {
+                transY -= paint.fontMetricsInt.descent
+            }
+
+            canvas.translate(x, transY.toFloat())
+            drawable!!.draw(canvas)
+            canvas.restore()
+        }
     }
 
     private fun getBounds(drawable: Drawable): Rect {
@@ -72,7 +95,7 @@ class AztecMediaSpan(val context: Context, drawable: Drawable?, var attributes: 
         Toast.makeText(view.context, getHtml(), Toast.LENGTH_SHORT).show()
     }
 
-    override fun getSource(): String {
+    fun getSource(): String {
         return attributes.getValue("src")
     }
 }

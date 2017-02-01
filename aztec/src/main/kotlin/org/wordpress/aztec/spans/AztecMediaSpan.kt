@@ -10,10 +10,8 @@ import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils
 
 class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private var image: Drawable?, val source: String, attributes: String = "") : DynamicDrawableSpan()  {
-
-    private val TAG: String = "img"
-
     var attributes: String = ""
+    private val TAG: String = "img"
 
     init {
         if (attributes.isEmpty()) {
@@ -25,13 +23,24 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
         setBounds(image)
     }
 
-    override fun getDrawable(): Drawable? {
-        return image
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        val drawable = image
+        canvas.save()
+
+        if (drawable != null) {
+            var transY = bottom - drawable.bounds.bottom
+            if (mVerticalAlignment == ALIGN_BASELINE) {
+                transY -= paint.fontMetricsInt.descent
+            }
+
+            canvas.translate(x, transY.toFloat())
+            drawable.draw(canvas)
+            canvas.restore()
+        }
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
-        image = newDrawable
-        setBounds(image)
+    override fun getDrawable(): Drawable? {
+        return image
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
@@ -47,23 +56,6 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
         }
 
         return bounds?.right ?: 0
-    }
-
-    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float,
-                      top: Int, y: Int, bottom: Int, paint: Paint) {
-        val b = image
-        canvas.save()
-
-        if (b != null) {
-            var transY = bottom - b.bounds.bottom
-            if (mVerticalAlignment == ALIGN_BASELINE) {
-                transY -= paint.fontMetricsInt.descent
-            }
-
-            canvas.translate(x, transY.toFloat())
-            b.draw(canvas)
-            canvas.restore()
-        }
     }
 
     private fun setBounds(drawable: Drawable?) {
@@ -88,5 +80,10 @@ class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private va
 
     fun onClick(view: View) {
         Toast.makeText(view.context, source, Toast.LENGTH_SHORT).show()
+    }
+
+    fun setDrawable(newDrawable: Drawable?) {
+        image = newDrawable
+        setBounds(image)
     }
 }

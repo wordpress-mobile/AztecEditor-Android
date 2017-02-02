@@ -594,11 +594,9 @@ class AztecText : EditText, TextWatcher {
 
                     if (start == -1 || end == -1) return
 
-                    text.removeSpan(it)
+                    it.drawable = drawable
 
-                    val newImageSpan = AztecMediaSpan(context, drawable, it.attributes)
-                    drawable?.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-                    text.setSpan(newImageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    refreshText()
                 }
             }
 

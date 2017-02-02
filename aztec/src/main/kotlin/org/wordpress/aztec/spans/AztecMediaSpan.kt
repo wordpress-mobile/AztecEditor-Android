@@ -12,7 +12,7 @@ import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils
 import org.xml.sax.Attributes
 
-class AztecMediaSpan(val context: Context, internal var drawable: Drawable?, var attributes: Attributes) :
+class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var attributes: Attributes) :
         DynamicDrawableSpan() {
 
     companion object {
@@ -21,7 +21,7 @@ class AztecMediaSpan(val context: Context, internal var drawable: Drawable?, var
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         drawable?.let {
-            val bounds = getBounds(it)
+            val bounds = adjustBounds(it)
 
             if (metrics != null) {
                 metrics.ascent = -bounds.bottom
@@ -41,6 +41,11 @@ class AztecMediaSpan(val context: Context, internal var drawable: Drawable?, var
         return drawable
     }
 
+    fun setDrawable(newDrawable: Drawable?) {
+        drawable = newDrawable
+        drawable?.let { adjustBounds(it) }
+    }
+
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
@@ -56,7 +61,7 @@ class AztecMediaSpan(val context: Context, internal var drawable: Drawable?, var
         }
     }
 
-    private fun getBounds(drawable: Drawable): Rect {
+    private fun adjustBounds(drawable: Drawable): Rect {
         if (drawable.intrinsicWidth === 0) {
             rect.set(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
             return rect

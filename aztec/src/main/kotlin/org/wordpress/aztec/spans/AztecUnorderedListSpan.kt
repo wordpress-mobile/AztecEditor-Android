@@ -83,14 +83,14 @@ class AztecUnorderedListSpan : AztecListSpan {
 
         if (c.isHardwareAccelerated) {
             bulletPath = Path()
-            bulletPath!!.addCircle(0.0f, 0.0f + getVerticalPadding(text, end) / 2, bulletWidth.toFloat(), Path.Direction.CW)
+            bulletPath!!.addCircle(0.0f, 0.0f + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), Path.Direction.CW)
 
             c.save()
             c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f))
             c.drawPath(bulletPath!!, p)
             c.restore()
         } else {
-            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + getVerticalPadding(text, end) / 2, bulletWidth.toFloat(), p)
+            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), p)
         }
 
         p.color = oldColor

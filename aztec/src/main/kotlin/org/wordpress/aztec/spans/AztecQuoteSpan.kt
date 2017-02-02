@@ -64,7 +64,6 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
-
         if (start === spanStart || start < spanStart) {
             fm.ascent -= verticalPadding
             fm.top -= verticalPadding

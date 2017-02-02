@@ -212,8 +212,10 @@ class AztecText : EditText, TextWatcher {
         val retainedSelectionStart = customState.getInt("selection_start")
         val retainedSelectionEnd = customState.getInt("selection_end")
 
-        if (retainedSelectionEnd < editableText.length)
+        if (retainedSelectionEnd < editableText.length){
             setSelection(retainedSelectionStart, retainedSelectionEnd)
+        }
+
 
 
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)

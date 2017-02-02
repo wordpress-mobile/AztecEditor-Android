@@ -312,7 +312,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return null
     }
 
-    private fun toggleHtmlMode(isHtmlMode: Boolean) {
+    fun toggleHtmlMode(isHtmlMode: Boolean) {
         ToolbarAction.values().forEach { action ->
             if (action == ToolbarAction.HTML) {
                 toggleButton(findViewById(action.buttonId), isHtmlMode)
@@ -321,12 +321,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
         }
 	}
-
-    fun toggleFormatButtons(isEnabled: Boolean) {
-        ToolbarAction.values().forEach { action ->
-            toggleButtonState(findViewById(action.buttonId), isEnabled)
-        }
-    }
 
     private fun showMediaUploadDialog() {
         if (!isEditorAttached()) return

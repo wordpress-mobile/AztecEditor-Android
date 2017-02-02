@@ -20,10 +20,8 @@ package org.wordpress.aztec.spans
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
@@ -32,29 +30,7 @@ import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
 
-class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeightSpan.WithDensity, UpdateLayout {
-
-
-    override fun chooseHeight(p0: CharSequence?, p1: Int, p2: Int, p3: Int, p4: Int, p5: Paint.FontMetricsInt?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt, paint: TextPaint) {
-        val spanned = text as Spanned
-        val spanStart = spanned.getSpanStart(this)
-        val spanEnd = spanned.getSpanEnd(this)
-
-
-        if (start === spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
-        }
-        if (end === spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
-        }
-
-    }
+class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     val rect = Rect()
 
@@ -83,21 +59,20 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         this.quotePadding = quoteStyle.quotePadding
     }
 
-    constructor(src: Parcel) : super(src) {
-        this.quoteBackground = src.readInt()
-        this.quoteColor = src.readInt()
-        this.quoteMargin = src.readInt()
-        this.quoteWidth = src.readInt()
-        this.quotePadding = src.readInt()
-    }
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        val spanEnd = spanned.getSpanEnd(this)
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(quoteBackground)
-        dest.writeInt(quoteColor)
-        dest.writeInt(quoteMargin)
-        dest.writeInt(quoteWidth)
-        dest.writeInt(quotePadding)
+
+        if (start === spanStart || start < spanStart) {
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
+        }
+        if (end === spanEnd || spanEnd < end) {
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
+        }
     }
 
     override fun getStartTag(): String {
@@ -115,19 +90,10 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         return quoteMargin + quoteWidth + quotePadding
     }
 
-    fun getLineNumber(text: CharSequence, end: Int): Int {
-        val textBeforeBeforeEnd = text.substring(0, end)
-        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
-        return lineIndex + 1
-    }
-
-
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, layout: Layout) {
-
-
         val style = p.style
         val color = p.color
 

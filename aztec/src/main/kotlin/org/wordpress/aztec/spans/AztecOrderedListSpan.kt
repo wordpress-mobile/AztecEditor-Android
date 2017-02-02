@@ -19,41 +19,15 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.LineHeightSpan
-import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLayout {
-
-    override fun chooseHeight(p0: CharSequence?, p1: Int, p2: Int, p3: Int, p4: Int, p5: Paint.FontMetricsInt?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt, paint: TextPaint) {
-        val spanned = text as Spanned
-        val spanStart = spanned.getSpanStart(this)
-        val spanEnd = spanned.getSpanEnd(this)
-
-
-        if (start === spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
-        }
-        if (end === spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
-        }
-
-    }
+class AztecOrderedListSpan : AztecListSpan {
 
     private val TAG = "ol"
 
-    private var verticalPadding: Int = 0
     private var textColor: Int = 0
     private var textMargin: Int = 0
     private var textPadding: Int = 0
@@ -62,12 +36,11 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
     override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
-    constructor(attributes: String) : super() {
+    constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super() {
-        this.verticalPadding = listStyle.verticalPadding
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
         this.textColor = listStyle.indicatorColor
         this.textMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
@@ -76,13 +49,6 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
         this.lastItem = last
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(textColor)
-        dest.writeInt(textMargin)
-        dest.writeInt(textPadding)
-        dest.writeString(attributes)
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {
@@ -104,7 +70,6 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-
         if (!first) return
 
         val spanStart = (text as Spanned).getSpanStart(this)
@@ -112,34 +77,17 @@ class AztecOrderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLa
 
         if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
-        val listText = text.subSequence(spanStart, spanEnd)
-
-        val lineNumber = getLineNumber(listText, end - spanStart)
-
-        var adjustment = 0
-
-        val numberOfLines = text.substring(spanStart..spanEnd - 2).split("\n").count()
-
-        if (numberOfLines > 1 && lineNumber == 1) {
-            adjustment = 0
-        } else if (numberOfLines > 1 && numberOfLines == lineNumber) {
-            adjustment = -verticalPadding
-        } else if (numberOfLines == 1) {
-            adjustment = -verticalPadding
-        }
-
 
         val style = p.style
-
         val oldColor = p.color
 
         p.color = textColor
         p.style = Paint.Style.FILL
 
-        val textToDraw = lineNumber.toString() + "."
+        val textToDraw = getLineNumber(text, end).toString() + "."
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, (bottom - p.descent()) + adjustment, p)
+        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, (bottom - p.descent()) + getVerticalPadding(text, end), p)
 
         p.color = oldColor
         p.style = style

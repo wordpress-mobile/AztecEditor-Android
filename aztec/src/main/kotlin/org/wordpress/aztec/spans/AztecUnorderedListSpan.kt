@@ -22,39 +22,13 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
-import android.text.Spanned
-import android.text.TextPaint
 import android.text.TextUtils
-import android.text.style.LineHeightSpan
-import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, UpdateLayout {
-
-    override fun chooseHeight(p0: CharSequence?, p1: Int, p2: Int, p3: Int, p4: Int, p5: Paint.FontMetricsInt?) {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt, paint: TextPaint) {
-        val spanned = text as Spanned
-        val spanStart = spanned.getSpanStart(this)
-        val spanEnd = spanned.getSpanEnd(this)
-
-
-        if (start === spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
-        }
-        if (end === spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
-        }
-
-    }
+class AztecUnorderedListSpan : AztecListSpan {
 
     private val TAG = "ul"
 
-    private var verticalPadding: Int = 0
     private var bulletColor: Int = 0
     private var bulletMargin: Int = 0
     private var bulletPadding: Int = 0
@@ -65,12 +39,11 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
 
-    constructor(attributes: String) {
+    constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
-        this.verticalPadding = listStyle.verticalPadding
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
         this.bulletColor = listStyle.indicatorColor
         this.bulletMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
@@ -90,14 +63,7 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
         return TAG
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(bulletColor)
-        dest.writeInt(bulletMargin)
-        dest.writeInt(bulletWidth)
-        dest.writeInt(bulletPadding)
-        dest.writeString(attributes)
-    }
+
 
     override fun getLeadingMargin(first: Boolean): Int {
         return bulletMargin + 2 * bulletWidth + bulletPadding
@@ -110,40 +76,21 @@ class AztecUnorderedListSpan : AztecListSpan, LineHeightSpan.WithDensity, Update
         if (!first) return
 
         val style = p.style
-
         val oldColor = p.color
 
         p.color = bulletColor
         p.style = Paint.Style.FILL
 
-        val spanStart = (text as Spanned).getSpanStart(this)
-        val spanEnd = text.getSpanEnd(this)
-
-        var adjustment = 0
-
-        val numberOfLines = text.substring(spanStart..spanEnd - 2).split("\n").count()
-
-        val listText = text.subSequence(spanStart, spanEnd)
-        val lineNumber = getLineNumber(listText, end - spanStart)
-
-        if (numberOfLines > 1 && lineNumber == 1) {
-            adjustment = verticalPadding
-        } else if (numberOfLines > 1 && numberOfLines == lineNumber) {
-            adjustment = -verticalPadding
-        } else if (numberOfLines == 1) {
-            adjustment = -verticalPadding
-        }
-
         if (c.isHardwareAccelerated) {
             bulletPath = Path()
-            bulletPath!!.addCircle(0.0f, 0.0f + adjustment / 2, bulletWidth.toFloat(), Path.Direction.CW)
+            bulletPath!!.addCircle(0.0f, 0.0f + getVerticalPadding(text, end) / 2, bulletWidth.toFloat(), Path.Direction.CW)
 
             c.save()
             c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f))
             c.drawPath(bulletPath!!, p)
             c.restore()
         } else {
-            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + adjustment / 2, bulletWidth.toFloat(), p)
+            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + getVerticalPadding(text, end) / 2, bulletWidth.toFloat(), p)
         }
 
         p.color = oldColor

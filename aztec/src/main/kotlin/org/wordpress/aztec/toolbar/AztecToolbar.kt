@@ -258,7 +258,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 editor!!.visibility = View.GONE
                 sourceEditor!!.visibility = View.VISIBLE
 
-                toggleHtmlMode(true)
+                enableFormatToolbar(false)
             } else {
                 toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
                 showMediaUploadDialog()
@@ -268,7 +268,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 
-            toggleHtmlMode(false)
+            enableFormatToolbar(true)
         }
     }
 
@@ -312,12 +312,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return null
     }
 
-    fun toggleHtmlMode(isHtmlMode: Boolean) {
+    fun enableFormatToolbar(isEnabled: Boolean) {
         ToolbarAction.values().forEach { action ->
             if (action == ToolbarAction.HTML) {
-                toggleButton(findViewById(action.buttonId), isHtmlMode)
+                toggleButton(findViewById(action.buttonId), !isEnabled)
             } else {
-                toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
+                toggleButtonState(findViewById(action.buttonId), isEnabled)
             }
         }
 	}

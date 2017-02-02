@@ -77,7 +77,6 @@ class AztecOrderedListSpan : AztecListSpan {
 
         if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
-
         val style = p.style
         val oldColor = p.color
 

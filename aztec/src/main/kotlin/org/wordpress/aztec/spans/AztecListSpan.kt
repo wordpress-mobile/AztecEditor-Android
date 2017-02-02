@@ -27,25 +27,32 @@ abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Stand
     }
 
     fun getNumberOfProcessedLine(text: CharSequence, end: Int): Int {
-        val textBeforeBeforeEnd = text.substring(0, end)
-        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
-        return lineIndex + 1
-    }
-
-    fun getIndicatorAdjustment(text: CharSequence, end: Int): Int {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
         val listText = text.subSequence(spanStart, spanEnd)
-        val lineNumber = getNumberOfProcessedLine(listText, end - spanStart)
 
+        val textBeforeBeforeEnd = listText.substring(0, end - spanStart)
+        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
+        return lineIndex + 1
+    }
+
+    fun getTotalNumberOfLines(text: CharSequence): Int {
+        val spanStart = (text as Spanned).getSpanStart(this)
+        val spanEnd = text.getSpanEnd(this)
+
+        return text.substring(spanStart..spanEnd - 2).split("\n").count()
+    }
+
+    fun getIndicatorAdjustment(text: CharSequence, end: Int): Int {
         var adjustment = 0
 
-        val numberOfLines = text.substring(spanStart..spanEnd - 2).split("\n").count()
+        val totalNumberOfLinesInList = getTotalNumberOfLines(text)
+        val currentLineNumber = getNumberOfProcessedLine(text, end)
 
-        if (numberOfLines > 1 && lineNumber == 1) {
+        if (totalNumberOfLinesInList > 1 && currentLineNumber == 1) {
             adjustment = if (this is AztecOrderedListSpan) 0 else verticalPadding
-        } else if ((numberOfLines > 1 && numberOfLines == lineNumber) || numberOfLines == 1) {
+        } else if ((totalNumberOfLinesInList > 1 && totalNumberOfLinesInList == currentLineNumber) || totalNumberOfLinesInList == 1) {
             adjustment = -verticalPadding
         }
 

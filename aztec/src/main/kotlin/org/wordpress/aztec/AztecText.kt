@@ -594,7 +594,7 @@ class AztecText : EditText, TextWatcher {
 
                     if (start == -1 || end == -1) return
 
-                    it.drawable = drawable
+                    it.setDrawableAndAdjustBounds(drawable)
 
                     refreshText()
                 }
@@ -903,10 +903,10 @@ class AztecText : EditText, TextWatcher {
     fun overlayProgress(drawable: Drawable?): Drawable {
         val progressDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_horizontal)
         val layerDrawable = LayerDrawable(arrayOf(drawable, progressDrawable))
+        AztecMediaSpan.setBoundsToDp(context, layerDrawable)
 
-        val l = DisplayUtils.dpToPx(context, drawable!!.intrinsicWidth / 4)
-        val t = DisplayUtils.dpToPx(context, drawable!!.intrinsicHeight / 4)
-        layerDrawable.setLayerInset(1, l, t, l, t)
+        // Make the progessbar as wide as the image and only 2dp tall
+        progressDrawable.setBounds(0, 0, layerDrawable.bounds.right, DisplayUtils.dpToPx(context, (2)))
 
         return layerDrawable
     }
@@ -918,7 +918,7 @@ class AztecText : EditText, TextWatcher {
     fun removeOverlayProgress(attributePredicate: AttributePredicate, attributes: Attributes) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
-                it.drawable = (it.drawable as? LayerDrawable)?.getDrawable(0)
+                it.setDrawableAndAdjustBounds((it.drawable as? LayerDrawable)?.getDrawable(0))
                 it.attributes = attributes
                 invalidate()
             }

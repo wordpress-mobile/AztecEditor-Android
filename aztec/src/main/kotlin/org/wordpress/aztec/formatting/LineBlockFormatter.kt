@@ -278,7 +278,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         }
 
-        val span = AztecMediaSpan(editor.context, drawable, attributes)
+        val span = AztecMediaSpan(editor.context, drawable, false, attributes)
         val html = span.getHtml();
 
         val mediaStartIndex = selectionStart + 1

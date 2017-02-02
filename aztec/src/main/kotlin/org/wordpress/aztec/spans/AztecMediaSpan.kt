@@ -3,7 +3,6 @@ package org.wordpress.aztec.spans
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
 import android.view.View
@@ -12,16 +11,25 @@ import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils
 import org.xml.sax.Attributes
 
-class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var attributes: Attributes) :
+class AztecMediaSpan(val context: Context, private var drawable: Drawable?, initAdjustBounds: Boolean, var attributes: Attributes) :
         DynamicDrawableSpan() {
 
+    init {
+        if (initAdjustBounds) {
+            setBoundsToDp(context, drawable)
+        }
+    }
+
     companion object {
-        private val rect: Rect = Rect()
+        fun setBoundsToDp(context: Context, drawable: Drawable?) {
+            drawable?.setBounds(0, 0, DisplayUtils.dpToPx(context, (drawable.intrinsicWidth)),
+                    DisplayUtils.dpToPx(context, (drawable.intrinsicHeight)))
+        }
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         drawable?.let {
-            val bounds = adjustBounds(it)
+            val bounds = drawable!!.bounds
 
             if (metrics != null) {
                 metrics.ascent = -bounds.bottom
@@ -41,9 +49,13 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
         return drawable
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
+    fun setDrawableAndAdjustBounds(newDrawable: Drawable?) {
         drawable = newDrawable
-        drawable?.let { adjustBounds(it) }
+        setBoundsToDp(context, drawable)
+    }
+
+    fun setDrawableWithoutAdjustingBounds(newDrawable: Drawable?) {
+        drawable = newDrawable
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
@@ -59,26 +71,6 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
             drawable!!.draw(canvas)
             canvas.restore()
         }
-    }
-
-    private fun adjustBounds(drawable: Drawable): Rect {
-        if (drawable.intrinsicWidth === 0) {
-            rect.set(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            return rect
-        }
-
-        /*
-         * Following Android guidelines for keylines and spacing, screen edge margins should
-         * be 16dp.  Therefore, the width of images should be the width of the screen minus
-         * 16dp on both sides (i.e. 16 * 2 = 32).
-         *
-         * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
-         */
-        val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
-        val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
-        drawable.setBounds(0, 0, width, height)
-
-        return drawable.bounds
     }
 
     fun getHtml(): String {

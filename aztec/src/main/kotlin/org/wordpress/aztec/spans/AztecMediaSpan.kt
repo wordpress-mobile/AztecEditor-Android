@@ -27,6 +27,11 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
                     it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.intrinsicWidth)),
                             DisplayUtils.dpToPx(context, (it.intrinsicHeight)))
                 }
+
+                val maxWidth = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
+                if (drawable.bounds.width() > maxWidth) {
+                    drawable.setBounds(0, 0, maxWidth, maxWidth * drawable.bounds.height() / drawable.bounds.width())
+                }
             }
         }
     }

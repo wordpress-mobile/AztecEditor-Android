@@ -21,7 +21,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -594,7 +593,7 @@ class AztecText : EditText, TextWatcher {
 
                     if (start == -1 || end == -1) return
 
-                    it.setDrawableAndAdjustBounds(drawable)
+                    it.drawable = drawable
 
                     refreshText()
                 }
@@ -881,16 +880,8 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(overlayProgress(drawable), attributes)
-    }
-
-    fun setProgressOnMedia(attributePredicate: AttributePredicate, progress: Float) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                if (setLevelOverlayProgress(it.drawable, progress)) invalidate()
-            }
-        }
+    fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes) {
+        lineBlockFormatter.insertMedia(drawable, overlay, overlayGravity, attributes)
     }
 
     interface AttributePredicate {
@@ -900,26 +891,24 @@ class AztecText : EditText, TextWatcher {
         fun matches(attrs: Attributes): Boolean
     }
 
-    fun overlayProgress(drawable: Drawable?): Drawable {
-        val progressDrawable = ContextCompat.getDrawable(context, android.R.drawable.progress_horizontal)
-        val layerDrawable = LayerDrawable(arrayOf(drawable, progressDrawable))
-        AztecMediaSpan.setBoundsToDp(context, layerDrawable)
-
-        // Make the progessbar as wide as the image and only 2dp tall
-        progressDrawable.setBounds(0, 0, layerDrawable.bounds.right, DisplayUtils.dpToPx(context, (2)))
-
-        return layerDrawable
+    fun setOverlayLevel(attributePredicate: AttributePredicate, level: Int) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach lit@ {
+            if (attributePredicate.matches(it.attributes)) {
+                it.setOverayLevel(level)
+            }
+        }
     }
 
-    fun setLevelOverlayProgress(drawable: Drawable?, progress: Float): Boolean {
-        return (drawable as LayerDrawable).getDrawable(1).setLevel((progress * 10000).toInt())
-    }
-
-    fun removeOverlayProgress(attributePredicate: AttributePredicate, attributes: Attributes) {
+    fun setOverlay(attributePredicate: AttributePredicate, overlay: Drawable?, gravity: Int, attributes: Attributes?) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
-                it.setDrawableAndAdjustBounds((it.drawable as? LayerDrawable)?.getDrawable(0))
-                it.attributes = attributes
+                // set the new overlay drawable
+                it.setOverlay(overlay, gravity)
+
+                if (attributes != null) {
+                    it.attributes = attributes
+                }
+
                 invalidate()
             }
         }

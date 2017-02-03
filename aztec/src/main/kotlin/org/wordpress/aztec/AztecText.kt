@@ -108,10 +108,6 @@ class AztecText : EditText, TextWatcher {
     private fun init(attrs: AttributeSet?) {
         TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
 
-        // It seems that hardware accel makes the progressbar in MediaSpan to not show that it updates.
-        //  Instead, software rendering works. See: https://github.com/koral--/android-gif-drawable/issues/234#issuecomment-165938445
-        setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
         setLineSpacing(
                 array.getDimension(

@@ -70,13 +70,15 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
         }
 
         //apply original font metrics to lines that should not have vertical padding
-        if (!addedTopPadding && !addedBottomPadding) {
+        if (!addedTopPadding) {
             fm.ascent = previousFontMetrics!!.ascent
             fm.top = previousFontMetrics!!.top
+        }
+
+        if (!addedBottomPadding) {
             fm.descent = previousFontMetrics!!.descent
             fm.bottom = previousFontMetrics!!.bottom
         }
-
 
     }
 

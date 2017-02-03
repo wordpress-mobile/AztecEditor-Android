@@ -9,8 +9,7 @@ import android.view.View
 import android.widget.Toast
 import org.wordpress.android.util.DisplayUtils
 
-class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable),
-        AztecParagraphStyle{
+class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), AztecParagraphStyle{
     private val html = source
 
     companion object {

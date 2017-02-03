@@ -83,7 +83,7 @@ class AztecOrderedListSpan : AztecListSpan {
         p.color = textColor
         p.style = Paint.Style.FILL
 
-        val textToDraw = getNumberOfProcessedLine(text, end).toString() + "."
+        val textToDraw = getIndexOfProcessedLine(text, end).toString() + "."
 
         val width = p.measureText(textToDraw)
         c.drawText(textToDraw, (textMargin + x + dir - width) * dir, (bottom - p.descent()) + getIndicatorAdjustment(text, end), p)

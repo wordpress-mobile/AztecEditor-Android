@@ -26,7 +26,7 @@ abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Stand
         }
     }
 
-    fun getNumberOfProcessedLine(text: CharSequence, end: Int): Int {
+    fun getIndexOfProcessedLine(text: CharSequence, end: Int): Int {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
@@ -48,7 +48,7 @@ abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Stand
         var adjustment = 0
 
         val totalNumberOfLinesInList = getTotalNumberOfLines(text)
-        val currentLineNumber = getNumberOfProcessedLine(text, end)
+        val currentLineNumber = getIndexOfProcessedLine(text, end)
 
         if (totalNumberOfLinesInList > 1 && currentLineNumber == 1) {
             adjustment = if (this is AztecOrderedListSpan) 0 else verticalPadding

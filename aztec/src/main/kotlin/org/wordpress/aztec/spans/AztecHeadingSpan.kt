@@ -46,6 +46,7 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
+        //save original font metrics
         if (previousFontMetrics == null) {
             previousFontMetrics = Paint.FontMetricsInt()
             previousFontMetrics!!.top = fm.top
@@ -68,6 +69,7 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
             addedBottomPadding = true
         }
 
+        //apply original font metrics to lines that should not have vertical padding
         if (!addedTopPadding && !addedBottomPadding) {
             fm.ascent = previousFontMetrics!!.ascent
             fm.top = previousFontMetrics!!.top
@@ -104,6 +106,7 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     }
 
     override fun updateMeasureState(textPaint: TextPaint) {
+        //when font size changes - reset cached font metrics to reapply vertical padding
         if (previousTextScale != heading.scale) {
             previousFontMetrics = null
         }

@@ -63,6 +63,8 @@ class AztecText : EditText, TextWatcher {
 
     private var onImeBackListener: OnImeBackListener? = null
 
+    private var onMediaTappedListener: OnMediaTappedListener? = null
+
     private var isViewInitialized = false
     private var previousCursorPosition = 0
 
@@ -87,6 +89,10 @@ class AztecText : EditText, TextWatcher {
 
     interface OnImeBackListener {
         fun onImeBack()
+    }
+
+    interface OnMediaTappedListener {
+        fun mediaTapped(attrs: Attributes)
     }
 
     init {
@@ -294,6 +300,10 @@ class AztecText : EditText, TextWatcher {
 
     fun setOnImeBackListener(listener: OnImeBackListener) {
         this.onImeBackListener = listener
+    }
+
+    fun setOnMediaTappedListener(listener: OnMediaTappedListener) {
+        this.onMediaTappedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -553,7 +563,7 @@ class AztecText : EditText, TextWatcher {
 
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), context))
+        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)
@@ -761,7 +771,8 @@ class AztecText : EditText, TextWatcher {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()),onMediaTappedListener,
+                        context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -877,7 +888,15 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(drawable, overlay, overlayGravity, attributes)
+        lineBlockFormatter.insertMedia(drawable, overlay, overlayGravity, attributes, onMediaTappedListener)
+    }
+
+    fun removeMedia(attributePredicate: AttributePredicate) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+            if (attributePredicate.matches(it.attributes)) {
+                text.removeSpan(it)
+            }
+        }
     }
 
     interface AttributePredicate {
@@ -887,10 +906,11 @@ class AztecText : EditText, TextWatcher {
         fun matches(attrs: Attributes): Boolean
     }
 
-    fun setOverlayLevel(attributePredicate: AttributePredicate, level: Int) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach lit@ {
+    fun setOverlayLevel(attributePredicate: AttributePredicate, level: Int, attrs: Attributes) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
                 it.setOverayLevel(level)
+                it.attributes = attrs
             }
         }
     }
@@ -908,5 +928,15 @@ class AztecText : EditText, TextWatcher {
                 invalidate()
             }
         }
+    }
+
+    fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+            if (attributePredicate.matches(it.attributes)) {
+                return it.attributes
+            }
+        }
+
+        return null;
     }
 }

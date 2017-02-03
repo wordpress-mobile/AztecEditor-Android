@@ -8,13 +8,13 @@ import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
 import android.view.Gravity
 import android.view.View
-import android.widget.Toast
 
 import org.wordpress.android.util.DisplayUtils
+import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.xml.sax.Attributes
 
 class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var overlay: Drawable?, overlayGravity: Int,
-        var attributes: Attributes) : DynamicDrawableSpan() {
+        var attributes: Attributes, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
 
     companion object {
         @JvmStatic private fun setBoundsToPx(context: Context, drawable: Drawable?) {
@@ -125,7 +125,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
     }
 
     fun onClick(view: View) {
-        Toast.makeText(view.context, getHtml(), Toast.LENGTH_SHORT).show()
+        onMediaTappedListener?.mediaTapped(attributes)
     }
 
     fun getSource(): String {

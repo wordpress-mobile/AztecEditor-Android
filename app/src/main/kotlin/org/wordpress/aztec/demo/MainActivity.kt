@@ -30,11 +30,12 @@ import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
+import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
 class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
-        View.OnTouchListener, AztecText.OnImeBackListener {
+        View.OnTouchListener, AztecText.OnMediaTappedListener, AztecText.OnImeBackListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -130,7 +131,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
             val attrs = AttributesImpl()
             attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), null, 0, attrs)
+            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), null, 0, attrs, this)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
@@ -167,6 +168,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
         source.setOnTouchListener(this)
+
+        aztec.setOnMediaTappedListener(this)
     }
 
     override fun onPause() {
@@ -432,5 +435,9 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun mediaTapped(attrs: Attributes) {
+        ToastUtils.showToast(this, "Media tapped!")
     }
 }

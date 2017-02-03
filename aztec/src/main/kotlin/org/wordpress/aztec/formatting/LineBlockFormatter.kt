@@ -5,6 +5,7 @@ import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
@@ -268,7 +269,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.setSelection(commentEndIndex + 1)
     }
 
-    fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes) {
+    fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes,
+                    onMediaTappedListener: OnMediaTappedListener?) {
         //check if we add media into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
         editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
@@ -278,7 +280,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         }
 
-        val span = AztecMediaSpan(editor.context, drawable, overlay, overlayGravity, attributes)
+        val span = AztecMediaSpan(editor.context, drawable, overlay, overlayGravity, attributes, onMediaTappedListener)
         val html = span.getHtml();
 
         val mediaStartIndex = selectionStart + 1

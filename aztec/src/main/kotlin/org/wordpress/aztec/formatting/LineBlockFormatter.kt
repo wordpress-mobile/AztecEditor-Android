@@ -12,7 +12,7 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
+class LineBlockFormatter(editor: AztecText, val verticlPadding: Int) : AztecFormatter(editor) {
 
     fun applyHeading(textFormat: TextFormat) {
         headingClear()
@@ -48,7 +48,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     editableText.setSpan(spanAtNewLIne, spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (!isHeadingSplitRequired && editableText.length > textChangedEvent.inputStart + 1 && editableText[textChangedEvent.inputStart + 1] == '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if(!isHeadingSplitRequired && textChangedEvent.inputStart + 1 == spanEnd && editableText[textChangedEvent.inputStart] == '\n'){
+                } else if (!isHeadingSplitRequired && textChangedEvent.inputStart + 1 == spanEnd && editableText[textChangedEvent.inputStart] == '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
@@ -135,7 +135,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
 
             if (headingStart < headingEnd) {
-                editableText.setSpan(AztecHeadingSpan(textFormat), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecHeadingSpan(textFormat, "", verticlPadding), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

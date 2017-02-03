@@ -76,7 +76,7 @@ class AztecText : EditText, TextWatcher {
 
     lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
-    val lineBlockFormatter: LineBlockFormatter
+    lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
 
     var imageGetter: Html.ImageGetter? = null
@@ -89,9 +89,6 @@ class AztecText : EditText, TextWatcher {
         fun onImeBack()
     }
 
-    init {
-        lineBlockFormatter = LineBlockFormatter(this)
-    }
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -150,6 +147,8 @@ class AztecText : EditText, TextWatcher {
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
                 R.styleable.AztecText_linkColor, 0),
                 array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
+
+        lineBlockFormatter = LineBlockFormatter(this, array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
 
         array.recycle()
 
@@ -212,10 +211,9 @@ class AztecText : EditText, TextWatcher {
         val retainedSelectionStart = customState.getInt("selection_start")
         val retainedSelectionEnd = customState.getInt("selection_end")
 
-        if (retainedSelectionEnd < editableText.length){
+        if (retainedSelectionEnd < editableText.length) {
             setSelection(retainedSelectionStart, retainedSelectionEnd)
         }
-
 
 
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
@@ -669,6 +667,14 @@ class AztecText : EditText, TextWatcher {
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val headingSpan = editable.getSpans(start, end, AztecHeadingSpan::class.java)
+        headingSpan.forEach {
+            val spanStart = editable.getSpanStart(it)
+            val spanEnd = editable.getSpanEnd(it)
+            editable.removeSpan(it)
+            editable.setSpan(AztecHeadingSpan(it.textFormat, it.attributes, lineBlockFormatter.verticlPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

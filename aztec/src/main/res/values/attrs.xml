@@ -8,6 +8,7 @@
         <attr name="bulletMargin" format="reference|dimension" />
         <attr name="bulletPadding" format="reference|dimension" />
         <attr name="bulletWidth" format="reference|dimension" />
+        <attr name="blockVerticalPadding" format="reference|dimension" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
         <attr name="lineSpacingExtra" format="reference|dimension" />

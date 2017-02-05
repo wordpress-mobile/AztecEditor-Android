@@ -41,7 +41,7 @@ import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecListSpan;
+import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
@@ -473,7 +473,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] obj = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
         for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan) {
+            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan || obj[i] instanceof AztecHeadingSpan) {
                 continue;
             }
             int start = spannableStringBuilder.getSpanStart(obj[i]);

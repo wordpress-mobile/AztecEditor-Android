@@ -19,14 +19,12 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.os.Parcel
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
-import android.text.style.LeadingMarginSpan
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
+class AztecOrderedListSpan : AztecListSpan {
 
     private val TAG = "ol"
 
@@ -38,15 +36,11 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
     override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
-    //used for marking
-    constructor() : super(0) {
-    }
-
     constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.indicatorMargin) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
         this.textColor = listStyle.indicatorColor
         this.textMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
@@ -55,20 +49,6 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         this.lastItem = last
     }
 
-    constructor(src: Parcel) : super(src) {
-        this.textColor = src.readInt()
-        this.textMargin = src.readInt()
-        this.textPadding = src.readInt()
-        this.attributes = src.readString()
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(textColor)
-        dest.writeInt(textMargin)
-        dest.writeInt(textPadding)
-        dest.writeString(attributes)
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {
@@ -85,18 +65,11 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
         return textMargin + 2 * bulletWidth + textPadding
     }
 
-    fun getLineNumber(text: CharSequence, end: Int): Int {
-        val textBeforeBeforeEnd = text.substring(0, end)
-        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
-        return lineIndex + 1
-    }
-
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
-
         if (!first) return
 
         val spanStart = (text as Spanned).getSpanStart(this)
@@ -104,21 +77,16 @@ class AztecOrderedListSpan : LeadingMarginSpan.Standard, AztecListSpan {
 
         if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
-        val listText = text.subSequence(spanStart, spanEnd)
-
-        val lineNumber = getLineNumber(listText, end - spanStart)
-
         val style = p.style
-
         val oldColor = p.color
 
         p.color = textColor
         p.style = Paint.Style.FILL
 
-        val textToDraw = lineNumber.toString() + "."
+        val textToDraw = getIndexOfProcessedLine(text, end).toString() + "."
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, bottom - p.descent(), p)
+        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, (bottom - p.descent()) + getIndicatorAdjustment(text, end), p)
 
         p.color = oldColor
         p.style = style

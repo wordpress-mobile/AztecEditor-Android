@@ -25,7 +25,6 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
 import android.text.style.ImageSpan
-import android.text.style.ParagraphStyle
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -231,9 +230,9 @@ class AztecParser {
         var i = 0
 
         while (i < text.length) {
-            next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
+            next = text.nextSpanTransition(i, text.length, AztecParagraphStyle::class.java)
 
-            val styles = text.getSpans(i, next, ParagraphStyle::class.java)
+            val styles = text.getSpans(i, next, AztecParagraphStyle::class.java)
 
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {

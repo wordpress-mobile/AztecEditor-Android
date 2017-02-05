@@ -5,13 +5,11 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
-import android.text.style.ParagraphStyle
 import android.view.View
 import android.widget.Toast
-
 import org.wordpress.android.util.DisplayUtils
 
-class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), ParagraphStyle {
+class AztecMediaSpan(val context: Context, drawable: Drawable, source: String) : ImageSpan(drawable), AztecParagraphStyle{
     private val html = source
 
     companion object {

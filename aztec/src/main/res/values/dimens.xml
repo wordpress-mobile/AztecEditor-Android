@@ -9,6 +9,7 @@
     <dimen name="quote_padding">8dp</dimen>
     <dimen name="quote_margin">16dp</dimen>
     <dimen name="quote_width">2dp</dimen>
+    <dimen name="block_vertical_padding">8dp</dimen>
     <dimen name="spacing_extra">0dp</dimen>
     <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 

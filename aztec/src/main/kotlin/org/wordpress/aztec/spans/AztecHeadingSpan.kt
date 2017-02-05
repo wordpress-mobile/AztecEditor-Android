@@ -1,14 +1,22 @@
 package org.wordpress.aztec.spans
 
+import android.graphics.Paint
+import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
+import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
+import android.text.style.UpdateLayout
 import org.wordpress.aztec.TextFormat
 
-class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String = "") : MetricAffectingSpan(), AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan {
+class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String = "", val verticalPadding: Int) : MetricAffectingSpan(),
+        AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan, LineHeightSpan, UpdateLayout {
 
     lateinit var heading: Heading
     override var attributes: String = attrs
+
+    var previousFontMetrics: Paint.FontMetricsInt? = null
+    var previousTextScale: Float = 1.0f
 
     companion object {
         private val SCALE_H1: Float = 1.73f
@@ -31,7 +39,46 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
         }
     }
 
-    constructor(tag: String, attrs: String = "") : this(getTextFormat(tag), attrs) {
+    constructor(tag: String, attrs: String = "", verticalPadding: Int = 0) : this(getTextFormat(tag), attrs, verticalPadding)
+
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        val spanEnd = spanned.getSpanEnd(this)
+
+        //save original font metrics
+        if (previousFontMetrics == null) {
+            previousFontMetrics = Paint.FontMetricsInt()
+            previousFontMetrics!!.top = fm.top
+            previousFontMetrics!!.ascent = fm.ascent
+            previousFontMetrics!!.bottom = fm.bottom
+            previousFontMetrics!!.descent = fm.descent
+        }
+
+        var addedTopPadding = false
+        var addedBottomPadding = false
+
+        if (start == spanStart || start < spanStart) {
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
+            addedTopPadding = true
+        }
+        if (end == spanEnd || spanEnd < end) {
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
+            addedBottomPadding = true
+        }
+
+        //apply original font metrics to lines that should not have vertical padding
+        if (!addedTopPadding) {
+            fm.ascent = previousFontMetrics!!.ascent
+            fm.top = previousFontMetrics!!.top
+        }
+
+        if (!addedBottomPadding) {
+            fm.descent = previousFontMetrics!!.descent
+            fm.bottom = previousFontMetrics!!.bottom
+        }
 
     }
 
@@ -61,6 +108,12 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     }
 
     override fun updateMeasureState(textPaint: TextPaint) {
+        //when font size changes - reset cached font metrics to reapply vertical padding
+        if (previousTextScale != heading.scale) {
+            previousFontMetrics = null
+        }
+        previousTextScale = heading.scale
+
         textPaint.textSize *= heading.scale
     }
 
@@ -96,6 +149,6 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     }
 
     override fun clone(): Any {
-        return AztecHeadingSpan(textFormat, attributes)
+        return AztecHeadingSpan(textFormat, attributes, verticalPadding)
     }
 }

@@ -23,10 +23,9 @@ import android.graphics.Path
 import android.os.Parcel
 import android.text.Layout
 import android.text.TextUtils
-import android.text.style.BulletSpan
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
+class AztecUnorderedListSpan : AztecListSpan {
 
     private val TAG = "ul"
 
@@ -39,29 +38,18 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
     override var attributes: String = ""
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
-    //used for marking
-    constructor() : super(0) {
-    }
 
-    constructor(attributes: String) {
+    constructor(attributes: String) : super(0) {
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
         this.bulletColor = listStyle.indicatorColor
         this.bulletMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
         this.bulletPadding = listStyle.indicatorPadding
         this.attributes = attributes
         this.lastItem = last
-    }
-
-    constructor(src: Parcel) : super(src) {
-        this.bulletColor = src.readInt()
-        this.bulletMargin = src.readInt()
-        this.bulletWidth = src.readInt()
-        this.bulletPadding = src.readInt()
-        this.attributes = src.readString()
     }
 
     override fun getStartTag(): String {
@@ -75,14 +63,7 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         return TAG
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(bulletColor)
-        dest.writeInt(bulletMargin)
-        dest.writeInt(bulletWidth)
-        dest.writeInt(bulletPadding)
-        dest.writeString(attributes)
-    }
+
 
     override fun getLeadingMargin(first: Boolean): Int {
         return bulletMargin + 2 * bulletWidth + bulletPadding
@@ -95,25 +76,21 @@ class AztecUnorderedListSpan : BulletSpan, AztecListSpan {
         if (!first) return
 
         val style = p.style
-
         val oldColor = p.color
 
         p.color = bulletColor
         p.style = Paint.Style.FILL
 
         if (c.isHardwareAccelerated) {
-            if (bulletPath == null) {
-                bulletPath = Path()
-                // Bullet is slightly better to avoid aliasing artifacts on mdpi devices.
-                bulletPath!!.addCircle(0.0f, 0.0f, bulletWidth.toFloat(), Path.Direction.CW)
-            }
+            bulletPath = Path()
+            bulletPath!!.addCircle(0.0f, 0.0f + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), Path.Direction.CW)
 
             c.save()
-            c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f)
+            c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f))
             c.drawPath(bulletPath!!, p)
             c.restore()
         } else {
-            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), (top + bottom) / 2.0f, bulletWidth.toFloat(), p)
+            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), p)
         }
 
         p.color = oldColor

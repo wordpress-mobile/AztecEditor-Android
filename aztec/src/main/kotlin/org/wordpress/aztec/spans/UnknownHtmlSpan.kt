@@ -2,11 +2,10 @@ package org.wordpress.aztec.spans
 
 import android.content.Context
 import android.text.style.ImageSpan
-import android.text.style.ParagraphStyle
 import android.view.View
 import android.widget.Toast
 
-class UnknownHtmlSpan(rawHtml: StringBuilder, context: Context, drawable: Int) : ImageSpan(context, drawable), ParagraphStyle {
+class UnknownHtmlSpan(rawHtml: StringBuilder, context: Context, drawable: Int) : ImageSpan(context, drawable), AztecParagraphStyle {
 
     val mRawHtml: StringBuilder = rawHtml
 

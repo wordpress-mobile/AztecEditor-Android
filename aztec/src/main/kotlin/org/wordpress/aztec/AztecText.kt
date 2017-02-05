@@ -76,7 +76,7 @@ class AztecText : EditText, TextWatcher {
 
     lateinit var inlineFormatter: InlineFormatter
     lateinit var blockFormatter: BlockFormatter
-    val lineBlockFormatter: LineBlockFormatter
+    lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
 
     var imageGetter: Html.ImageGetter? = null
@@ -89,9 +89,6 @@ class AztecText : EditText, TextWatcher {
         fun onImeBack()
     }
 
-    init {
-        lineBlockFormatter = LineBlockFormatter(this)
-    }
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -129,25 +126,32 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         array.getColor(R.styleable.AztecText_codeBackground, 0),
-                        array.getColor(R.styleable.AztecText_codeColor, 0)))
+                        array.getColor(R.styleable.AztecText_codeColor, 0)),
+                LineBlockFormatter.HeaderStyle(
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
                         array.getColor(R.styleable.AztecText_bulletColor, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0)),
+                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.QuoteStyle(
                         array.getColor(R.styleable.AztecText_quoteBackground, 0),
                         array.getColor(R.styleable.AztecText_quoteColor, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0)
+                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
                 ))
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
                 R.styleable.AztecText_linkColor, 0),
                 array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
+
+        lineBlockFormatter = LineBlockFormatter(this, LineBlockFormatter.HeaderStyle(
+                array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
 
         array.recycle()
 
@@ -210,7 +214,9 @@ class AztecText : EditText, TextWatcher {
         val retainedSelectionStart = customState.getInt("selection_start")
         val retainedSelectionEnd = customState.getInt("selection_end")
 
-        setSelection(retainedSelectionStart, retainedSelectionEnd)
+        if (retainedSelectionEnd < editableText.length) {
+            setSelection(retainedSelectionStart, retainedSelectionEnd)
+        }
 
 
         val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
@@ -661,6 +667,15 @@ class AztecText : EditText, TextWatcher {
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val headingSpan = editable.getSpans(start, end, AztecHeadingSpan::class.java)
+        headingSpan.forEach {
+            val spanStart = editable.getSpanStart(it)
+            val spanEnd = editable.getSpanEnd(it)
+            editable.removeSpan(it)
+            editable.setSpan(AztecHeadingSpan(it.textFormat, it.attributes,
+                    lineBlockFormatter.headerStyle.verticalPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

@@ -9,7 +9,7 @@ import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.TextFormat
 
-class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String = "", val verticalPadding: Int = 0) : MetricAffectingSpan(),
+class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String = "", val verticalPadding: Int) : MetricAffectingSpan(),
         AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan, LineHeightSpan, UpdateLayout {
 
     lateinit var heading: Heading

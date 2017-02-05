@@ -55,7 +55,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
         }
     }
 
-    fun toggleCode(){
+    fun toggleCode() {
         if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
             applyInlineStyle(TextFormat.FORMAT_CODE)
         } else {
@@ -356,7 +356,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat)
+            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat, "", editor.lineBlockFormatter.verticlPadding)
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()

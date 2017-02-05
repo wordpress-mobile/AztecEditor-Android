@@ -12,7 +12,9 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class LineBlockFormatter(editor: AztecText, val verticlPadding: Int) : AztecFormatter(editor) {
+class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
+
+    data class HeaderStyle(val verticalPadding: Int)
 
     fun applyHeading(textFormat: TextFormat) {
         headingClear()
@@ -135,7 +137,7 @@ class LineBlockFormatter(editor: AztecText, val verticlPadding: Int) : AztecForm
             }
 
             if (headingStart < headingEnd) {
-                editableText.setSpan(AztecHeadingSpan(textFormat, "", verticlPadding), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

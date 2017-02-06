@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
             val attrs = AttributesImpl()
             attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), attrs, this)
+            aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
         }
 
         super.onActivityResult(requestCode, resultCode, data)

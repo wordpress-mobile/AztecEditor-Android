@@ -9,10 +9,12 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
@@ -135,12 +137,53 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 }
             }
 
-            val attrs = AttributesImpl()
-            attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-            aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+            insertMediaAndSimulateUpload(bitmap, mediaPath)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val id = (Math.random() * Int.MAX_VALUE).toString()
+
+        val attrs = AttributesImpl()
+        attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
+        attrs.addAttribute("", "id", "id", "string", id)
+
+        aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+
+        val predicate = object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == id
+            }
+        }
+
+        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL, attrs)
+        val progressDrawable = resources.getDrawable(android.R.drawable.progress_horizontal)
+        // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
+        progressDrawable.setBounds(0, 0, 0, 4)
+        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP, attrs)
+
+        var progress = 0
+
+        // simulate an upload delay
+        val runnable: Runnable = Runnable {
+            aztec.setOverlayLevel(predicate, 1, progress, attrs)
+            aztec.refreshText()
+            progress += 2000
+
+            if (progress >= 10000) {
+                aztec.clearOverlays(predicate, attrs)
+            }
+        }
+
+        Handler().post(runnable);
+        Handler().postDelayed(runnable, 2000);
+        Handler().postDelayed(runnable, 4000);
+        Handler().postDelayed(runnable, 6000);
+        Handler().postDelayed(runnable, 8000);
+
+        aztec.refreshText()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -9,6 +9,7 @@ import android.widget.PopupMenu
 import android.widget.PopupMenu.OnMenuItemClickListener
 import android.widget.Toast
 import android.widget.ToggleButton
+import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
@@ -187,16 +188,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-//            if (!editor!!.isMediaAdded || allImagesUploaded()) {
+            if (!editor!!.isMediaAdded || allImagesUploaded()) {
                 sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
                 editor!!.visibility = View.GONE
                 sourceEditor!!.visibility = View.VISIBLE
 
                 toggleHtmlMode(true)
-//            } else {
-//                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
-//                showMediaUploadDialog()
-//            }
+            } else {
+                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
+                ToastUtils.showToast(context, R.string.media_upload_dialog_message)
+            }
         } else {
             editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
             editor!!.visibility = View.VISIBLE

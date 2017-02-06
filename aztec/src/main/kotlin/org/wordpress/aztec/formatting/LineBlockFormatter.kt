@@ -269,8 +269,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.setSelection(commentEndIndex + 1)
     }
 
-    fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes,
-                    onMediaTappedListener: OnMediaTappedListener?) {
+    fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
         //check if we add media into a block element, at the end of the line, but not at the end of last line
         var applyingOnTheEndOfBlockLine = false
         editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
@@ -280,7 +279,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         }
 
-        val span = AztecMediaSpan(editor.context, drawable, overlay, overlayGravity, attributes, onMediaTappedListener)
+        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
         val html = span.getHtml();
 
         val mediaStartIndex = selectionStart + 1

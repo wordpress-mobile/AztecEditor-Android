@@ -12,8 +12,9 @@ import android.view.View
 import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.xml.sax.Attributes
+import java.util.*
 
-class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var overlay: Drawable?, overlayGravity: Int,
+class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         var attributes: Attributes, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
 
     companion object {
@@ -62,16 +63,20 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
         }
     }
 
+    private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
+
     init {
         setBoundsToPx(context, drawable)
-        setBoundsToPx(context, overlay)
-        applyOverlayGravity(overlayGravity)
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         val width1 = drawable?.bounds?.width() ?: 0
-        val width2 = overlay?.bounds?.width() ?: 0
-        val width: Int = if (width1 > width2) width1 else width2
+        var width: Int = 0
+
+        overlays.forEach {
+            val width2 = it.first?.bounds?.width() ?: 0
+            width = if (width1 > width2) width1 else width2
+        }
 
         drawable?.let {
             if (metrics != null) {
@@ -95,25 +100,36 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
         drawable = newDrawable
     }
 
-    fun setOverlay(newDrawable: Drawable?, gravity: Int) {
-        setBoundsToPx(context, newDrawable)
-        overlay = newDrawable
+    fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
+        if (overlays.lastIndex >= index) {
+            overlays.removeAt(index)
+        }
 
-        applyOverlayGravity(gravity)
+        if (newDrawable != null) {
+            setBoundsToPx(context, newDrawable)
+            applyOverlayGravity(newDrawable, gravity)
+
+            overlays.ensureCapacity(index + 1)
+            overlays.add(index, Pair(newDrawable, gravity))
+        }
     }
 
-    fun setOverayLevel(level: Int): Boolean {
-        return overlay?.setLevel(level) ?: false
+    fun clearOverlays() {
+        overlays.clear()
     }
 
-    private fun applyOverlayGravity(gravity: Int) {
+    fun setOverayLevel(index: Int, level: Int): Boolean {
+        return overlays[index].first?.setLevel(level) ?: false
+    }
+
+    private fun applyOverlayGravity(overlay: Drawable?, gravity: Int) {
         if (drawable != null && overlay != null) {
             val rect = Rect(0, 0, drawable!!.bounds.width(), drawable!!.bounds.height())
             val outRect = Rect()
 
-            Gravity.apply(gravity, overlay!!.bounds.width(), overlay!!.bounds.height(), rect, outRect)
+            Gravity.apply(gravity, overlay.bounds.width(), overlay.bounds.height(), rect, outRect)
 
-            overlay!!.setBounds(outRect.left, outRect.top, outRect.right, outRect.bottom)
+            overlay.setBounds(outRect.left, outRect.top, outRect.right, outRect.bottom)
         }
     }
 
@@ -130,7 +146,9 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
             drawable!!.draw(canvas)
         }
 
-        overlay?.draw(canvas)
+        overlays.forEach {
+            it.first?.draw(canvas)
+        }
 
         canvas.restore()
     }

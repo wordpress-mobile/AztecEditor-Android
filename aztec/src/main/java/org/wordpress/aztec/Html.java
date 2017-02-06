@@ -759,8 +759,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         // TODO: we should some placeholder drawable while loading imges
         Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
-        final AztecMediaSpan imageSpan = new AztecMediaSpan(context, loadingDrawable, null, 0, attributes,
-                onMediaTappedListener);
+        final AztecMediaSpan imageSpan = new AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener);
 
         text.append("\uFFFC");
         text.setSpan(imageSpan, start, text.length(),

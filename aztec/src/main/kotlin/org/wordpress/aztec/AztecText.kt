@@ -887,8 +887,8 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
-    fun insertMedia(drawable: Drawable?, overlay: Drawable?, overlayGravity: Int, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(drawable, overlay, overlayGravity, attributes, onMediaTappedListener)
+    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -906,20 +906,35 @@ class AztecText : EditText, TextWatcher {
         fun matches(attrs: Attributes): Boolean
     }
 
-    fun setOverlayLevel(attributePredicate: AttributePredicate, level: Int, attrs: Attributes) {
+    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attrs: Attributes) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
-                it.setOverayLevel(level)
+                it.setOverayLevel(index, level)
                 it.attributes = attrs
             }
         }
     }
 
-    fun setOverlay(attributePredicate: AttributePredicate, overlay: Drawable?, gravity: Int, attributes: Attributes?) {
+    fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
+                   attributes: Attributes?) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
             if (attributePredicate.matches(it.attributes)) {
                 // set the new overlay drawable
-                it.setOverlay(overlay, gravity)
+                it.setOverlay(index, overlay, gravity)
+
+                if (attributes != null) {
+                    it.attributes = attributes
+                }
+
+                invalidate()
+            }
+        }
+    }
+
+    fun clearOverlays(attributePredicate: AttributePredicate, attributes: Attributes?) {
+        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+            if (attributePredicate.matches(it.attributes)) {
+                it.clearOverlays()
 
                 if (attributes != null) {
                     it.attributes = attributes

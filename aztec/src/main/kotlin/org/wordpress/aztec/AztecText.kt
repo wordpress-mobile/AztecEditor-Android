@@ -92,7 +92,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     interface OnMediaTappedListener {
-        fun mediaTapped(attrs: Attributes)
+        fun mediaTapped(attrs: Attributes, naturalWidth: Int, naturalHeight: Int)
     }
 
     init {

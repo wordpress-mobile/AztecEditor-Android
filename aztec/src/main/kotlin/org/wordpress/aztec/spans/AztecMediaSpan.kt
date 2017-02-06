@@ -34,6 +34,32 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
                 }
             }
         }
+
+        @JvmStatic private fun getWidth(drawable: Drawable?): Int {
+            drawable?.let {
+                if (it.intrinsicWidth < 0) {
+                    // client may have set the bounds manually so, use those to adjust to px
+                    return it.bounds.width()
+                } else {
+                    return it.intrinsicWidth
+                }
+            }
+
+            return 0
+        }
+
+        @JvmStatic private fun getHeight(drawable: Drawable?): Int {
+            drawable?.let {
+                if (it.intrinsicHeight < 0) {
+                    // client may have set the bounds manually so, use those to adjust to px
+                    return it.bounds.height()
+                } else {
+                    return it.intrinsicHeight
+                }
+            }
+
+            return 0
+        }
     }
 
     init {
@@ -125,7 +151,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?, var 
     }
 
     fun onClick(view: View) {
-        onMediaTappedListener?.mediaTapped(attributes)
+        onMediaTappedListener?.mediaTapped(attributes, getWidth(drawable), getHeight(drawable))
     }
 
     fun getSource(): String {

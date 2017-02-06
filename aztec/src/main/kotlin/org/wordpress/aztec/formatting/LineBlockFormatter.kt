@@ -270,24 +270,15 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
     }
 
     fun insertMedia(drawable: Drawable, source: String) {
-        //check if we add media into a block element, at the end of the line, but not at the end of last line
-        var applyingOnTheEndOfBlockLine = false
-        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
-            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
-                applyingOnTheEndOfBlockLine = true
-                return@forEach
-            }
-        }
-
-        val mediaStartIndex = selectionStart + 1
-        val mediaEndIndex = selectionStart + source.length + 1
+        val mediaStartIndex = selectionStart
+        val mediaEndIndex = selectionStart + source.length
 
         editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, "\n" + source + if (applyingOnTheEndOfBlockLine) "" else "\n")
+        editableText.replace(selectionStart, selectionEnd, source)
 
-        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
-        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
-        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex, true)
+        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex)
+        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
 
         val span = AztecMediaSpan(editor.context, drawable, source)
 
@@ -305,7 +296,7 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editor.setSelection(mediaEndIndex + 1)
+        editor.setSelection(mediaEndIndex)
         editor.isMediaAdded = true
     }
 }

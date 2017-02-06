@@ -291,10 +291,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, lastItem: AztecListItemSpan = AztecListItemSpan(), attrs: String = ""): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, attrs: String = ""): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, AztecListItemSpan())
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, AztecListItemSpan())
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }

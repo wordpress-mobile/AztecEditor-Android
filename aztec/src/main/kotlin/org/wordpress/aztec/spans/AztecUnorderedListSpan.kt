@@ -20,8 +20,8 @@ package org.wordpress.aztec.spans
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
-import android.os.Parcel
 import android.text.Layout
+import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 
@@ -74,6 +74,11 @@ class AztecUnorderedListSpan : AztecListSpan {
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
         if (!first) return
+
+        val spanStart = (text as Spanned).getSpanStart(this)
+        val spanEnd = text.getSpanEnd(this)
+
+        if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
         val style = p.style
         val oldColor = p.color

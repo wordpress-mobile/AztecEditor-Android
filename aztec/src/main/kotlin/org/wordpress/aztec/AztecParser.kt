@@ -24,7 +24,6 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
-import android.text.style.ParagraphStyle
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.spans.*
 import java.util.*
@@ -231,9 +230,9 @@ class AztecParser {
         var i = 0
 
         while (i < text.length) {
-            next = text.nextSpanTransition(i, text.length, ParagraphStyle::class.java)
+            next = text.nextSpanTransition(i, text.length, AztecParagraphStyle::class.java)
 
-            val styles = text.getSpans(i, next, ParagraphStyle::class.java)
+            val styles = text.getSpans(i, next, AztecParagraphStyle::class.java)
 
             if (styles.size == 2) {
                 if (styles[0] is AztecListSpan && styles[1] is AztecQuoteSpan) {
@@ -449,15 +448,13 @@ class AztecParser {
                         out.append("<${span.getStartTag()}>")
                     }
 
-                    if (span is AztecMediaSpan && span !is AztecCommentSpan && span !is UnknownHtmlSpan) {
-                        out.append(span.getHtml())
-
-                        // Don't output the dummy character underlying the image.
-                        i = next
-                    }
-
                     if (span is AztecCommentSpan || span is CommentSpan) {
                         out.append("<!--")
+                    }
+
+                    if (span is AztecMediaSpan) {
+                        out.append(span.getHtml())
+                        i = next
                     }
 
                     if (span is HiddenHtmlSpan) {

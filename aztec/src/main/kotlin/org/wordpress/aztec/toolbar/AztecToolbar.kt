@@ -17,6 +17,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecMediaSpan
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
@@ -253,7 +254,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-//            if (!editor!!.isMediaAdded) {
+            if (/*!editor!!.isMediaAdded ||*/ allImagesUploaded()) {
                 sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
                 editor!!.visibility = View.GONE
                 sourceEditor!!.visibility = View.VISIBLE
@@ -262,7 +263,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //            } else {
 //                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
 //                showMediaUploadDialog()
-//            }
+            }
         } else {
             editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
             editor!!.visibility = View.VISIBLE
@@ -270,6 +271,15 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
             toggleHtmlMode(false)
         }
+    }
+
+    private fun allImagesUploaded(): Boolean {
+        editor!!.text?.getSpans(0, editor!!.length(), AztecMediaSpan::class.java)?.forEach {
+            if (it.getSource().isNullOrBlank() || !it.getSource().startsWith("http")) {
+                return false
+            }
+        }
+        return true
     }
 
     private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {

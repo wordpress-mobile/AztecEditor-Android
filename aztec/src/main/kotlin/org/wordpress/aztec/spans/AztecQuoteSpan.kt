@@ -20,20 +20,23 @@ package org.wordpress.aztec.spans
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
-import android.os.Parcel
 import android.text.Layout
+import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
+import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
+import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
 
-class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
+class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     val rect = Rect()
 
     private val TAG: String = "blockquote"
 
+    private var verticalPadding: Int = 0
     private var quoteBackground: Int = 0
     private var quoteColor: Int = 0
     private var quoteMargin: Int = 0
@@ -48,6 +51,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
     }
 
     constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String = "") : this(attributes) {
+        this.verticalPadding = quoteStyle.verticalPadding
         this.quoteBackground = quoteStyle.quoteBackground
         this.quoteColor = quoteStyle.quoteColor
         this.quoteMargin = quoteStyle.quoteMargin
@@ -55,21 +59,19 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan {
         this.quotePadding = quoteStyle.quotePadding
     }
 
-    constructor(src: Parcel) : super(src) {
-        this.quoteBackground = src.readInt()
-        this.quoteColor = src.readInt()
-        this.quoteMargin = src.readInt()
-        this.quoteWidth = src.readInt()
-        this.quotePadding = src.readInt()
-    }
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        val spanEnd = spanned.getSpanEnd(this)
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(quoteBackground)
-        dest.writeInt(quoteColor)
-        dest.writeInt(quoteMargin)
-        dest.writeInt(quoteWidth)
-        dest.writeInt(quotePadding)
+        if (start === spanStart || start < spanStart) {
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
+        }
+        if (end === spanEnd || spanEnd < end) {
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
+        }
     }
 
     override fun getStartTag(): String {

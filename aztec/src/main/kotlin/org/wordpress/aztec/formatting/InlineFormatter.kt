@@ -11,17 +11,13 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
     data class CodeStyle(val codeBackground: Int, val codeColor: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
-    val codeStyle: CodeStyle
 
-    init {
-        this.codeStyle = codeStyle
-    }
 
     fun toggleBold() {
         if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
@@ -55,7 +51,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
         }
     }
 
-    fun toggleCode(){
+    fun toggleCode() {
         if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
             applyInlineStyle(TextFormat.FORMAT_CODE)
         } else {
@@ -356,7 +352,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat)
+            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding)
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
@@ -407,10 +403,7 @@ class InlineFormatter(editor: AztecText, codeStyle: CodeStyle) : AztecFormatter(
                 }
             }
 
-            val selectedText = editableText.subSequence(start, end).toString().replace("\n", "")
-            val styledText = builder.toString()
-
-            return !styledText.isEmpty() && selectedText.contains(styledText)
+            return editableText.subSequence(start, end).toString() == builder.toString()
         }
     }
 }

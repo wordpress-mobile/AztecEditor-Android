@@ -13,8 +13,8 @@ import java.util.*
 
 class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) : AztecFormatter(editor) {
 
-    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int)
-    data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int)
+    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
+    data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
 
     val listStyle: ListStyle
     val quoteStyle: QuoteStyle
@@ -291,10 +291,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, lastItem: AztecListItemSpan = AztecListItemSpan(), attrs: String = ""): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, attrs: String = ""): AztecBlockSpan {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, lastItem)
-            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, lastItem)
+            TextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan(listStyle, attrs, AztecListItemSpan())
+            TextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan(listStyle, attrs, AztecListItemSpan())
             TextFormat.FORMAT_QUOTE -> return AztecQuoteSpan(quoteStyle, attrs)
             else -> return ParagraphSpan(attrs)
         }

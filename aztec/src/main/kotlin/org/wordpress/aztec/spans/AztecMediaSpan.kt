@@ -17,6 +17,8 @@ import java.util.*
 class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         var attributes: Attributes, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
 
+    private val TAG: String = "img"
+
     companion object {
         @JvmStatic private fun setBoundsToPx(context: Context, drawable: Drawable?) {
             drawable?.let {
@@ -155,7 +157,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
 
     fun getHtml(): String {
         val sb = StringBuilder()
-        sb.append("<img")
+        sb.append(TAG)
 
         for (i in 0..attributes.length-1) {
             sb.append(' ')

@@ -14,7 +14,9 @@ import org.xml.sax.Attributes
 import java.util.*
 
 
-class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
+class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
+
+    data class HeaderStyle(val verticalPadding: Int)
 
     fun applyHeading(textFormat: TextFormat) {
         headingClear()
@@ -50,7 +52,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     editableText.setSpan(spanAtNewLIne, spanStart + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (!isHeadingSplitRequired && editableText.length > textChangedEvent.inputStart + 1 && editableText[textChangedEvent.inputStart + 1] == '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                } else if(!isHeadingSplitRequired && textChangedEvent.inputStart + 1 == spanEnd && editableText[textChangedEvent.inputStart] == '\n'){
+                } else if (!isHeadingSplitRequired && textChangedEvent.inputStart + 1 == spanEnd && editableText[textChangedEvent.inputStart] == '\n') {
                     editableText.setSpan(spanAtNewLIne, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
@@ -137,7 +139,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
 
             if (headingStart < headingEnd) {
-                editableText.setSpan(AztecHeadingSpan(textFormat), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 
@@ -270,27 +272,18 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
-        //check if we add media into a block element, at the end of the line, but not at the end of last line
-        var applyingOnTheEndOfBlockLine = false
-        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
-            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
-                applyingOnTheEndOfBlockLine = true
-                return@forEach
-            }
-        }
-
         val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
         val html = span.getHtml();
 
-        val mediaStartIndex = selectionStart + 1
-        val mediaEndIndex = selectionStart + html.length + 1
+        val mediaStartIndex = selectionStart
+        val mediaEndIndex = selectionStart + html.length
 
         editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, "\n" + html + if (applyingOnTheEndOfBlockLine) "" else "\n")
+        editableText.replace(selectionStart, selectionEnd, html)
 
-        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex + 1, true)
-        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
-        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex + 1)
+        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex, true)
+        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex)
+        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
 
         editableText.setSpan(
                 span,
@@ -306,7 +299,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editor.setSelection(mediaEndIndex + 1)
+        editor.setSelection(mediaEndIndex)
         editor.isMediaAdded = true
     }
 }

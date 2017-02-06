@@ -254,7 +254,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-            if (/*!editor!!.isMediaAdded ||*/ allImagesUploaded()) {
+//            if (!editor!!.isMediaAdded || allImagesUploaded()) {
                 sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
                 editor!!.visibility = View.GONE
                 sourceEditor!!.visibility = View.VISIBLE
@@ -263,7 +263,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //            } else {
 //                toggleButton(findViewById(ToolbarAction.HTML.buttonId), false)
 //                showMediaUploadDialog()
-            }
+//            }
         } else {
             editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
             editor!!.visibility = View.VISIBLE

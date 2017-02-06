@@ -437,7 +437,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun mediaTapped(attrs: Attributes, naturalWidth: Int, naturalHeight: Int) {
+    override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {
         ToastUtils.showToast(this, "Media tapped!")
     }
 }

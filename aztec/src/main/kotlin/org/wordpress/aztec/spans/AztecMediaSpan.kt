@@ -15,7 +15,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
-        var attributes: Attributes, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
+        var attributes: Attributes?, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
 
     private val TAG: String = "img"
 
@@ -157,15 +157,19 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
 
     fun getHtml(): String {
         val sb = StringBuilder()
+        sb.append("<")
         sb.append(TAG)
 
-        for (i in 0..attributes.length-1) {
-            sb.append(' ')
-            sb.append(attributes.getLocalName(i))
-            sb.append("=\"")
-            sb.append(attributes.getValue(i))
-            sb.append("\"")
+        attributes?.let {
+            for (i in 0..attributes!!.length-1) {
+                sb.append(' ')
+                sb.append(attributes!!.getLocalName(i))
+                sb.append("=\"")
+                sb.append(attributes!!.getValue(i))
+                sb.append("\"")
+            }
         }
+
         sb.append("/>")
         return sb.toString()
     }
@@ -175,6 +179,6 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     }
 
     fun getSource(): String {
-        return attributes.getValue("src")
+        return attributes?.getValue("src") ?: ""
     }
 }

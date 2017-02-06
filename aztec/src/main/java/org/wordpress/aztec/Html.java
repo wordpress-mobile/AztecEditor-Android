@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -42,8 +41,6 @@ import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
-import org.wordpress.aztec.spans.AztecListSpan;
-import org.wordpress.aztec.spans.AztecMediaClickableSpan;
 import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
@@ -107,7 +104,8 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        boolean handleTag(boolean opening, String tag, Editable output, Context context, Attributes attributes);
+        boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
+                Context context, Attributes attributes);
     }
 
     private Html() {
@@ -551,14 +549,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, new Sub(attributes));
         } else if (tag.equalsIgnoreCase("code")) {
             start(spannableStringBuilder, new Code(attributes));
-//<<<<<<< HEAD
-//        } else if (tag.equalsIgnoreCase("img")) {
-//            startImg(spannableStringBuilder, attributes, onMediaTappedListener, context);
-//=======
-//>>>>>>> develop
         } else {
             if (tagHandler != null) {
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, context, attributes);
+                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
+                        context, attributes);
                 if (tagHandled) {
                     return;
                 }
@@ -627,7 +621,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, context, null);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null);
         }
     }
 

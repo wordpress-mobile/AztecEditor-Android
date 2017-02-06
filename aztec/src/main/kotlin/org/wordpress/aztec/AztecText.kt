@@ -92,7 +92,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     interface OnMediaTappedListener {
-        fun mediaTapped(attrs: Attributes, naturalWidth: Int, naturalHeight: Int)
+        fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int)
     }
 
     constructor(context: Context) : super(context) {
@@ -901,8 +901,10 @@ class AztecText : EditText, TextWatcher {
 
     fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                text.removeSpan(it)
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    text.removeSpan(it)
+                }
             }
         }
     }
@@ -916,9 +918,11 @@ class AztecText : EditText, TextWatcher {
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attrs: Attributes) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                it.setOverayLevel(index, level)
-                it.attributes = attrs
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    it.setOverayLevel(index, level)
+                    it.attributes = attrs
+                }
             }
         }
     }
@@ -926,37 +930,43 @@ class AztecText : EditText, TextWatcher {
     fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
                    attributes: Attributes?) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                // set the new overlay drawable
-                it.setOverlay(index, overlay, gravity)
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    // set the new overlay drawable
+                    it.setOverlay(index, overlay, gravity)
 
-                if (attributes != null) {
-                    it.attributes = attributes
+                    if (attributes != null) {
+                        it.attributes = attributes
+                    }
+
+                    invalidate()
                 }
-
-                invalidate()
             }
         }
     }
 
     fun clearOverlays(attributePredicate: AttributePredicate, attributes: Attributes?) {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                it.clearOverlays()
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    it.clearOverlays()
 
-                if (attributes != null) {
-                    it.attributes = attributes
+                    if (attributes != null) {
+                        it.attributes = attributes
+                    }
+
+                    invalidate()
                 }
-
-                invalidate()
             }
         }
     }
 
     fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
         text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes)) {
-                return it.attributes
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    return it.attributes
+                }
             }
         }
 

@@ -25,17 +25,16 @@ import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
-import org.xml.sax.XMLReader
 
 class AztecTagHandler : Html.TagHandler {
 
     private var order = 0
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, context: Context, attributes: Attributes?): Boolean {
+    override fun handleTag(opening: Boolean, tag: String, output: Editable,
+            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
@@ -77,7 +76,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             IMAGE -> {
                 if (opening) {
-                    start(output, createImageSpan(attributes, context))
+                    start(output, createImageSpan(attributes, onMediaTappedListener, context))
                     output.append("\uFFFC")
                 } else {
                     end(output, AztecMediaSpan::class.java)
@@ -99,10 +98,10 @@ class AztecTagHandler : Html.TagHandler {
         return false
     }
 
-    private fun createImageSpan(attributes: Attributes?, context: Context) : AztecMediaSpan {
-        val src = attributes?.getValue("", "src") ?: ""
+    private fun createImageSpan(attributes: Attributes?, onMediaTappedListener: AztecText.OnMediaTappedListener?,
+            context: Context) : AztecMediaSpan {
         val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
-        return AztecMediaSpan(context, loadingDrawable, src, Html.stringifyAttributes(attributes).toString())
+        return AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener)
     }
 
     private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {

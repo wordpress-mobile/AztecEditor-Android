@@ -1,11 +1,7 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
-import android.os.Bundle
-import android.os.Parcelable
-import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -22,12 +18,8 @@ import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var aztecToolbarListener: AztecToolbarClickListener? = null
-    private var addPhotoMediaDialog: AlertDialog? = null
-    private var addVideoMediaDialog: AlertDialog? = null
-    private var mediaUploadDialog: AlertDialog? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
-    private var mediaOptionSelectedListener: OnMediaOptionSelectedListener? = null
     private var sourceEditor: SourceViewEditText? = null
 
     constructor(context: Context) : super(context) {
@@ -56,65 +48,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         aztecToolbarListener = listener
     }
 
-    override fun onRestoreInstanceState(state: Parcelable?) {
-        var superState = state
-
-        if (state is Bundle) {
-            superState = state.getParcelable("superState")
-
-            if (state.getBoolean("isPhotoMediaDialogVisible")) {
-                showPhotoMediaDialog()
-            }
-
-            if (state.getBoolean("isVideoMediaDialogVisible")) {
-                showVideoMediaDialog()
-            }
-
-            if (state.getBoolean("isMediaUploadDialogVisible")) {
-                showMediaUploadDialog()
-            }
-        }
-
-        super.onRestoreInstanceState(superState)
-    }
-
-    override fun onSaveInstanceState(): Parcelable {
-        val bundle = Bundle()
-        bundle.putParcelable("superState", super.onSaveInstanceState())
-
-        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
-            bundle.putBoolean("isPhotoMediaDialogVisible", true)
-        }
-
-        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
-            bundle.putBoolean("isVideoMediaDialogVisible", true)
-        }
-
-        if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
-            bundle.putBoolean("isMediaUploadDialogVisible", true)
-        }
-
-        return bundle
-    }
-
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
-            // Media popup menu options
-            R.id.gallery -> {
-                mediaOptionSelectedListener?.onGalleryMediaOptionSelected()
-                return true
-            }
-            R.id.photo -> {
-                showPhotoMediaDialog()
-                return true
-            }
-            R.id.video -> {
-                showVideoMediaDialog()
-                return true
-            }
-            // Heading popup menu options
             R.id.paragraph -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 return true
@@ -160,10 +97,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
-    }
-
-    fun setMediaOptionSelectedListener(listener: OnMediaOptionSelectedListener) {
-        mediaOptionSelectedListener = listener
     }
 
     private fun initView() {
@@ -326,71 +259,4 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
 	}
 
-    private fun showMediaUploadDialog() {
-        if (!isEditorAttached()) return
-
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(context.getString(R.string.media_upload_dialog_message))
-        builder.setPositiveButton(context.getString(R.string.media_upload_dialog_positive), null)
-        mediaUploadDialog = builder.create()
-        mediaUploadDialog!!.show()
-    }
-
-    private fun showPhotoMediaDialog() {
-        if (!isEditorAttached()) return
-
-        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_photo_media, null)
-
-        val camera = dialog.findViewById(R.id.media_camera)
-        camera.setOnClickListener({
-            mediaOptionSelectedListener?.onCameraPhotoMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val photos = dialog.findViewById(R.id.media_photos)
-        photos.setOnClickListener({
-            mediaOptionSelectedListener?.onPhotosMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val library = dialog.findViewById(R.id.media_library)
-        library.setOnClickListener({
-            mediaOptionSelectedListener?.onPhotoLibraryMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val builder = AlertDialog.Builder(context)
-        builder.setView(dialog)
-        addPhotoMediaDialog = builder.create()
-        addPhotoMediaDialog!!.show()
-    }
-
-    private fun showVideoMediaDialog() {
-        if (!isEditorAttached()) return
-
-        val dialog = LayoutInflater.from(context).inflate(R.layout.dialog_video_media, null)
-
-        val camera = dialog.findViewById(R.id.media_camera)
-        camera.setOnClickListener({
-            mediaOptionSelectedListener?.onCameraVideoMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val videos = dialog.findViewById(R.id.media_videos)
-        videos.setOnClickListener({
-            mediaOptionSelectedListener?.onVideosMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val library = dialog.findViewById(R.id.media_library)
-        library.setOnClickListener({
-            mediaOptionSelectedListener?.onVideoLibraryMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val builder = AlertDialog.Builder(context)
-        builder.setView(dialog)
-        addVideoMediaDialog = builder.create()
-        addVideoMediaDialog!!.show()
-    }
 }

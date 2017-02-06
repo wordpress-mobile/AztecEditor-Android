@@ -16,11 +16,10 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
+import android.widget.PopupMenu
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
@@ -30,12 +29,14 @@ import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
+import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
 class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
-        View.OnTouchListener, AztecText.OnMediaTappedListener, AztecText.OnImeBackListener {
+        View.OnTouchListener, PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener,
+        AztecText.OnMediaTappedListener, AztecText.OnImeBackListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -107,6 +108,11 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
+    private var addPhotoMediaDialog: AlertDialog? = null
+    private var addVideoMediaDialog: AlertDialog? = null
+    private var mediaUploadDialog: AlertDialog? = null
+    private var mediaMenu: PopupMenu? = null
+
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
 
@@ -156,7 +162,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
-        formattingToolbar.setMediaOptionSelectedListener(this)
+        formattingToolbar.setToolbarListener(this)
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)
@@ -194,6 +200,40 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         } else {
             mHideActionBarOnSoftKeyboardUp = false
             showActionBarIfNeeded()
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        savedInstanceState?.let {
+            if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
+                showPhotoMediaDialog()
+            }
+
+            if (savedInstanceState.getBoolean("isVideoMediaDialogVisible")) {
+                showVideoMediaDialog()
+            }
+
+            if (savedInstanceState.getBoolean("isMediaUploadDialogVisible")) {
+                showMediaUploadDialog()
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
+            outState?.putBoolean("isPhotoMediaDialogVisible", true)
+        }
+
+        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
+            outState?.putBoolean("isVideoMediaDialogVisible", true)
+        }
+
+        if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
+            outState?.putBoolean("isMediaUploadDialogVisible", true)
         }
     }
 
@@ -435,6 +475,95 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onToolbarAddMediaClicked() {
+        mediaMenu = PopupMenu(this, formattingToolbar)
+        mediaMenu?.setOnMenuItemClickListener(this)
+        mediaMenu?.inflate(R.menu.media)
+        mediaMenu?.show()
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.isChecked = (item?.isChecked == false)
+
+        when (item?.itemId) {
+            org.wordpress.aztec.R.id.gallery -> {
+                onGalleryMediaOptionSelected()
+                return true
+            }
+            org.wordpress.aztec.R.id.photo -> {
+                showPhotoMediaDialog()
+                return true
+            }
+            org.wordpress.aztec.R.id.video -> {
+                showVideoMediaDialog()
+                return true
+            }
+            else -> return false
+        }
+    }
+
+    private fun showMediaUploadDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(getString(org.wordpress.aztec.R.string.media_upload_dialog_message))
+        builder.setPositiveButton(getString(org.wordpress.aztec.R.string.media_upload_dialog_positive), null)
+        mediaUploadDialog = builder.create()
+        mediaUploadDialog!!.show()
+    }
+
+    private fun showPhotoMediaDialog() {
+        val dialog = layoutInflater.inflate(R.layout.dialog_photo_media, null)
+
+        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        camera.setOnClickListener({
+            onCameraPhotoMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val photos = dialog.findViewById(org.wordpress.aztec.R.id.media_photos)
+        photos.setOnClickListener({
+            onPhotosMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        library.setOnClickListener({
+            onPhotoLibraryMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialog)
+        addPhotoMediaDialog = builder.create()
+        addPhotoMediaDialog!!.show()
+    }
+
+    private fun showVideoMediaDialog() {
+        val dialog = layoutInflater.inflate(org.wordpress.aztec.R.layout.dialog_video_media, null)
+
+        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        camera.setOnClickListener({
+            onCameraVideoMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val videos = dialog.findViewById(org.wordpress.aztec.R.id.media_videos)
+        videos.setOnClickListener({
+            onVideosMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        library.setOnClickListener({
+            onVideoLibraryMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialog)
+        addVideoMediaDialog = builder.create()
+        addVideoMediaDialog!!.show()
     }
 
     override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {

@@ -903,7 +903,15 @@ class AztecText : EditText, TextWatcher {
         text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
+                    val start = text.getSpanStart(it)
+                    val end = text.getSpanEnd(it)
+
+                    val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+                    text.removeSpan(clickableSpan)
                     text.removeSpan(it)
+
+                    text.delete(start, end)
                 }
             }
         }

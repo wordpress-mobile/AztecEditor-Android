@@ -73,7 +73,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         val width1 = drawable?.bounds?.width() ?: 0
-        var width: Int = 0
+        var width: Int = width1
 
         overlays.forEach {
             val width2 = it.first?.bounds?.width() ?: 0

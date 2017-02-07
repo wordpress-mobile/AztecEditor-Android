@@ -51,7 +51,7 @@ abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Stand
         val currentLineNumber = getIndexOfProcessedLine(text, end)
 
         if (totalNumberOfLinesInList > 1 && currentLineNumber == 1) {
-            adjustment = if (this is AztecOrderedListSpan) 0 else verticalPadding
+            adjustment = 0
         } else if ((totalNumberOfLinesInList > 1 && totalNumberOfLinesInList == currentLineNumber) || totalNumberOfLinesInList == 1) {
             adjustment = -verticalPadding
         }

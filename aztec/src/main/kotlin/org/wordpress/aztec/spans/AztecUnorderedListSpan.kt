@@ -19,7 +19,6 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
@@ -64,7 +63,6 @@ class AztecUnorderedListSpan : AztecListSpan {
     }
 
 
-
     override fun getLeadingMargin(first: Boolean): Int {
         return bulletMargin + 2 * bulletWidth + bulletPadding
     }
@@ -86,24 +84,14 @@ class AztecUnorderedListSpan : AztecListSpan {
         p.color = bulletColor
         p.style = Paint.Style.FILL
 
-        if (c.isHardwareAccelerated) {
-            bulletPath = Path()
-            bulletPath!!.addCircle(0.0f, 0.0f + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), Path.Direction.CW)
+        val textToDraw = "\u2022"
 
-            c.save()
-            c.translate((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f))
-            c.drawPath(bulletPath!!, p)
-            c.restore()
-        } else {
-            c.drawCircle((x + bulletMargin + dir * bulletWidth).toFloat(), ((top + bottom) / 2.0f) + getIndicatorAdjustment(text, end) / 2, bulletWidth.toFloat(), p)
-        }
+        val width = p.measureText(textToDraw)
+        c.drawText(textToDraw, (bulletMargin + x + dir - width) * dir, (bottom - p.descent()) - width / 2 + getIndicatorAdjustment(text, end), p)
 
         p.color = oldColor
         p.style = style
 
     }
 
-    companion object {
-        private var bulletPath: Path? = null
-    }
 }

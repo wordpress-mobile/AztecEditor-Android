@@ -234,4 +234,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
 	}
 
+    fun enableFormatButtons(isEnabled: Boolean) {
+        ToolbarAction.values().forEach { action ->
+            if (action != ToolbarAction.HTML) {
+                toggleButtonState(findViewById(action.buttonId), isEnabled)
+            }
+        }
+    }
 }

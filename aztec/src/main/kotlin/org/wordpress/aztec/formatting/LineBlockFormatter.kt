@@ -275,14 +275,30 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
         val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
         val html = span.getHtml();
 
-        val mediaStartIndex = selectionStart
-        val mediaEndIndex = selectionStart + html.length
+        val isAddingMediaToEndOfBlockElement = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+                .any {
+                    selectionStart == editableText.getSpanEnd(it)
+                }
 
-        editor.disableTextChangedListener()
+        val spanAtStartOfWhichMediaIsAdded = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+                .firstOrNull {
+                    selectionStart == editableText.getSpanStart(it)
+                }
+
+        val modifier = if (isAddingMediaToEndOfBlockElement) 1 else 0
+
+        val mediaStartIndex = selectionStart - modifier
+        val mediaEndIndex = selectionStart + html.length - modifier
+
+        if (!isAddingMediaToEndOfBlockElement)
+            editor.disableTextChangedListener()
+
         editableText.replace(selectionStart, selectionEnd, html)
 
-        editor.removeBlockStylesFromRange(mediaStartIndex, mediaEndIndex, true)
-        editor.removeHeadingStylesFromRange(mediaStartIndex, mediaEndIndex)
+        if (spanAtStartOfWhichMediaIsAdded != null) {
+            editableText.setSpan(spanAtStartOfWhichMediaIsAdded, mediaStartIndex, editableText.getSpanEnd(spanAtStartOfWhichMediaIsAdded), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
         editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
 
         editableText.setSpan(

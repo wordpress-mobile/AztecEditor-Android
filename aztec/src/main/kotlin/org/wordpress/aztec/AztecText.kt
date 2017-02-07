@@ -900,7 +900,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
                     text.removeSpan(it)
@@ -917,7 +917,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attrs: Attributes) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
                     it.setOverayLevel(index, level)
@@ -929,7 +929,7 @@ class AztecText : EditText, TextWatcher {
 
     fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
                    attributes: Attributes?) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
                     // set the new overlay drawable
@@ -946,7 +946,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun clearOverlays(attributePredicate: AttributePredicate, attributes: Attributes?) {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
                     it.clearOverlays()
@@ -962,7 +962,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
-        text.getSpans(0, 999999999, AztecMediaSpan::class.java).forEach {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
             if (it.attributes != null) {
                 if (attributePredicate.matches(it.attributes as Attributes)) {
                     return it.attributes

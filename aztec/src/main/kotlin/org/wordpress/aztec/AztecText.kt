@@ -962,14 +962,18 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (it.attributes != null) {
-                if (attributePredicate.matches(it.attributes as Attributes)) {
-                    return it.attributes
-                }
-            }
-        }
+        return getAllMediaAttributes(attributePredicate).firstOrNull()
+    }
 
-        return null;
+    fun getAllMediaAttributes(attributePredicate: AttributePredicate): List<Attributes?> {
+        return text
+                .getSpans(0, text.length, AztecMediaSpan::class.java)
+                .filter {
+                    if (it.attributes != null) {
+                        return@filter attributePredicate.matches(it.attributes as Attributes)
+                    } else {
+                        return@filter false
+                    }}
+                .map { it.attributes }
     }
 }

@@ -35,9 +35,9 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
-        View.OnTouchListener, PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener,
-        AztecText.OnMediaTappedListener, AztecText.OnImeBackListener {
+class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, View.OnTouchListener,
+        PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener, AztecText.OnMediaTappedListener,
+        AztecText.OnImeBackListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -148,6 +148,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         val attrs = AttributesImpl()
         attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
         attrs.addAttribute("", "id", "id", "string", id)
+        attrs.addAttribute("", "uploading", "uploading", "string", "true")
 
         aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 
@@ -172,6 +173,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
             progress += 2000
 
             if (progress >= 10000) {
+                attrs.removeAttribute(attrs.getIndex("uploading"))
                 aztec.clearOverlays(predicate, attrs)
             }
         }
@@ -517,6 +519,22 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onToolbarHtmlModeClicked() {
+        val uploadingPredicate = object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getIndex("uploading") > -1
+            }
+        }
+
+        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).size > 0
+
+        if (mediaPending) {
+            ToastUtils.showToast(this, R.string.media_upload_dialog_message)
+        } else {
+            formattingToolbar.toggleEditorMode()
+        }
     }
 
     override fun onToolbarAddMediaClicked() {

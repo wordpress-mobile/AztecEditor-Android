@@ -30,13 +30,12 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
+class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback,
         View.OnTouchListener, PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener,
         AztecText.OnMediaTappedListener, AztecText.OnImeBackListener {
     companion object {
@@ -366,7 +365,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         return true
     }
 
-    override fun onCameraPhotoMediaOptionSelected() {
+    fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
@@ -382,7 +381,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onCameraVideoMediaOptionSelected() {
+    fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
 
@@ -392,15 +391,15 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onGalleryMediaOptionSelected() {
+    fun onGalleryMediaOptionSelected() {
         Toast.makeText(this, "Launch gallery", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onPhotoLibraryMediaOptionSelected() {
+    fun onPhotoLibraryMediaOptionSelected() {
         Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onPhotosMediaOptionSelected() {
+    fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent: Intent
 
@@ -422,11 +421,11 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onVideoLibraryMediaOptionSelected() {
+    fun onVideoLibraryMediaOptionSelected() {
         Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onVideosMediaOptionSelected() {
+    fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent: Intent
 

@@ -35,16 +35,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView()
     }
 
-    interface OnMediaOptionSelectedListener {
-        fun onCameraPhotoMediaOptionSelected()
-        fun onCameraVideoMediaOptionSelected()
-        fun onGalleryMediaOptionSelected()
-        fun onPhotoLibraryMediaOptionSelected()
-        fun onPhotosMediaOptionSelected()
-        fun onVideoLibraryMediaOptionSelected()
-        fun onVideosMediaOptionSelected()
-    }
-
     fun setToolbarListener(listener: AztecToolbarClickListener) {
         aztecToolbarListener = listener
     }

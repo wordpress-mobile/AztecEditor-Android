@@ -9,18 +9,19 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
+import android.widget.PopupMenu
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
@@ -29,11 +30,14 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.AztecToolbar.OnMediaOptionSelectedListener
+import org.wordpress.aztec.toolbar.AztecToolbarClickListener
+import org.xml.sax.Attributes
+import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnRequestPermissionsResultCallback,
-        View.OnTouchListener, AztecText.OnImeBackListener {
+class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, View.OnTouchListener,
+        PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener, AztecText.OnMediaTappedListener,
+        AztecText.OnImeBackListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -105,6 +109,11 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
+    private var addPhotoMediaDialog: AlertDialog? = null
+    private var addVideoMediaDialog: AlertDialog? = null
+    private var mediaUploadDialog: AlertDialog? = null
+    private var mediaMenu: PopupMenu? = null
+
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
 
@@ -127,11 +136,55 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
                 }
             }
 
-            val source = mediaPath  // Temporary source value.  Replace with URL after uploaded.
-            aztec.lineBlockFormatter.insertMedia(BitmapDrawable(resources, bitmap), source)
+            insertMediaAndSimulateUpload(bitmap, mediaPath)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val id = (Math.random() * Int.MAX_VALUE).toString()
+
+        val attrs = AttributesImpl()
+        attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
+        attrs.addAttribute("", "id", "id", "string", id)
+        attrs.addAttribute("", "uploading", "uploading", "string", "true")
+
+        aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+
+        val predicate = object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == id
+            }
+        }
+
+        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL, attrs)
+        val progressDrawable = resources.getDrawable(android.R.drawable.progress_horizontal)
+        // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
+        progressDrawable.setBounds(0, 0, 0, 4)
+        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP, attrs)
+
+        var progress = 0
+
+        // simulate an upload delay
+        val runnable: Runnable = Runnable {
+            aztec.setOverlayLevel(predicate, 1, progress, attrs)
+            aztec.refreshText()
+            progress += 2000
+
+            if (progress >= 10000) {
+                attrs.removeAttribute(attrs.getIndex("uploading"))
+                aztec.clearOverlays(predicate, attrs)
+            }
+        }
+
+        Handler().post(runnable);
+        Handler().postDelayed(runnable, 2000);
+        Handler().postDelayed(runnable, 4000);
+        Handler().postDelayed(runnable, 6000);
+        Handler().postDelayed(runnable, 8000);
+
+        aztec.refreshText()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,7 +206,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
-        formattingToolbar.setMediaOptionSelectedListener(this)
+        formattingToolbar.setToolbarListener(this)
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)
@@ -165,6 +218,8 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
         source.setOnTouchListener(this)
+
+        aztec.setOnMediaTappedListener(this)
     }
 
     override fun onPause() {
@@ -189,6 +244,40 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         } else {
             mHideActionBarOnSoftKeyboardUp = false
             showActionBarIfNeeded()
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        savedInstanceState?.let {
+            if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
+                showPhotoMediaDialog()
+            }
+
+            if (savedInstanceState.getBoolean("isVideoMediaDialogVisible")) {
+                showVideoMediaDialog()
+            }
+
+            if (savedInstanceState.getBoolean("isMediaUploadDialogVisible")) {
+                showMediaUploadDialog()
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
+            outState?.putBoolean("isPhotoMediaDialogVisible", true)
+        }
+
+        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
+            outState?.putBoolean("isVideoMediaDialogVisible", true)
+        }
+
+        if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
+            outState?.putBoolean("isMediaUploadDialogVisible", true)
         }
     }
 
@@ -278,7 +367,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         return true
     }
 
-    override fun onCameraPhotoMediaOptionSelected() {
+    fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
@@ -294,7 +383,7 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onCameraVideoMediaOptionSelected() {
+    fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
 
@@ -304,15 +393,15 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onGalleryMediaOptionSelected() {
+    fun onGalleryMediaOptionSelected() {
         Toast.makeText(this, "Launch gallery", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onPhotoLibraryMediaOptionSelected() {
+    fun onPhotoLibraryMediaOptionSelected() {
         Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onPhotosMediaOptionSelected() {
+    fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent: Intent
 
@@ -334,11 +423,11 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
     }
 
-    override fun onVideoLibraryMediaOptionSelected() {
+    fun onVideoLibraryMediaOptionSelected() {
         Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onVideosMediaOptionSelected() {
+    fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
             val intent: Intent
 
@@ -430,5 +519,114 @@ class MainActivity : AppCompatActivity(), OnMediaOptionSelectedListener, OnReque
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onToolbarHtmlModeClicked() {
+        val uploadingPredicate = object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getIndex("uploading") > -1
+            }
+        }
+
+        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).size > 0
+
+        if (mediaPending) {
+            ToastUtils.showToast(this, R.string.media_upload_dialog_message)
+        } else {
+            formattingToolbar.toggleEditorMode()
+        }
+    }
+
+    override fun onToolbarAddMediaClicked() {
+        mediaMenu = PopupMenu(this, formattingToolbar)
+        mediaMenu?.setOnMenuItemClickListener(this)
+        mediaMenu?.inflate(R.menu.media)
+        mediaMenu?.show()
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        item?.isChecked = (item?.isChecked == false)
+
+        when (item?.itemId) {
+            org.wordpress.aztec.R.id.gallery -> {
+                onGalleryMediaOptionSelected()
+                return true
+            }
+            org.wordpress.aztec.R.id.photo -> {
+                showPhotoMediaDialog()
+                return true
+            }
+            org.wordpress.aztec.R.id.video -> {
+                showVideoMediaDialog()
+                return true
+            }
+            else -> return false
+        }
+    }
+
+    private fun showMediaUploadDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(getString(org.wordpress.aztec.R.string.media_upload_dialog_message))
+        builder.setPositiveButton(getString(org.wordpress.aztec.R.string.media_upload_dialog_positive), null)
+        mediaUploadDialog = builder.create()
+        mediaUploadDialog!!.show()
+    }
+
+    private fun showPhotoMediaDialog() {
+        val dialog = layoutInflater.inflate(R.layout.dialog_photo_media, null)
+
+        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        camera.setOnClickListener({
+            onCameraPhotoMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val photos = dialog.findViewById(org.wordpress.aztec.R.id.media_photos)
+        photos.setOnClickListener({
+            onPhotosMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        library.setOnClickListener({
+            onPhotoLibraryMediaOptionSelected()
+            addPhotoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialog)
+        addPhotoMediaDialog = builder.create()
+        addPhotoMediaDialog!!.show()
+    }
+
+    private fun showVideoMediaDialog() {
+        val dialog = layoutInflater.inflate(org.wordpress.aztec.R.layout.dialog_video_media, null)
+
+        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        camera.setOnClickListener({
+            onCameraVideoMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val videos = dialog.findViewById(org.wordpress.aztec.R.id.media_videos)
+        videos.setOnClickListener({
+            onVideosMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        library.setOnClickListener({
+            onVideoLibraryMediaOptionSelected()
+            addVideoMediaDialog?.dismiss()
+        })
+
+        val builder = AlertDialog.Builder(this)
+        builder.setView(dialog)
+        addVideoMediaDialog = builder.create()
+        addVideoMediaDialog!!.show()
+    }
+
+    override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {
+        ToastUtils.showToast(this, "Media tapped!")
     }
 }

@@ -22,27 +22,25 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
 import android.text.style.ParagraphStyle;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.AztecText.OnMediaTappedListener;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecContentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecHeadingSpan;
-import org.wordpress.aztec.spans.AztecListSpan;
 import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
 import org.wordpress.aztec.spans.AztecStyleSpan;
@@ -91,6 +89,7 @@ public class Html {
         void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth);
 
         interface Callbacks {
+            void onUseDefaultImage();
             void onImageLoaded(Drawable drawable);
             void onImageLoadingFailed();
         }
@@ -105,7 +104,8 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        boolean handleTag(boolean opening, String tag, Editable output, Context context, Attributes attributes);
+        boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
+                Context context, Attributes attributes);
     }
 
     private Html() {
@@ -119,8 +119,8 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, Context context) {
-        return fromHtml(source, null, context);
+    public static Spanned fromHtml(String source, OnMediaTappedListener onMediaTappedListener, Context context) {
+        return fromHtml(source, null, onMediaTappedListener, context);
     }
 
     /**
@@ -141,7 +141,8 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, TagHandler tagHandler, Context context) {
+    public static Spanned fromHtml(String source, TagHandler tagHandler, OnMediaTappedListener onMediaTappedListener,
+            Context context) {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -156,7 +157,7 @@ public class Html {
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, tagHandler,
-                        parser, context);
+                        parser, onMediaTappedListener, context);
         return converter.convert();
     }
 
@@ -448,15 +449,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
+    private OnMediaTappedListener onMediaTappedListener;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, Context context) {
+            Parser parser, OnMediaTappedListener onMediaTappedListener, Context context) {
         mSource = source;
         spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         mReader = parser;
         this.context = context;
+        this.onMediaTappedListener = onMediaTappedListener;
     }
 
     public Spanned convert() {
@@ -548,7 +551,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, new Code(attributes));
         } else {
             if (tagHandler != null) {
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, context, attributes);
+                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
+                        context, attributes);
                 if (tagHandled) {
                     return;
                 }
@@ -617,7 +621,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, context, null);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null);
         }
     }
 
@@ -747,6 +751,27 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
+//<<<<<<< HEAD
+//    private static void startImg(final SpannableStringBuilder text,
+//                                 Attributes attributes, final OnMediaTappedListener onMediaTappedListener,
+//                                 final Context context) {
+//        final int start = text.length();
+//
+//        // TODO: we should some placeholder drawable while loading imges
+//        Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
+//        final AztecMediaSpan imageSpan = new AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener);
+//
+//        text.append("\uFFFC");
+//        text.setSpan(imageSpan, start, text.length(),
+//                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        text.setSpan(
+//                new AztecMediaClickableSpan(imageSpan),
+//                start,
+//                text.length(),
+//                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//    }
+//=======
+//>>>>>>> develop
 
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();

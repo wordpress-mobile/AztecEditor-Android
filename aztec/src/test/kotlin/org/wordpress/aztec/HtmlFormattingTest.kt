@@ -86,7 +86,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatNestedHtml() {
         val input = HTML_NESTED
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, null, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         Assert.assertEquals(input, output)
     }
@@ -100,7 +100,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatLineBreaks() {
         val input = HTML_LINE_BREAKS
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, null, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         Assert.assertEquals(input, output)
     }
@@ -114,7 +114,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatMixedHtml() {
         val input = HTML_MIXED
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, null, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_MIXED_NO_WS, output)
     }

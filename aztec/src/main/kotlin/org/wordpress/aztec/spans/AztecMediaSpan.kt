@@ -3,89 +3,182 @@ package org.wordpress.aztec.spans
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
+import android.view.Gravity
 import android.view.View
-import android.widget.Toast
-import org.wordpress.android.util.DisplayUtils
 
-class AztecMediaSpan @JvmOverloads constructor(val context: Context?, private var image: Drawable?, val source: String, attributes: String = "") : DynamicDrawableSpan()  {
-    var attributes: String = ""
+import org.wordpress.android.util.DisplayUtils
+import org.wordpress.aztec.AztecText.OnMediaTappedListener
+import org.xml.sax.Attributes
+import java.util.*
+
+class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
+        var attributes: Attributes?, val onMediaTappedListener: OnMediaTappedListener?) : DynamicDrawableSpan() {
+
     private val TAG: String = "img"
 
-    init {
-        if (attributes.isEmpty()) {
-            this.attributes = " src=\"$source\""
-        } else {
-            this.attributes = attributes
+    companion object {
+        @JvmStatic private fun setBoundsToPx(context: Context, drawable: Drawable?) {
+            drawable?.let {
+                if (it.intrinsicWidth < 0 && it.intrinsicHeight < 0) {
+                    // client may have set the bounds manually so, use those to adjust to px
+                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.bounds.width())),
+                            DisplayUtils.dpToPx(context, (it.bounds.height())))
+                } else {
+                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.intrinsicWidth)),
+                            DisplayUtils.dpToPx(context, (it.intrinsicHeight)))
+                }
+
+                val maxWidth = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
+                if (drawable.bounds.width() > maxWidth) {
+                    drawable.setBounds(0, 0, maxWidth, maxWidth * drawable.bounds.height() / drawable.bounds.width())
+                }
+            }
         }
 
-        setBounds(image)
+        @JvmStatic private fun getWidth(drawable: Drawable?): Int {
+            drawable?.let {
+                if (it.intrinsicWidth < 0) {
+                    // client may have set the bounds manually so, use those to adjust to px
+                    return it.bounds.width()
+                } else {
+                    return it.intrinsicWidth
+                }
+            }
+
+            return 0
+        }
+
+        @JvmStatic private fun getHeight(drawable: Drawable?): Int {
+            drawable?.let {
+                if (it.intrinsicHeight < 0) {
+                    // client may have set the bounds manually so, use those to adjust to px
+                    return it.bounds.height()
+                } else {
+                    return it.intrinsicHeight
+                }
+            }
+
+            return 0
+        }
+    }
+
+    private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
+
+    init {
+        setBoundsToPx(context, drawable)
+    }
+
+    override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
+        val width1 = drawable?.bounds?.width() ?: 0
+        var width: Int = width1
+
+        overlays.forEach {
+            val width2 = it.first?.bounds?.width() ?: 0
+            width = if (width1 > width2) width1 else width2
+        }
+
+        drawable?.let {
+            if (metrics != null) {
+                metrics.ascent = -drawable!!.bounds!!.height()
+                metrics.descent = 0
+
+                metrics.top = metrics.ascent
+                metrics.bottom = 0
+            }
+        }
+
+        return width
+    }
+
+    override fun getDrawable(): Drawable? {
+        return drawable
+    }
+
+    fun setDrawable(newDrawable: Drawable?) {
+        setBoundsToPx(context, newDrawable)
+        drawable = newDrawable
+    }
+
+    fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
+        if (overlays.lastIndex >= index) {
+            overlays.removeAt(index)
+        }
+
+        if (newDrawable != null) {
+            setBoundsToPx(context, newDrawable)
+            applyOverlayGravity(newDrawable, gravity)
+
+            overlays.ensureCapacity(index + 1)
+            overlays.add(index, Pair(newDrawable, gravity))
+        }
+    }
+
+    fun clearOverlays() {
+        overlays.clear()
+    }
+
+    fun setOverayLevel(index: Int, level: Int): Boolean {
+        return overlays[index].first?.setLevel(level) ?: false
+    }
+
+    private fun applyOverlayGravity(overlay: Drawable?, gravity: Int) {
+        if (drawable != null && overlay != null) {
+            val rect = Rect(0, 0, drawable!!.bounds.width(), drawable!!.bounds.height())
+            val outRect = Rect()
+
+            Gravity.apply(gravity, overlay.bounds.width(), overlay.bounds.height(), rect, outRect)
+
+            overlay.setBounds(outRect.left, outRect.top, outRect.right, outRect.bottom)
+        }
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-        val drawable = image
         canvas.save()
 
         if (drawable != null) {
-            var transY = bottom - drawable.bounds.bottom
+            var transY = bottom - drawable!!.bounds.bottom
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 
             canvas.translate(x, transY.toFloat())
-            drawable.draw(canvas)
-            canvas.restore()
-        }
-    }
-
-    override fun getDrawable(): Drawable? {
-        return image
-    }
-
-    override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val drawable = image
-        val bounds = drawable?.bounds
-
-        if (metrics != null && bounds != null) {
-            metrics.ascent = -bounds.bottom
-            metrics.descent = 0
-
-            metrics.top = metrics.ascent
-            metrics.bottom = 0
+            drawable!!.draw(canvas)
         }
 
-        return bounds?.right ?: 0
-    }
-
-    private fun setBounds(drawable: Drawable?) {
-        if (drawable != null && context != null) {
-            /*
-            * Account for device density by getting width from DisplayUtils.dpToPx.  In other words,
-            * a 300px image becomes 300dp.
-            *
-            * Following Android guidelines for keylines and spacing, screen edge margins should be
-            * 16dp.  Therefore, the width of images should be the width of the screen minus 16dp on
-            * both sides (i.e. 16 * 2 = 32).
-            *
-            * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
-            */
-            val width = Math.min(DisplayUtils.dpToPx(context, drawable.intrinsicWidth), DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32))
-            val height = drawable.intrinsicHeight * width / drawable.intrinsicWidth
-            drawable.setBounds(0, 0, width, height)
+        overlays.forEach {
+            it.first?.draw(canvas)
         }
+
+        canvas.restore()
     }
 
     fun getHtml(): String {
-        return "<$TAG$attributes />"
+        val sb = StringBuilder()
+        sb.append("<")
+        sb.append(TAG)
+
+        attributes?.let {
+            for (i in 0..attributes!!.length-1) {
+                sb.append(' ')
+                sb.append(attributes!!.getLocalName(i))
+                sb.append("=\"")
+                sb.append(attributes!!.getValue(i))
+                sb.append("\"")
+            }
+        }
+
+        sb.append("/>")
+        return sb.toString()
     }
 
     fun onClick(view: View) {
-        Toast.makeText(view.context, source, Toast.LENGTH_SHORT).show()
+        onMediaTappedListener?.mediaTapped(attributes, getWidth(drawable), getHeight(drawable))
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
-        image = newDrawable
-        setBounds(image)
+    fun getSource(): String {
+        return attributes?.getValue("src") ?: ""
     }
 }

@@ -27,7 +27,6 @@ import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.*
-import android.text.style.ImageSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
@@ -48,6 +47,7 @@ import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
+import org.xml.sax.Attributes
 import java.util.*
 
 
@@ -62,6 +62,8 @@ class AztecText : EditText, TextWatcher {
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
 
     private var onImeBackListener: OnImeBackListener? = null
+
+    private var onMediaTappedListener: OnMediaTappedListener? = null
 
     private var isViewInitialized = false
     private var previousCursorPosition = 0
@@ -89,6 +91,9 @@ class AztecText : EditText, TextWatcher {
         fun onImeBack()
     }
 
+    interface OnMediaTappedListener {
+        fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int)
+    }
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -300,6 +305,10 @@ class AztecText : EditText, TextWatcher {
 
     fun setOnImeBackListener(listener: OnImeBackListener) {
         this.onImeBackListener = listener
+    }
+
+    fun setOnMediaTappedListener(listener: OnMediaTappedListener) {
+        this.onMediaTappedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -559,7 +568,7 @@ class AztecText : EditText, TextWatcher {
 
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), context))
+        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)
@@ -576,6 +585,10 @@ class AztecText : EditText, TextWatcher {
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
+                override fun onUseDefaultImage() {
+                    // we already have a default image loaded so, noop
+                }
+
                 override fun onImageLoaded(drawable: Drawable?) {
                     replaceImage(drawable)
                 }
@@ -586,15 +599,8 @@ class AztecText : EditText, TextWatcher {
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
-                    if (drawable != null) {
-                        val start = text.getSpanStart(it)
-                        val end = text.getSpanEnd(it)
-
-                        if (start == -1 || end == -1) return
-
-                        it.drawable = drawable
-                        refreshText()
-                    }
+                    it.drawable = drawable
+                    refreshText()
                 }
             }
 
@@ -605,8 +611,8 @@ class AztecText : EditText, TextWatcher {
              *
              * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
              */
-            val width = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
-            imageGetter?.loadImage(it.source, callbacks, width)
+            val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
+            imageGetter?.loadImage(it.getSource(), callbacks, width)
         }
     }
 
@@ -773,7 +779,8 @@ class AztecText : EditText, TextWatcher {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), context).trim())
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
+                        context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -888,4 +895,93 @@ class AztecText : EditText, TextWatcher {
         }
     }
 
+    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
+    }
+
+    fun removeMedia(attributePredicate: AttributePredicate) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    val start = text.getSpanStart(it)
+                    val end = text.getSpanEnd(it)
+
+                    val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+                    text.removeSpan(clickableSpan)
+                    text.removeSpan(it)
+
+                    text.delete(start, end)
+                }
+            }
+        }
+    }
+
+    interface AttributePredicate {
+        /**
+         * Return true if the attributes list fulfills some condition
+         */
+        fun matches(attrs: Attributes): Boolean
+    }
+
+    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attrs: Attributes) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    it.setOverayLevel(index, level)
+                    it.attributes = attrs
+                }
+            }
+        }
+    }
+
+    fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
+                   attributes: Attributes?) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    // set the new overlay drawable
+                    it.setOverlay(index, overlay, gravity)
+
+                    if (attributes != null) {
+                        it.attributes = attributes
+                    }
+
+                    invalidate()
+                }
+            }
+        }
+    }
+
+    fun clearOverlays(attributePredicate: AttributePredicate, attributes: Attributes?) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+            if (it.attributes != null) {
+                if (attributePredicate.matches(it.attributes as Attributes)) {
+                    it.clearOverlays()
+
+                    if (attributes != null) {
+                        it.attributes = attributes
+                    }
+
+                    invalidate()
+                }
+            }
+        }
+    }
+
+    fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
+        return getAllMediaAttributes(attributePredicate).firstOrNull()
+    }
+
+    fun getAllMediaAttributes(attributePredicate: AttributePredicate): List<Attributes?> {
+        return text
+                .getSpans(0, text.length, AztecMediaSpan::class.java)
+                .filter {
+                    if (it.attributes != null) {
+                        return@filter attributePredicate.matches(it.attributes as Attributes)
+                    } else {
+                        return@filter false
+                    }}
+                .map { it.attributes }
+    }
 }

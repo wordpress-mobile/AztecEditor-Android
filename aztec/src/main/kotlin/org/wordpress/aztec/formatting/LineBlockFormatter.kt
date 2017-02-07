@@ -5,10 +5,12 @@ import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
+import org.xml.sax.Attributes
 import java.util.*
 
 
@@ -269,7 +271,9 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
         editor.setSelection(commentEndIndex + 1)
     }
 
-    fun insertMedia(drawable: Drawable, source: String) {
+    fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
+        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
+        val html = span.getHtml();
 
         val isAddingMediaToEndOfBlockElement = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
                 .any {
@@ -284,20 +288,18 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
         val modifier = if (isAddingMediaToEndOfBlockElement) 1 else 0
 
         val mediaStartIndex = selectionStart - modifier
-        val mediaEndIndex = selectionStart + source.length - modifier
+        val mediaEndIndex = selectionStart + html.length - modifier
 
         if (!isAddingMediaToEndOfBlockElement)
             editor.disableTextChangedListener()
 
-        editableText.replace(selectionStart, selectionEnd, source)
+        editableText.replace(selectionStart, selectionEnd, html)
 
         if (spanAtStartOfWhichMediaIsAdded != null) {
             editableText.setSpan(spanAtStartOfWhichMediaIsAdded, mediaStartIndex, editableText.getSpanEnd(spanAtStartOfWhichMediaIsAdded), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
-
-        val span = AztecMediaSpan(editor.context, drawable, source)
 
         editableText.setSpan(
                 span,

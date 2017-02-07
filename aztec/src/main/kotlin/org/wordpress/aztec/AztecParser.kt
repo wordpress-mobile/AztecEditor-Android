@@ -24,7 +24,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
-import android.text.style.ImageSpan
+import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -36,10 +36,10 @@ class AztecParser {
     internal var hiddenSpans: IntArray = IntArray(0)
     internal var spanCursorPosition = -1
 
-    fun fromHtml(source: String, context: Context): Spanned {
+    fun fromHtml(source: String, onMediaTappedListener: OnMediaTappedListener?, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), context))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), onMediaTappedListener, context))
 
         addZwjCharToBlockSpans(spanned)
         adjustNestedSpanOrder(spanned)
@@ -382,7 +382,7 @@ class AztecParser {
             i = next
         }
     }
-  
+
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
         var next: Int
 

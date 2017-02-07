@@ -779,7 +779,7 @@ class AztecText : EditText, TextWatcher {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()),onMediaTappedListener,
+                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
                         context).trim())
                 Selection.setSelection(editable, max)
 

@@ -403,7 +403,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
                 }
             }
 
-            return editableText.subSequence(start, end).toString() == builder.toString()
+            val originalText = editableText.subSequence(start, end).replace("\n".toRegex(), "")
+            val textOfCombinedSpans = builder.toString().replace("\n".toRegex(), "")
+
+            return originalText.isNotEmpty() && originalText == textOfCombinedSpans
         }
     }
 }

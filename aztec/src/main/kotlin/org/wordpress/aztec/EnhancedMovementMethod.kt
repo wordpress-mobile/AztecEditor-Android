@@ -1,9 +1,11 @@
 package org.wordpress.aztec
 
+import android.graphics.Rect
 import android.text.Selection
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.TextView
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
@@ -30,17 +32,25 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
+            val charRight = layout.getPrimaryHorizontal(off)
+            val charLeft = layout.getPrimaryHorizontal(off - 1)
 
-            // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.
-            if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
-                if (action == MotionEvent.ACTION_UP) {
-                    link.onClick(widget)
-                } else {
-                    Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
+            val lineRect = Rect()
+            layout.getLineBounds(line, lineRect)
+
+            if (x >= charLeft && x <= charRight && y >= lineRect.top && y <= lineRect.bottom) {
+                val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
+
+                // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.
+                if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
+                    if (action == MotionEvent.ACTION_UP) {
+                        link.onClick(widget)
+                    } else {
+                        Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
+                    }
+
+                    return true
                 }
-
-                return true
             }
         }
 

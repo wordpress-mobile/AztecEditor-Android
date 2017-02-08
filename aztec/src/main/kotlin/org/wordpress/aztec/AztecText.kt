@@ -174,6 +174,7 @@ class AztecText : EditText, TextWatcher {
             var consumeKeyEvent = false
             history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
+                inlineFormatter.tryRemoveLeadingInlineStyle()
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
@@ -514,8 +515,8 @@ class AztecText : EditText, TextWatcher {
         }
 
         val newLine = textChangedEventDetails.isNewLine()
-        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         inlineFormatter.handleInlineStyling(textChangedEventDetails)
+        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
         lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
@@ -876,6 +877,8 @@ class AztecText : EditText, TextWatcher {
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
                 history.beforeTextChanged(toFormattedHtml())
+
+                inlineFormatter.tryRemoveLeadingInlineStyle()
                 val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
@@ -981,7 +984,8 @@ class AztecText : EditText, TextWatcher {
                         return@filter attributePredicate.matches(it.attributes as Attributes)
                     } else {
                         return@filter false
-                    }}
+                    }
+                }
                 .map { it.attributes }
     }
 }

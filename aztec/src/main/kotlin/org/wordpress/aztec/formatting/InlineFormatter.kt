@@ -409,4 +409,17 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
             return originalText.isNotEmpty() && originalText == textOfCombinedSpans
         }
     }
+
+    fun tryRemoveLeadingInlineStyle() {
+        val selectionStart = editor.selectionStart
+        val selectionEnd = editor.selectionEnd
+
+        if (selectionStart == 1 && selectionEnd == selectionStart) {
+            editableText.getSpans(0, 0, AztecInlineSpan::class.java).forEach {
+                if (editableText.getSpanEnd(it) == selectionEnd && editableText.getSpanEnd(it) == selectionStart) {
+                    editableText.removeSpan(it)
+                }
+            }
+        }
+    }
 }

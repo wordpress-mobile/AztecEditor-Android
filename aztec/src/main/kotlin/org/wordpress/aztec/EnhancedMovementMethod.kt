@@ -32,13 +32,17 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            val charRight = layout.getPrimaryHorizontal(off)
-            val charLeft = layout.getPrimaryHorizontal(off - 1)
+            // get the character's position. This may be the left or the right edge of the character so, find the
+            //  other edge by inspecting nearby characters (if they exist)
+            val charX = layout.getPrimaryHorizontal(off)
+            val charPrevX = if (off > 0) layout.getPrimaryHorizontal(off - 1) else charX
+            val charNextX = if (off < text.length) layout.getPrimaryHorizontal(off + 1) else charX
 
             val lineRect = Rect()
             layout.getLineBounds(line, lineRect)
 
-            if (x >= charLeft && x <= charRight && y >= lineRect.top && y <= lineRect.bottom) {
+            if (((x >= charPrevX && x <= charX) || (x >= charX && x <= charNextX))
+                    && y >= lineRect.top && y <= lineRect.bottom) {
                 val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
 
                 // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.

@@ -548,11 +548,13 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 val spans = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecLineBlockSpan::class.java)
 
                 spans.forEach {
-                    val previousCharacter =
-                            if (textChangedEvent.isAddingCharacters) editableText[textChangedEvent.inputStart - 1]
-                            else editableText[textChangedEvent.inputEnd]
+                    if (textChangedEvent.inputStart > 0) {
+                        val previousCharacter =
+                                if (textChangedEvent.isAddingCharacters) editableText[textChangedEvent.inputStart - 1]
+                                else editableText[textChangedEvent.inputEnd]
 
-                    if (previousCharacter == '\n') return@forEach
+                        if (previousCharacter == '\n') return@forEach
+                    }
 
                     val deletingLastCharacter = !textChangedEvent.isAddingCharacters && editableText.length == textChangedEvent.inputEnd
                     if (deletingLastCharacter) return@forEach

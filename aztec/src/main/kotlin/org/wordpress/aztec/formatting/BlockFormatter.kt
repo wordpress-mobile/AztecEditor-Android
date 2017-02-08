@@ -245,6 +245,14 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
+
+        //remove inline styles from the ZWJ characters we inserted
+        var indexOfZWJ = editableText.indexOf(Constants.ZWJ_CHAR)
+        while (indexOfZWJ >= 0) {
+            editor.removeInlineStylesFromRange(indexOfZWJ, indexOfZWJ + 1)
+            indexOfZWJ = editableText.indexOf(Constants.ZWJ_CHAR, indexOfZWJ + 1)
+        }
+
     }
 
     fun removeBlockStyle(textFormat: TextFormat) {

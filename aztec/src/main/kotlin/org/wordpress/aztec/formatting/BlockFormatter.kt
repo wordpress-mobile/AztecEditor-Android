@@ -245,6 +245,14 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
+
+        //remove inline styles from the ZWJ characters we inserted
+        var indexOfZWJ = editableText.indexOf(Constants.ZWJ_CHAR)
+        while (indexOfZWJ >= 0) {
+            editor.removeInlineStylesFromRange(indexOfZWJ, indexOfZWJ + 1)
+            indexOfZWJ = editableText.indexOf(Constants.ZWJ_CHAR, indexOfZWJ + 1)
+        }
+
     }
 
     fun removeBlockStyle(textFormat: TextFormat) {
@@ -540,11 +548,13 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 val spans = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputStart, AztecLineBlockSpan::class.java)
 
                 spans.forEach {
-                    val previousCharacter =
-                            if (textChangedEvent.isAddingCharacters) editableText[textChangedEvent.inputStart - 1]
-                            else editableText[textChangedEvent.inputEnd]
+                    if (textChangedEvent.inputStart > 0) {
+                        val previousCharacter =
+                                if (textChangedEvent.isAddingCharacters) editableText[textChangedEvent.inputStart - 1]
+                                else editableText[textChangedEvent.inputEnd]
 
-                    if (previousCharacter == '\n') return@forEach
+                        if (previousCharacter == '\n') return@forEach
+                    }
 
                     val deletingLastCharacter = !textChangedEvent.isAddingCharacters && editableText.length == textChangedEvent.inputEnd
                     if (deletingLastCharacter) return@forEach

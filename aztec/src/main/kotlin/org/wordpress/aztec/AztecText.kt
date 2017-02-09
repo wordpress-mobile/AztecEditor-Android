@@ -52,7 +52,30 @@ import org.xml.sax.Attributes
 import java.util.*
 
 
+val s = "retainedBlockHtml"
+
 class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+
+    companion object {
+        val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
+        val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
+        val BLOCK_DIALOG_VISIBLE_KEY = "BLOCK_DIALOG_VISIBLE_KEY"
+
+        val LINK_DIALOG_VISIBLE_KEY = "LINK_DIALOG_VISIBLE_KEY"
+        val LINK_DIALOG_URL_KEY = "LINK_DIALOG_URL_KEY"
+        val LINK_DIALOG_ANCHOR_KEY = "LINK_DIALOG_ANCHOR_KEY"
+
+        val HISTORY_LIST_KEY = "HISTORY_LIST_KEY"
+        val HISTORY_CURSOR_KEY = "HISTORY_CURSOR_KEY"
+
+        val SELECTION_START_KEY = "SELECTION_START_KEY"
+        val SELECTION_END_KEY = "SELECTION_END_KEY"
+
+        val INPUT_LAST_KEY = "INPUT_LAST_KEY"
+        val VISIBILITY_KEY = "VISIBILITY_KEY"
+        val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
+        val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
+    }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
@@ -68,6 +91,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     private var isViewInitialized = false
     private var previousCursorPosition = 0
+
+    private var unknownBlockSpanStart = -1
 
     val selectedStyles = ArrayList<TextFormat>()
 
@@ -209,62 +234,84 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
-        val array = ArrayList(customState.getStringArrayList("historyList"))
+        val array = ArrayList(customState.getStringArrayList(HISTORY_LIST_KEY))
         val list = LinkedList<String>()
 
         list += array
 
         history.historyList = list
-        history.historyCursor = customState.getInt("historyCursor")
-        history.inputLast = customState.getString("inputLast")
-        visibility = customState.getInt("visibility")
+        history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
+        history.inputLast = customState.getString(INPUT_LAST_KEY)
+        visibility = customState.getInt(VISIBILITY_KEY)
 
-        val retainedHtml = customState.getString("retained_html")
+        val retainedHtml = customState.getString(RETAINED_HTML_KEY)
         fromHtml(retainedHtml)
 
-        val retainedSelectionStart = customState.getInt("selection_start")
-        val retainedSelectionEnd = customState.getInt("selection_end")
+        val retainedSelectionStart = customState.getInt(SELECTION_START_KEY)
+        val retainedSelectionEnd = customState.getInt(SELECTION_END_KEY)
 
         if (retainedSelectionEnd < editableText.length) {
             setSelection(retainedSelectionStart, retainedSelectionEnd)
         }
 
 
-        val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
-
-        if (isDialogVisible) {
-            val retainedUrl = customState.getString("retainedUrl", "")
-            val retainedAnchor = customState.getString("retainedAnchor", "")
+        val isLinkDialogVisible = customState.getBoolean(LINK_DIALOG_VISIBLE_KEY, false)
+        if (isLinkDialogVisible) {
+            val retainedUrl = customState.getString(LINK_DIALOG_URL_KEY, "")
+            val retainedAnchor = customState.getString(LINK_DIALOG_ANCHOR_KEY, "")
 
             showLinkDialog(retainedUrl, retainedAnchor)
         }
 
-        isMediaAdded = customState.getBoolean("isMediaAdded")
+        val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
+        if (isBlockEditorDialogVisible) {
+
+            val retainedBlockHtmlIndex = customState.getInt(BLOCK_EDITOR_START_INDEX_KEY, -1)
+            if (retainedBlockHtmlIndex != -1) {
+
+                val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
+                if (unknownSpan != null) {
+
+                    val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
+                    showBlockEditorDialog(unknownSpan, retainedBlockHtml)
+                }
+            }
+        }
+
+        isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
     }
 
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
-        bundle.putStringArrayList("historyList", ArrayList<String>(history.historyList))
-        bundle.putInt("historyCursor", history.historyCursor)
-        bundle.putString("inputLast", history.inputLast)
-        bundle.putInt("visibility", visibility)
-        bundle.putString("retained_html", toHtml(false))
-        bundle.putInt("selection_start", selectionStart)
-        bundle.putInt("selection_end", selectionEnd)
+        bundle.putStringArrayList(HISTORY_LIST_KEY, ArrayList<String>(history.historyList))
+        bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
+        bundle.putString(INPUT_LAST_KEY, history.inputLast)
+        bundle.putInt(VISIBILITY_KEY, visibility)
+        bundle.putString(RETAINED_HTML_KEY, toHtml(false))
+        bundle.putInt(SELECTION_START_KEY, selectionStart)
+        bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
-            bundle.putBoolean("isUrlDialogVisible", true)
+            bundle.putBoolean(LINK_DIALOG_VISIBLE_KEY, true)
 
             val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
             val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
 
-            bundle.putString("retainedUrl", urlInput.text.toString())
-            bundle.putString("retainedAnchor", anchorInput.text.toString())
+            bundle.putString(LINK_DIALOG_URL_KEY, urlInput.text.toString())
+            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput.text.toString())
         }
 
-        bundle.putBoolean("isMediaAdded", isMediaAdded)
+        if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
+            val source = blockEditorDialog!!.findViewById(R.id.source) as SourceViewEditText
+
+            bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
+            bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
+            bundle.putString(BLOCK_EDITOR_HTML_KEY, source.getPureHtml(false))
+        }
+
+        bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
         savedState.state = bundle
         return savedState
@@ -867,12 +914,18 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         addLinkDialog!!.show()
     }
 
-    fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan) {
+    fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
         val builder = AlertDialog.Builder(context)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
         val source = dialogView.findViewById(R.id.source) as SourceViewEditText
-        source.displayStyledAndFormattedHtml(unknownHtmlSpan.rawHtml.toString())
+
+        var editHtml = html
+        if (TextUtils.isEmpty(editHtml)) {
+            editHtml = unknownHtmlSpan.rawHtml.toString()
+        }
+
+        source.displayStyledAndFormattedHtml(editHtml)
 
         builder.setView(dialogView)
 
@@ -885,6 +938,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             dialogInterface.dismiss()
         })
 
+        source.requestFocus()
+        source.setSelection(0)
+
+        unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
         blockEditorDialog!!.show()
     }

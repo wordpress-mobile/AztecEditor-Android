@@ -27,10 +27,12 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
+import org.wordpress.aztec.toolbar.ToolbarAction
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
@@ -74,24 +76,24 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EMOJI = "aaa&#x1F44D;&#x2764;ccc"
-        private val EXAMPLE =
-                IMG +
-                HEADING +
-                BOLD +
-                ITALIC +
-                UNDERLINE +
-                STRIKETHROUGH +
-                ORDERED +
-                UNORDERED +
-                QUOTE +
-                LINK +
-                HIDDEN +
-                COMMENT +
-                COMMENT_MORE +
-                COMMENT_PAGE +
-                CODE +
-                UNKNOWN +
-                EMOJI
+        private val EXAMPLE = "Bold<br>Italic<br>Strike<br>Underline<br>"
+//                IMG +
+//                HEADING +
+//                BOLD +
+//                ITALIC +
+//                UNDERLINE +
+//                STRIKETHROUGH +
+//                ORDERED +
+//                UNORDERED +
+//                QUOTE +
+//                LINK +
+//                HIDDEN +
+//                COMMENT +
+//                COMMENT_MORE +
+//                COMMENT_PAGE +
+//                CODE +
+//                UNKNOWN +
+//                EMOJI
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001
@@ -140,6 +142,144 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         }
 
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_1 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_2 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_3 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_3)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_4 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_4)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_5 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_5)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_6 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
+                    aztec.toggleFormatting(TextFormat.FORMAT_HEADING_6)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_7 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
+                    aztec.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_8 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Preformatted = Alt + Ctrl + 8
+//                    TODO: Add Preformatted format.
+//                    aztec.toggleFormatting(TextFormat.FORMAT_PREFORMATTED)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_B -> {
+                if (event.isCtrlPressed) { // Bold = Ctrl + B
+                    formattingToolbar.findViewById(ToolbarAction.BOLD.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_D -> {
+                if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
+                    formattingToolbar.findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_I -> {
+                if (event.isCtrlPressed) { // Italic = Ctrl + I
+                    formattingToolbar.findViewById(ToolbarAction.ITALIC.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_K -> {
+                if (event.isCtrlPressed) { // Link = Ctrl + K
+                    formattingToolbar.findViewById(ToolbarAction.LINK.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_M -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
+                    formattingToolbar.findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_O -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
+                    formattingToolbar.findViewById(ToolbarAction.ORDERED_LIST.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_P -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Page Break = Alt + Ctrl + P
+                    formattingToolbar.findViewById(ToolbarAction.PAGE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Q -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
+                    formattingToolbar.findViewById(ToolbarAction.QUOTE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_T -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Read More = Alt + Ctrl + T
+                    formattingToolbar.findViewById(ToolbarAction.MORE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_U -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
+                    formattingToolbar.findViewById(ToolbarAction.UNORDERED_LIST.buttonId).performClick()
+                    return true
+                } else if (event.isCtrlPressed) { // Underline = Ctrl + U
+                    formattingToolbar.findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_X -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Code = Alt + Ctrl + X
+//                    TODO: Add Code action.
+//                    formattingToolbar.findViewById(ToolbarAction.CODE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Y -> {
+                if (event.isCtrlPressed) { // Redo  = Ctrl + Y
+                    aztec.redo()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Z -> {
+                if (event.isCtrlPressed) { // Undo  = Ctrl + Z
+                    aztec.undo()
+                    return true
+                }
+            }
+        }
+
+        return super.onKeyUp(keyCode, event)
     }
 
     fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {

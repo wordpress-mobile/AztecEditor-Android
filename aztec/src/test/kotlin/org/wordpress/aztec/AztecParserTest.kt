@@ -437,7 +437,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlMore_isEqual() {
         val input = HTML_MORE
-        val span = SpannableString(mParser.fromHtml(input, null,, RuntimeEnvironment.application.applicationContext))
+        val span = SpannableString(mParser.fromHtml(input, null, null, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
@@ -452,7 +452,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlPage_isEqual() {
         val input = HTML_PAGE
-        val span = SpannableString(mParser.fromHtml(input, null,, RuntimeEnvironment.application.applicationContext))
+        val span = SpannableString(mParser.fromHtml(input, null, null, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }

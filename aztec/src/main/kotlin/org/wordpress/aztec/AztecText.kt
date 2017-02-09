@@ -51,9 +51,6 @@ import org.wordpress.aztec.util.TypefaceCache
 import org.xml.sax.Attributes
 import java.util.*
 
-
-val s = "retainedBlockHtml"
-
 class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
     companion object {

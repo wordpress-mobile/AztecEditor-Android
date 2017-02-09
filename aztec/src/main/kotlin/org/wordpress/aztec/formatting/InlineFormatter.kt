@@ -36,10 +36,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
     }
 
     fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINED)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINED)
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINED)
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
         }
     }
 
@@ -356,7 +356,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }

@@ -613,7 +613,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("a")) {
             end(spannableStringBuilder, TextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_UNDERLINED);
+            end(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE);
         } else if (tag.equalsIgnoreCase("sup")) {
             end(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
@@ -678,7 +678,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
                 }
                 break;
-            case FORMAT_UNDERLINED:
+            case FORMAT_UNDERLINE:
                 marker = (AttributedMarker) getLast(text, Underline.class);
                 if (marker != null) {
                     newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());

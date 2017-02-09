@@ -119,8 +119,9 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, OnMediaTappedListener onMediaTappedListener, Context context) {
-        return fromHtml(source, null, onMediaTappedListener, context);
+    public static Spanned fromHtml(String source, OnMediaTappedListener onMediaTappedListener,
+                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
+        return fromHtml(source, null, onMediaTappedListener, onUnknownHtmlClickListener, context);
     }
 
     /**
@@ -142,7 +143,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler, OnMediaTappedListener onMediaTappedListener,
-            Context context) {
+                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -157,7 +158,7 @@ public class Html {
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, tagHandler,
-                        parser, onMediaTappedListener, context);
+                        parser, onMediaTappedListener, onUnknownHtmlClickListener, context);
         return converter.convert();
     }
 
@@ -445,6 +446,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     };
 
     private String mSource;
+    private UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener;
     private XMLReader mReader;
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
@@ -453,13 +455,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, OnMediaTappedListener onMediaTappedListener, Context context) {
+            Parser parser, OnMediaTappedListener onMediaTappedListener,
+            UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
         mSource = source;
         spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         mReader = parser;
         this.context = context;
         this.onMediaTappedListener = onMediaTappedListener;
+        this.onUnknownHtmlClickListener = onUnknownHtmlClickListener;
     }
 
     public Spanned convert() {
@@ -583,7 +587,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (unknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
                 spannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(spannableStringBuilder, unknown.rawHtml, context);
+                endUnknown(spannableStringBuilder, unknown.rawHtml, context, onUnknownHtmlClickListener);
             }
             return;
         }
@@ -818,7 +822,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context) {
+    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context,
+                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener) {
         int len = text.length();
         Object obj = getLast(text, Unknown.class);
         int where = text.getSpanStart(obj);
@@ -827,7 +832,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help, onUnknownHtmlClickListener);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);

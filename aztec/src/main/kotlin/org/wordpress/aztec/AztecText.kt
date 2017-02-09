@@ -45,24 +45,25 @@ import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.TypefaceCache
 import org.xml.sax.Attributes
 import java.util.*
 
 
-class AztecText : EditText, TextWatcher {
+class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
     private var addLinkDialog: AlertDialog? = null
+    private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
-
     private var onImeBackListener: OnImeBackListener? = null
-
     private var onMediaTappedListener: OnMediaTappedListener? = null
 
     private var isViewInitialized = false
@@ -197,6 +198,10 @@ class AztecText : EditText, TextWatcher {
         removeTextChangedListener(this)
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             addLinkDialog!!.dismiss()
+        }
+
+        if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
+            blockEditorDialog!!.dismiss()
         }
     }
 
@@ -553,7 +558,7 @@ class AztecText : EditText, TextWatcher {
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = 0
+        var cursorPosition = selectionStart
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
@@ -564,12 +569,9 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun fromHtml(source: String) {
-        disableTextChangedListener()
-        editableText.clear()
-
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, context))
+        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)
@@ -781,7 +783,7 @@ class AztecText : EditText, TextWatcher {
 
                 val builder = SpannableStringBuilder()
                 builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
-                        context).trim())
+                        this, context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -841,9 +843,9 @@ class AztecText : EditText, TextWatcher {
         anchorInput.setText(anchor)
 
         builder.setView(dialogView)
-        builder.setTitle(R.string.dialog_title)
+        builder.setTitle(R.string.link_dialog_title)
 
-        builder.setPositiveButton(R.string.dialog_button_ok, { dialog, which ->
+        builder.setPositiveButton(R.string.link_dialog_button_ok, { dialog, which ->
             val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
@@ -852,12 +854,12 @@ class AztecText : EditText, TextWatcher {
         })
 
         if (linkFormatter.isUrlSelected()) {
-            builder.setNeutralButton(R.string.dialog_button_remove_link, { dialogInterface, i ->
+            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { dialogInterface, i ->
                 removeLink()
             })
         }
 
-        builder.setNegativeButton(R.string.dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, i ->
             dialogInterface.dismiss()
         })
 
@@ -865,6 +867,27 @@ class AztecText : EditText, TextWatcher {
         addLinkDialog!!.show()
     }
 
+    fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan) {
+        val builder = AlertDialog.Builder(context)
+
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
+        val source = dialogView.findViewById(R.id.source) as SourceViewEditText
+        source.displayStyledAndFormattedHtml(unknownHtmlSpan.rawHtml.toString())
+
+        builder.setView(dialogView)
+
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
+            unknownHtmlSpan.rawHtml = StringBuilder(source.getPureHtml())
+            fromHtml(toHtml(false))
+        })
+
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->
+            dialogInterface.dismiss()
+        })
+
+        blockEditorDialog = builder.create()
+        blockEditorDialog!!.show()
+    }
 
     //Custom input connection is used to detect the press of backspace when no characters are deleted
     //(eg. at 0 index of EditText)
@@ -987,5 +1010,9 @@ class AztecText : EditText, TextWatcher {
                     }
                 }
                 .map { it.attributes }
+    }
+
+    override fun onUnknownHtmlClicked(unknownHtmlSpan: UnknownHtmlSpan) {
+        showBlockEditorDialog(unknownHtmlSpan)
     }
 }

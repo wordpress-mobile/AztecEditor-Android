@@ -36,10 +36,12 @@ class AztecParser {
     internal var hiddenSpans: IntArray = IntArray(0)
     internal var spanCursorPosition = -1
 
-    fun fromHtml(source: String, onMediaTappedListener: OnMediaTappedListener?, context: Context): Spanned {
+    fun fromHtml(source: String, onMediaTappedListener: OnMediaTappedListener?,
+                 onUnknownHtmlClickListener: UnknownHtmlSpan.OnUnknownHtmlClickListener?, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), onMediaTappedListener, context))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
+                onMediaTappedListener, onUnknownHtmlClickListener, context))
 
         addZwjCharToBlockSpans(spanned)
         adjustNestedSpanOrder(spanned)
@@ -265,7 +267,7 @@ class AztecParser {
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {
         consumeCursorIfInInput(out, text, start)
-        out.append(unknownHtmlSpan.getRawHtml())
+        out.append(unknownHtmlSpan.rawHtml)
         consumeCursorIfInInput(out, text, end)
     }
 

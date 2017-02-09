@@ -1,0 +1,1152 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clipToPadding="false"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" >
+
+    <LinearLayout
+        android:clipToPadding="false"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/margin_extra_large"
+        android:paddingTop="@dimen/margin_extra_large" >
+
+        <TextView
+            android:layout_height="@dimen/height_header"
+            android:layout_width="match_parent"
+            android:text="@string/header_edit"
+            style="@style/Shortcut.Header" >
+        </TextView>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_copy"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_copy_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_copy_key_first"
+                android:layout_toStartOf="@+id/shortcut_copy_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_copy"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_copy_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_c"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_copy_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_copy_key_second"
+                android:layout_toStartOf="@+id/shortcut_copy_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_cut"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_cut_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_cut_key_first"
+                android:layout_toStartOf="@+id/shortcut_cut_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_cut"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_cut_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_x"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_cut_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_cut_key_second"
+                android:layout_toStartOf="@+id/shortcut_cut_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_paste"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_paste_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_paste_key_first"
+                android:layout_toStartOf="@+id/shortcut_paste_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_paste"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_paste_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_v"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_paste_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_paste_key_second"
+                android:layout_toStartOf="@+id/shortcut_paste_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_all"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_all_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_all_key_first"
+                android:layout_toStartOf="@+id/shortcut_all_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_all"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_all_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_a"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_all_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_all_key_second"
+                android:layout_toStartOf="@+id/shortcut_all_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_redo"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_redo_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_redo_key_first"
+                android:layout_toStartOf="@+id/shortcut_redo_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_redo"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_redo_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_y"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_redo_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_redo_key_second"
+                android:layout_toStartOf="@+id/shortcut_redo_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_undo"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_undo_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_undo_key_first"
+                android:layout_toStartOf="@+id/shortcut_undo_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_edit_undo"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_undo_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_z"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_undo_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_undo_key_second"
+                android:layout_toStartOf="@+id/shortcut_undo_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_height="@dimen/height_header"
+            android:layout_width="match_parent"
+            android:text="@string/header_format"
+            style="@style/Shortcut.Header" >
+        </TextView>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_bold"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_bold_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_bold_key_first"
+                android:layout_toStartOf="@+id/shortcut_bold_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_bold"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_bold_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_b"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_bold_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_bold_key_second"
+                android:layout_toStartOf="@+id/shortcut_bold_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_italic"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_italic_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_italic_key_first"
+                android:layout_toStartOf="@+id/shortcut_italic_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_italic"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_italic_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_i"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_italic_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_italic_key_second"
+                android:layout_toStartOf="@+id/shortcut_italic_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_strike"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_strike_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_strike_key_first"
+                android:layout_toStartOf="@+id/shortcut_strike_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_strike"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_strike_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_d"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_strike_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_strike_key_second"
+                android:layout_toStartOf="@+id/shortcut_strike_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_underline"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_underline_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_underline_key_first"
+                android:layout_toStartOf="@+id/shortcut_underline_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_underline"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_underline_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_u"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_underline_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_underline_key_second"
+                android:layout_toStartOf="@+id/shortcut_underline_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_1"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_1_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_1_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_1_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_1"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_1_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_1"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_1_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_1_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_1_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_1_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_1_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_1_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_2"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_2_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_2_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_2_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_2"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_2_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_2"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_2_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_2_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_2_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_2_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_2_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_2_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_3"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_3_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_3_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_3_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_3"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_3_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_3"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_3_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_3_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_3_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_3_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_3_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_3_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_4"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_4_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_4_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_4_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_4"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_4_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_4"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_4_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_4_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_4_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_4_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_4_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_4_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_5"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_5_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_5_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_5_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_5"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_5_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_5"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_5_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_5_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_5_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_5_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_5_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_5_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_heading_6"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_heading_6_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_heading_6_key_first"
+                android:layout_toStartOf="@+id/shortcut_heading_6_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_heading_6"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_6_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_6"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_6_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_6_key_third"
+                android:layout_toStartOf="@+id/shortcut_heading_6_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_heading_6_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_heading_6_key_second"
+                android:layout_toStartOf="@+id/shortcut_heading_6_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_paragraph"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_paragraph_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_paragraph_key_first"
+                android:layout_toStartOf="@+id/shortcut_paragraph_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_paragraph"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_paragraph_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_7"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_paragraph_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_paragraph_key_third"
+                android:layout_toStartOf="@+id/shortcut_paragraph_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_paragraph_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_paragraph_key_second"
+                android:layout_toStartOf="@+id/shortcut_paragraph_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_preformatted"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_preformatted_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_preformatted_key_first"
+                android:layout_toStartOf="@+id/shortcut_preformatted_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_preformatted"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_preformatted_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_8"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_preformatted_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_preformatted_key_third"
+                android:layout_toStartOf="@+id/shortcut_preformatted_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_preformatted_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_preformatted_key_second"
+                android:layout_toStartOf="@+id/shortcut_preformatted_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_code"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_code_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_code_key_first"
+                android:layout_toStartOf="@+id/shortcut_code_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_code"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_code_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_x"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_code_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_code_key_third"
+                android:layout_toStartOf="@+id/shortcut_code_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_code_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_code_key_second"
+                android:layout_toStartOf="@+id/shortcut_code_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_quote"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_quote_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_quote_key_first"
+                android:layout_toStartOf="@+id/shortcut_quote_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_quote"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_quote_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_q"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_quote_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_quote_key_third"
+                android:layout_toStartOf="@+id/shortcut_quote_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_quote_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_quote_key_second"
+                android:layout_toStartOf="@+id/shortcut_quote_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_list_ordered"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_list_ordered_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_list_ordered_key_first"
+                android:layout_toStartOf="@+id/shortcut_list_ordered_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_list_ordered"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_ordered_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_o"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_ordered_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_list_ordered_key_third"
+                android:layout_toStartOf="@+id/shortcut_list_ordered_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_ordered_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_list_ordered_key_second"
+                android:layout_toStartOf="@+id/shortcut_list_ordered_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_list_unordered"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_list_unordered_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_list_unordered_key_first"
+                android:layout_toStartOf="@+id/shortcut_list_unordered_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_format_list_unordered"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_unordered_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_u"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_unordered_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_list_unordered_key_third"
+                android:layout_toStartOf="@+id/shortcut_list_unordered_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_list_unordered_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_list_unordered_key_second"
+                android:layout_toStartOf="@+id/shortcut_list_unordered_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_height="@dimen/height_header"
+            android:layout_width="match_parent"
+            android:text="@string/header_insert"
+            style="@style/Shortcut.Header" >
+        </TextView>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_link"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_link_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_link_key_first"
+                android:layout_toStartOf="@+id/shortcut_link_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_insert_link"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_link_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_k"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_link_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_link_key_second"
+                android:layout_toStartOf="@+id/shortcut_link_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_media"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_media_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_media_key_first"
+                android:layout_toStartOf="@+id/shortcut_media_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_insert_media"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_media_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_m"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_media_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_media_key_third"
+                android:layout_toStartOf="@+id/shortcut_media_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_media_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_media_key_second"
+                android:layout_toStartOf="@+id/shortcut_media_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_page"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_page_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_page_key_first"
+                android:layout_toStartOf="@+id/shortcut_page_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_insert_page"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_page_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_p"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_page_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_page_key_third"
+                android:layout_toStartOf="@+id/shortcut_page_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_page_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_page_key_second"
+                android:layout_toStartOf="@+id/shortcut_page_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/shortcut_more"
+            android:layout_height="?android:listPreferredItemHeightSmall"
+            android:layout_width="match_parent"
+            android:layout_marginEnd="@dimen/margin_dialog"
+            android:layout_marginStart="@dimen/margin_dialog" >
+
+            <TextView
+                android:id="@+id/shortcut_more_text"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@+id/shortcut_more_key_first"
+                android:layout_toStartOf="@+id/shortcut_more_key_first"
+                android:layout_width="wrap_content"
+                android:text="@string/item_insert_more"
+                style="@style/Shortcut.Item" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_more_key_third"
+                android:layout_height="@dimen/height_key"
+                android:layout_width="wrap_content"
+                android:text="@string/key_single_t"
+                style="@style/Shortcut.Key.Single" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_more_key_second"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_more_key_third"
+                android:layout_toStartOf="@+id/shortcut_more_key_third"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_ctrl"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/shortcut_more_key_first"
+                android:layout_height="@dimen/height_key"
+                android:layout_toLeftOf="@+id/shortcut_more_key_second"
+                android:layout_toStartOf="@+id/shortcut_more_key_second"
+                android:layout_width="wrap_content"
+                android:text="@string/key_multiple_alt"
+                style="@style/Shortcut.Key.Multiple" >
+            </TextView>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</ScrollView>

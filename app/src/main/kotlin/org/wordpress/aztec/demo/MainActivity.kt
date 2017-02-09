@@ -114,6 +114,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
     private var addPhotoMediaDialog: AlertDialog? = null
     private var addVideoMediaDialog: AlertDialog? = null
     private var mediaUploadDialog: AlertDialog? = null
+    private var dialogShortcuts: AlertDialog? = null
     private var mediaMenu: PopupMenu? = null
 
     private var mIsKeyboardOpen = false
@@ -204,6 +205,12 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
                     formattingToolbar.findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_H -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Shortcuts = Alt + Ctrl + H
+                    showDialogShortcuts()
                     return true
                 }
             }
@@ -768,5 +775,13 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
     override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {
         ToastUtils.showToast(this, "Media tapped!")
+    }
+
+    private fun showDialogShortcuts() {
+        val layout = LayoutInflater.from(this).inflate(R.layout.dialog_shortcuts, null)
+        val builder = AlertDialog.Builder(this)
+        builder.setView(layout)
+        dialogShortcuts = builder.create()
+        dialogShortcuts!!.show()
     }
 }

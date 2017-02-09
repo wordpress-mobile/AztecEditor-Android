@@ -4,4 +4,58 @@
         <!-- DO NOTHING HERE -->
     </style>
 
+    <style name="Shortcut.Key.Multiple" parent="TextAppearance.AppCompat">
+        <item name="android:background">@drawable/bg_key</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginLeft">@dimen/margin_key</item>
+        <item name="android:minWidth">@dimen/width_key</item>
+        <item name="android:paddingLeft">@dimen/padding_key</item>
+        <item name="android:paddingRight">@dimen/padding_key</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_key</item>
+        <item name="android:layout_centerVertical">true</item>
+        <!--<item name="layout_marginStart">@dimen/margin_key</item>-->
+        <!--<item name="paddingEnd">@dimen/padding_key</item>-->
+        <!--<item name="paddingStart">@dimen/padding_key</item>-->
+    </style>
+
+    <style name="Shortcut.Key.Single" parent="TextAppearance.AppCompat">
+        <item name="android:background">@drawable/bg_key</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginLeft">@dimen/margin_key</item>
+        <item name="android:minWidth">@dimen/width_key</item>
+        <item name="android:paddingLeft">@dimen/padding_key</item>
+        <item name="android:paddingRight">@dimen/padding_key</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_key</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <!--<item name="layout_alignParentEnd">true</item>-->
+        <!--<item name="layout_marginStart">@dimen/margin_key</item>-->
+        <!--<item name="paddingEnd">@dimen/padding_key</item>-->
+        <!--<item name="paddingStart">@dimen/padding_key</item>-->
+    </style>
+
+    <style name="Shortcut.Header" parent="TextAppearance.AppCompat">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">@dimen/margin_dialog</item>
+        <item name="android:layout_marginRight">@dimen/margin_dialog</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/blue_wordpress</item>
+        <item name="android:textSize">@dimen/text_header</item>
+        <!--<item name="fontFamily">sans-serif-medium</item>-->
+        <!--<item name="layout_marginEnd">@dimen/margin_dialog</item>-->
+        <!--<item name="layout_marginStart">@dimen/margin_dialog</item>-->
+    </style>
+
+    <style name="Shortcut.Item" parent="TextAppearance.AppCompat">
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">@dimen/text_item</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <!--<item name="layout_alignParentStart">true</item>-->
+    </style>
+
 </resources>

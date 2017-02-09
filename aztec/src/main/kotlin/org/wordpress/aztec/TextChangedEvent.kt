@@ -1,8 +1,5 @@
 package org.wordpress.aztec
 
-import android.text.Spannable
-import org.wordpress.aztec.spans.AztecBlockSpan
-
 
 data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBlockEnd: Boolean = false, val blockSpanStart: Int = -1) {
 

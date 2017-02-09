@@ -923,7 +923,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         source.displayStyledAndFormattedHtml(editHtml)
-
         builder.setView(dialogView)
 
         builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
@@ -934,9 +933,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->
             dialogInterface.dismiss()
         })
-
-        source.requestFocus()
-        source.setSelection(0)
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()

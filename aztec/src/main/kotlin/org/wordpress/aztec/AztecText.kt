@@ -410,6 +410,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_HEADING_6 -> lineBlockFormatter.applyHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
+            TextFormat.FORMAT_UNDERLINED -> inlineFormatter.toggleUnderline()
             TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggleStrikethrough()
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()

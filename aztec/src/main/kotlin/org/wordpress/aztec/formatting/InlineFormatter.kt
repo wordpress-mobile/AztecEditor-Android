@@ -35,19 +35,19 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
         }
     }
 
-    fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
-        }
-    }
-
     fun toggleStrikethrough() {
         if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
             applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         } else {
             removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        }
+    }
+
+    fun toggleUnderline() {
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
         }
     }
 

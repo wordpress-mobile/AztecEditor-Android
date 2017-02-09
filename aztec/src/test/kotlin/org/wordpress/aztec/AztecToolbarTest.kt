@@ -25,8 +25,8 @@ class AztecToolbarTest {
 
     lateinit var boldButton: ToggleButton
     lateinit var italicButton: ToggleButton
-    lateinit var underlineButton: ToggleButton
     lateinit var strikeThroughButton: ToggleButton
+    lateinit var underlineButton: ToggleButton
     lateinit var quoteButton: ToggleButton
     lateinit var bulletListButton: ToggleButton
     lateinit var numberedListButton: ToggleButton
@@ -50,8 +50,8 @@ class AztecToolbarTest {
 
         boldButton = toolbar.findViewById(R.id.format_bar_button_bold) as ToggleButton
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic) as ToggleButton
-        underlineButton = toolbar.findViewById(R.id.format_bar_button_underline) as ToggleButton
         strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough) as ToggleButton
+        underlineButton = toolbar.findViewById(R.id.format_bar_button_underline) as ToggleButton
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
         bulletListButton = toolbar.findViewById(R.id.format_bar_button_ul) as ToggleButton
         numberedListButton = toolbar.findViewById(R.id.format_bar_button_ol) as ToggleButton
@@ -71,6 +71,7 @@ class AztecToolbarTest {
     fun initialState() {
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(quoteButton.isChecked)
         Assert.assertFalse(bulletListButton.isChecked)
@@ -165,47 +166,6 @@ class AztecToolbarTest {
     }
 
     /**
-     * Toggle underline button and type.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun testUnderlineTyping() {
-        Assert.assertFalse(underlineButton.isChecked)
-        underlineButton.performClick()
-        Assert.assertTrue(underlineButton.isChecked)
-
-        editText.append("underline")
-        Assert.assertEquals("<u>underline</u>", editText.toHtml())
-
-        underlineButton.performClick()
-        Assert.assertFalse(underlineButton.isChecked)
-    }
-
-    /**
-     * Select text and toggle underline button.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun testUnderlineToggle() {
-        Assert.assertFalse(underlineButton.isChecked)
-
-        editText.append("underline")
-        editText.setSelection(0, editText.length())
-        underlineButton.performClick()
-        Assert.assertTrue(underlineButton.isChecked)
-        Assert.assertEquals("<u>underline</u>", editText.toHtml())
-
-        underlineButton.performClick()
-        Assert.assertFalse(underlineButton.isChecked)
-
-        Assert.assertEquals("underline", editText.toHtml())
-    }
-
-    /**
      * Toggle bold Strikethrough and type.
      *
      * @throws Exception
@@ -247,6 +207,47 @@ class AztecToolbarTest {
     }
 
     /**
+     * Toggle underline button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testUnderlineTyping() {
+        Assert.assertFalse(underlineButton.isChecked)
+        underlineButton.performClick()
+        Assert.assertTrue(underlineButton.isChecked)
+
+        editText.append("underline")
+        Assert.assertEquals("<u>underline</u>", editText.toHtml())
+
+        underlineButton.performClick()
+        Assert.assertFalse(underlineButton.isChecked)
+    }
+
+    /**
+     * Select text and toggle underline button.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testUnderlineToggle() {
+        Assert.assertFalse(underlineButton.isChecked)
+
+        editText.append("underline")
+        editText.setSelection(0, editText.length())
+        underlineButton.performClick()
+        Assert.assertTrue(underlineButton.isChecked)
+        Assert.assertEquals("<u>underline</u>", editText.toHtml())
+
+        underlineButton.performClick()
+        Assert.assertFalse(underlineButton.isChecked)
+
+        Assert.assertEquals("underline", editText.toHtml())
+    }
+
+    /**
      * Select parts of text and apply formatting to it.
      *
      * @throws Exception
@@ -255,14 +256,14 @@ class AztecToolbarTest {
     @Throws(Exception::class)
     fun testCrossStylesToggle() {
 
-        editText.append("bold bolditalic italic underline strike normal")
+        editText.append("bold bolditalic italic strike underline normal")
         editText.setSelection(0, 4)
 
         Assert.assertFalse(boldButton.isChecked)
         boldButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> bolditalic italic underline strike normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b> bolditalic italic strike underline normal", editText.toHtml())
 
         editText.setSelection(5, 15)
 
@@ -274,7 +275,7 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(italicButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> italic underline strike normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> italic strike underline normal", editText.toHtml())
 
         editText.setSelection(16, 22)
 
@@ -284,19 +285,19 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(italicButton.isChecked)
 
-        editText.setSelection(23, 32)
-
-        underlineButton.performClick()
-        Assert.assertTrue(underlineButton.isChecked)
-
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <u>underline</u> strike normal", editText.toHtml())
-
-        editText.setSelection(33, 39)
+        editText.setSelection(23, 29)
 
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <u>underline</u> <del>strike</del> normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <del>strike</del> underline normal", editText.toHtml())
+
+        editText.setSelection(30, 39)
+
+        underlineButton.performClick()
+        Assert.assertTrue(underlineButton.isChecked)
+
+        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <del>strike</del> <u>underline</u> normal", editText.toHtml())
     }
 
     /**
@@ -326,22 +327,22 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertFalse(italicButton.isChecked)
 
-        underlineButton.performClick()
-        Assert.assertTrue(underlineButton.isChecked)
-        editText.append("underline")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><u>underline</u>", editText.toHtml())
-        underlineButton.performClick()
-        Assert.assertFalse(underlineButton.isChecked)
-
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
         editText.append("strike")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><u>underline</u><del>strike</del>", editText.toHtml())
+        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>", editText.toHtml())
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
 
+        underlineButton.performClick()
+        Assert.assertTrue(underlineButton.isChecked)
+        editText.append("underline")
+        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>", editText.toHtml())
+        underlineButton.performClick()
+        Assert.assertFalse(underlineButton.isChecked)
+
         editText.append("normal")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><u>underline</u><del>strike</del>normal", editText.toHtml())
+        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>normal", editText.toHtml())
     }
 
     /**
@@ -352,14 +353,14 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun testSelection() {
-        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><u>underline</u><del>strike</del>normal")
+        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>normal")
 
         //cursor is at bold text
         editText.setSelection(2)
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertFalse(underlineButton.isChecked)
 
         //cursor is at bold/italic text
         editText.setSelection(7)
@@ -382,33 +383,33 @@ class AztecToolbarTest {
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
 
-        //cursor is at underline text
-        editText.setSelection(28)
-        Assert.assertFalse(boldButton.isChecked)
-        Assert.assertFalse(italicButton.isChecked)
-        Assert.assertTrue(underlineButton.isChecked)
-        Assert.assertFalse(strikeThroughButton.isChecked)
-
         //cursor is at strikethrough text
-        editText.setSelection(32)
+        editText.setSelection(22)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(underlineButton.isChecked)
         Assert.assertTrue(strikeThroughButton.isChecked)
+        Assert.assertFalse(underlineButton.isChecked)
+
+        //cursor is at underline text
+        editText.setSelection(30)
+        Assert.assertFalse(boldButton.isChecked)
+        Assert.assertFalse(italicButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertTrue(underlineButton.isChecked)
 
         //cursor is at unstyled text
         editText.setSelection(38)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertFalse(underlineButton.isChecked)
 
         //whole text selected
         editText.setSelection(0, editText.length() - 1)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
-        Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
+        Assert.assertFalse(underlineButton.isChecked)
     }
 
     /**
@@ -537,6 +538,7 @@ class AztecToolbarTest {
         //noting should be highlighted when we empty edit text
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
+        Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(quoteButton.isChecked)
         Assert.assertFalse(bulletListButton.isChecked)

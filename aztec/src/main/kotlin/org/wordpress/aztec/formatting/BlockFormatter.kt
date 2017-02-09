@@ -138,7 +138,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 } else if (indexOfLineEnd == -1) {
                     spanEnd = text.length
                 } else {
-                    spanEnd = indexOfLineEnd
+                    spanEnd = indexOfLineEnd + if (textChangedEvent.isAfterZeroWidthJoiner()) 1 else 0
                 }
 
                 if (spanEnd <= textLength) {

@@ -76,24 +76,24 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EMOJI = "aaa&#x1F44D;&#x2764;ccc"
-        private val EXAMPLE = "Bold<br>Italic<br>Strike<br>Underline<br>"
-//                IMG +
-//                HEADING +
-//                BOLD +
-//                ITALIC +
-//                UNDERLINE +
-//                STRIKETHROUGH +
-//                ORDERED +
-//                UNORDERED +
-//                QUOTE +
-//                LINK +
-//                HIDDEN +
-//                COMMENT +
-//                COMMENT_MORE +
-//                COMMENT_PAGE +
-//                CODE +
-//                UNKNOWN +
-//                EMOJI
+        private val EXAMPLE =
+                IMG +
+                HEADING +
+                BOLD +
+                ITALIC +
+                UNDERLINE +
+                STRIKETHROUGH +
+                ORDERED +
+                UNORDERED +
+                QUOTE +
+                LINK +
+                HIDDEN +
+                COMMENT +
+                COMMENT_MORE +
+                COMMENT_PAGE +
+                CODE +
+                UNKNOWN +
+                EMOJI
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001

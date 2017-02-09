@@ -106,6 +106,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_UNDERLINE,
                     TextFormat.FORMAT_CODE -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
@@ -136,6 +137,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_UNDERLINE,
                     TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, end)
                     else -> {
                         //do nothing

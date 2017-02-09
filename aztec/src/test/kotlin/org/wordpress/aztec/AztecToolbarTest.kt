@@ -166,7 +166,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Toggle bold Strikethrough and type.
+     * Toggle strikethrough button and type.
      *
      * @throws Exception
      */
@@ -185,7 +185,7 @@ class AztecToolbarTest {
     }
 
     /**
-     * Select text and toggle Strikethrough button.
+     * Select text and toggle strikethrough button.
      *
      * @throws Exception
      */

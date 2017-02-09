@@ -202,6 +202,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         aztec.imageGetter = PicassoImageLoader(this, aztec)
 //        aztec.imageGetter = GlideImageLoader(this)
 
+        aztec.setOnMediaTappedListener(this)
+
         source = findViewById(R.id.source) as SourceViewEditText
 
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
@@ -218,8 +220,6 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
         source.setOnTouchListener(this)
-
-        aztec.setOnMediaTappedListener(this)
     }
 
     override fun onPause() {

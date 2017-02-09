@@ -602,7 +602,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = selectionStart
+        var cursorPosition = Math.min(selectionStart, length())
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
@@ -618,10 +618,11 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
-        val cursorPosition = consumeCursorPosition(builder)
 
         setTextKeepState(builder)
         enableTextChangedListener()
+
+        val cursorPosition = consumeCursorPosition(builder)
         setSelection(cursorPosition)
 
         loadImages()
@@ -927,7 +928,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
             unknownHtmlSpan.rawHtml = StringBuilder(source.getPureHtml())
+            val spanStart = text.getSpanStart(unknownHtmlSpan)
             fromHtml(toHtml(false))
+            setSelection(spanStart)
         })
 
         builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->

@@ -35,19 +35,19 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
         }
     }
 
-    fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINED)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINED)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINED)
-        }
-    }
-
     fun toggleStrikethrough() {
         if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
             applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         } else {
             removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        }
+    }
+
+    fun toggleUnderline() {
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
+        } else {
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
         }
     }
 
@@ -106,6 +106,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_UNDERLINE,
                     TextFormat.FORMAT_CODE -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
@@ -136,6 +137,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
+                    TextFormat.FORMAT_UNDERLINE,
                     TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, end)
                     else -> {
                         //do nothing
@@ -356,7 +358,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINED -> return AztecUnderlineSpan()
+            TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }

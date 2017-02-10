@@ -86,6 +86,15 @@
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_underline"
+                    android:background="@drawable/format_bar_button_underline_selector"
+                    android:contentDescription="@string/format_bar_description_underline"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_quote"
                     android:background="@drawable/format_bar_button_quote_selector"
                     android:contentDescription="@string/format_bar_description_quote"

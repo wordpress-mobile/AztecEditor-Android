@@ -4,11 +4,14 @@
 
     <declare-styleable name="AztecText">
         <attr name="backgroundColor" format="reference|color" />
+        <attr name="blockVerticalPadding" format="reference|dimension" />
         <attr name="bulletColor" format="reference|color" />
         <attr name="bulletMargin" format="reference|dimension" />
         <attr name="bulletPadding" format="reference|dimension" />
         <attr name="bulletWidth" format="reference|dimension" />
-        <attr name="blockVerticalPadding" format="reference|dimension" />
+        <attr name="codeBackground" format="reference|color" />
+        <attr name="codeBackgroundAlpha" format="reference|fraction" />
+        <attr name="codeColor" format="reference|color" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
         <attr name="lineSpacingExtra" format="reference|dimension" />
@@ -22,15 +25,13 @@
         <attr name="quoteWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
-        <attr name="codeBackground" format="reference|color" />
-        <attr name="codeBackgroundAlpha" format="reference|fraction" />
-        <attr name="codeColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">
-        <attr name="codeTextColor" format="reference|color" />
-        <attr name="codeBackgroundColor" format="reference|color" />
-        <attr name="tagColor" format="reference|color" />
         <attr name="attributeColor" format="reference|color" />
+        <attr name="codeBackgroundColor" format="reference|color" />
+        <attr name="codeTextColor" format="reference|color" />
+        <attr name="tagColor" format="reference|color" />
     </declare-styleable>
+
 </resources>

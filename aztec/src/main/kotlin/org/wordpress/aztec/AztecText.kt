@@ -579,8 +579,6 @@ class AztecText : EditText, TextWatcher {
         setSelection(cursorPosition)
 
         loadImages()
-
-        refreshText()
     }
 
     private fun loadImages() {

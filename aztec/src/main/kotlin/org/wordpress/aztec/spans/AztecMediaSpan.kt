@@ -71,7 +71,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val sizeRect = adjustBounds(start)
+        val sizeRect = adjustBounds(start, 0)
 
         if (metrics != null && sizeRect.width() > 0) {
             metrics.ascent = - sizeRect.height()
@@ -84,7 +84,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         return sizeRect.width()
     }
 
-    fun adjustBounds(start: Int): Rect {
+    fun adjustBounds(start: Int, maxHeight: Int): Rect {
         if (textView == null || textView?.layout == null) {
             return Rect(0, 0, 0, 0)
         }
@@ -108,9 +108,14 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
             if (width > maxWidth) {
                 width = maxWidth
                 height = (width / aspectRatio).toInt()
-
-                drawable?.bounds = Rect(0, 0, width, height)
             }
+
+            if (maxHeight > 0 && height > maxHeight) {
+                height = maxHeight
+                width = (aspectRatio * height).toInt()
+            }
+
+            drawable?.bounds = Rect(0, 0, width, height)
         }
 
         return Rect(0, 0, width, height)
@@ -160,14 +165,14 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         canvas.save()
 
         if (drawable != null) {
-            val sizeRect = adjustBounds(start)
+            adjustBounds(start, y - top)
 
             overlays.forEach {
                 setBounds(it.first)
                 applyOverlayGravity(it.first, it.second)
             }
 
-            var transY = bottom - sizeRect.height()
+            var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }

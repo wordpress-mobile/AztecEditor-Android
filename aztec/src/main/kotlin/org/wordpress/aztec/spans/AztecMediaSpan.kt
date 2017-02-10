@@ -8,8 +8,8 @@ import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
 import android.view.Gravity
 import android.view.View
+import android.widget.TextView
 
-import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.xml.sax.Attributes
 import java.util.*
@@ -19,21 +19,14 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
 
     private val TAG: String = "img"
 
-    companion object {
-        @JvmStatic private fun setBoundsToPx(context: Context, drawable: Drawable?) {
-            drawable?.let {
-                if (it.intrinsicWidth < 0 && it.intrinsicHeight < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
-                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.bounds.width())),
-                            DisplayUtils.dpToPx(context, (it.bounds.height())))
-                } else {
-                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.intrinsicWidth)),
-                            DisplayUtils.dpToPx(context, (it.intrinsicHeight)))
-                }
+    var textView: TextView? = null
+    var aspectRatio: Double = 1.0
 
-                val maxWidth = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
-                if (drawable.bounds.width() > maxWidth) {
-                    drawable.setBounds(0, 0, maxWidth, maxWidth * drawable.bounds.height() / drawable.bounds.width())
+    companion object {
+        @JvmStatic private fun setBounds(drawable: Drawable?) {
+            drawable?.let {
+                if (it.intrinsicWidth > -1 || it.intrinsicHeight > -1) {
+                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
                 }
             }
         }
@@ -41,7 +34,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         @JvmStatic private fun getWidth(drawable: Drawable?): Int {
             drawable?.let {
                 if (it.intrinsicWidth < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
+                    // client may have set the bounds manually so, use those
                     return it.bounds.width()
                 } else {
                     return it.intrinsicWidth
@@ -54,7 +47,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         @JvmStatic private fun getHeight(drawable: Drawable?): Int {
             drawable?.let {
                 if (it.intrinsicHeight < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
+                    // client may have set the bounds manually so, use those
                     return it.bounds.height()
                 } else {
                     return it.intrinsicHeight
@@ -68,29 +61,59 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 
     init {
-        setBoundsToPx(context, drawable)
+        computeAspectRatio()
+
+        setBounds(drawable)
+    }
+
+    fun computeAspectRatio() {
+        aspectRatio = 1.0 * (drawable?.intrinsicWidth ?: 1) / (drawable?.intrinsicHeight ?: 1)
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val width1 = drawable?.bounds?.width() ?: 0
-        var width: Int = width1
+        val sizeRect = adjustBounds(start)
 
-        overlays.forEach {
-            val width2 = it.first?.bounds?.width() ?: 0
-            width = if (width1 > width2) width1 else width2
+        if (metrics != null && sizeRect.width() > 0) {
+            metrics.ascent = - sizeRect.height()
+            metrics.descent = 0
+
+            metrics.top = metrics.ascent
+            metrics.bottom = 0
         }
 
-        drawable?.let {
-            if (metrics != null) {
-                metrics.ascent = -drawable!!.bounds!!.height()
-                metrics.descent = 0
+        return sizeRect.width()
+    }
 
-                metrics.top = metrics.ascent
-                metrics.bottom = 0
+    fun adjustBounds(start: Int): Rect {
+        if (textView == null || textView?.layout == null) {
+            return Rect(0, 0, 0, 0)
+        }
+
+        setBounds(drawable)
+
+        val line = textView?.layout?.getLineForOffset(start) ?: 0
+
+        val lineRect = Rect()
+        textView?.layout?.getLineBounds(line, lineRect)
+
+        val leadingMargin = textView?.layout?.getParagraphLeft(line) ?: 0
+        val trailingMargin = textView?.layout?.getParagraphRight(line) ?: 0
+
+        val maxWidth = trailingMargin - leadingMargin
+
+        var width = drawable?.bounds?.width() ?: maxWidth
+        var height = drawable?.bounds?.height() ?: lineRect.height()
+
+        if (lineRect.width() > -1) {
+            if (width > maxWidth) {
+                width = maxWidth
+                height = (width / aspectRatio).toInt()
+
+                drawable?.bounds = Rect(0, 0, width, height)
             }
         }
 
-        return width
+        return Rect(0, 0, width, height)
     }
 
     override fun getDrawable(): Drawable? {
@@ -98,8 +121,9 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     }
 
     fun setDrawable(newDrawable: Drawable?) {
-        setBoundsToPx(context, newDrawable)
         drawable = newDrawable
+
+        computeAspectRatio()
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -108,9 +132,6 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         }
 
         if (newDrawable != null) {
-            setBoundsToPx(context, newDrawable)
-            applyOverlayGravity(newDrawable, gravity)
-
             overlays.ensureCapacity(index + 1)
             overlays.add(index, Pair(newDrawable, gravity))
         }
@@ -139,7 +160,14 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         canvas.save()
 
         if (drawable != null) {
-            var transY = bottom - drawable!!.bounds.bottom
+            val sizeRect = adjustBounds(start)
+
+            overlays.forEach {
+                setBounds(it.first)
+                applyOverlayGravity(it.first, it.second)
+            }
+
+            var transY = bottom - sizeRect.height()
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }

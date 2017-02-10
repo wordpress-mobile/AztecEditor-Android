@@ -579,6 +579,8 @@ class AztecText : EditText, TextWatcher {
         setSelection(cursorPosition)
 
         loadImages()
+
+        refreshText()
     }
 
     private fun loadImages() {
@@ -605,14 +607,9 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
-            /*
-             * Following Android guidelines for keylines and spacing, screen edge margins should
-             * be 16dp.  Therefore, the width of images should be the width of the screen minus
-             * 16dp on both sides (i.e. 16 * 2 = 32).
-             *
-             * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
-             */
-            val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
+            // maxWidth set to the biggest of screen width/height to cater for device rotation
+            val width = Math.max(context.resources.displayMetrics.widthPixels,
+                    context.resources.displayMetrics.heightPixels)
             imageGetter?.loadImage(it.getSource(), callbacks, width)
         }
     }
@@ -703,6 +700,11 @@ class AztecText : EditText, TextWatcher {
         val selStart = selectionStart
         val selEnd = selectionEnd
         text = editableText
+
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+            it.textView = this
+        }
+
         setSelection(selStart, selEnd)
         enableTextChangedListener()
     }

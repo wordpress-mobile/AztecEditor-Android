@@ -39,6 +39,7 @@
         <item name="quoteWidth">@dimen/quote_width</item>
         <item name="blockVerticalPadding">@dimen/block_vertical_padding</item>
         <item name="codeBackground">@color/code_background</item>
+        <item name="codeBackgroundAlpha">75%</item>
         <item name="codeColor">@color/code</item>
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>

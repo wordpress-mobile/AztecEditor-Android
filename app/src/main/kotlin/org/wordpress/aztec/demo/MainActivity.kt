@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -123,7 +124,11 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
-                    bitmap = BitmapFactory.decodeFile(mediaPath)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeFile(mediaPath, options)
                 }
                 REQUEST_MEDIA_CAMERA_VIDEO -> {
                 }

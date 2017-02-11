@@ -271,12 +271,12 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
         val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
 
-        val spanAtEndOfWhichMediaIsAdded = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
         .firstOrNull {
             selectionStart == editableText.getSpanEnd(it)
         }
 
-        val spanAtStartOfWhichMediaIsAdded = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanStart(it)
                 }
@@ -287,12 +287,12 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
         editor.disableTextChangedListener()
         editableText.replace(selectionStart, selectionEnd, Constants.IMG_STRING)
 
-        if (spanAtStartOfWhichMediaIsAdded != null) {
-            editableText.setSpan(spanAtStartOfWhichMediaIsAdded, mediaStartIndex, editableText.getSpanEnd(spanAtStartOfWhichMediaIsAdded), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (spanAfterMedia != null) {
+            editableText.setSpan(spanAfterMedia, mediaStartIndex, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        if (spanAtEndOfWhichMediaIsAdded != null) {
-            editableText.setSpan(spanAtEndOfWhichMediaIsAdded, editableText.getSpanStart(spanAtEndOfWhichMediaIsAdded), mediaEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (spanBeforeMedia != null) {
+            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), mediaEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)

@@ -211,13 +211,13 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
 
         // Fix flags and range for paragraph-type markup.
-        Object[] obj = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
-        for (int i = 0; i < obj.length; i++) {
-            if (obj[i] instanceof UnknownHtmlSpan || obj[i] instanceof AztecBlockSpan || obj[i] instanceof AztecMediaSpan || obj[i] instanceof AztecHeadingSpan) {
+        Object[] paragraphs = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
+        for (Object paragraph : paragraphs) {
+            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof AztecBlockSpan || paragraph instanceof AztecMediaSpan || paragraph instanceof AztecHeadingSpan) {
                 continue;
             }
-            int start = spannableStringBuilder.getSpanStart(obj[i]);
-            int end = spannableStringBuilder.getSpanEnd(obj[i]);
+            int start = spannableStringBuilder.getSpanStart(paragraph);
+            int end = spannableStringBuilder.getSpanEnd(paragraph);
 
             // If the last line of the range is blank, back off by one.
             if (end - 2 >= 0) {
@@ -228,9 +228,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             }
 
             if (end == start) {
-                spannableStringBuilder.removeSpan(obj[i]);
+                spannableStringBuilder.removeSpan(paragraph);
             } else {
-                spannableStringBuilder.setSpan(obj[i], start, end, Spannable.SPAN_PARAGRAPH);
+                spannableStringBuilder.setSpan(paragraph, start, end, Spannable.SPAN_PARAGRAPH);
             }
         }
 

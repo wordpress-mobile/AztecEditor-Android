@@ -604,8 +604,8 @@ class AztecParser {
         return html
                 .replace("&#8203;", "")
                 .replace("&#65279;", "")
-                .replace("(</? ?br>)*</blockquote>".toRegex(), "</blockquote>")
-                .replace("(</? ?br>)*</p>".toRegex(), "</p>")
-                .replace("(</? ?br>)*</li>".toRegex(), "</li>")
+                .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
+                .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")
+                .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
     }
 }

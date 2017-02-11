@@ -574,6 +574,10 @@ class AztecText : EditText, TextWatcher {
         disableTextChangedListener()
         val cursorPosition = consumeCursorPosition(builder)
 
+        builder.getSpans(0, builder.length, AztecMediaSpan::class.java).forEach {
+            it.textView = this
+        }
+
         setTextKeepState(builder)
         enableTextChangedListener()
         setSelection(cursorPosition)
@@ -698,11 +702,6 @@ class AztecText : EditText, TextWatcher {
         val selStart = selectionStart
         val selEnd = selectionEnd
         text = editableText
-
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            it.textView = this
-        }
-
         setSelection(selStart, selEnd)
         enableTextChangedListener()
     }

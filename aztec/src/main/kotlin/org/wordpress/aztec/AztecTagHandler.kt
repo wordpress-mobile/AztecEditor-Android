@@ -79,7 +79,7 @@ class AztecTagHandler : Html.TagHandler {
                     val mediaSpan = createImageSpan(attributes, onMediaTappedListener, context)
                     start(output, mediaSpan)
                     start(output, AztecMediaClickableSpan(mediaSpan))
-                    output.append("\uFFFC")
+                    output.append(Constants.IMG_CHAR)
                 } else {
                     end(output, AztecMediaSpan::class.java)
                     end(output, AztecMediaClickableSpan::class.java)

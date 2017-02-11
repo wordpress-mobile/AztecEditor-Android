@@ -751,28 +751,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-//<<<<<<< HEAD
-//    private static void startImg(final SpannableStringBuilder text,
-//                                 Attributes attributes, final OnMediaTappedListener onMediaTappedListener,
-//                                 final Context context) {
-//        final int start = text.length();
-//
-//        // TODO: we should some placeholder drawable while loading imges
-//        Drawable loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading);
-//        final AztecMediaSpan imageSpan = new AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener);
-//
-//        text.append("\uFFFC");
-//        text.setSpan(imageSpan, start, text.length(),
-//                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        text.setSpan(
-//                new AztecMediaClickableSpan(imageSpan),
-//                start,
-//                text.length(),
-//                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//    }
-//=======
-//>>>>>>> develop
-
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();
         Font font = (Font) getLast(text, Font.class);

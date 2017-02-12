@@ -1,6 +1,9 @@
 package org.wordpress.aztec.source
 
+import android.support.v4.util.ArrayMap
+import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.util.regex.Pattern
 
 object Format {
@@ -11,12 +14,28 @@ object Format {
     fun addFormatting(content: String): String {
         val doc = Jsoup.parseBodyFragment(content)
 
+        val html = unescapeIframes(doc)
+
         //remove newline around all non block elements
-        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
+        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
         return fixBrNewlines.trim()
+    }
+
+    private fun unescapeIframes(doc: Document): String {
+        val unescape = ArrayMap<String, String>()
+        doc.getElementsByTag("iframe").forEach {
+            unescape.put(it.html(), StringEscapeUtils.unescapeHtml(it.html()))
+        }
+
+        var html = doc.body().html()
+
+        unescape.forEach {
+            html = replaceAll(html, it.key, it.value)
+        }
+        return html
     }
 
     fun clearFormatting(html: String): String {

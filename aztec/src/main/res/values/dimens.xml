@@ -2,6 +2,17 @@
 
 <resources>
 
+    <!-- SHORTCUTS -->
+    <dimen name="height_header">48dp</dimen>
+    <dimen name="height_key">32dp</dimen>
+    <dimen name="text_header">14sp</dimen>
+    <dimen name="text_item">16sp</dimen>
+    <dimen name="text_key">14sp</dimen>
+    <dimen name="margin_key">8dp</dimen>
+    <dimen name="padding_key">8dp</dimen>
+    <dimen name="radius_corner">2dp</dimen>
+    <dimen name="width_key">28dp</dimen>
+
     <!-- STYING -->
     <dimen name="bullet_padding">8dp</dimen>
     <dimen name="bullet_margin">16dp</dimen>

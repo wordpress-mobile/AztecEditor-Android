@@ -1,7 +1,10 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
+import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -20,6 +23,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
+    private var dialogShortcuts: AlertDialog? = null
 
     constructor(context: Context) : super(context) {
         initView()
@@ -35,6 +39,150 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun setToolbarListener(listener: AztecToolbarClickListener) {
         aztecToolbarListener = listener
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_1 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_2 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_3 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_4 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_5 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_6 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
+                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_7 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
+                    editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_8 -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Preformatted = Alt + Ctrl + 8
+//                    TODO: Add Preformatted format.
+//                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMATTED)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_B -> {
+                if (event.isCtrlPressed) { // Bold = Ctrl + B
+                    findViewById(ToolbarAction.BOLD.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_D -> {
+                if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
+                    findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_H -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Shortcuts = Alt + Ctrl + H
+                    showDialogShortcuts()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_I -> {
+                if (event.isCtrlPressed) { // Italic = Ctrl + I
+                    findViewById(ToolbarAction.ITALIC.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_K -> {
+                if (event.isCtrlPressed) { // Link = Ctrl + K
+                    findViewById(ToolbarAction.LINK.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_M -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
+                    findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_O -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
+                    findViewById(ToolbarAction.ORDERED_LIST.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_P -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Page Break = Alt + Ctrl + P
+                    findViewById(ToolbarAction.PAGE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Q -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
+                    findViewById(ToolbarAction.QUOTE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_T -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Read More = Alt + Ctrl + T
+                    findViewById(ToolbarAction.MORE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_U -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
+                    findViewById(ToolbarAction.UNORDERED_LIST.buttonId).performClick()
+                    return true
+                } else if (event.isCtrlPressed) { // Underline = Ctrl + U
+                    findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_X -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Code = Alt + Ctrl + X
+//                    TODO: Add Code action.
+//                    findViewById(ToolbarAction.CODE.buttonId).performClick()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Y -> {
+                if (event.isCtrlPressed) { // Redo  = Ctrl + Y
+                    editor?.redo()
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_Z -> {
+                if (event.isCtrlPressed) { // Undo  = Ctrl + Z
+                    editor?.undo()
+                    return true
+                }
+            }
+        }
+
+        return super.onKeyUp(keyCode, event)
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -86,6 +234,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
+        this.editor!!.setOnKeyListener {
+            view,
+            keyCode,
+            keyEvent ->
+                if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                    onKeyDown(keyCode, keyEvent)
+                } else {
+                    onKeyUp(keyCode, keyEvent)
+                }
+        }
     }
 
     private fun initView() {
@@ -240,5 +398,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), isEnabled)
             }
         }
+    }
+
+    private fun showDialogShortcuts() {
+        val layout = LayoutInflater.from(context).inflate(R.layout.dialog_shortcuts, null)
+        val builder = AlertDialog.Builder(context)
+        builder.setView(layout)
+        dialogShortcuts = builder.create()
+        dialogShortcuts!!.show()
     }
 }

@@ -135,7 +135,11 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
                     val stream = contentResolver.openInputStream(Uri.parse(mediaPath))
-                    bitmap = BitmapFactory.decodeStream(stream)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeStream(stream, null, options)
                 }
                 REQUEST_MEDIA_VIDEO -> {
                 }

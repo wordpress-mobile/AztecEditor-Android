@@ -146,6 +146,7 @@ class AztecText : EditText, TextWatcher {
                 BlockFormatter.QuoteStyle(
                         array.getColor(R.styleable.AztecText_quoteBackground, 0),
                         array.getColor(R.styleable.AztecText_quoteColor, 0),
+                        array.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),

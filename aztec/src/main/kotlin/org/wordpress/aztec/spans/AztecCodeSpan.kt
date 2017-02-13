@@ -17,6 +17,7 @@
 
 package org.wordpress.aztec.spans
 
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Parcel
 import android.text.ParcelableSpan
@@ -30,6 +31,7 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, Azt
     private val TAG: String = "code"
 
     private var codeBackground: Int = 0
+    private var codeBackgroundAlpha: Float = 0.0f
     private var codeColor: Int = 0
 
     override var attributes: String = ""
@@ -40,11 +42,13 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, Azt
 
     constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String = "") : this(attributes) {
         this.codeBackground = codeStyle.codeBackground
+        this.codeBackgroundAlpha = codeStyle.codeBackgroundAlpha
         this.codeColor = codeStyle.codeColor
     }
 
     constructor(src: Parcel) {
         this.codeBackground = src.readInt()
+        this.codeBackgroundAlpha = src.readFloat()
         this.codeColor = src.readInt()
     }
 
@@ -85,8 +89,9 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, Azt
     }
 
     private fun configureTextPaint(tp: TextPaint?) {
+        val alpha: Int = (codeBackgroundAlpha * 255).toInt()
         tp?.typeface = Typeface.MONOSPACE
-        tp?.bgColor = codeBackground
+        tp?.bgColor = Color.argb(alpha, Color.red(codeBackground), Color.green(codeBackground), Color.blue(codeBackground))
         tp?.color = codeColor
     }
 }

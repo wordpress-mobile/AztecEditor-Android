@@ -14,7 +14,7 @@ import java.util.*
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
-    data class CodeStyle(val codeBackground: Int, val codeColor: Int)
+    data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 

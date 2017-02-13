@@ -131,6 +131,7 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         array.getColor(R.styleable.AztecText_codeBackground, 0),
+                        array.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
                         array.getColor(R.styleable.AztecText_codeColor, 0)),
                 LineBlockFormatter.HeaderStyle(
                         array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))

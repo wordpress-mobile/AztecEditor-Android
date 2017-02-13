@@ -132,6 +132,7 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         array.getColor(R.styleable.AztecText_codeBackground, 0),
+                        array.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
                         array.getColor(R.styleable.AztecText_codeColor, 0)),
                 LineBlockFormatter.HeaderStyle(
                         array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
@@ -418,6 +419,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_HEADING_6 -> lineBlockFormatter.applyHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
+            TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
             TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggleStrikethrough()
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
@@ -442,7 +444,7 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
             TextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
             TextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
-            TextFormat.FORMAT_UNDERLINED -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_UNDERLINED, selStart, selEnd)
+            TextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_UNDERLINE, selStart, selEnd)
             TextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
             TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
@@ -728,7 +730,7 @@ class AztecText : EditText, TextWatcher {
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINED, start, end)
+        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINE, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
     }
 

@@ -37,26 +37,4 @@ abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Stand
         return lineIndex + 1
     }
 
-    fun getTotalNumberOfLines(text: CharSequence): Int {
-        val spanStart = (text as Spanned).getSpanStart(this)
-        val spanEnd = text.getSpanEnd(this)
-
-        return text.substring(spanStart..spanEnd - 2).split("\n").count()
-    }
-
-    fun getIndicatorAdjustment(text: CharSequence, end: Int): Int {
-        var adjustment = 0
-
-        val totalNumberOfLinesInList = getTotalNumberOfLines(text)
-        val currentLineNumber = getIndexOfProcessedLine(text, end)
-
-        if (totalNumberOfLinesInList > 1 && currentLineNumber == 1) {
-            adjustment = 0
-        } else if ((totalNumberOfLinesInList > 1 && totalNumberOfLinesInList == currentLineNumber) || totalNumberOfLinesInList == 1) {
-            adjustment = -verticalPadding
-        }
-
-        return adjustment
-    }
-
 }

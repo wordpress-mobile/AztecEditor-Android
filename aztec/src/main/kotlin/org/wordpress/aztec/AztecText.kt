@@ -82,6 +82,8 @@ class AztecText : EditText, TextWatcher {
 
     var imageGetter: Html.ImageGetter? = null
 
+    var widthMeasureSpec: Int = 0
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -291,6 +293,13 @@ class AztecText : EditText, TextWatcher {
                 }
             }
         }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // capture the width spec to be used when pre-layingout AztecMediaSpans
+        this.widthMeasureSpec = widthMeasureSpec
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {
@@ -604,7 +613,9 @@ class AztecText : EditText, TextWatcher {
 
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
-                    refreshText()
+                    post {
+                        refreshText()
+                    }
                 }
             }
 

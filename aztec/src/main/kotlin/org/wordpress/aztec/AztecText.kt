@@ -46,6 +46,7 @@ import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.TypefaceCache
 import org.xml.sax.Attributes
 import java.util.*
@@ -80,6 +81,8 @@ class AztecText : EditText, TextWatcher {
     lateinit var blockFormatter: BlockFormatter
     lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
+
+    lateinit var formatToolbar: AztecToolbar
 
     var imageGetter: Html.ImageGetter? = null
 
@@ -319,6 +322,14 @@ class AztecText : EditText, TextWatcher {
         return super.onKeyPreIme(keyCode, event)
     }
 
+    override fun onKeyUp(keyCode: Int, keyEvent: KeyEvent): Boolean {
+        if (formatToolbar.onKeyUp(keyCode, keyEvent)) {
+            return true
+        } else {
+            return super.onKeyUp(keyCode, keyEvent)
+        }
+    }
+
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
@@ -444,6 +455,10 @@ class AztecText : EditText, TextWatcher {
             TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false
         }
+    }
+
+    fun setToolbar(toolbar: AztecToolbar) {
+        formatToolbar = toolbar
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {

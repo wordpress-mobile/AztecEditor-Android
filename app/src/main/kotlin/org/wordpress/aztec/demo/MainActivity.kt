@@ -207,6 +207,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
         formattingToolbar.setToolbarListener(this)
+        aztec.setToolbar(formattingToolbar)
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)

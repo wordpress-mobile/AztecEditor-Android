@@ -182,7 +182,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
         }
 
-        return super.onKeyUp(keyCode, event)
+        return false
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -234,16 +234,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
-        this.editor!!.setOnKeyListener {
-            view,
-            keyCode,
-            keyEvent ->
-                if (keyEvent.action == KeyEvent.ACTION_DOWN) {
-                    onKeyDown(keyCode, keyEvent)
-                } else {
-                    onKeyUp(keyCode, keyEvent)
-                }
-        }
     }
 
     private fun initView() {

@@ -221,9 +221,11 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)
-        aztec.fromHtml(source.getPureHtml())
 
-        source.history = aztec.history
+        if (savedInstanceState == null) {
+            aztec.fromHtml(source.getPureHtml())
+            source.history = aztec.history
+        }
 
         aztec.setOnImeBackListener(this)
         aztec.setOnTouchListener(this)

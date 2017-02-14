@@ -189,6 +189,17 @@ class AztecText : EditText, TextWatcher {
         isViewInitialized = true
     }
 
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        val selStart = selectionStart
+        val selEnd = selectionEnd
+
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (!hasWindowFocus) {
+            //on older android versions selection is lost when window loses focus, so we are making sure to keep it
+            setSelection(selStart, selEnd)
+        }
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         addTextChangedListener(this)

@@ -120,8 +120,6 @@ class MainActivity : AppCompatActivity(),
     private var mediaUploadDialog: AlertDialog? = null
     private var mediaMenu: PopupMenu? = null
 
-    private var isRedoEnabled = false
-    private var isUndoEnabled = false
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
 
@@ -377,18 +375,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.redo)?.isEnabled = isRedoEnabled
-        menu?.findItem(R.id.undo)?.isEnabled = isUndoEnabled
+        menu?.findItem(R.id.redo)?.isEnabled = aztec.history.redoValid()
+        menu?.findItem(R.id.undo)?.isEnabled = aztec.history.undoValid()
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onRedoEnabled(state: Boolean) {
-        isRedoEnabled = state
+    override fun onRedoEnabled() {
         invalidateOptionsMenu()
     }
 
-    override fun onUndoEnabled(state: Boolean) {
-        isUndoEnabled = state
+    override fun onUndoEnabled() {
         invalidateOptionsMenu()
     }
 

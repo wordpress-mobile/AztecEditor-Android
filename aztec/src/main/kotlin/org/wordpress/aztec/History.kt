@@ -146,7 +146,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     }
 
     fun updateActions() {
-        historyListener?.onRedoEnabled(redoValid())
-        historyListener?.onUndoEnabled(undoValid())
+        historyListener?.onRedoEnabled()
+        historyListener?.onUndoEnabled()
     }
 }

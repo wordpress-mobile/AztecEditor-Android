@@ -237,7 +237,6 @@ class SourceViewEditText : EditText, TextWatcher {
             enableTextChangedListener()
         }
 
-
         return Format.clearFormatting(text.toString())
     }
 

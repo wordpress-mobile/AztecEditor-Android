@@ -685,6 +685,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         clearMetaSpans(output)
 
         if (withCursorTag) {
+            for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
+                output.removeSpan(span)
+            }
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 

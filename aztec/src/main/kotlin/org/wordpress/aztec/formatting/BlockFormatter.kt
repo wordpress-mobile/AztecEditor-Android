@@ -232,7 +232,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 }
             }
         } else if (!textChangedEvent.isAddingCharacters && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            val deletedCharacterIsNewline = textChangedEvent.textBefore[textChangedEvent.inputEnd] == '\n'
+            val deletedCharacterIsNewline = textChangedEvent.textBefore.length > textChangedEvent.inputEnd &&
+                    textChangedEvent.textBefore[textChangedEvent.inputEnd] == '\n'
             if (!deletedCharacterIsNewline) return
 
             // backspace on a line right after a list attaches the line to the last item

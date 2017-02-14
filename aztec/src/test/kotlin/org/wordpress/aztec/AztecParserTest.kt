@@ -35,6 +35,7 @@ class AztecParserTest : AndroidTestCase() {
     private val HTML_MORE = "<!--more-->"
     private val HTML_PAGE = "<!--nextpage-->"
     private val HTML_QUOTE = "<blockquote>Quote</blockquote>"
+    private val HTML_QUOTE_EMPTY = "<blockquote></blockquote>"
     private val HTML_QUOTE_WITH_LIST_ORDERED = "<blockquote><ol><li>Ordered</li></ol></blockquote>"
     private val HTML_QUOTE_WITH_LIST_UNORDERED = "<blockquote><ul><li>Unordered</li></ul></blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
@@ -115,6 +116,7 @@ class AztecParserTest : AndroidTestCase() {
                 HTML_UNKNOWN +
                 HTML_QUOTE_WITH_LIST_ORDERED +
                 HTML_QUOTE_WITH_LIST_UNORDERED +
+                HTML_QUOTE_EMPTY +
                 HTML_COMMENT +
                 HTML_NESTED_MIXED +
                 HTML_NESTED_EMPTY_END +
@@ -467,6 +469,21 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuote_isEqual() {
         val input = HTML_QUOTE
+        val span = SpannableString(mParser.fromHtml(input, null, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse empty quote text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlQuoteEmpty_isEqual() {
+        val input = HTML_QUOTE_EMPTY
         val span = SpannableString(mParser.fromHtml(input, null, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

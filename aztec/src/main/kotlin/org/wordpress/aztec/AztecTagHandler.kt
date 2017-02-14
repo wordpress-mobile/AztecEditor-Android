@@ -177,6 +177,11 @@ class AztecTagHandler : Html.TagHandler {
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+        //if block element is empty add newline to it and extend span
+        else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
+            output.append("\n")
+            output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     companion object {

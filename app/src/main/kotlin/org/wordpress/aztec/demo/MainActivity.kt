@@ -261,6 +261,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
 
+        source.history = aztec.history
+
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
                 showPhotoMediaDialog()

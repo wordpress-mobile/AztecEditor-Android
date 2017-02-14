@@ -1,6 +1,8 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.MenuItem
 import android.view.View
@@ -71,6 +73,22 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             else -> return false
         }
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val savedState = state as SourceViewEditText.SavedState
+        super.onRestoreInstanceState(savedState.superState)
+        val restoredState = savedState.state
+        toggleHtmlMode(restoredState.getBoolean("isSourceVisible"))
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val savedState = SourceViewEditText.SavedState(superState)
+        val bundle = Bundle()
+        bundle.putBoolean("isSourceVisible", sourceEditor?.visibility == View.VISIBLE)
+        savedState.state = bundle
+        return savedState
     }
 
     private fun isEditorAttached(): Boolean {

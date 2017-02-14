@@ -121,7 +121,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return false
         }
 
-        return historyCursor < historyList.size - 1 || historyCursor >= historyList.size - 1
+        return historyCursor < historyList.size
     }
 
     fun undoValid(): Boolean {

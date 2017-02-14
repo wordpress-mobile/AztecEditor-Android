@@ -621,10 +621,10 @@ class AztecText : EditText, TextWatcher {
                 }
             }
 
-            // maxWidth set to the biggest of screen width/height to cater for device rotation
-            val width = Math.max(context.resources.displayMetrics.widthPixels,
+            // maxidth set to the biggest of screen width/height to cater for device rotation
+            val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
                     context.resources.displayMetrics.heightPixels)
-            imageGetter?.loadImage(it.getSource(), callbacks, width)
+            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
         }
     }
 

@@ -94,7 +94,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     }
 
     fun adjustBounds(start: Int): Rect {
-        if (textView == null) {
+        if (textView == null || textView?.widthMeasureSpec == 0) {
             return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 

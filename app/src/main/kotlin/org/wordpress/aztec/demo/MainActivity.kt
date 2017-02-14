@@ -27,6 +27,7 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.HistoryListener
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -35,9 +36,14 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, View.OnTouchListener,
-        PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener, AztecText.OnMediaTappedListener,
-        AztecText.OnImeBackListener {
+class MainActivity : AppCompatActivity(),
+        AztecText.OnImeBackListener,
+        AztecText.OnMediaTappedListener,
+        AztecToolbarClickListener,
+        HistoryListener,
+        OnRequestPermissionsResultCallback,
+        PopupMenu.OnMenuItemClickListener,
+        View.OnTouchListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -114,6 +120,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
     private var mediaUploadDialog: AlertDialog? = null
     private var mediaMenu: PopupMenu? = null
 
+    private var isRedoEnabled = false
+    private var isUndoEnabled = false
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
 
@@ -216,6 +224,7 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
         source.history = aztec.history
 
+        aztec.history.setHistoryListener(this)
         aztec.setOnImeBackListener(this)
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
@@ -365,6 +374,22 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         }
 
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menu?.findItem(R.id.redo)?.isEnabled = isRedoEnabled
+        menu?.findItem(R.id.undo)?.isEnabled = isUndoEnabled
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onRedoEnabled(state: Boolean) {
+        isRedoEnabled = state
+        invalidateOptionsMenu()
+    }
+
+    override fun onUndoEnabled(state: Boolean) {
+        isUndoEnabled = state
+        invalidateOptionsMenu()
     }
 
     fun onCameraPhotoMediaOptionSelected() {

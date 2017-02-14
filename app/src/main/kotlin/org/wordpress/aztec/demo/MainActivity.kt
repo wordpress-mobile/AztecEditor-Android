@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -123,14 +124,22 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
-                    bitmap = BitmapFactory.decodeFile(mediaPath)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeFile(mediaPath, options)
                 }
                 REQUEST_MEDIA_CAMERA_VIDEO -> {
                 }
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
                     val stream = contentResolver.openInputStream(Uri.parse(mediaPath))
-                    bitmap = BitmapFactory.decodeStream(stream)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeStream(stream, null, options)
                 }
                 REQUEST_MEDIA_VIDEO -> {
                 }
@@ -212,9 +221,11 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)
-        aztec.fromHtml(source.getPureHtml())
 
-        source.history = aztec.history
+        if (savedInstanceState == null) {
+            aztec.fromHtml(source.getPureHtml())
+            source.history = aztec.history
+        }
 
         aztec.setOnImeBackListener(this)
         aztec.setOnTouchListener(this)
@@ -249,6 +260,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
+
+        source.history = aztec.history
 
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {

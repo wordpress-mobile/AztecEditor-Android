@@ -270,6 +270,7 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
         val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
+        span.textView = editor
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
         .firstOrNull {

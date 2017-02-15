@@ -5,16 +5,23 @@ import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.util.regex.Pattern
+import org.jsoup.nodes.Entities.EscapeMode
+import org.jsoup.safety.Cleaner
+import org.jsoup.safety.Whitelist
+
+
 
 object Format {
 
     // list of block elements
     private val block = "div|span|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6"
 
-    fun addFormatting(content: String): String {
-        val doc = Jsoup.parseBodyFragment(content)
+    private val iframePlaceholder = "iframe-replacement-0x0"
 
-        val html = unescapeIframes(doc)
+    fun addFormatting(content: String): String {
+        var html = replaceAll(content, "iframe", iframePlaceholder)
+        html = Jsoup.parseBodyFragment(html).body().html()
+        html = replaceAll(html, iframePlaceholder, "iframe")
 
         //remove newline around all non block elements
         val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
@@ -22,20 +29,6 @@ object Format {
         val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
 
         return fixBrNewlines.trim()
-    }
-
-    private fun unescapeIframes(doc: Document): String {
-        val unescape = ArrayMap<String, String>()
-        doc.getElementsByTag("iframe").forEach {
-            unescape.put(it.html(), StringEscapeUtils.unescapeHtml(it.html()))
-        }
-
-        var html = doc.body().html()
-
-        unescape.forEach {
-            html = replaceAll(html, it.key, it.value)
-        }
-        return html
     }
 
     fun clearFormatting(html: String): String {

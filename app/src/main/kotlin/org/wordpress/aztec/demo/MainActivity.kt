@@ -115,6 +115,9 @@ class MainActivity : AppCompatActivity(),
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
+    private lateinit var invalidateOptionsHandler: Handler
+    private lateinit var invalidateOptionsRunnable: Runnable
+
     private var addPhotoMediaDialog: AlertDialog? = null
     private var addVideoMediaDialog: AlertDialog? = null
     private var mediaUploadDialog: AlertDialog? = null
@@ -227,6 +230,9 @@ class MainActivity : AppCompatActivity(),
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
         source.setOnTouchListener(this)
+
+        invalidateOptionsHandler = Handler()
+        invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
     }
 
     override fun onPause() {
@@ -381,11 +387,13 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onRedoEnabled() {
-        invalidateOptionsMenu()
+        invalidateOptionsHandler.removeCallbacks(invalidateOptionsRunnable)
+        invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
     }
 
     override fun onUndoEnabled() {
-        invalidateOptionsMenu()
+        invalidateOptionsHandler.removeCallbacks(invalidateOptionsRunnable)
+        invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
     }
 
     fun onCameraPhotoMediaOptionSelected() {

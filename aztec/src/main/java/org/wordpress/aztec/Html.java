@@ -315,6 +315,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
                 return; //already handled at start tag
+            } else if (tag.equalsIgnoreCase("br")) {
+                unknownTagLevel -= 1;
+                return; //already handled at start tag
             }
             // Swallow closing tag in current Unknown element
             unknown.rawHtml.append("</").append(tag).append(">");

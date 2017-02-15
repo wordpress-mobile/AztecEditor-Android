@@ -944,10 +944,25 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         builder.setView(dialogView)
 
         builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
-            unknownHtmlSpan.rawHtml = StringBuilder(source.getPureHtml())
             val spanStart = text.getSpanStart(unknownHtmlSpan)
-            fromHtml(toHtml(false))
+
+            val textBuilder = SpannableStringBuilder()
+            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onMediaTappedListener, this, context).trim())
             setSelection(spanStart)
+
+            disableTextChangedListener()
+
+            text.removeSpan(unknownHtmlSpan)
+            text.replace(spanStart, spanStart + 1, textBuilder)
+
+            val unknownClickSpan = text.getSpans(spanStart, spanStart + 1, UnknownClickableSpan::class.java).firstOrNull()
+            if (unknownClickSpan != null) {
+                text.removeSpan(unknownClickSpan)
+            }
+
+            enableTextChangedListener()
+
+            inlineFormatter.joinStyleSpans(0, text.length)
         })
 
         builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->

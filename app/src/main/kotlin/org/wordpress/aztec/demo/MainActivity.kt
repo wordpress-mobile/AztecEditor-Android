@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -27,6 +28,7 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.HistoryListener
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -35,9 +37,14 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
-class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, View.OnTouchListener,
-        PopupMenu.OnMenuItemClickListener, AztecToolbarClickListener, AztecText.OnMediaTappedListener,
-        AztecText.OnImeBackListener {
+class MainActivity : AppCompatActivity(),
+        AztecText.OnImeBackListener,
+        AztecText.OnMediaTappedListener,
+        AztecToolbarClickListener,
+        HistoryListener,
+        OnRequestPermissionsResultCallback,
+        PopupMenu.OnMenuItemClickListener,
+        View.OnTouchListener {
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
@@ -109,6 +116,9 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
     private lateinit var source: SourceViewEditText
     private lateinit var formattingToolbar: AztecToolbar
 
+    private lateinit var invalidateOptionsHandler: Handler
+    private lateinit var invalidateOptionsRunnable: Runnable
+
     private var addPhotoMediaDialog: AlertDialog? = null
     private var addVideoMediaDialog: AlertDialog? = null
     private var mediaUploadDialog: AlertDialog? = null
@@ -123,14 +133,22 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
-                    bitmap = BitmapFactory.decodeFile(mediaPath)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeFile(mediaPath, options)
                 }
                 REQUEST_MEDIA_CAMERA_VIDEO -> {
                 }
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
                     val stream = contentResolver.openInputStream(Uri.parse(mediaPath))
-                    bitmap = BitmapFactory.decodeStream(stream)
+                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                    //  to correctly set the input density to 160 ourselves.
+                    val options = BitmapFactory.Options()
+                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                    bitmap = BitmapFactory.decodeStream(stream, null, options)
                 }
                 REQUEST_MEDIA_VIDEO -> {
                 }
@@ -212,14 +230,20 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)
-        aztec.fromHtml(source.getPureHtml())
 
-        source.history = aztec.history
+        if (savedInstanceState == null) {
+            aztec.fromHtml(source.getPureHtml())
+            source.history = aztec.history
+        }
 
+        aztec.history.setHistoryListener(this)
         aztec.setOnImeBackListener(this)
         aztec.setOnTouchListener(this)
         source.setOnImeBackListener(this)
         source.setOnTouchListener(this)
+
+        invalidateOptionsHandler = Handler()
+        invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
     }
 
     override fun onPause() {
@@ -249,6 +273,8 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
+
+        source.history = aztec.history
 
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
@@ -365,6 +391,22 @@ class MainActivity : AppCompatActivity(), OnRequestPermissionsResultCallback, Vi
         }
 
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menu?.findItem(R.id.redo)?.isEnabled = aztec.history.redoValid()
+        menu?.findItem(R.id.undo)?.isEnabled = aztec.history.undoValid()
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onRedoEnabled() {
+        invalidateOptionsHandler.removeCallbacks(invalidateOptionsRunnable)
+        invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
+    }
+
+    override fun onUndoEnabled() {
+        invalidateOptionsHandler.removeCallbacks(invalidateOptionsRunnable)
+        invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
     }
 
     fun onCameraPhotoMediaOptionSelected() {

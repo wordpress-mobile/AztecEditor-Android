@@ -39,7 +39,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.widget.EditText
-import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -105,6 +104,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     lateinit var linkFormatter: LinkFormatter
 
     var imageGetter: Html.ImageGetter? = null
+
+    var widthMeasureSpec: Int = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -354,6 +355,13 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 }
             }
         }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // capture the width spec to be used when pre-layingout AztecMediaSpans
+        this.widthMeasureSpec = widthMeasureSpec
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     fun setSelectedStyles(styles: ArrayList<TextFormat>) {
@@ -633,6 +641,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
 
+        builder.getSpans(0, builder.length, AztecMediaSpan::class.java).forEach {
+            it.textView = this
+        }
+
         setTextKeepState(builder)
         enableTextChangedListener()
 
@@ -662,19 +674,16 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
-                    refreshText()
+                    post {
+                        refreshText()
+                    }
                 }
             }
 
-            /*
-             * Following Android guidelines for keylines and spacing, screen edge margins should
-             * be 16dp.  Therefore, the width of images should be the width of the screen minus
-             * 16dp on both sides (i.e. 16 * 2 = 32).
-             *
-             * https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-baseline-grids
-             */
-            val width = context.resources.displayMetrics.widthPixels - DisplayUtils.dpToPx(context, 32)
-            imageGetter?.loadImage(it.getSource(), callbacks, width)
+            // maxidth set to the biggest of screen width/height to cater for device rotation
+            val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
+                    context.resources.displayMetrics.heightPixels)
+            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
         }
     }
 

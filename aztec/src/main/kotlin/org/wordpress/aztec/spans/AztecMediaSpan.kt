@@ -5,11 +5,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.text.*
 import android.text.style.DynamicDrawableSpan
 import android.view.Gravity
 import android.view.View
+import org.wordpress.aztec.AztecText
 
-import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.xml.sax.Attributes
 import java.util.*
@@ -19,21 +20,16 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
 
     private val TAG: String = "img"
 
-    companion object {
-        @JvmStatic private fun setBoundsToPx(context: Context, drawable: Drawable?) {
-            drawable?.let {
-                if (it.intrinsicWidth < 0 && it.intrinsicHeight < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
-                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.bounds.width())),
-                            DisplayUtils.dpToPx(context, (it.bounds.height())))
-                } else {
-                    it.setBounds(0, 0, DisplayUtils.dpToPx(context, (it.intrinsicWidth)),
-                            DisplayUtils.dpToPx(context, (it.intrinsicHeight)))
-                }
+    var textView: AztecText? = null
+    var originalBounds = Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+    var aspectRatio: Double = 1.0
+    private var measuring = false
 
-                val maxWidth = DisplayUtils.getDisplayPixelWidth(context) - DisplayUtils.dpToPx(context, 32)
-                if (drawable.bounds.width() > maxWidth) {
-                    drawable.setBounds(0, 0, maxWidth, maxWidth * drawable.bounds.height() / drawable.bounds.width())
+    companion object {
+        @JvmStatic private fun setInitBounds(drawable: Drawable?) {
+            drawable?.let {
+                if (it.bounds.isEmpty && (it.intrinsicWidth > -1 || it.intrinsicHeight > -1)) {
+                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
                 }
             }
         }
@@ -41,7 +37,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         @JvmStatic private fun getWidth(drawable: Drawable?): Int {
             drawable?.let {
                 if (it.intrinsicWidth < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
+                    // client may have set the bounds manually so, use those
                     return it.bounds.width()
                 } else {
                     return it.intrinsicWidth
@@ -54,7 +50,7 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         @JvmStatic private fun getHeight(drawable: Drawable?): Int {
             drawable?.let {
                 if (it.intrinsicHeight < 0) {
-                    // client may have set the bounds manually so, use those to adjust to px
+                    // client may have set the bounds manually so, use those
                     return it.bounds.height()
                 } else {
                     return it.intrinsicHeight
@@ -68,25 +64,112 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 
     init {
-        setBoundsToPx(context, drawable)
+        computeAspectRatio()
+
+        setInitBounds(drawable)
+    }
+
+    fun computeAspectRatio() {
+        if ((drawable?.intrinsicWidth ?: -1) > -1 && (drawable?.intrinsicHeight ?: -1) > -1) {
+            aspectRatio = 1.0 * (drawable?.intrinsicWidth ?: 1) / (drawable?.intrinsicHeight ?: 1)
+        } else if (!(drawable?.bounds?.isEmpty ?: true)) {
+            aspectRatio = 1.0 * (drawable?.bounds?.width() ?: 0) / (drawable?.bounds?.height() ?: 1)
+        } else {
+            aspectRatio = 1.0
+        }
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val width1 = drawable?.bounds?.width() ?: 0
-        var width: Int = width1
+        val sizeRect = adjustBounds(start)
 
-        overlays.forEach {
-            val width2 = it.first?.bounds?.width() ?: 0
-            width = if (width1 > width2) width1 else width2
+        if (metrics != null && sizeRect.width() > 0) {
+            metrics.ascent = - sizeRect.height()
+            metrics.descent = 0
+
+            metrics.top = metrics.ascent
+            metrics.bottom = 0
         }
 
-        drawable?.let {
-            if (metrics != null) {
-                metrics.ascent = -drawable!!.bounds!!.height()
-                metrics.descent = 0
+        return sizeRect.width()
+    }
 
-                metrics.top = metrics.ascent
-                metrics.bottom = 0
+    fun adjustBounds(start: Int): Rect {
+        if (textView == null || textView?.widthMeasureSpec == 0) {
+            return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+        }
+
+        if (measuring) {
+            // if we're in pre-layout phase, just return a tiny rect
+            return Rect(0, 0, 1, 1)
+        }
+
+        // get the TextView's target width
+        val want = calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
+                .minus(textView?.compoundPaddingLeft ?: 0)
+                .minus(textView?.compoundPaddingRight ?: 0)
+
+        // do a local pre-layout to measure the TextView's basic sizes and line margins
+        measuring = true
+        val layout = StaticLayout(textView?.text ?: "", 0, textView?.text?.length ?: 0, textView?.paint, want,
+                Layout.Alignment.ALIGN_NORMAL, 1f, 0f, true)
+        measuring = false
+
+        val line = layout.getLineForOffset(start)
+
+        val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
+
+        // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
+        //  just assume maximum size.
+
+        var width = if (originalBounds.width() > 0) originalBounds.width()
+                    else if ((drawable?.intrinsicWidth ?: -1) > -1) drawable?.intrinsicWidth ?: -1
+                    else maxWidth
+        var height = if (originalBounds.height() > 0) originalBounds.height()
+                    else if ((drawable?.intrinsicHeight ?: -1) > -1) drawable?.intrinsicHeight ?: -1
+                    else (width / aspectRatio).toInt()
+
+        if (width > maxWidth) {
+            width = maxWidth
+            height = (width / aspectRatio).toInt()
+        }
+
+        drawable?.bounds = Rect(0, 0, width, height)
+
+        return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+    }
+
+    fun calculateWantedWidth(widthMeasureSpec: Int): Int
+    {
+        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
+        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
+
+        var width: Int
+
+        val UNKNOWN_BORING = BoringLayout.Metrics()
+
+        var boring: BoringLayout.Metrics? = UNKNOWN_BORING
+
+        var des = -1
+
+        if (widthMode == View.MeasureSpec.EXACTLY) {
+            // Parent has told us how big to be. So be it.
+            width = widthSize
+        } else {
+            if (des < 0) {
+                boring = BoringLayout.isBoring("", textView?.paint)
+            }
+
+            if (boring == null || boring === UNKNOWN_BORING) {
+                if (des < 0) {
+                    des = Math.ceil(Layout.getDesiredWidth("", textView?.paint).toDouble()).toInt()
+                }
+                width = des
+            } else {
+                width = boring.width
+            }
+
+            if (widthMode == View.MeasureSpec.AT_MOST) {
+                width = Math.min(widthSize, width)
             }
         }
 
@@ -98,8 +181,13 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
     }
 
     fun setDrawable(newDrawable: Drawable?) {
-        setBoundsToPx(context, newDrawable)
         drawable = newDrawable
+
+        originalBounds = Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+
+        setInitBounds(newDrawable)
+
+        computeAspectRatio()
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -108,11 +196,10 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         }
 
         if (newDrawable != null) {
-            setBoundsToPx(context, newDrawable)
-            applyOverlayGravity(newDrawable, gravity)
-
             overlays.ensureCapacity(index + 1)
             overlays.add(index, Pair(newDrawable, gravity))
+
+            setInitBounds(newDrawable)
         }
     }
 
@@ -139,13 +226,17 @@ class AztecMediaSpan(val context: Context, private var drawable: Drawable?,
         canvas.save()
 
         if (drawable != null) {
-            var transY = bottom - drawable!!.bounds.bottom
+            var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 
             canvas.translate(x, transY.toFloat())
             drawable!!.draw(canvas)
+        }
+
+        overlays.forEach {
+            applyOverlayGravity(it.first, it.second)
         }
 
         overlays.forEach {

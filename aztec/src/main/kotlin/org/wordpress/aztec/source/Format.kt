@@ -14,11 +14,12 @@ import org.jsoup.safety.Whitelist
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6"
+    private val block = "div|span|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
     fun addFormatting(content: String): String {
+        // rename iframes to prevent encoding the inner HTML
         var html = replaceAll(content, "iframe", iframePlaceholder)
         html = Jsoup.parseBodyFragment(html).body().html()
         html = replaceAll(html, iframePlaceholder, "iframe")

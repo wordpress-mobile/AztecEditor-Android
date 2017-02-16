@@ -69,6 +69,8 @@ class AztecText : EditText, TextWatcher {
     private var isViewInitialized = false
     private var previousCursorPosition = 0
 
+    private var formatToolbar: AztecToolbar? = null
+
     val selectedStyles = ArrayList<TextFormat>()
 
     private var isNewStyleSelected = false
@@ -81,8 +83,6 @@ class AztecText : EditText, TextWatcher {
     lateinit var blockFormatter: BlockFormatter
     lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
-
-    lateinit var formatToolbar: AztecToolbar
 
     var imageGetter: Html.ImageGetter? = null
 
@@ -323,7 +323,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     override fun onKeyUp(keyCode: Int, keyEvent: KeyEvent): Boolean {
-        if (formatToolbar.onKeyUp(keyCode, keyEvent)) {
+        if (formatToolbar?.onKeyUp(keyCode, keyEvent) ?: false) {
             return true
         } else {
             return super.onKeyUp(keyCode, keyEvent)

@@ -4,11 +4,8 @@ import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.*
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
-import org.wordpress.aztec.R
-import org.wordpress.aztec.TextChangedEvent
-import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -273,30 +270,30 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
         val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
-        val html = span.getHtml();
+        span.textView = editor
 
-        val isAddingMediaToEndOfBlockElement = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-                .any {
-                    selectionStart == editableText.getSpanEnd(it)
-                }
+        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        .firstOrNull {
+            selectionStart == editableText.getSpanEnd(it)
+        }
 
-        val spanAtStartOfWhichMediaIsAdded = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanStart(it)
                 }
 
-        val modifier = if (isAddingMediaToEndOfBlockElement) 1 else 0
+        val mediaStartIndex = selectionStart
+        val mediaEndIndex = selectionStart + 1
 
-        val mediaStartIndex = selectionStart - modifier
-        val mediaEndIndex = selectionStart + html.length - modifier
+        editor.disableTextChangedListener()
+        editableText.replace(selectionStart, selectionEnd, Constants.IMG_STRING)
 
-        if (!isAddingMediaToEndOfBlockElement)
-            editor.disableTextChangedListener()
+        if (spanAfterMedia != null) {
+            editableText.setSpan(spanAfterMedia, mediaStartIndex, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
 
-        editableText.replace(selectionStart, selectionEnd, html)
-
-        if (spanAtStartOfWhichMediaIsAdded != null) {
-            editableText.setSpan(spanAtStartOfWhichMediaIsAdded, mediaStartIndex, editableText.getSpanEnd(spanAtStartOfWhichMediaIsAdded), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (spanBeforeMedia != null) {
+            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), mediaEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)

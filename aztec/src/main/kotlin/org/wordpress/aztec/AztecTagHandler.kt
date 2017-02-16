@@ -79,7 +79,7 @@ class AztecTagHandler : Html.TagHandler {
                     val mediaSpan = createImageSpan(attributes, onMediaTappedListener, context)
                     start(output, mediaSpan)
                     start(output, AztecMediaClickableSpan(mediaSpan))
-                    output.append("\uFFFC")
+                    output.append(Constants.IMG_CHAR)
                 } else {
                     end(output, AztecMediaSpan::class.java)
                     end(output, AztecMediaClickableSpan::class.java)
@@ -176,6 +176,11 @@ class AztecTagHandler : Html.TagHandler {
         output.removeSpan(last) // important to keep the correct order of spans!
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        //if block element is empty add newline to it and extend span
+        else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
+            output.append("\n")
+            output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

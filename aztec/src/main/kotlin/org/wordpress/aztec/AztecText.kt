@@ -705,10 +705,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     fun toFormattedHtml(): String {
-        val parser = AztecParser()
-        val output = SpannableStringBuilder(text)
-        clearMetaSpans(output)
-        return Format.addFormatting(parser.toHtml(output))
+        return Format.addFormatting(toHtml())
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

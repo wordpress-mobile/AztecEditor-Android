@@ -196,11 +196,11 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        Handler().post(runnable);
-        Handler().postDelayed(runnable, 2000);
-        Handler().postDelayed(runnable, 4000);
-        Handler().postDelayed(runnable, 6000);
-        Handler().postDelayed(runnable, 8000);
+        Handler().post(runnable)
+        Handler().postDelayed(runnable, 2000)
+        Handler().postDelayed(runnable, 4000)
+        Handler().postDelayed(runnable, 6000)
+        Handler().postDelayed(runnable, 8000)
 
         aztec.refreshText()
     }
@@ -227,6 +227,7 @@ class MainActivity : AppCompatActivity(),
         formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
         formattingToolbar.setEditor(aztec, source)
         formattingToolbar.setToolbarListener(this)
+        aztec.setToolbar(formattingToolbar)
 
         // initialize the text & HTML
         source.displayStyledAndFormattedHtml(EXAMPLE)

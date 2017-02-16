@@ -4,6 +4,7 @@
 
     <!-- STYLING -->
     <color name="background">@color/white</color>
+    <color name="background_key">@color/grey_c_30</color>
     <color name="bullet">@color/text</color>
     <color name="link">@color/blue_wordpress</color>
     <color name="quote">@color/background</color>
@@ -38,6 +39,7 @@
     <color name="grey_a_40">#66aaaaaa</color>
     <color name="grey_b">#ffbbbbbb</color>
     <color name="grey_c">#ffcccccc</color>
+    <color name="grey_c_30">#4dcccccc</color>
     <color name="grey_e">#ffeeeeee</color>
     <color name="white">#ffffffff</color>
 

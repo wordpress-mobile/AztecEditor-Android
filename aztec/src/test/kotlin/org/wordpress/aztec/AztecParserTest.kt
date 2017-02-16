@@ -484,7 +484,7 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlQuoteEmpty_isEqual() {
         val input = HTML_QUOTE_EMPTY
-        val span = SpannableString(mParser.fromHtml(input, null, context))
+        val span = SpannableString(mParser.fromHtml(input, null, null, context))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }

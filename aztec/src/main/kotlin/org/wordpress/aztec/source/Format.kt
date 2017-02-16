@@ -27,7 +27,7 @@ object Format {
         //remove newline around all non block elements
         val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
-        val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
+        val fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
 
         return fixBrNewlines.trim()
     }

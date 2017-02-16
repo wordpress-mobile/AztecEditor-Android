@@ -639,12 +639,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         val parser = AztecParser()
         builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
 
-        val cursorTagIndex = builder.indexOf(AztecCursorSpan.AZTEC_CURSOR_TAG)
-        if (cursorTagIndex > -1) {
-            builder.setSpan(AztecCursorSpan(), cursorTagIndex, cursorTagIndex, Spanned.SPAN_MARK_MARK)
-            builder.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
-        }
-
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
 
@@ -700,10 +694,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         clearMetaSpans(output)
 
+        for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
+            output.removeSpan(span)
+        }
         if (withCursorTag) {
-            for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
-                output.removeSpan(span)
-            }
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 

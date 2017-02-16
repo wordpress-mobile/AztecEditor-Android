@@ -5,7 +5,6 @@ import android.text.Selection
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.TextView
 import org.wordpress.aztec.spans.AztecMediaClickableSpan

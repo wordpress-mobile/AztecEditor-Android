@@ -34,6 +34,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -44,29 +45,52 @@ import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.source.Format
+import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.TypefaceCache
 import org.xml.sax.Attributes
 import java.util.*
 
+class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
-class AztecText : EditText, TextWatcher {
+    companion object {
+        val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
+        val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
+        val BLOCK_DIALOG_VISIBLE_KEY = "BLOCK_DIALOG_VISIBLE_KEY"
+
+        val LINK_DIALOG_VISIBLE_KEY = "LINK_DIALOG_VISIBLE_KEY"
+        val LINK_DIALOG_URL_KEY = "LINK_DIALOG_URL_KEY"
+        val LINK_DIALOG_ANCHOR_KEY = "LINK_DIALOG_ANCHOR_KEY"
+
+        val HISTORY_LIST_KEY = "HISTORY_LIST_KEY"
+        val HISTORY_CURSOR_KEY = "HISTORY_CURSOR_KEY"
+
+        val SELECTION_START_KEY = "SELECTION_START_KEY"
+        val SELECTION_END_KEY = "SELECTION_END_KEY"
+
+        val INPUT_LAST_KEY = "INPUT_LAST_KEY"
+        val VISIBILITY_KEY = "VISIBILITY_KEY"
+        val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
+        val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
+    }
+
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
     private var addLinkDialog: AlertDialog? = null
+    private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
-
     private var onImeBackListener: OnImeBackListener? = null
-
     private var onMediaTappedListener: OnMediaTappedListener? = null
 
     private var isViewInitialized = false
     private var previousCursorPosition = 0
+
+    private var unknownBlockSpanStart = -1
 
     private var formatToolbar: AztecToolbar? = null
 
@@ -215,68 +239,94 @@ class AztecText : EditText, TextWatcher {
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             addLinkDialog!!.dismiss()
         }
+
+        if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
+            blockEditorDialog!!.dismiss()
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
-        val array = ArrayList(customState.getStringArrayList("historyList"))
+        val array = ArrayList(customState.getStringArrayList(HISTORY_LIST_KEY))
         val list = LinkedList<String>()
 
         list += array
 
         history.historyList = list
-        history.historyCursor = customState.getInt("historyCursor")
-        history.inputLast = customState.getString("inputLast")
-        visibility = customState.getInt("visibility")
+        history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
+        history.inputLast = customState.getString(INPUT_LAST_KEY)
+        visibility = customState.getInt(VISIBILITY_KEY)
 
-        val retainedHtml = customState.getString("retained_html")
+        val retainedHtml = customState.getString(RETAINED_HTML_KEY)
         fromHtml(retainedHtml)
 
-        val retainedSelectionStart = customState.getInt("selection_start")
-        val retainedSelectionEnd = customState.getInt("selection_end")
+        val retainedSelectionStart = customState.getInt(SELECTION_START_KEY)
+        val retainedSelectionEnd = customState.getInt(SELECTION_END_KEY)
 
         if (retainedSelectionEnd < editableText.length) {
             setSelection(retainedSelectionStart, retainedSelectionEnd)
         }
 
 
-        val isDialogVisible = customState.getBoolean("isUrlDialogVisible", false)
-
-        if (isDialogVisible) {
-            val retainedUrl = customState.getString("retainedUrl", "")
-            val retainedAnchor = customState.getString("retainedAnchor", "")
+        val isLinkDialogVisible = customState.getBoolean(LINK_DIALOG_VISIBLE_KEY, false)
+        if (isLinkDialogVisible) {
+            val retainedUrl = customState.getString(LINK_DIALOG_URL_KEY, "")
+            val retainedAnchor = customState.getString(LINK_DIALOG_ANCHOR_KEY, "")
 
             showLinkDialog(retainedUrl, retainedAnchor)
         }
 
-        isMediaAdded = customState.getBoolean("isMediaAdded")
+        val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
+        if (isBlockEditorDialogVisible) {
+
+            val retainedBlockHtmlIndex = customState.getInt(BLOCK_EDITOR_START_INDEX_KEY, -1)
+            if (retainedBlockHtmlIndex != -1) {
+
+                val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
+                if (unknownSpan != null) {
+
+                    val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
+                    showBlockEditorDialog(unknownSpan, retainedBlockHtml)
+                }
+            }
+        }
+
+        isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
     }
 
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
-        bundle.putStringArrayList("historyList", ArrayList<String>(history.historyList))
-        bundle.putInt("historyCursor", history.historyCursor)
-        bundle.putString("inputLast", history.inputLast)
-        bundle.putInt("visibility", visibility)
-        bundle.putString("retained_html", toHtml(false))
-        bundle.putInt("selection_start", selectionStart)
-        bundle.putInt("selection_end", selectionEnd)
+        bundle.putStringArrayList(HISTORY_LIST_KEY, ArrayList<String>(history.historyList))
+        bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
+        bundle.putString(INPUT_LAST_KEY, history.inputLast)
+        bundle.putInt(VISIBILITY_KEY, visibility)
+        bundle.putString(RETAINED_HTML_KEY, toHtml(false))
+        bundle.putInt(SELECTION_START_KEY, selectionStart)
+        bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
-            bundle.putBoolean("isUrlDialogVisible", true)
+            bundle.putBoolean(LINK_DIALOG_VISIBLE_KEY, true)
 
             val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
             val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
 
-            bundle.putString("retainedUrl", urlInput.text.toString())
-            bundle.putString("retainedAnchor", anchorInput.text.toString())
+            bundle.putString(LINK_DIALOG_URL_KEY, urlInput.text.toString())
+            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput.text.toString())
         }
 
-        bundle.putBoolean("isMediaAdded", isMediaAdded)
+        if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
+            val source = blockEditorDialog!!.findViewById(R.id.source) as SourceViewEditText
+
+            bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
+            bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
+            bundle.putString(BLOCK_EDITOR_HTML_KEY, source.getPureHtml(false))
+        }
+
+        bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
         savedState.state = bundle
         return savedState
@@ -590,7 +640,7 @@ class AztecText : EditText, TextWatcher {
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = 0
+        var cursorPosition = Math.min(selectionStart, length())
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
@@ -601,15 +651,12 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun fromHtml(source: String) {
-        disableTextChangedListener()
-        editableText.clear()
-
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, context))
+        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
+
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
-        val cursorPosition = consumeCursorPosition(builder)
 
         builder.getSpans(0, builder.length, AztecMediaSpan::class.java).forEach {
             it.textView = this
@@ -617,6 +664,8 @@ class AztecText : EditText, TextWatcher {
 
         setTextKeepState(builder)
         enableTextChangedListener()
+
+        val cursorPosition = consumeCursorPosition(builder)
         setSelection(cursorPosition)
 
         loadImages()
@@ -661,6 +710,9 @@ class AztecText : EditText, TextWatcher {
 
         clearMetaSpans(output)
 
+        for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
+            output.removeSpan(span)
+        }
         if (withCursorTag) {
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
@@ -669,10 +721,7 @@ class AztecText : EditText, TextWatcher {
     }
 
     fun toFormattedHtml(): String {
-        val parser = AztecParser()
-        val output = SpannableStringBuilder(text)
-        clearMetaSpans(output)
-        return Format.addFormatting(parser.toHtml(output))
+        return Format.addFormatting(toHtml())
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
@@ -819,7 +868,7 @@ class AztecText : EditText, TextWatcher {
 
                 val builder = SpannableStringBuilder()
                 builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
-                        context).trim())
+                        this, context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -879,9 +928,9 @@ class AztecText : EditText, TextWatcher {
         anchorInput.setText(anchor)
 
         builder.setView(dialogView)
-        builder.setTitle(R.string.dialog_title)
+        builder.setTitle(R.string.link_dialog_title)
 
-        builder.setPositiveButton(R.string.dialog_button_ok, { dialog, which ->
+        builder.setPositiveButton(R.string.link_dialog_button_ok, { dialog, which ->
             val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
@@ -890,12 +939,12 @@ class AztecText : EditText, TextWatcher {
         })
 
         if (linkFormatter.isUrlSelected()) {
-            builder.setNeutralButton(R.string.dialog_button_remove_link, { dialogInterface, i ->
+            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { dialogInterface, i ->
                 removeLink()
             })
         }
 
-        builder.setNegativeButton(R.string.dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, i ->
             dialogInterface.dismiss()
         })
 
@@ -903,6 +952,51 @@ class AztecText : EditText, TextWatcher {
         addLinkDialog!!.show()
     }
 
+    fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
+        val builder = AlertDialog.Builder(context)
+
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
+        val source = dialogView.findViewById(R.id.source) as SourceViewEditText
+
+        var editHtml = html
+        if (TextUtils.isEmpty(editHtml)) {
+            editHtml = unknownHtmlSpan.rawHtml.toString()
+        }
+
+        source.displayStyledAndFormattedHtml(editHtml)
+        builder.setView(dialogView)
+
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
+            val spanStart = text.getSpanStart(unknownHtmlSpan)
+
+            val textBuilder = SpannableStringBuilder()
+            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onMediaTappedListener, this, context).trim())
+            setSelection(spanStart)
+
+            disableTextChangedListener()
+
+            text.removeSpan(unknownHtmlSpan)
+            text.replace(spanStart, spanStart + 1, textBuilder)
+
+            val unknownClickSpan = text.getSpans(spanStart, spanStart + 1, UnknownClickableSpan::class.java).firstOrNull()
+            if (unknownClickSpan != null) {
+                text.removeSpan(unknownClickSpan)
+            }
+
+            enableTextChangedListener()
+
+            inlineFormatter.joinStyleSpans(0, text.length)
+        })
+
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->
+            dialogInterface.dismiss()
+        })
+
+        unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
+        blockEditorDialog = builder.create()
+        blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        blockEditorDialog!!.show()
+    }
 
     //Custom input connection is used to detect the press of backspace when no characters are deleted
     //(eg. at 0 index of EditText)
@@ -1025,5 +1119,9 @@ class AztecText : EditText, TextWatcher {
                     }
                 }
                 .map { it.attributes }
+    }
+
+    override fun onUnknownHtmlClicked(unknownHtmlSpan: UnknownHtmlSpan) {
+        showBlockEditorDialog(unknownHtmlSpan)
     }
 }

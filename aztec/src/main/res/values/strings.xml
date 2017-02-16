@@ -1,11 +1,15 @@
 <resources>
 
-    <!-- DIALOG -->
-    <string name="dialog_title">Insert link</string>
-    <string name="dialog_button_remove_link">Remove Link</string>
-    <string name="dialog_edit_hint">http(s)://</string>
-    <string name="dialog_button_ok">OK</string>
-    <string name="dialog_button_cancel">Cancel</string>
+    <!-- LINK DIALOG -->
+    <string name="link_dialog_title">Insert link</string>
+    <string name="link_dialog_button_remove_link">Remove Link</string>
+    <string name="link_dialog_edit_hint">http(s)://</string>
+    <string name="link_dialog_button_ok">OK</string>
+    <string name="link_dialog_button_cancel">Cancel</string>
+
+    <!-- LINK DIALOG -->
+    <string name="block_editor_dialog_button_save">Save</string>
+    <string name="block_editor_dialog_button_cancel">Cancel</string>
 
     <!-- FORMAT -->
     <string name="format_bar_description_heading">Heading</string>

@@ -150,6 +150,60 @@ class AztecParser {
         }
     }
 
+    fun syncVisualNewlinesOfBlockElements(spanned: Editable) {
+        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+            val spanStart = spanned.getSpanStart(it)
+
+            if (spanStart < 1) {
+                // no newline if at text start so, return
+                return@forEach
+            }
+
+            if (spanStart < 2) {
+                // no visual newline can exist unless there are at least 2 chars before the block (one will be the newline
+                //  and the other will be the leading content) so, return
+                return@forEach
+            }
+
+            if (spanned[spanStart - 1] != '\n') {
+                // no newline before so, nothing to mark as visual newline
+                return@forEach
+            }
+
+            if (spanned.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).isNotEmpty()) {
+                // there's a visual newline already set so, nothing to do here
+                return@forEach
+            }
+
+            // at last, all checks passed so, let's mark the newline as visual!
+            markBlockElementLineBreak(spanned, spanStart - 1)
+        }
+
+        // add visual newlines at ends
+        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+            val spanEnd = spanned.getSpanEnd(it)
+
+            if (spanEnd == spanned.length) {
+                // no newline if at text end
+                return@forEach
+            }
+
+            if (spanned[spanEnd] != '\n') {
+                // no newline after so, nothing to mark as visual newline
+                return@forEach
+            }
+
+            if (spanned.getSpans(spanEnd, spanned.length, BlockElementLinebreak::class.java).isNotEmpty()) {
+                // there's a visual newline already set after us so, nothing to do here. Counting on the 1st phase (the
+                //  newlines at block starts) to have done its job.
+                return@forEach
+            }
+
+            // at last, all checks passed so, let's mark the newline as visual!
+            markBlockElementLineBreak(spanned, spanEnd)
+        }
+    }
+
     private fun resetHiddenTagParser(text: Spanned) {
         // keeps track of the next span to be closed
         hiddenIndex = 0

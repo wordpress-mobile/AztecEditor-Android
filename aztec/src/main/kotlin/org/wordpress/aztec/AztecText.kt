@@ -717,6 +717,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 
+        parser.syncVisualNewlinesOfBlockElements(output)
+
         return Format.clearFormatting(parser.toHtml(output, withCursorTag))
     }
 
@@ -850,6 +852,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         //Strip block elements untill we figure out copy paste completely
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
+        parser.syncVisualNewlinesOfBlockElements(output)
         val html = Format.clearFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager

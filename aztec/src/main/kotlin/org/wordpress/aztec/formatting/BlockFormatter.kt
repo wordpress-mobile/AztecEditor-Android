@@ -236,24 +236,25 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             if (!deletedCharacterIsNewline) return
 
             // backspace on a line right after a list attaches the line to the last item
-            val blockSpan = editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).firstOrNull()
-            val before = Math.min(inputStart, inputEnd)
-            val spanEnd = text.getSpanEnd(blockSpan)
-            val spanStart = text.getSpanStart(blockSpan)
+            editableText.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).forEach {
+                val before = Math.min(inputStart, inputEnd)
+                val spanEnd = text.getSpanEnd(it)
+                val spanStart = text.getSpanStart(it)
 
-            if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
-                text.setSpan(blockSpan, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-
-            if (blockSpan != null && before - 1 > 0 && text.getSpanEnd(blockSpan) == before) {
-                if (textChangedEvent.textBefore[before] == Constants.ZWJ_CHAR) {
-                    editor.disableTextChangedListener()
-                    text.delete(before - 1, before)
+                if (spanEnd - 1 > 0 && spanStart < spanEnd && spanEnd > 0 && text[spanEnd - 1] == '\n') {
+                    text.setSpan(it, spanStart, spanEnd - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
 
-                val newline = text.indexOf('\n', before)
-                val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
-                text.setSpan(blockSpan, text.getSpanStart(blockSpan), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (it != null && before - 1 > 0 && text.getSpanEnd(it) == before) {
+                    if (textChangedEvent.textBefore[before] == Constants.ZWJ_CHAR) {
+                        editor.disableTextChangedListener()
+                        text.delete(before - 1, before)
+                    }
+
+                    val newline = text.indexOf('\n', before)
+                    val end = if (newline != -1) Math.min(text.length, text.indexOf('\n', before)) else text.length
+                    text.setSpan(it, text.getSpanStart(it), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
         }
 

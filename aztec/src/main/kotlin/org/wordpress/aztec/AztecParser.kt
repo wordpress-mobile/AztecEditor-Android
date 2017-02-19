@@ -150,7 +150,13 @@ class AztecParser {
         }
     }
 
+    // Always try to put a visual newline before block elements and only put one after if needed
     fun syncVisualNewlinesOfBlockElements(spanned: Editable) {
+        // clear any visual newline marking. We'll mark them with a fresh set of passes
+        spanned.getSpans(0, spanned.length, BlockElementLinebreak::class.java).forEach {
+            spanned.removeSpan(it)
+        }
+
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
 

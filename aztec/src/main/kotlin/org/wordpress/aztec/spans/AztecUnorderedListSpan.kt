@@ -38,17 +38,24 @@ class AztecUnorderedListSpan : AztecListSpan {
     override var lastItem: AztecListItemSpan = AztecListItemSpan()
 
 
-    constructor(attributes: String) : super(0) {
+    constructor(attributes: String){
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+        setStyle(listStyle)
+
+        this.attributes = attributes
+        this.lastItem = last
+    }
+
+    fun setStyle(listStyle: BlockFormatter.ListStyle) {
+        super.verticalPadding = listStyle.verticalPadding
+
         this.bulletColor = listStyle.indicatorColor
         this.bulletMargin = listStyle.indicatorMargin
         this.bulletWidth = listStyle.indicatorWidth
         this.bulletPadding = listStyle.indicatorPadding
-        this.attributes = attributes
-        this.lastItem = last
     }
 
     override fun getStartTag(): String {

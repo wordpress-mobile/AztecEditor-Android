@@ -53,6 +53,10 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
     }
 
     constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String = "") : this(attributes) {
+        setStyle(quoteStyle)
+    }
+
+    fun setStyle(quoteStyle: BlockFormatter.QuoteStyle) {
         this.verticalPadding = quoteStyle.verticalPadding
         this.quoteBackground = quoteStyle.quoteBackground
         this.quoteColor = quoteStyle.quoteColor

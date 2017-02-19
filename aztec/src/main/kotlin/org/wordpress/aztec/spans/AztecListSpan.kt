@@ -7,7 +7,7 @@ import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
 
 
-abstract class AztecListSpan(val verticalPadding: Int) : LeadingMarginSpan.Standard(0), AztecBlockSpan, LineHeightSpan, UpdateLayout {
+abstract class AztecListSpan(var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     abstract var lastItem: AztecListItemSpan
 

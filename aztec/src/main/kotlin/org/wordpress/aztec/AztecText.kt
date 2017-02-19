@@ -727,22 +727,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        val blockSpans = editable.getSpans(start, end, AztecBlockSpan::class.java)
-        blockSpans.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-
-            if (it is AztecListSpan) {
-                blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem).forEach {
-                    editable.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-            } else {
-                blockFormatter.makeBlockSpan(it.javaClass, it.attributes).forEach {
-                    editable.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-            }
-        }
+        editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
 
         val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)
         for (span in paragraphSpans) {

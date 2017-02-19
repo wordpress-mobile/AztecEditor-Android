@@ -318,13 +318,11 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-
-    fun makeBlockSpan(spanType: Class<AztecBlockSpan>, attrs: String = "", lastItem: AztecListItemSpan = AztecListItemSpan()): List<AztecBlockSpan> {
-        when (spanType) {
-            AztecOrderedListSpan::class.java -> return makeBlockSpan(TextFormat.FORMAT_ORDERED_LIST, attrs, lastItem)
-            AztecUnorderedListSpan::class.java -> return makeBlockSpan(TextFormat.FORMAT_UNORDERED_LIST, attrs, lastItem)
-            AztecQuoteSpan::class.java -> return makeBlockSpan(TextFormat.FORMAT_QUOTE, attrs)
-            else -> return makeBlockSpan(TextFormat.FORMAT_PARAGRAPH, attrs)
+    fun setBlockStyle(blockElement: AztecBlockSpan) {
+        when (blockElement) {
+            is AztecOrderedListSpan -> blockElement.setStyle(listStyle)
+            is AztecUnorderedListSpan -> blockElement.setStyle(listStyle)
+            is AztecQuoteSpan -> blockElement.setStyle(quoteStyle)
         }
     }
 

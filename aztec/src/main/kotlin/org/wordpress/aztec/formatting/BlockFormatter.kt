@@ -663,7 +663,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
                     // reset the new last item's attributes
                     text.setSpan(list.lastItem, text.getSpanStart(list.lastItem), prevNewline, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    list.lastItem = AztecListItemSpan()
+
+                    val newListItem = AztecListItemSpan()
+                    text.setSpan(newListItem, prevNewline + 1, listEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    list.lastItem = newListItem
                 }
             }
         }

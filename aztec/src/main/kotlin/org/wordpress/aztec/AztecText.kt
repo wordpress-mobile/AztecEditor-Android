@@ -734,9 +734,13 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             editable.removeSpan(it)
 
             if (it is AztecListSpan) {
-                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem).forEach {
+                    editable.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             } else {
-                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                blockFormatter.makeBlockSpan(it.javaClass, it.attributes).forEach {
+                    editable.setSpan(it, spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
         }
 

@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.text.style.ImageSpan
 import org.wordpress.android.util.DisplayUtils
 
-class AztecHorizontalLinSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
+class AztecHorizontalLineSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
 
     companion object {
         private val rect: Rect = Rect()
@@ -30,8 +30,8 @@ class AztecHorizontalLinSpan(val context: Context, drawable: Drawable) : ImageSp
 
     private fun getBounds(drawable: Drawable): Rect {
         if (drawable.intrinsicWidth === 0) {
-            AztecHorizontalLinSpan.rect.set(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-            return AztecHorizontalLinSpan.rect
+            AztecHorizontalLineSpan.rect.set(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+            return AztecHorizontalLineSpan.rect
         }
 
         /*

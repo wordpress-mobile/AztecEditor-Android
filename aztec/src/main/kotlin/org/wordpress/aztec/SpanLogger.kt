@@ -27,7 +27,7 @@ object SpanLogger {
 //        }
 
         val sb = StringBuilder()
-        sb.append('\n').append(text.toString().replace('\n', '⤦')) // ␤
+        sb.append('\n').append(text.toString().replace('\n', '↵').replace('\u200B', '↭')) // ␤
 
         for (span in spansList) {
             val start = text.getSpanStart(span)

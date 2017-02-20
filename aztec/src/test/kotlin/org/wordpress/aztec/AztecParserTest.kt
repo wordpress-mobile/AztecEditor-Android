@@ -1148,4 +1148,13 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBrAfterHeadings2_isEqual() {
+        val input = "<ol><li><ul><li>supernesting</li></ul></li></ol><br>"
+        val span = SpannableString(mParser.fromHtml(input, null, null, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

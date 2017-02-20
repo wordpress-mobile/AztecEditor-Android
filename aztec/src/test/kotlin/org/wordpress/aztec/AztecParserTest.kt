@@ -1157,4 +1157,13 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlMixedContentInListitem_isEqual() {
+        val input = "<ul><li>some text<blockquote>Quote</blockquote>some text</li></ul>"
+        val span = SpannableString(mParser.fromHtml(input, null, null, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

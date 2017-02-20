@@ -8,8 +8,8 @@ import java.util.*
  * Created by hypest on 11/01/17.
  */
 object SpanLogger {
-    private fun spaces(count: Int): String {
-        return TextUtils.join("", Collections.nCopies(count, " "))
+    private fun spaces(count: Int, char: String = " "): String {
+        return TextUtils.join("", Collections.nCopies(count, char))
     }
 
     @JvmStatic fun logSpans(text: Spanned): String {
@@ -27,7 +27,8 @@ object SpanLogger {
 //        }
 
         val sb = StringBuilder()
-        sb.append('\n').append(text.toString().replace('\n', '↵').replace('\u200B', '↭')) // ␤
+        sb.append('\n').append(text.toString().replace('\n', '¶').replace('\u200B', '¬')) // ␤↵↭
+        sb.append("  length = " + text.length)
 
         for (span in spansList) {
             val start = text.getSpanStart(span)
@@ -42,16 +43,33 @@ object SpanLogger {
                 gap -= start
             }
 
-            sb.append('|')
-            gap--
+            val spanMode = text.getSpanFlags(span) and Spanned.SPAN_POINT_MARK_MASK
+
+            if (end - start > 0) {
+                sb.append(if (spanMode == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanMode == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) '<' else '>')
+//                sb.append(if (spanMode == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanMode == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) '⇤' else '⇠')
+//                sb.append('|')
+                gap--
+            } else {
+                if (spanMode == Spanned.SPAN_INCLUSIVE_INCLUSIVE) {
+                    sb.append('x')
+                } else if (spanMode == Spanned.SPAN_INCLUSIVE_EXCLUSIVE) {
+                    sb.append('>')
+                } else if (spanMode == Spanned.SPAN_EXCLUSIVE_INCLUSIVE) {
+                    sb.append('<')
+                } else if (spanMode == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
+                    sb.append('o')
+                }
+            }
 
             if (end - start - 1 > 0) {
-                sb.append(spaces(end - start - 1))
+                sb.append(spaces(end - start - 1, "-"))
                 gap -= end - start - 1
             }
 
             if (end - start > 0) {
-                sb.append('|')
+                sb.append(if (spanMode == Spanned.SPAN_INCLUSIVE_EXCLUSIVE || spanMode == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) '>' else '<')
+//                sb.append('|')
                 gap--
             }
 

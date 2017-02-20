@@ -9,8 +9,6 @@ import android.text.style.UpdateLayout
 
 abstract class AztecListSpan(var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
-    abstract var lastItem: AztecListItemSpan
-
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)

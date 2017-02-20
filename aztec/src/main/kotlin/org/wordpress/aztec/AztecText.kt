@@ -554,18 +554,19 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         var blockStart = -1
         var blockEnd = -1
         if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
-            val block = this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).firstOrNull()
-            if (block != null) {
-                blockStart = this.text.getSpanStart(block)
-                blockEnd = this.text.getSpanEnd(block)
-                deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
-                        (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
-                        (start == 0 || text[start - 1] == '\n')
+            this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).forEach {
+                if (it != null) {
+                    blockStart = this.text.getSpanStart(it)
+                    blockEnd = this.text.getSpanEnd(it)
+                    deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
+                            (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
+                            (start == 0 || text[start - 1] == '\n')
 
-                // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
-                // because we want to allow a block span with empty text (such as list with a single empty first item)
-                if (deletedFromBlock && after == 0 && blockEnd - blockStart == count) {
-                    this.text.setSpan(block, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
+                    // because we want to allow a block span with empty text (such as list with a single empty first item)
+                    if (deletedFromBlock && after == 0 && blockEnd - blockStart == count && text[start] != Constants.ZWJ_CHAR) {
+                        this.text.setSpan(it, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    }
                 }
             }
         }

@@ -35,18 +35,15 @@ class AztecUnorderedListSpan : AztecListSpan {
 
 
     override var attributes: String = ""
-    override var lastItem: AztecListItemSpan = AztecListItemSpan()
-
 
     constructor(attributes: String){
         this.attributes = attributes
     }
 
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) {
+    constructor(listStyle: BlockFormatter.ListStyle, attributes: String) {
         setStyle(listStyle)
 
         this.attributes = attributes
-        this.lastItem = last
     }
 
     fun setStyle(listStyle: BlockFormatter.ListStyle) {

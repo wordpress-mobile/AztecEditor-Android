@@ -150,7 +150,38 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
         }
 
-        if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
+        if (!textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineAtTheBeginning()) {
+            val listSpan = text.getSpans(inputStart, inputStart, AztecListSpan::class.java).firstOrNull()
+            if (listSpan != null) {
+                val item = editableText.getSpans(inputStart, inputStart, AztecListItemSpan::class.java).firstOrNull()
+                if (item != null) {
+                    val itemEnd = editableText.getSpanEnd(item)
+
+                    // adding a new item at the beginning of the current so, push the current one
+                    text.setSpan(item, inputEnd, itemEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    // add a ZWJ for the new item
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart, Constants.ZWJ_STRING)
+
+                    // adjust parent list span to include the ZWJ
+                    if (text.getSpanStart(listSpan) > inputStart) {
+                        text.setSpan(listSpan, inputStart, text.getSpanEnd(listSpan), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    // and add the new one at the start
+                    text.setSpan(AztecListItemSpan(), inputStart, inputStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    // add a ZWJ for the new item
+                    editor.disableTextChangedListener()
+                    text.insert(inputStart, Constants.ZWJ_STRING)
+
+                    // and add the new item
+                    text.setSpan(AztecListItemSpan(), inputStart, inputStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+
+        } else if (textChangedEvent.isAfterZeroWidthJoiner() && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
             // adding a character next to a ZWJ char deletes it
             editor.disableTextChangedListener()
             val before = Math.min(inputStart, inputEnd)
@@ -166,19 +197,37 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             }
 
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            // double enter deletes the last item and adds a linebreak
-            removeBlockStyle()
-            editor.disableTextChangedListener()
-
-            if (inputStart == 1) {
-                text.delete(inputStart - 1, inputStart + 1)
-            } else {
-                text.delete(inputStart - 2, inputStart)
-
-                // After closing a list add an extra newline
-                if (text.getSpans(inputStart - 2, inputStart - 2, AztecListSpan::class.java).isNotEmpty()) {
+            val blockSpan = text.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
+            if (blockSpan != null) {
+                if (text.getSpanEnd(blockSpan) == inputEnd) {
+                    // double enter deletes the last item and adds a linebreak
+                    removeBlockStyle()
                     editor.disableTextChangedListener()
-                    text.insert(inputStart - 2, "\n")
+
+                    if (inputStart == 1) {
+                        text.delete(inputStart - 1, inputStart + 1)
+                    } else {
+                        text.delete(inputStart - 2, inputStart)
+
+                        // After closing a list add an extra newline
+                        if (text.getSpans(inputStart - 2, inputStart - 2, AztecListSpan::class.java).isNotEmpty()) {
+                            editor.disableTextChangedListener()
+                            text.insert(inputStart - 2, "\n")
+                        }
+                    }
+                } else if (blockSpan is AztecListSpan) {
+                    // shorten the end of the current list item
+                    val item = text.getSpans(inputStart, inputStart, AztecListItemSpan::class.java).firstOrNull()
+                    if (item != null) {
+                        text.setSpan(item, text.getSpanStart(item), inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+
+                    // add a ZWJ for the new item
+                    editor.disableTextChangedListener()
+                    text.insert(inputEnd, Constants.ZWJ_STRING)
+
+                    // and add the new item
+                    text.setSpan(AztecListItemSpan(), inputEnd, inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
 
@@ -200,8 +249,34 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     if (item != null) {
                         val itemStart = editableText.getSpanStart(item)
                         val itemEnd = editableText.getSpanEnd(item)
-                        editableText.setSpan(item, itemStart, inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        editableText.setSpan(AztecListItemSpan(), inputStart + 1, itemEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                        if (inputStart == itemStart) {
+                            // adding a new item at the beginning of the current so, push the current one
+                            text.setSpan(item, inputEnd, itemEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                            // add a ZWJ for the new item
+                            editor.disableTextChangedListener()
+                            text.insert(inputStart, Constants.ZWJ_STRING)
+
+                            // adjust parent list span to include the ZWJ
+                            if (text.getSpanStart(blockSpan) > inputStart) {
+                                text.setSpan(blockSpan, inputStart, text.getSpanEnd(blockSpan), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            }
+
+                            // and add the new one at the start
+                            text.setSpan(AztecListItemSpan(), inputStart, inputStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        } else if (inputStart > itemStart) {
+                            // adding a new item in the middle of the current so, make a split
+                            text.setSpan(item, itemStart, inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            text.setSpan(AztecListItemSpan(), inputStart + 1, itemEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                    } else {
+                        // add a ZWJ for the new item
+                        editor.disableTextChangedListener()
+                        text.insert(inputStart, Constants.ZWJ_STRING)
+
+                        // and add the new item
+                        text.setSpan(AztecListItemSpan(), inputStart, inputStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
             }
@@ -721,8 +796,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
                     val listItem = text.getSpans(textChangedEventDetails.inputStart, textChangedEventDetails.inputStart,
                             AztecListItemSpan::class.java).firstOrNull()
-                    // reset the previous list item's end
-                    text.setSpan(listItem, text.getSpanStart(listItem), prevNewline, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if (listItem != null) {
+                        // reset the previous list item's end
+                        text.setSpan(listItem, text.getSpanStart(listItem), prevNewline, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
 
                     val newListItem = AztecListItemSpan()
                     text.setSpan(newListItem, prevNewline + 1, listEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

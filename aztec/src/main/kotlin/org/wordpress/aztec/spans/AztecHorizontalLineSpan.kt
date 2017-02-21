@@ -4,10 +4,15 @@ import android.content.Context
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.text.TextUtils
 import android.text.style.ImageSpan
 import org.wordpress.android.util.DisplayUtils
 
-class AztecHorizontalLineSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable) {
+class AztecHorizontalLineSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable), AztecSpan {
+
+    private val TAG: String = "hr"
+
+    override var attributes: String = ""
 
     companion object {
         private val rect: Rect = Rect()
@@ -46,5 +51,16 @@ class AztecHorizontalLineSpan(val context: Context, drawable: Drawable) : ImageS
         drawable.setBounds(0, 0, width, height)
 
         return drawable.bounds
+    }
+
+    override fun getStartTag(): String {
+        if (TextUtils.isEmpty(attributes)) {
+            return TAG
+        }
+        return TAG + attributes
+    }
+
+    override fun getEndTag(): String {
+        return TAG
     }
 }

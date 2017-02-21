@@ -210,7 +210,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             // when deleting characters, manage closing of lists
             text.getSpans(inputEnd, inputEnd, AztecBlockSpan::class.java).forEach {
                 val spanStart = text.getSpanStart(it)
-                val spanEnd = text.getSpanEnd(it)
+                val spanEndOriginal = text.getSpanEnd(it)
                 if (textChangedEvent.textBefore[inputEnd] != Constants.ZWJ_CHAR) {
                     if (!addedZwJAftEnd) {
                         // add ZWJ at the beginning of line when last regular char deleted
@@ -220,6 +220,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     }
 
                     val newSpanStart = if (spanStart > inputEnd) inputEnd else spanStart
+
+                    val spanEnd = text.getSpanEnd(it)
                     val newSpanEnd = if (inputEnd >= spanEnd) inputEnd + 1 else spanEnd
                     text.setSpan(it, newSpanStart, newSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if ((inputEnd - 2 >= spanStart && text[inputEnd - 2] == '\n') || inputEnd - 1 == spanStart) {
@@ -228,16 +230,16 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                     text.insert(inputEnd - 1, Constants.ZWJ_STRING)
 
                     if (inputEnd - 1 < spanStart + 1) {
-                        text.setSpan(it, inputEnd - 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        text.setSpan(it, inputEnd - 1, spanEndOriginal, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
 
                     // delete the last newline
                     editor.disableTextChangedListener()
                     text.delete(inputEnd, inputEnd + 1)
-                } else if (spanEnd > 0 && spanStart != spanEnd) {
+                } else if (spanEndOriginal > 0 && spanStart != spanEndOriginal) {
                     // delete the last newline
                     editor.disableTextChangedListener()
-                    text.delete(spanEnd - 1, spanEnd)
+                    text.delete(spanEndOriginal - 1, spanEndOriginal)
                 } else {
                     text.removeSpan(it)
                 }

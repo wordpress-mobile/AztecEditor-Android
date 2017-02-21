@@ -167,6 +167,7 @@ class AztecParser {
     fun markBlockElementLineBreaks(input: Spanned): Spanned {
         val text = SpannableStringBuilder(input)
 
+        // Remove the extra newline added above horizontal lines
         text.getSpans(0, text.length, AztecHorizontalLineSpan::class.java).forEach {
             val spanStart = text.getSpanStart(it)
             val spanEnd = text.getSpanEnd(it)

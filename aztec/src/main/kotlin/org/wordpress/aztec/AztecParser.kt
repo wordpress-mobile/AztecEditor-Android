@@ -167,6 +167,15 @@ class AztecParser {
     fun markBlockElementLineBreaks(input: Spanned): Spanned {
         val text = SpannableStringBuilder(input)
 
+        text.getSpans(0, text.length, AztecHorizontalLineSpan::class.java).forEach {
+            val spanStart = text.getSpanStart(it)
+            val spanEnd = text.getSpanEnd(it)
+
+            if (spanStart > 0 && text[spanStart - 1] == '\n') {
+                text.setSpan(BlockElementLinebreak(), spanStart - 1, spanStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
+
         text.getSpans(0, text.length, AztecLineBlockSpan::class.java).forEach {
             val spanStart = text.getSpanStart(it)
             var spanEnd = text.getSpanEnd(it)
@@ -448,6 +457,11 @@ class AztecParser {
 
                     if (span is AztecContentSpan) {
                         out.append("<${span.getStartTag()}>")
+                    }
+
+                    if (span is AztecHorizontalLineSpan) {
+                        out.append("<${span.getStartTag()}>")
+                        i = next
                     }
 
                     if (span is AztecCommentSpan || span is CommentSpan) {

@@ -199,9 +199,8 @@ class AztecParser {
                 return@forEach
             }
 
-            val firstNonNewlineCharIndex = spanEnd
-                    + spanned.subSequence(spanEnd..spanned.length-1).indexOfFirst { it != '\n' }
-                    - 1 // go back one to reach the last newline
+            val firstNonNewlineCharIndex = spanEnd +
+                    spanned.subSequence(spanEnd..spanned.length-1).indexOfFirst { it != '\n' } - 1
             if (firstNonNewlineCharIndex != -1 && spanned.getSpans(firstNonNewlineCharIndex, firstNonNewlineCharIndex,
                     BlockElementLinebreak::class.java).isNotEmpty()) {
                 // there's a visual newline already set after us so, nothing to do here. Counting on the 1st phase (the

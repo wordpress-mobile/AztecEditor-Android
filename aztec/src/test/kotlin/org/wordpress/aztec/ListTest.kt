@@ -180,7 +180,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>List 1</li></$listTag><$listTag><li>List 2</li></$listTag>")
         val mark = editText.text.indexOf("List 2")
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li>List 2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>List 1</li></$listTag><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
     }
 
     @Test

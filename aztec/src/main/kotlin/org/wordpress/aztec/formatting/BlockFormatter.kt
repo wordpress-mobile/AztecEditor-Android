@@ -199,7 +199,42 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         } else if (textChangedEvent.isAfterZeroWidthJoiner() && textChangedEvent.isNewLineButNotAtTheBeginning()) {
             val blockSpan = text.getSpans(inputStart, inputStart, AztecBlockSpan::class.java).firstOrNull()
             if (blockSpan != null) {
-                if (text.getSpanEnd(blockSpan) == inputEnd) {
+                if (blockSpan is AztecListSpan) {
+                    if (text.getSpanEnd(blockSpan) == inputEnd) {
+                        val item = text.getSpans(inputStart, inputStart, AztecListItemSpan::class.java).firstOrNull()
+                        if (item != null) {
+                            // remove the current item
+                            text.removeSpan(item)
+                        }
+
+                        val listStart = text.getSpanStart(blockSpan)
+
+                        // remove the whole list if no other content!
+                        if (listStart == inputStart - 1) {
+                            text.removeSpan(blockSpan)
+                        } else {
+                            // adjust the list element back now that the last item is gone
+                            text.setSpan(blockSpan, listStart, inputStart - 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+
+                        // remove the existing ZWJ of the empty list item line and the newline that was just entered.
+                        editor.disableTextChangedListener()
+                        text.delete(inputStart - 1, inputEnd)
+                    } else {
+                        // shorten the end of the current list item
+                        val item = text.getSpans(inputStart, inputStart, AztecListItemSpan::class.java).firstOrNull()
+                        if (item != null) {
+                            text.setSpan(item, text.getSpanStart(item), inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+
+                        // add a ZWJ for the new item
+                        editor.disableTextChangedListener()
+                        text.insert(inputEnd, Constants.ZWJ_STRING)
+
+                        // and add the new item
+                        text.setSpan(AztecListItemSpan(), inputEnd, inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                } else {
                     // double enter deletes the last item and adds a linebreak
                     removeBlockStyle()
                     editor.disableTextChangedListener()
@@ -215,19 +250,6 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                             text.insert(inputStart - 2, "\n")
                         }
                     }
-                } else if (blockSpan is AztecListSpan) {
-                    // shorten the end of the current list item
-                    val item = text.getSpans(inputStart, inputStart, AztecListItemSpan::class.java).firstOrNull()
-                    if (item != null) {
-                        text.setSpan(item, text.getSpanStart(item), inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    }
-
-                    // add a ZWJ for the new item
-                    editor.disableTextChangedListener()
-                    text.insert(inputEnd, Constants.ZWJ_STRING)
-
-                    // and add the new item
-                    text.setSpan(AztecListItemSpan(), inputEnd, inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
 
@@ -265,10 +287,19 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
                             // and add the new one at the start
                             text.setSpan(AztecListItemSpan(), inputStart, inputStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        } else if (inputStart > itemStart) {
+                        } else if (inputStart > itemStart && inputStart < itemEnd) {
                             // adding a new item in the middle of the current so, make a split
                             text.setSpan(item, itemStart, inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                             text.setSpan(AztecListItemSpan(), inputStart + 1, itemEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        } else if (inputStart > itemStart && inputStart == itemEnd) {
+                            // adding a new item at the end of the current so, retrack the current one a bit
+                            text.setSpan(item, itemStart, inputStart, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                            // add a ZWJ for the new item
+                            editor.disableTextChangedListener()
+                            text.insert(inputEnd, Constants.ZWJ_STRING)
+
+                            text.setSpan(AztecListItemSpan(), inputEnd, inputEnd + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }
                     } else {
                         // add a ZWJ for the new item

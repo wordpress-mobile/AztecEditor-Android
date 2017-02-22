@@ -279,7 +279,6 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val spanStart = editableText.getSpanStart(it)
             var spanEnd = editableText.getSpanEnd(it)
 
-
             //when removing empty span don't forget to delete ZWJ
             if(spanEnd - spanStart == 1 && editableText[spanStart] == Constants.ZWJ_CHAR){
                 editableText.removeSpan(it)

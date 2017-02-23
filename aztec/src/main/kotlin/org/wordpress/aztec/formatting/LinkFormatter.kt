@@ -5,6 +5,8 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.util.Patterns
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 
 
@@ -88,23 +90,39 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
 
     fun addLink(link: String, anchor: String, start: Int, end: Int) {
         val cleanLink = link.trim()
-        val newEnd: Int
 
         val actualAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
+        var realStart = start
+        var realEnd = end
+
+
         if (start == end) {
+            val insertingIntoEmptyBlockElement = editableText.getSpans(realStart,realStart,AztecBlockSpan::class.java).any {
+                editableText.getSpanEnd(it) -  editableText.getSpanStart(it) == 1 &&
+                        editableText[editableText.getSpanStart(it)] == Constants.ZWJ_CHAR
+            }
+
             //insert anchor
-            editableText.insert(start, actualAnchor)
-            newEnd = start + actualAnchor.length
+            editableText.insert(realStart, actualAnchor)
+            realEnd = realStart + actualAnchor.length
+
+            //when anchor is inserted into empty block element, the Constants.ZWJ_CHAR at the beginning of it
+            // will be consumed, so we need to adjust index by 1
+            if(insertingIntoEmptyBlockElement){
+                realStart--
+                realEnd--
+
+            }
         } else {
             //apply span to text
             if (editor.getSelectedText() != anchor) {
-                editableText.replace(start, end, actualAnchor)
+                editableText.replace(realStart, realEnd, actualAnchor)
             }
-            newEnd = start + actualAnchor.length
+            realEnd = realStart + actualAnchor.length
         }
 
-        linkValid(link, start, newEnd)
+        linkValid(link, realStart, realEnd)
     }
 
     fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {

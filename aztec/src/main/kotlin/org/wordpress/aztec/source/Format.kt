@@ -18,7 +18,7 @@ object Format {
         html = replaceAll(html, iframePlaceholder, "iframe")
 
         //remove newline around all non block elements
-        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
+        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\\s*?<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
         var fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
         fixBrNewlines = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")

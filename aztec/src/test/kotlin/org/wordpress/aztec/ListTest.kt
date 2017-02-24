@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config
  * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(23))
+@Config(constants = BuildConfig::class, minSdk = 14, maxSdk = 25)
 class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     val listType = listTextFormat

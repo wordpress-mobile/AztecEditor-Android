@@ -12,8 +12,7 @@ import org.robolectric.annotation.Config
 /**
  * Testing attribute preservation for supported HTML elements
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@RunWith(AztecTestRunner::class)
 class AttributeTest {
 
     companion object {

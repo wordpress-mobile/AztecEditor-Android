@@ -6,16 +6,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 
 /**
  * Testing quote behaviour.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class HeadingTest() {
+@RunWith(AztecTestRunner::class)
+class HeadingTest {
 
     val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1
     lateinit var editText: AztecText

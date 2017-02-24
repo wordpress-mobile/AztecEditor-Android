@@ -6,14 +6,11 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 /**
  * Testing interactions of multiple block elements
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@RunWith(AztecTestRunner::class)
 class BlockElementsTest {
 
     lateinit var editText: AztecText

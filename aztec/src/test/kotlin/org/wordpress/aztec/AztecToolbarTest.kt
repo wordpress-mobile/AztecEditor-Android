@@ -15,8 +15,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 /**
  * Combined test for toolbar and inline styles.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@RunWith(AztecTestRunner::class)
 class AztecToolbarTest {
 
     lateinit var editText: AztecText

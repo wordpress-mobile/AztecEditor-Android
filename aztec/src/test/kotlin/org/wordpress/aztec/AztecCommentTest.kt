@@ -16,8 +16,7 @@ import org.wordpress.aztec.spans.AztecCommentSpan
 /**
  * Tests for special comments ([AztecCommentSpan.Comment.MORE] and [AztecCommentSpan.Comment.PAGE])
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@RunWith(AztecTestRunner::class)
 class AztecCommentTest() : AndroidTestCase() {
     lateinit var editText: AztecText
 

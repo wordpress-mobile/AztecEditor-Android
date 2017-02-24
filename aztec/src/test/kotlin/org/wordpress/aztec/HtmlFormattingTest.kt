@@ -69,6 +69,9 @@ class HtmlFormattingTest() : AndroidTestCase() {
                     "</div>" +
                     "<br>"
 
+    private val HTML_BLOCK_WITH_NEWLINES = "\n\n<div>Division</div>\n\n"
+    private val HTML_BLOCK_WITHOUT_NEWLINES = "<div>Division</div>"
+
     /**
      * Initialize variables.
      */
@@ -117,5 +120,19 @@ class HtmlFormattingTest() : AndroidTestCase() {
         val span = SpannableString(parser.fromHtml(input, null, null, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_MIXED_NO_WS, output)
+    }
+
+    /**
+     * Test block conversion from HTML to visual mode with newlines.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun formatNewlines() {
+        val input = HTML_BLOCK_WITH_NEWLINES
+        val span = SpannableString(parser.fromHtml(input, null, null, context))
+        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
+        Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
     }
 }

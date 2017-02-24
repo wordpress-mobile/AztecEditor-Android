@@ -279,6 +279,14 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val spanStart = editableText.getSpanStart(it)
             var spanEnd = editableText.getSpanEnd(it)
 
+            //when removing empty span don't forget to delete ZWJ
+            if(spanEnd - spanStart == 1 && editableText[spanStart] == Constants.ZWJ_CHAR){
+                editableText.removeSpan(it)
+                editor.disableTextChangedListener()
+                editableText.delete(spanStart, spanStart + 1)
+                return@forEach
+            }
+
             //if splitting block set a range that would be excluded from it
             val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end) else getSelectedTextBounds(editableText, start, end)
 

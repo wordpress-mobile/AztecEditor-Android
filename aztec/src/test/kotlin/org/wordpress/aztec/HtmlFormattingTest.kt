@@ -13,10 +13,9 @@ import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class HtmlFormattingTest() : AndroidTestCase() {
+class HtmlFormattingTest : AndroidTestCase() {
 
     private var parser = AztecParser()
-
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
 

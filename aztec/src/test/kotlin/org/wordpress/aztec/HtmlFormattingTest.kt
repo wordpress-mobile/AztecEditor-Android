@@ -30,7 +30,7 @@ class HtmlFormattingTest : AndroidTestCase() {
             "<div class=\"fifth\"></div>" +
             "</div>" +
             "<span class=\"second last\"></span>" +
-            "<span></span><div><div><div><span></span></div></div></div><div></div>" +
+            "<div><span></span><div><div><span></span></div></div></div><div></div>" +
             "</div>" +
             "<br><br>"
 

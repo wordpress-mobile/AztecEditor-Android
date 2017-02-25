@@ -35,7 +35,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
             "</div>" +
             "<br><br>"
 
-    private val HTML_MIXED =
+    private val HTML_MIXED_WITH_NEWLINES =
             "\n\n<span><i>Italic</i></span>\n\n" +
             "<b>Bold</b><br>" +
             "\t<div class=\"first\">" +
@@ -52,7 +52,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
             "</div>" +
             "<br>"
 
-    private val HTML_MIXED_NO_WS =
+    private val HTML_MIXED_WITHOUT_NEWLINES =
             "<span><i>Italic</i></span>" +
                     " <b>Bold</b><br>" +
                     "<div class=\"first\">" +
@@ -116,10 +116,10 @@ class HtmlFormattingTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun formatMixedHtml() {
-        val input = HTML_MIXED
+        val input = HTML_MIXED_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
         val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_MIXED_NO_WS, output)
+        Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
     }
 
     /**

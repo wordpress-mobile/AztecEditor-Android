@@ -54,7 +54,7 @@ class HtmlFormattingTest() : AndroidTestCase() {
 
     private val HTML_MIXED_NO_WS =
             "<span><i>Italic</i></span>" +
-                    "<b>Bold</b><br>" +
+                    " <b>Bold</b><br>" +
                     "<div class=\"first\">" +
                     "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
                     "<div class=\"second\">" +

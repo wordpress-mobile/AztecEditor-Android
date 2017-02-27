@@ -214,6 +214,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             consumeKeyEvent
         }
 
+        EndOfBufferMarkerAdder.install(this)
+
         isViewInitialized = true
     }
 
@@ -404,7 +406,25 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
-        if (selStart == selEnd && movedCursorIfBeforeZwjChar(selEnd)) return
+
+        if (length() != 0) {
+            // if the text end has the marker, let's make sure the cursor never includes it or surpusses it
+            if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
+                var start = selStart
+                var end = selEnd
+
+                if (start == length()) {
+                    start--
+                }
+
+                if (end == length()) {
+                    end--
+                }
+
+                setSelection(start, end)
+                return
+            }
+        }
 
         previousCursorPosition = selEnd
 

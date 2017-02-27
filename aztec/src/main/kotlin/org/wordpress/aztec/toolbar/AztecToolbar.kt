@@ -316,7 +316,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val actions = getSelectedActions()
             val textFormats = ArrayList<TextFormat>()
 
-            actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat!!) }
+            actions.forEach { if (it.isStylingAction() && it.textFormat != null) textFormats.add(it.textFormat) }
             if (getSelectedHeading() != null) {
                 textFormats.add(getSelectedHeading()!!)
             }

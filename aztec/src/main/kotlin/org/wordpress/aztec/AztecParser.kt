@@ -41,7 +41,9 @@ class AztecParser {
                 onMediaTappedListener, onUnknownHtmlClickListener, context))
 
         addVisualNewlinesToBlockElements(spanned)
-        addZwjCharToBlockSpans(spanned)
+        markBlockElementsAsParagraphs(spanned)
+
+//        addZwjCharToBlockSpans(spanned)
 
         return spanned
     }
@@ -89,21 +91,21 @@ class AztecParser {
         return tidy(out.toString())
     }
 
-    private fun addZwjCharToBlockSpans(spanned: SpannableStringBuilder) {
-        // add ZWJ char after newline of block spans so they can be closed by hitting enter
-        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
-            val start = spanned.getSpanStart(it)
-            val end = spanned.getSpanEnd(it)
-
-            if (spanned[end - 1] == '\n' && (end - start == 1 || spanned[end - 2] == '\n')) {
-                spanned.insert(end - 1, Constants.ZWJ_STRING)
-
-                if (end - start == 1) {
-                    spanned.setSpan(it, start, end + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-            }
-        }
-    }
+//    private fun addZwjCharToBlockSpans(spanned: SpannableStringBuilder) {
+//        // add ZWJ char after newline of block spans so they can be closed by hitting enter
+//        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
+//            val start = spanned.getSpanStart(it)
+//            val end = spanned.getSpanEnd(it)
+//
+//            if (spanned[end - 1] == '\n' && (end - start == 1 || spanned[end - 2] == '\n')) {
+//                spanned.insert(end - 1, Constants.ZWJ_STRING)
+//
+//                if (end - start == 1) {
+//                    spanned.setSpan(it, start, end + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//                }
+//            }
+//        }
+//    }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {
         text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
@@ -141,11 +143,18 @@ class AztecParser {
             // no need for newline if there's one and marked as visual
             if (spanned[spanEnd] == '\n'
                     && spanned.getSpans(spanEnd, spanEnd, BlockElementLinebreak::class.java).isNotEmpty()) {
+                // but still, expand the span to include the newline
+                spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
                 return@forEach
             }
 
             // well, it seems we need a visual newline so, add one and mark it as such
             spanned.insert(spanEnd, "\n")
+
+            // expand the span to include the new newline
+            spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
             markBlockElementLineBreak(spanned, spanEnd)
         }
     }
@@ -194,13 +203,13 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned[spanEnd] != '\n') {
-                // no newline after so, nothing to mark as visual newline
+            if (spanned[spanEnd - 1] != '\n') {
+                // no newline inside the end of the span so, nothing to mark as visual newline
                 return@forEach
             }
 
-            val firstNonNewlineCharIndex = spanEnd +
-                    spanned.subSequence(spanEnd..spanned.length-1).indexOfFirst { it != '\n' } - 1
+            val firstNonNewlineCharIndex = spanEnd - 1 +
+                    spanned.subSequence((spanEnd -1)..spanned.length-1).indexOfFirst { it != '\n' } - 1
             if (firstNonNewlineCharIndex != -1 && spanned.getSpans(firstNonNewlineCharIndex, firstNonNewlineCharIndex,
                     BlockElementLinebreak::class.java).isNotEmpty()) {
                 // there's a visual newline already set after us so, nothing to do here. Counting on the 1st phase (the
@@ -209,8 +218,13 @@ class AztecParser {
             }
 
             // at last, all checks passed so, let's mark the newline as visual!
-            markBlockElementLineBreak(spanned, spanEnd)
+            markBlockElementLineBreak(spanned, spanEnd - 1)
         }
+    }
+
+    private fun markBlockElementsAsParagraphs(text: Spannable) {
+        SpanWrapper.getSpans(text, 0, text.length, AztecBlockSpan::class.java)
+                .map { it -> it.flags = Spanned.SPAN_PARAGRAPH }
     }
 
     private fun resetHiddenTagParser(text: Spanned) {

@@ -1,12 +1,16 @@
 package org.wordpress.aztec.spans
 
 import android.text.TextUtils
+import org.wordpress.aztec.ParagraphFlagged
 
-class AztecListItemSpan : AztecBlockSpan {
+class AztecListItemSpan : AztecBlockSpan, ParagraphFlagged {
 
     private val TAG = "li"
 
     override var attributes: String
+
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
 
     constructor(attributes: String = "") : super() {
         this.attributes = attributes

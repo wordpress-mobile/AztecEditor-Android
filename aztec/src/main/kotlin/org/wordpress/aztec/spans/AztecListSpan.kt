@@ -5,9 +5,14 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
+import org.wordpress.aztec.ParagraphFlagged
 
 
-abstract class AztecListSpan(var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0), AztecBlockSpan, LineHeightSpan, UpdateLayout {
+abstract class AztecListSpan(var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0), AztecBlockSpan,
+        ParagraphFlagged, LineHeightSpan, UpdateLayout {
+
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned

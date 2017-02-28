@@ -16,7 +16,8 @@ class EndOfBufferMarkerAdder : TextWatcher {
         //  and "random" bugs.
 
         if (text.isEmpty()) {
-            // well, text is empty. no need for end-of-text marker
+            // need to add a end-of-text marker so a block element can render in the empty text.
+            text.append("" + Constants.END_OF_BUFFER_MARKER)
             return
         }
 

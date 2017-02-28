@@ -330,15 +330,15 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
-        val mark = editText.length() - 1
         safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
+        val mark = editText.text.indexOf("not in the list")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list", editText.toHtml())
         safeAppend(editText, "\n")
         safeAppend(editText, "foo")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
 
         //reopen list
-        editText.text.delete(mark - 1, mark + 1)
+        editText.text.delete(mark - 1, mark) // delete the newline before the not-in-the-list text
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
 

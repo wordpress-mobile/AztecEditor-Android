@@ -56,28 +56,28 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     fun tryRemoveBlockStyleFromFirstLine(): Boolean {
         val selectionStart = editor.selectionStart
 
-        //try to remove block styling when pressing backspace at the beginning of the span
-        editableText.getSpans(selectionStart, selectionStart, AztecBlockSpan::class.java).forEach {
-            val spanStart = editableText.getSpanStart(it)
-            var spanEnd = editableText.getSpanEnd(it)
+        if (selectionStart != 0) {
+            // only handle the edge case of start of text
+            return false
+        }
 
-            if (spanStart != selectionStart) return@forEach
+        var changed = false
 
-            val indexOfNewline = editableText.indexOf('\n', spanStart)
+        //try to remove block styling when pressing backspace at the beginning of the text
+        editableText.getSpans(0, 0, AztecBlockSpan::class.java).forEach {
+            val spanEnd = editableText.getSpanEnd(it)
 
-            if (spanStart != 0 && spanEnd == indexOfNewline + 1) {
-                spanEnd--
-            }
+            val indexOfNewline = editableText.indexOf('\n').let { if (it != -1) it else editableText.length }
 
-            if (spanEnd == indexOfNewline || indexOfNewline == -1) {
+            if (spanEnd <= indexOfNewline) {
+                // block will collapse so, just remove it
                 editableText.removeSpan(it)
-                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
-            } else {
-                editableText.setSpan(it, indexOfNewline + 1, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
+                changed = true
+                return@forEach
             }
 
-            return true
+            editableText.setSpan(it, indexOfNewline + 1, spanEnd, editableText.getSpanFlags(it))
+            changed = true
         }
 
         return false

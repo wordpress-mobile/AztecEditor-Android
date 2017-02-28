@@ -204,7 +204,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
 //                inlineFormatter.tryRemoveLeadingInlineStyle()
-//                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
             if (consumeKeyEvent) {
@@ -1030,11 +1030,11 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 history.beforeTextChanged(toFormattedHtml())
 
 //                inlineFormatter.tryRemoveLeadingInlineStyle()
-//                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
-//                if (isStyleRemoved) {
+                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
-//                    return false
-//                }
+                    return false
+                }
 
             }
             return super.sendKeyEvent(event)

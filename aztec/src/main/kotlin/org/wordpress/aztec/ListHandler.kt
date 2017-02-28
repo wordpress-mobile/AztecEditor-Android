@@ -138,6 +138,10 @@ class ListHandler(private val text: Spannable) {
     }
 
     companion object {
+        fun newList(text: Spannable, list: AztecListSpan, start: Int, end: Int) {
+            text.setSpan(list, start, end, Spanned.SPAN_PARAGRAPH)
+        }
+
         fun newListItem(text: Spannable, start: Int, end: Int) {
             text.setSpan(AztecListItemSpan(), start, end, Spanned.SPAN_PARAGRAPH)
         }

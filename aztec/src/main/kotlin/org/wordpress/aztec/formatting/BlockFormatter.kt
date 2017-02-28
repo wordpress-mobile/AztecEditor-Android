@@ -3,10 +3,7 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.Constants
-import org.wordpress.aztec.TextChangedEvent
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.*
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -481,7 +478,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
         startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-        endOfLine = if (indexOfLastLineBreak != -1) indexOfLastLineBreak else editable.length
+        endOfLine = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
         return IntRange(startOfLine, endOfLine)
     }
@@ -523,15 +520,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
 
             val startOfLine = boundsOfSelectedText.start
-            var endOfLine = boundsOfSelectedText.endInclusive
-
-            val isEmptyLine = startOfLine == endOfLine
-
-            if (isEmptyLine) {
-                editor.disableTextChangedListener()
-                editableText.insert(startOfLine, Constants.ZWJ_STRING)
-                endOfLine += 1
-            }
+            val endOfLine = boundsOfSelectedText.endInclusive
 
             val spanToApply = getOuterBlockSpanType(blockElementType)
 
@@ -558,9 +547,9 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             applyBlock(blockElementType, startOfBlock, endOfBlock)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
-            if (isEmptyLine) {
+//            if (isEmptyLine) {
                 editor.onSelectionChanged(startOfLine, endOfLine)
-            }
+//            }
         }
     }
 
@@ -574,18 +563,20 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
-        editableText.setSpan(listSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ListHandler.newList(editableText, listSpan, start, end)
 
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
             val lineLength = lines[i].length
 
             val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = lineStart + lineLength
+            val lineEnd = (lineStart + lineLength).let {
+                if (it != editableText.length) it + 1 else it // include the newline or not
+            }
 
             if (lineLength == 0) continue
 
-            editableText.setSpan(AztecListItemSpan(), start + lineStart, start + lineEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            ListHandler.newListItem(editableText, start + lineStart, start + lineEnd)
         }
     }
 

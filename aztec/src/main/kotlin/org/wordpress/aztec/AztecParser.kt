@@ -200,7 +200,12 @@ class AztecParser {
             val spanEnd = spanned.getSpanEnd(it)
 
             if (spanEnd == spanned.length) {
-                // no newline if at text end
+                // no visual newline if at text end
+                return@forEach
+            }
+
+            if (spanEnd == spanned.length - 1 && spanned.last() == Constants.END_OF_BUFFER_MARKER) {
+                // no visual newline if at left of text end marker
                 return@forEach
             }
 
@@ -232,6 +237,11 @@ class AztecParser {
         var lastIndex = text.length
         do {
             lastIndex = text.lastIndexOf(Constants.ZWJ_CHAR, lastIndex)
+            if (lastIndex == text.length - 1) {
+                // ZWJ at the end of text will serve as end-of-text marker so, let it be and finish.
+                return
+            }
+
             if (lastIndex > -1) {
                 text.delete(lastIndex, lastIndex + 1)
             }
@@ -283,7 +293,7 @@ class AztecParser {
             when (paragraph) {
                 is AztecBlockSpan -> withinBlock(out, text, i, next, paragraph, parents)
                 is UnknownHtmlSpan -> withinUnknown(out, text, i, next, paragraph)
-                else -> withinContent(out, text, i, next)
+                else -> withinContent(out, text, i, next, parents)
             }
 
             i = next
@@ -303,9 +313,17 @@ class AztecParser {
         out.append("<${blockSpan.getStartTag()}>")
         withinHtml(out, text, start, end, parents)
         out.append("</${blockSpan.getEndTag()}>")
+
+        if (end > 0
+                && text[end - 1] == Constants.NEWLINE
+                && text.getSpans(end - 1, end, BlockElementLinebreak::class.java).isEmpty()
+                && !(parents?.any { it != blockSpan && text.getSpanEnd(it) == end } ?: false)) {
+            out.append("<br>")
+        }
     }
 
-    private fun withinHeading(out: StringBuilder, headingContent: Spanned, span: AztecHeadingSpan) {
+    private fun withinHeading(out: StringBuilder, headingContent: Spanned, span: AztecHeadingSpan,
+            parents: ArrayList<AztecParagraphStyle>?) {
         //remove the heading span from the text we are about to process
         val cleanHeading = SpannableStringBuilder(headingContent)
         cleanHeading.removeSpan(span)
@@ -320,12 +338,13 @@ class AztecParser {
             if (lineLength == 0) continue
 
             out.append("<${span.getStartTag()}>")
-            withinContent(out, cleanHeading, lineStart, lineEnd, true)
+            withinContent(out, cleanHeading, lineStart, lineEnd, parents, true)
             out.append("</${span.getEndTag()}>")
         }
     }
 
-    private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int, ignoreHeading: Boolean = false) {
+    private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int,
+            parents: ArrayList<AztecParagraphStyle>?, ignoreHeading: Boolean = false) {
         var next: Int
 
         var i = start
@@ -345,7 +364,7 @@ class AztecParser {
                 next++
             }
 
-            withinParagraph(out, text, i, next - nl, nl, ignoreHeading)
+            withinParagraph(out, text, i, next - nl, nl, parents, ignoreHeading)
 
             i = next
         }
@@ -353,7 +372,8 @@ class AztecParser {
 
     // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Aztec.
-    private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int, ignoreHeadingSpanCheck: Boolean = false) {
+    private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int,
+            parents: ArrayList<AztecParagraphStyle>?, ignoreHeadingSpanCheck: Boolean = false) {
         var next: Int
 
         //special logic in case we encounter line that is a heading span
@@ -361,7 +381,7 @@ class AztecParser {
             var isHeadingSpanEncountered = false
             text.getSpans(start, end, AztecHeadingSpan::class.java).forEach {
                 //go inside heading span and style it's content
-                withinHeading(out, text.subSequence(start, end) as Spanned, it)
+                withinHeading(out, text.subSequence(start, end) as Spanned, it, parents)
                 isHeadingSpanEncountered = true
             }
             if (isHeadingSpanEncountered) {
@@ -427,8 +447,13 @@ class AztecParser {
         }
 
         for (i in 0..nl - 1) {
+            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + 1 + i } ?: false
+            if (parentSharesEnd) {
+                continue
+            }
+
             out.append("<br>")
-            consumeCursorIfInInput(out, text,  end + i)
+            consumeCursorIfInInput(out, text, end + i)
         }
     }
 

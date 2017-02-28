@@ -135,6 +135,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     private fun init(attrs: AttributeSet?) {
+        disableTextChangedListener()
+
         TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
 
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
@@ -213,10 +215,14 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             consumeKeyEvent
         }
 
+        install()
+
+        enableTextChangedListener()
+
         isViewInitialized = true
     }
 
-    fun install() {
+    private fun install() {
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
@@ -618,7 +624,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
-            enableTextChangedListener()
+//            enableTextChangedListener()
             return
         }
 
@@ -746,7 +752,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         parser.syncVisualNewlinesOfBlockElements(output)
 
-        return Format.clearFormatting(parser.toHtml(output, withCursorTag))
+        return Format.clearFormatting(EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag)))
     }
 
     fun toFormattedHtml(): String {

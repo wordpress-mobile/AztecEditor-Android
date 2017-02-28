@@ -245,6 +245,7 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
 
         editor.disableTextChangedListener()
         editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
+        editor.enableTextChangedListener()
 
         editor.removeBlockStylesFromRange(commentStartIndex, commentEndIndex + 1, true)
         editor.removeHeadingStylesFromRange(commentStartIndex, commentEndIndex + 1)
@@ -287,6 +288,7 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
 
         editor.disableTextChangedListener()
         editableText.replace(selectionStart, selectionEnd, Constants.IMG_STRING)
+        editor.enableTextChangedListener()
 
         if (spanAfterMedia != null) {
             editableText.setSpan(spanAfterMedia, mediaStartIndex, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

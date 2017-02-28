@@ -237,8 +237,6 @@ class MainActivity : AppCompatActivity(),
             source.history = aztec.history
         }
 
-        aztec.install()
-
         aztec.history.setHistoryListener(this)
         aztec.setOnImeBackListener(this)
         aztec.setOnTouchListener(this)

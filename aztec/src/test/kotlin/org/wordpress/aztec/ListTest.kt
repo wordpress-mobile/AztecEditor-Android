@@ -2,6 +2,7 @@ package org.wordpress.aztec
 
 import android.app.Activity
 import android.text.TextUtils
+import android.view.KeyEvent
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,6 +10,8 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import android.view.KeyEvent.KEYCODE_DEL
+import android.widget.EditText
 
 
 /**
@@ -634,15 +637,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun checkIfZwjCharAddedToLastEmptyListItem() {
-        editText.fromHtml("before<$listTag><li>item</li><li></li><li></li></$listTag>after")
+    fun checkIfEndOfTextMarkerAddedToLastEmptyListItem() {
+        editText.fromHtml("before<$listTag><li>item</li><li></li><li></li></$listTag>")
 
-        val mark = editText.text.indexOf("after") - 2
-        Assert.assertEquals(editText.text[mark], Constants.ZWJ_CHAR)
+        Assert.assertEquals(editText.text.last(), Constants.END_OF_BUFFER_MARKER)
 
         editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>")
 
-        Assert.assertEquals(editText.text.last(), Constants.ZWJ_CHAR)
+        Assert.assertEquals(editText.text.last(), Constants.END_OF_BUFFER_MARKER)
     }
 
     @Test
@@ -650,9 +652,8 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addTwoNewlinesAfterList() {
         editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
 
-        editText.setSelection(editText.length())
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
     }
 
@@ -661,20 +662,19 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun deleteEmptyListItemWithBackspace() {
         editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
 
-        editText.setSelection(editText.text.length)
-        editText.append("\n")
-        editText.text.delete(editText.text.length - 1, editText.text.length)
+        editText.setSelection(safeLength(editText))
+        safeAppend(editText, "\n")
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.text.delete(editText.text.length - 1, editText.text.length)
-        editText.append("c")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "c")
         Assert.assertEquals("a\nb\nc", editText.text.toString())
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
 
-        editText.text.delete(editText.text.length - 1, editText.text.length)
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
     }
 
     @Test
@@ -708,10 +708,9 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun deleteSecondEmptyLineAndTestForZwjCharOnFirst() {
         editText.fromHtml("<$listTag><li></li><li></li></$listTag>")
 
-        editText.setSelection(editText.length())
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
 
-        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
     }
 
@@ -721,13 +720,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>a</li></$listTag>")
 
         editText.setSelection(editText.length())
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
 
-        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
 
-        editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("", editText.text.toString())
+        backspaceAt(editText, safeLength(editText))
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
     }
 
     @Test
@@ -736,14 +735,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("abc<$listTag><li>a</li></$listTag>")
 
         editText.setSelection(editText.length())
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
 
-        Assert.assertEquals("abc\n" + Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("abc\n"), editText.text.toString())
         Assert.assertEquals("abc<$listTag><li></li></$listTag>", editText.toHtml())
 
-        editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("abc\n", editText.text.toString())
-        Assert.assertEquals("abc<br>", editText.toHtml())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("abc"), editText.text.toString())
+        Assert.assertEquals("abc", editText.toHtml())
     }
 
     @Test
@@ -751,23 +750,42 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun addTwoLinesThenDeleteTheList() {
         editText.fromHtml("<$listTag><li></li></$listTag>")
 
-        editText.append("a")
-        editText.append("\n")
-        editText.append("b")
+        safeAppend(editText, "a")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "b")
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
 
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
         Assert.assertEquals("a\n" + Constants.ZWJ_CHAR, editText.text.toString())
 
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText)) // don't delete the end-of-text marker
         Assert.assertEquals("a", editText.text.toString())
 
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
 
-        editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("", editText.text.toString())
+        //Send key event since that's the way AztecText will remove the style when text is "empty" (only having the
+        //  end-of-text marker
+        backspaceAt(editText, safeLength(editText))
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
         Assert.assertEquals("", editText.toHtml())
+    }
+
+    fun backspaceAt(text: EditText, position: Int) {
+        text.setSelection(position)
+
+        // Send key event since that's the way AztecText will remove the style when text is "empty" (only having the
+        //  end-of-text marker
+        editText.dispatchKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL, 0))
+        editText.dispatchKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL, 0))
+    }
+
+    fun safeLength(text: EditText): Int {
+        return EndOfBufferMarkerAdder.safeLength(text)
+    }
+
+    fun safeAppend(editText: EditText, string: String) {
+        editText.text.insert(EndOfBufferMarkerAdder.safeLength(editText), string)
     }
 }

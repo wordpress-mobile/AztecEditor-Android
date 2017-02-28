@@ -368,14 +368,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         safeAppend(editText, "\n")
         safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 2, " addition")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag><br>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
 
-        editText.text.insert(editText.text.indexOf("not in the list") - 2, "\n")
-        editText.text.insert(editText.text.indexOf("not in the list") - 2, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
+        editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test

@@ -53,7 +53,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun styleSingleItem() {
-        editText.append("first item")
+        safeAppend(editText, "first item")
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li>first item</li></$listTag>", editText.toHtml())
     }
@@ -63,11 +63,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun styleMultipleSelectedItems() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(0, editText.length())
 
         editText.toggleFormatting(listType)
@@ -78,11 +78,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun stylePartiallySelectedMultipleItems() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(4, 15) //we partially selected first and second item
 
         editText.toggleFormatting(listType)
@@ -93,11 +93,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun styleSurroundedItem() {
         junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(14)
 
         editText.toggleFormatting(listType)
@@ -118,7 +118,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
+        safeAppend(editText, "first item")
         Assert.assertEquals("<$listTag><li>first item</li></$listTag>", editText.toHtml())
     }
 
@@ -126,9 +126,9 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun styleMultipleEnteredItems() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
 
@@ -136,13 +136,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun closingPopulatedList() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the list")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
     }
 
@@ -151,7 +151,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun closingEmptyList() {
         editText.toggleFormatting(listType)
-        editText.append("\n")
+        safeAppend(editText, "\n")
         Assert.assertEquals("", editText.toHtml())
     }
 
@@ -159,7 +159,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun extendingListBySplittingItems() {
         editText.toggleFormatting(listType)
-        editText.append("firstitem")
+        safeAppend(editText, "firstitem")
         editText.text.insert(5, "\n")
         Assert.assertEquals("<$listTag><li>first</li><li>item</li></$listTag>", editText.toHtml())
     }
@@ -216,18 +216,18 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun removeBulletListStylingForMultilinePartialSelection() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         val firstMark = editText.length() - 4
-        editText.append("\n")
-        editText.append("third item")
-        editText.append("\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        safeAppend(editText, "\n")
         val secondMark = editText.length() - 4
-        editText.append("fourth item")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in list")
+        safeAppend(editText, "fourth item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in list")
 
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(listType)
@@ -240,11 +240,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun emptyBulletSurroundedBytItems() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
 
         val start = editText.text.indexOf("second item")
         val end = start + "second item".length
@@ -259,20 +259,20 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun trailingEmptyBulletPoint() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         val mark = editText.length()
-        editText.append("\n")
+        safeAppend(editText, "\n")
 
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>", editText.toHtml())
-        editText.append("\n")
+        safeAppend(editText, "\n")
 
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>", editText.toHtml())
 
-        editText.append("not in list")
+        safeAppend(editText, "not in list")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag><br>not in list", editText.toHtml())
@@ -325,16 +325,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         val mark = editText.length() - 1
-        editText.append("not in the list")
+        safeAppend(editText, "not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list", editText.toHtml())
-        editText.append("\n")
-        editText.append("foo")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "foo")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>not in the list<br>foo", editText.toHtml())
 
         //reopen list
@@ -348,12 +348,12 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         val mark = editText.length() - 1
 
         editText.text.delete(mark, mark + 1)
-        editText.append("not in the list")
+        safeAppend(editText, "not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
@@ -366,8 +366,8 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
-        editText.append("\n")
-        editText.append("not in the list")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the list")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the list") - 2, " addition")
@@ -382,9 +382,9 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun additionToClosedList() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
         val mark = editText.length()
 
@@ -423,13 +423,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun addItemToListFromBottom() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         editText.text.delete(editText.length() - 1, editText.length())
-        editText.append("third item")
+        safeAppend(editText, "third item")
         editText.setSelection(editText.length())
 
         editText.toggleFormatting(listType)
@@ -441,13 +441,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun addItemToListFromTop() {
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         editText.setSelection(editText.length())
         editText.toggleFormatting(listType)
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
 
         editText.setSelection(0)
 
@@ -460,13 +460,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun addItemToListFromInside() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         editText.text.delete(editText.length() - 1, editText.length())
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(editText.length())
         editText.toggleFormatting(listType)
 
@@ -482,9 +482,9 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun appendToListFromTopAtFirstLine() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         editText.setSelection(0)
         editText.text.insert(0,"addition ")
 
@@ -494,13 +494,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun appendToListFromTop() {
-        editText.append("not in list")
-        editText.append("\n")
+        safeAppend(editText, "not in list")
+        safeAppend(editText, "\n")
         editText.toggleFormatting(listType)
         val mark = editText.length() - 1
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
         editText.setSelection(mark)
         editText.text.insert(mark,"addition ")
@@ -513,13 +513,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun deleteFirstItemWithKeyboard() {
         editText.toggleFormatting(listType)
-        editText.append("first item")
+        safeAppend(editText, "first item")
         val firstMark = editText.length()
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         val secondMark = editText.length()
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(0)
         editText.text.delete(firstMark+1,secondMark)
 
@@ -534,7 +534,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Throws(Exception::class)
     fun addMultipleEmptyItemsWithKeyboard() {
         editText.toggleFormatting(listType)
-        editText.append("item")
+        safeAppend(editText, "item")
         editText.text.insert(0, "\n")
         Assert.assertEquals("<$listTag><li></li><li>item</li></$listTag>", editText.toHtml())
 
@@ -542,8 +542,8 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.insert(2, "\n")
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag>", editText.toHtml())
 
-        editText.append("\n")
-        editText.append("\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag><br>", editText.toHtml())
     }
 

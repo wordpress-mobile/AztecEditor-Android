@@ -10,7 +10,6 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
-import android.view.KeyEvent.KEYCODE_DEL
 import android.widget.EditText
 
 

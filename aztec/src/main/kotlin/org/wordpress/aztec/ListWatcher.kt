@@ -38,7 +38,7 @@ class ListWatcher private constructor(private val listHandler: ListHandler, azte
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextChangedListener(ListWatcher(ListHandler(text.text), text))
+            text.addTextChangedListener(ListWatcher(ListHandler(), text))
         }
     }
 }

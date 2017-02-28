@@ -5,7 +5,7 @@ import android.text.Spanned
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
 
-class ListHandler(private val text: Spannable) {
+class ListHandler {
     interface TextDeleter {
         fun delete(start: Int, end: Int)
     }
@@ -15,10 +15,6 @@ class ListHandler(private val text: Spannable) {
         EMPTY_ITEM_AT_LIST_END,
         TEXT_END,
         LIST_ITEM_BODY
-    }
-
-    private fun newListItem(start: Int, end: Int) {
-        newListItem(text, start, end)
     }
 
     fun handleTextChangeForLists(text: Spannable, inputStart: Int, count: Int, textDeleter: TextDeleter) {
@@ -44,10 +40,10 @@ class ListHandler(private val text: Spannable) {
                     charsNew.getSpans<AztecListItemSpan>(newlineOffset, newlineOffset, AztecListItemSpan::class.java))
             listItems.firstOrNull()?.let {
                 when (getNewlinePositionType(text, list, it, newlineIndex)) {
-                    ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(it, newlineIndex)
+                    ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex)
                     ListHandler.PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(list, it, newlineIndex, textDeleter)
                     ListHandler.PositionType.TEXT_END -> handleNewlineAtTextEnd()
-                    ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(it, newlineIndex)
+                    ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex)
                 }
             }
 
@@ -80,9 +76,9 @@ class ListHandler(private val text: Spannable) {
         return PositionType.LIST_ITEM_BODY
     }
 
-    private fun handleNewlineAtListStart(item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
+    private fun handleNewlineAtListStart(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
         // newline added at start of bullet so, add a new bullet
-        newListItem(newlineIndex, newlineIndex + 1)
+        newListItem(text, newlineIndex, newlineIndex + 1)
 
         // push current bullet forward
         item.start = newlineIndex + 1
@@ -112,9 +108,9 @@ class ListHandler(private val text: Spannable) {
         // no-op here
     }
 
-    private fun handleNewlineInListItemBody(item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
+    private fun handleNewlineInListItemBody(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
         // newline added at some position inside the bullet so, end the current bullet and append a new one
-        newListItem(newlineIndex + 1, item.end)
+        newListItem(text, newlineIndex + 1, item.end)
         item.end = newlineIndex + 1
     }
 
@@ -128,7 +124,7 @@ class ListHandler(private val text: Spannable) {
         }
 
         // attach a new bullet around the end-of-text marker
-        newListItem(markerIndex, markerIndex + 1)
+        newListItem(text, markerIndex, markerIndex + 1)
 
         // the list item has bled over to the marker so, let's adjust its range to just before the marker. There's a
         //  newline there hopefully :)

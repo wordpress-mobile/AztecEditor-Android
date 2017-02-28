@@ -188,7 +188,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.insert(mark1, "\n")
         Assert.assertEquals("<$listTag><li>List 1</li><li></li></$listTag><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
 
-        editText.text.insert(mark1 + 2, "\n")
+        editText.text.insert(mark1 + 1, "\n")
         Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
     }
 

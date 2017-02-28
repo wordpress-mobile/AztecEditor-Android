@@ -617,19 +617,15 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun deleteTextFromLastItemAndCheckForZwjChar() {
+    fun deleteTextFromLastItem() {
         editText.fromHtml("<$listTag><li>item</li><li></li><li></li><li>item2</li></$listTag>after")
-
-        Assert.assertTrue(editText.text.indexOf(Constants.ZWJ_CHAR) == -1)
 
         val mark = editText.text.indexOf("item2")
         editText.text.delete(mark, mark + "item2".length)
-        Assert.assertEquals(editText.text[mark], Constants.ZWJ_CHAR)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
 
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(mark -1, mark)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
-        Assert.assertEquals(editText.text[mark - 1], Constants.ZWJ_CHAR)
     }
 
 

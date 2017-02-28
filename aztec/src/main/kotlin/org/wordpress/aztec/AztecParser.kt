@@ -42,6 +42,7 @@ class AztecParser {
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
+        cleanupZWJ(spanned)
 
 //        addZwjCharToBlockSpans(spanned)
 
@@ -225,6 +226,16 @@ class AztecParser {
     private fun markBlockElementsAsParagraphs(text: Spannable) {
         SpanWrapper.getSpans(text, 0, text.length, AztecBlockSpan::class.java)
                 .map { it -> it.flags = Spanned.SPAN_PARAGRAPH }
+    }
+
+    private fun cleanupZWJ(text: Editable) {
+        var lastIndex = text.length
+        do {
+            lastIndex = text.lastIndexOf(Constants.ZWJ_CHAR, lastIndex)
+            if (lastIndex > -1) {
+                text.delete(lastIndex, lastIndex + 1)
+            }
+        } while (lastIndex > -1)
     }
 
     private fun resetHiddenTagParser(text: Spanned) {

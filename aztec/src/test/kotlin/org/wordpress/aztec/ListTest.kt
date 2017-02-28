@@ -143,7 +143,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
 

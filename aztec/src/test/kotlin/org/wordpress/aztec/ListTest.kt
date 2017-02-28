@@ -554,17 +554,16 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         //remove newline after list (put cursor on newline after list and press backspace)
         val mark = editText.text.indexOf("Ordered") + "Ordered".length
-        editText.text.delete(mark, mark + 1)
+        editText.text.delete(mark + 1, mark + 2) // +1 to cater for the item's endline
         Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
 
         //press enter twice after at the end of the list to add new item and then remove it and close list
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
 
-        // must add 2 because of the extra ZWJ char
-        editText.setSelection(mark + 2)
-        editText.text.insert(mark + 2, "\n")
-        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br><br>not in list", editText.toHtml())
+        editText.setSelection(mark + 1)
+        editText.text.insert(mark + 1, "\n")
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br>not in list", editText.toHtml())
     }
 
     @Test

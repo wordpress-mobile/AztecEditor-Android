@@ -167,45 +167,12 @@ class AztecParser {
             spanned.removeSpan(it)
         }
 
-//        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
-//            val spanStart = spanned.getSpanStart(it)
-//
-//            if (spanStart < 1) {
-//                // no newline if at text start so, return
-//                return@forEach
-//            }
-//
-//            if (spanStart < 2) {
-//                // no visual newline can exist unless there are at least 2 chars before the block (one will be the newline
-//                //  and the other will be the leading content) so, return
-//                return@forEach
-//            }
-//
-//            if (spanned[spanStart - 1] != '\n') {
-//                // no newline before so, nothing to mark as visual newline
-//                return@forEach
-//            }
-//
-//            if (spanned.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).isNotEmpty()) {
-//                // there's a visual newline already set so, nothing to do here
-//                return@forEach
-//            }
-//
-//            // at last, all checks passed so, let's mark the newline as visual!
-//            markBlockElementLineBreak(spanned, spanStart - 1)
-//        }
-
         // add visual newlines at ends
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)
 
             if (spanEnd == spanned.length) {
                 // no visual newline if at text end
-                return@forEach
-            }
-
-            if (spanEnd == spanned.length - 1 && spanned.last() == Constants.END_OF_BUFFER_MARKER) {
-                // no visual newline if at left of text end marker
                 return@forEach
             }
 
@@ -226,6 +193,46 @@ class AztecParser {
             // at last, all checks passed so, let's mark the newline as visual!
             markBlockElementLineBreak(spanned, spanEnd - 1)
         }
+
+        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+            val spanStart = spanned.getSpanStart(it)
+
+            if (spanStart < 1) {
+                // no visual newline if at text start so, return
+                return@forEach
+            }
+
+            if (spanStart < 2) {
+                // no visual newline can exist unless there are at least 2 chars before the block (one will be the newline
+                //  and the other will be the leading content) so, return
+                return@forEach
+            }
+
+            if (spanned[spanStart - 1] != '\n') {
+                // no newline before so, nothing to mark as visual newline
+                return@forEach
+            }
+
+            if (spanned.getSpans(spanStart, spanStart, AztecBlockSpan::class.java).any {
+                    spanned.getSpanEnd(it) == spanStart }) {
+                // the newline before us is the end of a previous block element so, return
+                return@forEach
+            }
+
+            if (spanned[spanStart - 2] == '\n') {
+                // there's another newline before so, the adjacent one is not a visual one so, return
+                return@forEach
+            }
+
+            if (spanned.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).isNotEmpty()) {
+                // the newline is already marked as visual so, nothing more to do here
+                return@forEach
+            }
+
+            // at last, all checks passed so, let's mark the newline as visual!
+            markBlockElementLineBreak(spanned, spanStart - 1)
+        }
+
     }
 
     private fun markBlockElementsAsParagraphs(text: Spannable) {

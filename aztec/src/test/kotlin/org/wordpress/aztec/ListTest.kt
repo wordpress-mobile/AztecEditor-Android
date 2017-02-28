@@ -270,7 +270,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>", editText.toHtml())
         safeAppend(editText, "\n")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
 
         safeAppend(editText, "not in list")
         editText.setSelection(mark)
@@ -544,7 +544,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
-        Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li></li><li></li><li></li><li>item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -572,11 +572,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>Ordered</li><li></li></$listTag>")
 
         //insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
-        val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 2 because of the extra ZWJ char
+        val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 1 because of the newline at item end
         editText.setSelection(mark)
         editText.text.insert(editText.selectionEnd, "\n")
 
-        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -648,7 +648,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -656,7 +656,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun deleteEmptyListItemWithBackspace() {
         editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
 
-        editText.setSelection(safeLength(editText))
         safeAppend(editText, "\n")
         editText.text.delete(safeLength(editText) - 1, safeLength(editText))
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
@@ -668,7 +667,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
 
         editText.text.delete(safeLength(editText) - 1, safeLength(editText))
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -728,7 +727,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun deleteLastItemFromListWithTextAbove() {
         editText.fromHtml("abc<$listTag><li>a</li></$listTag>")
 
-        editText.setSelection(editText.length())
         editText.text.delete(safeLength(editText) - 1, safeLength(editText))
 
         Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("abc\n"), editText.text.toString())

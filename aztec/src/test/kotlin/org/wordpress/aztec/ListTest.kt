@@ -388,14 +388,14 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         val mark = editText.length()
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag><br>not in the list", editText.toHtml())
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the list")
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag><br>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li><li>second item (addition)</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test

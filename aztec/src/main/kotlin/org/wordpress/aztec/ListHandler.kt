@@ -2,6 +2,7 @@ package org.wordpress.aztec
 
 import android.text.Spannable
 import android.text.Spanned
+import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
 
@@ -28,6 +29,7 @@ class ListHandler {
         }
 
         val list = SpanWrapper(text, lists[0]) // TODO: handle nesting
+        val childNestingLevel = list.span.nestingLevel + 1
 
         val charsNewString = charsNew.toString()
         var newlineOffset = charsNewString.indexOf(Constants.NEWLINE)
@@ -40,10 +42,10 @@ class ListHandler {
                     charsNew.getSpans<AztecListItemSpan>(newlineOffset, newlineOffset, AztecListItemSpan::class.java))
             listItems.firstOrNull()?.let {
                 when (getNewlinePositionType(text, list, it, newlineIndex)) {
-                    ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex)
+                    ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex, childNestingLevel)
                     ListHandler.PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(list, it, newlineIndex, textDeleter)
                     ListHandler.PositionType.TEXT_END -> handleNewlineAtTextEnd()
-                    ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex)
+                    ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex, childNestingLevel)
                 }
             }
 
@@ -52,12 +54,12 @@ class ListHandler {
 
         val gotEndOfBufferMarker = charsNew.length == 1 && charsNew[0] == Constants.END_OF_BUFFER_MARKER
         if (gotEndOfBufferMarker) {
-            handleEndOfBufferInList(text, inputStart)
+            handleEndOfBufferInList(text, inputStart, childNestingLevel)
         }
     }
 
     private fun getNewlinePositionType(text: Spannable, list: SpanWrapper<AztecListSpan>,
-                                       item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int): PositionType {
+            item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int): PositionType {
         val atEndOfList = newlineIndex == list.end - 2 || newlineIndex == text.length - 1
 
         if (newlineIndex == item.start && !atEndOfList) {
@@ -76,16 +78,17 @@ class ListHandler {
         return PositionType.LIST_ITEM_BODY
     }
 
-    private fun handleNewlineAtListStart(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
+    private fun handleNewlineAtListStart(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int,
+            childNestingLevel: Int) {
         // newline added at start of bullet so, add a new bullet
-        newListItem(text, newlineIndex, newlineIndex + 1)
+        newListItem(text, newlineIndex, newlineIndex + 1, childNestingLevel)
 
         // push current bullet forward
         item.start = newlineIndex + 1
     }
 
     private fun handleNewlineAtEmptyItemAtListEnd(list: SpanWrapper<AztecListSpan>, item: SpanWrapper<AztecListItemSpan>,
-                                                  newlineIndex: Int, textDeleter: TextDeleter) {
+            newlineIndex: Int, textDeleter: TextDeleter) {
         // close the list when entering a newline on an empty item at the end of the list
         item.remove()
 
@@ -108,13 +111,14 @@ class ListHandler {
         // no-op here
     }
 
-    private fun handleNewlineInListItemBody(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int) {
+    private fun handleNewlineInListItemBody(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int,
+            childNestingLevel: Int) {
         // newline added at some position inside the bullet so, end the current bullet and append a new one
-        newListItem(text, newlineIndex + 1, item.end)
+        newListItem(text, newlineIndex + 1, item.end, childNestingLevel)
         item.end = newlineIndex + 1
     }
 
-    private fun handleEndOfBufferInList(text: Spannable, markerIndex: Int): Boolean {
+    private fun handleEndOfBufferInList(text: Spannable, markerIndex: Int, childNestingLevel: Int): Boolean {
         val listItems = text.getSpans<AztecListItemSpan>(markerIndex, markerIndex + 1, AztecListItemSpan::class.java)
         val item = if (listItems != null && listItems.isNotEmpty()) SpanWrapper(text, listItems[0]) else null
 
@@ -124,7 +128,7 @@ class ListHandler {
         }
 
         // attach a new bullet around the end-of-text marker
-        newListItem(text, markerIndex, markerIndex + 1)
+        newListItem(text, markerIndex, markerIndex + 1, childNestingLevel)
 
         // the list item has bled over to the marker so, let's adjust its range to just before the marker. There's a
         //  newline there hopefully :)
@@ -134,12 +138,12 @@ class ListHandler {
     }
 
     companion object {
-        fun newList(text: Spannable, list: AztecListSpan, start: Int, end: Int) {
-            text.setSpan(list, start, end, Spanned.SPAN_PARAGRAPH)
+        fun set(text: Spannable, aztecBlockSpan: AztecBlockSpan, start: Int, end: Int) {
+            text.setSpan(aztecBlockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
 
-        fun newListItem(text: Spannable, start: Int, end: Int) {
-            text.setSpan(AztecListItemSpan(), start, end, Spanned.SPAN_PARAGRAPH)
+        fun newListItem(text: Spannable, start: Int, end: Int, nestingLevel: Int) {
+            set(text, AztecListItemSpan(nestingLevel), start, end)
         }
     }
 }

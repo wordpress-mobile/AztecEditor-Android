@@ -34,12 +34,13 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?): Boolean {
+            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
+            nestingLevel: Int): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                handleElement(output, opening, AztecListItemSpan(attributeString))
+                handleElement(output, opening, AztecListItemSpan(nestingLevel, attributeString))
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
@@ -55,15 +56,15 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, AztecUnorderedListSpan(attributeString))
+                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, attributeString))
                 return true
             }
             LIST_OL -> {
-                handleElement(output, opening, AztecOrderedListSpan(attributeString))
+                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, attributeString))
                 return true
             }
             BLOCKQUOTE -> {
-                handleElement(output, opening, AztecQuoteSpan(attributeString))
+                handleElement(output, opening, AztecQuoteSpan(nestingLevel, attributeString))
                 return true
             }
             IMAGE -> {
@@ -79,7 +80,7 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             PARAGRAPH -> {
-                handleElement(output, opening, ParagraphSpan(attributeString))
+                handleElement(output, opening, ParagraphSpan(nestingLevel, attributeString))
                 return true
             }
             else -> {

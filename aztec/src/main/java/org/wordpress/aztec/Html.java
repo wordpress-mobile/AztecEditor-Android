@@ -106,7 +106,7 @@ public class Html {
          * a tag that it does not know how to interpret.
          */
         boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
-                Context context, Attributes attributes);
+                Context context, Attributes attributes, int nestingLevel);
     }
 
     private Html() {
@@ -242,7 +242,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         return spannableStringBuilder;
     }
 
-    private void handleStartTag(String tag, Attributes attributes) {
+    private void handleStartTag(String tag, Attributes attributes, int nestingLevel) {
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
                 handleCursor(spannableStringBuilder);
@@ -260,39 +260,39 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             handleCursor(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("b")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("em")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("i")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("big")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("small")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("font")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("a")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("u")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("code")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
+            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes, nestingLevel);
         } else {
             if (tagHandler != null) {
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
-                        context, attributes);
+                        context, attributes, nestingLevel);
                 if (tagHandled) {
                     return;
                 }
@@ -312,7 +312,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private void handleEndTag(String tag) {
+    private void handleEndTag(String tag, int nestingLevel) {
         // Unknown tag previously detected
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
@@ -327,7 +327,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (unknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
                 spannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(spannableStringBuilder, unknown.rawHtml, context, onUnknownHtmlClickListener);
+                endUnknown(spannableStringBuilder, nestingLevel, unknown.rawHtml, context, onUnknownHtmlClickListener);
             }
             return;
         }
@@ -365,7 +365,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null,
+                    nestingLevel);
         }
     }
 
@@ -399,7 +400,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attributes) {
+    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attributes,
+            int nestingLevel) {
         final String attrs = Html.stringifyAttributes(attributes).toString();
         AztecContentSpan newSpan;
 
@@ -439,7 +441,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 newSpan = new AztecCodeSpan(attrs);
                 break;
             case FORMAT_PARAGRAPH:
-                newSpan = new ParagraphSpan(attrs);
+                newSpan = new ParagraphSpan(nestingLevel, attrs);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");
@@ -542,7 +544,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context,
+    private static void endUnknown(SpannableStringBuilder text, int nestingLevel, StringBuilder rawHtml, Context context,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener) {
         int len = text.length();
         Object obj = getLast(text, Unknown.class);
@@ -552,7 +554,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help, onUnknownHtmlClickListener);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(nestingLevel, rawHtml, context, android.R.drawable.ic_menu_help, onUnknownHtmlClickListener);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
@@ -575,13 +577,19 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     public void endPrefixMapping(String prefix) throws SAXException {
     }
 
+    private int nestingLevel = 0;
+
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        handleStartTag(localName, attributes);
+        nestingLevel++;
+
+        handleStartTag(localName, attributes, nestingLevel);
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        handleEndTag(localName);
+        nestingLevel--;
+
+        handleEndTag(localName, nestingLevel);
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {

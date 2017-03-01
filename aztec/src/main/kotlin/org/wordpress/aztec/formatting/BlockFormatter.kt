@@ -22,34 +22,34 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
     fun toggleOrderedList() {
-        if (!containsList(TextFormat.FORMAT_ORDERED_LIST)) {
-            if (containsList(TextFormat.FORMAT_UNORDERED_LIST)) {
-                switchListType(TextFormat.FORMAT_ORDERED_LIST)
+        if (!containsList(TextFormat.FORMAT_ORDERED_LIST, 0)) {
+            if (containsList(TextFormat.FORMAT_UNORDERED_LIST, 0)) {
+                switchListType(TextFormat.FORMAT_ORDERED_LIST, 0)
             } else {
-                applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
+                applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST, 0)
             }
         } else {
-            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
+            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST, 0)
         }
     }
 
     fun toggleUnorderedList() {
-        if (!containsList(TextFormat.FORMAT_UNORDERED_LIST)) {
-            if (containsList(TextFormat.FORMAT_ORDERED_LIST)) {
-                switchListType(TextFormat.FORMAT_UNORDERED_LIST)
+        if (!containsList(TextFormat.FORMAT_UNORDERED_LIST, 0)) {
+            if (containsList(TextFormat.FORMAT_ORDERED_LIST, 0)) {
+                switchListType(TextFormat.FORMAT_UNORDERED_LIST, 0)
             } else {
-                applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
+                applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST, 0)
             }
         } else {
-            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
+            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST, 0)
         }
     }
 
     fun toggleQuote() {
         if (!containQuote()) {
-            applyBlockStyle(TextFormat.FORMAT_QUOTE)
+            applyBlockStyle(TextFormat.FORMAT_QUOTE, 0)
         } else {
-            removeBlockStyle(TextFormat.FORMAT_QUOTE)
+            removeBlockStyle(TextFormat.FORMAT_QUOTE, 0)
         }
     }
 
@@ -83,8 +83,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         return changed
     }
 
-    fun removeBlockStyle(textFormat: TextFormat) {
-        removeBlockStyle(selectionStart, selectionEnd, makeBlockSpan(textFormat).map { it -> it.javaClass })
+    fun removeBlockStyle(textFormat: TextFormat, nestingLevel: Int) {
+        removeBlockStyle(selectionStart, selectionEnd, makeBlock(textFormat, nestingLevel).map { it -> it.javaClass })
     }
 
     fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd,
@@ -136,20 +136,38 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlockSpan(textFormat: TextFormat, attrs: String = ""): List<AztecBlockSpan> {
+    fun makeBlock(textFormat: TextFormat, nestingLevel: Int, attrs: String = ""): List<AztecBlockSpan> {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(listStyle, attrs), AztecListItemSpan())
-            TextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(listStyle, attrs), AztecListItemSpan())
-            TextFormat.FORMAT_QUOTE -> return Arrays.asList(AztecQuoteSpan(quoteStyle, attrs))
-            else -> return Arrays.asList(ParagraphSpan(attrs))
+            TextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
+            TextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
+            TextFormat.FORMAT_QUOTE -> return Arrays.asList(AztecQuoteSpan(nestingLevel, attrs, quoteStyle))
+            else -> return Arrays.asList(ParagraphSpan(nestingLevel, attrs))
+        }
+    }
+
+    fun makeBlockSpan(textFormat: TextFormat, nestingLevel: Int, attrs: String = ""): AztecBlockSpan {
+        return when (textFormat) {
+            TextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, nestingLevel, attrs)
+            TextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class.java, nestingLevel, attrs)
+            TextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class.java, nestingLevel, attrs)
+            else -> ParagraphSpan(nestingLevel, attrs)
+        }
+    }
+
+    fun <T : Class<out AztecBlockSpan>> makeBlockSpan(type: T, nestingLevel: Int, attrs: String = ""): AztecBlockSpan {
+        return when (type) {
+            AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
+            AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
+            AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
+            else -> ParagraphSpan(nestingLevel, attrs)
         }
     }
 
     fun setBlockStyle(blockElement: AztecBlockSpan) {
         when (blockElement) {
-            is AztecOrderedListSpan -> blockElement.setStyle(listStyle)
-            is AztecUnorderedListSpan -> blockElement.setStyle(listStyle)
-            is AztecQuoteSpan -> blockElement.setStyle(quoteStyle)
+            is AztecOrderedListSpan -> blockElement.listStyle = listStyle
+            is AztecUnorderedListSpan -> blockElement.listStyle = listStyle
+            is AztecQuoteSpan -> blockElement.quoteStyle = quoteStyle
         }
     }
 
@@ -184,7 +202,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
     }
 
 
-    fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun applyBlockStyle(blockElementType: TextFormat, nestingLevel: Int, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
             val selectedText = editableText.substring(start + 1..end - 1)
 
@@ -204,15 +222,15 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
                 for (i in lines.indices) {
                     numberOfLines++
-                    if (containsList(blockElementType, i, selectedLines)) {
+                    if (containsList(blockElementType, i, selectedLines, nestingLevel)) {
                         numberOfLinesWithSpanApplied++
                     }
                 }
 
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    removeBlockStyle(blockElementType)
+                    removeBlockStyle(blockElementType, nestingLevel)
                 } else {
-                    applyBlock(blockElementType, startOfBlock + 1, endOfBlock)
+                    applyBlock(blockElementType, startOfBlock + 1, endOfBlock, nestingLevel)
                 }
             }
 
@@ -244,7 +262,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 }
             }
 
-            applyBlock(blockElementType, startOfBlock, endOfBlock)
+            applyBlock(blockElementType, startOfBlock, endOfBlock, nestingLevel)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
 //            if (isEmptyLine) {
@@ -253,17 +271,17 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         }
     }
 
-    private fun applyBlock(textFormat: TextFormat, start: Int, end: Int, attrs: String = "") {
+    private fun applyBlock(textFormat: TextFormat, start: Int, end: Int, nestingLevel: Int, attrs: String = "") {
         when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(listStyle, attrs), start, end)
-            TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(listStyle, attrs), start, end)
-            TextFormat.FORMAT_QUOTE -> editableText.setSpan(AztecQuoteSpan(quoteStyle, attrs), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            else -> editableText.setSpan(ParagraphSpan(attrs), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
+            TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
+            TextFormat.FORMAT_QUOTE -> editableText.setSpan(AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
-        ListHandler.newList(editableText, listSpan, start, end)
+    private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int, nestingLevel: Int) {
+        ListHandler.set(editableText, listSpan, start, end)
 
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
@@ -276,7 +294,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
             if (lineLength == 0) continue
 
-            ListHandler.newListItem(editableText, start + lineStart, start + lineEnd)
+            ListHandler.newListItem(editableText, start + lineStart, start + lineEnd, nestingLevel + 1)
         }
     }
 
@@ -294,7 +312,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         editableText.getSpans(start, end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
     }
 
-    fun containsList(textFormat: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun containsList(textFormat: TextFormat, nestingLevel: Int, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -324,10 +342,10 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
         if (list.isEmpty()) return false
 
-        return list.any { containsList(textFormat, it, editableText) }
+        return list.any { containsList(textFormat, it, editableText, nestingLevel) }
     }
 
-    fun containsList(textFormat: TextFormat, index: Int, text: Editable): Boolean {
+    fun containsList(textFormat: TextFormat, index: Int, text: Editable, nestingLevel: Int): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -340,7 +358,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             return false
         }
 
-        val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat).first().javaClass)
+        val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat, nestingLevel).javaClass)
         return spans.isNotEmpty()
     }
 
@@ -394,7 +412,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         return spans.isNotEmpty()
     }
 
-    fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun switchListType(listTypeToSwitchTo: TextFormat, nestingLevel: Int, start: Int = selectionStart, end: Int = selectionEnd) {
         val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
         if (existingListSpan != null) {
             val spanStart = editableText.getSpanStart(existingListSpan)
@@ -402,7 +420,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
             val spanFlags = editableText.getSpanFlags(existingListSpan)
             editableText.removeSpan(existingListSpan)
 
-            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo).first(), spanStart, spanEnd, spanFlags)
+            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, nestingLevel), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

@@ -268,18 +268,31 @@ class AztecParser {
     }
 
     private fun withinHtml(out: StringBuilder, text: Spanned) {
-        withinHtml(out, text, 0, text.length, null)
+        withinHtml(out, text, 0, text.length, null, -1)
     }
 
     private fun withinHtml(out: StringBuilder, text: Spanned, start: Int, end: Int,
-            grandParents: ArrayList<AztecParagraphStyle>?) {
+            grandParents: ArrayList<AztecParagraphStyle>?, nestingLevel: Int) {
         var next: Int
         var i = start
         var parents: ArrayList<AztecParagraphStyle>?
 
         do {
-            var paragraph = text.getSpans(i, end,AztecParagraphStyle::class.java)
-                    .firstOrNull { grandParents?.contains(it)?.not() ?: true }
+            val paragraphs = text.getSpans(i, end, AztecParagraphStyle::class.java)
+            paragraphs.sortWith(Comparator { a, b ->
+                val nestingComparison = a.nestingLevel.compareTo(b.nestingLevel)
+                if (nestingComparison == 0) {
+                    val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
+                    if (startComparison == 0) {
+                        return@Comparator text.getSpanEnd(a).compareTo(text.getSpanEnd(b))
+                    } else {
+                        return@Comparator startComparison
+                    }
+                } else {
+                    return@Comparator nestingComparison
+                }
+            })
+            var paragraph = paragraphs.firstOrNull { it.nestingLevel > nestingLevel }
 
             if (paragraph == null) {
                 // no paragraph found so, just consume all available chars
@@ -298,7 +311,7 @@ class AztecParser {
             }
 
             when (paragraph) {
-                is AztecBlockSpan -> withinBlock(out, text, i, next, paragraph, parents)
+                is AztecBlockSpan -> withinBlock(out, text, i, next, paragraph, parents, paragraph.nestingLevel)
                 is UnknownHtmlSpan -> withinUnknown(out, text, i, next, paragraph)
                 else -> withinContent(out, text, i, next, parents)
             }
@@ -316,9 +329,9 @@ class AztecParser {
     }
 
     private fun withinBlock(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                            blockSpan: AztecBlockSpan, parents: ArrayList<AztecParagraphStyle>?) {
+                            blockSpan: AztecBlockSpan, parents: ArrayList<AztecParagraphStyle>?, nestingLevel: Int) {
         out.append("<${blockSpan.getStartTag()}>")
-        withinHtml(out, text, start, end, parents)
+        withinHtml(out, text, start, end, parents, nestingLevel)
         out.append("</${blockSpan.getEndTag()}>")
 
         if (end > 0

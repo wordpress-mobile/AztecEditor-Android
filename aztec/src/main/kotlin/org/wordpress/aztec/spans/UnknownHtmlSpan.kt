@@ -4,7 +4,12 @@ import android.content.Context
 import android.text.style.ImageSpan
 import android.view.View
 
-class UnknownHtmlSpan(var rawHtml: StringBuilder, context: Context, drawable: Int, private val onClickListener: OnUnknownHtmlClickListener?) : ImageSpan(context, drawable), AztecParagraphStyle {
+class UnknownHtmlSpan(
+        override var nestingLevel: Int,
+        var rawHtml: StringBuilder,
+        context: Context,
+        drawable: Int,
+        private val onClickListener: OnUnknownHtmlClickListener?) : ImageSpan(context, drawable), AztecParagraphStyle {
 
     fun onClick(view: View) {
         onClickListener?.onUnknownHtmlClicked(this)

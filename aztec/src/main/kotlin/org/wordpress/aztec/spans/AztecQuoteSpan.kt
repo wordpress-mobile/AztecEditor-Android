@@ -31,40 +31,15 @@ import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
 
 
-class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeightSpan, UpdateLayout {
+class AztecQuoteSpan(
+        override var nestingLevel: Int,
+        override var attributes: String = "",
+        var quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
+    ) : QuoteSpan(), LineBackgroundSpan, AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     val rect = Rect()
 
     private val TAG: String = "blockquote"
-
-    private var verticalPadding: Int = 0
-    private var quoteBackground: Int = 0
-    private var quoteColor: Int = 0
-    private var quoteMargin: Int = 0
-    private var quotePadding: Int = 0
-    private var quoteWidth: Int = 0
-    private var quoteBackgroundAlpha: Float = 0.0f
-
-    override var attributes: String = ""
-
-
-    constructor(attributes: String = "") : super() {
-        this.attributes = attributes
-    }
-
-    constructor(quoteStyle: BlockFormatter.QuoteStyle, attributes: String = "") : this(attributes) {
-        setStyle(quoteStyle)
-    }
-
-    fun setStyle(quoteStyle: BlockFormatter.QuoteStyle) {
-        this.verticalPadding = quoteStyle.verticalPadding
-        this.quoteBackground = quoteStyle.quoteBackground
-        this.quoteColor = quoteStyle.quoteColor
-        this.quoteMargin = quoteStyle.quoteMargin
-        this.quoteWidth = quoteStyle.quoteWidth
-        this.quotePadding = quoteStyle.quotePadding
-        this.quoteBackgroundAlpha = quoteStyle.quoteBackgroundAlpha
-    }
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -72,12 +47,12 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         val spanEnd = spanned.getSpanEnd(this)
 
         if (start === spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
+            fm.ascent -= quoteStyle.verticalPadding
+            fm.top -= quoteStyle.verticalPadding
         }
         if (end === spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
+            fm.descent += quoteStyle.verticalPadding
+            fm.bottom += quoteStyle.verticalPadding
         }
     }
 
@@ -93,7 +68,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteMargin + quoteWidth + quotePadding
+        return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -104,8 +79,9 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         val color = p.color
 
         p.style = Paint.Style.FILL
-        p.color = quoteColor
-        c.drawRect(x.toFloat() + quoteMargin, top.toFloat(), (x + quoteMargin + dir * quoteWidth).toFloat(), bottom.toFloat(), p)
+        p.color = quoteStyle.quoteColor
+        c.drawRect(x.toFloat() + quoteStyle.quoteMargin, top.toFloat(),
+                (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat(), bottom.toFloat(), p)
 
         p.style = style
         p.color = color
@@ -115,11 +91,15 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
                                 top: Int, baseline: Int, bottom: Int,
                                 text: CharSequence?, start: Int, end: Int,
                                 lnum: Int) {
-        val alpha: Int = (quoteBackgroundAlpha * 255).toInt()
+        val alpha: Int = (quoteStyle.quoteBackgroundAlpha * 255).toInt()
 
         val paintColor = p.color
-        p.color = Color.argb(alpha, Color.red(quoteBackground), Color.green(quoteBackground), Color.blue(quoteBackground))
-        rect.set(left + quoteMargin, top, right, bottom)
+        p.color = Color.argb(
+                alpha,
+                Color.red(quoteStyle.quoteBackground),
+                Color.green(quoteStyle.quoteBackground),
+                Color.blue(quoteStyle.quoteBackground))
+        rect.set(left + quoteStyle.quoteMargin, top, right, bottom)
 
         c.drawRect(rect, p)
         p.color = paintColor

@@ -24,35 +24,13 @@ import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecOrderedListSpan : AztecListSpan {
+class AztecOrderedListSpan(
+        override var nestingLevel: Int,
+        override var attributes: String = "",
+        var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
+    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
 
     private val TAG = "ol"
-
-    private var textColor: Int = 0
-    private var textMargin: Int = 0
-    private var textPadding: Int = 0
-    private var bulletWidth: Int = 0 //we are using bullet width to maintain same margin with bullet list
-
-    override var attributes: String = ""
-
-    constructor(attributes: String) {
-        this.attributes = attributes
-    }
-
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String) {
-        setStyle(listStyle)
-
-        this.attributes = attributes
-    }
-
-    fun setStyle(listStyle: BlockFormatter.ListStyle) {
-        super.verticalPadding = listStyle.verticalPadding
-
-        this.textColor = listStyle.indicatorColor
-        this.textMargin = listStyle.indicatorMargin
-        this.bulletWidth = listStyle.indicatorWidth
-        this.textPadding = listStyle.indicatorPadding
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {
@@ -66,7 +44,7 @@ class AztecOrderedListSpan : AztecListSpan {
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return textMargin + 2 * bulletWidth + textPadding
+        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
     }
 
 
@@ -84,13 +62,13 @@ class AztecOrderedListSpan : AztecListSpan {
         val style = p.style
         val oldColor = p.color
 
-        p.color = textColor
+        p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
 
         val textToDraw = getIndexOfProcessedLine(text, end).toString() + "."
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (textMargin + x + dir - width) * dir, baseline.toFloat(), p)
+        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, baseline.toFloat(), p)
 
         p.color = oldColor
         p.style = style

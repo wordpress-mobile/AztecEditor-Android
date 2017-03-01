@@ -62,7 +62,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun styleMultipleSelectedItems() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
         safeAppend(editText, "first item")
         safeAppend(editText, "\n")
         safeAppend(editText, "second item")
@@ -77,7 +77,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun stylePartiallySelectedMultipleItems() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
         safeAppend(editText, "first item")
         safeAppend(editText, "\n")
         safeAppend(editText, "second item")
@@ -92,7 +92,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun styleSurroundedItem() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
         safeAppend(editText, "first item")
         safeAppend(editText, "\n")
         safeAppend(editText, "second item")
@@ -232,7 +232,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag><br>not in list", editText.toHtml())
+        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
     }
 
 
@@ -779,5 +779,9 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     fun safeAppend(editText: EditText, string: String) {
         editText.text.insert(EndOfBufferMarkerAdder.safeLength(editText), string)
+    }
+
+    fun safeEmpty(editText: EditText): Boolean {
+        return editText.text.toString() == EndOfBufferMarkerAdder.ensureEndOfTextMarker("")
     }
 }

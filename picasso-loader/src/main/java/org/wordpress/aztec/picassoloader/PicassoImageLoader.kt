@@ -33,7 +33,7 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
             }
 
             override fun onBitmapFailed(errorDrawable: Drawable?) {
-                callbacks.onImageLoadingFailed()
+                callbacks.onImageFailed()
                 targets.remove(source)
             }
 

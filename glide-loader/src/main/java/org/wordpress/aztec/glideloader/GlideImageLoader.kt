@@ -21,7 +21,7 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
             }
 
             override fun onLoadFailed(e: Exception?, errorDrawable: Drawable?) {
-                callbacks.onImageLoadingFailed()
+                callbacks.onImageFailed()
             }
 
             override fun onResourceReady(resource: GlideDrawable?, glideAnimation: GlideAnimation<in GlideDrawable>?) {

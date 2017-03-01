@@ -594,8 +594,8 @@ class AztecText : EditText, TextWatcher {
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
-                override fun onUseDefaultImage() {
-                    // we already have a default image loaded so, noop
+                override fun onImageFailed() {
+                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
@@ -606,8 +606,8 @@ class AztecText : EditText, TextWatcher {
                     replaceImage(ContextCompat.getDrawable(context, drawableLoading))
                 }
 
-                override fun onImageLoadingFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                override fun onUseDefaultImage() {
+                    // we already have a default image loaded so, noop
                 }
 
                 private fun replaceImage(drawable: Drawable?) {

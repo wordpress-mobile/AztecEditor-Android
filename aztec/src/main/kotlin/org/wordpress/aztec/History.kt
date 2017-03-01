@@ -9,6 +9,8 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     var historyList = LinkedList<String>()
     var inputLast: String = ""
 
+    private var historyListener: HistoryListener? = null
+
     private var historyWorking = false
 
     private lateinit var inputBefore: String
@@ -46,6 +48,8 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
         historyList.add(inputBefore)
         historyCursor = historyList.size
+
+        updateActions()
     }
 
     fun redo(editText: EditText) {
@@ -77,6 +81,8 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         editText.isFocusable = true
         editText.isFocusableInTouchMode = true
         editText.requestFocus()
+
+        updateActions()
     }
 
     fun undo(editText: EditText) {
@@ -98,6 +104,8 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         editText.isFocusable = true
         editText.isFocusableInTouchMode = true
         editText.requestFocus()
+
+        updateActions()
     }
 
     private fun setTextFromHistory(editText: EditText) {
@@ -113,7 +121,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return false
         }
 
-        return historyCursor < historyList.size - 1 || historyCursor >= historyList.size - 1
+        return historyCursor < historyList.size
     }
 
     fun undoValid(): Boolean {
@@ -131,5 +139,14 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     fun clearHistory() {
         inputLast = ""
         historyList.clear()
+    }
+
+    fun setHistoryListener(listener: HistoryListener) {
+        historyListener = listener
+    }
+
+    fun updateActions() {
+        historyListener?.onRedoEnabled()
+        historyListener?.onUndoEnabled()
     }
 }

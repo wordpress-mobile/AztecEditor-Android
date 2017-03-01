@@ -8,6 +8,7 @@ class AztecHtmlSchema : HTMLSchema() {
     init {
         fixIframeElement()
         fixLinkElement()
+        fixBrElement()
     }
 
     private fun fixIframeElement() {
@@ -24,6 +25,13 @@ class AztecHtmlSchema : HTMLSchema() {
         val iframe = getElementType("a")
 
         val index = iframe.atts().getIndex("shape")
+        iframe.atts().setValue(index, null)
+    }
+
+    private fun fixBrElement() {
+        val iframe = getElementType("br")
+
+        val index = iframe.atts().getIndex("clear")
         iframe.atts().setValue(index, null)
     }
 }

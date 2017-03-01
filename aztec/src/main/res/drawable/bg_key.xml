@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <corners
+        android:radius="@dimen/radius_corner" >
+    </corners>
+
+    <solid
+        android:color="@color/background_key" >
+    </solid>
+
+</shape>

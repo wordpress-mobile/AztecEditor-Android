@@ -18,6 +18,7 @@
 package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
@@ -42,6 +43,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
     private var quoteMargin: Int = 0
     private var quotePadding: Int = 0
     private var quoteWidth: Int = 0
+    private var quoteBackgroundAlpha: Float = 0.0f
 
     override var attributes: String = ""
 
@@ -57,6 +59,7 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
         this.quoteMargin = quoteStyle.quoteMargin
         this.quoteWidth = quoteStyle.quoteWidth
         this.quotePadding = quoteStyle.quotePadding
+        this.quoteBackgroundAlpha = quoteStyle.quoteBackgroundAlpha
     }
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
@@ -108,9 +111,10 @@ class AztecQuoteSpan : QuoteSpan, LineBackgroundSpan, AztecBlockSpan, LineHeight
                                 top: Int, baseline: Int, bottom: Int,
                                 text: CharSequence?, start: Int, end: Int,
                                 lnum: Int) {
-        val paintColor = p.color
-        p.color = quoteBackground
+        val alpha: Int = (quoteBackgroundAlpha * 255).toInt()
 
+        val paintColor = p.color
+        p.color = Color.argb(alpha, Color.red(quoteBackground), Color.green(quoteBackground), Color.blue(quoteBackground))
         rect.set(left + quoteMargin, top, right, bottom)
 
         c.drawRect(rect, p)

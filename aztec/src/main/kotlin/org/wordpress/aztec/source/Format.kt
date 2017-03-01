@@ -3,18 +3,25 @@ package org.wordpress.aztec.source
 import org.jsoup.Jsoup
 import java.util.regex.Pattern
 
+
 object Format {
 
     // list of block elements
-    private val block = "div|span|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6"
+    private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe"
+
+    private val iframePlaceholder = "iframe-replacement-0x0"
 
     fun addFormatting(content: String): String {
-        val doc = Jsoup.parseBodyFragment(content)
+        // rename iframes to prevent encoding the inner HTML
+        var html = replaceAll(content, "iframe", iframePlaceholder)
+        html = Jsoup.parseBodyFragment(html).body().html()
+        html = replaceAll(html, iframePlaceholder, "iframe")
 
         //remove newline around all non block elements
-        val newlineToTheLeft = replaceAll(doc.body().html(), "(?<!</?($block)>)\n\\s*?<((?!/?($block)).*?)>", "<$2>")
+        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
         val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
-        val fixBrNewlines = replaceAll(newlineToTheRight, "(<br>)(?!\n)", "$1\n")
+        var fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
+        fixBrNewlines = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")
 
         return fixBrNewlines.trim()
     }

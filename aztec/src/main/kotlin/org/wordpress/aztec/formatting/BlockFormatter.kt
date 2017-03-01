@@ -14,7 +14,7 @@ import java.util.*
 class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
-    data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
+    data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
 
     val listStyle: ListStyle
     val quoteStyle: QuoteStyle
@@ -232,7 +232,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 }
             }
         } else if (!textChangedEvent.isAddingCharacters && !textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            val deletedCharacterIsNewline = textChangedEvent.textBefore[textChangedEvent.inputEnd] == '\n'
+            val deletedCharacterIsNewline = textChangedEvent.textBefore.length > textChangedEvent.inputEnd &&
+                    textChangedEvent.textBefore[textChangedEvent.inputEnd] == '\n'
             if (!deletedCharacterIsNewline) return
 
             // backspace on a line right after a list attaches the line to the last item
@@ -277,6 +278,14 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
             val spanStart = editableText.getSpanStart(it)
             var spanEnd = editableText.getSpanEnd(it)
+
+            //when removing empty span don't forget to delete ZWJ
+            if(spanEnd - spanStart == 1 && editableText[spanStart] == Constants.ZWJ_CHAR){
+                editableText.removeSpan(it)
+                editor.disableTextChangedListener()
+                editableText.delete(spanStart, spanStart + 1)
+                return@forEach
+            }
 
             //if splitting block set a range that would be excluded from it
             val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end) else getSelectedTextBounds(editableText, start, end)

@@ -1,11 +1,15 @@
 <resources>
 
-    <!-- DIALOG -->
-    <string name="dialog_title">Insert link</string>
-    <string name="dialog_button_remove_link">Remove Link</string>
-    <string name="dialog_edit_hint">http(s)://</string>
-    <string name="dialog_button_ok">OK</string>
-    <string name="dialog_button_cancel">Cancel</string>
+    <!-- LINK DIALOG -->
+    <string name="link_dialog_title">Insert link</string>
+    <string name="link_dialog_button_remove_link">Remove Link</string>
+    <string name="link_dialog_edit_hint">http(s)://</string>
+    <string name="link_dialog_button_ok">OK</string>
+    <string name="link_dialog_button_cancel">Cancel</string>
+
+    <!-- LINK DIALOG -->
+    <string name="block_editor_dialog_button_save">Save</string>
+    <string name="block_editor_dialog_button_cancel">Cancel</string>
 
     <!-- FORMAT -->
     <string name="format_bar_description_heading">Heading</string>
@@ -52,5 +56,63 @@
     <string name="media_upload_dialog_positive">OK</string>
     <string name="title_select_photo">Select Photo</string>
     <string name="title_select_video">Select Video</string>
+
+    <!-- SHORTCUTS -->
+    <string name="header_edit">Edit</string>
+    <string name="header_format">Format</string>
+    <string name="header_insert">Insert</string>
+    <string name="item_edit_all">Select All</string>
+    <string name="item_edit_copy">Copy</string>
+    <string name="item_edit_cut">Cut</string>
+    <string name="item_edit_paste">Paste</string>
+    <string name="item_edit_redo">Redo</string>
+    <string name="item_edit_undo">Undo</string>
+    <string name="item_format_bold">Bold</string>
+    <string name="item_format_code">Code</string>
+    <string name="item_format_heading_1">Heading 1</string>
+    <string name="item_format_heading_2">Heading 2</string>
+    <string name="item_format_heading_3">Heading 3</string>
+    <string name="item_format_heading_4">Heading 4</string>
+    <string name="item_format_heading_5">Heading 5</string>
+    <string name="item_format_heading_6">Heading 6</string>
+    <string name="item_format_italic">Italic</string>
+    <string name="item_format_list_ordered">Ordered List</string>
+    <string name="item_format_list_unordered">Unordered List</string>
+    <string name="item_format_paragraph">Paragraph</string>
+    <string name="item_format_preformatted">Preformatted</string>
+    <string name="item_format_quote">Quote</string>
+    <string name="item_format_strike">Strikethrough</string>
+    <string name="item_format_underline">Underline</string>
+    <string name="item_insert_link">Link</string>
+    <string name="item_insert_media">Media</string>
+    <string name="item_insert_more">Read More</string>
+    <string name="item_insert_page">Page Break</string>
+    <string name="key_multiple_alt">Alt</string>
+    <string name="key_multiple_ctrl">Ctrl</string>
+    <string name="key_single_1">1</string>
+    <string name="key_single_2">2</string>
+    <string name="key_single_3">3</string>
+    <string name="key_single_4">4</string>
+    <string name="key_single_5">5</string>
+    <string name="key_single_6">6</string>
+    <string name="key_single_7">7</string>
+    <string name="key_single_8">8</string>
+    <string name="key_single_a">A</string>
+    <string name="key_single_b">B</string>
+    <string name="key_single_c">C</string>
+    <string name="key_single_d">D</string>
+    <string name="key_single_i">I</string>
+    <string name="key_single_k">K</string>
+    <string name="key_single_l">L</string>
+    <string name="key_single_m">M</string>
+    <string name="key_single_o">O</string>
+    <string name="key_single_p">P</string>
+    <string name="key_single_q">Q</string>
+    <string name="key_single_t">T</string>
+    <string name="key_single_u">U</string>
+    <string name="key_single_v">V</string>
+    <string name="key_single_x">X</string>
+    <string name="key_single_y">Y</string>
+    <string name="key_single_z">Z</string>
 
 </resources>

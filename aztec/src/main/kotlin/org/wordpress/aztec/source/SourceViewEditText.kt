@@ -30,7 +30,7 @@ class SourceViewEditText : EditText, TextWatcher {
 
     private var onImeBackListener: AztecText.OnImeBackListener? = null
 
-    lateinit var history: History
+    var history: History? = null
 
     private var consumeEditEvent: Boolean = true
 
@@ -51,7 +51,9 @@ class SourceViewEditText : EditText, TextWatcher {
         TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_DEJAVU_SANS_MONO)
 
         val values = context.obtainStyledAttributes(attrs, R.styleable.SourceViewEditText)
-        setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))
+        if (values.hasValue(R.styleable.SourceViewEditText_codeBackgroundColor)) {
+            setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))
+        }
         setTextColor(values.getColor(R.styleable.SourceViewEditText_codeTextColor, ContextCompat.getColor(context, R.color.text)))
 
         tagColor = values.getColor(R.styleable.SourceViewEditText_tagColor, tagColor)
@@ -118,7 +120,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        history.beforeTextChanged(text.toString())
+        history?.beforeTextChanged(text.toString())
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
     }
 
@@ -132,16 +134,16 @@ class SourceViewEditText : EditText, TextWatcher {
             return
         }
 
-        history.handleHistory(this)
+        history?.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 
     fun redo() {
-        history.redo(this)
+        history?.redo(this)
     }
 
     fun undo() {
-        history.undo(this)
+        history?.undo(this)
     }
 
     override fun setVisibility(visibility: Int) {
@@ -234,7 +236,6 @@ class SourceViewEditText : EditText, TextWatcher {
             }
             enableTextChangedListener()
         }
-
 
         return Format.clearFormatting(text.toString())
     }

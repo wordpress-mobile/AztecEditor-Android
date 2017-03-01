@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.v4.util.ArrayMap
+import android.util.DisplayMetrics
 
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -28,6 +29,7 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
 
         val target = object : Target {
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                bitmap?.density = DisplayMetrics.DENSITY_DEFAULT
                 callbacks.onImageLoaded(BitmapDrawable(context.resources, bitmap))
                 targets.remove(source)
             }

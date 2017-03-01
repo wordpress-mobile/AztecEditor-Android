@@ -243,7 +243,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
                     removeBlockStyle(blockElementType, nestingLevel)
                 } else {
-                    applyBlock(blockElementType, startOfBlock + 1, endOfBlock, nestingLevel)
+                    applyBlock(blockElementType, startOfBlock + 1, endOfBlock + 1, nestingLevel)
                 }
             }
 

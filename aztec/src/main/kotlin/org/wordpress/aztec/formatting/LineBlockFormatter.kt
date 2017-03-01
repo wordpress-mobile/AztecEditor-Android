@@ -11,17 +11,15 @@ import org.xml.sax.Attributes
 import java.util.*
 
 
-class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
+class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
-    data class HeaderStyle(val verticalPadding: Int)
-
-    fun applyHeading(textFormat: TextFormat) {
-        headingClear()
-
-        if (textFormat != TextFormat.FORMAT_PARAGRAPH) {
-            headingFormat(textFormat)
-        }
-    }
+//    fun applyHeading(textFormat: TextFormat) {
+//        headingClear()
+//
+//        if (textFormat != TextFormat.FORMAT_PARAGRAPH) {
+//            headingFormat(textFormat)
+//        }
+//    }
 
     fun applyMoreComment() {
         applyComment(AztecCommentSpan.Comment.MORE)
@@ -113,35 +111,35 @@ class LineBlockFormatter(editor: AztecText, val headerStyle: LineBlockFormatter.
         editor.refreshText()
     }
 
-    fun headingFormat(textFormat: TextFormat) {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-
-        for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = lineStart + lines[i].length
-
-            if (lineStart >= lineEnd) {
-                continue
-            }
-
-            var headingStart = 0
-            var headingEnd = 0
-
-            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
-                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
-                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
-                headingStart = lineStart
-                headingEnd = lineEnd
-            }
-
-            if (headingStart < headingEnd) {
-                editableText.setSpan(AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding), headingStart, headingEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
-
-        editor.refreshText()
-    }
+//    fun headingFormat(textFormat: TextFormat) {
+//        val lines = TextUtils.split(editableText.toString(), "\n")
+//
+//        for (i in lines.indices) {
+//            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+//            val lineEnd = lineStart + lines[i].length
+//
+//            if (lineStart >= lineEnd) {
+//                continue
+//            }
+//
+//            var headingStart = 0
+//            var headingEnd = 0
+//
+//            if ((lineStart <= selectionStart && selectionEnd <= lineEnd) ||
+//                    (lineStart >= selectionStart && selectionEnd >= lineEnd) ||
+//                    (lineStart <= selectionStart && selectionEnd >= lineEnd && selectionStart <= lineEnd) ||
+//                    (lineStart >= selectionStart && selectionEnd <= lineEnd && selectionEnd >= lineStart)) {
+//                headingStart = lineStart
+//                headingEnd = lineEnd
+//            }
+//
+//            if (headingStart < headingEnd) {
+//                HeadingHandler.set(editableText, AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding), headingStart, headingEnd)
+//            }
+//        }
+//
+//        editor.refreshText()
+//    }
 
     fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")

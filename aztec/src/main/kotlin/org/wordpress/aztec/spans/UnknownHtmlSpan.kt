@@ -9,7 +9,8 @@ class UnknownHtmlSpan(
         var rawHtml: StringBuilder,
         context: Context,
         drawable: Int,
-        private val onClickListener: OnUnknownHtmlClickListener?) : ImageSpan(context, drawable), AztecParagraphStyle {
+        private val onClickListener: OnUnknownHtmlClickListener?
+    ) : ImageSpan(context, drawable), AztecParagraphStyle, AztecNestable {
 
     fun onClick(view: View) {
         onClickListener?.onUnknownHtmlClicked(this)

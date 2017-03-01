@@ -11,7 +11,7 @@ import org.wordpress.aztec.spans.*
 import java.util.*
 
 
-class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerStyle: LineBlockFormatter.HeaderStyle) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
@@ -20,42 +20,42 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
 
 
     fun toggleBold() {
-        if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
-            applyInlineStyle(TextFormat.FORMAT_BOLD)
+        if (!containsInlineStyle(TextFormat.FORMAT_BOLD, 0)) {
+            applyInlineStyle(TextFormat.FORMAT_BOLD, 0)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_BOLD)
+            removeInlineStyle(TextFormat.FORMAT_BOLD, 0)
         }
     }
 
     fun toggleItalic() {
-        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC)) {
-            applyInlineStyle(TextFormat.FORMAT_ITALIC)
+        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC, 0)) {
+            applyInlineStyle(TextFormat.FORMAT_ITALIC, 0)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_ITALIC)
+            removeInlineStyle(TextFormat.FORMAT_ITALIC, 0)
         }
     }
 
     fun toggleStrikethrough() {
-        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
-            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)) {
+            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
+            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)
         }
     }
 
     fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)
         }
     }
 
     fun toggleCode() {
-        if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
-            applyInlineStyle(TextFormat.FORMAT_CODE)
+        if (!containsInlineStyle(TextFormat.FORMAT_CODE, 0)) {
+            applyInlineStyle(TextFormat.FORMAT_CODE, 0)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_CODE)
+            removeInlineStyle(TextFormat.FORMAT_CODE, 0)
         }
     }
 
@@ -253,8 +253,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-            } else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
-                return firstSpan.heading == secondSpan.heading
+//            } else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
+//                return firstSpan.heading == secondSpan.heading
             } else {
                 return true
             }
@@ -349,12 +349,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, val headerSty
 
     fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
         when (textFormat) {
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(textFormat, "", headerStyle.verticalPadding)
             TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
             TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()

@@ -4,7 +4,7 @@ import android.text.Spannable
 
 import java.lang.ref.WeakReference
 
-internal class SpanWrapper<out T>(spannable: Spannable?, span: T) {
+class SpanWrapper<out T>(spannable: Spannable?, span: T) {
     private val mSpannable: WeakReference<Spannable?> = WeakReference(spannable)
     private val mSpan: WeakReference<T> = WeakReference(span)
 

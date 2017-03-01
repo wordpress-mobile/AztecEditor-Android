@@ -161,9 +161,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 InlineFormatter.CodeStyle(
                         array.getColor(R.styleable.AztecText_codeBackground, 0),
                         array.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        array.getColor(R.styleable.AztecText_codeColor, 0)),
-                LineBlockFormatter.HeaderStyle(
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
+                        array.getColor(R.styleable.AztecText_codeColor, 0)))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
@@ -179,15 +177,16 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
-                ))
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                BlockFormatter.HeaderStyle(
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
+                )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
                 R.styleable.AztecText_linkColor, 0),
                 array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
 
-        lineBlockFormatter = LineBlockFormatter(this, LineBlockFormatter.HeaderStyle(
-                array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
+        lineBlockFormatter = LineBlockFormatter(this)
 
         array.recycle()
 
@@ -227,6 +226,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
 
+        HeadingWatcher.install(this)
         ListWatcher.install(this)
         QuoteWatcher.install(this)
         EndOfBufferMarkerAdder.install(this)
@@ -522,7 +522,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> lineBlockFormatter.applyHeading(textFormat)
+            TextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
             TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
@@ -777,15 +777,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        val headingSpan = editable.getSpans(start, end, AztecHeadingSpan::class.java)
-        headingSpan.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-            editable.setSpan(AztecHeadingSpan(it.textFormat, it.attributes,
-                    lineBlockFormatter.headerStyle.verticalPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

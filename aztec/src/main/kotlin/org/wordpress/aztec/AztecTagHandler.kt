@@ -85,7 +85,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleElement(output, opening, AztecHeadingSpan(tag, attributeString))
+                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, attributeString))
                     return true
                 }
             }

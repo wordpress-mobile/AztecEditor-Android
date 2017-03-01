@@ -9,6 +9,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+import org.wordpress.aztec.TestUtils.safeAppend
 
 /**
  * Testing quote behaviour.
@@ -108,6 +109,14 @@ class HeadingTest() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         editText.text.insert(mark - 1, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun newlineAtHeadingEndTextEndNoHtmlEffect() {
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
+        safeAppend(editText, "\n")
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1>", editText.toHtml())
     }
 
     @Test

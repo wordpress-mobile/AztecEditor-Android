@@ -34,7 +34,7 @@ class HeadingHandler {
             // re-subsequence to get the newer state of the spans
             charsNew = text.subSequence(inputStart, inputStart + count) as Spanned
             when (getNewlinePositionType(text, heading, newlineIndex)) {
-                PositionType.START -> handleNewlineAtStart(text, newlineIndex, childNestingLevel)
+                PositionType.START -> handleNewlineAtStart(text, heading, newlineIndex, childNestingLevel)
                 PositionType.EMPTY_AT_END -> handleNewlineAtEmptyAtEnd(text, heading, newlineIndex, textDeleter)
                 PositionType.TEXT_END -> handleNewlineAtTextEnd(text, heading, newlineIndex)
                 PositionType.BODY -> handleNewlineInBody(text, heading, newlineIndex, childNestingLevel)
@@ -45,7 +45,7 @@ class HeadingHandler {
 
         val gotEndOfBufferMarker = charsNew.length == 1 && charsNew[0] == Constants.END_OF_BUFFER_MARKER
         if (gotEndOfBufferMarker) {
-            handleEndOfBufferIn(text, inputStart, childNestingLevel)
+            handleEndOfBufferIn(text, heading, inputStart, childNestingLevel)
         }
     }
 
@@ -73,44 +73,44 @@ class HeadingHandler {
         return PositionType.BODY
     }
 
-    private fun handleNewlineAtStart(text: Spannable, newlineIndex: Int, childNestingLevel: Int) {
-        // nothing special to do
+    private fun handleNewlineAtStart(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int,
+                                     childNestingLevel: Int) {
+        // we got a newline at the start of the heading. Let's just push the heading after the newline
+        heading.start = newlineIndex + 1
     }
 
     private fun handleNewlineAtEmptyAtEnd(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int,
-                                          textDeleter: TextDeleter) {
-        close(text, heading, newlineIndex)
+            textDeleter: TextDeleter) {
+        // just remote the heading since it's empty
+        heading.remove()
 
-        // delete the newline
+        // delete the newline as it's purpose was served (to translate it as a command to close the heading)
         textDeleter.delete(newlineIndex, newlineIndex + 1)
     }
 
     private fun handleNewlineAtTextEnd(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int) {
-        // got a newline while being at the end-of-text. Just close the heading
-        close(text, heading, newlineIndex)
+        // got a newline while being at the end-of-text. We'll let the current list item engulf it and will wait
+        //  for the end-of-text marker event in order to attach the new list item to it when that happens.
     }
 
     private fun handleNewlineInBody(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int, childNestingLevel: Int) {
-        // newline added at some position inside the heading. Let's split the heading into two
-        newHeading(text, heading, newlineIndex + 1, heading.end, childNestingLevel)
+        if (newlineIndex == heading.end - 2) {
+            // newline added at the end of the heading (right before its visual newline) so, just end the heading and
+            //  not add a new heading after it
+        } else {
+            // newline added at some position inside the heading. Let's split the heading into two
+            newHeading(text, heading, newlineIndex + 1, heading.end, childNestingLevel)
+        }
+
         heading.end = newlineIndex + 1
     }
 
-    private fun handleEndOfBufferIn(text: Spannable, markerIndex: Int, childNestingLevel: Int): Boolean {
-        // nothing special to do
+    private fun handleEndOfBufferIn(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, markerIndex: Int,
+                                    childNestingLevel: Int): Boolean {
+        // adjust the heading end to only include the chars before the end-of-text marker. A newline will be there.
+        heading.end = markerIndex
 
-        return false
-    }
-
-    private fun close(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int) {
-        if ((heading.end - heading.start === 1)
-                || (heading.end - heading.start === 2 && text[heading.end - 1] == Constants.END_OF_BUFFER_MARKER)) {
-            // heading is empty so, remove it
-            heading.remove()
-        } else {
-            // adjust the heading end to only include the chars before the newline just added
-            heading.end = newlineIndex
-        }
+        return true
     }
 
     companion object {

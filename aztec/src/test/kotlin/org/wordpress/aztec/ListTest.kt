@@ -28,7 +28,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         @ParameterizedRobolectricTestRunner.Parameters(name = "Testing lists with {1} tag")
         fun data(): Collection<Array<Any>> {
             return listOf(
-//                    arrayOf(TextFormat.FORMAT_ORDERED_LIST, "ol"),
+                    arrayOf(TextFormat.FORMAT_ORDERED_LIST, "ol"),
                     arrayOf(TextFormat.FORMAT_UNORDERED_LIST, "ul")
             )
         }

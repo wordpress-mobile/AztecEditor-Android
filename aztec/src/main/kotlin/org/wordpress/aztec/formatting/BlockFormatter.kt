@@ -3,10 +3,7 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.ListHandler
-import org.wordpress.aztec.QuoteHandler
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.*
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -318,6 +315,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
             TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
             TextFormat.FORMAT_QUOTE -> QuoteHandler.set(editableText, AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end)
+            TextFormat.FORMAT_HEADING_1,
+            TextFormat.FORMAT_HEADING_2,
+            TextFormat.FORMAT_HEADING_3,
+            TextFormat.FORMAT_HEADING_4,
+            TextFormat.FORMAT_HEADING_5,
+            TextFormat.FORMAT_HEADING_6 -> HeadingHandler.set(editableText, AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle), start, end)
             else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_PARAGRAPH)
         }
     }

@@ -289,8 +289,8 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
             TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
-            TextFormat.FORMAT_QUOTE -> editableText.setSpan(AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            TextFormat.FORMAT_QUOTE -> QuoteHandler.set(editableText, AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end)
+            else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_PARAGRAPH)
         }
     }
 

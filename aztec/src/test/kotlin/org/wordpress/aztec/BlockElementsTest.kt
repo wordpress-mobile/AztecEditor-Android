@@ -9,6 +9,11 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+import org.wordpress.aztec.TestUtils.backspaceAt
+import org.wordpress.aztec.TestUtils.safeAppend
+import org.wordpress.aztec.TestUtils.safeEmpty
+import org.wordpress.aztec.TestUtils.safeLength
+
 /**
  * Testing interactions of multiple block elements
  */
@@ -31,49 +36,49 @@ class BlockElementsTest {
     @Test
     @Throws(Exception::class)
     fun mixedInlineAndBlockElementsWithoutExtraSpacing() {
-        editText.append("some text")
-        editText.append("\n")
-        editText.append("quote")
-        editText.setSelection(editText.length())
+        safeAppend(editText, "some text")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "quote")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
         Assert.assertEquals("some text<blockquote>quote</blockquote>", editText.toHtml())
-        editText.setSelection(editText.length())
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("list")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "list")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("some text")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "some text")
 
-        Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul><br>some text", editText.toHtml())
+        Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul>some text", editText.toHtml())
     }
 
 
     @Test
     @Throws(Exception::class)
     fun mixedInlineAndBlockElementsWithExtraSpacing() {
-        editText.append("some text")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("quote")
-        editText.setSelection(editText.length())
+        safeAppend(editText, "some text")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "quote")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("some text<br><blockquote>quote</blockquote>", editText.toHtml())
-        editText.setSelection(editText.length())
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("list")
-        editText.setSelection(editText.length())
+        Assert.assertEquals("some text<br><br><blockquote>quote</blockquote>", editText.toHtml())
+        editText.setSelection(safeLength(editText))
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "list")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("some text")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "some text")
 
-        Assert.assertEquals("some text<br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br><br>some text", editText.toHtml())
+        Assert.assertEquals("some text<br><br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br>some text", editText.toHtml())
     }
 
     @Test
@@ -81,10 +86,10 @@ class BlockElementsTest {
     fun checkForDanglingListWithoutItems() {
         editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
         Assert.assertEquals("<ol><li></li></ol>", editText.toHtml())
-        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
+        Assert.assertTrue(safeEmpty(editText))
 
-        editText.text.delete(0, 1)
-        Assert.assertEquals("", editText.text.toString())
+        backspaceAt(editText, 0)
+        Assert.assertTrue(safeEmpty(editText))
         Assert.assertEquals("", editText.toHtml())
     }
 }

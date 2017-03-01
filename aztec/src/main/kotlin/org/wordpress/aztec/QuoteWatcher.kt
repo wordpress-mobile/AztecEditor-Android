@@ -6,7 +6,7 @@ import android.text.TextWatcher
 
 import java.lang.ref.WeakReference
 
-class ListWatcher private constructor(private val listHandler: ListHandler, aztecText: AztecText) : TextWatcher {
+class QuoteWatcher private constructor(private val quoteHandler: QuoteHandler, aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
@@ -26,7 +26,7 @@ class ListWatcher private constructor(private val listHandler: ListHandler, azte
         }
 
         // handle the text change. The potential text deletion will happen in a scheduled Runnable, to run on next frame
-        listHandler.handleTextChangeForLists(
+        quoteHandler.handleTextChangeForQuotes(
                 s as Spannable,
                 start,
                 count,
@@ -38,7 +38,7 @@ class ListWatcher private constructor(private val listHandler: ListHandler, azte
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextChangedListener(ListWatcher(ListHandler(), text))
+            text.addTextChangedListener(QuoteWatcher(QuoteHandler(), text))
         }
     }
 }

@@ -7,10 +7,6 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
 
 class ListHandler {
-    interface TextDeleter {
-        fun delete(start: Int, end: Int)
-    }
-
     private enum class PositionType {
         LIST_START,
         EMPTY_ITEM_AT_LIST_END,

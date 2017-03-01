@@ -228,6 +228,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphCollapseRemover.install(this)
 
         ListWatcher.install(this)
+        QuoteWatcher.install(this)
         EndOfBufferMarkerAdder.install(this)
     }
 

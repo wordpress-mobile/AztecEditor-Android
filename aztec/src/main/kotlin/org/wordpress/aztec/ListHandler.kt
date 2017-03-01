@@ -43,7 +43,7 @@ class ListHandler {
             listItems.firstOrNull()?.let {
                 when (getNewlinePositionType(text, list, it, newlineIndex)) {
                     ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex, childNestingLevel)
-                    ListHandler.PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(list, it, newlineIndex, textDeleter)
+                    ListHandler.PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(text, list, it, newlineIndex, textDeleter)
                     ListHandler.PositionType.TEXT_END -> handleNewlineAtTextEnd()
                     ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex, childNestingLevel)
                 }
@@ -87,12 +87,13 @@ class ListHandler {
         item.start = newlineIndex + 1
     }
 
-    private fun handleNewlineAtEmptyItemAtListEnd(list: SpanWrapper<AztecListSpan>, item: SpanWrapper<AztecListItemSpan>,
-            newlineIndex: Int, textDeleter: TextDeleter) {
+    private fun handleNewlineAtEmptyItemAtListEnd(text: Spannable, list: SpanWrapper<AztecListSpan>,
+            item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int, textDeleter: TextDeleter) {
         // close the list when entering a newline on an empty item at the end of the list
         item.remove()
 
-        if (list.end - list.start === 1) {
+        if ((list.end - list.start === 1)
+                || (list.end - list.start === 2 && text[list.end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             // list only has the empty list item so, remove the list itself as well!
             list.remove()
         } else {

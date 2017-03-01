@@ -302,7 +302,7 @@ class BlockFormatter(editor: AztecText, listStyle: ListStyle, quoteStyle: QuoteS
 
             val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = (lineStart + lineLength).let {
-                if (it != editableText.length) it + 1 else it // include the newline or not
+                if ((start + it) != editableText.length) it + 1 else it // include the newline or not
             }
 
             if (lineLength == 0) continue

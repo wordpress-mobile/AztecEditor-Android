@@ -8,8 +8,8 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
 import org.wordpress.aztec.TestUtils.safeAppend
+import org.wordpress.aztec.TestUtils.safeLength
 
 /**
  * Testing quote behaviour.
@@ -141,9 +141,9 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun changeHeadingOfSelectedMultilineText() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
-        editText.setSelection(0, editText.length())
+        editText.setSelection(0, safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
-        Assert.assertEquals("<h2>Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
+        Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
     }
 
     @Test

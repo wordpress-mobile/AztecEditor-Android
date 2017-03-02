@@ -47,8 +47,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun toggleHeading(textFormat: TextFormat) {
-        if (!containsHeading(textFormat)) {
-            if (containsHeading(textFormat)) {
+        if (!containsHeadingOnly(textFormat)) {
+            if (containsOtherHeadings(textFormat)) {
                 switchHeaderType(textFormat)
             } else {
                 applyBlockStyle(textFormat)
@@ -550,6 +550,36 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return false
     }
 
+    fun containsOtherHeadings(textFormat: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        arrayOf( TextFormat.FORMAT_HEADING_1,
+                TextFormat.FORMAT_HEADING_2,
+                TextFormat.FORMAT_HEADING_3,
+                TextFormat.FORMAT_HEADING_4,
+                TextFormat.FORMAT_HEADING_5,
+                TextFormat.FORMAT_HEADING_6)
+        .filter { it != textFormat }
+        .forEach {
+            if (containsHeading(it, selStart, selEnd)) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    fun containsHeadingOnly(textFormat: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        val otherHeadings = arrayOf(
+                TextFormat.FORMAT_HEADING_1,
+                TextFormat.FORMAT_HEADING_2,
+                TextFormat.FORMAT_HEADING_3,
+                TextFormat.FORMAT_HEADING_4,
+                TextFormat.FORMAT_HEADING_5,
+                TextFormat.FORMAT_HEADING_6)
+                .filter { it != textFormat }
+
+        return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
+    }
+
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
         if (existingListSpan != null) {
@@ -571,11 +601,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanStart = editableText.getSpanStart(existingHeaderSpan)
             val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
             val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
-            editableText.removeSpan(existingHeaderSpan)
 
-            val nestingLevel = getNestingLevelAt(spanStart)
+            existingHeaderSpan.textFormat = headerTypeToSwitchTo
 
-            editableText.setSpan(makeBlockSpan(headerTypeToSwitchTo, nestingLevel), spanStart, spanEnd, spanFlags)
+            editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

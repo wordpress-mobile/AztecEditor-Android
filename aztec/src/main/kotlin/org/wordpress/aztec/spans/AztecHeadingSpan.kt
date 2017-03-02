@@ -12,10 +12,17 @@ import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecHeadingSpan @JvmOverloads constructor(
         override var nestingLevel: Int,
-        var textFormat: TextFormat,
+        textFormat: TextFormat,
         attrs: String = "",
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
+
+    var textFormat: TextFormat = TextFormat.FORMAT_HEADING_1
+        get() = field
+        set(value) {
+            field = value
+            heading = textFormatToHeading(value)
+        }
 
     lateinit var heading: Heading
     override var attributes: String = attrs
@@ -40,6 +47,18 @@ class AztecHeadingSpan @JvmOverloads constructor(
                 "h5" -> return TextFormat.FORMAT_HEADING_5
                 "h6" -> return TextFormat.FORMAT_HEADING_6
                 else -> return TextFormat.FORMAT_PARAGRAPH
+            }
+        }
+
+        fun textFormatToHeading(textFormat: TextFormat): Heading {
+            when (textFormat) {
+                TextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan.Heading.H1
+                TextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan.Heading.H2
+                TextFormat.FORMAT_HEADING_3 -> return AztecHeadingSpan.Heading.H3
+                TextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan.Heading.H4
+                TextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan.Heading.H5
+                TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan.Heading.H6
+                else -> { return AztecHeadingSpan.Heading.H1 } // just use the H!
             }
         }
     }
@@ -137,21 +156,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
     }
 
     init {
-        when (textFormat) {
-            TextFormat.FORMAT_HEADING_1 ->
-                heading = AztecHeadingSpan.Heading.H1
-            TextFormat.FORMAT_HEADING_2 ->
-                heading = AztecHeadingSpan.Heading.H2
-            TextFormat.FORMAT_HEADING_3 ->
-                heading = AztecHeadingSpan.Heading.H3
-            TextFormat.FORMAT_HEADING_4 ->
-                heading = AztecHeadingSpan.Heading.H4
-            TextFormat.FORMAT_HEADING_5 ->
-                heading = AztecHeadingSpan.Heading.H5
-            TextFormat.FORMAT_HEADING_6 ->
-                heading = AztecHeadingSpan.Heading.H6
-            else -> {
-            }
-        }
+        this.textFormat = textFormat
     }
 }

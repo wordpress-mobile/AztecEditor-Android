@@ -589,9 +589,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanFlags = editableText.getSpanFlags(existingListSpan)
             editableText.removeSpan(existingListSpan)
 
-            val nestingLevel = getNestingLevelAt(spanStart)
-
-            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, nestingLevel), spanStart, spanEnd, spanFlags)
+            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

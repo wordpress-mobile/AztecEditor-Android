@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.text.TextUtils
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -9,7 +8,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
+import org.wordpress.aztec.TestUtils.safeAppend
+import org.wordpress.aztec.TestUtils.safeEmpty
+import org.wordpress.aztec.TestUtils.safeLength
 
 /**
  * Testing quote behaviour.
@@ -35,7 +36,7 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun styleSingleItem() {
-        editText.append("first item")
+        safeAppend(editText, "first item")
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>", editText.toHtml())
     }
@@ -44,13 +45,13 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun styleMultipleSelectedItems() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
-        editText.setSelection(0, editText.length())
+        safeEmpty(editText)
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        editText.setSelection(0, safeLength(editText))
 
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
@@ -59,12 +60,12 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun stylePartiallySelectedMultipleItems() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeEmpty(editText)
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(4, 15) //we partially selected first and second item
 
         editText.toggleFormatting(formattingType)
@@ -74,12 +75,12 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun styleSurroundedItem() {
-        junit.framework.Assert.assertTrue(TextUtils.isEmpty(editText.text))
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
+        safeEmpty(editText)
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(14)
 
         editText.toggleFormatting(formattingType)
@@ -100,7 +101,7 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
+        safeAppend(editText, "first item")
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>", editText.toHtml())
     }
 
@@ -108,9 +109,9 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun styleMultipleEnteredItems() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>", editText.toHtml())
     }
 
@@ -118,13 +119,13 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun closingPopulatedQuote() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the quote")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
@@ -133,7 +134,7 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun closingEmptyQuote() {
         editText.toggleFormatting(formattingType)
-        editText.append("\n")
+        safeAppend(editText, "\n")
         Assert.assertEquals("", editText.toHtml())
     }
 
@@ -161,9 +162,19 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun splitTwoQuotesWithNewline() {
         editText.fromHtml("<blockquote>Quote 1</blockquote><blockquote>Quote 2</blockquote>")
+        val mark = editText.text.indexOf("Quote 2") - 1
+        editText.text.insert(mark, "\n")
+        editText.text.insert(mark + 1, "\n")
+        Assert.assertEquals("<blockquote>Quote 1</blockquote><br><blockquote>Quote 2</blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun newlineAtStartOfQuote() {
+        editText.fromHtml("<blockquote>Quote 1</blockquote><blockquote>Quote 2</blockquote>")
         val mark = editText.text.indexOf("Quote 2")
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<blockquote>Quote 1</blockquote><br><blockquote>Quote 2</blockquote>", editText.toHtml())
+        Assert.assertEquals("<blockquote>Quote 1</blockquote><blockquote><br>Quote 2</blockquote>", editText.toHtml())
     }
 
     @Test
@@ -190,18 +201,18 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun removeQuoteStylingForMultilinePartialSelection() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        val firstMark = editText.length() - 4
-        editText.append("\n")
-        editText.append("third item")
-        editText.append("\n")
-        val secondMark = editText.length() - 4
-        editText.append("fourth item")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in quote")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        val firstMark = safeLength(editText) - 4
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        safeAppend(editText, "\n")
+        val secondMark = safeLength(editText) - 4
+        safeAppend(editText, "fourth item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in quote")
 
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(formattingType)
@@ -214,15 +225,15 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun emptyQuoteSurroundedBytItems() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        val firstMark = editText.length()
-        editText.append("second item")
-        editText.append("\n")
-        val secondMart = editText.length()
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        val firstMark = safeLength(editText)
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        val secondMark = safeLength(editText)
+        safeAppend(editText, "third item")
 
-        editText.text.delete(firstMark - 1, secondMart - 2)
+        editText.text.delete(firstMark, secondMark - 1)
 
         Assert.assertEquals("<$quoteTag>first item<br><br>third item</$quoteTag>", editText.toHtml())
     }
@@ -232,22 +243,20 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun trailingEmptyLine() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
-        val mark = editText.length()
-        editText.append("\n")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        safeAppend(editText, "\n")
 
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
-        editText.append("\n")
+        safeAppend(editText, "\n")
 
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
 
-        editText.append("not in quote")
-        editText.setSelection(mark)
-        editText.text.insert(mark, "\n")
+        safeAppend(editText, "not in quote")
+        editText.text.insert(editText.text.indexOf("not in quote"), "\n")
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag><br>not in quote", editText.toHtml())
     }
 
@@ -271,7 +280,7 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun openQuoteByAppendingTextToTheEnd() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
 
         editText.text.insert(editText.text.indexOf("\nnot in quote"), " (appended)")
 
@@ -282,7 +291,7 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun openQuoteByMovingOutsideTextInsideIt() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
-        editText.append("not in quote")
+        safeAppend(editText, "not in quote")
 
         editText.text.delete(editText.text.indexOf("not in quote"), editText.text.indexOf("not in quote"))
         Assert.assertEquals("<$quoteTag>first item<br>second itemnot in quote</$quoteTag>", editText.toHtml())
@@ -292,7 +301,7 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun quoteRemainsClosedWhenLastCharacterIsDeleted() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
 
         val mark = editText.text.indexOf("second item") + "second item".length
 
@@ -305,18 +314,18 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun openingAndReopeningOfQuote() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
 
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
-        editText.append("\n")
-        editText.append("\n")
-        val mark = editText.length() - 1
-        editText.append("not in the quote")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        val mark = safeLength(editText) - 1
+        safeAppend(editText, "not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in the quote", editText.toHtml())
-        editText.append("\n")
-        editText.append("foo")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "foo")
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in the quote<br>foo", editText.toHtml())
 
         //reopen quote
@@ -328,18 +337,18 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun closeQuote() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
 
         Assert.assertEquals("first item\nsecond item", editText.text.toString())
-        editText.append("\n")
-        Assert.assertEquals("first item\nsecond item\n" + Constants.ZWJ_STRING, editText.text.toString())
+        safeAppend(editText, "\n")
+        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("first item\nsecond item\n"), editText.text.toString())
 
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(editText.length() - 2, editText.length() - 1)
         Assert.assertEquals("first item\nsecond item", editText.text.toString())
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the quote")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
@@ -348,12 +357,12 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun handleQuoteReopeningAfterLastElementDeletion() {
         editText.fromHtml("<$quoteTag>first item<br>second item<br>third item</$quoteTag>")
-        editText.setSelection(editText.length())
+        editText.setSelection(safeLength(editText))
 
-        editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
-        editText.text.append("\n")
+        editText.text.delete(editText.text.indexOf("third item", 0), safeLength(editText))
+        safeAppend(editText, "\n")
 
-        editText.append("not in the quote")
+        safeAppend(editText, "not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the quote") - 1, " addition")
@@ -369,15 +378,15 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun additionToClosedQuote() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
-        val mark = editText.length()
+        val mark = safeLength(editText)
 
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("not in the quote")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not in the quote")
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
@@ -389,13 +398,13 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun addItemToQuoteFromBottom() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("third item")
-        editText.setSelection(editText.length())
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        editText.setSelection(safeLength(editText))
 
         editText.toggleFormatting(formattingType)
 
@@ -406,13 +415,13 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun addItemToQuoteFromTop() {
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
-        editText.setSelection(editText.length())
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(formattingType)
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
 
         editText.setSelection(0)
 
@@ -425,13 +434,13 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun addItemToQuoteFromInside() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("\n")
-        editText.append("second item")
-        editText.append("\n")
-        editText.append("third item")
-        editText.setSelection(editText.length())
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
+        editText.setSelection(safeLength(editText))
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
@@ -446,9 +455,9 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun appendToQuoteFromTopAtFirstLine() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
         editText.setSelection(0)
         editText.text.insert(0, "addition ")
 
@@ -458,13 +467,13 @@ class QuoteTest() {
     @Test
     @Throws(Exception::class)
     fun appendToQuoteFromTop() {
-        editText.append("not in quote")
-        editText.append("\n")
+        safeAppend(editText, "not in quote")
+        safeAppend(editText, "\n")
         editText.toggleFormatting(formattingType)
         val mark = editText.length() - 1
-        editText.append("first item")
-        editText.append("\n")
-        editText.append("second item")
+        safeAppend(editText, "first item")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
 
         editText.setSelection(mark)
         editText.text.insert(mark, "addition ")
@@ -477,13 +486,13 @@ class QuoteTest() {
     @Throws(Exception::class)
     fun deleteFirstItemWithKeyboard() {
         editText.toggleFormatting(formattingType)
-        editText.append("first item")
-        val firstMark = editText.length()
-        editText.append("\n")
-        editText.append("second item")
-        val secondMark = editText.length()
-        editText.append("\n")
-        editText.append("third item")
+        safeAppend(editText, "first item")
+        val firstMark = safeLength(editText)
+        safeAppend(editText, "\n")
+        safeAppend(editText, "second item")
+        val secondMark = safeLength(editText)
+        safeAppend(editText, "\n")
+        safeAppend(editText, "third item")
         editText.setSelection(0)
 
         Assert.assertEquals("first item\nsecond item\nthird item", editText.text.toString())

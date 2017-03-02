@@ -26,6 +26,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var headingMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
+    private var isMediaModeEnabled: Boolean = false;
 
     constructor(context: Context) : super(context) {
         initView()
@@ -228,6 +229,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         super.onRestoreInstanceState(savedState.superState)
         val restoredState = savedState.state
         toggleHtmlMode(restoredState.getBoolean("isSourceVisible"))
+        enableMediaMode(restoredState.getBoolean("isMediaMode"))
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -235,6 +237,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val savedState = SourceViewEditText.SavedState(superState)
         val bundle = Bundle()
         bundle.putBoolean("isSourceVisible", sourceEditor?.visibility == View.VISIBLE)
+        bundle.putBoolean("isMediaMode", isMediaModeEnabled)
         savedState.state = bundle
         return savedState
     }
@@ -404,6 +407,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ToolbarAction.values().forEach { action ->
             if (action != ToolbarAction.HTML) {
                 toggleButtonState(findViewById(action.buttonId), isEnabled)
+            }
+        }
+    }
+
+    fun isMediaModeEnabled(): Boolean {
+        return isMediaModeEnabled;
+    }
+
+    fun enableMediaMode(isEnabled: Boolean) {
+        isMediaModeEnabled = isEnabled;
+        ToolbarAction.values().forEach { action ->
+            if (action == ToolbarAction.ADD_MEDIA) {
+                toggleButton(findViewById(action.buttonId), isEnabled)
+            } else {
+                toggleButtonState(findViewById(action.buttonId), !isEnabled)
             }
         }
     }

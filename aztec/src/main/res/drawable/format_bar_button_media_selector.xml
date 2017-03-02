@@ -6,6 +6,7 @@
     <item android:drawable="@drawable/format_bar_button_media_disabled" android:state_enabled="false" />
     <item android:drawable="@drawable/format_bar_button_media_highlighted" android:state_pressed="true" />
     <item android:drawable="@drawable/format_bar_button_media_highlighted" android:state_focused="true" />
+    <item android:drawable="@drawable/format_bar_button_media_highlighted" android:state_checked="true" />
     <item android:drawable="@drawable/format_bar_button_media" />
 
 </selector>

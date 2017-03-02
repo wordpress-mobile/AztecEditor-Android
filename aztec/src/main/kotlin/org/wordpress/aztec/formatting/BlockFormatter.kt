@@ -17,9 +17,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     fun toggleOrderedList() {
         if (!containsList(TextFormat.FORMAT_ORDERED_LIST, 0)) {
             if (containsList(TextFormat.FORMAT_UNORDERED_LIST, 0)) {
-                switchListType(TextFormat.FORMAT_ORDERED_LIST, 0)
+                switchListType(TextFormat.FORMAT_ORDERED_LIST)
             } else {
-                applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST, 0)
+                applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
             removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)

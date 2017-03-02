@@ -246,42 +246,37 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
-            val selectedText = editableText.substring(start + 1..end - 1)
+            val nestingLevel = getNestingLevelAt(start)
 
-            //multiline text selected
-            if (selectedText.indexOf("\n") != -1) {
-                val nestingLevel = getNestingLevelAt(start)
+            if (getNestingLevelAt(end) != nestingLevel) {
+                // TODO: styling across multiple nesting levels not support yet
+                return
+            }
 
-                if (getNestingLevelAt(end) != nestingLevel) {
-                    // TODO: styling across multiple nesting levels not support yet
-                    return
+            val indexOfFirstLineBreak = editableText.indexOf("\n", end)
+
+            val endOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else editableText.length
+            val startOfBlock = editableText.lastIndexOf("\n", start)
+
+            val selectedLines = editableText.subSequence(startOfBlock + 1..endOfBlock - 1) as Editable
+
+            var numberOfLinesWithSpanApplied = 0
+            var numberOfLines = 0
+
+            val lines = TextUtils.split(selectedLines.toString(), "\n")
+
+            for (i in lines.indices) {
+                numberOfLines++
+                if (containsList(blockElementType, i, selectedLines, nestingLevel)) {
+                    numberOfLinesWithSpanApplied++
                 }
+            }
 
-                val indexOfFirstLineBreak = editableText.indexOf("\n", end)
-
-                val endOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else editableText.length
-                val startOfBlock = editableText.lastIndexOf("\n", start)
-
-                val selectedLines = editableText.subSequence(startOfBlock + 1..endOfBlock - 1) as Editable
-
-                var numberOfLinesWithSpanApplied = 0
-                var numberOfLines = 0
-
-                val lines = TextUtils.split(selectedLines.toString(), "\n")
-
-                for (i in lines.indices) {
-                    numberOfLines++
-                    if (containsList(blockElementType, i, selectedLines, nestingLevel)) {
-                        numberOfLinesWithSpanApplied++
-                    }
-                }
-
-                if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    removeBlockStyle(blockElementType)
-                } else {
-                    applyBlock(blockElementType, startOfBlock + 1,
-                            (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1), nestingLevel)
-                }
+            if (numberOfLines == numberOfLinesWithSpanApplied) {
+                removeBlockStyle(blockElementType)
+            } else {
+                applyBlock(blockElementType, startOfBlock + 1,
+                        (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1), nestingLevel)
             }
 
         } else {

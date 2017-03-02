@@ -286,16 +286,18 @@ class AztecParser {
         do {
             val paragraphs = text.getSpans(i, end, AztecNestable::class.java)
             paragraphs.sortWith(Comparator { a, b ->
-                val nestingComparison = a.nestingLevel.compareTo(b.nestingLevel)
-                if (nestingComparison == 0) {
-                    val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
-                    if (startComparison == 0) {
+                val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
+                if (startComparison == 0) {
+                    val nestingComparison = a.nestingLevel.compareTo(b.nestingLevel)
+                    if (nestingComparison == 0) {
+                        // warning: elements at same nesting level start at same position. This is probably an error but
+                        //  still, just just try to compare by span end
                         return@Comparator text.getSpanEnd(a).compareTo(text.getSpanEnd(b))
                     } else {
-                        return@Comparator startComparison
+                        return@Comparator nestingComparison
                     }
                 } else {
-                    return@Comparator nestingComparison
+                    return@Comparator startComparison
                 }
             })
             var paragraph = paragraphs.firstOrNull { it.nestingLevel > nestingLevel }

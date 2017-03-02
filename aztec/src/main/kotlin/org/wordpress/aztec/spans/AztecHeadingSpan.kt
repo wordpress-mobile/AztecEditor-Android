@@ -15,7 +15,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
         var textFormat: TextFormat,
         attrs: String = "",
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
-    ) : MetricAffectingSpan(), AztecBlockSpan, AztecContentSpan, LineHeightSpan, UpdateLayout {
+    ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     lateinit var heading: Heading
     override var attributes: String = attrs

@@ -1,4 +1,4 @@
 package org.wordpress.aztec.spans
 
 
-interface AztecBlockSpan : AztecContentSpan, AztecLineBlockSpan, AztecParagraphStyle, AztecNestable
+interface AztecBlockSpan : AztecLineBlockSpan, AztecParagraphStyle, AztecNestable, AztecSpan

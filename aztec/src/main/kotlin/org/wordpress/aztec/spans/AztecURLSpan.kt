@@ -23,7 +23,7 @@ import android.text.TextUtils
 import android.text.style.URLSpan
 import org.wordpress.aztec.formatting.LinkFormatter
 
-class AztecURLSpan : URLSpan, AztecContentSpan, AztecInlineSpan {
+class AztecURLSpan : URLSpan, AztecInlineSpan {
 
     private val TAG: String = "a"
 

@@ -423,9 +423,9 @@ class AztecParser {
                 for (j in spans.indices) {
                     val span = spans[j]
 
-//                    if (span is AztecContentSpan) {
-//                        out.append("<${span.getStartTag()}>")
-//                    }
+                    if (span is AztecInlineSpan) {
+                        out.append("<${span.getStartTag()}>")
+                    }
 
                     if (span is AztecCommentSpan || span is CommentSpan) {
                         out.append("<!--")
@@ -446,9 +446,9 @@ class AztecParser {
                 for (j in spans.indices.reversed()) {
                     val span = spans[j]
 
-//                    if (span is AztecContentSpan) {
-//                        out.append("</${span.getEndTag()}>")
-//                    }
+                    if (span is AztecInlineSpan) {
+                        out.append("</${span.getEndTag()}>")
+                    }
 
                     if (span is AztecCommentSpan || span is CommentSpan) {
                         out.append("-->")

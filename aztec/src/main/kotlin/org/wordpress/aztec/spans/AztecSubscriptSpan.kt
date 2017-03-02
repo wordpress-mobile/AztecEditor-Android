@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.SubscriptSpan
 
-class AztecSubscriptSpan : SubscriptSpan, AztecContentSpan, AztecInlineSpan {
+class AztecSubscriptSpan : SubscriptSpan, AztecInlineSpan {
 
     private var TAG: String = "sub"
     override var attributes: String

@@ -4,7 +4,7 @@ import android.graphics.Typeface
 import android.text.TextUtils
 import android.text.style.StyleSpan
 
-open class AztecStyleSpan : StyleSpan, AztecContentSpan, AztecInlineSpan {
+open class AztecStyleSpan : StyleSpan, AztecInlineSpan {
 
     var tag: String = ""
     override var attributes: String

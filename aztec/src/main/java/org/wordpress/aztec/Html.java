@@ -16,6 +16,37 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
+import org.ccil.cowan.tagsoup.HTMLSchema;
+import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.AztecText.OnMediaTappedListener;
+import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecCodeSpan;
+import org.wordpress.aztec.spans.AztecCommentSpan;
+import org.wordpress.aztec.spans.AztecCursorSpan;
+import org.wordpress.aztec.spans.AztecHeadingSpan;
+import org.wordpress.aztec.spans.AztecInlineSpan;
+import org.wordpress.aztec.spans.AztecMediaSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
+import org.wordpress.aztec.spans.AztecStyleBoldSpan;
+import org.wordpress.aztec.spans.AztecStyleItalicSpan;
+import org.wordpress.aztec.spans.AztecSubscriptSpan;
+import org.wordpress.aztec.spans.AztecSuperscriptSpan;
+import org.wordpress.aztec.spans.AztecTypefaceMonospaceSpan;
+import org.wordpress.aztec.spans.AztecURLSpan;
+import org.wordpress.aztec.spans.AztecUnderlineSpan;
+import org.wordpress.aztec.spans.CommentSpan;
+import org.wordpress.aztec.spans.FontSpan;
+import org.wordpress.aztec.spans.UnknownClickableSpan;
+import org.wordpress.aztec.spans.UnknownHtmlSpan;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -30,38 +61,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ParagraphStyle;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
-
-import org.ccil.cowan.tagsoup.HTMLSchema;
-import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.AztecText.OnMediaTappedListener;
-import org.wordpress.aztec.spans.AztecBlockSpan;
-import org.wordpress.aztec.spans.AztecCodeSpan;
-import org.wordpress.aztec.spans.AztecCommentSpan;
-import org.wordpress.aztec.spans.AztecContentSpan;
-import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecHeadingSpan;
-import org.wordpress.aztec.spans.AztecMediaSpan;
-import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
-import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
-import org.wordpress.aztec.spans.AztecStyleBoldSpan;
-import org.wordpress.aztec.spans.AztecStyleItalicSpan;
-import org.wordpress.aztec.spans.AztecSubscriptSpan;
-import org.wordpress.aztec.spans.AztecSuperscriptSpan;
-import org.wordpress.aztec.spans.AztecTypefaceMonospaceSpan;
-import org.wordpress.aztec.spans.AztecURLSpan;
-import org.wordpress.aztec.spans.AztecUnderlineSpan;
-import org.wordpress.aztec.spans.CommentSpan;
-import org.wordpress.aztec.spans.FontSpan;
-import org.wordpress.aztec.spans.ParagraphSpan;
-import org.wordpress.aztec.spans.UnknownClickableSpan;
-import org.wordpress.aztec.spans.UnknownHtmlSpan;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -403,7 +402,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attributes,
             int nestingLevel) {
         final String attrs = Html.stringifyAttributes(attributes).toString();
-        AztecContentSpan newSpan;
+        AztecInlineSpan newSpan;
 
         switch (textFormat) {
             case FORMAT_BOLD:
@@ -440,9 +439,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             case FORMAT_CODE:
                 newSpan = new AztecCodeSpan(attrs);
                 break;
-            case FORMAT_PARAGRAPH:
-                newSpan = new ParagraphSpan(nestingLevel, attrs);
-                break;
             default:
                 throw new IllegalArgumentException("Style not supported");
         }
@@ -452,7 +448,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private static void end(SpannableStringBuilder text, TextFormat textFormat) {
-        AztecContentSpan span;
+        AztecInlineSpan span;
 
         switch (textFormat) {
             case FORMAT_BOLD:
@@ -487,9 +483,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 break;
             case FORMAT_CODE:
                 span = (AztecCodeSpan) getLast(text, AztecCodeSpan.class);
-                break;
-            case FORMAT_PARAGRAPH:
-                span = (ParagraphSpan) getLast(text, ParagraphSpan.class);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

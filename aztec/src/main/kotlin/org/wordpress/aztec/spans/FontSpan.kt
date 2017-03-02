@@ -5,7 +5,7 @@ import android.text.TextUtils
 import android.text.style.CharacterStyle
 import org.xml.sax.Attributes
 
-class FontSpan : CharacterStyle, AztecContentSpan, AztecInlineSpan {
+class FontSpan : CharacterStyle, AztecInlineSpan {
 
     private var TAG: String = "font"
     override var attributes: String

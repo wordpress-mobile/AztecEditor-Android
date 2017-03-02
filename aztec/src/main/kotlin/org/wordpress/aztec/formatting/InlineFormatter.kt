@@ -20,42 +20,42 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
 
     fun toggleBold() {
-        if (!containsInlineStyle(TextFormat.FORMAT_BOLD, 0)) {
-            applyInlineStyle(TextFormat.FORMAT_BOLD, 0)
+        if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
+            applyInlineStyle(TextFormat.FORMAT_BOLD)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_BOLD, 0)
+            removeInlineStyle(TextFormat.FORMAT_BOLD)
         }
     }
 
     fun toggleItalic() {
-        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC, 0)) {
-            applyInlineStyle(TextFormat.FORMAT_ITALIC, 0)
+        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC)) {
+            applyInlineStyle(TextFormat.FORMAT_ITALIC)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_ITALIC, 0)
+            removeInlineStyle(TextFormat.FORMAT_ITALIC)
         }
     }
 
     fun toggleStrikethrough() {
-        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)) {
-            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)
+        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
+            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, 0)
+            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
         }
     }
 
     fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)
+        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
+            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINE, 0)
+            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
         }
     }
 
     fun toggleCode() {
-        if (!containsInlineStyle(TextFormat.FORMAT_CODE, 0)) {
-            applyInlineStyle(TextFormat.FORMAT_CODE, 0)
+        if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
+            applyInlineStyle(TextFormat.FORMAT_CODE)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_CODE, 0)
+            removeInlineStyle(TextFormat.FORMAT_CODE)
         }
     }
 

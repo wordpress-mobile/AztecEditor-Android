@@ -99,7 +99,7 @@ class HeadingHandler {
             //  not add a new heading after it
         } else {
             // newline added at some position inside the heading. Let's split the heading into two
-            newHeading(text, heading, newlineIndex + 1, heading.end, childNestingLevel)
+            newHeading(text, heading.span, newlineIndex + 1, heading.end, childNestingLevel)
         }
 
         heading.end = newlineIndex + 1
@@ -118,8 +118,8 @@ class HeadingHandler {
             text.setSpan(aztecBlockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
 
-        fun newHeading(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, start: Int, end: Int, nestingLevel: Int) {
-            set(text, AztecHeadingSpan(nestingLevel, heading.span.textFormat, heading.span.attributes), start, end)
+        fun newHeading(text: Spannable, heading: AztecHeadingSpan, start: Int, end: Int, nestingLevel: Int) {
+            set(text, AztecHeadingSpan(nestingLevel, heading.textFormat, heading.attributes), start, end)
         }
     }
 }

@@ -328,7 +328,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> HeadingHandler.set(editableText, AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle), start, end)
+            TextFormat.FORMAT_HEADING_6 -> applyHeadingBlock(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle), start, end, nestingLevel)
             else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_PARAGRAPH)
         }
     }
@@ -348,6 +348,22 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (lineLength == 0) continue
 
             ListHandler.newListItem(editableText, start + lineStart, start + lineEnd, nestingLevel + 1)
+        }
+    }
+
+    private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int, nestingLevel: Int) {
+        val lines = TextUtils.split(editableText.substring(start, end), "\n")
+        for (i in lines.indices) {
+            val lineLength = lines[i].length
+
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineEnd = (lineStart + lineLength).let {
+                if ((start + it) != editableText.length) it + 1 else it // include the newline or not
+            }
+
+            if (lineLength == 0) continue
+
+            HeadingHandler.newHeading(editableText, headingSpan, start + lineStart, start + lineEnd, nestingLevel + 1)
         }
     }
 

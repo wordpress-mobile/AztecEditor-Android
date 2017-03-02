@@ -22,39 +22,39 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST, 0)
             }
         } else {
-            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST, 0)
+            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
         }
     }
 
     fun toggleUnorderedList() {
         if (!containsList(TextFormat.FORMAT_UNORDERED_LIST, 0)) {
             if (containsList(TextFormat.FORMAT_ORDERED_LIST, 0)) {
-                switchListType(TextFormat.FORMAT_UNORDERED_LIST, 0)
+                switchListType(TextFormat.FORMAT_UNORDERED_LIST)
             } else {
-                applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST, 0)
+                applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST, 0)
+            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
         }
     }
 
     fun toggleQuote() {
         if (!containQuote()) {
-            applyBlockStyle(TextFormat.FORMAT_QUOTE, 0)
+            applyBlockStyle(TextFormat.FORMAT_QUOTE)
         } else {
-            removeBlockStyle(TextFormat.FORMAT_QUOTE, 0)
+            removeBlockStyle(TextFormat.FORMAT_QUOTE)
         }
     }
 
     fun toggleHeading(textFormat: TextFormat) {
-        if (!containsHeading(textFormat, 0)) {
-            if (containsHeading(textFormat, 0)) {
-                switchHeaderType(textFormat, 0)
+        if (!containsHeading(textFormat)) {
+            if (containsHeading(textFormat)) {
+                switchHeaderType(textFormat)
             } else {
-                applyBlockStyle(textFormat, 0)
+                applyBlockStyle(textFormat)
             }
         } else {
-            removeBlockStyle(textFormat, 0)
+            removeBlockStyle(textFormat)
         }
     }
 
@@ -88,8 +88,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return changed
     }
 
-    fun removeBlockStyle(textFormat: TextFormat, nestingLevel: Int) {
-        removeBlockStyle(selectionStart, selectionEnd, makeBlock(textFormat, nestingLevel).map { it -> it.javaClass })
+    fun removeBlockStyle(textFormat: TextFormat) {
+        removeBlockStyle(selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
     }
 
     fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd,
@@ -240,12 +240,23 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
 
-    fun applyBlockStyle(blockElementType: TextFormat, nestingLevel: Int, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun getNestingLevelAt(index: Int): Int {
+        return editableText.getSpans(index, index, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
+    }
+
+    fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
             val selectedText = editableText.substring(start + 1..end - 1)
 
             //multiline text selected
             if (selectedText.indexOf("\n") != -1) {
+                val nestingLevel = getNestingLevelAt(start)
+
+                if (getNestingLevelAt(end) != nestingLevel) {
+                    // TODO: styling across multiple nesting levels not support yet
+                    return
+                }
+
                 val indexOfFirstLineBreak = editableText.indexOf("\n", end)
 
                 val endOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else editableText.length
@@ -266,7 +277,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 }
 
                 if (numberOfLines == numberOfLinesWithSpanApplied) {
-                    removeBlockStyle(blockElementType, nestingLevel)
+                    removeBlockStyle(blockElementType)
                 } else {
                     applyBlock(blockElementType, startOfBlock + 1,
                             (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1), nestingLevel)
@@ -300,6 +311,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     liftBlock(blockElementType, startOfBlock, endOfBlock)
                 }
             }
+
+            val nestingLevel = getNestingLevelAt(start) + 1
 
             applyBlock(blockElementType, startOfBlock, endOfBlock, nestingLevel)
 
@@ -526,7 +539,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return false
     }
 
-    fun switchListType(listTypeToSwitchTo: TextFormat, nestingLevel: Int, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
         if (existingListSpan != null) {
             val spanStart = editableText.getSpanStart(existingListSpan)
@@ -534,18 +547,22 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanFlags = editableText.getSpanFlags(existingListSpan)
             editableText.removeSpan(existingListSpan)
 
+            val nestingLevel = getNestingLevelAt(spanStart)
+
             editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, nestingLevel), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }
 
-    fun switchHeaderType(headerTypeToSwitchTo: TextFormat, nestingLevel: Int, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun switchHeaderType(headerTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val existingHeaderSpan = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
         if (existingHeaderSpan != null) {
             val spanStart = editableText.getSpanStart(existingHeaderSpan)
             val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
             val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
             editableText.removeSpan(existingHeaderSpan)
+
+            val nestingLevel = getNestingLevelAt(spanStart)
 
             editableText.setSpan(makeBlockSpan(headerTypeToSwitchTo, nestingLevel), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)

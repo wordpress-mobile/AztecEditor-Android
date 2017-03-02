@@ -168,7 +168,15 @@ class HeadingTest() {
     fun applyQuoteToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<blockquote><h1 foo=\"bar\">Quote</h1></blockquote>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\"><blockquote>Quote</blockquote></h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyHeadingToQuote() {
+        editText.fromHtml("<blockquote>Quote</blockquote>")
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+        Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
     }
 
     @Test

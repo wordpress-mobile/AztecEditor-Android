@@ -43,6 +43,7 @@ class AztecParser {
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
         cleanupZWJ(spanned)
+        unbiasNestingLevel(spanned)
 
 //        addZwjCharToBlockSpans(spanned)
 
@@ -253,6 +254,11 @@ class AztecParser {
                 text.delete(lastIndex, lastIndex + 1)
             }
         } while (lastIndex > -1)
+    }
+
+    private fun unbiasNestingLevel(text: Spanned) {
+        // while parsing html, the converter wraps the markup in a <html><body> pair so, nesting starts from 2
+        text.getSpans(0, text.length, AztecNestable::class.java).forEach { it.nestingLevel -= 2 }
     }
 
     private fun resetHiddenTagParser(text: Spanned) {

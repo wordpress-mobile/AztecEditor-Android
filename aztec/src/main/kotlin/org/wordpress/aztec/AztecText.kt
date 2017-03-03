@@ -441,7 +441,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         previousCursorPosition = selEnd
 
-//        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }

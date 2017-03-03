@@ -580,9 +580,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        nestingLevel--;
-
         handleEndTag(localName, nestingLevel);
+
+        nestingLevel--;
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {

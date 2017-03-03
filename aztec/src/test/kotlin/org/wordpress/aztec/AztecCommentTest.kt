@@ -3,7 +3,6 @@ package org.wordpress.aztec
 import android.app.Activity
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
-import android.text.TextUtils
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -11,6 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.spans.AztecCommentSpan
 
 /**
@@ -60,7 +60,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreAcrossMultipleBlocks() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         val html = HTML_LIST_ORDERED + HTML_LIST_UNORDERED + HTML_QUOTE
         editText.fromHtml(html)
@@ -79,7 +79,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreAfterOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(editText.length()) // select after list
@@ -97,7 +97,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreAfterQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(editText.length()) // select after quote
@@ -115,7 +115,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreAfterUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(editText.length()) // select after list
@@ -133,7 +133,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreBeforeOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(0) // select before list
@@ -151,7 +151,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreBeforeQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(0) // select before quote
@@ -169,7 +169,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreBeforeUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(0) // select before list
@@ -188,7 +188,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2) // select after second character in list
@@ -207,7 +207,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2) // select after second character in quote
@@ -226,7 +226,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2) // select after second character in list
@@ -245,7 +245,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideSelectedOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
@@ -264,7 +264,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideSelectedQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2, 4) // select between second and fourth character in quote
@@ -283,7 +283,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertMoreInsideSelectedUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
@@ -302,7 +302,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageAcrossMultipleBlocks() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         val html = HTML_LIST_ORDERED + HTML_LIST_UNORDERED + HTML_QUOTE
         editText.fromHtml(html)
@@ -321,7 +321,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageAfterOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(editText.length()) // select after list
@@ -339,7 +339,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageAfterQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(editText.length()) // select after quote
@@ -357,7 +357,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageAfterUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(editText.length()) // select after list
@@ -375,7 +375,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageBeforeOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(0) // select before list
@@ -393,7 +393,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageBeforeQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(0) // select before quote
@@ -411,7 +411,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageBeforeUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(0) // select before list
@@ -430,7 +430,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2) // select after second character in list
@@ -449,7 +449,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2) // select after second character in quote
@@ -468,7 +468,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2) // select after second character in list
@@ -487,7 +487,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideSelectedOrderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list
@@ -506,7 +506,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideSelectedQuote() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_QUOTE)
         editText.setSelection(2, 4) // select between second and fourth character in quote
@@ -525,7 +525,7 @@ class AztecCommentTest() : AndroidTestCase() {
     @Test
     @Throws(Exception::class)
     fun insertPageInsideSelectedUnorderedList() {
-        Assert.assertTrue(TextUtils.isEmpty(editText.text))
+        Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_UNORDERED)
         editText.setSelection(2, 4) // select between second and fourth character in list

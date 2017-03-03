@@ -149,7 +149,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
         }
 
         linkInvalid(start, end)
-        editableText.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setLinkSpan(editableText, link, start, end, attributes)
         editor.onSelectionChanged(end, end)
     }
 

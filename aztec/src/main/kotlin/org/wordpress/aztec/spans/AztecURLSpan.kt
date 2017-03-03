@@ -32,15 +32,18 @@ class AztecURLSpan : URLSpan, AztecInlineSpan {
 
     override var attributes: String = ""
 
-    constructor(url: String, attributes: String = "") : super(url) {
+    override var nestingLevel: Int = 0
+
+    constructor(url: String, attributes: String = "",nestingLevel: Int) : super(url) {
         if (attributes.isEmpty()) {
             this.attributes = " href=\"$url\""
         } else {
             this.attributes = attributes
         }
+        this.nestingLevel = nestingLevel
     }
 
-    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String = "") : this(url, attributes) {
+    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String = "", nestingLevel: Int) : this(url, attributes,nestingLevel) {
         this.linkColor = linkStyle.linkColor
         this.linkUnderline = linkStyle.linkUnderline
     }

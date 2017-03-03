@@ -3,15 +3,10 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.SubscriptSpan
 
-class AztecSubscriptSpan : SubscriptSpan, AztecInlineSpan {
+class AztecSubscriptSpan @JvmOverloads
+constructor(override var nestingLevel: Int = 0, override var attributes: String = "") : SubscriptSpan(), AztecInlineSpan {
 
     private var TAG: String = "sub"
-    override var attributes: String
-
-    @JvmOverloads
-    constructor(attributes: String = "") : super() {
-        this.attributes = attributes
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {

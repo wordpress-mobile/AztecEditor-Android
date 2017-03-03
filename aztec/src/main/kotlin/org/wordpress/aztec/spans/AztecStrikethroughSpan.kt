@@ -3,15 +3,17 @@ package org.wordpress.aztec.spans
 import android.text.TextUtils
 import android.text.style.StrikethroughSpan
 
-class AztecStrikethroughSpan() : StrikethroughSpan(), AztecInlineSpan {
+class AztecStrikethroughSpan(override var nestingLevel: Int = 0) : StrikethroughSpan(), AztecInlineSpan {
 
     private var tag: String = "del"
 
     override var attributes: String = ""
 
-    constructor(tag: String, attributes: String) : this() {
+
+    constructor(nestingLevel: Int, tag: String, attributes: String) : this() {
         this.tag = tag
         this.attributes = attributes
+        this.nestingLevel = nestingLevel
     }
 
     override fun getStartTag(): String {

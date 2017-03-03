@@ -28,6 +28,8 @@ import org.wordpress.aztec.formatting.InlineFormatter
 
 class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
 
+    override var nestingLevel: Int = 0
+
     private val TAG: String = "code"
 
     private var codeBackground: Int = 0
@@ -36,14 +38,18 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
 
     override var attributes: String = ""
 
-    constructor(attributes: String = "") : super() {
+    @JvmOverloads
+    constructor(attributes: String = "", nestingLevel: Int) : super() {
         this.attributes = attributes
+        this.nestingLevel = nestingLevel
     }
 
-    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String = "") : this(attributes) {
+
+    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String?, nestingLevel: Int) : this(attributes ?: "", nestingLevel) {
         this.codeBackground = codeStyle.codeBackground
         this.codeBackgroundAlpha = codeStyle.codeBackgroundAlpha
         this.codeColor = codeStyle.codeColor
+        this.nestingLevel = nestingLevel
     }
 
     constructor(src: Parcel) {

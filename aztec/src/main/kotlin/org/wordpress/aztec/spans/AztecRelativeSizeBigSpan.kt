@@ -1,3 +1,3 @@
 package org.wordpress.aztec.spans
 
-class AztecRelativeSizeBigSpan(attributes: String = "") : AztecRelativeSizeSpan("big", 1.25f, attributes)
+class AztecRelativeSizeBigSpan(override var nestingLevel: Int = 0, attributes: String = "") : AztecRelativeSizeSpan(0,"big", 1.25f, attributes)

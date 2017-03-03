@@ -245,7 +245,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         editableText.replace(selectionStart, selectionEnd, ssb)
 
-        editor.setSelection(selectionEnd + 1)
+        editor.setSelection(
+                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {

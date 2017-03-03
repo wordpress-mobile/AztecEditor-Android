@@ -86,7 +86,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after list
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_MORE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_MORE", editText.toHtml())
     }
 
     /**
@@ -104,7 +104,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after quote
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_MORE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_MORE", editText.toHtml())
     }
 
     /**
@@ -122,7 +122,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after list
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_MORE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_MORE", editText.toHtml())
     }
 
     /**
@@ -159,7 +159,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(0) // select before quote
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_QUOTE", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_MORE$HTML_QUOTE", editText.toHtml())
     }
 
     /**
@@ -177,7 +177,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(0) // select before list
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_LIST_UNORDERED", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_MORE$HTML_LIST_UNORDERED", editText.toHtml())
     }
 
     /**
@@ -329,7 +329,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after list
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_PAGE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_LIST_ORDERED$HTML_COMMENT_PAGE", editText.toHtml())
     }
 
     /**
@@ -347,7 +347,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after quote
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_PAGE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_QUOTE$HTML_COMMENT_PAGE", editText.toHtml())
     }
 
     /**
@@ -365,7 +365,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(editText.length()) // select after list
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_PAGE<br>", editText.toHtml())
+        Assert.assertEquals("$HTML_LIST_UNORDERED$HTML_COMMENT_PAGE", editText.toHtml())
     }
 
     /**
@@ -383,7 +383,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(0) // select before list
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_LIST_ORDERED", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_PAGE$HTML_LIST_ORDERED", editText.toHtml())
     }
 
     /**
@@ -401,7 +401,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(0) // select before quote
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_QUOTE", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_PAGE$HTML_QUOTE", editText.toHtml())
     }
 
     /**
@@ -419,7 +419,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.setSelection(0) // select before list
         editText.toggleFormatting(TextFormat.FORMAT_PAGE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED", editText.toHtml())
     }
 
     /**

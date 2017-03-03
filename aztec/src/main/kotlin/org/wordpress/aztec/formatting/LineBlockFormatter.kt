@@ -2,6 +2,7 @@ package org.wordpress.aztec.formatting
 
 import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.*
@@ -229,25 +230,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun applyComment(comment: AztecCommentSpan.Comment) {
-        //check if we add a comment into a block element, at the end of the line, but not at the end of last line
-        var applyingOnTheEndOfBlockLine = false
-        editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java).forEach {
-            if (editableText.getSpanEnd(it) > selectionEnd && editableText[selectionEnd] == '\n') {
-                applyingOnTheEndOfBlockLine = true
-                return@forEach
-            }
-        }
-
-        val commentStartIndex = selectionStart + 1
-        val commentEndIndex = selectionStart + comment.html.length + 1
-
-        editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, "\n" + comment.html + if (applyingOnTheEndOfBlockLine) "" else "\n")
-        editor.enableTextChangedListener()
-
-        editor.removeBlockStylesFromRange(commentStartIndex, commentEndIndex + 1, true)
-        editor.removeHeadingStylesFromRange(commentStartIndex, commentEndIndex + 1)
-        editor.removeInlineStylesFromRange(commentStartIndex, commentEndIndex + 1)
+        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
+        editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
 
         val span = AztecCommentSpan(
                 editor.context,
@@ -256,15 +240,12 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
                 }
         )
+        val ssb = SpannableStringBuilder(comment.html)
+        ssb.setSpan(span, 0, comment.html.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        editableText.setSpan(
-                span,
-                commentStartIndex,
-                commentEndIndex,
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        editableText.replace(selectionStart, selectionEnd, ssb)
 
-        editor.setSelection(commentEndIndex + 1)
+        editor.setSelection(selectionStart + comment.html.length + 1)
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {

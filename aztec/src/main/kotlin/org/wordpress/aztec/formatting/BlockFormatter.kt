@@ -92,9 +92,59 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         removeBlockStyle(selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
     }
 
-    fun removeBlockStyle(start: Int = selectionStart, end: Int = selectionEnd,
+    fun removeBlockStyle(originalStart: Int, originalEnd: Int,
                          spanTypes: List<Class<AztecBlockSpan>> = Arrays.asList(AztecBlockSpan::class.java),
                          ignoreLineBounds: Boolean = false) {
+        var start = originalStart
+        var end = originalEnd
+
+        //if splitting block set a range that would be excluded from it
+        val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end)
+                else getSelectedTextBounds(editableText, start, end)
+
+        var startOfBounds = boundsOfSelectedText.start
+        var endOfBounds = boundsOfSelectedText.endInclusive
+
+        val hasPrecedingSpans = spanTypes.any { spanType ->
+            editableText.getSpans(start, end, spanType)
+                    .any {span -> editableText.getSpanStart(span) < startOfBounds }}
+
+        if (hasPrecedingSpans) {
+            // let's make sure there's a newline before bounds start
+            if (editableText[startOfBounds - 1] != Constants.NEWLINE) {
+                // insert a newline in the start of (inside) the bounds
+                editableText.insert(startOfBounds, "" + Constants.NEWLINE)
+
+                // the insertion will have pushed everything forward so, adjust indices
+                start++
+                end++
+                startOfBounds++
+                endOfBounds++
+            }
+        }
+
+        val hasExtendingBeyondSpans = spanTypes.any { spanType ->
+            editableText.getSpans(start, end, spanType)
+                    .any { span -> endOfBounds < editableText.getSpanEnd(span) } }
+
+        if (hasExtendingBeyondSpans) {
+            // let's make sure there's a newline before bounds end
+            if (editableText[endOfBounds] != Constants.NEWLINE) {
+                // insert a newline before the bounds
+                editableText.insert(endOfBounds, "" + Constants.NEWLINE)
+
+                // the insertion will have pushed the end forward so, adjust the indices
+                end++
+                endOfBounds++
+
+                if (selectionEnd == endOfBounds) {
+                    // apparently selection end moved along when we inserted the newline but we need it to stay
+                    //  back in order to save the newline from potential removal
+                    editor.setSelection(selectionStart, selectionEnd - 1)
+                }
+            }
+        }
+
         spanTypes.forEach { spanType ->
             val spans = editableText.getSpans(start, end, spanType)
             spans.forEach { span ->
@@ -102,39 +152,24 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 val spanStart = editableText.getSpanStart(span)
                 val spanEnd = editableText.getSpanEnd(span)
 
-                //if splitting block set a range that would be excluded from it
-                val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end) else getSelectedTextBounds(editableText, start, end)
-
-                val startOfLine = boundsOfSelectedText.start
-                val endOfLine = boundsOfSelectedText.endInclusive
-
-                val spanPrecedesLine = spanStart < startOfLine
-                val spanExtendsBeyondLine = endOfLine < spanEnd
+                val spanPrecedesLine = spanStart < startOfBounds
+                val spanExtendsBeyondLine = endOfBounds < spanEnd
 
                 if (spanPrecedesLine && !spanExtendsBeyondLine) {
                     // pull back the end of the block span
-                    ListHandler.set(editableText, span, spanStart, startOfLine)
+                    ListHandler.set(editableText, span, spanStart, startOfBounds)
                 } else if (spanExtendsBeyondLine && !spanPrecedesLine) {
                     // push the start of the block span
-                    ListHandler.set(editableText, span, spanStart, startOfLine)
-
-//                    if (editableText[endOfLine] == '\n' && !ignoreLineBounds) {
-//                        editor.disableTextChangedListener()
-//                        editableText.delete(endOfLine, endOfLine + 1)
-//                        editor.enableTextChangedListener()
-//                        spanEnd--
-//                    }
-//
-//                    editableText.setSpan(it, endOfLine, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    ListHandler.set(editableText, span, endOfBounds, spanEnd)
                 } else if (spanPrecedesLine && spanExtendsBeyondLine) {
                     // we need to split the span into two parts
 
                     // first, let's pull back the end of the existing span
-                    ListHandler.set(editableText, span, spanStart, startOfLine)
+                    ListHandler.set(editableText, span, spanStart, startOfBounds)
 
                     // now, let's "clone" the span and set it
-                    ListHandler.set(editableText, makeBlockSpan(spanType, span.nestingLevel, span.attributes),
-                            endOfLine, spanEnd)
+                    ListHandler.set(editableText, makeBlockSpan(span.javaClass, span.nestingLevel, span.attributes),
+                            endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
                     editableText.removeSpan(span)

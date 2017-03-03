@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.TestUtils.backspaceAt
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.spans.AztecCommentSpan
 
@@ -136,10 +137,11 @@ class AztecCommentTest() : AndroidTestCase() {
         Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(HTML_LIST_ORDERED)
-        editText.setSelection(0) // select before list
+        editText.text.insert(0, "\n")
+        backspaceAt(editText, 0)
         editText.toggleFormatting(TextFormat.FORMAT_MORE)
 
-        Assert.assertEquals("<br>$HTML_COMMENT_MORE$HTML_LIST_ORDERED", editText.toHtml())
+        Assert.assertEquals("$HTML_COMMENT_MORE$HTML_LIST_ORDERED", editText.toHtml())
     }
 
     /**

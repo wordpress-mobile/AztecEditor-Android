@@ -32,7 +32,7 @@ dependencies {
     compile "org.wordpress:utils:1.14.0"
 
     testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.1.4'
+    testCompile 'org.robolectric:robolectric:3.3'
 
     compile 'com.android.support:design:25.1.0'
     //https://github.com/robolectric/robolectric/issues/1932

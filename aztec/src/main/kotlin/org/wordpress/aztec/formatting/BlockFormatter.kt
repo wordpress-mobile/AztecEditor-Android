@@ -140,7 +140,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 if (selectionEnd == endOfBounds) {
                     // apparently selection end moved along when we inserted the newline but we need it to stay
                     //  back in order to save the newline from potential removal
-                    editor.setSelection(selectionStart, selectionEnd - 1)
+                    editor.setSelection(if (selectionStart != selectionEnd) selectionStart else selectionEnd - 1,
+                            selectionEnd - 1)
                 }
             }
         }

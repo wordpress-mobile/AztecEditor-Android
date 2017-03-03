@@ -81,7 +81,7 @@ class AztecToolbarTest {
         Assert.assertFalse(pageButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
 
-        Assert.assertTrue(editText.isEmpty())
+        Assert.assertTrue(TestUtils.safeEmpty(editText))
     }
 
     /**
@@ -533,7 +533,7 @@ class AztecToolbarTest {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
         editText.text.clear()
 
-        Assert.assertTrue(editText.isEmpty())
+        Assert.assertTrue(TestUtils.safeEmpty(editText))
 
         //noting should be highlighted when we empty edit text
         Assert.assertFalse(boldButton.isChecked)

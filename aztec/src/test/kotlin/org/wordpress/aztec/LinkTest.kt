@@ -53,7 +53,7 @@ class LinkTest() {
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
         //Still valid, but order of b and del is switched here for some reason.
-        Assert.assertEquals("<b><del>left</del></b><b><del><a href=\"http://wordpress.com\">WordPress</a></del></b><del><i>right</i></del>", editText.toHtml())
+        Assert.assertEquals("<del><b>left</b></del><del><a href=\"http://wordpress.com\">WordPress</a></del><del><i>right</i></del>", editText.toHtml())
     }
 
     @Test

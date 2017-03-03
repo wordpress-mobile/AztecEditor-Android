@@ -105,43 +105,47 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         var startOfBounds = boundsOfSelectedText.start
         var endOfBounds = boundsOfSelectedText.endInclusive
 
-        val hasPrecedingSpans = spanTypes.any { spanType ->
-            editableText.getSpans(start, end, spanType)
-                    .any {span -> editableText.getSpanStart(span) < startOfBounds }}
-
-        if (hasPrecedingSpans) {
-            // let's make sure there's a newline before bounds start
-            if (editableText[startOfBounds - 1] != Constants.NEWLINE) {
-                // insert a newline in the start of (inside) the bounds
-                editableText.insert(startOfBounds, "" + Constants.NEWLINE)
-
-                // the insertion will have pushed everything forward so, adjust indices
-                start++
-                end++
-                startOfBounds++
-                endOfBounds++
+        if (ignoreLineBounds) {
+            val hasPrecedingSpans = spanTypes.any { spanType ->
+                editableText.getSpans(start, end, spanType)
+                        .any { span -> editableText.getSpanStart(span) < startOfBounds }
             }
-        }
 
-        val hasExtendingBeyondSpans = spanTypes.any { spanType ->
-            editableText.getSpans(start, end, spanType)
-                    .any { span -> endOfBounds < editableText.getSpanEnd(span) } }
+            if (hasPrecedingSpans) {
+                // let's make sure there's a newline before bounds start
+                if (editableText[startOfBounds - 1] != Constants.NEWLINE) {
+                    // insert a newline in the start of (inside) the bounds
+                    editableText.insert(startOfBounds, "" + Constants.NEWLINE)
 
-        if (hasExtendingBeyondSpans) {
-            // let's make sure there's a newline before bounds end
-            if (editableText[endOfBounds] != Constants.NEWLINE) {
-                // insert a newline before the bounds
-                editableText.insert(endOfBounds, "" + Constants.NEWLINE)
+                    // the insertion will have pushed everything forward so, adjust indices
+                    start++
+                    end++
+                    startOfBounds++
+                    endOfBounds++
+                }
+            }
 
-                // the insertion will have pushed the end forward so, adjust the indices
-                end++
-                endOfBounds++
+            val hasExtendingBeyondSpans = spanTypes.any { spanType ->
+                editableText.getSpans(start, end, spanType)
+                        .any { span -> endOfBounds < editableText.getSpanEnd(span) }
+            }
 
-                if (selectionEnd == endOfBounds) {
-                    // apparently selection end moved along when we inserted the newline but we need it to stay
-                    //  back in order to save the newline from potential removal
-                    editor.setSelection(if (selectionStart != selectionEnd) selectionStart else selectionEnd - 1,
-                            selectionEnd - 1)
+            if (hasExtendingBeyondSpans) {
+                // let's make sure there's a newline before bounds end
+                if (editableText[endOfBounds] != Constants.NEWLINE) {
+                    // insert a newline before the bounds
+                    editableText.insert(endOfBounds, "" + Constants.NEWLINE)
+
+                    // the insertion will have pushed the end forward so, adjust the indices
+                    end++
+                    endOfBounds++
+
+                    if (selectionEnd == endOfBounds) {
+                        // apparently selection end moved along when we inserted the newline but we need it to stay
+                        //  back in order to save the newline from potential removal
+                        editor.setSelection(if (selectionStart != selectionEnd) selectionStart else selectionEnd - 1,
+                                selectionEnd - 1)
+                    }
                 }
             }
         }

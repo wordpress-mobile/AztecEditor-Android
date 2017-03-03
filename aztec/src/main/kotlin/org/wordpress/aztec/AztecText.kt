@@ -226,6 +226,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
 
+        InlineTextWatcher.install(inlineFormatter, this)
+
         HeadingWatcher.install(this)
         ListWatcher.install(this)
         QuoteWatcher.install(this)
@@ -245,12 +247,12 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        addTextChangedListener(this)
+//        addTextChangedListener(this)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        removeTextChangedListener(this)
+//        removeTextChangedListener(this)
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             addLinkDialog!!.dismiss()
         }

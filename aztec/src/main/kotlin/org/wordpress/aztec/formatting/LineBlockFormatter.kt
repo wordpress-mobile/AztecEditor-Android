@@ -245,7 +245,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         editableText.replace(selectionStart, selectionEnd, ssb)
 
-        editor.setSelection(selectionStart + comment.html.length + 1)
+        editor.setSelection(selectionEnd + 1)
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {

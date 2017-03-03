@@ -14,8 +14,7 @@ import org.wordpress.aztec.TestUtils.safeLength
 /**
  * Testing quote behaviour.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@RunWith(AztecTestRunner::class)
 class HeadingTest() {
 
     val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1

@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config
  * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(23))
+@Config(constants = BuildConfig::class, minSdk = 23, maxSdk = 25)
 class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     val listType = listTextFormat
@@ -483,7 +483,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "second item")
         editText.setSelection(0)
-        editText.text.insert(0,"addition ")
+        editText.text.insert(0, "addition ")
 
         Assert.assertEquals("<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
@@ -500,7 +500,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "second item")
 
         editText.setSelection(mark)
-        editText.text.insert(mark,"addition ")
+        editText.text.insert(mark, "addition ")
 
         Assert.assertEquals("not in list<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
@@ -518,11 +518,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "third item")
         editText.setSelection(0)
-        editText.text.delete(firstMark+1,secondMark)
+        editText.text.delete(firstMark + 1, secondMark)
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
 
-        editText.text.delete(0,firstMark)
+        editText.text.delete(0, firstMark)
 
         Assert.assertEquals("<$listTag><li></li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
@@ -621,7 +621,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.delete(mark, mark + "item2".length)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
 
-        editText.text.delete(mark -1, mark)
+        editText.text.delete(mark - 1, mark)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
     }
 

@@ -6,8 +6,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.TestUtils.safeLength
@@ -15,9 +13,8 @@ import org.wordpress.aztec.TestUtils.safeLength
 /**
  * Testing quote behaviour.
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class QuoteTest() {
+@RunWith(AztecTestRunner::class)
+class QuoteTest {
 
     val formattingType = TextFormat.FORMAT_QUOTE
     val quoteTag = "blockquote"

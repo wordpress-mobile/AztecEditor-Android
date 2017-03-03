@@ -74,7 +74,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             val indexOfNewline = editableText.indexOf('\n').let { if (it != -1) it else editableText.length }
 
-            if (spanEnd <= indexOfNewline) {
+            if (spanEnd <= indexOfNewline + 1) {
                 // block will collapse so, just remove it
                 editableText.removeSpan(it)
                 changed = true

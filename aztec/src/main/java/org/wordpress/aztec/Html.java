@@ -177,6 +177,8 @@ public class Html {
 }
 
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
+    private int nestingLevel = 0;
+
     public int unknownTagLevel = 0;
     public Unknown unknown;
 
@@ -569,8 +571,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     public void endPrefixMapping(String prefix) throws SAXException {
     }
-
-    private int nestingLevel = 0;
 
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {

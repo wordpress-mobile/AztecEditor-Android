@@ -247,12 +247,12 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-//        addTextChangedListener(this)
+        addTextChangedListener(this)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-//        removeTextChangedListener(this)
+        removeTextChangedListener(this)
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             addLinkDialog!!.dismiss()
         }

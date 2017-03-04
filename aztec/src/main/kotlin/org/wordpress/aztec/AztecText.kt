@@ -464,7 +464,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 //    }
 
     fun getSelectedText(): String {
-        if (selectionStart == -1 || selectionEnd == -1) return ""
+        if (selectionStart == -1 || selectionEnd == -1
+                || editableText.length < selectionEnd || editableText.length < selectionStart) return ""
         return editableText.substring(selectionStart, selectionEnd)
     }
 

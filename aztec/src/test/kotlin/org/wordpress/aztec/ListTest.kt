@@ -109,6 +109,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun emptyList() {
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        //remove list
+        editText.toggleFormatting(listType)
+        Assert.assertEquals(0, TestUtils.safeLength(editText))
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test

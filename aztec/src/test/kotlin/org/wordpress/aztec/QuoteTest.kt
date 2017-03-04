@@ -95,6 +95,11 @@ class QuoteTest() {
     fun emptyQuote() {
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
+
+        //remove quote
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals(0, safeLength(editText))
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test

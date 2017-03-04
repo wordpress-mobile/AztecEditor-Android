@@ -9,7 +9,7 @@ import org.wordpress.aztec.ParagraphFlagged
 
 
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),
-        AztecBlockSpan, ParagraphFlagged, LineHeightSpan, UpdateLayout {
+        AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1

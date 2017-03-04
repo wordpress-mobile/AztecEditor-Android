@@ -80,7 +80,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private var addLinkDialog: AlertDialog? = null
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
-    private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -714,14 +713,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
-    }
-
-    fun removeHeadingStylesFromRange(start: Int, end: Int) {
-        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
-
-        for (span in spans) {
-            editableText.removeSpan(span)
-        }
     }
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {

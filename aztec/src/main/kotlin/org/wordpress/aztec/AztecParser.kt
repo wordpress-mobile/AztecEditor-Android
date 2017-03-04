@@ -324,7 +324,7 @@ class AztecParser {
     }
 
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int,
-            parents: ArrayList<AztecNestable>?, ignoreHeading: Boolean = false) {
+            parents: ArrayList<AztecNestable>?) {
         var next: Int
 
         var i = start
@@ -344,7 +344,7 @@ class AztecParser {
                 next++
             }
 
-            withinParagraph(out, text, i, next - nl, nl, parents, ignoreHeading)
+            withinParagraph(out, text, i, next - nl, nl, parents)
 
             i = next
         }
@@ -353,60 +353,58 @@ class AztecParser {
     // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Aztec.
     private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int,
-            parents: ArrayList<AztecNestable>?, ignoreHeadingSpanCheck: Boolean = false) {
+            parents: ArrayList<AztecNestable>?) {
         var next: Int
 
-        run {
-            var i = start
+        var i = start
 
-            while (i < end || start == end) {
-                next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
+        while (i < end || start == end) {
+            next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-                val spans = text.getSpans(i, next, CharacterStyle::class.java)
-                for (j in spans.indices) {
-                    val span = spans[j]
+            val spans = text.getSpans(i, next, CharacterStyle::class.java)
+            for (j in spans.indices) {
+                val span = spans[j]
 
-                    if (span is AztecInlineSpan) {
-                        out.append("<${span.getStartTag()}>")
-                    }
-
-                    if (span is AztecCommentSpan || span is CommentSpan) {
-                        out.append("<!--")
-                    }
-
-                    if (span is AztecMediaSpan) {
-                        out.append(span.getHtml())
-                        i = next
-                    }
-
-                    if (span is HiddenHtmlSpan) {
-                        parseHiddenSpans(i, out, span, text)
-                    }
+                if (span is AztecInlineSpan) {
+                    out.append("<${span.getStartTag()}>")
                 }
 
-                withinStyle(out, text, i, next, nl)
-
-                for (j in spans.indices.reversed()) {
-                    val span = spans[j]
-
-                    if (span is AztecInlineSpan) {
-                        out.append("</${span.getEndTag()}>")
-                    }
-
-                    if (span is AztecCommentSpan || span is CommentSpan) {
-                        out.append("-->")
-                    }
-
-                    if (span is HiddenHtmlSpan) {
-                        parseHiddenSpans(next, out, span, text)
-                    }
+                if (span is AztecCommentSpan || span is CommentSpan) {
+                    out.append("<!--")
                 }
 
-                if (start == end)
-                    break
+                if (span is AztecMediaSpan) {
+                    out.append(span.getHtml())
+                    i = next
+                }
 
-                i = next
+                if (span is HiddenHtmlSpan) {
+                    parseHiddenSpans(i, out, span, text)
+                }
             }
+
+            withinStyle(out, text, i, next, nl)
+
+            for (j in spans.indices.reversed()) {
+                val span = spans[j]
+
+                if (span is AztecInlineSpan) {
+                    out.append("</${span.getEndTag()}>")
+                }
+
+                if (span is AztecCommentSpan || span is CommentSpan) {
+                    out.append("-->")
+                }
+
+                if (span is HiddenHtmlSpan) {
+                    parseHiddenSpans(next, out, span, text)
+                }
+            }
+
+            if (start == end)
+                break
+
+            i = next
         }
 
         for (i in 0..nl - 1) {

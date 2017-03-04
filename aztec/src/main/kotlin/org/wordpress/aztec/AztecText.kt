@@ -449,20 +449,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
-//    private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
-//        if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
-//            if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
-//                // moved left
-//                setSelection(selEnd - 1)
-//            } else {
-//                // moved right or dropped to right to the left of ZWJ
-//                setSelection(selEnd + 1)
-//            }
-//            return true
-//        }
-//        return false
-//    }
-
     fun getSelectedText(): String {
         if (selectionStart == -1 || selectionEnd == -1
                 || editableText.length < selectionEnd || editableText.length < selectionStart) return ""
@@ -572,100 +558,25 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-//        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR) {
-//            setSelection(selectionEnd + 1)
-//        }
-//
-//        prepareTextChangeEventDetails(after, count, start, text)
-//
-//        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
-//        inlineFormatter.carryOverInlineSpans(start, count, after)
-
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
     }
 
-//    private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
-//        var deletedFromBlock = false
-//        var blockStart = -1
-//        var blockEnd = -1
-//        if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
-//            this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).forEach {
-//                if (it != null) {
-//                    blockStart = this.text.getSpanStart(it)
-//                    blockEnd = this.text.getSpanEnd(it)
-//                    deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
-//                            (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
-//                            (start == 0 || text[start - 1] == '\n')
-//
-//                    // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
-//                    // because we want to allow a block span with empty text (such as list with a single empty first item)
-//                    if (deletedFromBlock && after == 0 && blockEnd - blockStart == count && text[start] != Constants.ZWJ_CHAR) {
-//                        this.text.setSpan(it, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (deletedFromBlock) {
-//            textChangedEventDetails = TextChangedEvent(this.text.toString(), deletedFromBlock, blockStart)
-//        } else {
-//            textChangedEventDetails = TextChangedEvent(this.text.toString())
-//        }
-//    }
-
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
-
-//        inlineFormatter.reapplyCarriedOverInlineSpans()
-
-//        textChangedEventDetails.before = before
-//        textChangedEventDetails.text = text
-//        textChangedEventDetails.countOfCharacters = count
-//        textChangedEventDetails.start = start
-//        textChangedEventDetails.initialize()
     }
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
-//            enableTextChangedListener()
             return
         }
 
 
-//        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-//            removeLeadingStyle(text, AztecInlineSpan::class.java)
-//            removeLeadingStyle(text, LeadingMarginSpan::class.java)
-//        }
-
-//        val newLine = textChangedEventDetails.isNewLine()
-//        inlineFormatter.handleInlineStyling(textChangedEventDetails)
-//        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
-//        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
-
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
-
-//        if (textChangedEventDetails.count > 0 && text.isEmpty()) {
-//            onSelectionChanged(0, 0)
-//        }
-
-//        // preserve the attributes on the previous list item when adding a new one
-//        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
     }
-
-//    fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
-//        text.getSpans(0, 0, spanClass).forEach {
-//            if (text.isNotEmpty()) {
-//                text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
-//            } else {
-//                text.removeSpan(it)
-//            }
-//        }
-//    }
-
 
     fun redo() {
         history.redo(this)

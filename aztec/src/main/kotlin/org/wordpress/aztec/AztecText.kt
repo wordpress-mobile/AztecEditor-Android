@@ -228,9 +228,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         InlineTextWatcher.install(inlineFormatter, this)
 
-        HeadingWatcher.install(this)
-        ListWatcher.install(this)
-        QuoteWatcher.install(this)
+        BlockElementWatcher.install(this, HeadingHandler())
+        BlockElementWatcher.install(this, ListHandler())
+        BlockElementWatcher.install(this, QuoteHandler())
+
         EndOfBufferMarkerAdder.install(this)
     }
 

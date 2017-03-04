@@ -2,10 +2,11 @@ package org.wordpress.aztec
 
 import android.text.Spannable
 import android.text.Spanned
+import org.wordpress.aztec.BlockElementWatcher.TextChangeHandler
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 
-class QuoteHandler {
+class QuoteHandler : TextChangeHandler {
     private enum class PositionType {
         START,
         EMPTY_AT_END,
@@ -13,7 +14,7 @@ class QuoteHandler {
         BODY
     }
 
-    fun handleTextChangeForQuotes(text: Spannable, inputStart: Int, count: Int, textDeleter: TextDeleter) {
+    override fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, textDeleter: TextDeleter) {
         // use charsNew to get the spans at the input point. It appears to be more reliable vs the whole Editable.
         var charsNew = text.subSequence(inputStart, inputStart + count) as Spanned
 

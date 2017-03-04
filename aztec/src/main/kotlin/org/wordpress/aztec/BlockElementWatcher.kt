@@ -6,7 +6,11 @@ import android.text.TextWatcher
 
 import java.lang.ref.WeakReference
 
-class ListWatcher private constructor(private val listHandler: ListHandler, aztecText: AztecText) : TextWatcher {
+class BlockElementWatcher private constructor(private val textChangeHandler: TextChangeHandler, aztecText: AztecText) : TextWatcher {
+
+    interface TextChangeHandler {
+        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, textDeleter: TextDeleter)
+    }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
@@ -26,7 +30,7 @@ class ListWatcher private constructor(private val listHandler: ListHandler, azte
         }
 
         // handle the text change. The potential text deletion will happen in a scheduled Runnable, to run on next frame
-        listHandler.handleTextChangeForLists(
+        textChangeHandler.handleTextChanged(
                 s as Spannable,
                 start,
                 count,
@@ -37,8 +41,8 @@ class ListWatcher private constructor(private val listHandler: ListHandler, azte
     override fun afterTextChanged(text: Editable) {}
 
     companion object {
-        fun install(text: AztecText) {
-            text.addTextChangedListener(ListWatcher(ListHandler(), text))
+        fun install(text: AztecText, textChangeHandler: TextChangeHandler) {
+            text.addTextChangedListener(BlockElementWatcher(textChangeHandler, text))
         }
     }
 }

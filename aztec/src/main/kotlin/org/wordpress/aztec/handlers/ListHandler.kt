@@ -1,11 +1,14 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.BlockElementWatcher.TextChangeHandler
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.handlers.TextDeleter
+import org.wordpress.aztec.watchers.BlockElementWatcher.TextChangeHandler
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.util.SpanWrapper
 
 class ListHandler : TextChangeHandler {
     private enum class PositionType {
@@ -39,10 +42,10 @@ class ListHandler : TextChangeHandler {
                     charsNew.getSpans<AztecListItemSpan>(newlineOffset, newlineOffset, AztecListItemSpan::class.java))
             listItems.firstOrNull()?.let {
                 when (getNewlinePositionType(text, list, it, newlineIndex)) {
-                    ListHandler.PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex, childNestingLevel)
-                    ListHandler.PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(text, list, it, newlineIndex, textDeleter)
-                    ListHandler.PositionType.TEXT_END -> handleNewlineAtTextEnd()
-                    ListHandler.PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex, childNestingLevel)
+                    PositionType.LIST_START -> handleNewlineAtListStart(text, it, newlineIndex, childNestingLevel)
+                    PositionType.EMPTY_ITEM_AT_LIST_END -> handleNewlineAtEmptyItemAtListEnd(text, list, it, newlineIndex, textDeleter)
+                    PositionType.TEXT_END -> handleNewlineAtTextEnd()
+                    PositionType.LIST_ITEM_BODY -> handleNewlineInListItemBody(text, it, newlineIndex, childNestingLevel)
                 }
             }
 
@@ -56,7 +59,7 @@ class ListHandler : TextChangeHandler {
     }
 
     private fun getNewlinePositionType(text: Spannable, list: SpanWrapper<AztecListSpan>,
-            item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int): PositionType {
+                                       item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int): PositionType {
         val atEndOfList = newlineIndex == list.end - 2 || newlineIndex == text.length - 1
 
         if (newlineIndex == item.start && !atEndOfList) {
@@ -76,7 +79,7 @@ class ListHandler : TextChangeHandler {
     }
 
     private fun handleNewlineAtListStart(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int,
-            childNestingLevel: Int) {
+                                         childNestingLevel: Int) {
         // newline added at start of bullet so, add a new bullet
         newListItem(text, newlineIndex, newlineIndex + 1, childNestingLevel)
 
@@ -85,7 +88,7 @@ class ListHandler : TextChangeHandler {
     }
 
     private fun handleNewlineAtEmptyItemAtListEnd(text: Spannable, list: SpanWrapper<AztecListSpan>,
-            item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int, textDeleter: TextDeleter) {
+                                                  item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int, textDeleter: TextDeleter) {
         // close the list when entering a newline on an empty item at the end of the list
         item.remove()
 
@@ -110,7 +113,7 @@ class ListHandler : TextChangeHandler {
     }
 
     private fun handleNewlineInListItemBody(text: Spannable, item: SpanWrapper<AztecListItemSpan>, newlineIndex: Int,
-            childNestingLevel: Int) {
+                                            childNestingLevel: Int) {
         // newline added at some position inside the bullet so, end the current bullet and append a new one
         newListItem(text, newlineIndex + 1, item.end, childNestingLevel)
         item.end = newlineIndex + 1

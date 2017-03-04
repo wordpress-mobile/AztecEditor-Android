@@ -8,6 +8,7 @@ import android.text.TextUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.*
 

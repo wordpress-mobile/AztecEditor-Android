@@ -1,10 +1,11 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.TextView
+import org.wordpress.aztec.Constants
 
 class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
 

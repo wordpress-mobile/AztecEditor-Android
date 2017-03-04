@@ -4,6 +4,9 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.*
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 

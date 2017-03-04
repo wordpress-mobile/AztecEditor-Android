@@ -2,6 +2,7 @@ package org.wordpress.aztec
 
 import android.view.KeyEvent
 import android.widget.EditText
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
  * Test utilities to be used with unit tests.

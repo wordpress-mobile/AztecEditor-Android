@@ -23,6 +23,7 @@ import android.text.*
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.util.SpanWrapper
 import java.util.*
 
 class AztecParser {

@@ -1,4 +1,4 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.spans
 
 interface ParagraphFlagged {
     var startBeforeCollapse: Int

@@ -43,11 +43,15 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.TypefaceCache
+import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
 

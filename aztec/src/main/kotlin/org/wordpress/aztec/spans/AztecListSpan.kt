@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
-import org.wordpress.aztec.ParagraphFlagged
+import org.wordpress.aztec.spans.ParagraphFlagged
 
 
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),

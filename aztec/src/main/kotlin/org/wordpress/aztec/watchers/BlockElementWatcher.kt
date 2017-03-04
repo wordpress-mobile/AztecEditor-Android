@@ -1,8 +1,10 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.Spannable
 import android.text.TextWatcher
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.handlers.TextDeleter
 
 import java.lang.ref.WeakReference
 

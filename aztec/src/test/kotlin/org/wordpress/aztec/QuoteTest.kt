@@ -11,6 +11,7 @@ import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.TestUtils.safeLength
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
  * Testing quote behaviour.

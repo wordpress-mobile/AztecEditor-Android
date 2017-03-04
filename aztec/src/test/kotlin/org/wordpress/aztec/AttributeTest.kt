@@ -10,6 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeLength
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
  * Testing attribute preservation for supported HTML elements

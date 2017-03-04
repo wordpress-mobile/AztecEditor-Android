@@ -1,10 +1,13 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.BlockElementWatcher.TextChangeHandler
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.handlers.TextDeleter
+import org.wordpress.aztec.watchers.BlockElementWatcher.TextChangeHandler
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.util.SpanWrapper
 
 class HeadingHandler : TextChangeHandler {
     private enum class PositionType {
@@ -81,7 +84,7 @@ class HeadingHandler : TextChangeHandler {
     }
 
     private fun handleNewlineAtEmptyAtEnd(text: Spannable, heading: SpanWrapper<AztecHeadingSpan>, newlineIndex: Int,
-            textDeleter: TextDeleter) {
+                                          textDeleter: TextDeleter) {
         // just remote the heading since it's empty
         heading.remove()
 

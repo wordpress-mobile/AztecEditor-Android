@@ -1,10 +1,13 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.aztec.BlockElementWatcher.TextChangeHandler
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.handlers.TextDeleter
+import org.wordpress.aztec.watchers.BlockElementWatcher.TextChangeHandler
 import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.util.SpanWrapper
 
 class QuoteHandler : TextChangeHandler {
     private enum class PositionType {

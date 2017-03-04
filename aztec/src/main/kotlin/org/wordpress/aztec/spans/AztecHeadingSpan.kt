@@ -17,6 +17,9 @@ class AztecHeadingSpan @JvmOverloads constructor(
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
+
     var textFormat: TextFormat = TextFormat.FORMAT_HEADING_1
         get() = field
         set(value) {

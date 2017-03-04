@@ -8,6 +8,9 @@ class ParagraphSpan(
         override var attributes: String = ""
     ) : ParagraphStyle, AztecBlockSpan {
 
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
+
     private var TAG: String = "p"
 
     override fun getStartTag(): String {

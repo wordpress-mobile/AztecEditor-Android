@@ -95,14 +95,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {
                 when (item) {
-                    TextFormat.FORMAT_HEADING_1,
-                    TextFormat.FORMAT_HEADING_2,
-                    TextFormat.FORMAT_HEADING_3,
-                    TextFormat.FORMAT_HEADING_4,
-                    TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6 -> if (editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
-                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                    }
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
@@ -128,12 +120,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
                     (start > end && editableText.length > end && editableText[end] == '\n')) {
                 when (it) {
-                    TextFormat.FORMAT_HEADING_1,
-                    TextFormat.FORMAT_HEADING_2,
-                    TextFormat.FORMAT_HEADING_3,
-                    TextFormat.FORMAT_HEADING_4,
-                    TextFormat.FORMAT_HEADING_5,
-                    TextFormat.FORMAT_HEADING_6,
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
@@ -349,8 +335,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
         when (textFormat) {
-            TextFormat.FORMAT_BOLD -> return AztecStyleSpan(Typeface.BOLD)
-            TextFormat.FORMAT_ITALIC -> return AztecStyleSpan(Typeface.ITALIC)
+            TextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
+            TextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)

@@ -226,6 +226,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
 
+        InlineTextWatcher.install(inlineFormatter, this)
+
         HeadingWatcher.install(this)
         ListWatcher.install(this)
         QuoteWatcher.install(this)
@@ -441,7 +443,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         previousCursorPosition = selEnd
 
-//        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }

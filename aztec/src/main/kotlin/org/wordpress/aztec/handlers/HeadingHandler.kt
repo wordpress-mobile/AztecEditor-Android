@@ -2,8 +2,9 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.watchers.TextDeleter
 
-class HeadingHandler(val textDeleter: TextDeleter) : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
+class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
 
     override fun handleNewlineAtStartOfBlock() {
         // we got a newline at the start of the block. Let's just push the block after the newline
@@ -15,7 +16,7 @@ class HeadingHandler(val textDeleter: TextDeleter) : BlockHandler<AztecHeadingSp
         block.remove()
 
         // delete the newline as it's purpose was served (to translate it as a command to close the block)
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     override fun handleNewlineAtEmptyBody() {
@@ -23,7 +24,7 @@ class HeadingHandler(val textDeleter: TextDeleter) : BlockHandler<AztecHeadingSp
         block.remove()
 
         // delete the newline as it's purpose was served (to translate it as a command to close the block)
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     // fun handleNewlineAtTextEnd()

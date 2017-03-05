@@ -1,8 +1,9 @@
 package org.wordpress.aztec.handlers
 
 import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.watchers.TextDeleter
 
-class QuoteHandler(val textDeleter: TextDeleter) : BlockHandler<AztecQuoteSpan>(AztecQuoteSpan::class.java) {
+class QuoteHandler : BlockHandler<AztecQuoteSpan>(AztecQuoteSpan::class.java) {
     // fun handleNewlineAtStartOfBlock()
     // nothing special to do
 
@@ -11,7 +12,7 @@ class QuoteHandler(val textDeleter: TextDeleter) : BlockHandler<AztecQuoteSpan>(
         block.end = newlineIndex
 
         // delete the newline
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     override fun handleNewlineAtEmptyBody() {
@@ -19,7 +20,7 @@ class QuoteHandler(val textDeleter: TextDeleter) : BlockHandler<AztecQuoteSpan>(
         block.remove()
 
         // delete the newline
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     // fun handleNewlineAtTextEnd()

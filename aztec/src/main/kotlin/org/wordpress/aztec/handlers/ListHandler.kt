@@ -1,8 +1,9 @@
 package org.wordpress.aztec.handlers
 
 import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.watchers.TextDeleter
 
-class ListHandler(val textDeleter: TextDeleter) : BlockHandler<AztecListSpan>(AztecListSpan::class.java) {
+class ListHandler : BlockHandler<AztecListSpan>(AztecListSpan::class.java) {
 
     // fun handleNewlineAtStartOfBlock()
     // we got a newline at the start of the list. Nothing special to do here since the list can have multiple lines
@@ -13,7 +14,7 @@ class ListHandler(val textDeleter: TextDeleter) : BlockHandler<AztecListSpan>(Az
         block.end = newlineIndex
 
         // delete the newline
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     override fun handleNewlineAtEmptyBody() {
@@ -21,7 +22,7 @@ class ListHandler(val textDeleter: TextDeleter) : BlockHandler<AztecListSpan>(Az
         block.remove()
 
         // delete the newline
-        textDeleter.delete(newlineIndex, newlineIndex + 1)
+        TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
 
     // fun handleNewlineAtTextEnd()

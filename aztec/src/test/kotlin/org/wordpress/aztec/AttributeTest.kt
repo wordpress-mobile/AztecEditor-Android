@@ -284,8 +284,8 @@ class AttributeTest {
         val originalItem = "<li a=\"1\">Ordered</li>"
         editText.fromHtml(input)
 
-        editText.append("\n")
-        editText.append("after")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "after")
         Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ol><li></li>$originalItem<li>after</li></ol>", editText.toHtml())
@@ -426,14 +426,4 @@ class AttributeTest {
         Assert.assertEquals(input, output)
     }
 
-
-    @Test
-    @Throws(Exception::class)
-    fun  deletingZwjCharShouldPreserveAttributes() {
-        val input = "<ol><li>a</li><li b=\"B\">b</li></ol>"
-        editText.fromHtml(input)
-
-        editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("<ol><li>a</li><li b=\"B\"></li></ol>", editText.toHtml())
-    }
 }

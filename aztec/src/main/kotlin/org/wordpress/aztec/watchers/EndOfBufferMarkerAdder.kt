@@ -105,7 +105,7 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
         }
 
         fun strip(string: String): String {
-            if (string.length == 0) {
+            if (string.isEmpty()) {
                 return string
             } else if (string[string.length - 1] == Constants.END_OF_BUFFER_MARKER) {
                 return string.substring(0, string.length - 1)

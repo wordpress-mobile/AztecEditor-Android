@@ -43,9 +43,7 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.HeadingHandler
-import org.wordpress.aztec.handlers.ListHandler
-import org.wordpress.aztec.handlers.QuoteHandler
+import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -231,11 +229,36 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         InlineTextWatcher.install(inlineFormatter, this)
 
-        BlockElementWatcher.install(this, HeadingHandler())
-        BlockElementWatcher.install(this, ListHandler())
-        BlockElementWatcher.install(this, QuoteHandler())
+        // gather the text modifications in a list to execute them later, at the "afterTextChanged" phase
+        val textModifications = ArrayList<Runnable>()
+        val textDeleter = object : TextDeleter {
+            override fun delete(start: Int, end: Int) {
+                textModifications.add(Runnable { text.delete(start, end) })
+            }
+        }
+
+        // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
+        //  will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
+
+        BlockElementWatcher.install(this, HeadingHandler(textDeleter))
+        BlockElementWatcher.install(this, ListHandler(textDeleter))
+        BlockElementWatcher.install(this, ListItemHandler())
+        BlockElementWatcher.install(this, QuoteHandler(textDeleter))
 
         EndOfBufferMarkerAdder.install(this)
+
+        addTextChangedListener(object: TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val mods = ArrayList<Runnable>(textModifications)
+                textModifications.clear()
+
+                mods.forEach { it.run() }
+            }
+        })
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {

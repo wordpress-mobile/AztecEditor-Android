@@ -4,25 +4,15 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.handlers.TextDeleter
-
 import java.lang.ref.WeakReference
 
 class BlockElementWatcher private constructor(private val textChangeHandler: TextChangeHandler, aztecText: AztecText) : TextWatcher {
 
     interface TextChangeHandler {
-        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, textDeleter: TextDeleter)
+        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int)
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
-
-    private val textDeleter = object : TextDeleter {
-        override fun delete(start: Int, end: Int) {
-            aztecTextRef.get()?.post {
-                aztecTextRef.get()?.text?.delete(start, end)
-            }
-        }
-    }
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -35,8 +25,7 @@ class BlockElementWatcher private constructor(private val textChangeHandler: Tex
         textChangeHandler.handleTextChanged(
                 s as Spannable,
                 start,
-                count,
-                textDeleter)
+                count)
 
     }
 

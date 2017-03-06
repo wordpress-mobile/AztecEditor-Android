@@ -117,7 +117,7 @@ object HtmlStyleUtils {
                 REGEX_HTML_COMMENTS -> content.setSpan(ForegroundColorSpan(attributeColor), matchStart, matchEnd, SPANNABLE_FLAGS)
                 REGEX_HTML_ENTITIES -> {
                     content.setSpan(ForegroundColorSpan(tagColor), matchStart, matchEnd, SPANNABLE_FLAGS)
-                    content.setSpan(AztecStyleSpan(Typeface.BOLD), matchStart, matchEnd, SPANNABLE_FLAGS)
+                    content.setSpan(AztecStyleSpan(Typeface.BOLD,0), matchStart, matchEnd, SPANNABLE_FLAGS)
                     content.setSpan(RelativeSizeSpan(0.75f), matchStart, matchEnd, SPANNABLE_FLAGS)
                 }
             }

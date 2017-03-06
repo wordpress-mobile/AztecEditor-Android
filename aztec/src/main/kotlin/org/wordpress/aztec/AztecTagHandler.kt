@@ -34,8 +34,8 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
-            nestingLevel: Int): Boolean {
+                           onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
+                           nestingLevel: Int): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
@@ -44,12 +44,12 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
-                handleElement(output, opening, AztecStrikethroughSpan(tag, attributeString))
+                handleElement(output, opening, AztecStrikethroughSpan(nestingLevel, tag, attributeString))
                 return true
             }
             DIV, SPAN -> {
                 if (opening) {
-                    start(output, HiddenHtmlSpan(tag, attributeString, order++))
+                    start(output, HiddenHtmlSpan(nestingLevel,tag, attributeString, order++))
                 } else {
                     endHidden(output, order++)
                 }
@@ -95,7 +95,7 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun createImageSpan(attributes: Attributes?, onMediaTappedListener: AztecText.OnMediaTappedListener?,
-            context: Context) : AztecMediaSpan {
+                                context: Context): AztecMediaSpan {
         val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
         return AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener)
     }
@@ -134,8 +134,7 @@ class AztecTagHandler : Html.TagHandler {
 
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
+        } else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
             //if block element is empty add a ZWJ to make it non empty and extend span
             output.append(Constants.ZWJ_CHAR)
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

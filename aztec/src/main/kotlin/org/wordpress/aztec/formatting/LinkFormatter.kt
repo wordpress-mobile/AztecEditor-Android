@@ -140,7 +140,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
     }
 
     fun makeUrlSpan(url: String, attrs: String = ""): AztecURLSpan {
-        return AztecURLSpan(url, linkStyle, attrs)
+        return AztecURLSpan(url, linkStyle, attrs,0)
     }
 
     private fun linkValid(link: String, start: Int, end: Int, attributes: String = "") {
@@ -189,6 +189,6 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
     }
 
     fun setLinkSpan(spannable: Spannable, link: String, start: Int, end: Int, attributes: String = "") {
-        spannable.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        spannable.setSpan(AztecURLSpan(link, linkStyle, attributes,0), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }

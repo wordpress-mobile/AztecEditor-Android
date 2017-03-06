@@ -18,6 +18,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
+    fun getNestingLevelAt(index: Int): Int {
+        return editableText.getSpans(index, index, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
+    }
 
     fun toggleBold() {
         if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
@@ -135,11 +138,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
 
     fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val spanToApply = makeInlineSpan(textFormat)
+        val nestingLevel = getNestingLevelAt(start)
+
+        val spanToApply = makeInlineSpan(textFormat, nestingLevel)
 
         if (start >= end) {
             return
         }
+
 
         var precedingSpan: AztecInlineSpan? = null
         var followingSpan: AztecInlineSpan? = null
@@ -207,7 +213,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun removeInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         //for convenience sake we are initializing the span of same type we are planing to remove
-        val spanToRemove = makeInlineSpan(textFormat)
+        val spanToRemove = makeInlineSpan(textFormat, 0)
 
         val spans = editableText.getSpans(start, end, AztecInlineSpan::class.java)
         val list = ArrayList<AztecPart>()
@@ -333,26 +339,26 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
+    fun makeInlineSpan(textFormat: TextFormat, nestingLevel: Int): AztecInlineSpan {
         when (textFormat) {
-            TextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
-            TextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
-            TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
-            TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
-            else -> return AztecStyleSpan(Typeface.NORMAL)
+            TextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan(nestingLevel)
+            TextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan(nestingLevel)
+            TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan(nestingLevel)
+            TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan(nestingLevel)
+            TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle, null, nestingLevel)
+            else -> return AztecStyleSpan(nestingLevel, Typeface.NORMAL)
         }
     }
 
-    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String = ""): AztecInlineSpan {
+    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String = "", nestingLevel: Int): AztecInlineSpan {
         when (spanType) {
-            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
-            else -> return AztecStyleSpan(Typeface.NORMAL)
+            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs, nestingLevel)
+            else -> return AztecStyleSpan(Typeface.NORMAL, nestingLevel)
         }
     }
 
     fun containsInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd): Boolean {
-        val spanToCheck = makeInlineSpan(textFormat)
+        val spanToCheck = makeInlineSpan(textFormat, 0)
 
         if (start > end) {
             return false

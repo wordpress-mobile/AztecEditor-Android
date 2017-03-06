@@ -184,7 +184,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.HeaderStyle(
                         array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
-                )
+        )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -708,7 +708,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             val spanStart = editable.getSpanStart(it)
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
-            editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes, it.nestingLevel), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

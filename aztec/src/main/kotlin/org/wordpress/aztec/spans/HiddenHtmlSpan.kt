@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 
-class HiddenHtmlSpan(override var nestingLevel: Int, tag: String, attributes: String, openOrder: Int) : CharacterStyle(), AztecNestable {
+class HiddenHtmlSpan(var nestingLevel: Int, tag: String, attributes: String, openOrder: Int) : CharacterStyle() {
 
     val startTag: StringBuilder
     val endTag: StringBuilder

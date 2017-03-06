@@ -51,7 +51,6 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.util.TypefaceCache
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -140,8 +139,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
-
-        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
 
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
         setLineSpacing(

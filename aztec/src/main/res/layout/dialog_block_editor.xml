@@ -21,10 +21,10 @@
         android:layout_marginTop="24dp"
         android:padding="16dp"
         android:scrollbars="vertical"
-        android:background="@drawable/background_block_editor"
         android:scrollbarStyle="outsideOverlay"
         android:textSize="14sp"
         android:imeOptions="flagNoExtractUi"
-        aztec:codeTextColor="@android:color/white"/>
+        aztec:codeDialog="true" >
+    </org.wordpress.aztec.source.SourceViewEditText>
 
 <!--</ScrollView>-->

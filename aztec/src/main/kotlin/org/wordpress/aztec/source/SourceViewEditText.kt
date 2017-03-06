@@ -17,7 +17,6 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
-import org.wordpress.aztec.util.TypefaceCache
 
 class SourceViewEditText : EditText, TextWatcher {
 
@@ -47,9 +46,6 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     private fun init(attrs: AttributeSet?) {
-
-        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_DEJAVU_SANS_MONO)
-
         val values = context.obtainStyledAttributes(attrs, R.styleable.SourceViewEditText)
         if (values.hasValue(R.styleable.SourceViewEditText_codeBackgroundColor)) {
             setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))

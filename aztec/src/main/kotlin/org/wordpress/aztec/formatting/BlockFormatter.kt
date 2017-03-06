@@ -3,7 +3,12 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.handlers.BlockHandler
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -162,18 +167,18 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
                 if (spanPrecedesLine && !spanExtendsBeyondLine) {
                     // pull back the end of the block span
-                    ListHandler.set(editableText, span, spanStart, startOfBounds)
+                    BlockHandler.set(editableText, span, spanStart, startOfBounds)
                 } else if (spanExtendsBeyondLine && !spanPrecedesLine) {
                     // push the start of the block span
-                    ListHandler.set(editableText, span, endOfBounds, spanEnd)
+                    BlockHandler.set(editableText, span, endOfBounds, spanEnd)
                 } else if (spanPrecedesLine && spanExtendsBeyondLine) {
                     // we need to split the span into two parts
 
                     // first, let's pull back the end of the existing span
-                    ListHandler.set(editableText, span, spanStart, startOfBounds)
+                    BlockHandler.set(editableText, span, spanStart, startOfBounds)
 
                     // now, let's "clone" the span and set it
-                    ListHandler.set(editableText, makeBlockSpan(span.javaClass, span.nestingLevel, span.attributes),
+                    BlockHandler.set(editableText, makeBlockSpan(span.javaClass, span.nestingLevel, span.attributes),
                             endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
@@ -281,15 +286,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
 
-    fun getNestingLevelAt(index: Int): Int {
-        return editableText.getSpans(index, index, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
-    }
-
     fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
-            val nestingLevel = getNestingLevelAt(start)
+            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start)
 
-            if (getNestingLevelAt(end) != nestingLevel) {
+            if (AztecNestable.getNestingLevelAt(editableText, end) != nestingLevel) {
                 // TODO: styling across multiple nesting levels not support yet
                 return
             }
@@ -348,7 +349,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 }
             }
 
-            val nestingLevel = getNestingLevelAt(start) + 1
+            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start) + 1
 
             applyBlock(blockElementType, startOfBlock, endOfBlock, nestingLevel)
 
@@ -363,7 +364,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
             TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
-            TextFormat.FORMAT_QUOTE -> QuoteHandler.set(editableText, AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end)
+            TextFormat.FORMAT_QUOTE -> BlockHandler.set(editableText, AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end)
             TextFormat.FORMAT_HEADING_1,
             TextFormat.FORMAT_HEADING_2,
             TextFormat.FORMAT_HEADING_3,
@@ -375,7 +376,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int, nestingLevel: Int) {
-        ListHandler.set(editableText, listSpan, start, end)
+        BlockHandler.set(editableText, listSpan, start, end)
 
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
@@ -388,7 +389,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             if (lineLength == 0) continue
 
-            ListHandler.newListItem(editableText, start + lineStart, start + lineEnd, nestingLevel + 1)
+            ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, nestingLevel + 1)
         }
     }
 
@@ -404,7 +405,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             if (lineLength == 0) continue
 
-            HeadingHandler.newHeading(editableText, headingSpan, start + lineStart, start + lineEnd, nestingLevel + 1)
+            HeadingHandler.cloneHeading(editableText, headingSpan, start + lineStart, start + lineEnd)
         }
     }
 

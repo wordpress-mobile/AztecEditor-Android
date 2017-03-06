@@ -1,9 +1,13 @@
-package org.wordpress.aztec
+package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.spans.ParagraphFlagged
+import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 
 class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextWatcher {

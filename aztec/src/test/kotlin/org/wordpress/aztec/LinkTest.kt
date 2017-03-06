@@ -62,6 +62,25 @@ class LinkTest() {
         Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun insertLinkIntoEmptyQuote() {
+        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<blockquote></blockquote>", editText.toHtml())
+        editText.setSelection(editText.length())
+        editText.link("http://wordpress.com", "WordPress")
+        Assert.assertEquals("<blockquote><a href=\"http://wordpress.com\">WordPress</a></blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun insertLinkIntoEmptyList() {
+        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        Assert.assertEquals("<ol><li></li></ol>", editText.toHtml())
+        editText.setSelection(editText.length())
+        editText.link("http://wordpress.com", "WordPress")
+        Assert.assertEquals("<ol><li><a href=\"http://wordpress.com\">WordPress</a></li></ol>", editText.toHtml())
+    }
 
     @Test
     @Throws(Exception::class)

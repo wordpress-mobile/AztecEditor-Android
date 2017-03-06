@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecPart
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.TextChangedEvent
+import org.wordpress.aztec.watchers.TextChangedEvent
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import java.util.*

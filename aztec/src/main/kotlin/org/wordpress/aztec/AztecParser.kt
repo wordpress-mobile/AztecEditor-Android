@@ -23,6 +23,7 @@ import android.text.*
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.util.SpanWrapper
 import java.util.*
 
 class AztecParser {
@@ -44,8 +45,6 @@ class AztecParser {
         markBlockElementsAsParagraphs(spanned)
         cleanupZWJ(spanned)
         unbiasNestingLevel(spanned)
-
-//        addZwjCharToBlockSpans(spanned)
 
         return spanned
     }
@@ -92,22 +91,6 @@ class AztecParser {
         withinHtml(out, data)
         return tidy(out.toString())
     }
-
-//    private fun addZwjCharToBlockSpans(spanned: SpannableStringBuilder) {
-//        // add ZWJ char after newline of block spans so they can be closed by hitting enter
-//        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
-//            val start = spanned.getSpanStart(it)
-//            val end = spanned.getSpanEnd(it)
-//
-//            if (spanned[end - 1] == '\n' && (end - start == 1 || spanned[end - 2] == '\n')) {
-//                spanned.insert(end - 1, Constants.ZWJ_STRING)
-//
-//                if (end - start == 1) {
-//                    spanned.setSpan(it, start, end + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-//                }
-//            }
-//        }
-//    }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {
         text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
@@ -181,15 +164,6 @@ class AztecParser {
                 // no newline inside the end of the span so, nothing to mark as visual newline
                 return@forEach
             }
-
-//            val firstNonNewlineCharIndex = spanEnd - 1 +
-//                    spanned.subSequence((spanEnd -1)..spanned.length-1).indexOfFirst { it != '\n' } - 1
-//            if (firstNonNewlineCharIndex != -1 && spanned.getSpans(firstNonNewlineCharIndex, firstNonNewlineCharIndex,
-//                    BlockElementLinebreak::class.java).isNotEmpty()) {
-//                // there's a visual newline already set after us so, nothing to do here. Counting on the 1st phase (the
-//                //  newlines at block starts) to have done its job.
-//                return@forEach
-//            }
 
             // at last, all checks passed so, let's mark the newline as visual!
             markBlockElementLineBreak(spanned, spanEnd - 1)
@@ -350,29 +324,8 @@ class AztecParser {
         }
     }
 
-//    private fun withinHeading(out: StringBuilder, headingContent: Spanned, span: AztecHeadingSpan,
-//            parents: ArrayList<AztecParagraphStyle>?) {
-//        //remove the heading span from the text we are about to process
-//        val cleanHeading = SpannableStringBuilder(headingContent)
-//        cleanHeading.removeSpan(span)
-//
-//        val lines = TextUtils.split(cleanHeading.toString(), "\n")
-//        for (i in lines.indices) {
-//            val lineLength = lines[i].length
-//
-//            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-//            val lineEnd = lineStart + lineLength
-//
-//            if (lineLength == 0) continue
-//
-//            out.append("<${span.getStartTag()}>")
-//            withinContent(out, cleanHeading, lineStart, lineEnd, parents, true)
-//            out.append("</${span.getEndTag()}>")
-//        }
-//    }
-
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int,
-            parents: ArrayList<AztecNestable>?, ignoreHeading: Boolean = false) {
+            parents: ArrayList<AztecNestable>?) {
         var next: Int
 
         var i = start
@@ -392,7 +345,7 @@ class AztecParser {
                 next++
             }
 
-            withinParagraph(out, text, i, next - nl, nl, parents, ignoreHeading)
+            withinParagraph(out, text, i, next - nl, nl, parents)
 
             i = next
         }
@@ -401,77 +354,58 @@ class AztecParser {
     // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Aztec.
     private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int,
-            parents: ArrayList<AztecNestable>?, ignoreHeadingSpanCheck: Boolean = false) {
+            parents: ArrayList<AztecNestable>?) {
         var next: Int
 
-//        //special logic in case we encounter line that is a heading span
-//        if (!ignoreHeadingSpanCheck) {
-//            var isHeadingSpanEncountered = false
-//            text.getSpans(start, end, AztecHeadingSpan::class.java).forEach {
-//                //go inside heading span and style it's content
-//                withinHeading(out, text.subSequence(start, end) as Spanned, it, parents)
-//                isHeadingSpanEncountered = true
-//            }
-//            if (isHeadingSpanEncountered) {
-//                for (i in 0..nl - 1) {
-//                    out.append("<br>")
-//                    consumeCursorIfInInput(out, text,  end + i)
-//                }
-//                return@withinParagraph
-//            }
-//        }
+        var i = start
 
-        run {
-            var i = start
+        while (i < end || start == end) {
+            next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-            while (i < end || start == end) {
-                next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
+            val spans = text.getSpans(i, next, CharacterStyle::class.java)
+            for (j in spans.indices) {
+                val span = spans[j]
 
-                val spans = text.getSpans(i, next, CharacterStyle::class.java)
-                for (j in spans.indices) {
-                    val span = spans[j]
-
-                    if (span is AztecInlineSpan) {
-                        out.append("<${span.getStartTag()}>")
-                    }
-
-                    if (span is AztecCommentSpan || span is CommentSpan) {
-                        out.append("<!--")
-                    }
-
-                    if (span is AztecMediaSpan) {
-                        out.append(span.getHtml())
-                        i = next
-                    }
-
-                    if (span is HiddenHtmlSpan) {
-                        parseHiddenSpans(i, out, span, text)
-                    }
+                if (span is AztecInlineSpan) {
+                    out.append("<${span.getStartTag()}>")
                 }
 
-                withinStyle(out, text, i, next, nl)
-
-                for (j in spans.indices.reversed()) {
-                    val span = spans[j]
-
-                    if (span is AztecInlineSpan) {
-                        out.append("</${span.getEndTag()}>")
-                    }
-
-                    if (span is AztecCommentSpan || span is CommentSpan) {
-                        out.append("-->")
-                    }
-
-                    if (span is HiddenHtmlSpan) {
-                        parseHiddenSpans(next, out, span, text)
-                    }
+                if (span is AztecCommentSpan || span is CommentSpan) {
+                    out.append("<!--")
                 }
 
-                if (start == end)
-                    break
+                if (span is AztecMediaSpan) {
+                    out.append(span.getHtml())
+                    i = next
+                }
 
-                i = next
+                if (span is HiddenHtmlSpan) {
+                    parseHiddenSpans(i, out, span, text)
+                }
             }
+
+            withinStyle(out, text, i, next, nl)
+
+            for (j in spans.indices.reversed()) {
+                val span = spans[j]
+
+                if (span is AztecInlineSpan) {
+                    out.append("</${span.getEndTag()}>")
+                }
+
+                if (span is AztecCommentSpan || span is CommentSpan) {
+                    out.append("-->")
+                }
+
+                if (span is HiddenHtmlSpan) {
+                    parseHiddenSpans(next, out, span, text)
+                }
+            }
+
+            if (start == end)
+                break
+
+            i = next
         }
 
         for (i in 0..nl - 1) {

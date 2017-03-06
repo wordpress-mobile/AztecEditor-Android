@@ -9,6 +9,7 @@ import org.robolectric.Robolectric
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.TestUtils.safeLength
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
  * Testing quote behaviour.
@@ -92,6 +93,11 @@ class QuoteTest {
     fun emptyQuote() {
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
+
+        //remove quote
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals(0, safeLength(editText))
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test

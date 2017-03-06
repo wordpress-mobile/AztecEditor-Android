@@ -8,6 +8,7 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 
 /**
@@ -109,6 +110,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     fun emptyList() {
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+
+        //remove list
+        editText.toggleFormatting(listType)
+        Assert.assertEquals(0, TestUtils.safeLength(editText))
+        Assert.assertEquals("", editText.toHtml())
     }
 
     @Test

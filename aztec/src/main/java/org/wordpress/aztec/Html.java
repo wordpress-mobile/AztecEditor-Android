@@ -16,6 +16,21 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ParagraphStyle;
+import android.text.style.TextAppearanceSpan;
+import android.text.style.TypefaceSpan;
+
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.AztecText.OnMediaTappedListener;
@@ -46,21 +61,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
-
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.ParagraphStyle;
-import android.text.style.TextAppearanceSpan;
-import android.text.style.TypefaceSpan;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -408,38 +408,38 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         switch (textFormat) {
             case FORMAT_BOLD:
-                newSpan = new AztecStyleBoldSpan(attrs);
+                newSpan = new AztecStyleBoldSpan(nestingLevel,attrs);
                 break;
             case FORMAT_ITALIC:
-                newSpan = new AztecStyleItalicSpan(attrs);
+                newSpan = new AztecStyleItalicSpan(nestingLevel,attrs);
                 break;
             case FORMAT_UNDERLINE:
-                newSpan = new AztecUnderlineSpan(attrs);
+                newSpan = new AztecUnderlineSpan(nestingLevel,attrs);
                 break;
             case FORMAT_LINK:
                 String url = attributes.getValue("href") == null ? "" : attributes.getValue("href");
-                newSpan = new AztecURLSpan(url, attrs);
+                newSpan = new AztecURLSpan(url, attrs,nestingLevel);
                 break;
             case FORMAT_BIG:
-                newSpan = new AztecRelativeSizeBigSpan(attrs);
+                newSpan = new AztecRelativeSizeBigSpan(nestingLevel,attrs);
                 break;
             case FORMAT_SMALL:
-                newSpan = new AztecRelativeSizeSmallSpan(attrs);
+                newSpan = new AztecRelativeSizeSmallSpan(nestingLevel,attrs);
                 break;
             case FORMAT_SUPERSCRIPT:
-                newSpan = new AztecSuperscriptSpan(attrs);
+                newSpan = new AztecSuperscriptSpan(nestingLevel,attrs);
                 break;
             case FORMAT_SUBSCRIPT:
-                newSpan = new AztecSubscriptSpan(attrs);
+                newSpan = new AztecSubscriptSpan(nestingLevel,attrs);
                 break;
             case FORMAT_MONOSPACE:
-                newSpan = new AztecTypefaceMonospaceSpan(attrs);
+                newSpan = new AztecTypefaceMonospaceSpan(nestingLevel,attrs);
                 break;
             case FORMAT_FONT:
-                newSpan = new FontSpan(attrs, attributes);
+                newSpan = new FontSpan(nestingLevel,attrs, attributes);
                 break;
             case FORMAT_CODE:
-                newSpan = new AztecCodeSpan(attrs);
+                newSpan = new AztecCodeSpan(attrs,nestingLevel);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

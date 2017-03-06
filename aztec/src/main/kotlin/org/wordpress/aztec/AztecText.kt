@@ -275,6 +275,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
+        disableTextChangedListener()
+
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
@@ -323,6 +325,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
+
+        enableTextChangedListener()
     }
 
     override fun onSaveInstanceState(): Parcelable {

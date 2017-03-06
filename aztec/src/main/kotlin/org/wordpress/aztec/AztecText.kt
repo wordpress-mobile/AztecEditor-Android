@@ -235,10 +235,12 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
         //  will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
 
-        BlockElementWatcher.install(this, HeadingHandler())
-        BlockElementWatcher.install(this, ListHandler())
-        BlockElementWatcher.install(this, ListItemHandler())
-        BlockElementWatcher.install(this, QuoteHandler())
+        BlockElementWatcher(this)
+                .add(HeadingHandler())
+                .add(ListHandler())
+                .add(ListItemHandler())
+                .add(QuoteHandler())
+                .install(this)
 
         TextDeleter.install(this)
 

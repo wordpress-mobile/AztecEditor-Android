@@ -2,14 +2,18 @@ package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.Spannable
+import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.spans.AztecNestable
 import java.lang.ref.WeakReference
+import java.util.*
 
-class BlockElementWatcher private constructor(private val textChangeHandler: TextChangeHandler, aztecText: AztecText) : TextWatcher {
+class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
+    val handlers = ArrayList<TextChangeHandler>()
 
     interface TextChangeHandler {
-        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int)
+        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int)
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
@@ -21,19 +25,27 @@ class BlockElementWatcher private constructor(private val textChangeHandler: Tex
             return
         }
 
-        // handle the text change. The potential text deletion will happen in a scheduled Runnable, to run on next frame
-        textChangeHandler.handleTextChanged(
-                s as Spannable,
-                start,
-                count)
+        val nestingLevelAtEditPoint = AztecNestable.getNestingLevelAt(s as Spanned, start, start + count)
 
+        // handle the text change. The potential text deletion will happen in a scheduled Runnable, to run on next frame
+        handlers.forEach { textChangeHandler ->
+            textChangeHandler.handleTextChanged(
+                    s as Spannable,
+                    start,
+                    count,
+                    nestingLevelAtEditPoint)
+        }
     }
 
     override fun afterTextChanged(text: Editable) {}
 
-    companion object {
-        fun install(text: AztecText, textChangeHandler: TextChangeHandler) {
-            text.addTextChangedListener(BlockElementWatcher(textChangeHandler, text))
-        }
+    fun add(textChangeHandler: TextChangeHandler) : BlockElementWatcher {
+        handlers.add(textChangeHandler)
+        return this
+    }
+
+    fun install(text: AztecText) : BlockElementWatcher {
+        text.addTextChangedListener(this)
+        return this
     }
 }

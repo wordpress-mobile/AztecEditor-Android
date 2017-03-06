@@ -286,15 +286,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
 
-    fun getNestingLevelAt(index: Int): Int {
-        return editableText.getSpans(index, index, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
-    }
-
     fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
-            val nestingLevel = getNestingLevelAt(start)
+            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start)
 
-            if (getNestingLevelAt(end) != nestingLevel) {
+            if (AztecNestable.getNestingLevelAt(editableText, end) != nestingLevel) {
                 // TODO: styling across multiple nesting levels not support yet
                 return
             }
@@ -353,7 +349,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 }
             }
 
-            val nestingLevel = getNestingLevelAt(start) + 1
+            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start) + 1
 
             applyBlock(blockElementType, startOfBlock, endOfBlock, nestingLevel)
 

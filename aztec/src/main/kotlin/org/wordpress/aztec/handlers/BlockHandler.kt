@@ -19,26 +19,34 @@ abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType
     lateinit var text: Spannable
     lateinit var block: SpanWrapper<SpanType>
     var newlineIndex: Int = -1
+    var nestingLevel = 0
     var markerIndex: Int = -1
 
-    override fun handleTextChanged(text: Spannable, inputStart: Int, count: Int) {
+    override fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int) {
         this.text = text
+
+        this.nestingLevel = nestingLevel
 
         // use charsNew to get the spans at the input point. It appears to be more reliable vs the whole Editable.
         var charsNew = text.subSequence(inputStart, inputStart + count) as Spanned
 
-        SpanWrapper.getSpans(text, charsNew.getSpans<SpanType>(0, 0, clazz)).firstOrNull().let { // TODO: handle nesting
-            if (it == null) {
-                // no block elements of this type found so, bail.
-                return
-            }
-
+        SpanWrapper.getSpans(text, charsNew.getSpans<SpanType>(0, 0, clazz)).forEach {
             block = it
+
+            val gotEndOfBufferMarker = charsNew.length == 1 && charsNew[0] == Constants.END_OF_BUFFER_MARKER
+            if (gotEndOfBufferMarker) {
+                markerIndex = inputStart
+            }
 
             val charsNewString = charsNew.toString()
             var newlineOffset = charsNewString.indexOf(Constants.NEWLINE)
             while (newlineOffset > -1 && newlineOffset < charsNew.length) {
                 newlineIndex = inputStart + newlineOffset
+                newlineOffset = charsNewString.indexOf(Constants.NEWLINE, newlineOffset + 1)
+
+                if (!shouldHandle()) {
+                    continue
+                }
 
                 // re-subsequence to get the newer state of the spans
                 charsNew = text.subSequence(inputStart, inputStart + count) as Spanned
@@ -49,13 +57,9 @@ abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType
                     PositionType.BUFFER_END -> handleNewlineAtTextEnd()
                     PositionType.BODY -> handleNewlineInBody()
                 }
-
-                newlineOffset = charsNewString.indexOf(Constants.NEWLINE, newlineOffset + 1)
             }
 
-            val gotEndOfBufferMarker = charsNew.length == 1 && charsNew[0] == Constants.END_OF_BUFFER_MARKER
-            if (gotEndOfBufferMarker) {
-                markerIndex = inputStart
+            if (gotEndOfBufferMarker && shouldHandle()) {
                 handleEndOfBufferMarker()
             }
         }
@@ -92,6 +96,7 @@ abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType
         return PositionType.BODY
     }
 
+    open fun shouldHandle(): Boolean { return nestingLevel == block.span.nestingLevel }
     open fun handleNewlineAtStartOfBlock() { /* nothing special to do*/ }
     open fun handleNewlineAtEmptyLineAtBlockEnd() { /* nothing special to do*/ }
     open fun handleNewlineAtEmptyBody() { /* nothing special to do*/ }

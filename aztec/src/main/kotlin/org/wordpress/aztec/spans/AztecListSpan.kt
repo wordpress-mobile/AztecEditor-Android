@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
-import org.wordpress.aztec.spans.ParagraphFlagged
+import java.util.*
 
 
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),
@@ -35,9 +35,31 @@ abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding
 
         val listText = text.subSequence(spanStart, spanEnd)
 
-        val textBeforeBeforeEnd = listText.substring(0, end - spanStart)
-        val lineIndex = textBeforeBeforeEnd.length - textBeforeBeforeEnd.replace("\n", "").length
-        return lineIndex + 1
+        if (nestingDepth(listText.subSequence(end - spanStart - 1, end - spanStart) as Spanned) - 1 != nestingLevel) {
+            // this line has nesting deeper than our own nesting level so, don't display bullet/number
+            return -1
+        }
+
+        val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart)
+
+        // gather the nesting depth for each line
+        val nestingDepth = ArrayList<Int>()
+        textBeforeBeforeEnd.forEachIndexed {
+            i, c -> if (c == '\n') nestingDepth.add(nestingDepth(textBeforeBeforeEnd.subSequence(i, i + 1) as Spanned))
+        }
+
+        // count the lines that have the same nesting depth as us
+        var otherLinesAtSameNestingLevel = 0
+        for (maxNestingLevel in nestingDepth) {
+            if (maxNestingLevel - 1 == nestingLevel) { // the -1 is because the list is one level up than the listitem
+                otherLinesAtSameNestingLevel++
+            }
+        }
+
+        return otherLinesAtSameNestingLevel + 1
     }
 
+    fun nestingDepth(text: Spanned) : Int {
+        return text.getSpans(0, 1, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
+    }
 }

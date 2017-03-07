@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<org.wordpress.aztec.source.SourceViewEditText
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aztec="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/source"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="top|start"
-    android:inputType="textNoSuggestions|textMultiLine"
-    android:layout_marginLeft="24dp"
-    android:layout_marginRight="24dp"
-    android:layout_marginStart="24dp"
-    android:layout_marginEnd="24dp"
-    android:layout_marginTop="24dp"
-    android:padding="16dp"
-    android:scrollbars="vertical"
-    android:scrollbarStyle="outsideOverlay"
-    android:textSize="14sp"
-    android:imeOptions="flagNoExtractUi"
-    aztec:codeDialog="true" >
-</org.wordpress.aztec.source.SourceViewEditText>
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" >
+
+    <org.wordpress.aztec.source.SourceViewEditText
+        xmlns:aztec="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/source"
+        android:gravity="top|start"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textNoSuggestions|textMultiLine"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:padding="@dimen/margin_large"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="outsideOverlay"
+        android:textSize="@dimen/text_dialog"
+        aztec:codeDialog="true" >
+    </org.wordpress.aztec.source.SourceViewEditText>
+
+</ScrollView>

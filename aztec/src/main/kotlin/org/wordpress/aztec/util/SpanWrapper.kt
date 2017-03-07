@@ -20,6 +20,10 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
         set(flags) { spannable.setSpan(span, start, end, flags) }
 
     companion object {
+        inline fun <reified T : Any> getSpans(spannable: Spannable, start: Int, end: Int): List<SpanWrapper<T>> {
+            return getSpans(spannable, spannable.getSpans(start, end, T::class.java))
+        }
+
         fun <T> getSpans(spannable: Spannable, start: Int, end: Int, type: Class<T>): List<SpanWrapper<T>> {
             return getSpans(spannable, spannable.getSpans(start, end, type))
         }

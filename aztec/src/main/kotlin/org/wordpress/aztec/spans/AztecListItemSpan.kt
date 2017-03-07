@@ -2,7 +2,8 @@ package org.wordpress.aztec.spans
 
 import android.text.TextUtils
 
-class AztecListItemSpan(override var nestingLevel: Int, override var attributes: String = "") : AztecBlockSpan {
+class AztecListItemSpan(override var nestingLevel: Int, override var attributes: String = "") : AztecBlockSpan,
+        AztecChildBlockSpan {
 
     private val TAG = "li"
 

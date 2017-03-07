@@ -96,9 +96,16 @@ class AztecParser {
         text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
     }
 
+    fun getParent(spannable: Spannable, child: AztecNestable): SpanWrapper<AztecNestable>? {
+        val childWrapped = SpanWrapper<AztecNestable>(spannable, child)
+        return SpanWrapper.getSpans<AztecNestable>(spannable, childWrapped.start, childWrapped.start + 1)
+                .sortedBy { it.span.nestingLevel }
+                .lastOrNull { it.span.nestingLevel < child.nestingLevel }
+    }
+
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
         // add visual newlines at starts
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
 
             // no need for newline if at text start
@@ -106,18 +113,31 @@ class AztecParser {
                 return@forEach
             }
 
-            // no need for newline if there's already one
-            if (spanned[spanStart - 1] == '\n') {
+            val parentStart = getParent(spanned, it)?.start ?: 0
+
+            // no need for newline if we're a childBlock at the start of our parent
+            if (spanStart == parentStart && it is AztecChildBlockSpan) {
+                return@forEach
+            }
+
+            // no need for newline if there's already one, unless we're at the start of our parent
+            if (spanStart != parentStart && spanned[spanStart - 1] == '\n') {
                 return@forEach
             }
 
             // well, it seems we need a visual newline so, add one and mark it as such
             spanned.insert(spanStart, "\n")
+
+            // expand all same-start parents to include the new newline
+            SpanWrapper.getSpans<AztecNestable>(spanned, spanStart + 1, spanStart + 2)
+                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1}
+                    .forEach { parent -> parent.start-- }
+
             markBlockElementLineBreak(spanned, spanStart)
         }
 
         // add visual newlines at ends
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)
 
             // no need for newline if at text end

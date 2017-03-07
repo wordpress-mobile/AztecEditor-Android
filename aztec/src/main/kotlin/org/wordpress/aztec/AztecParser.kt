@@ -96,13 +96,6 @@ class AztecParser {
         text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
     }
 
-    fun getParent(spannable: Spannable, child: AztecNestable): SpanWrapper<AztecNestable>? {
-        val childWrapped = SpanWrapper<AztecNestable>(spannable, child)
-        return SpanWrapper.getSpans<AztecNestable>(spannable, childWrapped.start, childWrapped.start + 1)
-                .sortedBy { it.span.nestingLevel }
-                .lastOrNull { it.span.nestingLevel < child.nestingLevel }
-    }
-
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
         // add visual newlines at starts
         spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
@@ -113,7 +106,7 @@ class AztecParser {
                 return@forEach
             }
 
-            val parentStart = getParent(spanned, it)?.start ?: 0
+            val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
 
             // no need for newline if we're a childBlock at the start of our parent
             if (spanStart == parentStart && it is AztecChildBlockSpan) {

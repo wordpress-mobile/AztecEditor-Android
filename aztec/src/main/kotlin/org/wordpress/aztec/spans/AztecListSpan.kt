@@ -33,19 +33,19 @@ abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
-        val listText = text.subSequence(spanStart, spanEnd)
+        val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        if (nestingDepth(listText.subSequence(end - spanStart - 1, end - spanStart) as Spanned) - 1 != nestingLevel) {
-            // this line has nesting deeper than our own nesting level so, don't display bullet/number
+        if (nestingDepth(listText, end - spanStart, end - spanStart + 1) != nestingLevel + 1) {
+            // this line has nesting deeper than our own (item) nesting level so, don't display bullet/number
             return -1
         }
 
-        val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart)
+        val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned
 
         // gather the nesting depth for each line
         val nestingDepth = ArrayList<Int>()
         textBeforeBeforeEnd.forEachIndexed {
-            i, c -> if (c == '\n') nestingDepth.add(nestingDepth(textBeforeBeforeEnd.subSequence(i, i + 1) as Spanned))
+            i, c -> if (c == '\n') nestingDepth.add(nestingDepth(textBeforeBeforeEnd, i, i + 1))
         }
 
         // count the lines that have the same nesting depth as us
@@ -59,7 +59,8 @@ abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding
         return otherLinesAtSameNestingLevel + 1
     }
 
-    fun nestingDepth(text: Spanned) : Int {
-        return text.getSpans(0, 1, AztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
+    fun nestingDepth(text: Spanned, index: Int, nextIndex: Int) : Int {
+        val finalNextIndex = if (nextIndex > text.length) index else nextIndex
+        return AztecNestable.getNestingLevelAt(text, index, finalNextIndex)
     }
 }

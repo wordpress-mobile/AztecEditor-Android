@@ -26,6 +26,11 @@ class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
             return
         }
 
+        if (count == 0) {
+            // clear deletions are handled elsewhere. We only care about newline and END_OF_BUFFER_MARKER additions here!
+            return
+        }
+
         var startIndex = start
         var charCount = count
 

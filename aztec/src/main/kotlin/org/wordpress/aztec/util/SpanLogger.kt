@@ -2,6 +2,7 @@ package org.wordpress.aztec.util
 
 import android.text.Spanned
 import android.text.TextUtils
+import org.wordpress.aztec.spans.AztecNestable
 import java.util.*
 
 /**
@@ -15,6 +16,19 @@ object SpanLogger {
     @JvmStatic fun logSpans(text: Spanned): String {
         val spans = text.getSpans(0, 9999999, Any::class.java)
         val spansList = Arrays.asList<Any>(*spans)
+
+        spans.sortWith(Comparator { a, b ->
+            val nestingA = (a as? AztecNestable)?.nestingLevel ?: 0
+            val nestingB = (b as? AztecNestable)?.nestingLevel ?: 0
+
+            if (nestingA.compareTo(nestingB) == 0) {
+                // warning: elements at same nesting level start at same position. This is probably an error but
+                //  still, just just try to compare by span end
+                return@Comparator text.getSpanStart(a).compareTo(text.getSpanStart(b))
+            } else {
+                return@Comparator nestingA.compareTo(nestingB)
+            }
+        })
 
 //        // sort the spans list by start position and size
 //        Collections.sort(spansList) { o1, o2 ->
@@ -75,11 +89,13 @@ object SpanLogger {
 
             sb.append(spaces(gap))
 
+            val nestingLevelString = (span as? AztecNestable)?.nestingLevel?.toString() ?: "0"
+
             sb.append("   ")
                     .append(String.format("%03d", start))
                     .append(" -> ")
                     .append(String.format("%03d", end))
-                    .append(" : ")
+                    .append(" : $nestingLevelString : ")
                     .append(span.javaClass.simpleName)
         }
 

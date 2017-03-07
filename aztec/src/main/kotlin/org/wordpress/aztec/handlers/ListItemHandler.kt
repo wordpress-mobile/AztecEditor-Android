@@ -2,6 +2,7 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.watchers.TextDeleter
 
 class ListItemHandler() : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
 
@@ -29,8 +30,17 @@ class ListItemHandler() : BlockHandler<AztecListItemSpan>(AztecListItemSpan::cla
 
     override fun handleNewlineInBody() {
         // newline added at some position inside the bullet so, end the current bullet and append a new one
-        newListItem(text, newlineIndex + 1, block.end, block.span.nestingLevel)
-        block.end = newlineIndex + 1
+
+        var newListItemStart = newlineIndex + 1
+
+        if (TextDeleter.isMarkedForDeletion(text, newlineIndex, newlineIndex + 1)) {
+            // this newline is marked for deletion (is a double-enter newline) so, let's avoid collapse by anchoring to
+            //  the char just before the newline
+            newListItemStart = newlineIndex
+        }
+
+        newListItem(text, newListItemStart, block.end, block.span.nestingLevel)
+        block.end = newListItemStart
     }
 
     override fun handleEndOfBufferMarker() {

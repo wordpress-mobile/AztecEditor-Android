@@ -41,5 +41,9 @@ class TextDeleter private constructor(aztecText: AztecText) : TextWatcher {
         fun mark(spannable: Spannable, start: Int, end: Int) {
             spannable.setSpan(MarkForDeletion(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+        fun isMarkedForDeletion(spannable: Spannable, start: Int, end: Int): Boolean {
+            return spannable.getSpans(0, spannable.length, MarkForDeletion::class.java).any()
+        }
     }
 }

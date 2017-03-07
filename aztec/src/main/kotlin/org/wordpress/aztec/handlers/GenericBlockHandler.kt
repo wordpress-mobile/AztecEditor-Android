@@ -1,6 +1,7 @@
 package org.wordpress.aztec.handlers
 
 import org.wordpress.aztec.spans.AztecBlockSpan
+import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 
 /**
@@ -17,6 +18,9 @@ open class GenericBlockHandler<T : AztecBlockSpan>(clazz: Class<T>) : BlockHandl
 
         // delete the newline
         TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
+
+        // re-play the newline so parent blocks can process it now that the current block has retracted before it
+        BlockElementWatcher.replay(text, newlineIndex)
     }
 
     override fun handleNewlineAtEmptyBody() {

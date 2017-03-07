@@ -2,6 +2,7 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecNestable
 import org.wordpress.aztec.watchers.TextDeleter
 
 class ListItemHandler() : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
@@ -15,8 +16,19 @@ class ListItemHandler() : BlockHandler<AztecListItemSpan>(AztecListItemSpan::cla
     }
 
     override fun handleNewlineAtEmptyLineAtBlockEnd() {
-        // just remove listitem when entering a newline on an empty item at the end of the list
-        block.remove()
+        val parent = AztecNestable.getParent(text, block)
+
+        if (parent == null) {
+            // no parent (or parent has already adjusted its bounds away from this list item so,
+            //  just remove ourselves and bail
+            block.remove()
+            return
+        }
+
+        if (block.end == parent.end) {
+            // just remove listitem when entering a newline on an empty item at the end of the list
+            block.remove()
+        }
     }
 
     override fun handleNewlineAtEmptyBody() {

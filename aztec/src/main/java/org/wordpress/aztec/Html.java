@@ -90,8 +90,9 @@ public class Html {
 
         interface Callbacks {
             void onUseDefaultImage();
+            void onImageFailed();
             void onImageLoaded(Drawable drawable);
-            void onImageLoadingFailed();
+            void onImageLoading(Drawable drawable);
         }
     }
 

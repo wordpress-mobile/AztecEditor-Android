@@ -103,7 +103,9 @@ class AztecTagHandler : Html.TagHandler {
 
     private fun createImageSpan(attributes: Attributes?, onMediaTappedListener: AztecText.OnMediaTappedListener?,
             context: Context) : AztecMediaSpan {
-        val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+        val styles = context.obtainStyledAttributes(R.styleable.AztecText)
+        val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
+        styles.recycle()
         return AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener)
     }
 

@@ -10,7 +10,13 @@
     <!-- @color/blue_wordpress -->
     <path
         android:fillColor="#ff0087be"
-        android:pathData="M12.5,14v3h5v12h3V17h5v-3H12.5z M31.5,19h-9v3h3v7h3v-7h3V19z" >
+        android:pathData="M22,30h-3v-6h-6v6h-3V15h3v6h6v-6h3V30" >
+    </path>
+
+    <!-- @color/blue_wordpress -->
+    <path
+        android:fillColor="#ff0087be"
+        android:pathData="M34,20.7l-4.5,4.5L25,20.7l0.8-0.8l3.7,3.7l3.7-3.7" >
     </path>
 
 </vector>

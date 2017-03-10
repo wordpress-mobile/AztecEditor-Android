@@ -579,13 +579,23 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
+
+        if (count > 0 && !isTextChangedListenerDisabled()) {
+            val end = start + count
+            val line = this.text.getSpans(end, end, AztecHorizontalLineSpan::class.java).firstOrNull()
+            if (line != null && this.text.getSpanStart(line) == end && this.text[end - 1] != '\n') {
+                disableTextChangedListener()
+                this.text.insert(end, "\n")
+                setSelection(end)
+                enableTextChangedListener()
+            }
+        }
     }
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             return
         }
-
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
 

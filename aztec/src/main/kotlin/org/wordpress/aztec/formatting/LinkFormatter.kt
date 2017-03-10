@@ -1,6 +1,8 @@
 package org.wordpress.aztec.formatting
 
 import android.content.Context
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.util.Patterns
@@ -88,23 +90,23 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
 
     fun addLink(link: String, anchor: String, start: Int, end: Int) {
         val cleanLink = link.trim()
-        val newEnd: Int
 
         val actualAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
+        val ssb = SpannableStringBuilder(actualAnchor)
+        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length)
+
         if (start == end) {
             //insert anchor
-            editableText.insert(start, actualAnchor)
-            newEnd = start + actualAnchor.length
+            editableText.insert(start, ssb)
         } else {
             //apply span to text
             if (editor.getSelectedText() != anchor) {
-                editableText.replace(start, end, actualAnchor)
+                editableText.replace(start, end, ssb)
+            } else {
+                setLinkSpan(editableText, cleanLink, start, end)
             }
-            newEnd = start + actualAnchor.length
         }
-
-        linkValid(link, start, newEnd)
     }
 
     fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -147,7 +149,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
         }
 
         linkInvalid(start, end)
-        editableText.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setLinkSpan(editableText, link, start, end, attributes)
         editor.onSelectionChanged(end, end)
     }
 
@@ -184,5 +186,9 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
 
             return editableText.subSequence(start, end).toString() == builder.toString()
         }
+    }
+
+    fun setLinkSpan(spannable: Spannable, link: String, start: Int, end: Int, attributes: String = "") {
+        spannable.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }

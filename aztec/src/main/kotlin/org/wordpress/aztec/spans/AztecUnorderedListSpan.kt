@@ -24,32 +24,13 @@ import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecUnorderedListSpan : AztecListSpan {
+class AztecUnorderedListSpan(
+        override var nestingLevel: Int,
+        override var attributes: String = "",
+        var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
+    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
 
     private val TAG = "ul"
-
-    private var bulletColor: Int = 0
-    private var bulletMargin: Int = 0
-    private var bulletPadding: Int = 0
-    private var bulletWidth: Int = 0
-
-
-    override var attributes: String = ""
-    override var lastItem: AztecListItemSpan = AztecListItemSpan()
-
-
-    constructor(attributes: String) : super(0) {
-        this.attributes = attributes
-    }
-
-    constructor(listStyle: BlockFormatter.ListStyle, attributes: String, last: AztecListItemSpan) : super(listStyle.verticalPadding) {
-        this.bulletColor = listStyle.indicatorColor
-        this.bulletMargin = listStyle.indicatorMargin
-        this.bulletWidth = listStyle.indicatorWidth
-        this.bulletPadding = listStyle.indicatorPadding
-        this.attributes = attributes
-        this.lastItem = last
-    }
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {
@@ -64,7 +45,7 @@ class AztecUnorderedListSpan : AztecListSpan {
 
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return bulletMargin + 2 * bulletWidth + bulletPadding
+        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -81,13 +62,14 @@ class AztecUnorderedListSpan : AztecListSpan {
         val style = p.style
         val oldColor = p.color
 
-        p.color = bulletColor
+        p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
 
-        val textToDraw = "\u2022"
+        val lineIndex = getIndexOfProcessedLine(text, end)
+        val textToDraw = if (lineIndex > -1) "\u2022" else ""
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (bulletMargin + x + dir - width) * dir, (baseline + (width - p.descent())), p)
+        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, (baseline + (width - p.descent())), p)
 
         p.color = oldColor
         p.style = style

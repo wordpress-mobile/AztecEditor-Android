@@ -7,4 +7,7 @@ object Constants {
     val ZWJ_STRING = "" + ZWJ_CHAR
     val IMG_CHAR = '\uFFFC'
     val IMG_STRING = "" + IMG_CHAR
+    val NEWLINE = '\n'
+    val END_OF_BUFFER_MARKER = ZWJ_CHAR
+    val END_OF_BUFFER_MARKER_STRING = "" + ZWJ_CHAR
 }

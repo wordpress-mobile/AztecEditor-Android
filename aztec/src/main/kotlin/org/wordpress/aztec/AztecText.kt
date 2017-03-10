@@ -27,7 +27,6 @@ import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.text.*
-import android.text.style.LeadingMarginSpan
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
@@ -44,11 +43,15 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.ListItemHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.util.TypefaceCache
+import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
 
@@ -81,7 +84,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private var addLinkDialog: AlertDialog? = null
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
-    private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -136,7 +138,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     private fun init(attrs: AttributeSet?) {
-        TypefaceCache.setCustomTypeface(context, this, TypefaceCache.TYPEFACE_MERRIWEATHER_REGULAR)
+        disableTextChangedListener()
 
         val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
         setLineSpacing(
@@ -160,9 +162,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 InlineFormatter.CodeStyle(
                         array.getColor(R.styleable.AztecText_codeBackground, 0),
                         array.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        array.getColor(R.styleable.AztecText_codeColor, 0)),
-                LineBlockFormatter.HeaderStyle(
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
+                        array.getColor(R.styleable.AztecText_codeColor, 0)))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
@@ -178,15 +178,16 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
-                ))
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                BlockFormatter.HeaderStyle(
+                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
+                )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
                 R.styleable.AztecText_linkColor, 0),
                 array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
 
-        lineBlockFormatter = LineBlockFormatter(this, LineBlockFormatter.HeaderStyle(
-                array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
+        lineBlockFormatter = LineBlockFormatter(this)
 
         array.recycle()
 
@@ -214,7 +215,34 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             consumeKeyEvent
         }
 
+        install()
+
+        enableTextChangedListener()
+
         isViewInitialized = true
+    }
+
+    private fun install() {
+        ParagraphBleedAdjuster.install(this)
+        ParagraphCollapseAdjuster.install(this)
+        ParagraphCollapseRemover.install(this)
+
+        InlineTextWatcher.install(inlineFormatter, this)
+
+        // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
+        //  will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
+
+        BlockElementWatcher(this)
+                .add(HeadingHandler())
+                .add(ListHandler())
+                .add(ListItemHandler())
+                .add(QuoteHandler())
+                .install(this)
+
+        TextDeleter.install(this)
+
+        EndOfBufferMarkerAdder.install(this)
+
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -246,6 +274,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
+        disableTextChangedListener()
+
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
@@ -294,6 +324,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
+
+        enableTextChangedListener()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -404,7 +436,25 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
-        if (selStart == selEnd && movedCursorIfBeforeZwjChar(selEnd)) return
+
+        if (length() != 0) {
+            // if the text end has the marker, let's make sure the cursor never includes it or surpusses it
+            if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
+                var start = selStart
+                var end = selEnd
+
+                if (start == length()) {
+                    start--
+                }
+
+                if (end == length()) {
+                    end--
+                }
+
+                setSelection(start, end)
+                return
+            }
+        }
 
         previousCursorPosition = selEnd
 
@@ -413,22 +463,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
-    private fun movedCursorIfBeforeZwjChar(selEnd: Int): Boolean {
-        if (selEnd < text.length && text[selEnd] == Constants.ZWJ_CHAR) {
-            if (selEnd == previousCursorPosition - 1 && selEnd > 0) {
-                // moved left
-                setSelection(selEnd - 1)
-            } else {
-                // moved right or dropped to right to the left of ZWJ
-                setSelection(selEnd + 1)
-            }
-            return true
-        }
-        return false
-    }
-
     fun getSelectedText(): String {
-        if (selectionStart == -1 || selectionEnd == -1) return ""
+        if (selectionStart == -1 || selectionEnd == -1
+                || editableText.length < selectionEnd || editableText.length < selectionStart) return ""
         return editableText.substring(selectionStart, selectionEnd)
     }
 
@@ -489,7 +526,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> lineBlockFormatter.applyHeading(textFormat)
+            TextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
             TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
@@ -535,99 +572,25 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (selectionEnd < text.length && text[selectionEnd] == Constants.ZWJ_CHAR) {
-            setSelection(selectionEnd + 1)
-        }
-
-        prepareTextChangeEventDetails(after, count, start, text)
-
-        blockFormatter.carryOverDeletedListItemAttributes(count, start, text, this.text)
-        inlineFormatter.carryOverInlineSpans(start, count, after)
-
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
     }
 
-    private fun prepareTextChangeEventDetails(after: Int, count: Int, start: Int, text: CharSequence) {
-        var deletedFromBlock = false
-        var blockStart = -1
-        var blockEnd = -1
-        if (count > 0 && after < count && !isTextChangedListenerDisabled()) {
-            val block = this.text.getSpans(start, start + 1, AztecBlockSpan::class.java).firstOrNull()
-            if (block != null) {
-                blockStart = this.text.getSpanStart(block)
-                blockEnd = this.text.getSpanEnd(block)
-                deletedFromBlock = start < blockEnd && this.text[start] != '\n' &&
-                        (start + count >= blockEnd || (start + count + 1 == blockEnd && text[start + count] == '\n')) &&
-                        (start == 0 || text[start - 1] == '\n')
-
-                // if we are removing all characters from the span, we must change the flag to SPAN_EXCLUSIVE_INCLUSIVE
-                // because we want to allow a block span with empty text (such as list with a single empty first item)
-                if (deletedFromBlock && after == 0 && blockEnd - blockStart == count) {
-                    this.text.setSpan(block, blockStart, blockEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
-                }
-            }
-        }
-
-        if (deletedFromBlock) {
-            textChangedEventDetails = TextChangedEvent(this.text.toString(), deletedFromBlock, blockStart)
-        } else {
-            textChangedEventDetails = TextChangedEvent(this.text.toString())
-        }
-    }
-
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
-
-        inlineFormatter.reapplyCarriedOverInlineSpans()
-
-        textChangedEventDetails.before = before
-        textChangedEventDetails.text = text
-        textChangedEventDetails.countOfCharacters = count
-        textChangedEventDetails.start = start
-        textChangedEventDetails.initialize()
     }
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
-            enableTextChangedListener()
             return
         }
 
 
-        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-            removeLeadingStyle(text, AztecInlineSpan::class.java)
-            removeLeadingStyle(text, LeadingMarginSpan::class.java)
-        }
-
-        val newLine = textChangedEventDetails.isNewLine()
-        inlineFormatter.handleInlineStyling(textChangedEventDetails)
-        blockFormatter.handleBlockStyling(text, textChangedEventDetails)
-        lineBlockFormatter.handleLineBlockStyling(textChangedEventDetails)
-
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
-
-        if (textChangedEventDetails.count > 0 && text.isEmpty()) {
-            onSelectionChanged(0, 0)
-        }
-
-        // preserve the attributes on the previous list item when adding a new one
-        blockFormatter.realignAttributesWhenAddingItem(text, textChangedEventDetails, newLine)
 
         history.handleHistory(this)
     }
-
-    fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {
-        text.getSpans(0, 0, spanClass).forEach {
-            if (text.isNotEmpty()) {
-                text.setSpan(it, 0, text.getSpanEnd(it), text.getSpanFlags(it))
-            } else {
-                text.removeSpan(it)
-            }
-        }
-    }
-
 
     fun redo() {
         history.redo(this)
@@ -717,7 +680,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 
-        return Format.clearFormatting(parser.toHtml(output, withCursorTag))
+        parser.syncVisualNewlinesOfBlockElements(output)
+
+        return Format.clearFormatting(EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag)))
     }
 
     fun toFormattedHtml(): String {
@@ -725,27 +690,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        val blockSpans = editable.getSpans(start, end, AztecBlockSpan::class.java)
-        blockSpans.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-
-            if (it is AztecListSpan) {
-                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass as Class<AztecBlockSpan>, it.attributes, it.lastItem), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else {
-                editable.setSpan(blockFormatter.makeBlockSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-        }
-
-        val paragraphSpans = editable.getSpans(start, end, ParagraphSpan::class.java)
-        for (span in paragraphSpans) {
-            val spanStart = editable.getSpanStart(span)
-            var spanEnd = editable.getSpanEnd(span)
-            spanEnd = if (0 < spanEnd && spanEnd < editable.length && editable[spanEnd] == '\n') spanEnd - 1 else spanEnd
-            editable.removeSpan(span)
-            editable.setSpan(ParagraphSpan(span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {
@@ -761,15 +706,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        val headingSpan = editable.getSpans(start, end, AztecHeadingSpan::class.java)
-        headingSpan.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-            editable.setSpan(AztecHeadingSpan(it.textFormat, it.attributes,
-                    lineBlockFormatter.headerStyle.verticalPadding), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -794,14 +730,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         enableTextChangedListener()
     }
 
-    fun removeHeadingStylesFromRange(start: Int, end: Int) {
-        val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
-
-        for (span in spans) {
-            editableText.removeSpan(span)
-        }
-    }
-
     fun removeInlineStylesFromRange(start: Int, end: Int) {
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
@@ -812,7 +740,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
-        blockFormatter.removeBlockStyle(start, end, AztecBlockSpan::class.java, ignoreLineBounds)
+        blockFormatter.removeBlockStyle(start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
     }
 
     //logic party copied from TextView
@@ -850,6 +778,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         //Strip block elements untill we figure out copy paste completely
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
+        parser.syncVisualNewlinesOfBlockElements(output)
         val html = Format.clearFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
@@ -1022,9 +951,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            if (beforeLength == 1 && afterLength == 0) {
-                return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
-            }
+//            if (beforeLength == 1 && afterLength == 0) {
+//                return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+//            }
 
             return super.deleteSurroundingText(beforeLength, afterLength)
         }

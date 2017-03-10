@@ -34,24 +34,17 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?): Boolean {
+            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
+            nestingLevel: Int): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                if (opening) {
-                    start(output, AztecListItemSpan(attributeString))
-                } else {
-                    endList(output)
-                }
+                handleElement(output, opening, AztecListItemSpan(nestingLevel, attributeString))
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
-                if (opening) {
-                    start(output, AztecStrikethroughSpan(tag, attributeString))
-                } else {
-                    end(output, AztecStrikethroughSpan::class.java)
-                }
+                handleElement(output, opening, AztecStrikethroughSpan(tag, attributeString))
                 return true
             }
             DIV, SPAN -> {
@@ -63,15 +56,15 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             LIST_UL -> {
-                handleBlockElement(output, opening, AztecUnorderedListSpan(attributeString))
+                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, attributeString))
                 return true
             }
             LIST_OL -> {
-                handleBlockElement(output, opening, AztecOrderedListSpan(attributeString))
+                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, attributeString))
                 return true
             }
             BLOCKQUOTE -> {
-                handleBlockElement(output, opening, AztecQuoteSpan(attributeString))
+                handleElement(output, opening, AztecQuoteSpan(nestingLevel, attributeString))
                 return true
             }
             IMAGE -> {
@@ -87,7 +80,7 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             PARAGRAPH -> {
-                handleBlockElement(output, opening, ParagraphSpan(attributeString))
+                handleElement(output, opening, ParagraphSpan(nestingLevel, attributeString))
                 return true
             }
             LINE -> {
@@ -107,7 +100,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleBlockElement(output, opening, AztecHeadingSpan(tag, attributeString))
+                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, attributeString))
                     return true
                 }
             }
@@ -122,34 +115,13 @@ class AztecTagHandler : Html.TagHandler {
         return AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener)
     }
 
-    private fun handleBlockElement(output: Editable, opening: Boolean, span: Any) {
-        if (output.isNotBlank()) {
-            val nestedInBlockElement = isNestedInBlockElement(output, opening)
-
-            val followingBlockElement = opening && output.last() == '\n' &&
-                    output.getSpans(output.lastIndex, output.lastIndex, AztecLineBlockSpan::class.java).isNotEmpty()
-
-            if (!followingBlockElement && !nestedInBlockElement && (output.last() != '\n' || opening)) {
-                output.append("\n")
-            } else if (span !is AztecListSpan && !opening && nestedInBlockElement) {
-                output.append("\n")
-            }
-        }
-
+    private fun handleElement(output: Editable, opening: Boolean, span: Any) {
         if (opening) {
             start(output, span)
         } else {
             end(output, span.javaClass)
         }
     }
-
-    fun isNestedInBlockElement(output: Editable, opening: Boolean): Boolean {
-        val spanLookupIndex = if (opening) output.length else output.length - 1
-        val minNumberOfSpans = if (opening) 0 else 1
-
-        return output.getSpans(spanLookupIndex, spanLookupIndex, AztecLineBlockSpan::class.java).size > minNumberOfSpans
-    }
-
 
     private fun start(output: Editable, mark: Any) {
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
@@ -170,31 +142,17 @@ class AztecTagHandler : Html.TagHandler {
         }
     }
 
-    private fun endList(output: Editable) {
-        val last = getLast(output, AztecListItemSpan::class.java) as AztecListItemSpan
-        if (output.isEmpty() || output.last() != '\n' ||
-                output.getSpans(output.length, output.length, AztecListItemSpan::class.java).isNotEmpty()) {
-            output.append("\n")
-        }
-        val end = output.length
-        output.setSpan(last, end - 1, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        val list = output.getSpans(0, output.length, AztecListSpan::class.java).last()
-        list.lastItem = last
-    }
-
     private fun end(output: Editable, kind: Class<*>) {
         val last = getLast(output, kind)
         val start = output.getSpanStart(last)
         val end = output.length
 
-        output.removeSpan(last) // important to keep the correct order of spans!
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        //if block element is empty add newline to it and extend span
         else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
-            output.append("\n")
+            //if block element is empty add a ZWJ to make it non empty and extend span
+            output.append(Constants.ZWJ_CHAR)
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }

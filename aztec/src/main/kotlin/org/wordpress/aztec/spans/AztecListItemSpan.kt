@@ -2,15 +2,13 @@ package org.wordpress.aztec.spans
 
 import android.text.TextUtils
 
-class AztecListItemSpan : AztecSpan {
+class AztecListItemSpan(override var nestingLevel: Int, override var attributes: String = "") : AztecBlockSpan,
+        AztecChildBlockSpan {
 
     private val TAG = "li"
 
-    override var attributes: String
-
-    constructor(attributes: String = "") : super() {
-        this.attributes = attributes
-    }
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
 
     override fun getStartTag(): String {
         if (TextUtils.isEmpty(attributes)) {

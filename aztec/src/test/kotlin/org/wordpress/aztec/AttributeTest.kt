@@ -8,6 +8,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.TestUtils.safeAppend
+import org.wordpress.aztec.TestUtils.safeLength
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
  * Testing attribute preservation for supported HTML elements
@@ -39,7 +42,7 @@ class AttributeTest {
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"
-        private val LIST_WITH_ATTRIBUTES = "<ul><li a=\"A\"></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>"
+        private val LIST_WITH_ATTRIBUTES = "<ul><li a=\"A\">a</li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>"
         private val LIST_WITH_NON_EMPTY_ITEMS = "<ol><li a=\"B\">ab</li><li c=\"C\">c</li></ol>"
         private val LIST_WITH_EMPTY_ITEMS = "a<ul><li a=\"A\"></li><li></li><li a=\"1\">1</li><li></li><li b=\"B\"></li></ul>b"
         private val LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK = "a<br><ul><li></li><li a=\"1\">1</li><li></li></ul><br>b"
@@ -271,7 +274,7 @@ class AttributeTest {
         val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(input, output)
+        Assert.assertEquals("a<ul><li></li><li a=\"1\">1</li><li></li></ul><br>b", output)
     }
 
     @Test
@@ -281,8 +284,8 @@ class AttributeTest {
         val originalItem = "<li a=\"1\">Ordered</li>"
         editText.fromHtml(input)
 
-        editText.append("\n")
-        editText.append("after")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "after")
         Assert.assertEquals("<ol>$originalItem<li>after</li></ol>", editText.toHtml())
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ol><li></li>$originalItem<li>after</li></ol>", editText.toHtml())
@@ -297,11 +300,12 @@ class AttributeTest {
         val originalItem = "<li a=\"1\">Ordered</li>"
         editText.fromHtml(input)
         editText.setSelection(0)
-        editText.text.insert(0, "before\n")
+        editText.text.insert(0, "\n")
+        editText.text.insert(0, "before")
         Assert.assertEquals("<ol><li>before</li>$originalItem</ol>", editText.toHtml())
         editText.text.insert(0, "\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem</ol>", editText.toHtml())
-        editText.append("\n")
+        safeAppend(editText, "\n")
         Assert.assertEquals("<ol><li></li><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
         editText.text.delete(0, 1)
         Assert.assertEquals("<ol><li>before</li>$originalItem<li></li></ol>", editText.toHtml())
@@ -312,21 +316,19 @@ class AttributeTest {
     fun moveItemsAround() {
         val input = LIST_WITH_ATTRIBUTES
         editText.fromHtml(input)
-        editText.setSelection(0)
-        editText.text.insert(0, "\n")
-        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
-        editText.text.insert(0, "a")
         editText.text.insert(1, "\n")
-        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(2, "a")
+        editText.text.insert(3, "\n")
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li>a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
         editText.text.insert(0, "\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
-        editText.text.append("\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li><li></li></ul>", editText.toHtml())
-        editText.setSelection(editText.length())
-        editText.text.append("\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul><br>", editText.toHtml())
-        editText.text.insert(7, "\n")
-        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul><br>", editText.toHtml())
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li>a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        safeAppend(editText, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li>a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li><li></li></ul>", editText.toHtml())
+        safeAppend(editText, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li>a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        editText.text.insert(8, "\n")
+        Assert.assertEquals("<ul><li></li><li a=\"A\">a</li><li>a</li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -340,9 +342,9 @@ class AttributeTest {
         Assert.assertTrue(editText.toHtml().endsWith(originalItem))
         editText.append("\n")
         Assert.assertTrue(editText.toHtml().endsWith("<li></li></ol>"))
-        editText.text.delete(editText.length() - 1, editText.length())
+        editText.text.delete(safeLength(editText) - 1, safeLength(editText))
         Assert.assertTrue(editText.toHtml().endsWith(originalItem))
-        Assert.assertFalse(editText.text.endsWith("\n"))
+        Assert.assertFalse(EndOfBufferMarkerAdder.strip(editText.text.toString()).endsWith("\n"))
     }
 
     @Test
@@ -365,10 +367,10 @@ class AttributeTest {
 
         val indexA = editText.text.indexOf('a')
         editText.text.insert(indexA + 1, "\n")
-        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
         val indexB = editText.text.indexOf('b')
         editText.text.insert(indexB + 1, "\n")
-        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -379,10 +381,10 @@ class AttributeTest {
 
         val indexA = editText.text.indexOf('a')
         editText.text.insert(indexA + 1, "\n")
-        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li c=\"C\">c</li></ul>", editText.toHtml())
         val indexB = editText.text.indexOf('b')
         editText.text.insert(indexB + 1, "\n")
-        Assert.assertEquals("<ul><li a=\"A\"></li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
+        Assert.assertEquals("<ul><li a=\"A\">a</li><li></li><li></li><li b=\"B\">b</li><li></li><li c=\"C\">c</li></ul>", editText.toHtml())
     }
 
     @Test
@@ -393,7 +395,7 @@ class AttributeTest {
 
         val indexB = editText.text.indexOf('b')
         editText.text.insert(indexB, "\n")
-        Assert.assertEquals("<ol><li>a</li><li a=\"B\">b</li><li c=\"C\">c</li></ol>", editText.toHtml())
+        Assert.assertEquals("<ol><li a=\"B\">a</li><li>b</li><li c=\"C\">c</li></ol>", editText.toHtml())
     }
 
     @Test
@@ -424,14 +426,4 @@ class AttributeTest {
         Assert.assertEquals(input, output)
     }
 
-
-    @Test
-    @Throws(Exception::class)
-    fun  deletingZwjCharShouldPreserveAttributes() {
-        val input = "<ol><li>a</li><li b=\"B\">b</li></ol>"
-        editText.fromHtml(input)
-
-        editText.text.delete(editText.length() - 1, editText.length())
-        Assert.assertEquals("<ol><li>a</li><li b=\"B\"></li></ol>", editText.toHtml())
-    }
 }

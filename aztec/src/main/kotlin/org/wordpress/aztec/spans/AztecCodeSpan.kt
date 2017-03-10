@@ -26,7 +26,7 @@ import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.formatting.InlineFormatter
 
-class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecContentSpan, AztecInlineSpan {
+class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
 
     private val TAG: String = "code"
 

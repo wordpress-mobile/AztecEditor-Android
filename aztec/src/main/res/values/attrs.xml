@@ -33,6 +33,7 @@
     <declare-styleable name="SourceViewEditText">
         <attr name="attributeColor" format="reference|color" />
         <attr name="codeBackgroundColor" format="reference|color" />
+        <attr name="codeDialog" format="reference|boolean" />
         <attr name="codeTextColor" format="reference|color" />
         <attr name="tagColor" format="reference|color" />
     </declare-styleable>

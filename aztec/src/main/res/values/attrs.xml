@@ -12,6 +12,8 @@
         <attr name="codeBackground" format="reference|color" />
         <attr name="codeBackgroundAlpha" format="reference|fraction" />
         <attr name="codeColor" format="reference|color" />
+        <attr name="drawableFailed" format="reference" />
+        <attr name="drawableLoading" format="reference" />
         <attr name="historyEnable" format="reference|boolean" />
         <attr name="historySize" format="reference|integer" />
         <attr name="lineSpacingExtra" format="reference|dimension" />
@@ -31,6 +33,7 @@
     <declare-styleable name="SourceViewEditText">
         <attr name="attributeColor" format="reference|color" />
         <attr name="codeBackgroundColor" format="reference|color" />
+        <attr name="codeDialog" format="reference|boolean" />
         <attr name="codeTextColor" format="reference|color" />
         <attr name="tagColor" format="reference|color" />
     </declare-styleable>

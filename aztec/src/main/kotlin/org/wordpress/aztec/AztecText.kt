@@ -100,6 +100,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     private var isNewStyleSelected = false
 
+    private var drawableFailed: Int = 0
+    private var drawableLoading: Int = 0
+
     var isMediaAdded = false
 
     lateinit var history: History
@@ -140,56 +143,59 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
 
-        val array = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
+        val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecText, 0, R.style.AztecTextStyle)
         setLineSpacing(
-                array.getDimension(
+                styles.getDimension(
                         R.styleable.AztecText_lineSpacingExtra,
                         resources.getDimension(R.dimen.spacing_extra)
                 ),
-                array.getFloat(
+                styles.getFloat(
                         R.styleable.AztecText_lineSpacingMultiplier,
                         resources.getString(R.dimen.spacing_multiplier).toFloat()
                 )
         )
-        setBackgroundColor(array.getColor(R.styleable.AztecText_backgroundColor, ContextCompat.getColor(context, R.color.background)))
-        setTextColor(array.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
-        setHintTextColor(array.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
+        setBackgroundColor(styles.getColor(R.styleable.AztecText_backgroundColor, ContextCompat.getColor(context, R.color.background)))
+        setTextColor(styles.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
+        setHintTextColor(styles.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
 
-        historyEnable = array.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
-        historySize = array.getInt(R.styleable.AztecText_historySize, historySize)
+        drawableLoading = styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading)
+        drawableFailed = styles.getResourceId(R.styleable.AztecText_drawableFailed, R.drawable.ic_image_failed)
+
+        historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
+        historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
-                        array.getColor(R.styleable.AztecText_codeBackground, 0),
-                        array.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        array.getColor(R.styleable.AztecText_codeColor, 0)))
+                        styles.getColor(R.styleable.AztecText_codeBackground, 0),
+                        styles.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
+                        styles.getColor(R.styleable.AztecText_codeColor, 0)))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
-                        array.getColor(R.styleable.AztecText_bulletColor, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        styles.getColor(R.styleable.AztecText_bulletColor, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.QuoteStyle(
-                        array.getColor(R.styleable.AztecText_quoteBackground, 0),
-                        array.getColor(R.styleable.AztecText_quoteColor, 0),
-                        array.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
-                        array.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        styles.getColor(R.styleable.AztecText_quoteBackground, 0),
+                        styles.getColor(R.styleable.AztecText_quoteColor, 0),
+                        styles.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
+                       styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.HeaderStyle(
-                        array.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
+                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
                 )
 
-        linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(array.getColor(
+        linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
-                array.getBoolean(R.styleable.AztecText_linkUnderline, true)))
+                styles.getBoolean(R.styleable.AztecText_linkUnderline, true)))
 
         lineBlockFormatter = LineBlockFormatter(this)
 
-        array.recycle()
+        styles.recycle()
 
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
@@ -649,17 +655,20 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
-                override fun onUseDefaultImage() {
-                    // we already have a default image loaded so, noop
+                override fun onImageFailed() {
+                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
                     replaceImage(drawable)
                 }
 
-                override fun onImageLoadingFailed() {
-                    val drawable = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
-                    replaceImage(drawable)
+                override fun onImageLoading(drawable: Drawable?) {
+                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                }
+
+                override fun onUseDefaultImage() {
+                    // we already have a default image loaded so, noop
                 }
 
                 private fun replaceImage(drawable: Drawable?) {

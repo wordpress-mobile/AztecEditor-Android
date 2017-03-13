@@ -47,10 +47,12 @@ class SourceViewEditText : EditText, TextWatcher {
 
     private fun init(attrs: AttributeSet?) {
         val values = context.obtainStyledAttributes(attrs, R.styleable.SourceViewEditText)
-        if (values.hasValue(R.styleable.SourceViewEditText_codeBackgroundColor)) {
-            setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, R.color.background)))
+
+        setBackgroundColor(values.getColor(R.styleable.SourceViewEditText_codeBackgroundColor, ContextCompat.getColor(context, android.R.color.transparent)))
+
+        if (!values.hasValue(R.styleable.SourceViewEditText_codeDialog) && values.getBoolean(R.styleable.SourceViewEditText_codeDialog, false)) {
+            setTextColor(values.getColor(R.styleable.SourceViewEditText_codeTextColor, android.R.attr.textColorPrimary))
         }
-        setTextColor(values.getColor(R.styleable.SourceViewEditText_codeTextColor, ContextCompat.getColor(context, R.color.text)))
 
         tagColor = values.getColor(R.styleable.SourceViewEditText_tagColor, tagColor)
         attributeColor = values.getColor(R.styleable.SourceViewEditText_attributeColor, attributeColor)

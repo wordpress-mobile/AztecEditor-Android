@@ -17,11 +17,11 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
         Glide.with(context).load(source).fitCenter().into(object : Target<GlideDrawable> {
             override fun onLoadStarted(placeholder: Drawable?) {
-                val r = context.resources
+                callbacks.onImageLoading(placeholder)
             }
 
             override fun onLoadFailed(e: Exception?, errorDrawable: Drawable?) {
-                callbacks.onImageLoadingFailed()
+                callbacks.onImageFailed()
             }
 
             override fun onResourceReady(resource: GlideDrawable?, glideAnimation: GlideAnimation<in GlideDrawable>?) {

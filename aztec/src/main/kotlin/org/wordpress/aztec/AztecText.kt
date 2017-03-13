@@ -116,6 +116,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     var widthMeasureSpec: Int = 0
 
+    private var deletedNewline: Boolean = false
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -578,6 +580,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
+        deletedNewline = count > 0 && text[start + count - 1] == '\n'
+
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
@@ -586,13 +590,34 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
-        if (count > 0 && !isTextChangedListenerDisabled()) {
+        normalizeEditingBeforeHorizontalLine(count, start)
+    }
+
+    private fun normalizeEditingBeforeHorizontalLine(count: Int, start: Int) {
+        if (!isTextChangedListenerDisabled()) {
             val end = start + count
             val line = this.text.getSpans(end, end, AztecHorizontalLineSpan::class.java).firstOrNull()
+
+            // if characters changed just before a horizontal line and there is no newline before it
             if (line != null && this.text.getSpanStart(line) == end && this.text[end - 1] != '\n') {
                 disableTextChangedListener()
-                this.text.insert(end, "\n")
-                setSelection(end)
+
+                // if characters added, insert a newline before the line
+                if (count > 0) {
+                    this.text.insert(end, "\n")
+                    setSelection(end)
+                } else {
+                    // if newline deleted, add it back and delete a character before it
+                    if (deletedNewline) {
+                        this.text.delete(end - 1, end)
+                        this.text.insert(end - 1, "\n")
+                        setSelection(end - 1)
+                    } else {
+                        // just add a newline
+                        this.text.insert(end, "\n")
+                        setSelection(end)
+                    }
+                }
                 enableTextChangedListener()
             }
         }

@@ -489,7 +489,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         if (newSelStart == 0 && newSelEnd == 0) {
             newSelEnd++
-        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == '\n') {
+        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == Constants.NEWLINE) {
             newSelEnd++
         } else if (newSelStart > 0 && !isTextSelected()) {
             newSelStart--
@@ -580,7 +580,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        deletedNewline = count > 0 && text[start + count - 1] == '\n'
+        deletedNewline = count > 0 && text[start + count - 1] == Constants.NEWLINE
 
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
@@ -600,32 +600,32 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                     this.text.getSpans(start, start, AztecHorizontalLineSpan::class.java).firstOrNull()
 
             if (line != null) {
-                val changedLineBeginning = this.text.getSpanStart(line) == end && this.text[end - 1] != '\n'
-                val changedLineEnd = this.text.getSpanEnd(line) == start && this.text[start] != '\n'
+                val changedLineBeginning = this.text.getSpanStart(line) == end && this.text[end - 1] != Constants.NEWLINE
+                val changedLineEnd = this.text.getSpanEnd(line) == start && this.text[start] != Constants.NEWLINE
 
                 disableTextChangedListener()
 
                 if (changedLineBeginning) {
                     // if characters added, insert a newline before the line
                     if (count > 0) {
-                        this.text.insert(end, "\n")
+                        this.text.insert(end, Constants.NEWLINE_STRING)
                         setSelection(end)
                     } else {
                         // if newline deleted, add it back and delete a character before it
                         if (deletedNewline) {
                             this.text.delete(end - 1, end)
-                            this.text.insert(end - 1, "\n")
+                            this.text.insert(end - 1, Constants.NEWLINE_STRING)
                             setSelection(end - 1)
                         } else {
                             // just add a newline
-                            this.text.insert(end, "\n")
+                            this.text.insert(end, Constants.NEWLINE_STRING)
                             setSelection(end)
                         }
                     }
                 } else if (changedLineEnd) {
                     if (count > 0) {
                         // if text added right after a line, add a newline
-                        this.text.insert(start, "\n")
+                        this.text.insert(start, Constants.NEWLINE_STRING)
                     } else {
                         // if text deleted, remove the line
                         this.text.delete(start - 2, start)

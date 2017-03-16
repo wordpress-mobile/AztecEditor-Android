@@ -21,8 +21,7 @@ class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextW
 
         val charsOld = s.subSequence(start, start + count) as Spanned
 
-        val paragraphs = SpanWrapper.getSpans(s as Spannable,
-                start, start + count, ParagraphFlagged::class.java)
+        val paragraphs = SpanWrapper.getSpans(s as Spannable, start, start + count, ParagraphFlagged::class.java)
         if (paragraphs.isEmpty() && start + count >= s.length) {
             // no paragraphs in the text to be removed and no other text beyond the change so, nothing to do here. Bail.
             return
@@ -45,7 +44,6 @@ class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextW
             }
 
             if (start + lastNewlineIndex + 2 > s.length) {
-
                 continue
             }
 

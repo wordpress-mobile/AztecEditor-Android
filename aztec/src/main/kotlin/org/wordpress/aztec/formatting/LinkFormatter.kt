@@ -1,12 +1,12 @@
 package org.wordpress.aztec.formatting
 
 import android.content.Context
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.util.Patterns
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.AztecBlockSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 
 
@@ -93,36 +93,20 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
 
         val actualAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
-        var realStart = start
-        var realEnd = end
-
+        val ssb = SpannableStringBuilder(actualAnchor)
+        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length)
 
         if (start == end) {
-            val insertingIntoEmptyBlockElement = editableText.getSpans(realStart,realStart,AztecBlockSpan::class.java).any {
-                editableText.getSpanEnd(it) -  editableText.getSpanStart(it) == 1 &&
-                        editableText[editableText.getSpanStart(it)] == Constants.ZWJ_CHAR
-            }
-
             //insert anchor
-            editableText.insert(realStart, actualAnchor)
-            realEnd = realStart + actualAnchor.length
-
-            //when anchor is inserted into empty block element, the Constants.ZWJ_CHAR at the beginning of it
-            // will be consumed, so we need to adjust index by 1
-            if(insertingIntoEmptyBlockElement){
-                realStart--
-                realEnd--
-
-            }
+            editableText.insert(start, ssb)
         } else {
             //apply span to text
             if (editor.getSelectedText() != anchor) {
-                editableText.replace(realStart, realEnd, actualAnchor)
+                editableText.replace(start, end, ssb)
+            } else {
+                setLinkSpan(editableText, cleanLink, start, end)
             }
-            realEnd = realStart + actualAnchor.length
         }
-
-        linkValid(link, realStart, realEnd)
     }
 
     fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -165,7 +149,7 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
         }
 
         linkInvalid(start, end)
-        editableText.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        setLinkSpan(editableText, link, start, end, attributes)
         editor.onSelectionChanged(end, end)
     }
 
@@ -202,5 +186,9 @@ class LinkFormatter(editor: AztecText, linkStyle: LinkStyle):AztecFormatter(edit
 
             return editableText.subSequence(start, end).toString() == builder.toString()
         }
+    }
+
+    fun setLinkSpan(spannable: Spannable, link: String, start: Int, end: Int, attributes: String = "") {
+        spannable.setSpan(AztecURLSpan(link, linkStyle, attributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 }

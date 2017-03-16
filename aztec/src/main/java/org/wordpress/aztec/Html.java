@@ -16,11 +16,41 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
+import org.ccil.cowan.tagsoup.HTMLSchema;
+import org.ccil.cowan.tagsoup.Parser;
+import org.wordpress.aztec.AztecText.OnMediaTappedListener;
+import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.spans.AztecCodeSpan;
+import org.wordpress.aztec.spans.AztecCommentSpan;
+import org.wordpress.aztec.spans.AztecCursorSpan;
+import org.wordpress.aztec.spans.AztecHeadingSpan;
+import org.wordpress.aztec.spans.AztecInlineSpan;
+import org.wordpress.aztec.spans.AztecMediaSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
+import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
+import org.wordpress.aztec.spans.AztecStyleBoldSpan;
+import org.wordpress.aztec.spans.AztecStyleItalicSpan;
+import org.wordpress.aztec.spans.AztecSubscriptSpan;
+import org.wordpress.aztec.spans.AztecSuperscriptSpan;
+import org.wordpress.aztec.spans.AztecTypefaceMonospaceSpan;
+import org.wordpress.aztec.spans.AztecURLSpan;
+import org.wordpress.aztec.spans.AztecUnderlineSpan;
+import org.wordpress.aztec.spans.CommentSpan;
+import org.wordpress.aztec.spans.FontSpan;
+import org.wordpress.aztec.spans.UnknownClickableSpan;
+import org.wordpress.aztec.spans.UnknownHtmlSpan;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Spannable;
@@ -31,36 +61,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ParagraphStyle;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
-
-import org.ccil.cowan.tagsoup.HTMLSchema;
-import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.AztecText.OnMediaTappedListener;
-import org.wordpress.aztec.spans.AztecBlockSpan;
-import org.wordpress.aztec.spans.AztecCodeSpan;
-import org.wordpress.aztec.spans.AztecCommentSpan;
-import org.wordpress.aztec.spans.AztecContentSpan;
-import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecHeadingSpan;
-import org.wordpress.aztec.spans.AztecMediaSpan;
-import org.wordpress.aztec.spans.AztecRelativeSizeSpan;
-import org.wordpress.aztec.spans.AztecStyleSpan;
-import org.wordpress.aztec.spans.AztecSubscriptSpan;
-import org.wordpress.aztec.spans.AztecSuperscriptSpan;
-import org.wordpress.aztec.spans.AztecTypefaceSpan;
-import org.wordpress.aztec.spans.AztecURLSpan;
-import org.wordpress.aztec.spans.AztecUnderlineSpan;
-import org.wordpress.aztec.spans.CommentSpan;
-import org.wordpress.aztec.spans.FontSpan;
-import org.wordpress.aztec.spans.ParagraphSpan;
-import org.wordpress.aztec.spans.UnknownClickableSpan;
-import org.wordpress.aztec.spans.UnknownHtmlSpan;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -106,7 +106,7 @@ public class Html {
          * a tag that it does not know how to interpret.
          */
         boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
-                Context context, Attributes attributes);
+                Context context, Attributes attributes, int nestingLevel);
     }
 
     private Html() {
@@ -178,6 +178,8 @@ public class Html {
 }
 
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
+    private int nestingLevel = 0;
+
     public int unknownTagLevel = 0;
     public Unknown unknown;
 
@@ -242,7 +244,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         return spannableStringBuilder;
     }
 
-    private void handleStartTag(String tag, Attributes attributes) {
+    private void handleStartTag(String tag, Attributes attributes, int nestingLevel) {
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
                 handleCursor(spannableStringBuilder);
@@ -260,39 +262,39 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             handleCursor(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(spannableStringBuilder, new Bold(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("b")) {
-            start(spannableStringBuilder, new Bold(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("em")) {
-            start(spannableStringBuilder, new Italic(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(spannableStringBuilder, new Italic(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(spannableStringBuilder, new Italic(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("i")) {
-            start(spannableStringBuilder, new Italic(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("big")) {
-            start(spannableStringBuilder, new Big(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("small")) {
-            start(spannableStringBuilder, new Small(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("font")) {
-            start(spannableStringBuilder, new Font(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(spannableStringBuilder, new Monospace(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("a")) {
-            start(spannableStringBuilder, new Href(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("u")) {
-            start(spannableStringBuilder, new Underline(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(spannableStringBuilder, new Super(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(spannableStringBuilder, new Sub(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes, nestingLevel);
         } else if (tag.equalsIgnoreCase("code")) {
-            start(spannableStringBuilder, new Code(attributes));
+            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes, nestingLevel);
         } else {
             if (tagHandler != null) {
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
-                        context, attributes);
+                        context, attributes, nestingLevel);
                 if (tagHandled) {
                     return;
                 }
@@ -305,13 +307,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     unknown = new Unknown();
                     unknown.rawHtml = new StringBuilder();
                     unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
-                    start(spannableStringBuilder, unknown);
+                    spannableStringBuilder.setSpan(unknown, spannableStringBuilder.length(),
+                            spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
                 }
             }
         }
     }
 
-    private void handleEndTag(String tag) {
+    private void handleEndTag(String tag, int nestingLevel) {
         // Unknown tag previously detected
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
@@ -326,7 +329,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (unknownTagLevel == 0) {
                 // Time to wrap up our unknown tag in a Span
                 spannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(spannableStringBuilder, unknown.rawHtml, context, onUnknownHtmlClickListener);
+                endUnknown(spannableStringBuilder, nestingLevel, unknown.rawHtml, context, onUnknownHtmlClickListener);
             }
             return;
         }
@@ -364,7 +367,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null,
+                    nestingLevel);
         }
     }
 
@@ -398,112 +402,109 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void start(SpannableStringBuilder text, Object mark) {
-        int len = text.length();
-        text.setSpan(mark, len, len, Spannable.SPAN_MARK_MARK);
-    }
-
-    private static void end(SpannableStringBuilder text, TextFormat textFormat) {
-        int len = text.length();
-        AttributedMarker marker;
-        AztecContentSpan newSpan = null;
+    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attributes,
+            int nestingLevel) {
+        final String attrs = Html.stringifyAttributes(attributes).toString();
+        AztecInlineSpan newSpan;
 
         switch (textFormat) {
             case FORMAT_BOLD:
-                marker = (AttributedMarker) getLast(text, Bold.class);
-                if (marker != null) {
-                    newSpan = new AztecStyleSpan(Typeface.BOLD, Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecStyleBoldSpan(attrs);
                 break;
             case FORMAT_ITALIC:
-                marker = (AttributedMarker) getLast(text, Italic.class);
-                if (marker != null) {
-                    newSpan = new AztecStyleSpan(Typeface.ITALIC, Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecStyleItalicSpan(attrs);
                 break;
             case FORMAT_UNDERLINE:
-                marker = (AttributedMarker) getLast(text, Underline.class);
-                if (marker != null) {
-                    newSpan = new AztecUnderlineSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecUnderlineSpan(attrs);
                 break;
             case FORMAT_LINK:
-                marker = (AttributedMarker) getLast(text, Href.class);
-                if (marker != null) {
-                    String url = marker.attributes.getValue("href") == null ? "" : marker.attributes.getValue("href");
-                    newSpan = new AztecURLSpan(url, Html.stringifyAttributes(marker.attributes).toString());
-                }
+                String url = attributes.getValue("href") == null ? "" : attributes.getValue("href");
+                newSpan = new AztecURLSpan(url, attrs);
                 break;
             case FORMAT_BIG:
-                marker = (AttributedMarker) getLast(text, Big.class);
-                if (marker != null) {
-                    newSpan = new AztecRelativeSizeSpan("big", 1.25f, Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecRelativeSizeBigSpan(attrs);
                 break;
             case FORMAT_SMALL:
-                marker = (AttributedMarker) getLast(text, Small.class);
-                if (marker != null) {
-                    newSpan = new AztecRelativeSizeSpan("small", 0.8f, Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecRelativeSizeSmallSpan(attrs);
                 break;
             case FORMAT_SUPERSCRIPT:
-                marker = (AttributedMarker) getLast(text, Super.class);
-                if (marker != null) {
-                    newSpan = new AztecSuperscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecSuperscriptSpan(attrs);
                 break;
             case FORMAT_SUBSCRIPT:
-                marker = (AttributedMarker) getLast(text, Sub.class);
-                if (marker != null) {
-                    newSpan = new AztecSubscriptSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecSubscriptSpan(attrs);
                 break;
             case FORMAT_MONOSPACE:
-                marker = (AttributedMarker) getLast(text, Monospace.class);
-                if (marker != null) {
-                    newSpan = new AztecTypefaceSpan("tt", "monospace", Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecTypefaceMonospaceSpan(attrs);
                 break;
             case FORMAT_FONT:
-                marker = (AttributedMarker) getLast(text, Font.class);
-                if (marker != null) {
-                    newSpan = new FontSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new FontSpan(attrs, attributes);
                 break;
             case FORMAT_CODE:
-                marker = (AttributedMarker) getLast(text, Code.class);
-                if (marker != null) {
-                    newSpan = new AztecCodeSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
-                break;
-            case FORMAT_PARAGRAPH:
-                marker = (AttributedMarker) getLast(text, Paragraph.class);
-                if (marker != null) {
-                    newSpan = new ParagraphSpan(Html.stringifyAttributes(marker.attributes).toString());
-                }
+                newSpan = new AztecCodeSpan(attrs);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");
         }
 
-        int where = text.getSpanStart(marker);
-        text.removeSpan(marker);
+        int len = text.length();
+        text.setSpan(newSpan, len, len, Spannable.SPAN_MARK_MARK);
+    }
 
-        if (where != len && newSpan != null) {
-            text.setSpan(newSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    private static void end(SpannableStringBuilder text, TextFormat textFormat) {
+        AztecInlineSpan span;
+
+        switch (textFormat) {
+            case FORMAT_BOLD:
+                span = (AztecStyleBoldSpan) getLast(text, AztecStyleBoldSpan.class);
+                break;
+            case FORMAT_ITALIC:
+                span = (AztecStyleItalicSpan) getLast(text, AztecStyleItalicSpan.class);
+                break;
+            case FORMAT_UNDERLINE:
+                span = (AztecUnderlineSpan) getLast(text, AztecUnderlineSpan.class);
+                break;
+            case FORMAT_LINK:
+                span = (AztecURLSpan) getLast(text, AztecURLSpan.class);
+                break;
+            case FORMAT_BIG:
+                span = (AztecRelativeSizeBigSpan) getLast(text, AztecRelativeSizeBigSpan.class);
+                break;
+            case FORMAT_SMALL:
+                span = (AztecRelativeSizeSmallSpan) getLast(text, AztecRelativeSizeSmallSpan.class);
+                break;
+            case FORMAT_SUPERSCRIPT:
+                span = (AztecSuperscriptSpan) getLast(text, AztecSuperscriptSpan.class);
+                break;
+            case FORMAT_SUBSCRIPT:
+                span = (AztecSubscriptSpan) getLast(text, AztecSubscriptSpan.class);
+                break;
+            case FORMAT_MONOSPACE:
+                span = (AztecTypefaceMonospaceSpan) getLast(text, AztecTypefaceMonospaceSpan.class);
+                break;
+            case FORMAT_FONT:
+                span = (FontSpan) getLast(text, FontSpan.class);
+                break;
+            case FORMAT_CODE:
+                span = (AztecCodeSpan) getLast(text, AztecCodeSpan.class);
+                break;
+            default:
+                throw new IllegalArgumentException("Style not supported");
         }
+
+        int where = text.getSpanStart(span);
+        text.setSpan(span, where, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private static void endFont(SpannableStringBuilder text) {
         int len = text.length();
-        Font font = (Font) getLast(text, Font.class);
+        FontSpan font = (FontSpan) getLast(text, FontSpan.class);
         int where = text.getSpanStart(font);
 
         end(text, TextFormat.FORMAT_FONT);
 
         if (font != null && where != len) {
 
-            String color = font.attributes.getValue("color");
+            String color = font.getAttrs().getValue("color");
 
             if (!TextUtils.isEmpty(color)) {
                 if (color.startsWith("@")) {
@@ -530,7 +531,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             }
 
-            String face = font.attributes.getValue("face");
+            String face = font.getAttrs().getValue("face");
 
             if (face != null) {
                 text.setSpan(new TypefaceSpan(face), where, len,
@@ -539,7 +540,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endUnknown(SpannableStringBuilder text, StringBuilder rawHtml, Context context,
+    private static void endUnknown(SpannableStringBuilder text, int nestingLevel, StringBuilder rawHtml, Context context,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener) {
         int len = text.length();
         Object obj = getLast(text, Unknown.class);
@@ -549,7 +550,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(rawHtml, context, android.R.drawable.ic_menu_help, onUnknownHtmlClickListener);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(nestingLevel, rawHtml, context, android.R.drawable.ic_menu_help, onUnknownHtmlClickListener);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
@@ -574,11 +575,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        handleStartTag(localName, attributes);
+        nestingLevel++;
+
+        handleStartTag(localName, attributes, nestingLevel);
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        handleEndTag(localName);
+        handleEndTag(localName, nestingLevel);
+
+        nestingLevel--;
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {
@@ -713,81 +718,5 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     private static class Unknown {
         public StringBuilder rawHtml;
-    }
-
-    private static class AttributedMarker {
-        Attributes attributes;
-    }
-
-    private static class Bold extends AttributedMarker {
-        Bold(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Italic extends AttributedMarker {
-        Italic(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Underline extends AttributedMarker {
-        Underline(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Big extends AttributedMarker {
-        Big(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Small extends AttributedMarker {
-        Small(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Monospace extends AttributedMarker {
-        Monospace(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Super extends AttributedMarker {
-        Super(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Sub extends AttributedMarker {
-        Sub(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Font extends AttributedMarker {
-        Font(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Code extends AttributedMarker {
-        Code(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Href extends AttributedMarker {
-        Href(Attributes attributes) {
-            this.attributes = attributes;
-        }
-    }
-
-    private static class Paragraph extends AttributedMarker {
-        Paragraph(Attributes attributes) {
-            this.attributes = attributes;
-        }
     }
 }

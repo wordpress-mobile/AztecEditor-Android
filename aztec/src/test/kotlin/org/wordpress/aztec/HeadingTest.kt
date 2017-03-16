@@ -8,7 +8,8 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-
+import org.wordpress.aztec.TestUtils.safeAppend
+import org.wordpress.aztec.TestUtils.safeLength
 
 /**
  * Testing quote behaviour.
@@ -112,6 +113,14 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun newlineAtHeadingEndTextEndNoHtmlEffect() {
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
+        safeAppend(editText, "\n")
+        Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun splitHeadingAndQuoteWithNewline() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Quote") - 1
@@ -132,9 +141,9 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun changeHeadingOfSelectedMultilineText() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
-        editText.setSelection(0, editText.length())
+        editText.setSelection(0, safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
-        Assert.assertEquals("<h2>Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
+        Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
     }
 
     @Test
@@ -159,7 +168,15 @@ class HeadingTest() {
     fun applyQuoteToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<blockquote><h1 foo=\"bar\">Quote</h1></blockquote>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\"><blockquote>Quote</blockquote></h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyHeadingToQuote() {
+        editText.fromHtml("<blockquote>Quote</blockquote>")
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+        Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
     }
 
     @Test

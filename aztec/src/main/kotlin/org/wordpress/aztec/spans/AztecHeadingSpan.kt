@@ -8,9 +8,24 @@ import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, attrs: String = "", val verticalPadding: Int) : MetricAffectingSpan(),
-        AztecLineBlockSpan, AztecContentSpan, AztecInlineSpan, LineHeightSpan, UpdateLayout {
+class AztecHeadingSpan @JvmOverloads constructor(
+        override var nestingLevel: Int,
+        textFormat: TextFormat,
+        attrs: String = "",
+        var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
+    ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
+
+    override var endBeforeBleed: Int = -1
+    override var startBeforeCollapse: Int = -1
+
+    var textFormat: TextFormat = TextFormat.FORMAT_HEADING_1
+        get() = field
+        set(value) {
+            field = value
+            heading = textFormatToHeading(value)
+        }
 
     lateinit var heading: Heading
     override var attributes: String = attrs
@@ -37,9 +52,23 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
                 else -> return TextFormat.FORMAT_PARAGRAPH
             }
         }
+
+        fun textFormatToHeading(textFormat: TextFormat): Heading {
+            when (textFormat) {
+                TextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan.Heading.H1
+                TextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan.Heading.H2
+                TextFormat.FORMAT_HEADING_3 -> return AztecHeadingSpan.Heading.H3
+                TextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan.Heading.H4
+                TextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan.Heading.H5
+                TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan.Heading.H6
+                else -> { return AztecHeadingSpan.Heading.H1 } // just use the H!
+            }
+        }
     }
 
-    constructor(tag: String, attrs: String = "", verticalPadding: Int = 0) : this(getTextFormat(tag), attrs, verticalPadding)
+    constructor(nestingLevel: Int, tag: String, attrs: String = "",
+            headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
+            : this(nestingLevel, getTextFormat(tag), attrs, headerStyle)
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -59,13 +88,13 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
         var addedBottomPadding = false
 
         if (start == spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
+            fm.ascent -= headerStyle.verticalPadding
+            fm.top -= headerStyle.verticalPadding
             addedTopPadding = true
         }
         if (end == spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
+            fm.descent += headerStyle.verticalPadding
+            fm.bottom += headerStyle.verticalPadding
             addedBottomPadding = true
         }
 
@@ -130,25 +159,6 @@ class AztecHeadingSpan @JvmOverloads constructor(var textFormat: TextFormat, att
     }
 
     init {
-        when (textFormat) {
-            TextFormat.FORMAT_HEADING_1 ->
-                heading = AztecHeadingSpan.Heading.H1
-            TextFormat.FORMAT_HEADING_2 ->
-                heading = AztecHeadingSpan.Heading.H2
-            TextFormat.FORMAT_HEADING_3 ->
-                heading = AztecHeadingSpan.Heading.H3
-            TextFormat.FORMAT_HEADING_4 ->
-                heading = AztecHeadingSpan.Heading.H4
-            TextFormat.FORMAT_HEADING_5 ->
-                heading = AztecHeadingSpan.Heading.H5
-            TextFormat.FORMAT_HEADING_6 ->
-                heading = AztecHeadingSpan.Heading.H6
-            else -> {
-            }
-        }
-    }
-
-    override fun clone(): Any {
-        return AztecHeadingSpan(textFormat, attributes, verticalPadding)
+        this.textFormat = textFormat
     }
 }

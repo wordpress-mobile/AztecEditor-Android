@@ -767,7 +767,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun nestListWithSimilarNeighboringList_issue288() {
@@ -780,5 +779,20 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
 
         Assert.assertEquals(preQuote + "<$listTag><li>Quote</li></$listTag>" + aftQuote, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun nestedListsHaveVisualNewline() {
+        val html = "outpre<blockquote><$listTag><li><$listTag><li>nested</li></$listTag></li></$listTag></blockquote>outaft"
+        editText.fromHtml(html)
+
+        val nestedPosition = editText.text.indexOf("nested")
+
+        // there should be a (visual) newline between the nested list and the parent list item
+        Assert.assertEquals(editText.text[nestedPosition - 1], '\n')
+
+        // but not in the html
+        Assert.assertEquals(html, editText.toHtml())
     }
 }

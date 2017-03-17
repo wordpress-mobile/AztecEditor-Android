@@ -766,4 +766,19 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
         Assert.assertEquals("", editText.toHtml())
     }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun nestListWithSimilarNeighboringList_issue288() {
+        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag><blockquote>"
+        val aftQuote = "</blockquote><$listTag><li>Unordered2</li><li></li></$listTag>"
+        editText.fromHtml(preQuote + "Quote" + aftQuote)
+
+        editText.setSelection(editText.text.indexOf("Quote"))
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals(preQuote + "<$listTag><li>Quote</li></$listTag>" + aftQuote, editText.toHtml())
+    }
 }

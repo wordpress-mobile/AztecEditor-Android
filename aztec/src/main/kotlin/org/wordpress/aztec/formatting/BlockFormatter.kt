@@ -399,16 +399,15 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
-            val lineLength = lines[i].length
+            val splitLength = lines[i].length
 
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = (lineStart + lineLength).let {
-                if ((start + it) != editableText.length) it + 1 else it // include the newline or not
-            }
+            val lineStart = start + (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
 
+            val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
 
-            HeadingHandler.cloneHeading(editableText, headingSpan, start + lineStart, start + lineEnd)
+            HeadingHandler.cloneHeading(editableText, headingSpan, lineStart, lineEnd)
         }
     }
 

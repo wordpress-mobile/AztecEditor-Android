@@ -317,8 +317,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (numberOfLines == numberOfLinesWithSpanApplied) {
                 removeBlockStyle(blockElementType)
             } else {
-                applyBlock(blockElementType, startOfBlock + 1,
-                        (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1), nestingLevel)
+                applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + 1,
+                        (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1))
             }
 
         } else {
@@ -327,31 +327,39 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val startOfLine = boundsOfSelectedText.start
             val endOfLine = boundsOfSelectedText.endInclusive
 
-            val spanToApply = getOuterBlockSpanType(blockElementType)
+            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start) + 1
+
+            val spanToApply = makeBlockSpan(blockElementType, nestingLevel)
 
             var startOfBlock: Int = startOfLine
             var endOfBlock: Int = endOfLine
 
 
             if (startOfLine != 0) {
-                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply).firstOrNull()
-                if (spansOnPreviousLine != null) {
+                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
+                        .firstOrNull()
+                // if same span type is found (also check for heading style equality if a heading) extend the start
+                if (spansOnPreviousLine != null
+                        && (spansOnPreviousLine !is AztecHeadingSpan
+                                || spansOnPreviousLine.heading == (spanToApply as AztecHeadingSpan).heading)) {
                     startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
                     liftBlock(blockElementType, startOfBlock, endOfBlock)
                 }
             }
 
             if (endOfLine != editableText.length) {
-                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply).firstOrNull()
-                if (spanOnNextLine != null) {
+                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
+                        .firstOrNull()
+                // if same span type is found (also check for heading style equality if a heading) extend the end
+                if (spanOnNextLine != null
+                        && (spanOnNextLine !is AztecHeadingSpan
+                                || spanOnNextLine.heading == (spanToApply as AztecHeadingSpan).heading)) {
                     endOfBlock = editableText.getSpanEnd(spanOnNextLine)
                     liftBlock(blockElementType, startOfBlock, endOfBlock)
                 }
             }
 
-            val nestingLevel = AztecNestable.getNestingLevelAt(editableText, start) + 1
-
-            applyBlock(blockElementType, startOfBlock, endOfBlock, nestingLevel)
+            applyBlock(spanToApply, startOfBlock, endOfBlock)
 
             //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
 //            if (isEmptyLine) {
@@ -360,22 +368,17 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    private fun applyBlock(textFormat: TextFormat, start: Int, end: Int, nestingLevel: Int, attrs: String = "") {
-        when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> applyListBlock(AztecOrderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
-            TextFormat.FORMAT_UNORDERED_LIST -> applyListBlock(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), start, end, nestingLevel)
-            TextFormat.FORMAT_QUOTE -> BlockHandler.set(editableText, AztecQuoteSpan(nestingLevel, attrs, quoteStyle), start, end)
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> applyHeadingBlock(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle), start, end, nestingLevel)
-            else -> editableText.setSpan(ParagraphSpan(nestingLevel, attrs), start, end, Spanned.SPAN_PARAGRAPH)
+    private fun applyBlock(blockSpan: AztecBlockSpan, start: Int, end: Int) {
+        when (blockSpan) {
+            is AztecOrderedListSpan -> applyListBlock(blockSpan, start, end)
+            is AztecUnorderedListSpan -> applyListBlock(blockSpan, start, end)
+            is AztecQuoteSpan -> BlockHandler.set(editableText, blockSpan, start, end)
+            is AztecHeadingSpan -> applyHeadingBlock(blockSpan, start, end)
+            else -> editableText.setSpan(blockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
     }
 
-    private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int, nestingLevel: Int) {
+    private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
 
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
@@ -389,11 +392,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             if (lineLength == 0) continue
 
-            ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, nestingLevel + 1)
+            ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
         }
     }
 
-    private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int, nestingLevel: Int) {
+    private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
             val lineLength = lines[i].length

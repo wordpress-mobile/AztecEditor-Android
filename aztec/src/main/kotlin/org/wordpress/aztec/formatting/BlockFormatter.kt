@@ -341,6 +341,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
                 if (spansOnPreviousLine == null) {
                     // no similar blocks before us so, don't expand
+                } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
+                    // other block is at a different nesting level so, don't expand
                 } else if (spansOnPreviousLine is AztecHeadingSpan
                         && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
                     // Heading span is of different style so, don't expand
@@ -357,6 +359,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
                 if (spanOnNextLine == null) {
                     // no similar blocks after us so, don't expand
+                } else if (spanOnNextLine.nestingLevel != nestingLevel) {
+                    // other block is at a different nesting level so, don't expand
                 } else if (spanOnNextLine is AztecHeadingSpan
                         && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
                     // Heading span is of different style so, don't expand

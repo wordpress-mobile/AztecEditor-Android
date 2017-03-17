@@ -247,4 +247,19 @@ class HeadingTest() {
         editText.text.delete(l - 1, l)
         Assert.assertEquals("<h1></h1>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun addHeading_issue289() {
+        editText.fromHtml("<h1>Heading 1</h1>")
+
+        safeAppend(editText, "\n")
+
+        editText.setSelection(safeLength(editText))
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+        Assert.assertEquals("<h1>Heading 1</h1><h2></h2>", editText.toHtml())
+
+        safeAppend(editText, "Heading 2")
+        Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2>", editText.toHtml())
+    }
 }

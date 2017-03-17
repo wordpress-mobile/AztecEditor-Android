@@ -165,7 +165,7 @@ class AztecParser {
         }
 
         // add visual newlines at ends
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)
 
             if (spanEnd == spanned.length) {
@@ -182,7 +182,7 @@ class AztecParser {
             markBlockElementLineBreak(spanned, spanEnd - 1)
         }
 
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
 
             if (spanStart < 1) {

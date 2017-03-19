@@ -44,7 +44,13 @@ class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.ja
     }
 
     override fun handleEndOfBufferMarker() {
-        // adjust the block end to only include the chars before the end-of-text marker. A newline will be there.
+        if (block.start == markerIndex) {
+            // ok, this list item has the marker as its first char so, nothing more to do here.
+            return
+        }
+
+        // the heading has bled over to the marker so, let's adjust its range to just before the marker.
+        //  There's a newline there hopefully :)
         block.end = markerIndex
     }
 

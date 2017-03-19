@@ -234,4 +234,32 @@ class HeadingTest() {
         editText.text.delete(mark - 1, mark)
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1unstyled</h1>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteHeadingChars_Issue287() {
+        editText.fromHtml("<h1>he</h1>")
+
+        var l = safeLength(editText)
+        editText.text.delete(l - 1, l)
+
+        l = safeLength(editText)
+        editText.text.delete(l - 1, l)
+        Assert.assertEquals("<h1></h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addHeading_issue289() {
+        editText.fromHtml("<h1>Heading 1</h1>")
+
+        safeAppend(editText, "\n")
+
+        editText.setSelection(safeLength(editText))
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+        Assert.assertEquals("<h1>Heading 1</h1><h2></h2>", editText.toHtml())
+
+        safeAppend(editText, "Heading 2")
+        Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2>", editText.toHtml())
+    }
 }

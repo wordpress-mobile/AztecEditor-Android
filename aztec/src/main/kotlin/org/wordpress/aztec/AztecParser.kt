@@ -164,15 +164,6 @@ class AztecParser {
             spanned.removeSpan(it)
         }
 
-        // Mark the extra newline added above horizontal lines
-        spanned.getSpans(0, spanned.length, AztecHorizontalLineSpan::class.java).forEach {
-            val spanStart = spanned.getSpanStart(it)
-
-            if (spanStart > 0 && spanned[spanStart - 1] == '\n') {
-                markBlockElementLineBreak(spanned, spanStart)
-            }
-        }
-
         // add visual newlines at ends
         spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)

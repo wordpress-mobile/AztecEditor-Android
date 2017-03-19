@@ -375,8 +375,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     internal class SavedState : BaseSavedState {
         var state: Bundle = Bundle()
 
-        constructor(superState: Parcelable) : super(superState) {
-        }
+        constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
             state = parcel.readBundle(javaClass.classLoader)
@@ -427,7 +426,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
         }
         return super.onKeyPreIme(keyCode, event)

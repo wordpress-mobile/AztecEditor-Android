@@ -590,17 +590,22 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
-        normalizeEditingBeforeHorizontalLine(count, start)
+        normalizeEditingAroundHorizontalLine(count, start)
     }
 
-    private fun normalizeEditingBeforeHorizontalLine(count: Int, start: Int) {
+    private fun insertVisualNewline(position: Int) {
+        this.text.insert(position, Constants.NEWLINE_STRING)
+    }
+
+    private fun normalizeEditingAroundHorizontalLine(count: Int, start: Int) {
         if (!isTextChangedListenerDisabled()) {
             val end = start + count
             val line = this.text.getSpans(end, end, AztecHorizontalLineSpan::class.java).firstOrNull() ?:
                     this.text.getSpans(start, start, AztecHorizontalLineSpan::class.java).firstOrNull()
 
             if (line != null) {
-                val changedLineBeginning = this.text.getSpanStart(line) == end && this.text[end - 1] != Constants.NEWLINE
+                val changedLineBeginning = this.text.getSpanStart(line) == end && end - 1 >= 0 &&
+                        this.text[end - 1] != Constants.NEWLINE
                 val changedLineEnd = this.text.getSpanEnd(line) == start && this.text[start] != Constants.NEWLINE
 
                 disableTextChangedListener()
@@ -608,24 +613,24 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 if (changedLineBeginning) {
                     // if characters added, insert a newline before the line
                     if (count > 0) {
-                        this.text.insert(end, Constants.NEWLINE_STRING)
+                        insertVisualNewline(end)
                         setSelection(end)
                     } else {
                         // if newline deleted, add it back and delete a character before it
                         if (deletedNewline) {
                             this.text.delete(end - 1, end)
-                            this.text.insert(end - 1, Constants.NEWLINE_STRING)
+                            insertVisualNewline(end - 1)
                             setSelection(end - 1)
                         } else {
                             // just add a newline
-                            this.text.insert(end, Constants.NEWLINE_STRING)
+                            insertVisualNewline(end)
                             setSelection(end)
                         }
                     }
                 } else if (changedLineEnd) {
                     if (count > 0) {
                         // if text added right after a line, add a newline
-                        this.text.insert(start, Constants.NEWLINE_STRING)
+                        insertVisualNewline(start)
                     } else {
                         // if text deleted, remove the line
                         this.text.delete(start - 2, start)

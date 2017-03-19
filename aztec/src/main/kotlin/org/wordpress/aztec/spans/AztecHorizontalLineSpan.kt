@@ -8,7 +8,8 @@ import android.text.TextUtils
 import android.text.style.ImageSpan
 import org.wordpress.android.util.DisplayUtils
 
-class AztecHorizontalLineSpan(val context: Context, drawable: Drawable) : ImageSpan(drawable), AztecSpan {
+class AztecHorizontalLineSpan(val context: Context, drawable: Drawable,
+                              override var nestingLevel: Int) : ImageSpan(drawable), AztecSurroundedWithNewlines, AztecSpan {
 
     private val TAG: String = "hr"
 

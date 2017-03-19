@@ -1,9 +1,9 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
 import android.os.Bundle
 import android.os.Parcelable
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater

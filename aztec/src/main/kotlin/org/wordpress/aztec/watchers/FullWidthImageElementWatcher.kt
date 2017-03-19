@@ -15,7 +15,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        normalizeEditingAroundHorizontalLine(count, start)
+        normalizeEditingAroundImageSpans(count, start)
     }
 
     override fun afterTextChanged(text: Editable) {}
@@ -24,7 +24,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
         aztecText.text.insert(position, Constants.NEWLINE_STRING)
     }
 
-    private fun normalizeEditingAroundHorizontalLine(count: Int, start: Int) {
+    private fun normalizeEditingAroundImageSpans(count: Int, start: Int) {
         if (!aztecText.isTextChangedListenerDisabled()) {
             val end = start + count
             val line = aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java).firstOrNull() ?:

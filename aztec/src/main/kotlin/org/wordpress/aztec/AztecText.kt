@@ -116,8 +116,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     var widthMeasureSpec: Int = 0
 
-    private var deletedNewline: Boolean = false
-
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -248,6 +246,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 .install(this)
 
         TextDeleter.install(this)
+
+        FullWidthImageElementWatcher.install(this)
 
         EndOfBufferMarkerAdder.install(this)
 
@@ -580,8 +580,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        deletedNewline = count > 0 && text[start + count - 1] == Constants.NEWLINE
-
         if (!isTextChangedListenerDisabled()) {
             history.beforeTextChanged(toFormattedHtml())
         }
@@ -589,57 +587,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
-
-        normalizeEditingAroundHorizontalLine(count, start)
-    }
-
-    private fun insertVisualNewline(position: Int) {
-        this.text.insert(position, Constants.NEWLINE_STRING)
-    }
-
-    private fun normalizeEditingAroundHorizontalLine(count: Int, start: Int) {
-        if (!isTextChangedListenerDisabled()) {
-            val end = start + count
-            val line = this.text.getSpans(end, end, AztecHorizontalLineSpan::class.java).firstOrNull() ?:
-                    this.text.getSpans(start, start, AztecHorizontalLineSpan::class.java).firstOrNull()
-
-            if (line != null) {
-                val changedLineBeginning = this.text.getSpanStart(line) == end && end - 1 >= 0 &&
-                        this.text[end - 1] != Constants.NEWLINE
-                val changedLineEnd = this.text.getSpanEnd(line) == start && this.text[start] != Constants.NEWLINE
-
-                disableTextChangedListener()
-
-                if (changedLineBeginning) {
-                    // if characters added, insert a newline before the line
-                    if (count > 0) {
-                        insertVisualNewline(end)
-                        setSelection(end)
-                    } else {
-                        // if newline deleted, add it back and delete a character before it
-                        if (deletedNewline) {
-                            this.text.delete(end - 1, end)
-                            insertVisualNewline(end - 1)
-                            setSelection(end - 1)
-                        } else {
-                            // just add a newline
-                            insertVisualNewline(end)
-                            setSelection(end)
-                        }
-                    }
-                } else if (changedLineEnd) {
-                    if (count > 0) {
-                        // if text added right after a line, add a newline
-                        insertVisualNewline(start)
-                    } else {
-                        // if text deleted, remove the line
-                        this.text.delete(start - 2, start)
-                    }
-                }
-
-                enableTextChangedListener()
-            }
-        }
     }
 
     override fun afterTextChanged(text: Editable) {

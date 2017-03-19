@@ -9,7 +9,7 @@ import android.text.style.ImageSpan
 import org.wordpress.android.util.DisplayUtils
 
 class AztecHorizontalLineSpan(val context: Context, drawable: Drawable,
-                              override var nestingLevel: Int) : ImageSpan(drawable), AztecSurroundedWithNewlines, AztecSpan {
+                              override var nestingLevel: Int) : ImageSpan(drawable), AztecFullWidthImageSpan {
 
     private val TAG: String = "hr"
 

@@ -12,11 +12,11 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 
-
-class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle) : AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
+    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)
 
     fun toggleOrderedList() {
@@ -48,6 +48,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             applyBlockStyle(TextFormat.FORMAT_QUOTE)
         } else {
             removeBlockStyle(TextFormat.FORMAT_QUOTE)
+        }
+    }
+
+    fun togglePreformat() {
+        if (!containPreformat()) {
+            applyBlockStyle(TextFormat.FORMAT_PREFORMAT)
+        } else {
+            removeBlockStyle(TextFormat.FORMAT_PREFORMAT)
         }
     }
 
@@ -225,6 +233,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
             TextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
             TextFormat.FORMAT_QUOTE -> return Arrays.asList(AztecQuoteSpan(nestingLevel, attrs, quoteStyle))
+            TextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
             TextFormat.FORMAT_HEADING_1,
             TextFormat.FORMAT_HEADING_2,
             TextFormat.FORMAT_HEADING_3,
@@ -266,6 +275,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             is AztecOrderedListSpan -> blockElement.listStyle = listStyle
             is AztecUnorderedListSpan -> blockElement.listStyle = listStyle
             is AztecQuoteSpan -> blockElement.quoteStyle = quoteStyle
+            is AztecPreformatSpan -> blockElement.preformatStyle = preformatStyle
             is AztecHeadingSpan -> blockElement.headerStyle = headerStyle
         }
     }
@@ -649,6 +659,55 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 .filter { it != textFormat }
 
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
+    }
+
+    fun containPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        val list = ArrayList<Int>()
+
+        for (i in lines.indices) {
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineEnd = lineStart + lines[i].length
+
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            /**
+             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
+             *                                                  multiple lines (before and/or after), current entirely selected
+             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (after), current partially or entirely selected
+             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (before), current partially or entirely selected
+             */
+            if ((lineStart >= selStart && selEnd >= lineEnd)
+                    || (lineStart <= selEnd && selEnd <= lineEnd)
+                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                list.add(i)
+            }
+        }
+
+        if (list.isEmpty()) return false
+
+        return list.any { containPreformat(it) }
+    }
+
+    fun containPreformat(index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val end = start + lines[index].length
+
+        if (start >= end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        return spans.isNotEmpty()
     }
 
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {

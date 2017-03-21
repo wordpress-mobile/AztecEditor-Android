@@ -187,7 +187,12 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.HeaderStyle(
                         styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
-                )
+                ,
+                BlockFormatter.PreformatStyle(
+                        styles.getColor(R.styleable.AztecText_preformatBackground, 0),
+                        styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
+                        styles.getColor(R.styleable.AztecText_preformatColor, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -544,6 +549,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
+            TextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
             TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
@@ -569,6 +575,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containPreformat(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false

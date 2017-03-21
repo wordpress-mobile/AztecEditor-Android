@@ -20,6 +20,9 @@
         <attr name="lineSpacingMultiplier" format="reference|float" />
         <attr name="linkColor" format="reference|color" />
         <attr name="linkUnderline" format="reference|boolean" />
+        <attr name="preformatBackground" format="reference|color" />
+        <attr name="preformatBackgroundAlpha" format="reference|fraction" />
+        <attr name="preformatColor" format="reference|color" />
         <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteColor" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />

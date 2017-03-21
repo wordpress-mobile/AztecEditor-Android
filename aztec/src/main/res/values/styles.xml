@@ -36,6 +36,9 @@
         <item name="lineSpacingMultiplier">@dimen/spacing_multiplier</item>
         <item name="linkColor">@color/blue_wordpress</item>
         <item name="linkUnderline">false</item>
+        <item name="preformatBackground">@color/code_background</item>
+        <item name="preformatBackgroundAlpha">75%</item>
+        <item name="preformatColor">@color/white</item>
         <item name="quoteBackground">@color/blue_wordpress</item>
         <item name="quoteColor">@color/blue_medium</item>
         <item name="quoteBackgroundAlpha">75%</item>

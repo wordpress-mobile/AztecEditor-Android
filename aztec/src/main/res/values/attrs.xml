@@ -24,8 +24,8 @@
         <attr name="preformatBackgroundAlpha" format="reference|fraction" />
         <attr name="preformatColor" format="reference|color" />
         <attr name="quoteBackground" format="reference|color" />
-        <attr name="quoteColor" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />
+        <attr name="quoteColor" format="reference|color" />
         <attr name="quoteMargin" format="reference|dimension" />
         <attr name="quotePadding" format="reference|dimension" />
         <attr name="quoteWidth" format="reference|dimension" />

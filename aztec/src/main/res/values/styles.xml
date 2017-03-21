@@ -40,8 +40,8 @@
         <item name="preformatBackgroundAlpha">75%</item>
         <item name="preformatColor">@color/white</item>
         <item name="quoteBackground">@color/blue_wordpress</item>
-        <item name="quoteColor">@color/blue_medium</item>
         <item name="quoteBackgroundAlpha">75%</item>
+        <item name="quoteColor">@color/blue_medium</item>
         <item name="quoteMargin">@dimen/quote_margin</item>
         <item name="quotePadding">@dimen/quote_padding</item>
         <item name="quoteWidth">@dimen/quote_width</item>

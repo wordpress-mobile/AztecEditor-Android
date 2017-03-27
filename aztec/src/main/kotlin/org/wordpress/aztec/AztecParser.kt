@@ -108,10 +108,10 @@ class AztecParser {
 
             val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
 
-                // no need for newline if we're a childBlock at the start of our parent
-                if (spanStart == parentStart && it is AztecChildBlockSpan) {
-                    return@forEach
-                }
+            // no need for newline if we're a childBlock at the start of our parent
+            if (spanStart == parentStart && (it is AztecChildBlockSpan || it is AztecSurroundedWithNewlines)) {
+                return@forEach
+            }
 
             // no need for newline if there's already one, unless we're at the start of our parent
             // and this is a block span

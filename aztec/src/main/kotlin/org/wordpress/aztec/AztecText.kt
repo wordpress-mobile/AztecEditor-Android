@@ -627,7 +627,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
 
-        builder.getSpans(0, builder.length, AztecMediaSpan::class.java).forEach {
+        builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
             it.textView = this
         }
 

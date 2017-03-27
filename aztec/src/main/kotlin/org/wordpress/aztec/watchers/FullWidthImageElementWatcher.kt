@@ -9,16 +9,21 @@ import org.wordpress.aztec.spans.AztecFullWidthImageSpan
 class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
 
     private var deletedNewline: Boolean = false
+    private var changeCount: Int = 0
+    private var changeStart: Int = 0
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         deletedNewline = count > 0 && text[start + count - 1] == Constants.NEWLINE
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        normalizeEditingAroundImageSpans(count, start)
+        changeCount = count
+        changeStart = start
     }
 
-    override fun afterTextChanged(text: Editable) {}
+    override fun afterTextChanged(text: Editable) {
+        normalizeEditingAroundImageSpans(changeCount, changeStart)
+    }
 
     private fun insertVisualNewline(position: Int) {
         aztecText.text.insert(position, Constants.NEWLINE_STRING)
@@ -33,7 +38,8 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
             if (line != null) {
                 val changedLineBeginning = aztecText.text.getSpanStart(line) == end && end - 1 >= 0 &&
                         aztecText.text[end - 1] != Constants.NEWLINE
-                val changedLineEnd = aztecText.text.getSpanEnd(line) == start && aztecText.text[start] != Constants.NEWLINE
+                val changedLineEnd = aztecText.text.getSpanEnd(line) == start &&
+                        aztecText.text[start] != Constants.NEWLINE
 
                 aztecText.disableTextChangedListener()
 

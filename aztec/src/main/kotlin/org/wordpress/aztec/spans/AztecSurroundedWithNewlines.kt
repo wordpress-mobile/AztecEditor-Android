@@ -1,3 +1,3 @@
 package org.wordpress.aztec.spans
 
-interface AztecSurroundedWithNewlines
+interface AztecSurroundedWithNewlines : AztecNestable

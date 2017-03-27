@@ -106,26 +106,30 @@ class AztecParser {
                 return@forEach
             }
 
-            val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
+            if (it is AztecNestable) {
+                val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
 
-            // no need for newline if we're a childBlock at the start of our parent
-            if (spanStart == parentStart && it is AztecChildBlockSpan) {
-                return@forEach
-            }
+                // no need for newline if we're a childBlock at the start of our parent
+                if (spanStart == parentStart && it is AztecChildBlockSpan) {
+                    return@forEach
+                }
 
-            // no need for newline if there's already one, unless we're at the start of our parent
-            // and this is a block span
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
-                return@forEach
+                // no need for newline if there's already one, unless we're at the start of our parent
+                // and this is a block span
+                if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
+                    return@forEach
+                }
             }
 
             // well, it seems we need a visual newline so, add one and mark it as such
             spanned.insert(spanStart, "\n")
 
             // expand all same-start parents to include the new newline
-            SpanWrapper.getSpans<AztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1}
-                    .forEach { parent -> parent.start-- }
+            if (it is AztecNestable) {
+                SpanWrapper.getSpans<AztecNestable>(spanned, spanStart + 1, spanStart + 2)
+                        .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1 }
+                        .forEach { parent -> parent.start-- }
+            }
 
             markBlockElementLineBreak(spanned, spanStart)
         }

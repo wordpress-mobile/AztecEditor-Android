@@ -86,7 +86,7 @@ class AztecTagHandler : Html.TagHandler {
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalLineSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
+                    start(output, AztecHorizontalLineSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr)))
 
                     // the placeholder text ~must~ contain at least 2 characters, otherwise extra newline is appended to the HTML
                     output.append("HR")

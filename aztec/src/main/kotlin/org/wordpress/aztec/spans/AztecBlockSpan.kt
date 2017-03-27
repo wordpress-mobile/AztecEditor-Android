@@ -1,3 +1,3 @@
 package org.wordpress.aztec.spans
 
-interface AztecBlockSpan : AztecLineBlockSpan, AztecParagraphStyle, AztecSurroundedWithNewlines, AztecSpan, ParagraphFlagged
+interface AztecBlockSpan : AztecLineBlockSpan, AztecParagraphStyle, AztecSurroundedWithNewlines, AztecSpan, ParagraphFlagged, AztecNestable

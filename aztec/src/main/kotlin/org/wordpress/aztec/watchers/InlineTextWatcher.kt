@@ -21,7 +21,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.LeadingMarginSpan
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.watchers.TextChangedEvent
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.spans.AztecInlineSpan
 import java.lang.ref.WeakReference

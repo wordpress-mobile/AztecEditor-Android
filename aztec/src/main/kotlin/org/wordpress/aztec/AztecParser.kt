@@ -98,7 +98,7 @@ class AztecParser {
 
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
         // add visual newlines at starts
-        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
 
             // no need for newline if at text start
@@ -109,12 +109,13 @@ class AztecParser {
             val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
 
             // no need for newline if we're a childBlock at the start of our parent
-            if (spanStart == parentStart && it is AztecChildBlockSpan) {
+            if (spanStart == parentStart && (it is AztecChildBlockSpan || it is AztecSurroundedWithNewlines)) {
                 return@forEach
             }
 
             // no need for newline if there's already one, unless we're at the start of our parent
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n') {
+            // and this is a block span
+            if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
                 return@forEach
             }
 
@@ -123,14 +124,14 @@ class AztecParser {
 
             // expand all same-start parents to include the new newline
             SpanWrapper.getSpans<AztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1}
+                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1 }
                     .forEach { parent -> parent.start-- }
 
             markBlockElementLineBreak(spanned, spanStart)
         }
 
         // add visual newlines at ends
-        spanned.getSpans(0, spanned.length, AztecBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)
 
             // no need for newline if at text end
@@ -141,8 +142,11 @@ class AztecParser {
             // no need for newline if there's one and marked as visual
             if (spanned[spanEnd] == '\n'
                     && spanned.getSpans(spanEnd, spanEnd, BlockElementLinebreak::class.java).isNotEmpty()) {
-                // but still, expand the span to include the newline
-                spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
+                // but still, expand the span to include the newline for block spans, because they are paragraphs
+                if (it is AztecBlockSpan) {
+                    spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+                }
 
                 return@forEach
             }
@@ -150,8 +154,10 @@ class AztecParser {
             // well, it seems we need a visual newline so, add one and mark it as such
             spanned.insert(spanEnd, "\n")
 
-            // expand the span to include the new newline
-            spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+            // expand the span to include the new newline for block spans, because they are paragraphs
+            if (it is AztecBlockSpan) {
+                spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+            }
 
             markBlockElementLineBreak(spanned, spanEnd)
         }
@@ -165,24 +171,27 @@ class AztecParser {
         }
 
         // add visual newlines at ends
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val spanEnd = spanned.getSpanEnd(it)
+
+            // block spans include a newline at the end, we need to account for that
+            val newlineExpected = if (it is AztecBlockSpan) spanEnd - 1 else spanEnd
 
             if (spanEnd == spanned.length) {
                 // no visual newline if at text end
                 return@forEach
             }
 
-            if (spanned[spanEnd - 1] != '\n') {
+            if (spanned[newlineExpected] != '\n') {
                 // no newline inside the end of the span so, nothing to mark as visual newline
                 return@forEach
             }
 
             // at last, all checks passed so, let's mark the newline as visual!
-            markBlockElementLineBreak(spanned, spanEnd - 1)
+            markBlockElementLineBreak(spanned, newlineExpected)
         }
 
-        spanned.getSpans(0, spanned.length, AztecLineBlockSpan::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val spanStart = spanned.getSpanStart(it)
 
             if (spanStart < 1) {
@@ -201,13 +210,13 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned.getSpans(spanStart, spanStart, AztecBlockSpan::class.java).any {
+            if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any {
                     spanned.getSpanEnd(it) == spanStart }) {
                 // the newline before us is the end of a previous block element so, return
                 return@forEach
             }
 
-            if (spanned[spanStart - 2] == '\n') {
+            if (spanned[spanStart - 2] == '\n' && it is AztecBlockSpan) {
                 // there's another newline before so, the adjacent one is not a visual one so, return
                 return@forEach
             }
@@ -272,6 +281,9 @@ class AztecParser {
 
         do {
             val paragraphs = text.getSpans(i, end, AztecNestable::class.java)
+                    .filter{ it !is AztecHorizontalLineSpan}
+                    .toTypedArray()
+
             paragraphs.sortWith(Comparator { a, b ->
                 val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
                 if (startComparison == 0) {
@@ -385,6 +397,11 @@ class AztecParser {
 
                 if (span is AztecCommentSpan || span is CommentSpan) {
                     out.append("<!--")
+                }
+
+                if (span is AztecHorizontalLineSpan) {
+                    out.append("<${span.getStartTag()}>")
+                    i = next
                 }
 
                 if (span is AztecMediaSpan) {

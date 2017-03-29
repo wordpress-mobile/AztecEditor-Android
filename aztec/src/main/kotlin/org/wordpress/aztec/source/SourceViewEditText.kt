@@ -159,7 +159,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
-        val styledHtml = styleHtml(Format.addFormatting(source))
+        val styledHtml = styleHtml(Format.addSourceEditorFormatting(source))
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
@@ -235,7 +235,7 @@ class SourceViewEditText : EditText, TextWatcher {
             enableTextChangedListener()
         }
 
-        return Format.clearFormatting(text.toString())
+        return Format.removeSourceEditorFormatting(text.toString())
     }
 
     fun disableTextChangedListener() {

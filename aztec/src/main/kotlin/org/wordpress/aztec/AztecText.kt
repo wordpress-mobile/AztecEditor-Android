@@ -622,7 +622,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
+        builder.append(parser.fromHtml(source, onMediaTappedListener, this, context))
 
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
@@ -690,12 +690,13 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         parser.syncVisualNewlinesOfBlockElements(output)
+        val html = parser.toHtml(output, withCursorTag)
 
-        return Format.clearFormatting(EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag)))
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
     }
 
     fun toFormattedHtml(): String {
-        return Format.addFormatting(toHtml())
+        return Format.addSourceEditorFormatting(toHtml())
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
@@ -788,7 +789,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        val html = Format.clearFormatting(parser.toHtml(output))
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText(null, html)
@@ -805,7 +806,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), onMediaTappedListener,
                         this, context).trim())
                 Selection.setSelection(editable, max)
 

@@ -1,8 +1,12 @@
 package org.wordpress.aztec.source
 
 import android.text.TextUtils
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
+
 
 
 object Format {
@@ -12,11 +16,17 @@ object Format {
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
-//    fun addFormatting(content: String): String {
+    fun addSourceEditorFormatting(content: String): String {
 //        // rename iframes to prevent encoding the inner HTML
-//        var html = replaceAll(content, "iframe", iframePlaceholder)
+        var html = replaceAll(content, "iframe", iframePlaceholder)
 //        html = Jsoup.parseBodyFragment(html).body().html()
-//        html = replaceAll(html, iframePlaceholder, "iframe")
+        html = replaceAll(html, iframePlaceholder, "iframe")
+
+        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(false))
+
+        doc.select("*")
+                .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
+                .forEach { it.remove() }
 //
 //        //remove newline around all non block elements
 //        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
@@ -25,12 +35,21 @@ object Format {
 //        fixBrNewlines = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")
 //
 //        return fixBrNewlines.trim()
-//    }
 
-//    fun clearFormatting(html: String): String {
-//        // remove all whitespace around block elements
-//        return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
-//    }
+        html = replaceAll(doc.body().html(), "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "")
+//        html = replaceAll(html, iframePlaceholder, "iframe")
+
+        return toCalypsoHtml(html).trim()
+
+    }
+
+    fun removeSourceEditorFormatting(html: String): String {
+        // remove all whitespace around block elements
+//        return
+
+//        return replaceAll(doc.body().html(), "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
+        return toRealHtml(html).replace("\n","")
+    }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {
         val p = Pattern.compile(pattern)
@@ -38,10 +57,10 @@ object Format {
         return m.replaceAll(replacement)
     }
 
-
-    fun addFormatting(htmlContent: String?): String {
+    //Takes HTML as is and formats it for source viewer by replacing <p> with \n\n and <br> with \n
+    fun toCalypsoHtml(htmlContent: String): String {
         var content = htmlContent
-        if (content == null || TextUtils.isEmpty(content.trim { it <= ' ' })) {
+        if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
             return ""
         }
@@ -83,20 +102,23 @@ object Format {
         }
 
         // Pretty it up for the source editor
-        var blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|div|h[1-6]|p|fieldset"
-        content = replaceAll(content, "\\s*</($blocklist)>\\s*", "</$1>\n")
-        content = replaceAll(content, "\\s*<((?:$blocklist)(?: [^>]*)?)>", "\n<$1>")
+        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
+        val blocklist1 = blocklist + "|div|p"
+        val blocklist2 = blocklist + "|pre"
+
+        content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
+        content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
 
         // Mark </p> if it has any attributes.
-        content = replaceAll(content, "(<p [^>]+>.*?)</p>", "$1</p#>");
+        content = replaceAll(content, "(<p [^>]+>.*?)</p>", "$1</p#>")
 
         // Separate <div> containing <p>
-        content = replaceAll(content, "(?i)<div( [^>]*)?>\\s*<p>", "<div$1>\n\n");
+        content = replaceAll(content, "(?i)<div( [^>]*)?>\\s*<p>", "<div$1>\n\n")
 
         // Remove <p> and <br />
-        content = replaceAll(content, "(?i)\\s*<p>", "");
-        content = replaceAll(content, "(?i)\\s*</p>\\s*", "\n\n");
-        content = replaceAll(content, "\\n[\\s\\u00a0]+\\n", "\n\n");
+        content = replaceAll(content, "(?i)\\s*<p>", "")
+        content = replaceAll(content, "(?i)\\s*</p>\\s*", "\n\n")
+        content = replaceAll(content, "\\n[\\s\\u00a0]+\\n", "\n\n")
         content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n");
 
         // Fix some block element newline issues
@@ -105,8 +127,10 @@ object Format {
         content = replaceAll(content, "(?i)\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*", "\n\n[caption$1[/caption]\n\n")
         content = replaceAll(content, "caption\\]\\n\\n+\\[caption", "caption]\n\n[caption")
 
-        blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|pre|fieldset"
-        content = replaceAll(content, "\\s*<((?:$blocklist)(?: [^>]*)?)\\s*>", "\n<$1>")
+//        blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|pre|fieldset"
+        content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
+        content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
+
         content = replaceAll(content, "<li([^>]*)>", "\t<li$1>")
 
         if (content.contains("<option")) {
@@ -150,7 +174,7 @@ object Format {
         return content
     }
 
-    fun clearFormatting(formattedHtml: String): String {
+    fun toRealHtml(formattedHtml: String): String {
         var html = formattedHtml
         if (TextUtils.isEmpty(html.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
@@ -232,42 +256,43 @@ object Format {
             html = sb.toString()
         }
 
-        html = html + "\n\n"
-        html = replaceAll(html, "(?i)<br />\\s*<br />", "\n\n")
+        html += "\n\n"
+
+
+        html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
 
-        // hr is self closing block element
-        html = replaceAll(html, "(?i)<hr( [^>]*)?>", "<hr>\n\n")
 
-//         No <p> or <br> around <option>
-        html = replaceAll(html, "(?i)\\s*<option", "<option")
-        html = replaceAll(html, "(?i)</option>\\s*", "</option>")
-        html = replaceAll(html, "\\r\\n|\\r", "\n")
-        html = replaceAll(html, "\\n\\s*\\n+", "\n\n")
-        html = replaceAll(html, "([\\s\\S]+?)\\n\\n", "<p>$1</p>")
-        html = replaceAll(html, "(?i)<p>\\s*?</p>", "")
-        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1")
-        html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1")
-        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1>")
-        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</blockquote>")
-        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1")
-        html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1")
-        html = replaceAll(html, "(?i)\\s*\\n", "<br />")
-        html = replaceAll(html, "(?i)(</?(?:$blocklist)[^>]*>)\\s*<br />", "$1")
-        html = replaceAll(html, "(?i)<br />(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1")
+        html = replaceAll(html, "(?i)<hr( [^>]*)?>", "<hr$1>\n\n"); // hr is self closing block element
+
+        html = replaceAll(html, "(?i)\\s*<option", "<option"); // No <p> or <br> around <option>
+        html = replaceAll(html, "(?i)</option>\\s*", "</option>");
+        html = replaceAll(html, "\\r\\n|\\r", "\n");
+        html = replaceAll(html, "\\n\\s*\\n+", "\n\n");
+        html = replaceAll(html, "([\\s\\S]+?)\\n\\n", "<p>$1</p>\n");
+        html = replaceAll(html, "(?i)<p>\\s*?</p>", "");
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
+        html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1");
+        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1>");
+        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</blockquote>");
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1");
+        html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
+        html = replaceAll(html, "(?i)\\s*\\n", "<br>\n");
+        html = replaceAll(html, "(?i)(</?(?:$blocklist)[^>]*>)\\s*<br ?/?>", "$1");
+        html = replaceAll(html, "(?i)<br ?/?>(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1");
         html = replaceAll(html, "(?i)(?:<p>|<br ?/?>)*\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*(?:</p>|<br ?/?>)*", "[caption$1[/caption]")
 
 
 
         html = html.replace(Regex("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)</p>"), { matchResult: MatchResult ->
-            if (matchResult.groupValues[2].matches(Regex("/<p( [^>]*)?>/"))) {
+            if (matchResult.groupValues[2].matches(Regex("<p( [^>]*)?>"))) {
                 matchResult.groupValues[0]
             } else {
                 matchResult.groupValues[1] + "<p>" + matchResult.groupValues[2] + "</p>"
             }
         })
-
+//
 //                html = replaceAll("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)<\\/p>", function( a, b, c ) {
 //                    if ( c.match( /<p( [^>]*)?>/ ) ) {
 //                        return a;
@@ -285,8 +310,7 @@ object Format {
             html = replaceAll(html, "<wp-temp-br([^>]*)>", "<br$1>")
         }
 
-
-        return html
+        return html.trim()
     }
 
     private fun replace(content: String, pattern: String, replacement: String): String {

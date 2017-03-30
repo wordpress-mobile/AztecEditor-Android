@@ -66,7 +66,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
                         insertVisualNewline(start)
                     } else {
                         // if text deleted, remove the line
-                        aztecText.text.delete(start - 2, start)
+                        aztecText.text.delete(aztecText.text.getSpanStart(line), start)
                     }
                 }
 

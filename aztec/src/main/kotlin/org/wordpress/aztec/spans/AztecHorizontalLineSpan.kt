@@ -16,7 +16,7 @@ import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.AztecText
 
 class AztecHorizontalLineSpan(context: Context, drawable: Drawable, override var nestingLevel: Int) :
-        AztecDynamicImageSpan(context, drawable), AztecFullWidthImageSpan {
+        AztecDynamicImageSpan(context, drawable), AztecFullWidthImageSpan, AztecSpan {
 
     private val TAG: String = "hr"
 

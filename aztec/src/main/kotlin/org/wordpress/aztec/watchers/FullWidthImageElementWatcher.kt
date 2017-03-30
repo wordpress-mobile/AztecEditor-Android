@@ -38,7 +38,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
             if (line != null) {
                 val changedLineBeginning = aztecText.text.getSpanStart(line) == end && end - 1 >= 0 &&
                         aztecText.text[end - 1] != Constants.NEWLINE
-                val changedLineEnd = aztecText.text.getSpanEnd(line) == start &&
+                val changedLineEnd = aztecText.text.getSpanEnd(line) == start && start < aztecText.length() &&
                         aztecText.text[start] != Constants.NEWLINE
 
                 aztecText.disableTextChangedListener()

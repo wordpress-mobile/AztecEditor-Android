@@ -99,12 +99,15 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
         editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
 
+        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+
         val span = AztecCommentSpan(
                 editor.context,
                 when (comment) {
                     AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
                     AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
-                }
+                },
+                nestingLevel
         )
         val ssb = SpannableStringBuilder(comment.html)
         ssb.setSpan(span, 0, comment.html.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

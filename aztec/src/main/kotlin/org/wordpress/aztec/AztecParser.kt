@@ -281,7 +281,7 @@ class AztecParser {
 
         do {
             val paragraphs = text.getSpans(i, end, AztecNestable::class.java)
-                    .filter{ it !is AztecHorizontalLineSpan}
+                    .filter{ it !is AztecFullWidthImageSpan}
                     .toTypedArray()
 
             paragraphs.sortWith(Comparator { a, b ->

@@ -107,8 +107,10 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
                     AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
                 },
-                nestingLevel
+                nestingLevel,
+                editor
         )
+
         val ssb = SpannableStringBuilder(comment.html)
         ssb.setSpan(span, 0, comment.html.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
@@ -119,8 +121,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
-        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
-        span.textView = editor
+        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener, editor)
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
         .firstOrNull {

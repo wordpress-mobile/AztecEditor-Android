@@ -103,8 +103,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         // do a local pre-layout to measure the TextView's basic sizes and line margins
         measuring = true
-        val layout = StaticLayout(textView?.text ?: "", 0, textView?.text?.length ?: 0, textView?.paint, want,
-                Layout.Alignment.ALIGN_NORMAL, 1f, 0f, true)
+
+        val layout = textView?.layout ?: StaticLayout(textView?.text ?: "", 0, textView?.text?.length ?: 0,
+                textView?.paint, want, Layout.Alignment.ALIGN_NORMAL, 1f, 0f, true)
+
         measuring = false
 
         val line = layout.getLineForOffset(start)

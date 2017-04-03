@@ -115,7 +115,7 @@ class AztecParser {
 
             // no need for newline if there's already one, unless we're at the start of our parent
             // and this is a block span
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
+            if (spanStart != parentStart && spanned[spanStart - 1] == '\n') {
                 return@forEach
             }
 
@@ -216,7 +216,7 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned[spanStart - 2] == '\n' && it is AztecBlockSpan) {
+            if (spanned[spanStart - 2] == '\n') {
                 // there's another newline before so, the adjacent one is not a visual one so, return
                 return@forEach
             }

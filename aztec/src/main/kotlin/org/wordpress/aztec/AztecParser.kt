@@ -546,5 +546,6 @@ class AztecParser {
                 .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
+                .replace("\n".toRegex(), "")
     }
 }

@@ -247,6 +247,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         TextDeleter.install(this)
 
+        FullWidthImageElementWatcher.install(this)
+
         EndOfBufferMarkerAdder.install(this)
 
     }
@@ -373,8 +375,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     internal class SavedState : BaseSavedState {
         var state: Bundle = Bundle()
 
-        constructor(superState: Parcelable) : super(superState) {
-        }
+        constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
             state = parcel.readBundle(javaClass.classLoader)
@@ -425,7 +426,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
         }
         return super.onKeyPreIme(keyCode, event)
@@ -487,7 +488,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         if (newSelStart == 0 && newSelEnd == 0) {
             newSelEnd++
-        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == '\n') {
+        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == Constants.NEWLINE) {
             newSelEnd++
         } else if (newSelStart > 0 && !isTextSelected()) {
             newSelStart--
@@ -592,7 +593,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             return
         }
 
-
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
 
         history.handleHistory(this)
@@ -627,7 +627,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
 
-        builder.getSpans(0, builder.length, AztecMediaSpan::class.java).forEach {
+        builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
             it.textView = this
         }
 

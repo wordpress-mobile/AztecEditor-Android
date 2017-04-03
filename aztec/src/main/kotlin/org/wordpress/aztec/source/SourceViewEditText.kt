@@ -91,8 +91,7 @@ class SourceViewEditText : EditText, TextWatcher {
     internal class SavedState : BaseSavedState {
         var state: Bundle = Bundle()
 
-        constructor(superState: Parcelable) : super(superState) {
-        }
+        constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
             state = parcel.readBundle(javaClass.classLoader)
@@ -181,7 +180,7 @@ class SourceViewEditText : EditText, TextWatcher {
         styledHtml.delete(cursorTagIndex, cursorTagIndex + AztecCursorSpan.AZTEC_CURSOR_TAG.length)
 
         if (newlineBefore && newlineAfter) {
-            cursorTagIndex--;
+            cursorTagIndex--
 
             // remove one of the newlines as those are an artefact of the extra formatting applied around the cursor marker
             styledHtml.delete(cursorTagIndex, cursorTagIndex + 1)
@@ -256,7 +255,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
         }
         return super.onKeyPreIme(keyCode, event)

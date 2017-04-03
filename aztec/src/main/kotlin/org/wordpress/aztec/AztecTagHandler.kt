@@ -34,8 +34,8 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
-            nestingLevel: Int): Boolean {
+                           onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
+                           nestingLevel: Int): Boolean {
         val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
@@ -95,7 +95,7 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun createImageSpan(attributes: Attributes?, onMediaTappedListener: AztecText.OnMediaTappedListener?,
-            context: Context) : AztecMediaSpan {
+                                context: Context): AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
@@ -136,8 +136,7 @@ class AztecTagHandler : Html.TagHandler {
 
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
+        } else if (start == end && AztecBlockSpan::class.java.isAssignableFrom(kind)) {
             //if block element is empty add a ZWJ to make it non empty and extend span
             output.append(Constants.ZWJ_CHAR)
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -175,9 +174,13 @@ class AztecTagHandler : Html.TagHandler {
             if (spans.isEmpty()) {
                 return null
             } else {
-                return (spans.size downTo 1)
-                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK && !(spans[it - 1] as HiddenHtmlSpan).isClosed }
-                        ?.let { spans[it - 1] }
+
+                spans.sortByDescending { it.startOrder }
+                return spans.firstOrNull { text.getSpanFlags(it) == Spannable.SPAN_MARK_MARK && !(it as HiddenHtmlSpan).isClosed }
+
+//                return (spans.size downTo 1)
+//                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK && !(spans[it - 1] as HiddenHtmlSpan).isClosed }
+//                        ?.let { spans[it - 1] }
             }
         }
     }

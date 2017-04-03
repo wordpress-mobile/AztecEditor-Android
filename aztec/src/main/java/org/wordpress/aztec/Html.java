@@ -16,6 +16,21 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ParagraphStyle;
+import android.text.style.TextAppearanceSpan;
+import android.text.style.TypefaceSpan;
+
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.AztecText.OnMediaTappedListener;
@@ -46,21 +61,6 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
-
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.ParagraphStyle;
-import android.text.style.TextAppearanceSpan;
-import android.text.style.TypefaceSpan;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -381,7 +381,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start = text.getSpanStart(unknownSpans[0]);
         }
 
-        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_MARK_MARK);
+        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private static void handleBr(SpannableStringBuilder text) {

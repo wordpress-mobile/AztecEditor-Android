@@ -7,8 +7,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
-
-
 object Format {
 
     // list of block elements
@@ -46,11 +44,11 @@ object Format {
     fun removeSourceEditorFormatting(html: String): String {
         val htmlWitthouSourceEdtorFormatting = toRealHtml(html)
 
-        val doc = Jsoup.parse(htmlWitthouSourceEdtorFormatting.replace("\n","")).outputSettings(Document.OutputSettings().prettyPrint(false))
+        val doc = Jsoup.parse(htmlWitthouSourceEdtorFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
 
-        doc.select("*")
-                .filter { !it.hasText() && !it.isBlock && !it.tagName().equals("br") && it.childNodes().size == 0 }
-                .forEach { it.remove() }
+//        doc.select("*")
+//                .filter { !it.hasText() && !it.isBlock &&  !it.tagName().equals("br") && it.childNodes().size == 0 }
+//                .forEach { it.remove() }
 
         return doc.body().html()
     }
@@ -143,7 +141,7 @@ object Format {
         }
 
         if (content.contains("<hr")) {
-            content = replaceAll(content, "\\s*<hr( [^>]*)?>\\s*", "\n\n<hr$1>\n\n")
+            content = replaceAll(content, "\\s*<hr ?/?>\\s*", "\n<hr>\n")
         }
 
         if (content.contains("<object")) {
@@ -268,7 +266,7 @@ object Format {
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
 
 
-        html = replaceAll(html, "(?i)<hr( [^>]*)?>", "<hr$1>\n\n"); // hr is self closing block element
+//        html = replaceAll(html, "(?i)<hr ?/?>", "<hr>\n\n") // hr is self closing block element
 
         html = replaceAll(html, "(?i)\\s*<option", "<option"); // No <p> or <br> around <option>
         html = replaceAll(html, "(?i)</option>\\s*", "</option>");

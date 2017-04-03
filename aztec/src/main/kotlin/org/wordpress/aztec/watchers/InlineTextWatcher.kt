@@ -21,7 +21,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.style.LeadingMarginSpan
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.watchers.TextChangedEvent
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.spans.AztecInlineSpan
 import java.lang.ref.WeakReference
@@ -34,17 +33,24 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         textChangedEventDetails = TextChangedEvent(text.toString())
 
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+            return
+        }
         inlineFormatter.carryOverInlineSpans(start, count, after)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        inlineFormatter.reapplyCarriedOverInlineSpans()
-
         textChangedEventDetails.before = before
         textChangedEventDetails.text = text
         textChangedEventDetails.countOfCharacters = count
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
+
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+            return
+        }
+
+        inlineFormatter.reapplyCarriedOverInlineSpans()
     }
 
     override fun afterTextChanged(text: Editable) {

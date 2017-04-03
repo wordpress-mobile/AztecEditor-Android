@@ -93,7 +93,7 @@ class AztecParser {
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {
-        text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
+        text.setSpan(AztecVisualLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
     }
 
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
@@ -141,7 +141,7 @@ class AztecParser {
 
             // no need for newline if there's one and marked as visual
             if (spanned[spanEnd] == '\n'
-                    && spanned.getSpans(spanEnd, spanEnd, BlockElementLinebreak::class.java).isNotEmpty()) {
+                    && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
 
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is AztecBlockSpan) {
@@ -166,7 +166,7 @@ class AztecParser {
     // Always try to put a visual newline before block elements and only put one after if needed
     fun syncVisualNewlinesOfBlockElements(spanned: Editable) {
         // clear any visual newline marking. We'll mark them with a fresh set of passes
-        spanned.getSpans(0, spanned.length, BlockElementLinebreak::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecVisualLinebreak::class.java).forEach {
             spanned.removeSpan(it)
         }
 
@@ -221,7 +221,7 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).isNotEmpty()) {
+            if (spanned.getSpans(spanStart - 1, spanStart - 1, AztecVisualLinebreak::class.java).isNotEmpty()) {
                 // the newline is already marked as visual so, nothing more to do here
                 return@forEach
             }
@@ -343,7 +343,7 @@ class AztecParser {
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE
-                && text.getSpans(end - 1, end, BlockElementLinebreak::class.java).isEmpty()
+                && text.getSpans(end - 1, end, AztecVisualLinebreak::class.java).isEmpty()
                 && !(parents?.any { it != blockSpan && text.getSpanEnd(it) == end } ?: false)) {
             out.append("<br>")
         }
@@ -362,7 +362,7 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                val isVisualLinebreak = text.getSpans(next, next, BlockElementLinebreak::class.java).isNotEmpty()
+                val isVisualLinebreak = text.getSpans(next, next, AztecVisualLinebreak::class.java).isNotEmpty()
 
                 if (!isVisualLinebreak) {
                     nl++

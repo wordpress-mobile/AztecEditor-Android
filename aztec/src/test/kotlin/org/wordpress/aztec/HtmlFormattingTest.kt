@@ -18,38 +18,48 @@ class HtmlFormattingTest : AndroidTestCase() {
     private var parser = AztecParser()
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
+    private val HTML_LINE_BREAKS_FORMATTED = "<p>HI</p><p>BYE</p>"
 
     private val HTML_NESTED =
-            "<span></span>" +
+
             "<div class=\"first\">" +
-            "<div class=\"second\">" +
-            "<div class=\"third\">" +
-            "Div<br><span><b>b</b></span><br>Hidden" +
-            "</div>" +
-            "<div class=\"fourth\"></div>" +
-            "<div class=\"fifth\"></div>" +
-            "</div>" +
-            "<span class=\"second last\"></span>" +
-            "<div><span></span><div><div><span></span></div></div></div><div></div>" +
-            "</div>" +
-            "<br><br>"
+                    "<div class=\"second\">" +
+                    "<div class=\"third\">" +
+                    "Div<br><span><b>b</b></span><br>Hidden" +
+                    "</div>" +
+                    "<div class=\"fourth\"></div>" +
+                    "<div class=\"fifth\"></div>" +
+                    "</div>" +
+
+                    "<div><div><div></div></div></div><div></div>" +
+                    "</div>"
 
     private val HTML_MIXED_WITH_NEWLINES =
             "\n\n<span><i>Italic</i></span>\n\n" +
-            "<b>Bold</b><br>" +
-            "\t<div class=\"first\">" +
-            "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
-            "    \t<div class=\"second\">" +
-            "        <div class=\"third\">" +
-            "            Div<br><span><b>Span</b></span><br>Hidden" +
-            "        </div>" +
-            "<iframe class=\"classic\">Menu</iframe><br><br>" +
-            "        <div class=\"fourth\"><u>Under</u>line</div>\n\n" +
-            "        <div class=\"fifth\"></div>" +
-            "   \t\t</div>" +
-            "    <span class=\"second last\"></span>" +
-            "</div>" +
-            "<br>"
+                    "<b>Bold</b><br>" +
+                    "\t<div class=\"first\">" +
+                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
+                    "    \t<div class=\"second\">" +
+                    "        <div class=\"third\">" +
+                    "            Div<br><span><b>Span</b></span><br>Hidden" +
+                    "        </div>" +
+                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
+                    "        <div class=\"fourth\"><u>Under</u>line</div>\n\n" +
+                    "        <div class=\"fifth\"></div>" +
+                    "   \t\t</div>" +
+                    "</div>"
+
+    private val HTML_MIXED_WITH_NEWLINES_FORMATTED =
+            "<p><span><i>Italic</i></span><b>Bold</b></p>" +
+                    "<div class=\"first\">" +
+                    "<p><a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a></p>" +
+                    "<div class=\"second\">" +
+                    "<div class=\"third\">Div<br><span><b>Span</b></span><br>Hidden</div>" +
+                    "<p><iframe class=\"classic\">Menu</iframe></p>" +
+                    "<div class=\"fourth\"><u>Under</u>line</div>" +
+                    "<div class=\"fifth\"></div>" +
+                    "</div>" +
+                    "</div>"
 
     private val HTML_MIXED_WITHOUT_NEWLINES =
             "<span><i>Italic</i></span>" +
@@ -89,7 +99,7 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNestedHtml() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
         Assert.assertEquals(input, output)
     }
 
@@ -103,8 +113,8 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatLineBreaks() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        Assert.assertEquals(input, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
     }
 
     /**
@@ -117,8 +127,8 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatMixedHtml() {
         val input = HTML_MIXED_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_FORMATTED, output)
     }
 
     /**
@@ -131,7 +141,7 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNewlines() {
         val input = HTML_BLOCK_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.clearFormatting(Format.addFormatting(parser.toHtml(span)))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
     }
 }

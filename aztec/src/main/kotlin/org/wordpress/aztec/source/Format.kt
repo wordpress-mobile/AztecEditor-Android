@@ -44,11 +44,15 @@ object Format {
     }
 
     fun removeSourceEditorFormatting(html: String): String {
-        // remove all whitespace around block elements
-//        return
+        val htmlWitthouSourceEdtorFormatting = toRealHtml(html)
 
-//        return replaceAll(doc.body().html(), "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
-        return toRealHtml(html).replace("\n","")
+        val doc = Jsoup.parse(htmlWitthouSourceEdtorFormatting.replace("\n","")).outputSettings(Document.OutputSettings().prettyPrint(false))
+
+        doc.select("*")
+                .filter { !it.hasText() && !it.isBlock && !it.tagName().equals("br") && it.childNodes().size == 0 }
+                .forEach { it.remove() }
+
+        return doc.body().html()
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {

@@ -119,9 +119,9 @@ object Format {
 
         // Remove <p> and <br />
         content = replaceAll(content, "(?i)\\s*<p>", "")
-        content = replaceAll(content, "(?i)\\s*</p>\\s*", "\n\n")
+        content = replaceAll(content, "(?i)\\s*</p>", "\n")
         content = replaceAll(content, "\\n[\\s\\u00a0]+\\n", "\n\n")
-        content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n");
+
 
         // Fix some block element newline issues
         content = replaceAll(content, "\\s*<div", "\n<div")
@@ -132,6 +132,8 @@ object Format {
 //        blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|pre|fieldset"
         content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
         content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
+
+        content = replaceAll(content, "(?i)<br ?/?>", "\n");
 
         content = replaceAll(content, "<li([^>]*)>", "\t<li$1>")
 

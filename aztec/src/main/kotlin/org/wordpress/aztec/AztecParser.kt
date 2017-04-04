@@ -438,14 +438,14 @@ class AztecParser {
             i = next
         }
 
-        for (i in 0..nl - 1) {
-            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + 1 + i } ?: false
+        for (z in 0..nl - 1) {
+            val parentSharesEnd = parents?.any { it !is ParagraphSpan &&  text.getSpanEnd(it) == end + 1 + z } ?: false
             if (parentSharesEnd) {
                 continue
             }
 
             out.append("<br>")
-            consumeCursorIfInInput(out, text, end + i)
+            consumeCursorIfInInput(out, text, end + z)
         }
     }
 
@@ -561,7 +561,7 @@ class AztecParser {
                 .replace("&#8203;", "")
                 .replace("&#65279;", "")
                 .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
-                .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")
+//                .replace("(</? ?br>)*((aztec_cursor)+)</p>".toRegex(), "$2</p>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
                 .replace("\n".toRegex(), "")
     }

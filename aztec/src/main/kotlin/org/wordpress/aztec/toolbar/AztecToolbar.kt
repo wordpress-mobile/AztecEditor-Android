@@ -345,13 +345,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
+            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(false))
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
             toggleHtmlMode(true)
         } else {
-            editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            editor!!.fromHtml(sourceEditor!!.getPureHtml(false))
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 

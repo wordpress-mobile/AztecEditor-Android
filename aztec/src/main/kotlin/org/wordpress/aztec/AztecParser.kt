@@ -99,23 +99,27 @@ class AztecParser {
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
         // add visual newlines at starts
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
+            val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
+            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+
             val spanStart = spanned.getSpanStart(it)
 
-            // no need for newline if at text start
-            if (spanStart < 1) {
+            // no need for newline if at text start, unless repelling needs to happen
+            if (!repelling && spanStart < 1) {
                 return@forEach
             }
 
-            val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
+            val parentStart = parent?.start ?: 0
 
-            // no need for newline if we're a childBlock at the start of our parent
-            if (spanStart == parentStart && (it is AztecChildBlockSpan || it is AztecSurroundedWithNewlines)) {
+            // no need for newline if we're at the start of our parent, unless repelling needs to happen
+            if (!repelling && spanStart == parentStart) {
                 return@forEach
             }
 
-            // no need for newline if there's already one, unless we're at the start of our parent
-            // and this is a block span
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
+            // no need for newline if there's already one, unless repelling needs to happen
+            if (!repelling && spanned[spanStart - 1] == '\n') {
                 return@forEach
             }
 
@@ -192,16 +196,21 @@ class AztecParser {
         }
 
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
+            val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
+            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+
             val spanStart = spanned.getSpanStart(it)
 
-            if (spanStart < 1) {
-                // no visual newline if at text start so, return
+            if (!repelling && spanStart < 1) {
+                // no visual newline if at text start and not repelling so, return
                 return@forEach
             }
 
-            if (spanStart < 2) {
-                // no visual newline can exist unless there are at least 2 chars before the block (one will be the newline
-                //  and the other will be the leading content) so, return
+            if (!repelling && spanStart < 2) {
+                // if not repelling, no visual newline can exist unless there are at least 2 chars before the block
+                //  (one will be the newline and the other will be the leading content) so, return
                 return@forEach
             }
 
@@ -210,14 +219,14 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any {
-                    spanned.getSpanEnd(it) == spanStart }) {
+            if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any { before ->
+                        spanned.getSpanEnd(before) == spanStart }) {
                 // the newline before us is the end of a previous block element so, return
                 return@forEach
             }
 
-            if (spanned[spanStart - 2] == '\n' && it is AztecBlockSpan) {
-                // there's another newline before so, the adjacent one is not a visual one so, return
+            if (!repelling && spanned[spanStart - 2] == '\n' && it is AztecBlockSpan) {
+                // there's another newline before and we're not repelling a parent so, the adjacent one is not a visual one so, return
                 return@forEach
             }
 

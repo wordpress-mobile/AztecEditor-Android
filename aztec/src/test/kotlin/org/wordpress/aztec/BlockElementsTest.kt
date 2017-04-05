@@ -65,7 +65,7 @@ class BlockElementsTest {
         safeAppend(editText, "quote")
         editText.setSelection(safeLength(editText))
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("some text<br><br><blockquote>quote</blockquote>", editText.toHtml())
+        Assert.assertEquals("some text<br><blockquote>quote</blockquote>", editText.toHtml())
         editText.setSelection(safeLength(editText))
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
@@ -78,7 +78,7 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "some text")
 
-        Assert.assertEquals("some text<br><br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br>some text", editText.toHtml())
+        Assert.assertEquals("some text<br><blockquote>quote</blockquote><br><ul><li>list</li></ul><br>some text", editText.toHtml())
     }
 
     @Test

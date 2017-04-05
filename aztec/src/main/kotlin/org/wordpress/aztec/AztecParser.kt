@@ -113,10 +113,13 @@ class AztecParser {
                 return@forEach
             }
 
-            // no need for newline if there's already one, unless we're at the start of our parent
-            // and this is a block span
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n') {
-                return@forEach
+            // if there are newlines all the way to the text start, we don't need an extra visual newline
+            var ind = spanStart - 1
+            while (ind >= 0 && spanned[ind] == '\n') {
+                ind--
+                if (ind < 0) {
+                    return@forEach
+                }
             }
 
             // well, it seems we need a visual newline so, add one and mark it as such
@@ -139,16 +142,27 @@ class AztecParser {
                 return@forEach
             }
 
-            // no need for newline if there's one and marked as visual
-            if (spanned[spanEnd] == '\n'
-                    && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
-
+            // no need for newline if there's one
+            if (spanned[spanEnd] == '\n') {
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is AztecBlockSpan) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
+            }
 
+            // no need for newline if there's one and marked as visual
+            if (spanned[spanEnd] == '\n' && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
                 return@forEach
+            }
+
+            // no need for newline if there's one and marked as visual after the span
+            // if there is, we don't need to add one (prevents double newlines between 2 special comments)
+            var ind = spanEnd
+            while (ind < spanned.length && spanned[ind] == '\n') {
+                if (spanned.getSpans(ind, ind, AztecVisualLinebreak::class.java).isNotEmpty()) {
+                    return@forEach
+                }
+                ind++
             }
 
             // well, it seems we need a visual newline so, add one and mark it as such
@@ -216,8 +230,18 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned[spanStart - 2] == '\n') {
-                // there's another newline before so, the adjacent one is not a visual one so, return
+            // if there are multiple newlines before the span, see if there already is a visual newline
+            // if there is, we don't need to mark another one as such (prevents linebreak removal)
+            var ind = spanStart - 1
+            while (ind >= 0 && spanned[ind] == '\n') {
+                if (spanned.getSpans(ind, ind, AztecVisualLinebreak::class.java).isNotEmpty()) {
+                    return@forEach
+                }
+                ind--
+            }
+
+            // if there are newlines all the way to the text start, we didn't add an extra visual newline
+            if (ind < 0) {
                 return@forEach
             }
 

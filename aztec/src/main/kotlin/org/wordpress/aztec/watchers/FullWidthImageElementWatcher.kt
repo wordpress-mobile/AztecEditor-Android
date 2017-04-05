@@ -32,13 +32,13 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
     private fun normalizeEditingAroundImageSpans(count: Int, start: Int) {
         if (!aztecText.isTextChangedListenerDisabled()) {
             val end = start + count
-            val line = aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java).firstOrNull() ?:
-                    aztecText.text.getSpans(start, start, AztecFullWidthImageSpan::class.java).firstOrNull()
+            var lines = aztecText.text.getSpans(start, start, AztecFullWidthImageSpan::class.java)
+            lines += aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java)
 
-            if (line != null) {
-                val changedLineBeginning = aztecText.text.getSpanStart(line) == end && end - 1 >= 0 &&
+            lines.distinct().forEach {
+                val changedLineBeginning = aztecText.text.getSpanStart(it) == end && end - 1 >= 0 &&
                         aztecText.text[end - 1] != Constants.NEWLINE
-                val changedLineEnd = aztecText.text.getSpanEnd(line) == start && start < aztecText.length() &&
+                val changedLineEnd = aztecText.text.getSpanEnd(it) == start && start < aztecText.length() &&
                         aztecText.text[start] != Constants.NEWLINE
 
                 aztecText.disableTextChangedListener()
@@ -66,7 +66,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
                         insertVisualNewline(start)
                     } else {
                         // if text deleted, remove the line
-                        aztecText.text.delete(aztecText.text.getSpanStart(line), start)
+                        aztecText.text.delete(aztecText.text.getSpanStart(it), start)
                     }
                 }
 

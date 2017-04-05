@@ -1,9 +1,9 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
 import android.os.Bundle
 import android.os.Parcelable
+import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -26,7 +26,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var headingMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
-    private var isMediaModeEnabled: Boolean = false;
+    private var isMediaModeEnabled: Boolean = false
 
     constructor(context: Context) : super(context) {
         initView()
@@ -343,7 +343,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    public fun toggleEditorMode() {
+    fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
             sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
             editor!!.visibility = View.GONE
@@ -412,11 +412,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun isMediaModeEnabled(): Boolean {
-        return isMediaModeEnabled;
+        return isMediaModeEnabled
     }
 
     fun enableMediaMode(isEnabled: Boolean) {
-        isMediaModeEnabled = isEnabled;
+        isMediaModeEnabled = isEnabled
         ToolbarAction.values().forEach { action ->
             if (action == ToolbarAction.ADD_MEDIA) {
                 toggleButton(findViewById(action.buttonId), isEnabled)

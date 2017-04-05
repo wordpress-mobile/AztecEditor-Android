@@ -83,6 +83,18 @@ class AztecTagHandler : Html.TagHandler {
                 handleElement(output, opening, ParagraphSpan(nestingLevel, attributeString))
                 return true
             }
+            LINE -> {
+                if (opening) {
+                    // Add an extra newline above the line to prevent weird typing on the line above
+                    start(output, AztecHorizontalLineSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
+
+                    // the placeholder text ~must~ contain at least 2 characters, otherwise extra newline is appended to the HTML
+                    output.append("HR")
+                } else {
+                    end(output, AztecHorizontalLineSpan::class.java)
+                }
+                return true
+            }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
                     handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, attributeString))
@@ -156,6 +168,7 @@ class AztecTagHandler : Html.TagHandler {
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
         private val IMAGE = "img"
+        private val LINE = "hr"
 
         private fun getLast(text: Editable, kind: Class<*>): Any? {
             val spans = text.getSpans(0, text.length, kind)

@@ -5,7 +5,7 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecNestable
 import org.wordpress.aztec.watchers.TextDeleter
 
-class ListItemHandler() : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
+class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
 
     override fun handleNewlineAtStartOfBlock() {
         // newline added at start of bullet so, add a new bullet

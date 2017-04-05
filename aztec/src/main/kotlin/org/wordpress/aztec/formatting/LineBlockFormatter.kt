@@ -5,8 +5,11 @@ import android.support.v4.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.R
+import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes

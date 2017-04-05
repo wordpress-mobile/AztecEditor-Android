@@ -100,6 +100,8 @@ class AztecParser {
         // add visual newlines at starts
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
             val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
 
             val spanStart = spanned.getSpanStart(it)
@@ -195,6 +197,8 @@ class AztecParser {
 
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
             val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
             val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
 
             val spanStart = spanned.getSpanStart(it)

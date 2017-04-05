@@ -9,48 +9,48 @@ import java.util.regex.Pattern
 
 object Format {
 
+    val isCalypsoMode = true
+
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
     fun addSourceEditorFormatting(content: String): String {
-//        // rename iframes to prevent encoding the inner HTML
         var html = replaceAll(content, "iframe", iframePlaceholder)
-//        html = Jsoup.parseBodyFragment(html).body().html()
-        html = replaceAll(html, iframePlaceholder, "iframe")
 
-        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(false))
+        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoMode))
+        if (isCalypsoMode) {
+            //remove empty spans
+            doc.select("*")
+                    .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
+                    .forEach { it.remove() }
 
-        doc.select("*")
-                .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
-                .forEach { it.remove() }
-//
-//        //remove newline around all non block elements
-//        val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
-//        val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
-//        var fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
-//        fixBrNewlines = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")
-//
-//        return fixBrNewlines.trim()
+            html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
 
-        html = replaceAll(doc.body().html(), "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "")
-//        html = replaceAll(html, iframePlaceholder, "iframe")
+            html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "")
+            html = toCalypsoHtml(html)
+        } else {
 
-        return toCalypsoHtml(html).trim()
+            html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
 
+            val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
+            val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
+            val fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
+            html = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")
+        }
+
+        return html.trim()
     }
 
     fun removeSourceEditorFormatting(html: String): String {
-        val htmlWitthouSourceEdtorFormatting = toRealHtml(html)
-
-        val doc = Jsoup.parse(htmlWitthouSourceEdtorFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
-
-//        doc.select("*")
-//                .filter { !it.hasText() && !it.isBlock &&  !it.tagName().equals("br") && it.childNodes().size == 0 }
-//                .forEach { it.remove() }
-
-        return doc.body().html()
+        if (isCalypsoMode) {
+            val htmlWithoutSourceFormatting = toRealHtml(html)
+            val doc = Jsoup.parse(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
+            return doc.body().html()
+        } else {
+            return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
+        }
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {
@@ -129,7 +129,6 @@ object Format {
         content = replaceAll(content, "(?i)\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*", "\n\n[caption$1[/caption]\n\n")
         content = replaceAll(content, "caption\\]\\n\\n+\\[caption", "caption]\n\n[caption")
 
-//        blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|pre|fieldset"
         content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
         content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
 
@@ -296,14 +295,6 @@ object Format {
                 matchResult.groupValues[1] + "<p>" + matchResult.groupValues[2] + "</p>"
             }
         })
-//
-//                html = replaceAll("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)<\\/p>", function( a, b, c ) {
-//                    if ( c.match( /<p( [^>]*)?>/ ) ) {
-//                        return a;
-//                    }
-//
-//                    return b + '<p>' + c + '</p>';
-//                });
 
         // put back the line breaks in pre|script
         if (preserve_linebreaks) {

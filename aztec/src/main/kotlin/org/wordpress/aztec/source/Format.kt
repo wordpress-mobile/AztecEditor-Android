@@ -105,7 +105,7 @@ object Format {
 
         // Pretty it up for the source editor
         val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
-        val blocklist1 = blocklist + "|div|p"
+        val blocklist1 = blocklist + "|div"
         val blocklist2 = blocklist + "|pre"
 
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")

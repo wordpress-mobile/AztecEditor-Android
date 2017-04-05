@@ -2,7 +2,9 @@ package org.wordpress.aztec
 
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
+import android.text.Editable
 import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -1024,7 +1026,8 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlLineBreakBetweenHeadings_isEqual() {
         val input = HTML_HEADING_ONE + "<br>" + HTML_HEADING_ONE
-        val span = SpannableString(mParser.fromHtml(input, null, null, context))
+        val span = SpannableStringBuilder(mParser.fromHtml(input, null, null, context))
+        mParser.syncVisualNewlinesOfBlockElements(span)
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
@@ -1144,7 +1147,8 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlBrAfterHeadings_isEqual() {
         val input = "<h1>h1</h1><br><h2>h2</h2><br><h3>h3</h3><br>"
-        val span = SpannableString(mParser.fromHtml(input, null, null, context))
+        val span = SpannableStringBuilder(mParser.fromHtml(input, null, null, context))
+        mParser.syncVisualNewlinesOfBlockElements(span)
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }

@@ -240,7 +240,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
             AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
             AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
-            AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs)
+            AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, attrs)
             else -> ParagraphSpan(nestingLevel, attrs)
         }

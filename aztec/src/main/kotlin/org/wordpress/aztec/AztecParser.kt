@@ -114,7 +114,7 @@ class AztecParser {
             val parentStart = parent?.start ?: 0
 
             // no need for newline if we're at the start of our parent, unless repelling needs to happen
-            if (!repelling && spanStart == parentStart && it is AztecSurroundedWithNewlines) {
+            if (!repelling && spanStart == parentStart) {
                 return@forEach
             }
 
@@ -243,7 +243,7 @@ class AztecParser {
             // if there are multiple newlines before the span, see if there already is a visual newline
             // if there is, we don't need to mark another one as such (prevents linebreak removal)
             var ind = spanStart - 1
-            while (ind >= 0 && spanned[ind] == '\n') {
+            while (ind >= 0 && spanned[ind] == '\n' && !repelling) {
                 if (spanned.getSpans(ind, ind, AztecVisualLinebreak::class.java).isNotEmpty()) {
                     return@forEach
                 }
@@ -251,7 +251,7 @@ class AztecParser {
             }
 
             // if there are newlines all the way to the text start, we didn't add an extra visual newline
-            if (ind < 0) {
+            if (ind < 0 && !repelling) {
                 return@forEach
             }
 

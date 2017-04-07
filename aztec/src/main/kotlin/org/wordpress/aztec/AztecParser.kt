@@ -451,8 +451,14 @@ class AztecParser {
                     out.append("<${span.getStartTag()}>")
                 }
 
-                if (span is AztecCommentSpan || span is CommentSpan) {
+                if (span is CommentSpan) {
                     out.append("<!--")
+                }
+
+                if (span is AztecCommentSpan) {
+                    out.append("<!--")
+                    out.append(span.commentText)
+                    i = next
                 }
 
                 if (span is AztecHorizontalLineSpan) {

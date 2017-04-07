@@ -102,6 +102,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
 
         val span = AztecCommentSpan(
+                comment.html,
                 editor.context,
                 when (comment) {
                     AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
@@ -111,8 +112,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 editor
         )
 
-        val ssb = SpannableStringBuilder(comment.html)
-        ssb.setSpan(span, 0, comment.html.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val ssb = SpannableStringBuilder(Constants.MAGIC_STRING)
+        ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         editableText.replace(selectionStart, selectionEnd, ssb)
 

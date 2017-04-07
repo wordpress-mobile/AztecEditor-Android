@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import org.wordpress.aztec.AztecText
 
-class AztecCommentSpan @JvmOverloads constructor(context: Context, drawable: Drawable, override var nestingLevel: Int, editor: AztecText? = null) :
+class AztecCommentSpan @JvmOverloads constructor(val commentText: String, context: Context, drawable: Drawable, override var nestingLevel: Int, editor: AztecText? = null) :
         AztecDynamicImageSpan(context, drawable), AztecFullWidthImageSpan {
 
     init {

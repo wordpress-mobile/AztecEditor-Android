@@ -61,7 +61,8 @@ object Format {
 
     //Takes HTML as is and formats it for source viewer by replacing <p> with \n\n and <br> with \n
     fun toCalypsoHtml(htmlContent: String): String {
-        var content = htmlContent
+        //remove references to cursor when in calypso mode
+        var content = htmlContent.replace("aztec_cursor","")
         if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
             return ""
@@ -178,7 +179,8 @@ object Format {
     }
 
     fun toRealHtml(formattedHtml: String): String {
-        var html = formattedHtml
+        //remove references to cursor when in calypso mode
+        var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>","")
         if (TextUtils.isEmpty(html.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
             return ""

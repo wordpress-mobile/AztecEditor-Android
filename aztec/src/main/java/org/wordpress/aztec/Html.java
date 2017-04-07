@@ -381,7 +381,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start = text.getSpanStart(unknownSpans[0]);
         }
 
-        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        text.setSpan(new AztecCursorSpan(), start, start, Spanned.SPAN_MARK_MARK);
     }
 
     private static void handleBr(SpannableStringBuilder text) {

@@ -557,7 +557,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(editText.toHtml())
 
-        Assert.assertEquals("nextpage\n\nnextpage", editText.text.toString())
+        Assert.assertEquals("${Constants.MAGIC_CHAR}\n\n${Constants.MAGIC_CHAR}", editText.text.toString())
         Assert.assertEquals("$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE", editText.toHtml())
 
         editText.text.insert(index, Constants.NEWLINE_STRING)
@@ -580,7 +580,7 @@ class AztecCommentTest() : AndroidTestCase() {
 
         editText.fromHtml(editText.toHtml())
 
-        Assert.assertEquals("a\n\nnextpage\n\nnextpage\n\nb", editText.text.toString())
+        Assert.assertEquals("a\n\n${Constants.MAGIC_CHAR}\n\n${Constants.MAGIC_CHAR}\n\nb", editText.text.toString())
     }
 
     @Test
@@ -599,6 +599,6 @@ class AztecCommentTest() : AndroidTestCase() {
 
         Assert.assertEquals("a" + HTML_COMMENT_MORE + "b", editText.toHtml())
 
-        Assert.assertEquals("a\nmore\nb", editText.text.toString())
+        Assert.assertEquals("a\n${Constants.MAGIC_CHAR}\nb", editText.text.toString())
     }
 }

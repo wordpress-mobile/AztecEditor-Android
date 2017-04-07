@@ -1,10 +1,12 @@
 package org.wordpress.aztec.watchers
 
 import android.text.Editable
+import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecFullWidthImageSpan
+import org.wordpress.aztec.spans.FullWidthImageProcessingMarker
 
 class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
 
@@ -30,7 +32,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
     }
 
     private fun normalizeEditingAroundImageSpans(count: Int, start: Int) {
-        if (!aztecText.isTextChangedListenerDisabled()) {
+        if (aztecText.text.getSpans(0, 0, FullWidthImageProcessingMarker::class.java).isEmpty()) {
             val end = start + count
             var lines = aztecText.text.getSpans(start, start, AztecFullWidthImageSpan::class.java)
             lines += aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java)
@@ -41,7 +43,8 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
                 val changedLineEnd = aztecText.text.getSpanEnd(it) == start && start < aztecText.length() &&
                         aztecText.text[start] != Constants.NEWLINE
 
-                aztecText.disableTextChangedListener()
+                val marker = FullWidthImageProcessingMarker()
+                aztecText.text.setSpan(marker, 0, 0, Spanned.SPAN_MARK_MARK)
 
                 if (changedLineBeginning) {
                     // if characters added, insert a newline before the line
@@ -70,7 +73,7 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
                     }
                 }
 
-                aztecText.enableTextChangedListener()
+                aztecText.text.removeSpan(marker)
             }
         }
     }

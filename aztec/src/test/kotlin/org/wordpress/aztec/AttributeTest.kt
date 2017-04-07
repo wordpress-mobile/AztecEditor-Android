@@ -274,7 +274,7 @@ class AttributeTest {
         val input = LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK
         editText.fromHtml(input)
         val output = editText.toHtml()
-        Assert.assertEquals(LIST_WITH_EMPTY_ITEMS_WITH_LINE_BREAK, output)
+        Assert.assertEquals("a<ul><li></li><li a=\"1\">1</li><li></li></ul><br>b", output)
     }
 
     @Test

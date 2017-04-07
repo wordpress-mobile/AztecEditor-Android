@@ -576,7 +576,7 @@ class AztecCommentTest() : AndroidTestCase() {
         editText.text.insert(1, Constants.NEWLINE_STRING)
         editText.text.insert(editText.length() - 1, Constants.NEWLINE_STRING)
 
-        Assert.assertEquals("a<br>$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE<br>b", editText.toHtml())
+        Assert.assertEquals("a<br><br>$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE<br>b", editText.toHtml())
 
         editText.fromHtml(editText.toHtml())
 

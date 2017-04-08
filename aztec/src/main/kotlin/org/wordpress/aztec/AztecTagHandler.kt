@@ -187,13 +187,8 @@ class AztecTagHandler : Html.TagHandler {
             if (spans.isEmpty()) {
                 return null
             } else {
-
                 spans.sortByDescending { it.startOrder }
                 return spans.firstOrNull { text.getSpanFlags(it) == Spannable.SPAN_MARK_MARK && !(it as HiddenHtmlSpan).isClosed }
-
-//                return (spans.size downTo 1)
-//                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK && !(spans[it - 1] as HiddenHtmlSpan).isClosed }
-//                        ?.let { spans[it - 1] }
             }
         }
     }

@@ -31,24 +31,23 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        textChangedEventDetails = TextChangedEvent(text.toString())
-
         if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
             return
         }
+        textChangedEventDetails = TextChangedEvent(text.toString())
         inlineFormatter.carryOverInlineSpans(start, count, after)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+            return
+        }
+
         textChangedEventDetails.before = before
         textChangedEventDetails.text = text
         textChangedEventDetails.countOfCharacters = count
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
-
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
-            return
-        }
 
         inlineFormatter.reapplyCarriedOverInlineSpans()
     }

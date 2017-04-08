@@ -79,22 +79,22 @@ class HtmlFormattingTest : AndroidTestCase() {
                     "</div>" +
                     "</div>"
 
-    private val HTML_MIXED_WITHOUT_NEWLINES =
-            "<span><i>Italic</i></span>" +
-                    " <b>Bold</b><br>" +
-                    "<div class=\"first\">" +
-                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
-                    "<div class=\"second\">" +
-                    "<div class=\"third\">" +
-                    "Div<br><span><b>Span</b></span><br>Hidden" +
-                    "</div>" +
-                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
-                    "<div class=\"fourth\"><u>Under</u>line</div>" +
-                    "<div class=\"fifth\"></div>" +
-                    "</div>" +
-                    "<span class=\"second last\"></span>" +
-                    "</div>" +
-                    "<br>"
+//    private val HTML_MIXED_WITHOUT_NEWLINES =
+//            "<span><i>Italic</i></span>" +
+//                    " <b>Bold</b><br>" +
+//                    "<div class=\"first\">" +
+//                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
+//                    "<div class=\"second\">" +
+//                    "<div class=\"third\">" +
+//                    "Div<br><span><b>Span</b></span><br>Hidden" +
+//                    "</div>" +
+//                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
+//                    "<div class=\"fourth\"><u>Under</u>line</div>" +
+//                    "<div class=\"fifth\"></div>" +
+//                    "</div>" +
+//                    "<span class=\"second last\"></span>" +
+//                    "</div>" +
+//                    "<br>"
 
     private val HTML_BLOCK_WITH_NEWLINES = "\n\n<div>Division</div>\n\n"
     private val HTML_BLOCK_WITHOUT_NEWLINES = "<div>Division</div>"

@@ -60,6 +60,7 @@ object Format {
     }
 
     //Takes HTML as is and formats it for source viewer by replacing <p> with \n\n and <br> with \n
+    //based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoHtml(htmlContent: String): String {
         //remove references to cursor when in calypso mode
         var content = htmlContent.replace("aztec_cursor","")
@@ -178,6 +179,8 @@ object Format {
         return content
     }
 
+    // converts visual newlines to <p> and <br> tags
+    // based on wpautop() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toRealHtml(formattedHtml: String): String {
         //remove references to cursor when in calypso mode
         var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>","")

@@ -9,6 +9,7 @@ import java.util.regex.Pattern
 
 object Format {
 
+    //enables "calypso" mode which allows for mixed html/visual input
     val isCalypsoMode = true
 
     // list of block elements
@@ -21,7 +22,7 @@ object Format {
 
         val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoMode))
         if (isCalypsoMode) {
-            //remove empty spans
+            //remove empty span tags
             doc.select("*")
                     .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
                     .forEach { it.remove() }

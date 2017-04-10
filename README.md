@@ -2,6 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android)
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=5800168c52aea90100a973ed&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/5800168c52aea90100a973ed/build/latest)
 
 Aztec (extend EditText) is a rich text editor component for writing HTML
 documents in Android.

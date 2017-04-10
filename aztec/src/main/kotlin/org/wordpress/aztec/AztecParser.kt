@@ -155,16 +155,6 @@ class AztecParser {
                 return@forEach
             }
 
-            // no need for newline if there's one and marked as visual after the span
-            // if there is, we don't need to add one (prevents double newlines between 2 special comments)
-            var ind = spanEnd
-            while (ind < spanned.length && spanned[ind] == '\n') {
-                if (spanned.getSpans(ind, ind, AztecVisualLinebreak::class.java).isNotEmpty()) {
-                    return@forEach
-                }
-                ind++
-            }
-
             // well, it seems we need a visual newline so, add one and mark it as such
             spanned.insert(spanEnd, "\n")
 

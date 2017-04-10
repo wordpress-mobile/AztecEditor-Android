@@ -120,14 +120,14 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         span.textView = editor
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-        .firstOrNull {
-            selectionStart == editableText.getSpanEnd(it)
-        }
+            .firstOrNull {
+                selectionStart == editableText.getSpanEnd(it)
+            }
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-                .firstOrNull {
-                    selectionStart == editableText.getSpanStart(it)
-                }
+            .firstOrNull {
+                selectionStart == editableText.getSpanStart(it)
+            }
 
         val mediaStartIndex = selectionStart
         val mediaEndIndex = selectionStart + 1

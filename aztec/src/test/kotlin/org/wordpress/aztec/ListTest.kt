@@ -778,7 +778,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals(preQuote + "<$listTag><li>Quote</li></$listTag>" + aftQuote, editText.toHtml())
+        Assert.assertEquals("$preQuote<$listTag><li>Quote</li></$listTag>$aftQuote", editText.toHtml())
     }
 
     @Test

@@ -535,4 +535,70 @@ class AztecCommentTest() : AndroidTestCase() {
 
         Assert.assertEquals("$HTML_LIST_UNORDERED_SELECTED_1$HTML_COMMENT_PAGE$HTML_LIST_UNORDERED_SELECTED_2", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun insertTwoPageSpecialThenAddNewlinesInBetweenComments() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
+
+        Assert.assertEquals(HTML_COMMENT_PAGE, editText.toHtml())
+
+        val index = editText.length()
+
+        editText.toggleFormatting(TextFormat.FORMAT_PAGE)
+
+        Assert.assertEquals("$HTML_COMMENT_PAGE$HTML_COMMENT_PAGE", editText.toHtml())
+
+        editText.text.insert(index, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE", editText.toHtml())
+
+        editText.fromHtml(editText.toHtml())
+
+        Assert.assertEquals("${Constants.MAGIC_CHAR}\n\n${Constants.MAGIC_CHAR}", editText.text.toString())
+        Assert.assertEquals("$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE", editText.toHtml())
+
+        editText.text.insert(index, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("$HTML_COMMENT_PAGE<br><br>$HTML_COMMENT_PAGE", editText.toHtml())
+        editText.fromHtml(editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addNewlinesAroundSpecialComments() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        editText.fromHtml("a$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE" + "b")
+
+        editText.text.insert(1, Constants.NEWLINE_STRING)
+        editText.text.insert(editText.length() - 1, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("a<br><br>$HTML_COMMENT_PAGE<br>$HTML_COMMENT_PAGE<br>b", editText.toHtml())
+
+        editText.fromHtml(editText.toHtml())
+
+        Assert.assertEquals("a\n\n${Constants.MAGIC_CHAR}\n\n${Constants.MAGIC_CHAR}\n\nb", editText.text.toString())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testInsertionRightNextToSpecialComments() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        editText.fromHtml(HTML_COMMENT_MORE)
+        editText.setSelection(editText.length())
+
+        editText.text.append("b")
+
+        Assert.assertEquals(HTML_COMMENT_MORE + "b", editText.toHtml())
+
+        editText.text.insert(0, "a")
+
+        Assert.assertEquals("a" + HTML_COMMENT_MORE + "b", editText.toHtml())
+
+        Assert.assertEquals("a\n${Constants.MAGIC_CHAR}\nb", editText.text.toString())
+    }
 }

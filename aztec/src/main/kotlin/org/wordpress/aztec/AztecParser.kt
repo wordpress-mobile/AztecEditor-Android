@@ -226,7 +226,7 @@ class AztecParser {
             }
 
             if (!repelling && spanned[spanStart - 2] == '\n') {
-                // there's another newline before so, the adjacent one is not a visual one so, return
+                // there's another newline before and we're not repelling a parent so, the adjacent one is not a visual one so, return
                 return@forEach
             }
 

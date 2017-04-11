@@ -1027,7 +1027,6 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlLineBreakBetweenHeadings_isEqual() {
         val input = HTML_HEADING_ONE + "<br>" + HTML_HEADING_ONE
         val span = SpannableStringBuilder(mParser.fromHtml(input, null, null, context))
-        mParser.syncVisualNewlinesOfBlockElements(span)
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
@@ -1148,7 +1147,6 @@ class AztecParserTest : AndroidTestCase() {
     fun parseHtmlToSpanToHtmlBrAfterHeadings_isEqual() {
         val input = "<h1>h1</h1><br><h2>h2</h2><br><h3>h3</h3><br>"
         val span = SpannableStringBuilder(mParser.fromHtml(input, null, null, context))
-        mParser.syncVisualNewlinesOfBlockElements(span)
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }

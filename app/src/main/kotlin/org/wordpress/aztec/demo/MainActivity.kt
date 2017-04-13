@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
 
         // Setup hiding the action bar when the soft keyboard is displayed for narrow viewports
-        if (resources.configuration.orientation === Configuration.ORIENTATION_LANDSCAPE
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                 && !resources.getBoolean(R.bool.is_large_tablet_landscape)) {
             mHideActionBarOnSoftKeyboardUp = true
         }

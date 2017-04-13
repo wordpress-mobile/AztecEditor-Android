@@ -18,6 +18,13 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         return length == 0
     }
 
+    fun removeAttribute(key: String) {
+        if (hasAttribute(key)) {
+            val index = getIndex(key)
+            removeAttribute(index)
+        }
+    }
+
     fun hasAttribute(key: String) : Boolean {
         return getValue(key) == null
     }

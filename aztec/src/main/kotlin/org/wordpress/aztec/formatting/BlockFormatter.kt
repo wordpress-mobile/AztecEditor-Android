@@ -52,14 +52,29 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun toggleHeading(textFormat: TextFormat) {
-        if (!containsHeadingOnly(textFormat)) {
-            if (containsOtherHeadings(textFormat)) {
-                switchHeaderType(textFormat)
-            } else {
-                applyBlockStyle(textFormat)
+        when (textFormat) {
+            TextFormat.FORMAT_HEADING_1,
+            TextFormat.FORMAT_HEADING_2,
+            TextFormat.FORMAT_HEADING_3,
+            TextFormat.FORMAT_HEADING_4,
+            TextFormat.FORMAT_HEADING_5,
+            TextFormat.FORMAT_HEADING_6 -> {
+                if (!containsHeadingOnly(textFormat)) {
+                    if (containsOtherHeadings(textFormat)) {
+                        switchHeaderType(textFormat)
+                    } else {
+                        applyBlockStyle(textFormat)
+                    }
+                }
             }
-        } else {
-            removeBlockStyle(textFormat)
+            TextFormat.FORMAT_PARAGRAPH -> {
+                val span = editableText.getSpans(selectionStart, selectionEnd, AztecHeadingSpan::class.java).firstOrNull()
+
+                if (span != null) {
+                    removeBlockStyle(span.textFormat)
+                }
+            }
+            else -> { }
         }
     }
 

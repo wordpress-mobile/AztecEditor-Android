@@ -66,8 +66,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
         }
     }
 
-    constructor(nestingLevel: Int, tag: String, attrs: String = "",
-            headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
+    constructor(nestingLevel: Int, tag: String, attrs: String, headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
             : this(nestingLevel, getTextFormat(tag), attrs, headerStyle)
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {

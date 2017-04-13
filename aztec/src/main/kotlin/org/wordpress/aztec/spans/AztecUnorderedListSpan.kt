@@ -23,20 +23,21 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.formatting.BlockFormatter
+import org.wordpress.aztec.AztecAttributes
 
 class AztecUnorderedListSpan(
         override var nestingLevel: Int,
-        override var attributes: String = "",
+        override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
     ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
 
     private val TAG = "ul"
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

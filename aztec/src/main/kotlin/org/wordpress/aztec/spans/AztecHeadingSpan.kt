@@ -9,11 +9,12 @@ import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
+import org.wordpress.aztec.AztecAttributes
 
 class AztecHeadingSpan @JvmOverloads constructor(
         override var nestingLevel: Int,
         textFormat: TextFormat,
-        attrs: String = "",
+        override var attributes: AztecAttributes,
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
@@ -28,7 +29,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
         }
 
     lateinit var heading: Heading
-    override var attributes: String = attrs
 
     var previousFontMetrics: Paint.FontMetricsInt? = null
     var previousTextScale: Float = 1.0f
@@ -66,7 +66,11 @@ class AztecHeadingSpan @JvmOverloads constructor(
         }
     }
 
-    constructor(nestingLevel: Int, tag: String, attrs: String = "",
+    init {
+        this.textFormat = textFormat
+    }
+
+    constructor(nestingLevel: Int, tag: String, attrs: AztecAttributes = AztecAttributes(),
             headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
             : this(nestingLevel, getTextFormat(tag), attrs, headerStyle)
 
@@ -121,10 +125,10 @@ class AztecHeadingSpan @JvmOverloads constructor(
     }
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return getTag()
         }
-        return getTag() + attributes
+        return getTag() + " " + attributes
     }
 
     override fun getEndTag(): String {
@@ -156,9 +160,5 @@ class AztecHeadingSpan @JvmOverloads constructor(
             SCALE_H6 -> return "h6"
             else -> return "p"
         }
-    }
-
-    init {
-        this.textFormat = textFormat
     }
 }

@@ -14,19 +14,20 @@ import android.text.style.ImageSpan
 import android.view.View
 import org.wordpress.android.util.DisplayUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecAttributes
 
 class AztecHorizontalLineSpan(context: Context, drawable: Drawable, override var nestingLevel: Int) :
         AztecDynamicImageSpan(context, drawable), AztecFullWidthImageSpan, AztecSpan {
 
     private val TAG: String = "hr"
 
-    override var attributes: String = ""
+    override var attributes: AztecAttributes = AztecAttributes()
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

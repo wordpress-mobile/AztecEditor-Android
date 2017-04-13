@@ -671,7 +671,7 @@ class MainActivity : AppCompatActivity(),
         addVideoMediaDialog!!.show()
     }
 
-    override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {
+    override fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
         ToastUtils.showToast(this, "Media tapped!")
     }
 }

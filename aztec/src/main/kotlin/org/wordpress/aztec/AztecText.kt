@@ -125,7 +125,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     interface OnMediaTappedListener {
-        fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int)
+        fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
     }
 
     constructor(context: Context) : super(context) {
@@ -1000,64 +1000,48 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         fun matches(attrs: Attributes): Boolean
     }
 
-    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attrs: Attributes) {
+    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attributes: AztecAttributes) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (it.attributes != null) {
-                if (attributePredicate.matches(it.attributes as Attributes)) {
-                    it.setOverayLevel(index, level)
-                    it.attributes = attrs
-                }
+            if (attributePredicate.matches(it.attributes as Attributes)) {
+                it.setOverayLevel(index, level)
+                it.attributes = attributes
             }
         }
     }
 
     fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
-                   attributes: Attributes?) {
+                   attributes: AztecAttributes) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (it.attributes != null) {
-                if (attributePredicate.matches(it.attributes as Attributes)) {
-                    // set the new overlay drawable
-                    it.setOverlay(index, overlay, gravity)
+            if (attributePredicate.matches(it.attributes as Attributes)) {
+                // set the new overlay drawable
+                it.setOverlay(index, overlay, gravity)
+                it.attributes = attributes
 
-                    if (attributes != null) {
-                        it.attributes = attributes
-                    }
-
-                    invalidate()
-                }
+                invalidate()
             }
         }
     }
 
-    fun clearOverlays(attributePredicate: AttributePredicate, attributes: Attributes?) {
+    fun clearOverlays(attributePredicate: AttributePredicate, attributes: AztecAttributes) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (it.attributes != null) {
-                if (attributePredicate.matches(it.attributes as Attributes)) {
-                    it.clearOverlays()
+            if (attributePredicate.matches(it.attributes as Attributes)) {
+                it.clearOverlays()
+                it.attributes = attributes
 
-                    if (attributes != null) {
-                        it.attributes = attributes
-                    }
-
-                    invalidate()
-                }
+                invalidate()
             }
         }
     }
 
-    fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes? {
-        return getAllMediaAttributes(attributePredicate).firstOrNull()
+    fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes {
+        return getAllMediaAttributes(attributePredicate).first()
     }
 
-    fun getAllMediaAttributes(attributePredicate: AttributePredicate): List<Attributes?> {
+    fun getAllMediaAttributes(attributePredicate: AttributePredicate): List<Attributes> {
         return text
                 .getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
-                    if (it.attributes != null) {
-                        return@filter attributePredicate.matches(it.attributes as Attributes)
-                    } else {
-                        return@filter false
-                    }
+                    return@filter attributePredicate.matches(it.attributes as Attributes)
                 }
                 .map { it.attributes }
     }

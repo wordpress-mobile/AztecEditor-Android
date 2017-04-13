@@ -7,8 +7,11 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecFullWidthImageSpan
 import org.wordpress.aztec.spans.FullWidthImageProcessingMarker
+import java.lang.ref.WeakReference
 
-class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
+class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
+
+    private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
     private var deletedNewline: Boolean = false
     private var changeCount: Int = 0
@@ -28,11 +31,14 @@ class FullWidthImageElementWatcher(val aztecText: AztecText) : TextWatcher {
     }
 
     private fun insertVisualNewline(position: Int) {
-        aztecText.text.insert(position, Constants.NEWLINE_STRING)
+        aztecTextRef.get()?.text?.insert(position, Constants.NEWLINE_STRING)
     }
 
     private fun normalizeEditingAroundImageSpans(count: Int, start: Int) {
-        if (aztecText.text.getSpans(0, 0, FullWidthImageProcessingMarker::class.java).isEmpty()) {
+        val aztecText = aztecTextRef.get()
+        if (aztecText != null && !aztecText.isTextChangedListenerDisabled() &&
+                aztecText.text.getSpans(0, 0, FullWidthImageProcessingMarker::class.java).isEmpty()) {
+
             val end = start + count
             var lines = aztecText.text.getSpans(start, start, AztecFullWidthImageSpan::class.java)
             lines += aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java)

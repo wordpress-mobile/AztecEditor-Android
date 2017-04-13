@@ -27,6 +27,7 @@ import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
@@ -34,7 +35,6 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
-import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
 class MainActivity : AppCompatActivity(),
@@ -165,10 +165,10 @@ class MainActivity : AppCompatActivity(),
     fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val id = (Math.random() * Int.MAX_VALUE).toString()
 
-        val attrs = AttributesImpl()
-        attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-        attrs.addAttribute("", "id", "id", "string", id)
-        attrs.addAttribute("", "uploading", "uploading", "string", "true")
+        val attrs = AztecAttributes()
+        attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
+        attrs.setValue("id", id)
+        attrs.setValue("uploading", "true")
 
         aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 

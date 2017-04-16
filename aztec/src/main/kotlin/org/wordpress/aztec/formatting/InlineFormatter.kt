@@ -84,9 +84,27 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
 
+    fun isTargetForParagraphMarker(textChangedEvent: TextChangedEvent): Boolean {
+        val isInsideList = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+
+        var insideHeading = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
+
+        if (insideHeading && (editableText.length > textChangedEvent.inputEnd && editableText[textChangedEvent.inputEnd] == '\n')) {
+            insideHeading = false
+        }
+        return !isInsideList && !insideHeading
+    }
+
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
+        if (!editor.formattingHasChanged()) return
+
+        if (textChangedEvent.isNewLineButNotAtTheBeginning()) {
+            if (isTargetForParagraphMarker(textChangedEvent)) {
+                editableText.setSpan(ParagraphMarker(), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            return
+        }
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied

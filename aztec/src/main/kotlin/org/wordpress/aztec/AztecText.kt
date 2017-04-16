@@ -92,6 +92,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private var isViewInitialized = false
     private var previousCursorPosition = 0
 
+    private var isInCalypsoMode = true
+
     private var unknownBlockSpanStart = -1
 
     private var formatToolbar: AztecToolbar? = null
@@ -140,6 +142,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         init(attrs)
     }
 
+    fun setCalypsoMode(isCompatibleWithCalypso: Boolean) {
+        isInCalypsoMode = isCompatibleWithCalypso
+    }
+
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
 
@@ -184,10 +190,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                       styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
                 BlockFormatter.HeaderStyle(
                         styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
-                )
+        )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -680,19 +686,43 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
 
+        if (isInCalypsoMode) {
+
+            val spans =  output.getSpans(0, output.length, ParagraphMarker::class.java)
+            spans.sortByDescending { output.getSpanStart(it) }
+
+            spans.forEach {
+                val spanStart = output.getSpanStart(it)
+                val spanEnd = output.getSpanEnd(it)
+
+                if (output[spanStart] == '\n' && output.getSpans(spanEnd, spanEnd+1, AztecBlockSpan::class.java).isEmpty()) {
+                    output.insert(spanEnd, "\n")
+                }
+            }
+
+            output.getSpans(0, output.length, ParagraphSpan::class.java).forEach {
+                output.removeSpan(it)
+            }
+        }
+
         clearMetaSpans(output)
 
         for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
             output.removeSpan(span)
         }
-        if (withCursorTag) {
+        if (withCursorTag && !isInCalypsoMode) {
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 
         parser.syncVisualNewlinesOfBlockElements(output)
         val html = parser.toHtml(output, withCursorTag)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
+        if (isInCalypsoMode) {
+//            return Format.toCalypsoHtml(Format.toCalypsoSourceEditorFormat(EndOfBufferMarkerAdder.removeEndOfTextMarker(html)))
+            return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
+        } else {
+            return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
+        }
     }
 
     fun toFormattedHtml(): String {

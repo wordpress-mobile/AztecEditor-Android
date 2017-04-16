@@ -79,22 +79,22 @@ class HtmlFormattingTest : AndroidTestCase() {
                     "</div>" +
                     "</div>"
 
-//    private val HTML_MIXED_WITHOUT_NEWLINES =
-//            "<span><i>Italic</i></span>" +
-//                    " <b>Bold</b><br>" +
-//                    "<div class=\"first\">" +
-//                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
-//                    "<div class=\"second\">" +
-//                    "<div class=\"third\">" +
-//                    "Div<br><span><b>Span</b></span><br>Hidden" +
-//                    "</div>" +
-//                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
-//                    "<div class=\"fourth\"><u>Under</u>line</div>" +
-//                    "<div class=\"fifth\"></div>" +
-//                    "</div>" +
-//                    "<span class=\"second last\"></span>" +
-//                    "</div>" +
-//                    "<br>"
+    private val HTML_MIXED_WITHOUT_NEWLINES =
+            "<span><i>Italic</i></span>" +
+                    "<b>Bold</b><br>" +
+                    "<div class=\"first\">" +
+                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
+                    "<div class=\"second\">" +
+                    "<div class=\"third\">" +
+                    "Div<br><span><b>Span</b></span><br>Hidden" +
+                    "</div>" +
+                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
+                    "<div class=\"fourth\"><u>Under</u>line</div>" +
+                    "<div class=\"fifth\"></div>" +
+                    "</div>" +
+                    "<span class=\"second last\"></span>" +
+                    "</div>" +
+                    "<br>"
 
     private val HTML_BLOCK_WITH_NEWLINES = "\n\n<div>Division</div>\n\n"
     private val HTML_BLOCK_WITHOUT_NEWLINES = "<div>Division</div>"
@@ -117,8 +117,8 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNestedHtml() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_NESTED_FORMATTED, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),false),false)
+        Assert.assertEquals(HTML_NESTED, output)
     }
 
     /**
@@ -131,8 +131,8 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatLineBreaks() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),false),false)
+        Assert.assertEquals(HTML_LINE_BREAKS, output)
     }
 
     /**
@@ -145,8 +145,8 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatMixedHtml() {
         val input = HTML_MIXED_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_MIXED_FORMATTED, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),false),false)
+        Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
     }
 
     /**
@@ -159,7 +159,7 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNewlines() {
         val input = HTML_BLOCK_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),false),false)
         Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
     }
 }

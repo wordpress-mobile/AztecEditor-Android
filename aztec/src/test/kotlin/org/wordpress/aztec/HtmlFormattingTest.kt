@@ -122,6 +122,20 @@ class HtmlFormattingTest : AndroidTestCase() {
     }
 
     /**
+     * Test the conversion from HTML to visual mode with nested HTML (Calypso format)
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun formatNestedHtmlCalypso() {
+        val input = HTML_NESTED
+        val span = SpannableString(parser.fromHtml(input, null, null, context))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),true),true)
+        Assert.assertEquals(HTML_NESTED_FORMATTED, output)
+    }
+
+    /**
      * Test the conversion from HTML to visual mode with multiple line breaks
      *
      * @throws Exception
@@ -136,6 +150,20 @@ class HtmlFormattingTest : AndroidTestCase() {
     }
 
     /**
+     * Test the conversion from HTML to visual mode with multiple line breaks (Calypso format)
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun formatLineBreaksCalypso() {
+        val input = HTML_LINE_BREAKS
+        val span = SpannableString(parser.fromHtml(input, null, null, context))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),true),true)
+        Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
+    }
+
+    /**
      * Test the conversion from HTML to visual mode with mixed HTML
      *
      * @throws Exception
@@ -147,6 +175,20 @@ class HtmlFormattingTest : AndroidTestCase() {
         val span = SpannableString(parser.fromHtml(input, null, null, context))
         val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),false),false)
         Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
+    }
+
+    /**
+     * Test the conversion from HTML to visual mode with mixed HTML  (Calypso format)
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun formatMixedHtmlCalypso() {
+        val input = HTML_MIXED_WITH_NEWLINES
+        val span = SpannableString(parser.fromHtml(input, null, null, context))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span),true),true)
+        Assert.assertEquals(HTML_MIXED_FORMATTED, output)
     }
 
     /**

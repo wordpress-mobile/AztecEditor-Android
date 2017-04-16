@@ -16,7 +16,7 @@ import org.wordpress.aztec.TestUtils.safeLength
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class HeadingTest() {
+class HeadingTest {
 
     val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1
     lateinit var editText: AztecText
@@ -28,6 +28,7 @@ class HeadingTest() {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        editText.setCalypsoMode(false)
         activity.setContentView(editText)
     }
 

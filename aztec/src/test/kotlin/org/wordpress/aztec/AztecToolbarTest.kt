@@ -42,6 +42,7 @@ class AztecToolbarTest {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        editText.setCalypsoMode(false)
         sourceText = SourceViewEditText(activity)
 
         activity.setContentView(editText)

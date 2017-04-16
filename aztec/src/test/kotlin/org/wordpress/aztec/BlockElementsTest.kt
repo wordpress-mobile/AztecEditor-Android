@@ -30,6 +30,7 @@ class BlockElementsTest {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        editText.setCalypsoMode(false)
         activity.setContentView(editText)
     }
 

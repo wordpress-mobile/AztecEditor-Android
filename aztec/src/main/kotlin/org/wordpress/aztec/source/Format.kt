@@ -10,27 +10,31 @@ import java.util.regex.Pattern
 object Format {
 
     //enables "calypso" mode which allows for mixed html/visual input
-    val isCalypsoMode = true
+//    val IS_CALYPSO_MODE = true
 
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
-    fun addSourceEditorFormatting(content: String): String {
+    fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
 
-        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoMode))
-        if (isCalypsoMode) {
+        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
+        if (isCalypsoFormat) {
+
+
             //remove empty span tags
             doc.select("*")
                     .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
                     .forEach { it.remove() }
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
+            html = html.replace("aztec_cursor", "")
 
-            html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "")
-            html = toCalypsoHtml(html)
+            html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
+//            html = replaceAll(html, "<br><br>", "<p>&nbsp;</p>")
+            html = toCalypsoSourceEditorFormat(html)
         } else {
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
@@ -44,11 +48,12 @@ object Format {
         return html.trim()
     }
 
-    fun removeSourceEditorFormatting(html: String): String {
-        if (isCalypsoMode) {
-            val htmlWithoutSourceFormatting = toRealHtml(html)
+    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
+        if (isCalypsoFormat) {
+            val htmlWithoutSourceFormatting = toCalypsoHtml(html)
             val doc = Jsoup.parse(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
-            return doc.body().html()
+            val modified = doc.body().html()
+            return modified
         } else {
             return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
         }
@@ -62,9 +67,9 @@ object Format {
 
     //Takes HTML as is and formats it for source viewer by replacing <p> with \n\n and <br> with \n
     //based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
-    fun toCalypsoHtml(htmlContent: String): String {
+    fun toCalypsoSourceEditorFormat(htmlContent: String): String {
         //remove references to cursor when in calypso mode
-        var content = htmlContent.replace("aztec_cursor","")
+        var content = htmlContent
         if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
             return ""
@@ -108,7 +113,7 @@ object Format {
 
         // Pretty it up for the source editor
         val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
-        val blocklist1 = blocklist + "|div"
+        val blocklist1 = blocklist + "|div|p"
         val blocklist2 = blocklist + "|pre"
 
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
@@ -122,9 +127,9 @@ object Format {
 
         // Remove <p> and <br />
         content = replaceAll(content, "(?i)\\s*<p>", "")
-        content = replaceAll(content, "(?i)\\s*</p>", "\n")
+        content = replaceAll(content, "(?i)\\s*</p>\\s*", "\n\n")
         content = replaceAll(content, "\\n[\\s\\u00a0]+\\n", "\n\n")
-
+        content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n");
 
         // Fix some block element newline issues
         content = replaceAll(content, "\\s*<div", "\n<div")
@@ -132,10 +137,13 @@ object Format {
         content = replaceAll(content, "(?i)\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*", "\n\n[caption$1[/caption]\n\n")
         content = replaceAll(content, "caption\\]\\n\\n+\\[caption", "caption]\n\n[caption")
 
-        content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
-        content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
+//        content = replaceAll(content, "<((?:$blocklist2)(?: [^>]*)?)\\s*>", "<$1>")
+//        content = replaceAll(content, "\\s*</($blocklist2)>", "</$1>")
 
-        content = replaceAll(content, "(?i)<br ?/?>", "\n");
+//        content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
+//        content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
+
+
 
         content = replaceAll(content, "<li([^>]*)>", "\t<li$1>")
 
@@ -167,6 +175,8 @@ object Format {
         content = replaceAll(content, "^\\s+", "")
         content = replaceAll(content, "[\\s\\u00a0]+$", "")
 
+        content = replaceAll(content, "&nbsp;", "")
+
         // put back the line breaks in pre|script
         if (preserve_linebreaks) {
             content = replaceAll(content, "<wp-line-break>", "\n")
@@ -182,9 +192,9 @@ object Format {
 
     // converts visual newlines to <p> and <br> tags
     // based on wpautop() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
-    fun toRealHtml(formattedHtml: String): String {
+    fun toCalypsoHtml(formattedHtml: String): String {
         //remove references to cursor when in calypso mode
-        var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>","")
+        var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>", "")
         if (TextUtils.isEmpty(html.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
             return ""
@@ -283,8 +293,8 @@ object Format {
         html = replaceAll(html, "(?i)<p>\\s*?</p>", "");
         html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
         html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1");
-        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1>");
-        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</blockquote>");
+        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1><p>");
+        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</p></blockquote>");
         html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1");
         html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
         html = replaceAll(html, "(?i)\\s*\\n", "<br>\n");
@@ -311,7 +321,7 @@ object Format {
             html = replaceAll(html, "<wp-temp-br([^>]*)>", "<br$1>")
         }
 
-        return html.trim()
+        return html.replace("\n", "").trim()
     }
 
     private fun replace(content: String, pattern: String, replacement: String): String {

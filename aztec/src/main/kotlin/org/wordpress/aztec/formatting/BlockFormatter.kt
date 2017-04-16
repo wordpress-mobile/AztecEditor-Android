@@ -240,7 +240,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
             AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
             AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
-            AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs)
+            AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, attrs)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
@@ -338,10 +338,16 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (startOfLine != 0) {
                 val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
                         .firstOrNull()
-                // if same span type is found (also check for heading style equality if a heading) extend the start
-                if (spansOnPreviousLine != null
-                        && (spansOnPreviousLine !is AztecHeadingSpan
-                                || spansOnPreviousLine.heading == (spanToApply as AztecHeadingSpan).heading)) {
+
+                if (spansOnPreviousLine == null) {
+                    // no similar blocks before us so, don't expand
+                } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
+                    // other block is at a different nesting level so, don't expand
+                } else if (spansOnPreviousLine is AztecHeadingSpan
+                        && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+                    // Heading span is of different style so, don't expand
+                } else {
+                    // expand the start
                     startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
                     liftBlock(blockElementType, startOfBlock, endOfBlock)
                 }
@@ -350,10 +356,16 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (endOfLine != editableText.length) {
                 val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
                         .firstOrNull()
-                // if same span type is found (also check for heading style equality if a heading) extend the end
-                if (spanOnNextLine != null
-                        && (spanOnNextLine !is AztecHeadingSpan
-                                || spanOnNextLine.heading == (spanToApply as AztecHeadingSpan).heading)) {
+
+                if (spanOnNextLine == null) {
+                    // no similar blocks after us so, don't expand
+                } else if (spanOnNextLine.nestingLevel != nestingLevel) {
+                    // other block is at a different nesting level so, don't expand
+                } else if (spanOnNextLine is AztecHeadingSpan
+                        && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+                    // Heading span is of different style so, don't expand
+                } else {
+                    // expand the end
                     endOfBlock = editableText.getSpanEnd(spanOnNextLine)
                     liftBlock(blockElementType, startOfBlock, endOfBlock)
                 }

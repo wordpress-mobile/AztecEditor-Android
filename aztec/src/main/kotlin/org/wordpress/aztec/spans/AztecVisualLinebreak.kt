@@ -1,4 +1,3 @@
 package org.wordpress.aztec.spans
 
-
-interface AztecChildBlockSpan
+class AztecVisualLinebreak

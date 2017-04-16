@@ -93,29 +93,33 @@ class AztecParser {
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {
-        text.setSpan(BlockElementLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
+        text.setSpan(AztecVisualLinebreak(), startPos, startPos, Spanned.SPAN_MARK_MARK)
     }
 
     fun addVisualNewlinesToBlockElements(spanned: Editable) {
         // add visual newlines at starts
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
+            val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
+            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+
             val spanStart = spanned.getSpanStart(it)
 
-            // no need for newline if at text start
-            if (spanStart < 1) {
+            // no need for newline if at text start, unless repelling needs to happen
+            if (!repelling && spanStart < 1) {
                 return@forEach
             }
 
-            val parentStart = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))?.start ?: 0
+            val parentStart = parent?.start ?: 0
 
-            // no need for newline if we're a childBlock at the start of our parent
-            if (spanStart == parentStart && (it is AztecChildBlockSpan || it is AztecSurroundedWithNewlines)) {
+            // no need for newline if we're at the start of our parent, unless repelling needs to happen
+            if (!repelling && spanStart == parentStart) {
                 return@forEach
             }
 
-            // no need for newline if there's already one, unless we're at the start of our parent
-            // and this is a block span
-            if (spanStart != parentStart && spanned[spanStart - 1] == '\n' && (it is AztecBlockSpan || spanStart == 1)) {
+            // no need for newline if there's already one, unless repelling needs to happen
+            if (!repelling && spanned[spanStart - 1] == '\n') {
                 return@forEach
             }
 
@@ -141,12 +145,13 @@ class AztecParser {
 
             // no need for newline if there's one and marked as visual
             if (spanned[spanEnd] == '\n'
-                    && spanned.getSpans(spanEnd, spanEnd, BlockElementLinebreak::class.java).isNotEmpty()) {
+                    && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
 
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is AztecBlockSpan) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
+
 
                 if (it is ParagraphSpan) {
                     spanned.setSpan(ParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -174,7 +179,7 @@ class AztecParser {
     // Always try to put a visual newline before block elements and only put one after if needed
     fun syncVisualNewlinesOfBlockElements(spanned: Editable) {
         // clear any visual newline marking. We'll mark them with a fresh set of passes
-        spanned.getSpans(0, spanned.length, BlockElementLinebreak::class.java).forEach {
+        spanned.getSpans(0, spanned.length, AztecVisualLinebreak::class.java).forEach {
             spanned.removeSpan(it)
         }
 
@@ -200,16 +205,21 @@ class AztecParser {
         }
 
         spanned.getSpans(0, spanned.length, AztecSurroundedWithNewlines::class.java).forEach {
+            val parent = AztecNestable.getParent(spanned, SpanWrapper(spanned, it))
+
+            // a list item "repels" a child list so the list will appear in the next line
+            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+
             val spanStart = spanned.getSpanStart(it)
 
-            if (spanStart < 1) {
-                // no visual newline if at text start so, return
+            if (!repelling && spanStart < 1) {
+                // no visual newline if at text start and not repelling so, return
                 return@forEach
             }
 
-            if (spanStart < 2) {
-                // no visual newline can exist unless there are at least 2 chars before the block (one will be the newline
-                //  and the other will be the leading content) so, return
+            if (!repelling && spanStart < 2) {
+                // if not repelling, no visual newline can exist unless there are at least 2 chars before the block
+                //  (one will be the newline and the other will be the leading content) so, return
                 return@forEach
             }
 
@@ -218,19 +228,19 @@ class AztecParser {
                 return@forEach
             }
 
-            if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any {
-                spanned.getSpanEnd(it) == spanStart
+            if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any { before ->
+                spanned.getSpanEnd(before) == spanStart
             }) {
                 // the newline before us is the end of a previous block element so, return
                 return@forEach
             }
 
-            if (spanned[spanStart - 2] == '\n' && it is AztecBlockSpan) {
-                // there's another newline before so, the adjacent one is not a visual one so, return
+            if (!repelling && spanned[spanStart - 2] == '\n') {
+                // there's another newline before and we're not repelling a parent so, the adjacent one is not a visual one so, return
                 return@forEach
             }
 
-            if (spanned.getSpans(spanStart - 1, spanStart - 1, BlockElementLinebreak::class.java).isNotEmpty()) {
+            if (spanned.getSpans(spanStart - 1, spanStart - 1, AztecVisualLinebreak::class.java).isNotEmpty()) {
                 // the newline is already marked as visual so, nothing more to do here
                 return@forEach
             }
@@ -290,7 +300,7 @@ class AztecParser {
 
         do {
             val paragraphs = text.getSpans(i, end, AztecNestable::class.java)
-                    .filter { it !is AztecHorizontalLineSpan }
+                    .filter { it !is AztecFullWidthImageSpan }
                     .toTypedArray()
 
             paragraphs.sortWith(Comparator { a, b ->
@@ -352,7 +362,7 @@ class AztecParser {
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE
-                && text.getSpans(end - 1, end, BlockElementLinebreak::class.java).isEmpty()
+                && text.getSpans(end - 1, end, AztecVisualLinebreak::class.java).isEmpty()
                 && !(parents?.any { it != blockSpan && text.getSpanEnd(it) == end } ?: false)) {
             out.append("<br>")
         }
@@ -371,7 +381,7 @@ class AztecParser {
 
             var nl = 0
             while (next < end && text[next] == '\n') {
-                val isVisualLinebreak = text.getSpans(next, next, BlockElementLinebreak::class.java).isNotEmpty()
+                val isVisualLinebreak = text.getSpans(next, next, AztecVisualLinebreak::class.java).isNotEmpty()
 
                 if (!isVisualLinebreak) {
                     nl++
@@ -404,8 +414,14 @@ class AztecParser {
                     out.append("<${span.getStartTag()}>")
                 }
 
-                if (span is AztecCommentSpan || span is CommentSpan) {
+                if (span is CommentSpan) {
                     out.append("<!--")
+                }
+
+                if (span is AztecCommentSpan) {
+                    out.append("<!--")
+                    out.append(span.commentText)
+                    i = next
                 }
 
                 if (span is AztecHorizontalLineSpan) {
@@ -448,8 +464,7 @@ class AztecParser {
         }
 
         for (z in 0..nl - 1) {
-            //do not check paragraphs for shared ends
-            val parentSharesEnd = parents?.any { it !is ParagraphSpan && text.getSpanEnd(it) == end + 1 + z } ?: false
+            val parentSharesEnd = parents?.any {it !is ParagraphSpan && text.getSpanEnd(it) == end + 1 + z } ?: false
             if (parentSharesEnd) {
                 continue
             }
@@ -571,6 +586,7 @@ class AztecParser {
                 .replace("&#8203;", "")
                 .replace("&#65279;", "")
                 .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
+                .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
                 .replace("\n".toRegex(), "")
     }

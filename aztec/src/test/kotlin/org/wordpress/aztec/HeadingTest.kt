@@ -263,4 +263,22 @@ class HeadingTest {
         safeAppend(editText, "Heading 2")
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testNewlinesAboveHeading() {
+        editText.fromHtml("<br><h1>heading</h1>")
+
+        Assert.assertEquals("\nheading", editText.text.toString())
+
+        editText.fromHtml(editText.toHtml())
+
+        Assert.assertEquals("\nheading", editText.text.toString())
+
+        editText.text.insert(0, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("\n\nheading", editText.text.toString())
+
+        Assert.assertEquals("<br><br><h1>heading</h1>", editText.toHtml())
+    }
 }

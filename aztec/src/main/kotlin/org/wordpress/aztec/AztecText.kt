@@ -698,7 +698,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 val spanStart = output.getSpanStart(it)
                 val spanEnd = output.getSpanEnd(it)
 
-                if (output[spanStart] == '\n' && output.getSpans(spanEnd, spanEnd+1, AztecBlockSpan::class.java).isEmpty()) {
+                if (output[spanStart] == '\n' && output.getSpans(spanEnd, spanEnd+1, AztecBlockSpan::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
                     output.insert(spanEnd, "\n")
                 }
             }

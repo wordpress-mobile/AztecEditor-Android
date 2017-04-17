@@ -360,9 +360,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {
-        headingMenu?.menu?.getItem(0)?.isChecked = true
         textFormats.forEach {
             when (it) {
+                TextFormat.FORMAT_PARAGRAPH -> headingMenu?.menu?.getItem(0)?.isChecked = true
                 TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
                 TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
                 TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
@@ -370,7 +370,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
                 TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
                 else -> {
-
                 }
             }
         }
@@ -383,7 +382,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun getSelectedHeading(): TextFormat? {
-        if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
         else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
         else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
         else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4

@@ -101,7 +101,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
         if (textChangedEvent.isNewLineButNotAtTheBeginning()) {
             if (isTargetForParagraphMarker(textChangedEvent)) {
-                editableText.setSpan(ParagraphMarker(codeStyle.verticalParagraphMargin), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(EndOfParagraphMarker(codeStyle.verticalParagraphMargin), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
             return
         }

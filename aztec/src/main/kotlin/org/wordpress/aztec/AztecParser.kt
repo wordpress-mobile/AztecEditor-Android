@@ -152,9 +152,9 @@ class AztecParser {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
 
-
+                //mark newlines at the end of <p> - this will give us visual
                 if (it is ParagraphSpan) {
-                    spanned.setSpan(ParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
 
                 return@forEach
@@ -169,7 +169,7 @@ class AztecParser {
             }
 
             if (it is ParagraphSpan) {
-                spanned.setSpan(ParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
             markBlockElementLineBreak(spanned, spanEnd)

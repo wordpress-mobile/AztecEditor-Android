@@ -695,10 +695,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         val output = SpannableStringBuilder(text)
 
         if (isInCalypsoMode) {
-
-            val spans =  output.getSpans(0, output.length, ParagraphMarker::class.java)
+            val spans =  output.getSpans(0, output.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { output.getSpanStart(it) }
 
+            //add additional newline to the end of every paragraph
             spans.forEach {
                 val spanStart = output.getSpanStart(it)
                 val spanEnd = output.getSpanEnd(it)
@@ -708,6 +708,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 }
             }
 
+            //we don't care about actuall ParagraphSpan in calypso - paragraphs are made from double newline
             output.getSpans(0, output.length, ParagraphSpan::class.java).forEach {
                 output.removeSpan(it)
             }
@@ -739,7 +740,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
-        editable.getSpans(start, end, ParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
+        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {

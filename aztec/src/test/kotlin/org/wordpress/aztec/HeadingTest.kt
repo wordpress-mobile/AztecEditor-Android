@@ -134,7 +134,7 @@ class HeadingTest() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.toggleFormatting(defaultHeadingFormat)
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
-        Assert.assertEquals("<h2>Heading 1</h2>", editText.toHtml())
+        Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2>", editText.toHtml())
     }
 
     @Test

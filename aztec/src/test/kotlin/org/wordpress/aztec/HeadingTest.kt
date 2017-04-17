@@ -234,9 +234,12 @@ class HeadingTest() {
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1unstyled</h1>", editText.toHtml())
     }
 
+    /**
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/287
+     */
     @Test
     @Throws(Exception::class)
-    fun deleteHeadingChars_Issue287() {
+    fun deleteAllCharactersFromHeading() {
         editText.fromHtml("<h1>he</h1>")
 
         var l = safeLength(editText)
@@ -247,9 +250,12 @@ class HeadingTest() {
         Assert.assertEquals("<h1></h1>", editText.toHtml())
     }
 
+    /**
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/289
+     */
     @Test
     @Throws(Exception::class)
-    fun addHeading_issue289() {
+    fun addCharactersAfterSelectingHeading() {
         editText.fromHtml("<h1>Heading 1</h1>")
 
         safeAppend(editText, "\n")

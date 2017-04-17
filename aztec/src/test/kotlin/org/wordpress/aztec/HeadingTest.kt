@@ -12,7 +12,7 @@ import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeLength
 
 /**
- * Testing quote behaviour.
+ * Testing heading behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))

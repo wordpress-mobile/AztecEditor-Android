@@ -14,7 +14,7 @@ import java.util.*
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
-    data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
+    data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int, val verticalParagraphMargin: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
@@ -101,7 +101,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
         if (textChangedEvent.isNewLineButNotAtTheBeginning()) {
             if (isTargetForParagraphMarker(textChangedEvent)) {
-                editableText.setSpan(ParagraphMarker(), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(ParagraphMarker(codeStyle.verticalParagraphMargin), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
             return
         }

@@ -118,6 +118,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     var widthMeasureSpec: Int = 0
 
+    var verticalParagraphMargin: Int = 0
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -170,11 +172,14 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
 
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
+
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         styles.getColor(R.styleable.AztecText_codeBackground, 0),
                         styles.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        styles.getColor(R.styleable.AztecText_codeColor, 0)))
+                        styles.getColor(R.styleable.AztecText_codeColor, 0),
+                        verticalParagraphMargin))
 
         blockFormatter = BlockFormatter(this,
                 BlockFormatter.ListStyle(
@@ -182,7 +187,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        verticalParagraphMargin),
                 BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
@@ -190,9 +195,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        verticalParagraphMargin),
                 BlockFormatter.HeaderStyle(
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
+                        verticalParagraphMargin)
         )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
@@ -734,6 +739,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
+        editable.getSpans(start, end, ParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {

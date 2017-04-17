@@ -18,7 +18,6 @@ import org.wordpress.aztec.TestUtils.safeLength
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class HeadingTest() {
 
-    val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1
     lateinit var editText: AztecText
 
     /**
@@ -35,7 +34,7 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun applyHeadingToSingleLine() {
         editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
     }
 
@@ -44,7 +43,7 @@ class HeadingTest() {
     fun applyHeadingToPartiallySelectedText() {
         editText.append("Heading 1")
         editText.setSelection(1, editText.length() - 2)
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
     }
 
@@ -55,7 +54,7 @@ class HeadingTest() {
         editText.append("\n")
         editText.append("Second line")
         editText.setSelection(3, editText.length() - 3)
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<h1>First line</h1><h1>Second line</h1>", editText.toHtml())
     }
 
@@ -63,7 +62,7 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun prependTextToHeading() {
         editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         editText.text.insert(0, "inserted")
         Assert.assertEquals("<h1>insertedHeading 1</h1>", editText.toHtml())
     }
@@ -132,7 +131,7 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun changeHeadingOfSingleLine() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
         Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2>", editText.toHtml())
     }
@@ -151,7 +150,7 @@ class HeadingTest() {
     fun applyHeadingToTextInsideList() {
         editText.fromHtml("<ol><li>Item 1</li><li>Item 2</li></ol>")
         editText.setSelection(0)
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<ol><li><h1>Item 1</h1></li><li>Item 2</li></ol>", editText.toHtml())
     }
 
@@ -159,7 +158,7 @@ class HeadingTest() {
     @Throws(Exception::class)
     fun applyHeadingToTextInsideQuote() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
     }
 
@@ -185,7 +184,7 @@ class HeadingTest() {
         editText.fromHtml("<ol><li>Ordered</li></ol>Heading 1<ol><li>Ordered</li></ol>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<ol><li>Ordered</li></ol><h1>Heading 1</h1><ol><li>Ordered</li></ol>", editText.toHtml())
     }
 
@@ -195,7 +194,7 @@ class HeadingTest() {
         editText.fromHtml("<blockquote>Quote</blockquote>Heading 1<blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)
-        editText.toggleFormatting(defaultHeadingFormat)
+        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
         Assert.assertEquals("<blockquote>Quote</blockquote><h1>Heading 1</h1><blockquote>Quote</blockquote>", editText.toHtml())
     }
 

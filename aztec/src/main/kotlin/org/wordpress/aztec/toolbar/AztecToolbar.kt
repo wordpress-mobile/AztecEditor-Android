@@ -265,7 +265,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
             if (toolbarAction == ToolbarAction.HEADING) {
-                setHeaderMenu(findViewById(toolbarAction.buttonId))
+                setHeadingMenu(findViewById(toolbarAction.buttonId))
             }
         }
     }
@@ -308,7 +308,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val appliedStyles = editor!!.getAppliedStyles(selStart, selEnd)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
-        selectHeaderMenu(appliedStyles)
+        selectHeadingMenuItem(appliedStyles)
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -320,8 +320,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction() && it.textFormat != null) textFormats.add(it.textFormat) }
-            if (getSelectedHeading() != null) {
-                textFormats.add(getSelectedHeading()!!)
+            if (getSelectedHeadingMenuItem() != null) {
+                textFormats.add(getSelectedHeadingMenuItem()!!)
             }
             return editor!!.setSelectedStyles(textFormats)
         }
@@ -359,7 +359,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {
+    private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
         textFormats.forEach {
             when (it) {
                 TextFormat.FORMAT_PARAGRAPH -> headingMenu?.menu?.getItem(0)?.isChecked = true
@@ -375,13 +375,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun setHeaderMenu(view: View) {
+    private fun setHeadingMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
     }
 
-    fun getSelectedHeading(): TextFormat? {
+    fun getSelectedHeadingMenuItem(): TextFormat? {
         if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
         else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
         else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2

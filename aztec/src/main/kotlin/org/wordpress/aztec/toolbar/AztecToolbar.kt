@@ -375,6 +375,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
+    fun getHeadingMenu(): PopupMenu? {
+        return headingMenu
+    }
+
     private fun setHeadingMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)

@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 object Format {
 
     // list of block elements
-    private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe|hr"
+    private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe|hr|aztec_cursor"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 

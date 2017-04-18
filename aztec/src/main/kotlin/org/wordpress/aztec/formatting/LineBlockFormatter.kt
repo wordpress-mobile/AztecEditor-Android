@@ -99,15 +99,21 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
         editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
 
+        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+
         val span = AztecCommentSpan(
+                comment.html,
                 editor.context,
                 when (comment) {
                     AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
                     AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
-                }
+                },
+                nestingLevel,
+                editor
         )
-        val ssb = SpannableStringBuilder(comment.html)
-        ssb.setSpan(span, 0, comment.html.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        val ssb = SpannableStringBuilder(Constants.MAGIC_STRING)
+        ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         editableText.replace(selectionStart, selectionEnd, ssb)
 
@@ -116,18 +122,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
-        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener)
-        span.textView = editor
+        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener, editor)
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-        .firstOrNull {
-            selectionStart == editableText.getSpanEnd(it)
-        }
+            .firstOrNull {
+                selectionStart == editableText.getSpanEnd(it)
+            }
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-                .firstOrNull {
-                    selectionStart == editableText.getSpanStart(it)
-                }
+            .firstOrNull {
+                selectionStart == editableText.getSpanStart(it)
+            }
 
         val mediaStartIndex = selectionStart
         val mediaEndIndex = selectionStart + 1

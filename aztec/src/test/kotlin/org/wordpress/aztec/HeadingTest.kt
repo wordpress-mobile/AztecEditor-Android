@@ -321,4 +321,22 @@ class HeadingTest() {
 //        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
         Assert.assertEquals(TextFormat.FORMAT_HEADING_3, toolbar.getSelectedHeadingMenuItem())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testNewlinesAboveHeading() {
+        editText.fromHtml("<br><h1>heading</h1>")
+
+        Assert.assertEquals("\nheading", editText.text.toString())
+
+        editText.fromHtml(editText.toHtml())
+
+        Assert.assertEquals("\nheading", editText.text.toString())
+
+        editText.text.insert(0, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("\n\nheading", editText.text.toString())
+
+        Assert.assertEquals("<br><br><h1>heading</h1>", editText.toHtml())
+    }
 }

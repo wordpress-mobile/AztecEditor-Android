@@ -223,6 +223,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
         install()
 
+        // Needed to properly initialize the cursor position
+        setSelection(0)
+
         enableTextChangedListener()
 
         isViewInitialized = true

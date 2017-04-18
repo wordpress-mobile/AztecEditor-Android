@@ -684,29 +684,35 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         String comment = new String(chars, start, length);
         int spanStart = spannableStringBuilder.length();
-        spannableStringBuilder.append(comment);
 
         if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
+            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
             spannableStringBuilder.setSpan(
                     new AztecCommentSpan(
+                            comment,
                             context,
-                            context.getResources().getDrawable(R.drawable.img_more)
+                            context.getResources().getDrawable(R.drawable.img_more),
+                            nestingLevel
                     ),
                     spanStart,
                     spannableStringBuilder.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
         } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
+            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
             spannableStringBuilder.setSpan(
                     new AztecCommentSpan(
+                            comment,
                             context,
-                            context.getResources().getDrawable(R.drawable.img_page)
+                            context.getResources().getDrawable(R.drawable.img_page),
+                            nestingLevel
                     ),
                     spanStart,
                     spannableStringBuilder.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             );
         } else {
+            spannableStringBuilder.append(comment);
             spannableStringBuilder.setSpan(
                     new CommentSpan(),
                     spanStart,

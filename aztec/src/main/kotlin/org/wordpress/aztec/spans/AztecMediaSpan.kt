@@ -17,11 +17,16 @@ import org.xml.sax.Attributes
 import java.util.*
 
 class AztecMediaSpan(context: Context, drawable: Drawable?, var attributes: Attributes?,
-                     val onMediaTappedListener: OnMediaTappedListener?) : AztecDynamicImageSpan(context, drawable) {
+                     val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) :
+        AztecDynamicImageSpan(context, drawable) {
 
     private val TAG: String = "img"
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
+
+    init {
+        textView = editor
+    }
 
     fun setDrawable(newDrawable: Drawable?) {
         imageDrawable = newDrawable

@@ -38,7 +38,7 @@ class AttributeTest {
         private val QUOTE = "<blockquote n=\"N\">Quote</blockquote>"
         private val LINK = "<a o=\"O\" href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>"
         private val UNKNOWN = "<iframe class=\"classic\" p=\"P\">Menu</iframe>"
-        private val COMMENT = "<!--Comment--><br>"
+        private val COMMENT = "<!--Comment-->"
         private val COMMENT_MORE = "<!--more--><br>"
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val LIST = "<ol><li a=\"1\">Ordered</li></ol>"

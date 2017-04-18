@@ -26,7 +26,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
     }
 
     fun hasAttribute(key: String) : Boolean {
-        return getValue(key) == null
+        return getValue(key) != null
     }
 
     override fun toString(): String {

@@ -997,7 +997,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         /**
          * Return true if the attributes list fulfills some condition
          */
-        fun matches(attrs: AztecAttributes): Boolean
+        fun matches(attrs: Attributes): Boolean
     }
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {

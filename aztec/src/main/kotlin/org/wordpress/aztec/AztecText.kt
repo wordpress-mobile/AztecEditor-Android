@@ -1044,14 +1044,14 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     fun getElementAttributes(attributePredicate: AttributePredicate): AztecAttributes {
-        return getAllElementAttributes(attributePredicate).first()
+        return getAllElementAttributes(attributePredicate).firstOrNull() ?: AztecAttributes()
     }
 
     fun getAllElementAttributes(attributePredicate: AttributePredicate): List<AztecAttributes> {
         return text
                 .getSpans(0, text.length, AztecAttributedSpan::class.java)
                 .filter {
-                    return@filter attributePredicate.matches(it.attributes)
+                    attributePredicate.matches(it.attributes)
                 }
                 .map { it.attributes }
     }

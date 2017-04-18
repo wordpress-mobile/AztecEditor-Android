@@ -956,7 +956,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
-            if (event.action === KeyEvent.ACTION_DOWN && event.keyCode === KeyEvent.KEYCODE_DEL) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
                 history.beforeTextChanged(toFormattedHtml())
 
                 inlineFormatter.tryRemoveLeadingInlineStyle()

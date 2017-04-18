@@ -362,7 +362,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
         textFormats.forEach {
             when (it) {
-                TextFormat.FORMAT_PARAGRAPH -> headingMenu?.menu?.getItem(0)?.isChecked = true
                 TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
                 TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
                 TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
@@ -370,6 +369,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
                 TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
                 else -> {
+                    // Select TextFormat.FORMAT_PARAGRAPH by default.
+                    headingMenu?.menu?.getItem(0)?.isChecked = true
                 }
             }
         }

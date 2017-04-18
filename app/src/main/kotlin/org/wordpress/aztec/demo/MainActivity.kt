@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity(),
         aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 
         val predicate = object : AztecText.AttributePredicate {
-            override fun matches(attrs: Attributes): Boolean {
+            override fun matches(attrs: AztecAttributes): Boolean {
                 return attrs.getValue("id") == id
             }
         }
@@ -568,12 +568,12 @@ class MainActivity : AppCompatActivity(),
 
     override fun onToolbarHtmlModeClicked() {
         val uploadingPredicate = object : AztecText.AttributePredicate {
-            override fun matches(attrs: Attributes): Boolean {
+            override fun matches(attrs: AztecAttributes): Boolean {
                 return attrs.getIndex("uploading") > -1
             }
         }
 
-        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).size > 0
+        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)

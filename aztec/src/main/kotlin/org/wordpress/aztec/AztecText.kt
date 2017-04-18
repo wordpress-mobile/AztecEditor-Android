@@ -428,14 +428,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         this.onMediaTappedListener = listener
     }
 
-    fun updateElementAttributes(id: String, attrs: AztecAttributes) {
-        text.getSpans(0, text.length, AztecAttributedSpan::class.java)
-                .filter {
-                    it.attributes.hasAttribute("aztec_id") && it.attributes.getValue("aztec_id") == id
-                }
-                .firstOrNull()?.attributes = attrs
-    }
-
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()

@@ -17,6 +17,7 @@ import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -181,7 +182,7 @@ class MainActivity : AppCompatActivity(),
         aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
         aztec.updateElementAttributes(predicate, attrs)
 
-        val progressDrawable = resources.getDrawable(android.R.drawable.progress_horizontal)
+        val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
 

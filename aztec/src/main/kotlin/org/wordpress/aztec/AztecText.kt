@@ -984,61 +984,75 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (it.attributes != null) {
-                if (attributePredicate.matches(it.attributes as Attributes)) {
-                    val start = text.getSpanStart(it)
-                    val end = text.getSpanEnd(it)
-
-                    val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
-
-                    text.removeSpan(clickableSpan)
-                    text.removeSpan(it)
-
-                    text.delete(start, end)
-                }
+        text.getSpans(0, text.length, AztecMediaSpan::class.java)
+            .filter {
+                attributePredicate.matches(it.attributes)
             }
-        }
+            .forEach {
+                val start = text.getSpanStart(it)
+                val end = text.getSpanEnd(it)
+
+                val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+                text.removeSpan(clickableSpan)
+                text.removeSpan(it)
+
+                text.delete(start, end)
+            }
     }
 
     interface AttributePredicate {
         /**
          * Return true if the attributes list fulfills some condition
          */
-        fun matches(attrs: Attributes): Boolean
+        fun matches(attrs: AztecAttributes): Boolean
+    }
+
+    fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
+        text.getSpans(0, text.length, AztecAttributedSpan::class.java)
+            .filter {
+                attributePredicate.matches(it.attributes)
+            }
+            .firstOrNull()?.attributes = attrs
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attributes: AztecAttributes) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes as Attributes)) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java)
+            .filter {
+                attributePredicate.matches(it.attributes)
+            }
+            .forEach {
                 it.setOverayLevel(index, level)
                 it.attributes = attributes
             }
-        }
     }
 
     fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
                    attributes: AztecAttributes) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes as Attributes)) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java)
+            .filter {
+                attributePredicate.matches(it.attributes)
+            }
+            .forEach {
                 // set the new overlay drawable
                 it.setOverlay(index, overlay, gravity)
                 it.attributes = attributes
 
                 invalidate()
             }
-        }
     }
 
     fun clearOverlays(attributePredicate: AttributePredicate, attributes: AztecAttributes) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-            if (attributePredicate.matches(it.attributes as Attributes)) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java)
+            .filter {
+                attributePredicate.matches(it.attributes)
+            }
+            .forEach {
                 it.clearOverlays()
                 it.attributes = attributes
 
                 invalidate()
             }
-        }
     }
 
     fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes {
@@ -1049,7 +1063,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         return text
                 .getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
-                    return@filter attributePredicate.matches(it.attributes as Attributes)
+                    return@filter attributePredicate.matches(it.attributes)
                 }
                 .map { it.attributes }
     }

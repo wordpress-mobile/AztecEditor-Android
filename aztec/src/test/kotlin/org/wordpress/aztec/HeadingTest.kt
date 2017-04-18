@@ -265,7 +265,7 @@ class HeadingTest() {
     @Test
     @Throws(Exception::class)
     fun updateHeadingMenuOnSelectionChange() {
-        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><b>Bold</b><i>Italic</i>")
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><b>Bold</b><i>Italic</i>None")
         var cursor: Int
 
         cursor = editText.text.indexOf("ing 1")
@@ -287,6 +287,10 @@ class HeadingTest() {
         cursor = editText.text.indexOf("ing 3")
         editText.setSelection(cursor)
         Assert.assertEquals(TextFormat.FORMAT_HEADING_3, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("one")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
     }
 
     /**

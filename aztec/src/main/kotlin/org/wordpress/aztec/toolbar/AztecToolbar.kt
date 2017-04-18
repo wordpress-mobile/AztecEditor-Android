@@ -373,6 +373,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     headingMenu?.menu?.getItem(0)?.isChecked = true
                 }
             }
+
+            return
         }
     }
 

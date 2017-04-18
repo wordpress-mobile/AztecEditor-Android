@@ -175,12 +175,7 @@ class HeadingTest() {
         editText.setSelection(0)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li><h1>Item 1</h1></li><li>Item 2</li></ol>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 1 should be selected.
-//        The surrounding block format is being registered as selected even though it is not which
-//        causes the heading menu to check TextFormat.FORMAT_PARAGRAPH.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -189,12 +184,7 @@ class HeadingTest() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 1 should be selected.
-//        The surrounding block format is being registered as selected even though it is not which
-//        causes the heading menu to check TextFormat.FORMAT_PARAGRAPH.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -211,12 +201,7 @@ class HeadingTest() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 1 should be selected.
-//        The surrounding block format is being registered as selected even though it is not which
-//        causes the heading menu to check TextFormat.FORMAT_PARAGRAPH.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -227,12 +212,7 @@ class HeadingTest() {
         editText.setSelection(mark)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li>Ordered</li></ol><h1>Heading 1</h1><ol><li>Ordered</li></ol>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 1 should be selected.
-//        The surrounding block format is being registered as selected even though it is not which
-//        causes the heading menu to check TextFormat.FORMAT_PARAGRAPH.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test

@@ -178,23 +178,29 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL, attrs)
+        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
+        aztec.updateElementAttributes(predicate, attrs)
+
         val progressDrawable = resources.getDrawable(android.R.drawable.progress_horizontal)
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
-        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP, attrs)
+
+        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP)
+        aztec.updateElementAttributes(predicate, attrs)
 
         var progress = 0
 
         // simulate an upload delay
         val runnable: Runnable = Runnable {
-            aztec.setOverlayLevel(predicate, 1, progress, attrs)
+            aztec.setOverlayLevel(predicate, 1, progress)
+            aztec.updateElementAttributes(predicate, attrs)
             aztec.refreshText()
             progress += 2000
 
             if (progress >= 10000) {
                 attrs.removeAttribute(attrs.getIndex("uploading"))
-                aztec.clearOverlays(predicate, attrs)
+                aztec.clearOverlays(predicate)
+                aztec.updateElementAttributes(predicate, attrs)
             }
         }
 
@@ -330,7 +336,7 @@ class MainActivity : AppCompatActivity(),
                 && mHideActionBarOnSoftKeyboardUp
                 && mIsKeyboardOpen
                 && actionBar.isShowing) {
-            actionBar!!.hide()
+            actionBar.hide()
         }
     }
 
@@ -573,7 +579,7 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).isNotEmpty()
+        val mediaPending = aztec.getAllElementAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)

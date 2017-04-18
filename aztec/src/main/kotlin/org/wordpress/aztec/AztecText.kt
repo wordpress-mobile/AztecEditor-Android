@@ -1008,19 +1008,17 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             .firstOrNull()?.attributes = attrs
     }
 
-    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int, attributes: AztecAttributes) {
+    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
             .filter {
                 attributePredicate.matches(it.attributes)
             }
             .forEach {
                 it.setOverayLevel(index, level)
-                it.attributes = attributes
             }
     }
 
-    fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int,
-                   attributes: AztecAttributes) {
+    fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
             .filter {
                 attributePredicate.matches(it.attributes)
@@ -1028,32 +1026,30 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             .forEach {
                 // set the new overlay drawable
                 it.setOverlay(index, overlay, gravity)
-                it.attributes = attributes
 
                 invalidate()
             }
     }
 
-    fun clearOverlays(attributePredicate: AttributePredicate, attributes: AztecAttributes) {
+    fun clearOverlays(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
             .filter {
                 attributePredicate.matches(it.attributes)
             }
             .forEach {
                 it.clearOverlays()
-                it.attributes = attributes
 
                 invalidate()
             }
     }
 
-    fun getMediaAttributes(attributePredicate: AttributePredicate): Attributes {
-        return getAllMediaAttributes(attributePredicate).first()
+    fun getElementAttributes(attributePredicate: AttributePredicate): AztecAttributes {
+        return getAllElementAttributes(attributePredicate).first()
     }
 
-    fun getAllMediaAttributes(attributePredicate: AttributePredicate): List<Attributes> {
+    fun getAllElementAttributes(attributePredicate: AttributePredicate): List<AztecAttributes> {
         return text
-                .getSpans(0, text.length, AztecMediaSpan::class.java)
+                .getSpans(0, text.length, AztecAttributedSpan::class.java)
                 .filter {
                     return@filter attributePredicate.matches(it.attributes)
                 }

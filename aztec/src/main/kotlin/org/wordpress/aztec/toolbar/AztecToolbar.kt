@@ -265,7 +265,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
             if (toolbarAction == ToolbarAction.HEADING) {
-                setHeaderMenu(findViewById(toolbarAction.buttonId))
+                setHeadingMenu(findViewById(toolbarAction.buttonId))
             }
         }
     }
@@ -308,7 +308,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val appliedStyles = editor!!.getAppliedStyles(selStart, selEnd)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
-        selectHeaderMenu(appliedStyles)
+        selectHeadingMenuItem(appliedStyles)
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -320,8 +320,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction() && it.textFormat != null) textFormats.add(it.textFormat) }
-            if (getSelectedHeading() != null) {
-                textFormats.add(getSelectedHeading()!!)
+            if (getSelectedHeadingMenuItem() != null) {
+                textFormats.add(getSelectedHeadingMenuItem()!!)
             }
             return editor!!.setSelectedStyles(textFormats)
         }
@@ -359,31 +359,43 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun selectHeaderMenu(textFormats: ArrayList<TextFormat>) {
-        headingMenu?.menu?.getItem(0)?.isChecked = true
-        textFormats.forEach {
-            when (it) {
-                TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
-                TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
-                TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
-                TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
-                TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
-                TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
-                else -> {
-
+    private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
+        if (textFormats.size == 0) {
+            // Select TextFormat.FORMAT_PARAGRAPH by default.
+            headingMenu?.menu?.getItem(0)?.isChecked = true
+        } else {
+            textFormats.forEach {
+                when (it) {
+                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+                    else -> {
+                        // Select TextFormat.FORMAT_PARAGRAPH by default.
+                        headingMenu?.menu?.getItem(0)?.isChecked = true
+                    }
                 }
+
+                return
             }
         }
     }
 
-    private fun setHeaderMenu(view: View) {
+    fun getHeadingMenu(): PopupMenu? {
+        return headingMenu
+    }
+
+    private fun setHeadingMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
     }
 
-    fun getSelectedHeading(): TextFormat? {
-        if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+    fun getSelectedHeadingMenuItem(): TextFormat? {
+        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
         else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
         else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
         else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4

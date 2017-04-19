@@ -109,9 +109,12 @@ object Format {
             m.appendTail(sb)
             content = sb.toString()
         }
+        if (content.contains("<hr")) {
+            content = replaceAll(content, "<hr ?/?>", "<hr></hr>")
+        }
 
         // Pretty it up for the source editor
-        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
+        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset|hr"
         val blocklist1 = blocklist + "|div|p"
         val blocklist2 = blocklist + "|pre"
 
@@ -151,9 +154,11 @@ object Format {
             content = replaceAll(content, "\\s*</select>", "\n</select>")
         }
 
-        if (content.contains("<hr")) {
-            content = replaceAll(content, "\\s*<hr ?/?>\\s*", "\n<hr>\n")
-        }
+//        if (content.contains("<hr")) {
+//            content = replaceAll(content, "<hr ?/?>", "\n<hr>\n")
+//        }
+
+        content = replaceAll(content, "<hr></hr>", "<hr>")
 
         if (content.contains("<object")) {
             p = Pattern.compile("<object[\\s\\S]+?</object>")
@@ -282,7 +287,7 @@ object Format {
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
 
 
-//        html = replaceAll(html, "(?i)<hr ?/?>", "<hr>\n\n") // hr is self closing block element
+        html = replaceAll(html, "(?i)<hr ?/?>", "<hr>\n\n") // hr is self closing block element
 
         html = replaceAll(html, "(?i)\\s*<option", "<option"); // No <p> or <br> around <option>
         html = replaceAll(html, "(?i)</option>\\s*", "</option>");

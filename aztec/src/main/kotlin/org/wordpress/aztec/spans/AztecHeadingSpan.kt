@@ -49,7 +49,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
                 "h4" -> return TextFormat.FORMAT_HEADING_4
                 "h5" -> return TextFormat.FORMAT_HEADING_5
                 "h6" -> return TextFormat.FORMAT_HEADING_6
-                else -> return TextFormat.FORMAT_PARAGRAPH
+                else -> return TextFormat.FORMAT_HEADING_1
             }
         }
 
@@ -61,13 +61,12 @@ class AztecHeadingSpan @JvmOverloads constructor(
                 TextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan.Heading.H4
                 TextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan.Heading.H5
                 TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan.Heading.H6
-                else -> { return AztecHeadingSpan.Heading.H1 } // just use the H!
+                else -> { return AztecHeadingSpan.Heading.H1 }
             }
         }
     }
 
-    constructor(nestingLevel: Int, tag: String, attrs: String = "",
-            headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
+    constructor(nestingLevel: Int, tag: String, attrs: String, headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
             : this(nestingLevel, getTextFormat(tag), attrs, headerStyle)
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
@@ -154,7 +153,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
             SCALE_H4 -> return "h4"
             SCALE_H5 -> return "h5"
             SCALE_H6 -> return "h6"
-            else -> return "p"
+            else -> return "h1"
         }
     }
 

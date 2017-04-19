@@ -33,7 +33,6 @@ object Format {
             html = html.replace("aztec_cursor", "")
 
             html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
-//            html = replaceAll(html, "<br><br>", "<p>&nbsp;</p>")
             html = toCalypsoSourceEditorFormat(html)
         } else {
 
@@ -140,8 +139,8 @@ object Format {
 //        content = replaceAll(content, "<((?:$blocklist2)(?: [^>]*)?)\\s*>", "<$1>")
 //        content = replaceAll(content, "\\s*</($blocklist2)>", "</$1>")
 
-//        content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
-//        content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
+//        content = replaceAll(content, "\n\n<((?:$blocklist2)(?: [^>]*)?)\\s*>", "<$1>")
+//        content = replaceAll(content, "\\s*</($blocklist2)>\n?", "</$1>\n")
 
 
 

@@ -246,9 +246,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText, isCalypsoMode: Boolean = true) {
         this.sourceEditor = sourceEditor
         this.editor = editor
+
         //highlight toolbar buttons based on what styles are applied to the text beneath cursor
         this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
@@ -345,7 +346,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toHtml(true))
+            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
@@ -401,7 +402,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
         }
-	}
+    }
 
     fun enableFormatButtons(isEnabled: Boolean) {
         ToolbarAction.values().forEach { action ->

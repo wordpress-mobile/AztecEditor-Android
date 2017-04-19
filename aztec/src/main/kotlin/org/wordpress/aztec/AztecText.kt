@@ -690,12 +690,26 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
     }
 
+    //returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
+        val html = toPlainHtml(withCursorTag)
+
+        if (isInCalypsoMode) {
+            //calypso format is a mix of newline characters and html
+            //paragraphs and line breaks are added on server, from newline characters
+            return Format.addSourceEditorFormatting(html, true)
+        } else {
+            return html
+        }
+    }
+
+    //platform agnostic HTML
+    fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
 
         if (isInCalypsoMode) {
-            val spans =  output.getSpans(0, output.length, EndOfParagraphMarker::class.java)
+            val spans = output.getSpans(0, output.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { output.getSpanStart(it) }
 
             //add additional newline to the end of every paragraph
@@ -703,7 +717,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 val spanStart = output.getSpanStart(it)
                 val spanEnd = output.getSpanEnd(it)
 
-                if (output[spanStart] == '\n' && output.getSpans(spanEnd, spanEnd+1, AztecBlockSpan::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
+                if (output[spanStart] == '\n' && output.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
                     output.insert(spanEnd, "\n")
                 }
             }
@@ -724,18 +738,11 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
 
         parser.syncVisualNewlinesOfBlockElements(output)
-        val html = parser.toHtml(output, withCursorTag)
-
-        if (isInCalypsoMode) {
-//            return Format.toCalypsoHtml(Format.toCalypsoSourceEditorFormat(EndOfBufferMarkerAdder.removeEndOfTextMarker(html)))
-            return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
-        } else {
-            return EndOfBufferMarkerAdder.removeEndOfTextMarker(html)
-        }
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
     }
 
     fun toFormattedHtml(): String {
-        return Format.addSourceEditorFormatting(toHtml())
+        return Format.addSourceEditorFormatting(toHtml(), isInCalypsoMode)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

@@ -636,7 +636,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(source, onMediaTappedListener, this, context))
+        builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(source, isInCalypsoMode), onMediaTappedListener, this, context))
 
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()

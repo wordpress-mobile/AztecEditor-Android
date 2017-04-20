@@ -1,6 +1,8 @@
 package org.wordpress.aztec
 
 import android.app.Activity
+import android.view.MenuItem
+import android.widget.PopupMenu
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -10,16 +12,23 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeLength
+import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
- * Testing quote behaviour.
+ * Testing heading behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class HeadingTest {
+class HeadingTest() {
 
-    val defaultHeadingFormat = TextFormat.FORMAT_HEADING_1
     lateinit var editText: AztecText
+    lateinit var sourceText: SourceViewEditText
+    lateinit var toolbar: AztecToolbar
+    lateinit var menuHeading: PopupMenu
+    lateinit var menuHeading1: MenuItem
+    lateinit var menuHeading2: MenuItem
+    lateinit var menuParagraph: MenuItem
 
     /**
      * Initialize variables.
@@ -29,6 +38,14 @@ class HeadingTest {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
         editText.setCalypsoMode(false)
+        sourceText = SourceViewEditText(activity)
+        sourceText.setCalypsoMode(false)
+        toolbar = AztecToolbar(activity)
+        toolbar.setEditor(editText, sourceText, false)
+        menuHeading = toolbar.getHeadingMenu() as PopupMenu
+        menuHeading1 = menuHeading.menu.getItem(1)
+        menuHeading2 = menuHeading.menu.getItem(2)
+        menuParagraph = menuHeading.menu.getItem(0)
         activity.setContentView(editText)
     }
 
@@ -36,8 +53,9 @@ class HeadingTest {
     @Throws(Exception::class)
     fun applyHeadingToSingleLine() {
         editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -45,8 +63,9 @@ class HeadingTest {
     fun applyHeadingToPartiallySelectedText() {
         editText.append("Heading 1")
         editText.setSelection(1, editText.length() - 2)
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -56,17 +75,19 @@ class HeadingTest {
         editText.append("\n")
         editText.append("Second line")
         editText.setSelection(3, editText.length() - 3)
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>First line</h1><h1>Second line</h1>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
     @Throws(Exception::class)
     fun prependTextToHeading() {
         editText.append("Heading 1")
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         editText.text.insert(0, "inserted")
         Assert.assertEquals("<h1>insertedHeading 1</h1>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -133,9 +154,10 @@ class HeadingTest {
     @Throws(Exception::class)
     fun changeHeadingOfSingleLine() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
-        editText.toggleFormatting(defaultHeadingFormat)
-        editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
-        Assert.assertEquals("<h2>Heading 1</h2>", editText.toHtml())
+        toolbar.onMenuItemClick(menuHeading1)
+        toolbar.onMenuItemClick(menuHeading2)
+        Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -143,8 +165,9 @@ class HeadingTest {
     fun changeHeadingOfSelectedMultilineText() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         editText.setSelection(0, safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+        toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -152,16 +175,18 @@ class HeadingTest {
     fun applyHeadingToTextInsideList() {
         editText.fromHtml("<ol><li>Item 1</li><li>Item 2</li></ol>")
         editText.setSelection(0)
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li><h1>Item 1</h1></li><li>Item 2</li></ol>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
     @Throws(Exception::class)
     fun applyHeadingToTextInsideQuote() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -176,8 +201,9 @@ class HeadingTest {
     @Throws(Exception::class)
     fun applyHeadingToQuote() {
         editText.fromHtml("<blockquote>Quote</blockquote>")
-        editText.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -186,8 +212,9 @@ class HeadingTest {
         editText.fromHtml("<ol><li>Ordered</li></ol>Heading 1<ol><li>Ordered</li></ol>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li>Ordered</li></ol><h1>Heading 1</h1><ol><li>Ordered</li></ol>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -196,8 +223,9 @@ class HeadingTest {
         editText.fromHtml("<blockquote>Quote</blockquote>Heading 1<blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Heading 1") + 1
         editText.setSelection(mark)
-        editText.toggleFormatting(defaultHeadingFormat)
+        toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote>Quote</blockquote><h1>Heading 1</h1><blockquote>Quote</blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -238,7 +266,41 @@ class HeadingTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteHeadingChars_Issue287() {
+    fun updateHeadingMenuOnSelectionChange() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><b>Bold</b><i>Italic</i>None")
+        var cursor: Int
+
+        cursor = editText.text.indexOf("ing 1")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("ld")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("ing 2")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("lic")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("ing 3")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_3, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("one")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    /**
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/287
+     */
+    @Test
+    @Throws(Exception::class)
+    fun deleteAllCharactersFromHeading() {
         editText.fromHtml("<h1>he</h1>")
 
         var l = safeLength(editText)
@@ -249,19 +311,48 @@ class HeadingTest {
         Assert.assertEquals("<h1></h1>", editText.toHtml())
     }
 
+    /**
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/289
+     */
     @Test
     @Throws(Exception::class)
-    fun addHeading_issue289() {
+    fun addCharactersAfterSelectingHeading() {
         editText.fromHtml("<h1>Heading 1</h1>")
 
         safeAppend(editText, "\n")
 
         editText.setSelection(safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+        toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h1>Heading 1</h1><h2></h2>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
 
         safeAppend(editText, "Heading 2")
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    /**
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
+     */
+    @Test
+    @Throws(Exception::class)
+    fun removeHeadingWithParagraph() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>")
+        val cursor = editText.text.indexOf("ing 2")
+        editText.setSelection(cursor)
+
+        toolbar.onMenuItemClick(menuParagraph)
+        Assert.assertEquals("<h1>Heading 1</h1>Heading 2<h3>Heading 3</h3>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+
+        toolbar.onMenuItemClick(menuHeading2)
+        Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>", editText.toHtml())
+//        TODO: Correct heading menu selection.  This is incorrect.  Heading 2 should be selected.
+//        AztecToolbar.highlightAppliedStyles returns Heading 1, Heading 2, and Heading 3 so then
+//        AztecToolbar.selectHeaderMenu selects the first format.  See this issue for details.
+//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
+//        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test

@@ -47,8 +47,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "</div>\n</div>\n<div></div>\n</div>"
 
     private val HTML_MIXED_WITH_NEWLINES =
-            "\n\n<span><i>Italic</i></span>\n\n" +
-                    "<b>Bold</b><br>" +
+            "\n\n<span><i>Italic</i></span>\n\n<b>Bold</b><br>" +
                     "\t<div class=\"first\">" +
                     "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
                     "    \t<div class=\"second\">" +
@@ -64,7 +63,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<br>"
 
     private val HTML_MIXED_WITH_NEWLINES_CALYPSO =
-            "<span><i>Italic</i></span><b>Bold</b>\n" +
+            "<span><i>Italic</i></span> <b>Bold</b>\n" +
                     "<div class=\"first\">" +
                     "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>\n" +
                     "<div class=\"second\">\n" +

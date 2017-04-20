@@ -19,8 +19,6 @@ object Format {
 
         val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
-
-
             //remove empty span tags
             doc.select("*")
                     .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }

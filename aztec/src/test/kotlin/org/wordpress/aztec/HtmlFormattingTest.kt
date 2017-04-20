@@ -53,7 +53,7 @@ class HtmlFormattingTest : AndroidTestCase() {
 
     private val HTML_MIXED_WITHOUT_NEWLINES =
             "<span><i>Italic</i></span>" +
-                    "<b>Bold</b><br>" +
+                    " <b>Bold</b><br>" +
                     "<div class=\"first\">" +
                     "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
                     "<div class=\"second\">" +
@@ -89,10 +89,9 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNestedHtml() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span), false), false)
-        Assert.assertEquals(HTML_NESTED, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        Assert.assertEquals(input, output)
     }
-
 
     /**
      * Test the conversion from HTML to visual mode with multiple line breaks
@@ -104,10 +103,9 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatLineBreaks() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span), false), false)
-        Assert.assertEquals(HTML_LINE_BREAKS, output)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        Assert.assertEquals(input, output)
     }
-
 
     /**
      * Test the conversion from HTML to visual mode with mixed HTML
@@ -119,7 +117,7 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatMixedHtml() {
         val input = HTML_MIXED_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span), false), false)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
     }
 
@@ -133,7 +131,7 @@ class HtmlFormattingTest : AndroidTestCase() {
     fun formatNewlines() {
         val input = HTML_BLOCK_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span), false), false)
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
     }
 }

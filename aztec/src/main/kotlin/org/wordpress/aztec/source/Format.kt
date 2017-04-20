@@ -9,9 +9,6 @@ import java.util.regex.Pattern
 
 object Format {
 
-    //enables "calypso" mode which allows for mixed html/visual input
-//    val IS_CALYPSO_MODE = true
-
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|h1|h2|h3|h4|h5|h6|iframe|hr|aztec_cursor"
 
@@ -116,10 +113,12 @@ object Format {
         // Pretty it up for the source editor
         val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset|hr"
         val blocklist1 = blocklist + "|div|p"
-        val blocklist2 = blocklist + "|pre"
+//        val blocklist2 = blocklist + "|pre"
 
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
         content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
+
+
 
         // Mark </p> if it has any attributes.
         content = replaceAll(content, "(<p [^>]+>.*?)</p>", "$1</p#>")
@@ -134,18 +133,14 @@ object Format {
         content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n");
 
         // Fix some block element newline issues
-        content = replaceAll(content, "\\s*<div", "\n<div")
-        content = replaceAll(content, "</div>\\s*", "</div>\n")
+//        content = replaceAll(content, "\\s*<div", "\n<div")
+        content = replaceAll(content, "\n\n<div", "\n<div")
+        content = replaceAll(content, "</div>\n\n", "</div>\n")
         content = replaceAll(content, "(?i)\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*", "\n\n[caption$1[/caption]\n\n")
         content = replaceAll(content, "caption\\]\\n\\n+\\[caption", "caption]\n\n[caption")
 
-//        content = replaceAll(content, "<((?:$blocklist2)(?: [^>]*)?)\\s*>", "<$1>")
-//        content = replaceAll(content, "\\s*</($blocklist2)>", "</$1>")
-
-//        content = replaceAll(content, "\n\n<((?:$blocklist2)(?: [^>]*)?)\\s*>", "<$1>")
-//        content = replaceAll(content, "\\s*</($blocklist2)>\n?", "</$1>\n")
-
-
+//        content = replaceAll(content, "\\s*<((?:$blocklist2)(?: [^>]*)?)\\s*>", "\n<$1>")
+//        content = replaceAll(content, "\\s*</($blocklist2)>\\s*", "</$1>\n")
 
         content = replaceAll(content, "<li([^>]*)>", "\t<li$1>")
 
@@ -299,6 +294,10 @@ object Format {
         html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1");
         html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1><p>");
         html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</p></blockquote>");
+
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:div)(?: [^>]*)?>)", "$1<p>");
+        html = replaceAll(html, "(?i)(</?(?:div)(?: [^>]*)?>)\\s*</p>", "</p>$1");
+
         html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1");
         html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
         html = replaceAll(html, "(?i)\\s*\\n", "<br>\n");
@@ -308,13 +307,13 @@ object Format {
 
 
 
-        html = html.replace(Regex("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)</p>"), { matchResult: MatchResult ->
-            if (matchResult.groupValues[2].matches(Regex("<p( [^>]*)?>"))) {
-                matchResult.groupValues[0]
-            } else {
-                matchResult.groupValues[1] + "<p>" + matchResult.groupValues[2] + "</p>"
-            }
-        })
+//        html = html.replace(Regex("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)</p>"), { matchResult: MatchResult ->
+//            if (matchResult.groupValues[2].matches(Regex("<p( [^>]*)?>"))) {
+//                matchResult.groupValues[0]
+//            } else {
+//                matchResult.groupValues[1] + "<p>" + matchResult.groupValues[2] + "</p>"
+//            }
+//        })
 
         // put back the line breaks in pre|script
         if (preserve_linebreaks) {

@@ -152,7 +152,8 @@ class AztecParser {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
 
-                //mark newlines at the end of <p> - this will give us visual
+                //mark newlines at the end of <p> - this will give us visual padding
+                //and will mark a place for additional /n during processing
                 if (it is ParagraphSpan) {
                     spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
@@ -168,6 +169,8 @@ class AztecParser {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
             }
 
+            //mark newlines at the end of <p> - this will give us visual padding
+            //and will mark a place for additional /n during processing
             if (it is ParagraphSpan) {
                 spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
@@ -464,7 +467,7 @@ class AztecParser {
         }
 
         for (z in 0..nl - 1) {
-            val parentSharesEnd = parents?.any {it !is ParagraphSpan && text.getSpanEnd(it) == end + 1 + z } ?: false
+            val parentSharesEnd = parents?.any {text.getSpanEnd(it) == end + 1 + z } ?: false
             if (parentSharesEnd) {
                 continue
             }

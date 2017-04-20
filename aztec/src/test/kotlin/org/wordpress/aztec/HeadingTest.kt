@@ -41,7 +41,7 @@ class HeadingTest() {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
-        toolbar.setEditor(editText, sourceText, false)
+        toolbar.setEditor(editText, sourceText)
         menuHeading = toolbar.getHeadingMenu() as PopupMenu
         menuHeading1 = menuHeading.menu.getItem(1)
         menuHeading2 = menuHeading.menu.getItem(2)

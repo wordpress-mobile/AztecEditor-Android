@@ -246,7 +246,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText, isCalypsoMode: Boolean = true) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 

@@ -30,7 +30,6 @@ object Format {
             html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
             html = toCalypsoSourceEditorFormat(html)
         } else {
-
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
 
             val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
@@ -59,10 +58,9 @@ object Format {
         return m.replaceAll(replacement)
     }
 
-    //Takes HTML as is and formats it for source viewer by replacing <p> with \n\n and <br> with \n
+    //Takes HTML and formats it for Source editor and calypso back-end
     //based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoSourceEditorFormat(htmlContent: String): String {
-        //remove references to cursor when in calypso mode
         var content = htmlContent
         if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
@@ -115,7 +113,6 @@ object Format {
 
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
         content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
-
 
 
         // Mark </p> if it has any attributes.
@@ -187,7 +184,7 @@ object Format {
         return content
     }
 
-    // converts visual newlines to <p> and <br> tags
+    // Converts visual newlines to <p> and <br> tags. This method produces html used for html2span parser
     // based on wpautop() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoHtml(formattedHtml: String): String {
         //remove references to cursor when in calypso mode
@@ -302,7 +299,6 @@ object Format {
         html = replaceAll(html, "(?i)(</?(?:$blocklist)[^>]*>)\\s*<br ?/?>", "$1");
         html = replaceAll(html, "(?i)<br ?/?>(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1");
         html = replaceAll(html, "(?i)(?:<p>|<br ?/?>)*\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*(?:</p>|<br ?/?>)*", "[caption$1[/caption]")
-
 
 
 //        html = html.replace(Regex("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)</p>"), { matchResult: MatchResult ->

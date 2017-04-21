@@ -73,6 +73,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 if (span != null) {
                     removeBlockStyle(span.textFormat)
                 }
+
+                removeBlockStyle(TextFormat.FORMAT_PREFORMAT)
             }
             TextFormat.FORMAT_PREFORMAT -> {
                 if (!containPreformat()) {
@@ -84,7 +86,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                         }
                     }
 
-                    applyBlockStyle(TextFormat.FORMAT_PREFORMAT)
+                    applyBlockStyle(textFormat)
                 }
             }
             else -> { }

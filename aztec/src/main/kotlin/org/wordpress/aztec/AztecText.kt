@@ -43,10 +43,7 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.HeadingHandler
-import org.wordpress.aztec.handlers.ListHandler
-import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.handlers.QuoteHandler
+import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -251,6 +248,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 .add(ListHandler())
                 .add(ListItemHandler())
                 .add(QuoteHandler())
+                .add(PreformatHandler())
                 .install(this)
 
         TextDeleter.install(this)

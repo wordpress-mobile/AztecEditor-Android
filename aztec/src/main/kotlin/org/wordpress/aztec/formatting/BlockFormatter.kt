@@ -9,7 +9,6 @@ import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 
@@ -418,7 +417,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             is AztecUnorderedListSpan -> applyListBlock(blockSpan, start, end)
             is AztecQuoteSpan -> BlockHandler.set(editableText, blockSpan, start, end)
             is AztecHeadingSpan -> applyHeadingBlock(blockSpan, start, end)
-            is AztecPreformatSpan -> applyPreformatBlock(blockSpan, start, end)
+            is AztecPreformatSpan -> BlockHandler.set(editableText, blockSpan, start, end)
             else -> editableText.setSpan(blockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
     }
@@ -453,21 +452,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (lineLength == 0) continue
 
             HeadingHandler.cloneHeading(editableText, headingSpan, lineStart, lineEnd)
-        }
-    }
-
-    private fun applyPreformatBlock(span: AztecPreformatSpan, start: Int, end: Int) {
-        val lines = TextUtils.split(editableText.substring(start, end), "\n")
-        for (i in lines.indices) {
-            val splitLength = lines[i].length
-
-            val lineStart = start + (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
-
-            val lineLength = lineEnd - lineStart
-            if (lineLength == 0) continue
-
-            PreformatHandler.apply(editableText, span, lineStart, lineEnd)
         }
     }
 

@@ -542,6 +542,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
             TextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
+            TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
             TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
@@ -549,7 +550,6 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            TextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
             TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()

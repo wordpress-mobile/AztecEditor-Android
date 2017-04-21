@@ -439,7 +439,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    private fun liftBlock(textFormat: TextFormat, start: Int, end: Int, attrs: String = "") {
+    private fun liftBlock(textFormat: TextFormat, start: Int, end: Int) {
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> liftListBlock(AztecOrderedListSpan::class.java, start, end)
             TextFormat.FORMAT_UNORDERED_LIST -> liftListBlock(AztecUnorderedListSpan::class.java, start, end)

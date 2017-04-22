@@ -109,11 +109,6 @@ class AztecMediaSpan(context: Context, drawable: Drawable?, override var attribu
     }
 
     fun onClick(view: View) {
-        // add a unique ID that can identify this image span
-        if (!attributes.hasAttribute("aztec_id")) {
-            attributes.setValue("aztec_id", UUID.randomUUID().toString())
-        }
-
         onMediaTappedListener?.mediaTapped(attributes, getWidth(imageDrawable), getHeight(imageDrawable))
     }
 

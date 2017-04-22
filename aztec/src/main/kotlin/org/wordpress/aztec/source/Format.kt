@@ -17,7 +17,7 @@ object Format {
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
 
-        val doc = Jsoup.parse(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
+        val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
             //remove empty span tags
             doc.select("*")
@@ -44,7 +44,7 @@ object Format {
     fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
-            val doc = Jsoup.parse(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
+            val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
             val modified = doc.body().html()
             return modified
         } else {
@@ -103,16 +103,18 @@ object Format {
             content = sb.toString()
         }
         if (content.contains("<hr")) {
-            content = replaceAll(content, "<hr ?/?>", "<hr></hr>")
+            content = replaceAll(content, "<hr ?/?>", "<hr>")
         }
 
         // Pretty it up for the source editor
-        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset|hr"
+        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
         val blocklist1 = blocklist + "|div|p"
 //        val blocklist2 = blocklist + "|pre"
 
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
         content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
+
+        content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n<$1>\n")
 
 
         // Mark </p> if it has any attributes.
@@ -125,7 +127,7 @@ object Format {
         content = replaceAll(content, "(?i)\\s*<p>", "")
         content = replaceAll(content, "(?i)\\s*</p>\\s*", "\n\n")
         content = replaceAll(content, "\\n[\\s\\u00a0]+\\n", "\n\n")
-        content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n");
+        content = replaceAll(content, "(?i)\\s*<br ?/?>\\s*", "\n")
 
         // Fix some block element newline issues
 //        content = replaceAll(content, "\\s*<div", "\n<div")
@@ -144,12 +146,6 @@ object Format {
             content = replaceAll(content, "\\s*</select>", "\n</select>")
         }
 
-//        if (content.contains("<hr")) {
-//            content = replaceAll(content, "<hr ?/?>", "\n<hr>\n")
-//        }
-
-        content = replaceAll(content, "<hr></hr>", "<hr>")
-
         if (content.contains("<object")) {
             p = Pattern.compile("<object[\\s\\S]+?</object>")
             m = p.matcher(content)
@@ -162,8 +158,8 @@ object Format {
         }
 
         // Unmark special paragraph closing tags
-        content = replaceAll(content, "</p#>", "</p>\n");
-        content = replaceAll(content, "\\s*(<p [^>]+>[\\s\\S]*?</p>)", "\n$1");
+        content = replaceAll(content, "</p#>", "</p>\n")
+        content = replaceAll(content, "\\s*(<p [^>]+>[\\s\\S]*?</p>)", "\n$1")
 
         // Trim whitespace
         content = replaceAll(content, "^\\s+", "")
@@ -276,28 +272,34 @@ object Format {
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
 
-
+        html = replaceAll(html, "(?i)(<!--(.*?)-->)", "\n$1\n\n")
         html = replaceAll(html, "(?i)<hr ?/?>", "<hr>\n\n") // hr is self closing block element
 
-        html = replaceAll(html, "(?i)\\s*<option", "<option"); // No <p> or <br> around <option>
-        html = replaceAll(html, "(?i)</option>\\s*", "</option>");
-        html = replaceAll(html, "\\r\\n|\\r", "\n");
-        html = replaceAll(html, "\\n\\s*\\n+", "\n\n");
-        html = replaceAll(html, "([\\s\\S]+?)\\n\\n", "<p>$1</p>\n");
-        html = replaceAll(html, "(?i)<p>\\s*?</p>", "");
-        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
-        html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1");
-        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1><p>");
-        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</p></blockquote>");
+        html = replaceAll(html, "(?i)\\s*<option", "<option") // No <p> or <br> around <option>
+        html = replaceAll(html, "(?i)</option>\\s*", "</option>")
+        html = replaceAll(html, "\\r\\n|\\r", "\n")
+        html = replaceAll(html, "\\n\\s*\\n+", "\n\n")
+        html = replaceAll(html, "([\\s\\S]+?)\\n\\n", "<p>$1</p>\n")
+        html = replaceAll(html, "(?i)<p>\\s*?</p>", "")
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1")
+        html = replaceAll(html, "(?i)<p>(<li.+?)</p>", "$1")
+        html = replaceAll(html, "(?i)<p>\\s*<blockquote([^>]*)>", "<blockquote$1><p>")
+        html = replaceAll(html, "(?i)</blockquote>\\s*</p>", "</p></blockquote>")
 
-        html = replaceAll(html, "(?i)<p>\\s*(</?(?:div)(?: [^>]*)?>)", "$1<p>");
-        html = replaceAll(html, "(?i)(</?(?:div)(?: [^>]*)?>)\\s*</p>", "</p>$1");
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:div)(?: [^>]*)?>)", "$1<p>")
+        html = replaceAll(html, "(?i)(</?(?:div)(?: [^>]*)?>)\\s*</p>", "</p>$1")
 
-        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1");
-        html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1");
-        html = replaceAll(html, "(?i)\\s*\\n", "<br>\n");
-        html = replaceAll(html, "(?i)(</?(?:$blocklist)[^>]*>)\\s*<br ?/?>", "$1");
-        html = replaceAll(html, "(?i)<br ?/?>(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1");
+//        html = replaceAll(html, "(?i)<p>\\s*(<!--(.*?)-->)", "$1")
+//        html = replaceAll(html, "(?i)(<!--(.*?)-->)\\s*</p>", "$1")
+
+        html = replaceAll(html, "(?i)<p>\\s*(</?(?:$blocklist)(?: [^>]*)?>)", "$1")
+        html = replaceAll(html, "(?i)(</?(?:$blocklist)(?: [^>]*)?>)\\s*</p>", "$1")
+        html = replaceAll(html, "(?i)\\s*\\n", "<br>\n")
+        html = replaceAll(html, "(?i)(</?(?:$blocklist)[^>]*>)\\s*<br ?/?>", "$1")
+
+//        html = replaceAll(html, "(?i)(<!--(.*?)-->)\\s*<br ?/?>", "$1")
+
+        html = replaceAll(html, "(?i)<br ?/?>(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1")
         html = replaceAll(html, "(?i)(?:<p>|<br ?/?>)*\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*(?:</p>|<br ?/?>)*", "[caption$1[/caption]")
 
 

@@ -636,7 +636,9 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(source, isInCalypsoMode), onMediaTappedListener, this, context))
+        builder.append(parser.fromHtml(
+                Format.removeSourceEditorFormatting(
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), onMediaTappedListener, this, context))
 
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
@@ -718,9 +720,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 val spanEnd = output.getSpanEnd(it)
 
                 if (output[spanStart] == '\n'
-                        && output.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java).filter { it !is ParagraphSpan }.isEmpty()
-                        && output.getSpans(spanEnd, spanEnd + 1, AztecFullWidthImageSpan::class.java).isEmpty()
-                        ) {
+                        && output.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
                     output.insert(spanEnd, "\n")
                 }
             }

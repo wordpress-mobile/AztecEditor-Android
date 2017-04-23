@@ -25,6 +25,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.formatting.InlineFormatter
+import org.wordpress.aztec.AztecAttributes
 
 class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
 
@@ -34,13 +35,13 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
     private var codeBackgroundAlpha: Float = 0.0f
     private var codeColor: Int = 0
 
-    override var attributes: String = ""
+    override var attributes: AztecAttributes = AztecAttributes()
 
-    constructor(attributes: String = "") : super() {
+    constructor(attributes: AztecAttributes = AztecAttributes()) : super() {
         this.attributes = attributes
     }
 
-    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: String = "") : this(attributes) {
+    constructor(codeStyle: InlineFormatter.CodeStyle, attributes: AztecAttributes = AztecAttributes()) : this(attributes) {
         this.codeBackground = codeStyle.codeBackground
         this.codeBackgroundAlpha = codeStyle.codeBackgroundAlpha
         this.codeColor = codeStyle.codeColor
@@ -70,10 +71,10 @@ class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
     }
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

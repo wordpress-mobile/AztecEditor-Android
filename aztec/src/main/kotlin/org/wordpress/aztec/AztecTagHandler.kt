@@ -28,48 +28,48 @@ import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
+import org.wordpress.aztec.AztecAttributes
 
 class AztecTagHandler : Html.TagHandler {
 
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes?,
+            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes,
             nestingLevel: Int): Boolean {
-        val attributeString = Html.stringifyAttributes(attributes).toString()
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                handleElement(output, opening, AztecListItemSpan(nestingLevel, attributeString))
+                handleElement(output, opening, AztecListItemSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
-                handleElement(output, opening, AztecStrikethroughSpan(tag, attributeString))
+                handleElement(output, opening, AztecStrikethroughSpan(tag, AztecAttributes(attributes)))
                 return true
             }
             DIV, SPAN -> {
                 if (opening) {
-                    start(output, HiddenHtmlSpan(tag, attributeString, order++))
+                    start(output, HiddenHtmlSpan(tag, AztecAttributes(attributes), order++))
                 } else {
                     endHidden(output, order++)
                 }
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, attributeString))
+                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             LIST_OL -> {
-                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, attributeString))
+                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             BLOCKQUOTE -> {
-                handleElement(output, opening, AztecQuoteSpan(nestingLevel, attributeString))
+                handleElement(output, opening, AztecQuoteSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             IMAGE -> {
                 if (opening) {
-                    val mediaSpan = createImageSpan(attributes, onMediaTappedListener, context)
+                    val mediaSpan = createImageSpan(AztecAttributes(attributes), onMediaTappedListener, context)
                     start(output, mediaSpan)
                     start(output, AztecMediaClickableSpan(mediaSpan))
                     output.append(Constants.IMG_CHAR)
@@ -80,7 +80,7 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             PARAGRAPH -> {
-                handleElement(output, opening, ParagraphSpan(nestingLevel, attributeString))
+                handleElement(output, opening, ParagraphSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             LINE -> {
@@ -100,7 +100,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, attributeString))
+                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
                     return true
                 }
             }
@@ -108,7 +108,7 @@ class AztecTagHandler : Html.TagHandler {
         return false
     }
 
-    private fun createImageSpan(attributes: Attributes?, onMediaTappedListener: AztecText.OnMediaTappedListener?,
+    private fun createImageSpan(attributes: AztecAttributes, onMediaTappedListener: AztecText.OnMediaTappedListener?,
             context: Context) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))

@@ -1,3 +1,5 @@
 package org.wordpress.aztec.spans
 
-class AztecTypefaceMonospaceSpan(attributes: String = "") : AztecTypefaceSpan("tt", "monospace", attributes)
+import org.wordpress.aztec.AztecAttributes
+
+class AztecTypefaceMonospaceSpan(attributes: AztecAttributes = AztecAttributes()) : AztecTypefaceSpan("tt", "monospace", attributes)

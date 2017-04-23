@@ -2,11 +2,13 @@ package org.wordpress.aztec.spans
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle
+import org.wordpress.aztec.AztecAttributes
 
-class HiddenHtmlSpan(tag: String, attributes: String, openOrder: Int) : CharacterStyle() {
+class HiddenHtmlSpan(tag: String, attributes: AztecAttributes = AztecAttributes(), openOrder: Int) : CharacterStyle() {
 
-    val startTag: StringBuilder
-    val endTag: StringBuilder
+    val startTag: StringBuilder = StringBuilder()
+    val endTag: StringBuilder = StringBuilder()
+
     var isClosed: Boolean = false
         private set
     var isOpened: Boolean = false
@@ -19,10 +21,12 @@ class HiddenHtmlSpan(tag: String, attributes: String, openOrder: Int) : Characte
         private set
 
     init {
-        this.startTag = StringBuilder()
-        this.startTag.append("<").append(tag).append(attributes).append(">")
+        this.startTag.append("<").append(tag)
+        if (!attributes.isEmpty()) {
+            this.startTag.append(" ").append(attributes)
+        }
+        this.startTag.append(">")
 
-        this.endTag = StringBuilder()
         this.endTag.append("</").append(tag).append(">")
 
         reset()

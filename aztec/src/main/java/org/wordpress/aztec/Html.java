@@ -262,35 +262,35 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             handleCursor(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("b")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("em")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("i")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("big")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes);
         } else if (tag.equalsIgnoreCase("small")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes);
         } else if (tag.equalsIgnoreCase("font")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes);
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes);
         } else if (tag.equalsIgnoreCase("a")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes);
         } else if (tag.equalsIgnoreCase("u")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes);
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes);
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes);
         } else if (tag.equalsIgnoreCase("code")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes, nestingLevel);
+            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
         } else {
             if (tagHandler != null) {
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
@@ -367,7 +367,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, null,
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, new AztecAttributes(),
                     nestingLevel);
         }
     }
@@ -402,45 +402,44 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attributes,
-            int nestingLevel) {
-        final String attrs = Html.stringifyAttributes(attributes).toString();
+    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attrs) {
+        final AztecAttributes attributes = new AztecAttributes(attrs);
         AztecInlineSpan newSpan;
 
         switch (textFormat) {
             case FORMAT_BOLD:
-                newSpan = new AztecStyleBoldSpan(attrs);
+                newSpan = new AztecStyleBoldSpan(attributes);
                 break;
             case FORMAT_ITALIC:
-                newSpan = new AztecStyleItalicSpan(attrs);
+                newSpan = new AztecStyleItalicSpan(attributes);
                 break;
             case FORMAT_UNDERLINE:
-                newSpan = new AztecUnderlineSpan(attrs);
+                newSpan = new AztecUnderlineSpan(attributes);
                 break;
             case FORMAT_LINK:
-                String url = attributes.getValue("href") == null ? "" : attributes.getValue("href");
-                newSpan = new AztecURLSpan(url, attrs);
+                String url = attributes.hasAttribute("href") ? attributes.getValue("href") : "";
+                newSpan = new AztecURLSpan(url, attributes);
                 break;
             case FORMAT_BIG:
-                newSpan = new AztecRelativeSizeBigSpan(attrs);
+                newSpan = new AztecRelativeSizeBigSpan(attributes);
                 break;
             case FORMAT_SMALL:
-                newSpan = new AztecRelativeSizeSmallSpan(attrs);
+                newSpan = new AztecRelativeSizeSmallSpan(attributes);
                 break;
             case FORMAT_SUPERSCRIPT:
-                newSpan = new AztecSuperscriptSpan(attrs);
+                newSpan = new AztecSuperscriptSpan(attributes);
                 break;
             case FORMAT_SUBSCRIPT:
-                newSpan = new AztecSubscriptSpan(attrs);
+                newSpan = new AztecSubscriptSpan(attributes);
                 break;
             case FORMAT_MONOSPACE:
-                newSpan = new AztecTypefaceMonospaceSpan(attrs);
+                newSpan = new AztecTypefaceMonospaceSpan(attributes);
                 break;
             case FORMAT_FONT:
-                newSpan = new FontSpan(attrs, attributes);
+                newSpan = new FontSpan(attributes);
                 break;
             case FORMAT_CODE:
-                newSpan = new AztecCodeSpan(attrs);
+                newSpan = new AztecCodeSpan(attributes);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");
@@ -504,7 +503,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         if (font != null && where != len) {
 
-            String color = font.getAttrs().getValue("color");
+            String color = font.getAttributes().getValue("color");
 
             if (!TextUtils.isEmpty(color)) {
                 if (color.startsWith("@")) {
@@ -531,7 +530,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             }
 
-            String face = font.getAttrs().getValue("face");
+            String face = font.getAttributes().getValue("face");
 
             if (face != null) {
                 text.setSpan(new TypefaceSpan(face), where, len,

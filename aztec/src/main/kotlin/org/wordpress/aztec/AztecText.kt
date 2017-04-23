@@ -729,6 +729,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             output.getSpans(0, output.length, ParagraphSpan::class.java).forEach {
                 output.removeSpan(it)
             }
+        }else{
+            val spans = output.getSpans(0, output.length, EndOfParagraphMarker::class.java).forEach {
+                output.removeSpan(it)
+            }
         }
 
         clearMetaSpans(output)

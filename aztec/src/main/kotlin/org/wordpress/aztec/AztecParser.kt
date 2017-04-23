@@ -385,8 +385,9 @@ class AztecParser {
             var nl = 0
             while (next < end && text[next] == '\n') {
                 val isVisualLinebreak = text.getSpans(next, next, AztecVisualLinebreak::class.java).isNotEmpty()
+                val isParagraphLinebreak = text.getSpans(next, next, EndOfParagraphMarker::class.java).isNotEmpty()
 
-                if (!isVisualLinebreak) {
+                if (!isVisualLinebreak || (isVisualLinebreak && isParagraphLinebreak)) {
                     nl++
                 }
                 next++

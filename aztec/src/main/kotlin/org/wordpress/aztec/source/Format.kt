@@ -114,7 +114,7 @@ object Format {
         content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
         content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
 
-        content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n<$1>\n")
+        content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n\n<$1>\n\n")
 
 
         // Mark </p> if it has any attributes.

@@ -17,7 +17,7 @@ class AztecPreformatSpan(
         override var nestingLevel: Int,
         override var attributes: String = "",
         var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
-    ) : AztecBlockSpan, TypefaceSpan("monospace"), LineBackgroundSpan, LineHeightSpan, LeadingMarginSpan {
+    ) : AztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1

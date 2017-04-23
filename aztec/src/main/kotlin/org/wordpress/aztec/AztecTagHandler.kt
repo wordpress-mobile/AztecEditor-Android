@@ -28,7 +28,6 @@ import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
-import org.wordpress.aztec.AztecAttributes
 
 class AztecTagHandler : Html.TagHandler {
 
@@ -95,7 +94,7 @@ class AztecTagHandler : Html.TagHandler {
                 return true
             }
             PREFORMAT -> {
-                handleElement(output, opening, AztecPreformatSpan(nestingLevel, attributeString))
+                handleElement(output, opening, AztecPreformatSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             else -> {

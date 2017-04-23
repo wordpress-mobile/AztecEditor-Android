@@ -6,16 +6,16 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.TypefaceSpan
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecPreformatSpan(
         override var nestingLevel: Int,
-        override var attributes: String = "",
+        override var attributes: AztecAttributes = AztecAttributes(),
         var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
     ) : AztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
 
@@ -79,10 +79,10 @@ class AztecPreformatSpan(
     }
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
 
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 }

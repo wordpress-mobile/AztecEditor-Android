@@ -8,6 +8,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.TextChangedEvent
+import org.wordpress.aztec.AztecAttributes
 import java.util.*
 
 
@@ -362,7 +363,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: String = ""): AztecInlineSpan {
+    fun makeInlineSpan(spanType: Class<AztecInlineSpan>, attrs: AztecAttributes = AztecAttributes()): AztecInlineSpan {
         when (spanType) {
             AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
             else -> return AztecStyleSpan(Typeface.NORMAL)

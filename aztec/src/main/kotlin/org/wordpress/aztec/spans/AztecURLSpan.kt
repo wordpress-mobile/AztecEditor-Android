@@ -22,6 +22,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.URLSpan
 import org.wordpress.aztec.formatting.LinkFormatter
+import org.wordpress.aztec.AztecAttributes
 
 class AztecURLSpan : URLSpan, AztecInlineSpan {
 
@@ -30,17 +31,17 @@ class AztecURLSpan : URLSpan, AztecInlineSpan {
     private var linkColor = 0
     private var linkUnderline = true
 
-    override var attributes: String = ""
+    override var attributes: AztecAttributes = AztecAttributes()
 
-    constructor(url: String, attributes: String = "") : super(url) {
+    constructor(url: String, attributes: AztecAttributes = AztecAttributes()) : super(url) {
         if (attributes.isEmpty()) {
-            this.attributes = " href=\"$url\""
+            this.attributes.setValue("href", url)
         } else {
             this.attributes = attributes
         }
     }
 
-    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: String = "") : this(url, attributes) {
+    constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: AztecAttributes = AztecAttributes()) : this(url, attributes) {
         this.linkColor = linkStyle.linkColor
         this.linkUnderline = linkStyle.linkUnderline
     }
@@ -62,10 +63,10 @@ class AztecURLSpan : URLSpan, AztecInlineSpan {
     }
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

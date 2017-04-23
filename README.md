@@ -1,15 +1,14 @@
-# Aztec
+<h1><img align="center" width=50px height=50px src="https://github.com/wordpress-mobile/AztecEditor-iOS/raw/develop/RepoAssets/aztec.png" alt="Aztec Logo'"/>&nbsp;Aztec: Native HTML Editor for Android</h1>
 
-
-[![Build Status](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/WordPress-Aztec-Android)
+[![Build Status](https://travis-ci.org/wordpress-mobile/AztecEditor-Android.svg?branch=develop)](https://travis-ci.org/wordpress-mobile/AztecEditor-Android)
 [![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=5800168c52aea90100a973ed&branch=develop&build=latest)](https://dashboard.buddybuild.com/apps/5800168c52aea90100a973ed/build/latest)
 
-Aztec (extend EditText) is a rich text editor component for writing HTML
+Aztec (which extends EditText) is a rich-text editor component for writing HTML
 documents in Android.
 
-Support Android 4.0+
+Supports Android 4.0+
 
-# Build and test
+## Build and test
 
 Build the library, build the example project and run unit tests:
 
@@ -23,19 +22,21 @@ Run unit tests only:
 $ ./gradlew test
 ```
 
-Note: there is no instrumentation tests at the moment.
+Note: There are no instrumentation tests at the moment.
 
-# Integrate in your project
+## Integrating Aztec in your project
 
-The library is not ready for prime time yet, so it's not distributed on maven
-central. Brave developers can either use the project as a source distribution
-or have fun with jitpack at their own risk:
+The library is not ready for prime time yet, so it's not published on Maven
+Central. Currently the library is distributed as an [alpha build](https://github.com/wordpress-mobile/AztecEditor-Android/releases).
+
+Brave developers can either use the project as a source distribution
+or have fun with JitPack at their own risk:
 
 ```gradle
 compile ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAPSHOT')
 ```
 
-When Aztec is ready, we'll publish the artifact in maven.
+When Aztec is ready, we'll publish the artifact in Maven.
 
 ## Reference
 

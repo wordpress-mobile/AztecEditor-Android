@@ -2,7 +2,6 @@ package org.wordpress.aztec
 
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
-import android.text.Editable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import org.junit.Assert

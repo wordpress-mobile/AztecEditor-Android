@@ -539,7 +539,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
+            TextFormat.FORMAT_HEADING_6,
             TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()

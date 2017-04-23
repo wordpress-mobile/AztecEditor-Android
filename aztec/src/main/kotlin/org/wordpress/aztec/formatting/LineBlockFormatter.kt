@@ -5,11 +5,8 @@ import android.support.v4.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.*
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
-import org.wordpress.aztec.Constants
-import org.wordpress.aztec.R
-import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
@@ -122,7 +119,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?) {
-        val span = AztecMediaSpan(editor.context, drawable, attributes, onMediaTappedListener, editor)
+        val span = AztecMediaSpan(editor.context, drawable, AztecAttributes(attributes), onMediaTappedListener, editor)
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
             .firstOrNull {

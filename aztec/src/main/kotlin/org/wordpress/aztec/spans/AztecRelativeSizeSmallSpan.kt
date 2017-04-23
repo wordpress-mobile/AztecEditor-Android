@@ -1,3 +1,5 @@
 package org.wordpress.aztec.spans
 
-class AztecRelativeSizeSmallSpan(attributes: String = "") : AztecRelativeSizeSpan("small", 0.8f, attributes)
+import org.wordpress.aztec.AztecAttributes
+
+class AztecRelativeSizeSmallSpan(attributes: AztecAttributes = AztecAttributes()) : AztecRelativeSizeSpan("small", 0.8f, attributes)

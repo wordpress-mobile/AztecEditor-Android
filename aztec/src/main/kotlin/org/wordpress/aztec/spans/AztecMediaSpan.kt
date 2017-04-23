@@ -14,11 +14,11 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import org.xml.sax.Attributes
+import org.wordpress.aztec.AztecAttributes
 import java.util.*
 
-class AztecMediaSpan(context: Context, drawable: Drawable?, var attributes: Attributes?,
-                     val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) :
-        AztecDynamicImageSpan(context, drawable) {
+class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+                     val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
 
     private val TAG: String = "img"
 
@@ -98,18 +98,13 @@ class AztecMediaSpan(context: Context, drawable: Drawable?, var attributes: Attr
         val sb = StringBuilder()
         sb.append("<")
         sb.append(TAG)
+        sb.append(' ')
 
-        attributes?.let {
-            for (i in 0..attributes!!.length-1) {
-                sb.append(' ')
-                sb.append(attributes!!.getLocalName(i))
-                sb.append("=\"")
-                sb.append(attributes!!.getValue(i))
-                sb.append("\"")
-            }
-        }
+        attributes.removeAttribute("aztec_id")
 
+        sb.append(attributes)
         sb.append("/>")
+
         return sb.toString()
     }
 
@@ -118,6 +113,6 @@ class AztecMediaSpan(context: Context, drawable: Drawable?, var attributes: Attr
     }
 
     fun getSource(): String {
-        return attributes?.getValue("src") ?: ""
+        return attributes.getValue("src") ?: ""
     }
 }

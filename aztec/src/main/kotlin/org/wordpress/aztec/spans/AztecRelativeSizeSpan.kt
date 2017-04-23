@@ -2,23 +2,15 @@ package org.wordpress.aztec.spans
 
 import android.text.TextUtils
 import android.text.style.RelativeSizeSpan
+import org.wordpress.aztec.AztecAttributes
 
-open class AztecRelativeSizeSpan : RelativeSizeSpan, AztecInlineSpan {
-
-    var tag: String = ""
-    override var attributes: String
-
-    @JvmOverloads
-    constructor(tag: String, size: Float, attributes: String = "") : super(size) {
-        this.tag = tag
-        this.attributes = attributes
-    }
+open class AztecRelativeSizeSpan @JvmOverloads constructor(var tag: String, size: Float, override var attributes: AztecAttributes = AztecAttributes()) : RelativeSizeSpan(size), AztecInlineSpan {
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return tag
         }
-        return tag + attributes
+        return tag + " " + attributes
     }
 
     override fun getEndTag(): String {

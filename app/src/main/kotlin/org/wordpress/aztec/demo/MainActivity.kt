@@ -17,6 +17,7 @@ import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -27,6 +28,7 @@ import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
@@ -34,7 +36,6 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
-import org.xml.sax.helpers.AttributesImpl
 import java.io.File
 
 class MainActivity : AppCompatActivity(),
@@ -165,10 +166,10 @@ class MainActivity : AppCompatActivity(),
     fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val id = (Math.random() * Int.MAX_VALUE).toString()
 
-        val attrs = AttributesImpl()
-        attrs.addAttribute("", "src", "src", "string", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-        attrs.addAttribute("", "id", "id", "string", id)
-        attrs.addAttribute("", "uploading", "uploading", "string", "true")
+        val attrs = AztecAttributes()
+        attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
+        attrs.setValue("id", id)
+        attrs.setValue("uploading", "true")
 
         aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 
@@ -178,23 +179,29 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL, attrs)
-        val progressDrawable = resources.getDrawable(android.R.drawable.progress_horizontal)
+        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
+        aztec.updateElementAttributes(predicate, attrs)
+
+        val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
-        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP, attrs)
+
+        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP)
+        aztec.updateElementAttributes(predicate, attrs)
 
         var progress = 0
 
         // simulate an upload delay
         val runnable: Runnable = Runnable {
-            aztec.setOverlayLevel(predicate, 1, progress, attrs)
+            aztec.setOverlayLevel(predicate, 1, progress)
+            aztec.updateElementAttributes(predicate, attrs)
             aztec.refreshText()
             progress += 2000
 
             if (progress >= 10000) {
                 attrs.removeAttribute(attrs.getIndex("uploading"))
-                aztec.clearOverlays(predicate, attrs)
+                aztec.clearOverlays(predicate)
+                aztec.updateElementAttributes(predicate, attrs)
             }
         }
 
@@ -212,7 +219,7 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_main)
 
         // Setup hiding the action bar when the soft keyboard is displayed for narrow viewports
-        if (resources.configuration.orientation === Configuration.ORIENTATION_LANDSCAPE
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                 && !resources.getBoolean(R.bool.is_large_tablet_landscape)) {
             mHideActionBarOnSoftKeyboardUp = true
         }
@@ -330,7 +337,7 @@ class MainActivity : AppCompatActivity(),
                 && mHideActionBarOnSoftKeyboardUp
                 && mIsKeyboardOpen
                 && actionBar.isShowing) {
-            actionBar!!.hide()
+            actionBar.hide()
         }
     }
 
@@ -573,7 +580,7 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        val mediaPending = aztec.getAllMediaAttributes(uploadingPredicate).size > 0
+        val mediaPending = aztec.getAllElementAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
@@ -671,7 +678,7 @@ class MainActivity : AppCompatActivity(),
         addVideoMediaDialog!!.show()
     }
 
-    override fun mediaTapped(attrs: Attributes?, naturalWidth: Int, naturalHeight: Int) {
+    override fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
         ToastUtils.showToast(this, "Media tapped!")
     }
 }

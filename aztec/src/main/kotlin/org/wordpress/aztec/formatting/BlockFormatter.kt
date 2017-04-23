@@ -3,6 +3,7 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.TextFormat
@@ -220,7 +221,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
 
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
-    fun makeBlock(textFormat: TextFormat, nestingLevel: Int, attrs: String = ""): List<AztecBlockSpan> {
+    fun makeBlock(textFormat: TextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<AztecBlockSpan> {
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
             TextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
@@ -230,12 +231,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return Arrays.asList(AztecHeadingSpan(nestingLevel, textFormat, "", headerStyle))
+            TextFormat.FORMAT_HEADING_6 -> return Arrays.asList(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle))
             else -> return Arrays.asList(ParagraphSpan(nestingLevel, attrs))
         }
     }
 
-    fun makeBlockSpan(textFormat: TextFormat, nestingLevel: Int, attrs: String = ""): AztecBlockSpan {
+    fun makeBlockSpan(textFormat: TextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): AztecBlockSpan {
         return when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, nestingLevel, attrs)
             TextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class.java, nestingLevel, attrs)
@@ -245,12 +246,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(nestingLevel, textFormat, "", headerStyle)
+            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
     }
 
-    fun <T : Class<out AztecBlockSpan>> makeBlockSpan(type: T, nestingLevel: Int, attrs: String = ""): AztecBlockSpan {
+    fun <T : Class<out AztecBlockSpan>> makeBlockSpan(type: T, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): AztecBlockSpan {
         return when (type) {
             AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
             AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
@@ -438,7 +439,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    private fun liftBlock(textFormat: TextFormat, start: Int, end: Int, attrs: String = "") {
+    private fun liftBlock(textFormat: TextFormat, start: Int, end: Int) {
         when (textFormat) {
             TextFormat.FORMAT_ORDERED_LIST -> liftListBlock(AztecOrderedListSpan::class.java, start, end)
             TextFormat.FORMAT_UNORDERED_LIST -> liftListBlock(AztecUnorderedListSpan::class.java, start, end)

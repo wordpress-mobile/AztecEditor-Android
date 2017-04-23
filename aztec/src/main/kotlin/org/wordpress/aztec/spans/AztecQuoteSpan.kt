@@ -29,11 +29,12 @@ import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.formatting.BlockFormatter
+import org.wordpress.aztec.AztecAttributes
 
 
 class AztecQuoteSpan(
         override var nestingLevel: Int,
-        override var attributes: String = "",
+        override var attributes: AztecAttributes = AztecAttributes(),
         var quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
     ) : QuoteSpan(), LineBackgroundSpan, AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
@@ -60,10 +61,10 @@ class AztecQuoteSpan(
     }
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

@@ -2,10 +2,11 @@ package org.wordpress.aztec.spans
 
 import android.text.TextUtils
 import android.text.style.ParagraphStyle
+import org.wordpress.aztec.AztecAttributes
 
 class ParagraphSpan(
         override var nestingLevel: Int,
-        override var attributes: String = ""
+        override var attributes: AztecAttributes = AztecAttributes()
     ) : ParagraphStyle, AztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
@@ -14,10 +15,10 @@ class ParagraphSpan(
     private var TAG: String = "p"
 
     override fun getStartTag(): String {
-        if (TextUtils.isEmpty(attributes)) {
+        if (attributes.isEmpty()) {
             return TAG
         }
-        return TAG + attributes
+        return TAG + " " + attributes
     }
 
     override fun getEndTag(): String {

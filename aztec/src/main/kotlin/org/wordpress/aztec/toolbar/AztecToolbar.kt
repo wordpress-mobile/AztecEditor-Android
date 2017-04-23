@@ -89,9 +89,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
             }
             KeyEvent.KEYCODE_8 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Preformatted = Alt + Ctrl + 8
-//                    TODO: Add Preformatted format.
-//                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMATTED)
+                if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
+                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }

@@ -77,16 +77,13 @@ object Format {
         // Protect pre|script tags
         if (content.contains("<pre") || content.contains("<script")) {
             preserve_linebreaks = true
-            p = Pattern.compile("<(pre|script)[^>]*>[\\s\\S]+?</\\u0001>")
-            m = p.matcher(content)
-            sb = StringBuffer()
-            if (m.find()) {
-                m.appendReplacement(sb, replaceAll(content.substring(m.start(), m.end()), "<br ?/?>(\\r\\n|\\n)?", "<wp-line-break>"))
-                m.appendReplacement(sb, replaceAll(content.substring(m.start(), m.end()), "</?p( [^>]*)?>(\\r\\n|\\n)?", "<wp-line-break>"))
-                m.appendReplacement(sb, replaceAll(content.substring(m.start(), m.end()), "\\r?\\n", "<wp-line-break>"))
-            }
-            m.appendTail(sb)
-            content = sb.toString()
+
+
+            content = content.replace(Regex("<(pre|script)[^>]*>[\\s\\S]+?</\\1>"), { matchResult: MatchResult ->
+                var value = replaceAll(matchResult.groupValues[0], "<br ?/?>(\\r\\n|\\n)?", "<wp-line-break>")
+                value = replaceAll(value, "</?p( [^>]*)?>(\\r\\n|\\n)?", "<wp-line-break>")
+                replaceAll(value, "\\r?\\n", "<wp-line-break>")
+            })
         }
 
         // keep <br> tags inside captions and remove line breaks
@@ -165,7 +162,7 @@ object Format {
         content = replaceAll(content, "^\\s+", "")
         content = replaceAll(content, "[\\s\\u00a0]+$", "")
 
-        content = replaceAll(content, "&nbsp;", "")
+        content = replaceAll(content, "&nbsp;", " ")
 
         // put back the line breaks in pre|script
         if (preserve_linebreaks) {
@@ -226,14 +223,9 @@ object Format {
         if (html.contains("<pre") || html.contains("<script")) {
             preserve_linebreaks = true
 
-            p = Pattern.compile("<(pre|script)[^>]*>[\\s\\S]+?</\\u0001>")
-            m = p.matcher(html)
-            sb = StringBuffer()
-            while (m.find()) {
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "(\\r\\n|\\n)", "<wp-line-break>"))
-            }
-            m.appendTail(sb)
-            html = sb.toString()
+            html = html.replace(Regex("<(pre|script)[^>]*>[\\s\\S]+?</\\1>"), { matchResult: MatchResult ->
+                replaceAll(matchResult.groupValues[0], "(\\r\\n|\\n)", "<wp-line-break>")
+            })
         }
 
         // keep <br> tags inside captions and convert line breaks
@@ -313,7 +305,7 @@ object Format {
 
         // put back the line breaks in pre|script
         if (preserve_linebreaks) {
-            html = replaceAll(html, "<wp-line-break>", "\n")
+            html = replaceAll(html, "<wp-line-break>", "<br>")
         }
 
         if (preserve_br) {

@@ -725,7 +725,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 }
             }
 
-            //we don't care about actuall ParagraphSpan in calypso - paragraphs are made from double newline
+            //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
             output.getSpans(0, output.length, ParagraphSpan::class.java).forEach {
                 output.removeSpan(it)
             }

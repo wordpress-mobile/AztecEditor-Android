@@ -1,8 +1,14 @@
 package org.wordpress.aztec.source
 
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.wordpress.aztec.spans.AztecParagraphStyle
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.ParagraphSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -313,6 +319,47 @@ object Format {
         }
 
         return html.replace("\n", "").trim()
+    }
+
+
+    fun preProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
+        if (isCalypsoFormat) {
+            text.getSpans(0, text.length, AztecVisualLinebreak::class.java).forEach {
+                val spanStart = text.getSpanStart(it)
+                val spanEnd = text.getSpanEnd(it)
+
+                if (text.getSpans(spanStart, spanEnd, ParagraphSpan::class.java).isNotEmpty()) {
+                    text.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+    }
+
+
+    fun postProcessSpanedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
+        if (isCalypsoFormat) {
+            val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)
+            spans.sortByDescending { text.getSpanStart(it) }
+
+            //add additional newline to the end of every paragraph
+            spans.forEach {
+                val spanStart = text.getSpanStart(it)
+                val spanEnd = text.getSpanEnd(it)
+
+                if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
+                    text.insert(spanEnd, "\n")
+                }
+
+                text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach {
+                    text.removeSpan(it)
+                }
+            }
+
+            //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
+            text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
+                text.removeSpan(it)
+            }
+        }
     }
 
     private fun replace(content: String, pattern: String, replacement: String): String {

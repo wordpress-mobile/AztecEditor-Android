@@ -3,19 +3,19 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecPart
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.TextChangedEvent
-import org.wordpress.aztec.AztecAttributes
 import java.util.*
 
 
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
     data class CarryOverSpan(val span: AztecInlineSpan, val start: Int, val end: Int)
-    data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int, val verticalParagraphMargin: Int)
+    data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
@@ -85,27 +85,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
 
-    fun isTargetForParagraphMarker(textChangedEvent: TextChangedEvent): Boolean {
-        val isInsideList = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecListItemSpan::class.java).isNotEmpty()
-
-        var insideHeading = editableText.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
-
-        if (insideHeading && (editableText.length > textChangedEvent.inputEnd && editableText[textChangedEvent.inputEnd] == '\n')) {
-            insideHeading = false
-        }
-        return !isInsideList && !insideHeading
-    }
-
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
-        if (textChangedEvent.isNewLineButNotAtTheBeginning()) {
-            if (isTargetForParagraphMarker(textChangedEvent)) {
-                editableText.setSpan(EndOfParagraphMarker(codeStyle.verticalParagraphMargin), textChangedEvent.inputStart, textChangedEvent.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            return
-        }
-
         //trailing styling
-        if (!editor.formattingHasChanged()) return
+        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied

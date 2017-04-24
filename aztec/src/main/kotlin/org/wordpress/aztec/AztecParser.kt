@@ -152,12 +152,6 @@ class AztecParser {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
 
-                //mark newlines at the end of <p> - this will give us visual padding
-                //and will mark a place for additional /n during processing
-                if (it is ParagraphSpan) {
-                    spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-
                 return@forEach
             }
 
@@ -167,12 +161,6 @@ class AztecParser {
             // expand the span to include the new newline for block spans, because they are paragraphs
             if (it is AztecBlockSpan) {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
-            }
-
-            //mark newlines at the end of <p> - this will give us visual padding
-            //and will mark a place for additional /n during processing
-            if (it is ParagraphSpan) {
-                spanned.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 
             markBlockElementLineBreak(spanned, spanEnd)
@@ -385,9 +373,8 @@ class AztecParser {
             var nl = 0
             while (next < end && text[next] == '\n') {
                 val isVisualLinebreak = text.getSpans(next, next, AztecVisualLinebreak::class.java).isNotEmpty()
-                val isParagraphLinebreak = text.getSpans(next, next, EndOfParagraphMarker::class.java).isNotEmpty()
 
-                if (!isVisualLinebreak || (isVisualLinebreak && isParagraphLinebreak)) {
+                if (!isVisualLinebreak) {
                     nl++
                 }
                 next++

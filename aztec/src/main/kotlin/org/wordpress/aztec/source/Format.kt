@@ -329,6 +329,11 @@ object Format {
                     text.setSpan(EndOfParagraphMarker(), spanEnd, spanEnd + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
+
+            //we don't need paragraph spans in calypso at this point
+            text.getSpans(0,text.length, ParagraphSpan::class.java).forEach {
+                text.removeSpan(it)
+            }
         }
     }
 
@@ -343,14 +348,15 @@ object Format {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
 
-                if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java).filter { it !is ParagraphSpan }.isEmpty()) {
+                if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java)
+                        .filter { it !is ParagraphSpan && text.getSpanStart(it) == spanEnd }.isEmpty()) {
                     text.insert(spanEnd, "\n")
                 }
 
-                if (text.getSpans(spanStart, spanEnd, AztecQuoteSpan::class.java).isEmpty()) {
+                if (text.getSpans(spanStart, spanEnd, AztecQuoteSpan::class.java)
+                        .filter { text.getSpanEnd(it) == spanEnd }.isEmpty()) {
                     text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach { text.removeSpan(it) }
                 }
-
             }
 
             //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline

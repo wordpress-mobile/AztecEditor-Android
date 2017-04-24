@@ -92,6 +92,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     private var isViewInitialized = false
     private var previousCursorPosition = 0
 
+    var isInCalypsoMode = true
+
     private var unknownBlockSpanStart = -1
 
     private var formatToolbar: AztecToolbar? = null
@@ -116,6 +118,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     var widthMeasureSpec: Int = 0
 
+    var verticalParagraphMargin: Int = 0
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -138,6 +142,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         init(attrs)
+    }
+
+    fun setCalypsoMode(isCompatibleWithCalypso: Boolean) {
+        isInCalypsoMode = isCompatibleWithCalypso
     }
 
     private fun init(attrs: AttributeSet?) {
@@ -164,6 +172,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
 
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
+
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         styles.getColor(R.styleable.AztecText_codeBackground, 0),
@@ -176,7 +186,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        verticalParagraphMargin),
                 BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
@@ -184,10 +194,10 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                       styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)),
+                        verticalParagraphMargin),
                 BlockFormatter.HeaderStyle(
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0))
-                )
+                        verticalParagraphMargin)
+        )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -235,6 +245,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
+
+        EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
         InlineTextWatcher.install(inlineFormatter, this)
 
@@ -625,7 +637,11 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser()
-        builder.append(parser.fromHtml(Format.clearFormatting(source), onMediaTappedListener, this, context))
+        builder.append(parser.fromHtml(
+                Format.removeSourceEditorFormatting(
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), onMediaTappedListener, this, context))
+
+        Format.preProcessSpannedText(builder, isInCalypsoMode)
 
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
@@ -679,7 +695,21 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         }
     }
 
+    //returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
+        val html = toPlainHtml(withCursorTag)
+
+        if (isInCalypsoMode) {
+            //calypso format is a mix of newline characters and html
+            //paragraphs and line breaks are added on server, from newline characters
+            return Format.addSourceEditorFormatting(html, true)
+        } else {
+            return html
+        }
+    }
+
+    //platform agnostic HTML
+    fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser()
         val output = SpannableStringBuilder(text)
 
@@ -688,21 +718,24 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         for (span in output.getSpans(0, output.length, AztecCursorSpan::class.java)) {
             output.removeSpan(span)
         }
-        if (withCursorTag) {
+        if (withCursorTag && !isInCalypsoMode) {
             output.setSpan(AztecCursorSpan(), selectionEnd, selectionEnd, Spanned.SPAN_MARK_MARK)
         }
 
         parser.syncVisualNewlinesOfBlockElements(output)
 
-        return Format.clearFormatting(EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag)))
+        Format.postProcessSpanedText(output, isInCalypsoMode)
+
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
     }
 
     fun toFormattedHtml(): String {
-        return Format.addFormatting(toHtml())
+        return Format.addSourceEditorFormatting(toHtml(), isInCalypsoMode)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
+        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
         for (span in urlSpans) {
@@ -791,7 +824,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        val html = Format.clearFormatting(parser.toHtml(output))
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText(null, html)
@@ -808,7 +841,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.clearFormatting(textToPaste.toString()), onMediaTappedListener,
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), onMediaTappedListener,
                         this, context).trim())
                 Selection.setSelection(editable, max)
 
@@ -977,20 +1010,20 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
-            .forEach {
-                val start = text.getSpanStart(it)
-                val end = text.getSpanEnd(it)
+                .filter {
+                    attributePredicate.matches(it.attributes)
+                }
+                .forEach {
+                    val start = text.getSpanStart(it)
+                    val end = text.getSpanEnd(it)
 
-                val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+                    val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
 
-                text.removeSpan(clickableSpan)
-                text.removeSpan(it)
+                    text.removeSpan(clickableSpan)
+                    text.removeSpan(it)
 
-                text.delete(start, end)
-            }
+                    text.delete(start, end)
+                }
     }
 
     interface AttributePredicate {
@@ -1002,45 +1035,45 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
         text.getSpans(0, text.length, AztecAttributedSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
-            .firstOrNull()?.attributes = attrs
+                .filter {
+                    attributePredicate.matches(it.attributes)
+                }
+                .firstOrNull()?.attributes = attrs
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
-            .forEach {
-                it.setOverayLevel(index, level)
-            }
+                .filter {
+                    attributePredicate.matches(it.attributes)
+                }
+                .forEach {
+                    it.setOverayLevel(index, level)
+                }
     }
 
     fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
-            .forEach {
-                // set the new overlay drawable
-                it.setOverlay(index, overlay, gravity)
+                .filter {
+                    attributePredicate.matches(it.attributes)
+                }
+                .forEach {
+                    // set the new overlay drawable
+                    it.setOverlay(index, overlay, gravity)
 
-                invalidate()
-            }
+                    invalidate()
+                }
     }
 
     fun clearOverlays(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
-            .forEach {
-                it.clearOverlays()
+                .filter {
+                    attributePredicate.matches(it.attributes)
+                }
+                .forEach {
+                    it.clearOverlays()
 
-                invalidate()
-            }
+                    invalidate()
+                }
     }
 
     fun getElementAttributes(attributePredicate: AttributePredicate): AztecAttributes {

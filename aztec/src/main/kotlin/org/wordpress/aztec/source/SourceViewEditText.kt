@@ -29,6 +29,8 @@ class SourceViewEditText : EditText, TextWatcher {
 
     private var onImeBackListener: AztecText.OnImeBackListener? = null
 
+    private var isInCalypsoMode = true
+
     var history: History? = null
 
     private var consumeEditEvent: Boolean = true
@@ -60,6 +62,10 @@ class SourceViewEditText : EditText, TextWatcher {
         styleTextWatcher = HtmlStyleTextWatcher(tagColor, attributeColor)
 
         values.recycle()
+    }
+
+    fun setCalypsoMode(isCompatibleWithCalypso: Boolean) {
+        isInCalypsoMode = isCompatibleWithCalypso
     }
 
     override fun onAttachedToWindow() {
@@ -158,7 +164,7 @@ class SourceViewEditText : EditText, TextWatcher {
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
-        val styledHtml = styleHtml(Format.addFormatting(source))
+        val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
@@ -213,11 +219,11 @@ class SourceViewEditText : EditText, TextWatcher {
                 ((indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight)
                         || indexOfFirstOpeningBracketOnTheRight == -1)
 
-        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd-1)
-        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd-1)
+        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd - 1)
+        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd - 1)
 
         val isThereOpeningBracketBeforeClosingBracket = indexOfFirstOpeningBracketOnTheLeft != -1 &&
-                ((indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft) || indexOfFirstClosingBracketOnTheLeft == -1 )
+                ((indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft) || indexOfFirstClosingBracketOnTheLeft == -1)
 
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
     }
@@ -234,7 +240,7 @@ class SourceViewEditText : EditText, TextWatcher {
             enableTextChangedListener()
         }
 
-        return Format.clearFormatting(text.toString())
+        return Format.removeSourceEditorFormatting(text.toString(), isInCalypsoMode)
     }
 
     fun disableTextChangedListener() {

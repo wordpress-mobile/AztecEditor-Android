@@ -13,11 +13,12 @@ import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class HtmlFormattingTest : AndroidTestCase() {
+class CalypsoFormattingTest : AndroidTestCase() {
 
     private var parser = AztecParser()
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
+    private val HTML_LINE_BREAKS_FORMATTED = "HI\n\n\n\n\n\nBYE"
 
     private val HTML_NESTED =
             "<span></span>" +
@@ -34,9 +35,19 @@ class HtmlFormattingTest : AndroidTestCase() {
                     "</div>" +
                     "<br><br>"
 
+    private val HTML_NESTED_CALYPSO =
+            "<div class=\"first\">\n" +
+                    "<div class=\"second\">\n" +
+                    "<div class=\"third\">Div\n" +
+                    "<span><b>b</b></span>\n" +
+                    "Hidden</div>\n" +
+                    "<div class=\"fourth\"></div>\n" +
+                    "<div class=\"fifth\"></div>\n" +
+                    "</div>\n<div>\n<div>\n<div></div>\n" +
+                    "</div>\n</div>\n<div></div>\n</div>"
+
     private val HTML_MIXED_WITH_NEWLINES =
-            "\n\n<span><i>Italic</i></span>\n\n" +
-                    "<b>Bold</b><br>" +
+            "\n\n<span><i>Italic</i></span>\n\n<b>Bold</b><br>" +
                     "\t<div class=\"first\">" +
                     "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
                     "    \t<div class=\"second\">" +
@@ -51,25 +62,22 @@ class HtmlFormattingTest : AndroidTestCase() {
                     "</div>" +
                     "<br>"
 
-    private val HTML_MIXED_WITHOUT_NEWLINES =
-            "<span><i>Italic</i></span>" +
-                    " <b>Bold</b><br>" +
+    private val HTML_MIXED_WITH_NEWLINES_CALYPSO =
+            "<span><i>Italic</i></span> <b>Bold</b>\n" +
                     "<div class=\"first\">" +
-                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>" +
-                    "<div class=\"second\">" +
-                    "<div class=\"third\">" +
-                    "Div<br><span><b>Span</b></span><br>Hidden" +
-                    "</div>" +
-                    "<iframe class=\"classic\">Menu</iframe><br><br>" +
-                    "<div class=\"fourth\"><u>Under</u>line</div>" +
-                    "<div class=\"fifth\"></div>" +
-                    "</div>" +
-                    "<span class=\"second last\"></span>" +
-                    "</div>" +
-                    "<br>"
+                    "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a>\n" +
+                    "<div class=\"second\">\n" +
+                    "<div class=\"third\">Div\n" +
+                    "<span><b>Span</b></span>\n" +
+                    "Hidden</div>\n" +
+                    "<iframe class=\"classic\">Menu</iframe>\n" +
+                    "<div class=\"fourth\"><u>Under</u>line</div>\n" +
+                    "<div class=\"fifth\"></div>\n</div>\n</div>"
 
-    private val HTML_BLOCK_WITH_NEWLINES = "\n\n<div>Division</div>\n\n"
-    private val HTML_BLOCK_WITHOUT_NEWLINES = "<div>Division</div>"
+
+
+
+//    private val FORMATTED_COMPLEX_HTML =
 
     /**
      * Initialize variables.
@@ -80,58 +88,46 @@ class HtmlFormattingTest : AndroidTestCase() {
     }
 
     /**
-     * Test the conversion from HTML to visual mode with nested HTML
+     * Test the conversion from HTML to visual mode with nested HTML (Calypso format)
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun formatNestedHtml() {
+    fun formatNestedHtmlCalypso() {
         val input = HTML_NESTED
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(input, output)
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_NESTED_CALYPSO, output)
     }
 
+
     /**
-     * Test the conversion from HTML to visual mode with multiple line breaks
+     * Test the conversion from HTML to visual mode with multiple line breaks (Calypso format)
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun formatLineBreaks() {
+    fun formatLineBreaksCalypso() {
         val input = HTML_LINE_BREAKS
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(input, output)
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
     }
 
     /**
-     * Test the conversion from HTML to visual mode with mixed HTML
+     * Test the conversion from HTML to visual mode with mixed HTML  (Calypso format)
      *
      * @throws Exception
      */
     @Test
     @Throws(Exception::class)
-    fun formatMixedHtml() {
+    fun formatMixedHtmlCalypso() {
         val input = HTML_MIXED_WITH_NEWLINES
         val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_MIXED_WITHOUT_NEWLINES, output)
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_CALYPSO, output)
     }
 
-    /**
-     * Test block conversion from HTML to visual mode with newlines.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun formatNewlines() {
-        val input = HTML_BLOCK_WITH_NEWLINES
-        val span = SpannableString(parser.fromHtml(input, null, null, context))
-        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
-        Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
-    }
 }

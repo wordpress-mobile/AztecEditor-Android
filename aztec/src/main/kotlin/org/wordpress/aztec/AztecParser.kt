@@ -220,7 +220,8 @@ class AztecParser {
             }
 
             if (spanned.getSpans(spanStart, spanStart, AztecSurroundedWithNewlines::class.java).any { before ->
-                        spanned.getSpanEnd(before) == spanStart }) {
+                spanned.getSpanEnd(before) == spanStart
+            }) {
                 // the newline before us is the end of a previous block element so, return
                 return@forEach
             }
@@ -283,14 +284,14 @@ class AztecParser {
     }
 
     private fun withinHtml(out: StringBuilder, text: Spanned, start: Int, end: Int,
-            grandParents: ArrayList<AztecNestable>?, nestingLevel: Int) {
+                           grandParents: ArrayList<AztecNestable>?, nestingLevel: Int) {
         var next: Int
         var i = start
         var parents: ArrayList<AztecNestable>?
 
         do {
             val paragraphs = text.getSpans(i, end, AztecNestable::class.java)
-                    .filter{ it !is AztecFullWidthImageSpan}
+                    .filter { it !is AztecFullWidthImageSpan }
                     .toTypedArray()
 
             paragraphs.sortWith(Comparator { a, b ->
@@ -359,7 +360,7 @@ class AztecParser {
     }
 
     private fun withinContent(out: StringBuilder, text: Spanned, start: Int, end: Int,
-            parents: ArrayList<AztecNestable>?) {
+                              parents: ArrayList<AztecNestable>?) {
         var next: Int
 
         var i = start
@@ -388,7 +389,7 @@ class AztecParser {
     // Copy from https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/Html.java,
     // remove some tag because we don't need them in Aztec.
     private fun withinParagraph(out: StringBuilder, text: Spanned, start: Int, end: Int, nl: Int,
-            parents: ArrayList<AztecNestable>?) {
+                                parents: ArrayList<AztecNestable>?) {
         var next: Int
 
         var i = start
@@ -453,14 +454,14 @@ class AztecParser {
             i = next
         }
 
-        for (i in 0..nl - 1) {
-            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + 1 + i } ?: false
+        for (z in 0..nl - 1) {
+            val parentSharesEnd = parents?.any {text.getSpanEnd(it) == end + 1 + z } ?: false
             if (parentSharesEnd) {
                 continue
             }
 
             out.append("<br>")
-            consumeCursorIfInInput(out, text, end + i)
+            consumeCursorIfInInput(out, text, end + z)
         }
     }
 

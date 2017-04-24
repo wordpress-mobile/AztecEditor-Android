@@ -12,10 +12,18 @@ class EndOfParagraphMarker(var verticalPadding: Int = 0) : LineHeightSpan, Updat
         val spanned = text as Spanned
         val spanEnd = spanned.getSpanEnd(this)
 
+        val actualPadding: Int
+
+        if (spanned.getSpans(spanEnd, spanEnd, AztecQuoteSpan::class.java).any { spanned.getSpanEnd(it) == spanEnd }) {
+            actualPadding = 0
+        } else {
+            actualPadding = verticalPadding * 2
+        }
+
         if (end == spanEnd) {
             //padding is applied only to the bottom of paragraph, so we multiply it by 2
-            fm.descent += verticalPadding * 2
-            fm.bottom += verticalPadding * 2
+            fm.descent += actualPadding
+            fm.bottom += actualPadding
         }
     }
 }

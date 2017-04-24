@@ -673,7 +673,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
     }
 
-    fun containPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 

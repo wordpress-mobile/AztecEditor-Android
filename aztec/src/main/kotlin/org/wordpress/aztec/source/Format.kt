@@ -5,10 +5,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.wordpress.aztec.spans.AztecParagraphStyle
-import org.wordpress.aztec.spans.AztecVisualLinebreak
-import org.wordpress.aztec.spans.EndOfParagraphMarker
-import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -350,9 +347,14 @@ object Format {
                     text.insert(spanEnd, "\n")
                 }
 
-                text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach {
-                    text.removeSpan(it)
+                //remove visual newline marking around comment and line spans to add a space above and below them in source editor
+                if (spanStart > 0 && (
+                        text.getSpans(spanStart - 1, spanEnd, AztecFullWidthImageSpan::class.java).isNotEmpty() ||
+                                text.getSpans(spanStart - 1, spanEnd, CommentSpan::class.java).isNotEmpty() ||
+                                text.getSpans(spanStart - 1, spanEnd, AztecHorizontalLineSpan::class.java).isNotEmpty())) {
+                    text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach { text.removeSpan(it) }
                 }
+
             }
 
             //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline

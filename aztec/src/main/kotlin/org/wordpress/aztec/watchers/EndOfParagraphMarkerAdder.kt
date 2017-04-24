@@ -27,32 +27,30 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
         textChangedEventDetails.countOfCharacters = count
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
-    }
 
-    override fun afterTextChanged(text: Editable) {
-        if (textChangedEventDetails.isNewLineButNotAtTheBeginning()) {
-            if (isTargetForParagraphMarker(textChangedEventDetails)) {
-                text.setSpan(EndOfParagraphMarker(verticalParagraphMargin), textChangedEventDetails.inputStart, textChangedEventDetails.inputEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            }
-            return
-        }
-    }
+        if (!textChangedEventDetails.isNewLineButNotAtTheBeginning()) return
 
-    fun isTargetForParagraphMarker(textChangedEvent: TextChangedEvent): Boolean {
         val aztecText = aztecTextRef.get()
         if (aztecText != null && !aztecText.isTextChangedListenerDisabled() && aztecText.isInCalypsoMode) {
-            val isInsideList = aztecText.text.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+            val inputStart = textChangedEventDetails.inputStart
+            val inputEnd = textChangedEventDetails.inputEnd
 
-            var insideHeading = aztecText.text.getSpans(textChangedEvent.inputStart, textChangedEvent.inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
+            val isInsideList = aztecText.text.getSpans(inputStart, inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+            var insideHeading = aztecText.text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
 
-            if (insideHeading && (aztecText.text.length > textChangedEvent.inputEnd && aztecText.text[textChangedEvent.inputEnd] == '\n')) {
+            if (insideHeading && (aztecText.text.length > inputEnd
+                    && aztecText.text[inputEnd] == '\n')) {
                 insideHeading = false
             }
-            return !isInsideList && !insideHeading
-        }
 
-        return false
+            if (!isInsideList && !insideHeading) {
+                aztecText.text.setSpan(EndOfParagraphMarker(verticalParagraphMargin), inputStart, inputEnd,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
     }
+
+    override fun afterTextChanged(text: Editable) {}
 
     companion object {
         fun install(editText: AztecText, verticalParagraphMargin: Int) {

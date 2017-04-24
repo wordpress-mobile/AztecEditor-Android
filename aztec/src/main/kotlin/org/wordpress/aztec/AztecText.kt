@@ -193,13 +193,12 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
                         verticalParagraphMargin),
                 BlockFormatter.HeaderStyle(
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0),
                         verticalParagraphMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)))
+                        verticalParagraphMargin)
         )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(

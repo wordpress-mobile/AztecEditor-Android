@@ -34,8 +34,8 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-            onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes,
-            nestingLevel: Int): Boolean {
+                           onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes,
+                           nestingLevel: Int): Boolean {
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
@@ -108,7 +108,7 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun createImageSpan(attributes: AztecAttributes, onMediaTappedListener: AztecText.OnMediaTappedListener?,
-            context: Context) : AztecMediaSpan {
+                                context: Context) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
@@ -190,9 +190,8 @@ class AztecTagHandler : Html.TagHandler {
             if (spans.isEmpty()) {
                 return null
             } else {
-                return (spans.size downTo 1)
-                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK && !(spans[it - 1] as HiddenHtmlSpan).isClosed }
-                        ?.let { spans[it - 1] }
+                spans.sortByDescending { it.startOrder }
+                return spans.firstOrNull { text.getSpanFlags(it) == Spannable.SPAN_MARK_MARK && !(it as HiddenHtmlSpan).isClosed }
             }
         }
     }

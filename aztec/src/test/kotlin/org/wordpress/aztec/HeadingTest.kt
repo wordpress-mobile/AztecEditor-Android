@@ -40,7 +40,9 @@ class HeadingTest() {
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
+        editText.setCalypsoMode(false)
         sourceText = SourceViewEditText(activity)
+        sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
         toolbar.setEditor(editText, sourceText)
         buttonQuote = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton

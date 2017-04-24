@@ -94,6 +94,9 @@ class MainActivity : AppCompatActivity(),
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EMOJI = "aaa&#x1F44D;&#x2764;ccc"
+
+        private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+
         private val EXAMPLE =
                 IMG +
                 HEADING +
@@ -113,7 +116,8 @@ class MainActivity : AppCompatActivity(),
                 COMMENT_PAGE +
                 CODE +
                 UNKNOWN +
-                EMOJI
+                EMOJI +
+                LONG_TEXT
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001

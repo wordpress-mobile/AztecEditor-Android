@@ -21,7 +21,6 @@ class EndOfParagraphMarker(var verticalPadding: Int = 0) : LineHeightSpan, Updat
         }
 
         if (end == spanEnd) {
-            //padding is applied only to the bottom of paragraph, so we multiply it by 2
             fm.descent += actualPadding
             fm.bottom += actualPadding
         }

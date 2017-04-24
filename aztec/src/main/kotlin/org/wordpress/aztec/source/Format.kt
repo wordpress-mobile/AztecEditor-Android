@@ -349,7 +349,7 @@ object Format {
 
                 //remove visual newline marking around comment and line spans to add a space above and below them in source editor
                 if (spanStart > 0 && (
-                        text.getSpans(spanStart - 1, spanEnd, AztecFullWidthImageSpan::class.java).isNotEmpty() ||
+                        text.getSpans(spanStart - 1, spanEnd, AztecCommentSpan::class.java).isNotEmpty() ||
                                 text.getSpans(spanStart - 1, spanEnd, CommentSpan::class.java).isNotEmpty() ||
                                 text.getSpans(spanStart - 1, spanEnd, AztecHorizontalLineSpan::class.java).isNotEmpty())) {
                     text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach { text.removeSpan(it) }

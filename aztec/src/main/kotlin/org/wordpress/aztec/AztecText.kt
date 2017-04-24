@@ -246,7 +246,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         ParagraphCollapseAdjuster.install(this)
         ParagraphCollapseRemover.install(this)
 
-        EndOfParagraphMarkerAdded.install(this, verticalParagraphMargin)
+        EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
         InlineTextWatcher.install(inlineFormatter, this)
 

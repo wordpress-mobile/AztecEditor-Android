@@ -10,7 +10,7 @@ import org.wordpress.aztec.spans.EndOfParagraphMarker
 import java.lang.ref.WeakReference
 
 
-class EndOfParagraphMarkerAdded(aztecText: AztecText, val verticalParagraphMargin: Int) : TextWatcher {
+class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargin: Int) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
@@ -56,7 +56,7 @@ class EndOfParagraphMarkerAdded(aztecText: AztecText, val verticalParagraphMargi
 
     companion object {
         fun install(editText: AztecText, verticalParagraphMargin: Int) {
-            editText.addTextChangedListener(EndOfParagraphMarkerAdded(editText, verticalParagraphMargin))
+            editText.addTextChangedListener(EndOfParagraphMarkerAdder(editText, verticalParagraphMargin))
         }
 
     }

@@ -573,7 +573,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
-            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containPreformat(selectionStart, selectionEnd)
+            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false

@@ -78,7 +78,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 removeBlockStyle(TextFormat.FORMAT_PREFORMAT)
             }
             TextFormat.FORMAT_PREFORMAT -> {
-                if (!containPreformat()) {
+                if (!containsPreformat()) {
                     if (containsOtherHeadings(TextFormat.FORMAT_PREFORMAT)) {
                         val span = editableText.getSpans(selectionStart, selectionEnd, AztecHeadingSpan::class.java).firstOrNull()
 
@@ -702,10 +702,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         if (list.isEmpty()) return false
 
-        return list.any { containPreformat(it) }
+        return list.any { containsPreformat(it) }
     }
 
-    fun containPreformat(index: Int): Boolean {
+    fun containsPreformat(index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false

@@ -110,10 +110,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun removeBlockStyle(textFormat: TextFormat) {
-        removeBlockStyle(selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
+        removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
     }
 
-    fun removeBlockStyle(originalStart: Int, originalEnd: Int,
+    fun removeBlockStyle(textFormat: TextFormat, originalStart: Int, originalEnd: Int,
                          spanTypes: List<Class<AztecBlockSpan>> = Arrays.asList(AztecBlockSpan::class.java),
                          ignoreLineBounds: Boolean = false) {
         var start = originalStart
@@ -194,8 +194,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, span, spanStart, startOfBounds)
 
                     // now, let's "clone" the span and set it
-                    BlockHandler.set(editableText, makeBlockSpan(span.javaClass, span.nestingLevel, span.attributes),
-                            endOfBounds, spanEnd)
+                    BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
                     editableText.removeSpan(span)
@@ -238,26 +237,26 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun makeBlockSpan(textFormat: TextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): AztecBlockSpan {
         return when (textFormat) {
-            TextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, nestingLevel, attrs)
-            TextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class.java, nestingLevel, attrs)
-            TextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class.java, nestingLevel, attrs)
+            TextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, textFormat, nestingLevel, attrs)
+            TextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class.java, textFormat, nestingLevel, attrs)
+            TextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class.java, textFormat, nestingLevel, attrs)
             TextFormat.FORMAT_HEADING_1,
             TextFormat.FORMAT_HEADING_2,
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
+            TextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class.java, textFormat, nestingLevel, attrs)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
     }
 
-    fun <T : Class<out AztecBlockSpan>> makeBlockSpan(type: T, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): AztecBlockSpan {
+    fun <T : Class<out AztecBlockSpan>> makeBlockSpan(type: T, textFormat: TextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): AztecBlockSpan {
         return when (type) {
             AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
             AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
             AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
             AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
-            AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, "", attrs)
+            AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
     }

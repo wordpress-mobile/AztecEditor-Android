@@ -240,7 +240,7 @@ class HeadingTest() {
         editText.fromHtml("<h1 foo=\"bar\">Text</h1>")
         toolbar.onMenuItemClick(menuHeading1)
         toolbar.onMenuItemClick(menuPreformat)
-        Assert.assertEquals("<pre>Text</pre>", editText.toHtml())
+        Assert.assertEquals("<pre foo=\"bar\">Text</pre>", editText.toHtml())
         Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 

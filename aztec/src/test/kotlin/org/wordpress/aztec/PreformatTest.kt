@@ -157,6 +157,15 @@ class PreformatTest {
 
     @Test
     @Throws(Exception::class)
+    fun switchHeadingToPreformat() {
+        editText.fromHtml("<h3>First<br>Second<br>Third</h3>")
+        editText.setSelection(editText.text.indexOf("ond"))
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<$tag>First\nSecond\nThird</$tag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun switchPreformatToHeading() {
         editText.fromHtml("<$tag>First<br>Second<br>Third</$tag>")
         editText.setSelection(editText.text.indexOf("ond"))

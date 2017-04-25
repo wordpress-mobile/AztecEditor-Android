@@ -157,6 +157,17 @@ class PreformatTest {
 
     @Test
     @Throws(Exception::class)
+    fun switchPreformatToHeading() {
+        editText.fromHtml("<$tag>First<br>Second<br>Third</$tag>")
+        editText.setSelection(editText.text.indexOf("ond"))
+        val menuHeading3 = menuHeading.menu.getItem(3) // Heading 3, i.e. <h3>
+        toolbar.onMenuItemClick(menuHeading3)
+        val tagHeading = "h3"
+        Assert.assertEquals("<$tagHeading>First\nSecond\nThird</$tagHeading>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun newlineAtStartOfPreformat() {
         editText.fromHtml("<$tag>Preformat 1</$tag><$tag>Preformat 2</$tag>")
         val mark = editText.text.indexOf("Preformat 2")

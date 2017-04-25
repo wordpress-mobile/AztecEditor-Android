@@ -120,6 +120,15 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun splitMultilineHeadingWithParagraph() {
+        editText.fromHtml("<h2 foo=\"bar\">First<br>Second<br>Third</h2>")
+        editText.setSelection(editText.text.indexOf("ond"))
+        toolbar.onMenuItemClick(menuParagraph)
+        Assert.assertEquals("<h2 foo=\"bar\">First</h2>Second<h2 foo=\"bar\">Third</h2>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun splitTwoHeadingsWithNewline() {
         //cursor position right before Heading 2
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")

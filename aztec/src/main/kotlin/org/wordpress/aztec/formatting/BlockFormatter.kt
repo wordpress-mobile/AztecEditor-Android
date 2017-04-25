@@ -82,14 +82,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_PREFORMAT -> {
                 if (!containsPreformat()) {
                     if (containsOtherHeadings(TextFormat.FORMAT_PREFORMAT)) {
-                        val span = editableText.getSpans(selectionStart, selectionEnd, AztecHeadingSpan::class.java).firstOrNull()
-
-                        if (span != null) {
-                            removeBlockStyle(span.textFormat)
-                        }
+                        switchHeadingToPreformat()
+                    } else {
+                        applyBlockStyle(textFormat)
                     }
-
-                    applyBlockStyle(textFormat)
                 }
             }
             else -> { }
@@ -747,6 +743,21 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             existingHeaderSpan.textFormat = headerTypeToSwitchTo
 
             editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
+            editor.onSelectionChanged(start, end)
+        }
+    }
+
+    fun switchHeadingToPreformat(start: Int = selectionStart, end: Int = selectionEnd) {
+        val heading = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
+
+        if (heading != null) {
+            val spanStart = editableText.getSpanStart(heading)
+            val spanEnd = editableText.getSpanEnd(heading)
+            val spanFlags = editableText.getSpanFlags(heading)
+            val type = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+
+            removeBlockStyle(spanStart, spanEnd, type)
+            editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

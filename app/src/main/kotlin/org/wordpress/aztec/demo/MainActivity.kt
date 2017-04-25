@@ -80,6 +80,17 @@ class MainActivity : AppCompatActivity(),
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
+        private val PREFORMAT =
+                "<pre>" +
+                "when (person) {<br>" +
+                "    MOCTEZUMA -> {<br>" +
+                "        print (\"friend\")<br>" +
+                "    }<br>" +
+                "    CORTES -> {<br>" +
+                "        print (\"foe\")<br>" +
+                "    }<br>" +
+                "}" +
+                "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
         private val EMOJI = "aaa&#x1F44D;&#x2764;ccc"
@@ -97,6 +108,7 @@ class MainActivity : AppCompatActivity(),
                 LINE +
                 UNORDERED +
                 QUOTE +
+                PREFORMAT +
                 LINK +
                 HIDDEN +
                 COMMENT +

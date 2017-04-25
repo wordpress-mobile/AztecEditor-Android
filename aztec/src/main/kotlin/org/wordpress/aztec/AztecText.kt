@@ -43,10 +43,7 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.HeadingHandler
-import org.wordpress.aztec.handlers.ListHandler
-import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.handlers.QuoteHandler
+import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -196,6 +193,11 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
                         verticalParagraphMargin),
                 BlockFormatter.HeaderStyle(
+                        verticalParagraphMargin),
+                BlockFormatter.PreformatStyle(
+                        styles.getColor(R.styleable.AztecText_preformatBackground, 0),
+                        styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
+                        styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin)
         )
 
@@ -258,6 +260,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
                 .add(ListHandler())
                 .add(ListItemHandler())
                 .add(QuoteHandler())
+                .add(PreformatHandler())
                 .install(this)
 
         TextDeleter.install(this)
@@ -548,7 +551,8 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_HEADING_3,
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
+            TextFormat.FORMAT_HEADING_6,
+            TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
             TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
             TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
@@ -581,6 +585,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
             TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
             TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false

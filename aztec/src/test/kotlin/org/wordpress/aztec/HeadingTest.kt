@@ -3,6 +3,7 @@ package org.wordpress.aztec
 import android.app.Activity
 import android.view.MenuItem
 import android.widget.PopupMenu
+import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -25,10 +26,12 @@ class HeadingTest() {
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
+    lateinit var buttonQuote: ToggleButton
     lateinit var menuHeading: PopupMenu
     lateinit var menuHeading1: MenuItem
     lateinit var menuHeading2: MenuItem
     lateinit var menuParagraph: MenuItem
+    lateinit var menuPreformat: MenuItem
 
     /**
      * Initialize variables.
@@ -42,10 +45,12 @@ class HeadingTest() {
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
         toolbar.setEditor(editText, sourceText)
+        buttonQuote = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
         menuHeading = toolbar.getHeadingMenu() as PopupMenu
         menuHeading1 = menuHeading.menu.getItem(1)
         menuHeading2 = menuHeading.menu.getItem(2)
         menuParagraph = menuHeading.menu.getItem(0)
+        menuPreformat = menuHeading.menu.getItem(7)
         activity.setContentView(editText)
     }
 
@@ -60,12 +65,31 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun applyPreformatToSingleLine() {
+        safeAppend(editText, "Preformat")
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<pre>Preformat</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun applyHeadingToPartiallySelectedText() {
         editText.append("Heading 1")
         editText.setSelection(1, editText.length() - 2)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
         Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyPreformatToPartiallySelectedText() {
+        safeAppend(editText, "Preformat")
+        editText.setSelection(1, editText.length() - 2)
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<pre>Preformat</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -82,6 +106,18 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun applyPreformatToSelectedMultilineText() {
+        safeAppend(editText, "First line")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "Second line")
+        editText.setSelection(3, editText.length() - 3)
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<pre>First line<br>Second line</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun prependTextToHeading() {
         editText.append("Heading 1")
         toolbar.onMenuItemClick(menuHeading1)
@@ -92,10 +128,28 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun prependTextToPreformat() {
+        safeAppend(editText, "Preformat")
+        toolbar.onMenuItemClick(menuPreformat)
+        editText.text.insert(0, "inserted")
+        Assert.assertEquals("<pre>insertedPreformat</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun appendTextToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.append("inserted")
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1inserted</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun appendTextToPreformat() {
+        editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
+        safeAppend(editText, "inserted")
+        Assert.assertEquals("<pre foo=\"bar\">Preformatinserted</pre>", editText.toHtml())
     }
 
     @Test
@@ -110,12 +164,32 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun closePreformatWithNewline() {
+        editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "\n")
+        safeAppend(editText, "not preformat")
+        Assert.assertEquals("<pre foo=\"bar\">Preformat</pre>not preformat", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun splitHeadingWithNewline() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.text.insert(3, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Hea</h1><h1 foo=\"bar\">ding 1</h1>", editText.toHtml())
         editText.text.insert(6, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Hea</h1><h1 foo=\"bar\">di</h1><h1 foo=\"bar\">ng 1</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun splitPreformatWithNewline() {
+        editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
+        editText.text.insert(3, "\n")
+        Assert.assertEquals("<pre foo=\"bar\">Pre<br>format</pre>", editText.toHtml())
+        editText.text.insert(6, "\n")
+        Assert.assertEquals("<pre foo=\"bar\">Pre<br>fo<br>rmat</pre>", editText.toHtml())
     }
 
     @Test
@@ -162,12 +236,35 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun changeHeadingToPreformatOfSingleLine() {
+        editText.fromHtml("<h1 foo=\"bar\">Text</h1>")
+        toolbar.onMenuItemClick(menuHeading1)
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<pre foo=\"bar\">Text</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun changeHeadingOfSelectedMultilineText() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         editText.setSelection(0, safeLength(editText))
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
         Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun changeHeadingToParagraphToPreformatOfSelectedMultilineText() {
+        editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><pre>Preformat</pre>")
+        editText.setSelection(0, safeLength(editText))
+        toolbar.onMenuItemClick(menuParagraph)
+        Assert.assertEquals("Heading 1<br>Preformat", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<pre>Heading 1<br>Preformat</pre>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -191,10 +288,27 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun applyPreformatToTextInsideQuote() {
+        editText.fromHtml("<blockquote>Quote</blockquote>")
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun applyQuoteToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
         Assert.assertEquals("<h1 foo=\"bar\"><blockquote>Quote</blockquote></h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyQuoteToPreformat() {
+        editText.fromHtml("<pre>Quote</pre>")
+        buttonQuote.performClick()
+        Assert.assertEquals("<pre><blockquote>Quote</blockquote></pre>", editText.toHtml())
     }
 
     @Test
@@ -204,6 +318,15 @@ class HeadingTest() {
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
         Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyPreformatToQuote() {
+        editText.fromHtml("<blockquote>Quote</blockquote>")
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -219,6 +342,20 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun applyPreformatToTextSurroundedByLists() {
+        editText.fromHtml("<ol><li>Ordered</li></ol>Preformat<ol><li>Ordered</li></ol>")
+        val mark = editText.text.indexOf("format")
+        editText.setSelection(mark)
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<ol><li>Ordered</li></ol><pre>Preformat</pre><ol><li>Ordered</li></ol>", editText.toHtml())
+//        TODO: Correct heading menu selection.  This is incorrect.  Preformat should be selected.
+//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
+//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun applyHeadingToTextSurroundedByQuotes() {
         editText.fromHtml("<blockquote>Quote</blockquote>Heading 1<blockquote>Quote</blockquote>")
         val mark = editText.text.indexOf("Heading 1") + 1
@@ -226,6 +363,17 @@ class HeadingTest() {
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote>Quote</blockquote><h1>Heading 1</h1><blockquote>Quote</blockquote>", editText.toHtml())
         Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyPreformatToTextSurroundedByQuotes() {
+        editText.fromHtml("<blockquote>Quote</blockquote>Preformat<blockquote>Quote</blockquote>")
+        val mark = editText.text.indexOf("format")
+        editText.setSelection(mark)
+        toolbar.onMenuItemClick(menuPreformat)
+        Assert.assertEquals("<blockquote>Quote</blockquote><pre>Preformat</pre><blockquote>Quote</blockquote>", editText.toHtml())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -239,11 +387,29 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun applyTextStyleToPreformat() {
+        editText.fromHtml("<h5>Heading 5</h5><pre foo=\"bar\">Preformat</pre><h5>Heading 5</h5>")
+        editText.setSelection(editText.text.indexOf("Preformat"), editText.text.indexOf("Preformat") + "Preformat".length)
+        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        Assert.assertEquals("<h5>Heading 5</h5><pre foo=\"bar\"><b>Preformat</b></pre><h5>Heading 5</h5>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun applyTextStyleToPartiallySelectedHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.setSelection(0, 3)
         editText.toggleFormatting(TextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h1 foo=\"bar\"><b>Hea</b>ding 1</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyTextStyleToPartiallySelectedPreformat() {
+        editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
+        editText.setSelection(0, 3)
+        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        Assert.assertEquals("<pre foo=\"bar\"><b>Pre</b>format</pre>", editText.toHtml())
     }
 
     @Test
@@ -257,6 +423,15 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun movePreformatUpToUnstyledLine() {
+        editText.fromHtml("<b>Bold</b><pre foo=\"bar\">Preformat</pre>")
+        val mark = editText.text.indexOf("Preformat")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("<b>Bold</b>Preformat", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun moveUnstyledLineUpToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>unstyled")
         val mark = editText.text.indexOf("unstyled")
@@ -266,8 +441,17 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun moveUnstyledLineUpToPreformat() {
+        editText.fromHtml("<pre>Preformat</pre>unstyled")
+        val mark = editText.text.indexOf("unstyled")
+        editText.text.delete(mark - 1, mark)
+        Assert.assertEquals("<pre>Preformatunstyled</pre>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun updateHeadingMenuOnSelectionChange() {
-        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><b>Bold</b><i>Italic</i>None")
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><pre>Preformat</pre><b>Bold</b><i>Italic</i>None")
         var cursor: Int
 
         cursor = editText.text.indexOf("ing 1")
@@ -293,6 +477,10 @@ class HeadingTest() {
         cursor = editText.text.indexOf("one")
         editText.setSelection(cursor)
         Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+
+        cursor = editText.text.indexOf("format")
+        editText.setSelection(cursor)
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     /**

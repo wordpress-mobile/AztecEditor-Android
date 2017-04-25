@@ -40,6 +40,11 @@
             android:title="@string/heading_6" >
         </item>
 
+        <item
+            android:id="@+id/preformat"
+            android:title="@string/preformat" >
+        </item>
+
     </group>
 
 </menu>

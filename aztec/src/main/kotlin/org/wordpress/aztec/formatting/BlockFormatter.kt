@@ -13,11 +13,11 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 
-
-class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle) : AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
+    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)
 
     fun toggleOrderedList() {
@@ -61,7 +61,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_5,
             TextFormat.FORMAT_HEADING_6 -> {
                 if (!containsHeadingOnly(textFormat)) {
-                    if (containsOtherHeadings(textFormat)) {
+                    if (containsPreformat()) {
+                        switchPreformatToHeading(textFormat)
+                    } else if (containsOtherHeadings(textFormat)) {
                         switchHeaderType(textFormat)
                     } else {
                         applyBlockStyle(textFormat)
@@ -73,6 +75,17 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
                 if (span != null) {
                     removeBlockStyle(span.textFormat)
+                }
+
+                removeBlockStyle(TextFormat.FORMAT_PREFORMAT)
+            }
+            TextFormat.FORMAT_PREFORMAT -> {
+                if (!containsPreformat()) {
+                    if (containsOtherHeadings(TextFormat.FORMAT_PREFORMAT)) {
+                        switchHeadingToPreformat()
+                    } else {
+                        applyBlockStyle(textFormat)
+                    }
                 }
             }
             else -> { }
@@ -231,6 +244,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
             TextFormat.FORMAT_HEADING_6 -> return Arrays.asList(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle))
+            TextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
             else -> return Arrays.asList(ParagraphSpan(nestingLevel, attrs))
         }
     }
@@ -246,6 +260,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             TextFormat.FORMAT_HEADING_4,
             TextFormat.FORMAT_HEADING_5,
             TextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class.java, textFormat, nestingLevel, attrs)
+            TextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class.java, textFormat, nestingLevel, attrs)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
     }
@@ -257,6 +272,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
             AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
+            AztecPreformatSpan::class.java -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
             else -> ParagraphSpan(nestingLevel, attrs)
         }
     }
@@ -266,6 +282,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             is AztecOrderedListSpan -> blockElement.listStyle = listStyle
             is AztecUnorderedListSpan -> blockElement.listStyle = listStyle
             is AztecQuoteSpan -> blockElement.quoteStyle = quoteStyle
+            is AztecPreformatSpan -> blockElement.preformatStyle = preformatStyle
             is AztecHeadingSpan -> blockElement.headerStyle = headerStyle
         }
     }
@@ -401,6 +418,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             is AztecUnorderedListSpan -> applyListBlock(blockSpan, start, end)
             is AztecQuoteSpan -> BlockHandler.set(editableText, blockSpan, start, end)
             is AztecHeadingSpan -> applyHeadingBlock(blockSpan, start, end)
+            is AztecPreformatSpan -> BlockHandler.set(editableText, blockSpan, start, end)
             else -> editableText.setSpan(blockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
     }
@@ -622,18 +640,19 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun containsOtherHeadings(textFormat: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        arrayOf( TextFormat.FORMAT_HEADING_1,
+        arrayOf(TextFormat.FORMAT_HEADING_1,
                 TextFormat.FORMAT_HEADING_2,
                 TextFormat.FORMAT_HEADING_3,
                 TextFormat.FORMAT_HEADING_4,
                 TextFormat.FORMAT_HEADING_5,
-                TextFormat.FORMAT_HEADING_6)
-        .filter { it != textFormat }
-        .forEach {
-            if (containsHeading(it, selStart, selEnd)) {
-                return true
+                TextFormat.FORMAT_HEADING_6,
+                TextFormat.FORMAT_PREFORMAT)
+            .filter { it != textFormat }
+            .forEach {
+                if (containsHeading(it, selStart, selEnd)) {
+                    return true
+                }
             }
-        }
 
         return false
     }
@@ -645,10 +664,60 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 TextFormat.FORMAT_HEADING_3,
                 TextFormat.FORMAT_HEADING_4,
                 TextFormat.FORMAT_HEADING_5,
-                TextFormat.FORMAT_HEADING_6)
-                .filter { it != textFormat }
+                TextFormat.FORMAT_HEADING_6,
+                TextFormat.FORMAT_PREFORMAT)
+            .filter { it != textFormat }
 
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
+    }
+
+    fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        val list = ArrayList<Int>()
+
+        for (i in lines.indices) {
+            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineEnd = lineStart + lines[i].length
+
+            if (lineStart >= lineEnd) {
+                continue
+            }
+
+            /**
+             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
+             *                                                  multiple lines (before and/or after), current entirely selected
+             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (after), current partially or entirely selected
+             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
+             *                                                  multiple lines (before), current partially or entirely selected
+             */
+            if ((lineStart >= selStart && selEnd >= lineEnd)
+                    || (lineStart <= selEnd && selEnd <= lineEnd)
+                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                list.add(i)
+            }
+        }
+
+        if (list.isEmpty()) return false
+
+        return list.any { containsPreformat(it) }
+    }
+
+    fun containsPreformat(index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val end = start + lines[index].length
+
+        if (start >= end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        return spans.isNotEmpty()
     }
 
     fun switchListType(listTypeToSwitchTo: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -674,6 +743,36 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             existingHeaderSpan.textFormat = headerTypeToSwitchTo
 
             editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
+            editor.onSelectionChanged(start, end)
+        }
+    }
+
+    fun switchHeadingToPreformat(start: Int = selectionStart, end: Int = selectionEnd) {
+        val heading = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
+
+        if (heading != null) {
+            val spanStart = editableText.getSpanStart(heading)
+            val spanEnd = editableText.getSpanEnd(heading)
+            val spanFlags = editableText.getSpanFlags(heading)
+            val type = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+
+            removeBlockStyle(spanStart, spanEnd, type)
+            editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
+            editor.onSelectionChanged(start, end)
+        }
+    }
+
+    fun switchPreformatToHeading(format: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+        val preformat = editableText.getSpans(start, end, AztecPreformatSpan::class.java).firstOrNull()
+
+        if (preformat != null) {
+            val spanStart = editableText.getSpanStart(preformat)
+            val spanEnd = editableText.getSpanEnd(preformat)
+            val spanFlags = editableText.getSpanFlags(preformat)
+            val type = makeBlock(TextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
+
+            removeBlockStyle(spanStart, spanEnd, type)
+            editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, format, preformat.attributes), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

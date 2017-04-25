@@ -93,6 +93,10 @@ class AztecTagHandler : Html.TagHandler {
                 }
                 return true
             }
+            PREFORMAT -> {
+                handleElement(output, opening, AztecPreformatSpan(nestingLevel, AztecAttributes(attributes)))
+                return true
+            }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
                     handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
@@ -164,6 +168,7 @@ class AztecTagHandler : Html.TagHandler {
         private val SPAN = "span"
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
+        private val PREFORMAT = "pre"
         private val IMAGE = "img"
         private val LINE = "hr"
 

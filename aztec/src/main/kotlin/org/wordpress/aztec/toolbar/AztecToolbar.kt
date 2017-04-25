@@ -89,9 +89,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
             }
             KeyEvent.KEYCODE_8 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Preformatted = Alt + Ctrl + 8
-//                    TODO: Add Preformatted format.
-//                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMATTED)
+                if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
+                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }
@@ -218,6 +217,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             R.id.heading_6 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
+                return true
+            }
+            R.id.preformat -> {
+                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
                 return true
             }
             else -> return false
@@ -373,6 +376,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
                     TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
                     TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.getItem(7)?.isChecked = true
                     else -> {
                         // Select TextFormat.FORMAT_PARAGRAPH by default.
                         headingMenu?.menu?.getItem(0)?.isChecked = true
@@ -402,7 +406,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
         else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
         else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
-
+        else if (headingMenu?.menu?.getItem(7)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
         return null
     }
 

@@ -756,7 +756,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanFlags = editableText.getSpanFlags(heading)
             val type = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(spanStart, spanEnd, type)
+            removeBlockStyle(heading.textFormat, spanStart, spanEnd, type)
             editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
@@ -771,7 +771,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanFlags = editableText.getSpanFlags(preformat)
             val type = makeBlock(TextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(spanStart, spanEnd, type)
+            removeBlockStyle(TextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, type)
             editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, format, preformat.attributes), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }

@@ -754,25 +754,25 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val spanStart = editableText.getSpanStart(heading)
             val spanEnd = editableText.getSpanEnd(heading)
             val spanFlags = editableText.getSpanFlags(heading)
-            val type = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+            val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(heading.textFormat, spanStart, spanEnd, type)
+            removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
             editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }
 
-    fun switchPreformatToHeading(format: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun switchPreformatToHeading(headingTextFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val preformat = editableText.getSpans(start, end, AztecPreformatSpan::class.java).firstOrNull()
 
         if (preformat != null) {
             val spanStart = editableText.getSpanStart(preformat)
             val spanEnd = editableText.getSpanEnd(preformat)
             val spanFlags = editableText.getSpanFlags(preformat)
-            val type = makeBlock(TextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
+            val spanType = makeBlock(TextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(TextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, type)
-            editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, format, preformat.attributes), spanStart, spanEnd, spanFlags)
+            removeBlockStyle(TextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
+            editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
             editor.onSelectionChanged(start, end)
         }
     }

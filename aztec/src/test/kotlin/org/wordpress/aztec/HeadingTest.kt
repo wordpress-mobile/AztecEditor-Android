@@ -184,6 +184,15 @@ class HeadingTest() {
 
     @Test
     @Throws(Exception::class)
+    fun splitMultilineHeadingWithParagraph() {
+        editText.fromHtml("<h2 foo=\"bar\">First<br>Second<br>Third</h2>")
+        editText.setSelection(editText.text.indexOf("ond"))
+        toolbar.onMenuItemClick(menuParagraph)
+        Assert.assertEquals("<h2 foo=\"bar\">First</h2>Second<h2 foo=\"bar\">Third</h2>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun splitPreformatWithNewline() {
         editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
         editText.text.insert(3, "\n")

@@ -790,7 +790,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
 
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
-        blockFormatter.removeBlockStyle(start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
+        blockFormatter.removeBlockStyle(TextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
     }
 
     //logic party copied from TextView

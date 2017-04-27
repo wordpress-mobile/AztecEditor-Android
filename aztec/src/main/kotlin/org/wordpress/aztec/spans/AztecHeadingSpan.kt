@@ -3,13 +3,12 @@ package org.wordpress.aztec.spans
 import android.graphics.Paint
 import android.text.Spanned
 import android.text.TextPaint
-import android.text.TextUtils
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
-import org.wordpress.aztec.AztecAttributes
 
 class AztecHeadingSpan @JvmOverloads constructor(
         override var nestingLevel: Int,

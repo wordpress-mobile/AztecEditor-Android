@@ -5,16 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.text.BoringLayout
-import android.text.Layout
-import android.text.StaticLayout
-import android.text.style.DynamicDrawableSpan
 import android.view.Gravity
 import android.view.View
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
-import org.xml.sax.Attributes
-import org.wordpress.aztec.AztecAttributes
 import java.util.*
 
 class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),

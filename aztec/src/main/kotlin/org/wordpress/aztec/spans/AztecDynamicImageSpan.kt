@@ -98,7 +98,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         }
 
         // get the TextView's target width
-        val want = calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
+        calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
                 .minus(textView?.compoundPaddingLeft ?: 0)
                 .minus(textView?.compoundPaddingRight ?: 0)
 

@@ -32,12 +32,12 @@ class AztecPreformatSpan(
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
-        if (start === spanStart || start < spanStart) {
+        if (start == spanStart || start < spanStart) {
             fm.ascent -= preformatStyle.verticalPadding
             fm.top -= preformatStyle.verticalPadding
         }
 
-        if (end === spanEnd || spanEnd < end) {
+        if (end == spanEnd || spanEnd < end) {
             fm.descent += preformatStyle.verticalPadding
             fm.bottom += preformatStyle.verticalPadding
         }

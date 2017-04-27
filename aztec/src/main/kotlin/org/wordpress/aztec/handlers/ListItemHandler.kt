@@ -26,19 +26,19 @@ class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class
         }
 
         if (block.end == parent.end) {
-            // just remove listitem when entering a newline on an empty item at the end of the list
+            // just remove list item when entering a newline on an empty item at the end of the list
             block.remove()
         }
     }
 
     override fun handleNewlineAtEmptyBody() {
-        // just remove listitem when entering a newline on an empty item at the end of the list
+        // just remove list item when entering a newline on an empty item at the end of the list
         block.remove()
     }
 
     // fun handleNewlineAtTextEnd()
     // got a newline while being at the end-of-text. We'll let the current list item engulf it and will wait
-    //  for the end-of-text marker event in order to attach the new list item to it when that happens.
+    // for the end-of-text marker event in order to attach the new list item to it when that happens.
 
     override fun handleNewlineInBody() {
         // newline added at some position inside the bullet so, end the current bullet and append a new one

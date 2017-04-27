@@ -103,7 +103,7 @@ class AztecMediaSpan(context: Context, drawable: Drawable?, override var attribu
         return sb.toString()
     }
 
-    fun onClick(view: View) {
+    fun onClick() {
         onMediaTappedListener?.mediaTapped(attributes, getWidth(imageDrawable), getHeight(imageDrawable))
     }
 

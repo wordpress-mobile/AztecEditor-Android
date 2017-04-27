@@ -49,11 +49,11 @@ class AztecQuoteSpan(
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
-        if (start === spanStart || start < spanStart) {
+        if (start == spanStart || start < spanStart) {
             fm.ascent -= quoteStyle.verticalPadding
             fm.top -= quoteStyle.verticalPadding
         }
-        if (end === spanEnd || spanEnd < end) {
+        if (end == spanEnd || spanEnd < end) {
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
         }

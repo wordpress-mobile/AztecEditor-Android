@@ -53,7 +53,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"

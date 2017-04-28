@@ -52,6 +52,7 @@ import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
 
+@Suppress("UNUSED_PARAMETER")
 class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
     companion object {
@@ -218,7 +219,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        //Detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
+        // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
         setOnKeyListener { v, keyCode, event ->
             var consumeKeyEvent = false
             history.beforeTextChanged(toFormattedHtml())
@@ -253,7 +254,7 @@ class AztecText : EditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListe
         InlineTextWatcher.install(inlineFormatter, this)
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
-        //  will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
+        // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
 
         BlockElementWatcher(this)
                 .add(HeadingHandler())

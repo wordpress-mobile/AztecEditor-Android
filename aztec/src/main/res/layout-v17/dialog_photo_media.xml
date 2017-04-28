@@ -14,8 +14,7 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:drawableLeft="@drawable/ic_video_grey_c_24dp"
-        android:drawableStart="@drawable/ic_video_grey_c_24dp"
+        android:drawableStart="@drawable/ic_camera_grey_c_24dp"
         android:drawablePadding="@dimen/margin_dialog"
         android:ellipsize="end"
         android:gravity="center_vertical"
@@ -26,17 +25,17 @@
         android:paddingEnd="@dimen/margin_dialog"
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
+        android:paddingStart="@dimen/margin_dialog"
         android:text="@string/media_dialog_camera"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
     <TextView
-        android:id="@+id/media_videos"
+        android:id="@+id/media_photos"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:drawableLeft="@drawable/ic_videos_grey_c_24dp"
-        android:drawableStart="@drawable/ic_videos_grey_c_24dp"
+        android:drawableStart="@drawable/ic_photos_grey_c_24dp"
         android:drawablePadding="@dimen/margin_dialog"
         android:ellipsize="end"
         android:gravity="center_vertical"
@@ -47,7 +46,8 @@
         android:paddingEnd="@dimen/margin_dialog"
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
-        android:text="@string/media_dialog_videos"
+        android:paddingStart="@dimen/margin_dialog"
+        android:text="@string/media_dialog_photos"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
@@ -56,7 +56,6 @@
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:drawableLeft="@drawable/ic_library_grey_c_24dp"
         android:drawableStart="@drawable/ic_library_grey_c_24dp"
         android:drawablePadding="@dimen/margin_dialog"
         android:ellipsize="end"
@@ -68,6 +67,7 @@
         android:paddingEnd="@dimen/margin_dialog"
         android:paddingLeft="@dimen/margin_dialog"
         android:paddingRight="@dimen/margin_dialog"
+        android:paddingStart="@dimen/margin_dialog"
         android:text="@string/media_dialog_library"
         android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>

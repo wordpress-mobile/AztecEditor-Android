@@ -17,6 +17,7 @@
 
 package org.wordpress.aztec
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -146,6 +147,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         isInCalypsoMode = isCompatibleWithCalypso
     }
 
+    @SuppressLint("ResourceType")
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
 

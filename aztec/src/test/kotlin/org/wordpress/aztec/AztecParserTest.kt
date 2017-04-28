@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package org.wordpress.aztec
 
 import android.test.AndroidTestCase

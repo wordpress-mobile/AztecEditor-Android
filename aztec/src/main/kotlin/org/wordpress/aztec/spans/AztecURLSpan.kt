@@ -19,10 +19,9 @@ package org.wordpress.aztec.spans
 
 import android.os.Parcel
 import android.text.TextPaint
-import android.text.TextUtils
 import android.text.style.URLSpan
-import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.formatting.LinkFormatter
 
 class AztecURLSpan : URLSpan, AztecInlineSpan {
 

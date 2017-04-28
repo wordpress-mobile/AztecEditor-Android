@@ -91,7 +91,7 @@ object Format {
         // keep <br> tags inside captions and remove line breaks
         if (content.contains("[caption")) {
             preserve_br = true
-            p = Pattern.compile("\\[caption[\\s\\S]+?\\[/caption\\]")
+            p = Pattern.compile("\\[caption[\\s\\S]+?\\[/caption]")
             m = p.matcher(content)
             sb = StringBuffer()
             if (m.find()) {
@@ -234,7 +234,7 @@ object Format {
         if (html.contains("[caption' )")) {
             preserve_br = true
 
-            p = Pattern.compile("\\[caption[\\s\\S]+?\\[/caption\\]")
+            p = Pattern.compile("\\[caption[\\s\\S]+?\\[/caption]")
             m = p.matcher(html)
             sb = StringBuffer()
             while (m.find()) {

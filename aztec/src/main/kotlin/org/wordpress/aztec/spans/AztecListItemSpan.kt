@@ -1,6 +1,5 @@
 package org.wordpress.aztec.spans
 
-import android.text.TextUtils
 import org.wordpress.aztec.AztecAttributes
 
 class AztecListItemSpan(override var nestingLevel: Int, override var attributes: AztecAttributes = AztecAttributes()) : AztecBlockSpan {

@@ -1,6 +1,5 @@
 package org.wordpress.aztec.spans
 
-import android.text.TextUtils
 import android.text.style.UnderlineSpan
 import org.wordpress.aztec.AztecAttributes
 

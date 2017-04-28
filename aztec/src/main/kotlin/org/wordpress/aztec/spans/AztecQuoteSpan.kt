@@ -23,13 +23,12 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
-import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.formatting.BlockFormatter
 
 
 class AztecQuoteSpan(
@@ -50,11 +49,11 @@ class AztecQuoteSpan(
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
-        if (start === spanStart || start < spanStart) {
+        if (start == spanStart || start < spanStart) {
             fm.ascent -= quoteStyle.verticalPadding
             fm.top -= quoteStyle.verticalPadding
         }
-        if (end === spanEnd || spanEnd < end) {
+        if (end == spanEnd || spanEnd < end) {
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
         }

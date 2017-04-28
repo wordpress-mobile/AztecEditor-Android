@@ -43,7 +43,7 @@ class TextDeleter private constructor(aztecText: AztecText) : TextWatcher {
         }
 
         fun isMarkedForDeletion(spannable: Spannable, start: Int, end: Int): Boolean {
-            return spannable.getSpans(0, spannable.length, MarkForDeletion::class.java).any()
+            return spannable.getSpans(start, end, MarkForDeletion::class.java).any()
         }
     }
 }

@@ -3,6 +3,7 @@ package org.wordpress.aztec.toolbar
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -37,7 +38,7 @@ class RippleToggleButton : ToggleButton, OnLongClickListener {
 
         setOnLongClickListener(this)
 
-        val rippleColor = resources.getColor(R.color.format_bar_ripple_animation)
+        val rippleColor = ContextCompat.getColor(context, R.color.format_bar_ripple_animation)
 
         mFillPaint = Paint()
         mFillPaint!!.isAntiAlias = true

@@ -1,20 +1,14 @@
 package org.wordpress.aztec.spans
 
 import android.text.TextPaint
-import android.text.TextUtils
 import android.text.style.CharacterStyle
-import org.xml.sax.Attributes
 import org.wordpress.aztec.AztecAttributes
+import org.xml.sax.Attributes
 
-class FontSpan : CharacterStyle, AztecInlineSpan {
+class FontSpan(attrs: Attributes) : CharacterStyle(), AztecInlineSpan {
 
     private var TAG: String = "font"
     override var attributes: AztecAttributes = AztecAttributes()
-
-    @JvmOverloads
-    constructor(attrs: Attributes) : super() {
-        this.attributes = AztecAttributes(attrs)
-    }
 
     override fun getStartTag(): String {
         if (attributes.isEmpty()) {
@@ -28,5 +22,9 @@ class FontSpan : CharacterStyle, AztecInlineSpan {
     }
 
     override fun updateDrawState(tp: TextPaint?) {
+    }
+
+    init {
+        this.attributes = AztecAttributes(attrs)
     }
 }

@@ -22,10 +22,9 @@ import android.graphics.Typeface
 import android.os.Parcel
 import android.text.ParcelableSpan
 import android.text.TextPaint
-import android.text.TextUtils
 import android.text.style.MetricAffectingSpan
-import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.formatting.InlineFormatter
 
 class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
 

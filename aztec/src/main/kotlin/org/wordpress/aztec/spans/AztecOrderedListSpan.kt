@@ -21,9 +21,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextUtils
-import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecOrderedListSpan(
         override var nestingLevel: Int,

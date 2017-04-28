@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(),
         OnRequestPermissionsResultCallback,
         PopupMenu.OnMenuItemClickListener,
         View.OnTouchListener {
+
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +

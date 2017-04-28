@@ -1,5 +1,6 @@
 package org.wordpress.aztec.source
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
@@ -18,6 +19,7 @@ import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
 
+@SuppressLint("SupportAnnotationUsage")
 class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)

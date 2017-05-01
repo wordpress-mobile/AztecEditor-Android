@@ -26,58 +26,18 @@ import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.InlineFormatter
 
-class AztecCodeSpan : MetricAffectingSpan, ParcelableSpan, AztecInlineSpan {
+class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()) : MetricAffectingSpan(), AztecInlineSpan {
 
-    private val TAG: String = "code"
+    override val TAG = "code"
 
     private var codeBackground: Int = 0
     private var codeBackgroundAlpha: Float = 0.0f
     private var codeColor: Int = 0
 
-    override var attributes: AztecAttributes = AztecAttributes()
-
-    constructor(attributes: AztecAttributes = AztecAttributes()) : super() {
-        this.attributes = attributes
-    }
-
     constructor(codeStyle: InlineFormatter.CodeStyle, attributes: AztecAttributes = AztecAttributes()) : this(attributes) {
         this.codeBackground = codeStyle.codeBackground
         this.codeBackgroundAlpha = codeStyle.codeBackgroundAlpha
         this.codeColor = codeStyle.codeColor
-    }
-
-    constructor(src: Parcel) {
-        this.codeBackground = src.readInt()
-        this.codeBackgroundAlpha = src.readFloat()
-        this.codeColor = src.readInt()
-    }
-
-    override fun getSpanTypeId(): Int {
-        return getSpanTypeIdInternal()
-    }
-
-    fun getSpanTypeIdInternal(): Int {
-        return AztecSpanIds.CODE_SPAN
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(codeBackground)
-        dest.writeInt(codeColor)
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return TAG
-        }
-        return TAG + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return TAG
     }
 
     override fun updateDrawState(tp: TextPaint?) {

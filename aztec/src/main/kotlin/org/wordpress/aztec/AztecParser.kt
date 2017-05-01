@@ -347,9 +347,9 @@ class AztecParser {
 
     private fun withinBlock(out: StringBuilder, text: Spanned, start: Int, end: Int,
                             blockSpan: AztecBlockSpan, parents: ArrayList<AztecNestable>?, nestingLevel: Int) {
-        out.append("<${blockSpan.getStartTag()}>")
+        out.append("<${blockSpan.startTag}>")
         withinHtml(out, text, start, end, parents, nestingLevel)
-        out.append("</${blockSpan.getEndTag()}>")
+        out.append("</${blockSpan.endTag}>")
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE
@@ -402,7 +402,7 @@ class AztecParser {
                 val span = spans[j]
 
                 if (span is AztecInlineSpan) {
-                    out.append("<${span.getStartTag()}>")
+                    out.append("<${span.startTag}>")
                 }
 
                 if (span is CommentSpan) {
@@ -416,7 +416,7 @@ class AztecParser {
                 }
 
                 if (span is AztecHorizontalLineSpan) {
-                    out.append("<${span.getStartTag()}>")
+                    out.append("<${span.startTag}>")
                     i = next
                 }
 
@@ -436,7 +436,7 @@ class AztecParser {
                 val span = spans[j]
 
                 if (span is AztecInlineSpan) {
-                    out.append("</${span.getEndTag()}>")
+                    out.append("</${span.endTag}>")
                 }
 
                 if (span is AztecCommentSpan || span is CommentSpan) {

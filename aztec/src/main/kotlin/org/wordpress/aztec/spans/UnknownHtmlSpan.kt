@@ -2,7 +2,6 @@ package org.wordpress.aztec.spans
 
 import android.content.Context
 import android.text.style.ImageSpan
-import android.view.View
 
 class UnknownHtmlSpan(
         override var nestingLevel: Int,

@@ -13,7 +13,6 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
-import android.widget.EditText
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R

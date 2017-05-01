@@ -19,8 +19,6 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Color
 import android.graphics.Typeface
-import android.os.Parcel
-import android.text.ParcelableSpan
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.AztecAttributes

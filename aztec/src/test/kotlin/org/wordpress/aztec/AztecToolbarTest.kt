@@ -249,6 +249,126 @@ class AztecToolbarTest {
     }
 
     /**
+     * Test inline style when applying and removing styles while typing.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testInlineStyleWhileTyping() {
+        // Clear text
+        editText.setText("")
+
+        // Bold
+        boldButton.performClick()
+        editText.append("Bo")
+        boldButton.performClick()
+        editText.append("ld")
+        Assert.assertEquals("<b>Bo</b>ld", editText.toHtml())
+
+        // Italic
+        italicButton.performClick()
+        editText.append("Ita")
+        italicButton.performClick()
+        editText.append("lic")
+        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic", editText.toHtml())
+
+        // Strike
+        strikeThroughButton.performClick()
+        editText.append("Str")
+        strikeThroughButton.performClick()
+        editText.append("ike")
+        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic<del>Str</del>ike", editText.toHtml())
+
+        // Underline
+        underlineButton.performClick()
+        editText.append("Under")
+        underlineButton.performClick()
+        editText.append("line")
+        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic<del>Str</del>ike<u>Under</u>line", editText.toHtml())
+
+        // Clear text
+        editText.setText("")
+
+        // Bold
+        editText.append("Bo")
+        boldButton.performClick()
+        editText.append("ld")
+        boldButton.performClick()
+        Assert.assertEquals("Bo<b>ld</b>", editText.toHtml())
+
+        // Italic
+        editText.append("Ita")
+        italicButton.performClick()
+        editText.append("lic")
+        italicButton.performClick()
+        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>", editText.toHtml())
+
+        // Strike
+        editText.append("Str")
+        strikeThroughButton.performClick()
+        editText.append("ike")
+        strikeThroughButton.performClick()
+        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>Str<del>ike</del>", editText.toHtml())
+
+        // Underline
+        editText.append("Under")
+        underlineButton.performClick()
+        editText.append("line")
+        underlineButton.performClick()
+        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>Str<del>ike</del>Under<u>line</u>", editText.toHtml())
+    }
+
+    /**
+     * Test inline style when applying and removing styles while typing with spaces.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testInlineStyleWhileTypingWithSpaces() {
+        // Space
+        editText.setText(" ")
+
+        // Bold
+        boldButton.performClick()
+        editText.append("Bo")
+        boldButton.performClick()
+        editText.append("ld")
+        Assert.assertEquals(" <b>Bo</b>ld", editText.toHtml())
+
+        // Space
+        editText.append(" ")
+
+        // Italic
+        italicButton.performClick()
+        editText.append("Ita")
+        italicButton.performClick()
+        editText.append("lic")
+        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic", editText.toHtml())
+
+        // Space
+        editText.append(" ")
+
+        // Strike
+        strikeThroughButton.performClick()
+        editText.append("Str")
+        strikeThroughButton.performClick()
+        editText.append("ike")
+        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic <del>Str</del>ike", editText.toHtml())
+
+        // Space
+        editText.append(" ")
+
+        // Underline
+        underlineButton.performClick()
+        editText.append("Under")
+        underlineButton.performClick()
+        editText.append("line")
+        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic <del>Str</del>ike <u>Under</u>line", editText.toHtml())
+    }
+
+    /**
      * Select parts of text and apply formatting to it.
      *
      * @throws Exception

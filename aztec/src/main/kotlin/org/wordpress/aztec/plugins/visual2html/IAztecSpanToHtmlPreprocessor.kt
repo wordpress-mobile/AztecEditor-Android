@@ -1,0 +1,3 @@
+package org.wordpress.aztec.plugins.visual2html
+
+interface IAztecSpanToHtmlPreprocessor

@@ -17,6 +17,9 @@ class AztecHeadingSpan @JvmOverloads constructor(
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
 
+    override val TAG: String
+        get() = heading.tag
+
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
@@ -32,6 +35,15 @@ class AztecHeadingSpan @JvmOverloads constructor(
     var previousFontMetrics: Paint.FontMetricsInt? = null
     var previousTextScale: Float = 1.0f
 
+    enum class Heading constructor(internal val scale: Float, internal val tag: String) {
+        H1(SCALE_H1, "h1"),
+        H2(SCALE_H2, "h2"),
+        H3(SCALE_H3, "h3"),
+        H4(SCALE_H4, "h4"),
+        H5(SCALE_H5, "h5"),
+        H6(SCALE_H6, "h6")
+    }
+
     companion object {
         private val SCALE_H1: Float = 1.73f
         private val SCALE_H2: Float = 1.32f
@@ -40,7 +52,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
         private val SCALE_H5: Float = 0.72f
         private val SCALE_H6: Float = 0.60f
 
-        fun getTextFormat(tag: String): TextFormat {
+        fun tagToTextFormat(tag: String): TextFormat {
             when (tag.toLowerCase()) {
                 "h1" -> return TextFormat.FORMAT_HEADING_1
                 "h2" -> return TextFormat.FORMAT_HEADING_2
@@ -71,7 +83,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
 
     constructor(nestingLevel: Int, tag: String, attrs: AztecAttributes = AztecAttributes(),
             headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
-            : this(nestingLevel, getTextFormat(tag), attrs, headerStyle)
+            : this(nestingLevel, tagToTextFormat(tag), attrs, headerStyle)
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -114,26 +126,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
 
     }
 
-    enum class Heading constructor(internal val scale: Float) {
-        H1(SCALE_H1),
-        H2(SCALE_H2),
-        H3(SCALE_H3),
-        H4(SCALE_H4),
-        H5(SCALE_H5),
-        H6(SCALE_H6)
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return getTag()
-        }
-        return getTag() + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return getTag()
-    }
-
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.textSize *= heading.scale
         textPaint.isFakeBoldText = true
@@ -147,17 +139,5 @@ class AztecHeadingSpan @JvmOverloads constructor(
         previousTextScale = heading.scale
 
         textPaint.textSize *= heading.scale
-    }
-
-    private fun getTag(): String {
-        when (heading.scale) {
-            SCALE_H1 -> return "h1"
-            SCALE_H2 -> return "h2"
-            SCALE_H3 -> return "h3"
-            SCALE_H4 -> return "h4"
-            SCALE_H5 -> return "h5"
-            SCALE_H6 -> return "h6"
-            else -> return "h1"
-        }
     }
 }

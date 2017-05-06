@@ -19,13 +19,14 @@ class AztecPreformatSpan(
         var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
     ) : AztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
 
+    override val TAG: String = "pre"
+
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
     val rect = Rect()
 
     private val MARGIN = 16
-    private val TAG: String = "pre"
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -70,19 +71,7 @@ class AztecPreformatSpan(
         paint.color = color
     }
 
-    override fun getEndTag(): String {
-        return TAG
-    }
-
     override fun getLeadingMargin(first: Boolean): Int {
         return MARGIN
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return TAG
-        }
-
-        return TAG + " " + attributes
     }
 }

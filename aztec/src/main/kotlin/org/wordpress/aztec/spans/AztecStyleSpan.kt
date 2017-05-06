@@ -4,32 +4,17 @@ import android.graphics.Typeface
 import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecAttributes
 
-open class AztecStyleSpan : StyleSpan, AztecInlineSpan {
+open class AztecStyleSpan(style: Int, override var attributes: AztecAttributes = AztecAttributes()) : StyleSpan(style), AztecInlineSpan {
 
-    var tag: String = ""
-    override var attributes: AztecAttributes = AztecAttributes()
-
-    constructor(style: Int, attributes: AztecAttributes = AztecAttributes()) : super(style) {
-        this.attributes = attributes
-
+    override val TAG by lazy {
         when (style) {
             Typeface.BOLD -> {
-                tag = "b"
+                return@lazy "b"
             }
             Typeface.ITALIC -> {
-                tag = "i"
+                return@lazy "i"
             }
         }
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return tag
-        }
-        return tag + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return tag
+        throw IllegalArgumentException()
     }
 }

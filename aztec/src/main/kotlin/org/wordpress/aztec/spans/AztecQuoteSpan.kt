@@ -42,7 +42,7 @@ class AztecQuoteSpan(
 
     val rect = Rect()
 
-    private val TAG: String = "blockquote"
+    override val TAG: String = "blockquote"
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -57,17 +57,6 @@ class AztecQuoteSpan(
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
         }
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return TAG
-        }
-        return TAG + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return TAG
     }
 
     override fun getLeadingMargin(first: Boolean): Int {

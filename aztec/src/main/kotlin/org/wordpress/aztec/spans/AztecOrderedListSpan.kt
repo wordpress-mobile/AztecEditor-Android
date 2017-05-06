@@ -30,18 +30,7 @@ class AztecOrderedListSpan(
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
     ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
 
-    private val TAG = "ol"
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return TAG
-        }
-        return TAG + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return TAG
-    }
+    override val TAG = "ol"
 
     override fun getLeadingMargin(first: Boolean): Int {
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding

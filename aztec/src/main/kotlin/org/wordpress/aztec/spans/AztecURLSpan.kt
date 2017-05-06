@@ -25,7 +25,7 @@ import org.wordpress.aztec.formatting.LinkFormatter
 
 class AztecURLSpan : URLSpan, AztecInlineSpan {
 
-    private val TAG: String = "a"
+    override val TAG = "a"
 
     private var linkColor = 0
     private var linkUnderline = true
@@ -59,16 +59,5 @@ class AztecURLSpan : URLSpan, AztecInlineSpan {
     override fun updateDrawState(ds: TextPaint) {
         ds.color = if (linkColor != 0) linkColor else ds.linkColor
         ds.isUnderlineText = linkUnderline
-    }
-
-    override fun getStartTag(): String {
-        if (attributes.isEmpty()) {
-            return TAG
-        }
-        return TAG + " " + attributes
-    }
-
-    override fun getEndTag(): String {
-        return TAG
     }
 }

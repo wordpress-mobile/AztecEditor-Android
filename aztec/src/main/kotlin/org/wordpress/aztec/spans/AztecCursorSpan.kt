@@ -6,5 +6,4 @@ class AztecCursorSpan  {
     companion object {
         val AZTEC_CURSOR_TAG = "aztec_cursor"
     }
-
 }

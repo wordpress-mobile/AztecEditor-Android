@@ -1,4 +1,5 @@
 import android.content.Context
+import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import org.wordpress.aztec.Constants
@@ -22,7 +23,7 @@ class WordPressCommentsPlugin : IAztecPlugin, IAztecCommentHandler {
                     WordPressCommentSpan(
                             text,
                             context,
-                            context.resources.getDrawable(R.drawable.img_more),
+                            ContextCompat.getDrawable(context, R.drawable.img_more),
                             nestingLevel
                     ),
                     spanStart,
@@ -37,7 +38,7 @@ class WordPressCommentsPlugin : IAztecPlugin, IAztecCommentHandler {
                     WordPressCommentSpan(
                             text,
                             context,
-                            context.resources.getDrawable(R.drawable.img_page),
+                            ContextCompat.getDrawable(context, R.drawable.img_page),
                             nestingLevel
                     ),
                     spanStart,

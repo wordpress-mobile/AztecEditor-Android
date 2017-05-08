@@ -105,8 +105,7 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
-                Context context, Attributes attributes, int nestingLevel);
+        boolean handleTag(boolean opening, String tag, Editable output, Context context, Attributes attributes, int nestingLevel);
     }
 
     private Html() {
@@ -293,7 +292,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
         } else {
             if (tagHandler != null) {
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
+                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder,
                         context, attributes, nestingLevel);
                 if (tagHandled) {
                     return;
@@ -367,7 +366,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, new AztecAttributes(),
+            tagHandler.handleTag(false, tag, spannableStringBuilder, context, new AztecAttributes(),
                     nestingLevel);
         }
     }

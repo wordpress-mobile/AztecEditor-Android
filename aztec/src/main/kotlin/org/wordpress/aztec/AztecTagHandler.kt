@@ -29,12 +29,11 @@ import android.text.Spanned
 import org.wordpress.aztec.spans.*
 import org.xml.sax.Attributes
 
-class AztecTagHandler : Html.TagHandler {
+class AztecTagHandler(val onMediaTappedListener: AztecText.OnMediaTappedListener?) : Html.TagHandler {
 
     private var order = 0
 
-    override fun handleTag(opening: Boolean, tag: String, output: Editable,
-                           onMediaTappedListener: AztecText.OnMediaTappedListener?, context: Context, attributes: Attributes,
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
 
         when (tag.toLowerCase()) {

@@ -38,7 +38,7 @@ class AztecParser {
                  onUnknownHtmlClickListener: UnknownHtmlSpan.OnUnknownHtmlClickListener?, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(onMediaTappedListener),
                 onMediaTappedListener, onUnknownHtmlClickListener, context))
 
         addVisualNewlinesToBlockElements(spanned)

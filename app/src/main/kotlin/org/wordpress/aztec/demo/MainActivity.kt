@@ -120,7 +120,14 @@ class MainActivity : AppCompatActivity(),
                 EMOJI +
                 LONG_TEXT
 
-        var testMode: Boolean = false
+        private val isRunningTest : Boolean by lazy {
+            try {
+                Class.forName("android.support.test.espresso.Espresso")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001
@@ -258,7 +265,7 @@ class MainActivity : AppCompatActivity(),
         aztec.setToolbar(formattingToolbar)
 
         // initialize the text & HTML
-        if (!testMode) {
+        if (!isRunningTest) {
             source.displayStyledAndFormattedHtml(EXAMPLE)
         }
 

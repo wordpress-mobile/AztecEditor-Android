@@ -778,6 +778,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
+        clearFocus()
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()

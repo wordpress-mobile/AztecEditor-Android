@@ -11,6 +11,7 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
@@ -38,4 +39,7 @@ dependencies {
     compile "com.android.support:appcompat-v7:25.3.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.wordpress:utils:1.14.0"
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
 }

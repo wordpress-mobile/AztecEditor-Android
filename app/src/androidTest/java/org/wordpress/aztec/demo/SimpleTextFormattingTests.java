@@ -24,9 +24,11 @@ public class SimpleTextFormattingTests {
 
     @Test
     public void testSimpleBoldFormatting() {
+        ViewInteraction boldButton = onView(withId(R.id.format_bar_button_bold));
+        boldButton.check(matches(isNotChecked()));
+
         enterHTML("<b>hello world</b>");
 
-        ViewInteraction boldButton = onView(withId(R.id.format_bar_button_bold));
         boldButton.check(matches(isChecked()));
     }
 }

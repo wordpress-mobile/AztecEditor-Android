@@ -50,7 +50,11 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
         }
     }
 
-    override fun afterTextChanged(text: Editable) {}
+    override fun afterTextChanged(text: Editable) {
+        text.getSpans(0, text.length, EndOfParagraphMarker::class.java).forEach {
+            text.setSpan(it, text.getSpanStart(it), text.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
 
     companion object {
         fun install(editText: AztecText, verticalParagraphMargin: Int) {

@@ -10,13 +10,10 @@ import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -27,23 +24,19 @@ public class SimpleTextFormattingTests {
 
     @Test
     public void testSimpleBoldFormatting() {
-        // Focus on visual editor
-        ViewInteraction aztecText = onView(withId(R.id.aztec));
-        aztecText.perform(click());
-
-        // Enable bold formatting
-        ViewInteraction boldButton = onView(withId(R.id.format_bar_button_bold));
-        boldButton.perform(click());
-
-        // Type bold text
-        aztecText.perform(typeText("hello world"), closeSoftKeyboard());
-
         // Switch to HTML view
         ViewInteraction htmlButton = onView(withId(R.id.format_bar_button_html));
         htmlButton.perform(click());
 
-        // Assert that text has bold tags
-        ViewInteraction sourceText = onView(allOf(withId(R.id.source), isDisplayed()));
-        sourceText.check(matches(withText("<b>hello world</b>")));
+        // Type text with bold tags
+        ViewInteraction htmlViewEditText = onView(withId(R.id.source));
+        htmlViewEditText.perform(typeText("<b>hello world</b>"));
+
+        // Switch back to visual view
+        htmlButton.perform(click());
+
+        // Assert that bold button is enabled
+        ViewInteraction boldButton = onView(withId(R.id.format_bar_button_bold));
+        boldButton.check(matches(isEnabled()));
     }
 }

@@ -18,7 +18,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class QuoteTest() {
+class QuoteTest {
 
     val formattingType = TextFormat.FORMAT_QUOTE
     val quoteTag = "blockquote"

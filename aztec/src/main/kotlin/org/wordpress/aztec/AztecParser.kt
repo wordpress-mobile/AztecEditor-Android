@@ -239,7 +239,6 @@ class AztecParser {
             // at last, all checks passed so, let's mark the newline as visual!
             markBlockElementLineBreak(spanned, spanStart - 1)
         }
-
     }
 
     private fun markBlockElementsAsParagraphs(text: Spannable) {
@@ -497,7 +496,6 @@ class AztecParser {
                     hiddenIndex++
                 }
             }
-
         } while (last != hiddenIndex)
     }
 

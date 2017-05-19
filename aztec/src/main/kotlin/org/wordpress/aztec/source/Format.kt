@@ -80,7 +80,6 @@ object Format {
         if (content.contains("<pre") || content.contains("<script")) {
             preserve_linebreaks = true
 
-
             content = content.replace(Regex("<(pre|script)[^>]*>[\\s\\S]+?</\\1>"), { matchResult: MatchResult ->
                 var value = replaceAll(matchResult.groupValues[0], "<br ?/?>(\\r\\n|\\n)?", "<wp-line-break>")
                 value = replaceAll(value, "</?p( [^>]*)?>(\\r\\n|\\n)?", "<wp-line-break>")
@@ -114,7 +113,6 @@ object Format {
         content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
 
         content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n\n<$1>\n\n")
-
 
         // Mark </p> if it has any attributes.
         content = replaceAll(content, "(<p [^>]+>.*?)</p>", "$1</p#>")
@@ -200,7 +198,6 @@ object Format {
                 "|form|map|area|blockquote|address|math|style|p|h[1-6]|hr|fieldset|legend|section" +
                 "|article|aside|hgroup|header|footer|nav|figure|details|menu|summary"
 
-
         if (html.contains("<object")) {
             p = Pattern.compile("<object[\\s\\S]+?</object>")
             m = p.matcher(html)
@@ -261,7 +258,6 @@ object Format {
 
         html += "\n\n"
 
-
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
@@ -296,7 +292,6 @@ object Format {
         html = replaceAll(html, "(?i)<br ?/?>(\\s*</?(?:p|li|div|dl|dd|dt|th|pre|td|ul|ol)>)", "$1")
         html = replaceAll(html, "(?i)(?:<p>|<br ?/?>)*\\s*\\[caption([^\\[]+)\\[/caption\\]\\s*(?:</p>|<br ?/?>)*", "[caption$1[/caption]")
 
-
 //        html = html.replace(Regex("(<(?:div|th|td|form|fieldset|dd)[^>]*>)(.*?)</p>"), { matchResult: MatchResult ->
 //            if (matchResult.groupValues[2].matches(Regex("<p( [^>]*)?>"))) {
 //                matchResult.groupValues[0]
@@ -317,7 +312,6 @@ object Format {
         return html.replace("\n", "").trim()
     }
 
-
     fun preProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             text.getSpans(0, text.length, AztecVisualLinebreak::class.java).forEach {
@@ -335,7 +329,6 @@ object Format {
             }
         }
     }
-
 
     fun postProcessSpanedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {

@@ -30,7 +30,6 @@ import android.text.style.UpdateLayout
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 
-
 class AztecQuoteSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),

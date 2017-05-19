@@ -271,7 +271,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         FullWidthImageElementWatcher.install(this)
 
         EndOfBufferMarkerAdder.install(this)
-
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -327,7 +326,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         if (retainedSelectionEnd < editableText.length) {
             setSelection(retainedSelectionStart, retainedSelectionEnd)
         }
-
 
         val isLinkDialogVisible = customState.getBoolean(LINK_DIALOG_VISIBLE_KEY, false)
         if (isLinkDialogVisible) {
@@ -406,7 +404,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             super.writeToParcel(out, flags)
             out.writeBundle(state)
         }
-
 
         companion object {
             @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
@@ -514,7 +511,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         } else if (newSelStart > 0 && !isTextSelected()) {
             newSelStart--
         }
-
 
         TextFormat.values().forEach {
             if (contains(it, newSelStart, newSelEnd)) {
@@ -792,7 +788,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
     }
 
-
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
         blockFormatter.removeBlockStyle(TextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
     }
@@ -886,7 +881,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
     }
 
-
     fun removeLink() {
         val urlSpanBounds = linkFormatter.getUrlSpanBounds()
 
@@ -918,7 +912,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
             link(linkText, anchorText)
-
         })
 
         if (linkFormatter.isUrlSelected()) {
@@ -999,7 +992,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     history.handleHistory(this@AztecText)
                     return false
                 }
-
             }
             return super.sendKeyEvent(event)
         }

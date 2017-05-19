@@ -36,7 +36,6 @@ class AztecOrderedListSpan(
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
     }
 
-
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
@@ -62,7 +61,5 @@ class AztecOrderedListSpan(
 
         p.color = oldColor
         p.style = style
-
     }
-
 }

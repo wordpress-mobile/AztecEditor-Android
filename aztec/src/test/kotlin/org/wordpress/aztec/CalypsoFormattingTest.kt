@@ -76,9 +76,6 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<div class=\"fourth\"><u>Under</u>line</div>\n" +
                     "<div class=\"fifth\"></div>\n</div>\n</div>"
 
-
-
-
 //    private val FORMATTED_COMPLEX_HTML =
 
     /**
@@ -102,7 +99,6 @@ class CalypsoFormattingTest : AndroidTestCase() {
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_NESTED_CALYPSO, output)
     }
-
 
     /**
      * Test the conversion from HTML to visual mode with multiple line breaks (Calypso format)
@@ -131,5 +127,4 @@ class CalypsoFormattingTest : AndroidTestCase() {
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_CALYPSO, output)
     }
-
 }

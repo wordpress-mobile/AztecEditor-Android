@@ -10,7 +10,6 @@ import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
-
 /**
  * Testing ordered and unordered lists.
  *
@@ -35,7 +34,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         }
     }
 
-
     /**
      * Initialize variables.
      */
@@ -56,7 +54,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li>first item</li></$listTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -102,7 +99,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         Assert.assertEquals("first item<$listTag><li>second item</li></$listTag>third item", editText.toHtml())
     }
-
 
     //enable styling on empty line and enter text
 
@@ -150,7 +146,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun closingEmptyList() {
@@ -168,7 +163,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first</li><li>item</li></$listTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun bulletListSplitWithToolbar() {
@@ -178,7 +172,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<$listTag><li>third item</li></$listTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -239,7 +232,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun emptyBulletSurroundedBytItems() {
@@ -257,7 +249,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -281,7 +272,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.insert(mark, "\n")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li><li></li></$listTag>not in list", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -361,7 +351,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun handleListReopeningAfterLastElementDeletion() {
@@ -422,7 +411,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun addItemToListFromBottom() {
@@ -440,7 +428,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -481,7 +468,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun appendToListFromTopAtFirstLine() {
@@ -511,7 +497,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("not in list<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -631,7 +616,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.text.delete(mark -1, mark)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)

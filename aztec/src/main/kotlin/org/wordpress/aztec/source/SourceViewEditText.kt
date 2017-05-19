@@ -109,7 +109,6 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
             out.writeBundle(state)
         }
 
-
         companion object {
             @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
@@ -229,7 +228,6 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
     }
 
-
     fun getPureHtml(withCursorTag: Boolean = false): String {
         if (withCursorTag) {
             disableTextChangedListener()
@@ -247,7 +245,6 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
     fun disableTextChangedListener() {
         consumeEditEvent = true
     }
-
 
     fun enableTextChangedListener() {
         consumeEditEvent = false

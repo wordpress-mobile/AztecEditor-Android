@@ -2,7 +2,6 @@ package org.wordpress.aztec.watchers
 
 import org.wordpress.aztec.Constants
 
-
 data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBlockEnd: Boolean = false, val blockSpanStart: Int = -1) {
 
     var text: CharSequence = ""

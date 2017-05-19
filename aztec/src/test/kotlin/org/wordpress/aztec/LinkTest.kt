@@ -26,7 +26,6 @@ class LinkTest() {
         activity.setContentView(editText)
     }
 
-
     @Test
     @Throws(Exception::class)
     fun insertLinkAfterText() {
@@ -36,7 +35,6 @@ class LinkTest() {
         Assert.assertEquals("hello <a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoText() {
@@ -45,7 +43,6 @@ class LinkTest() {
         editText.link("http://wordpress.com", "WordPress")
         Assert.assertEquals("left<a href=\"http://wordpress.com\">WordPress</a>right", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -95,7 +92,6 @@ class LinkTest() {
         Assert.assertEquals("<a href=\"http://wordpress.com\">WordPress</a>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun setLinkToStyledText() {
@@ -105,7 +101,6 @@ class LinkTest() {
         editText.link("http://wordpress.com", editText.getSelectedText())
         Assert.assertEquals("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -137,7 +132,6 @@ class LinkTest() {
         Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun changeAnchorAndUrl() {
@@ -158,7 +152,6 @@ class LinkTest() {
         Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
-
     //TODO: Modify parser to produce cleaner html
     //Currently the way tags are closed (at every span transition) makes toHtml produce this:
     //<a href="http://automattic.com">FirstUrl Hello </a><a href="http://automattic.com"><b>SecondUrl</b></a>
@@ -173,7 +166,6 @@ class LinkTest() {
                 "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun removeUrl() {
@@ -183,7 +175,6 @@ class LinkTest() {
         editText.removeLink()
         Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -205,7 +196,6 @@ class LinkTest() {
         Assert.assertEquals("FirstUrl Hello <b>SecondUrl</b>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoHiddenHtmlSpan() {
@@ -222,7 +212,6 @@ class LinkTest() {
                 "<br><a href=\"http://second_link\">Second Link</a><span>Span</span><br>Hidden</div>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun setLinkToHiddenHtmlSpanItems() {
@@ -231,7 +220,6 @@ class LinkTest() {
 
         editText.link("http://span",editText.getSelectedText())
         Assert.assertEquals("<div class=\"third\">Div<br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.toHtml())
-
 
         editText.setSelection(0,3)
 
@@ -248,5 +236,4 @@ class LinkTest() {
 
         Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><a href=\"http://link\"><span>Span</span></a><br><a href=\"http://link\">Hidden</a></div>", editText.toHtml())
     }
-
 }

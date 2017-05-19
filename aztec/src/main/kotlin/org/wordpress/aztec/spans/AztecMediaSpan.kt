@@ -49,7 +49,7 @@ class AztecMediaSpan(context: Context, drawable: Drawable?, override var attribu
         overlays.clear()
     }
 
-    fun setOverayLevel(index: Int, level: Int): Boolean {
+    fun setOverlayLevel(index: Int, level: Int): Boolean {
         return overlays[index].first?.setLevel(level) ?: false
     }
 

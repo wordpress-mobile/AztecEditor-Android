@@ -466,7 +466,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         if (!isViewInitialized) return
 
         if (length() != 0) {
-            // if the text end has the marker, let's make sure the cursor never includes it or surpusses it
+            // if the text end has the marker, let's make sure the cursor never includes it or surpasses it
             if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
                 var start = selStart
                 var end = selEnd
@@ -829,7 +829,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         val parser = AztecParser()
         val output = SpannableStringBuilder(selectedText)
 
-        //Strip block elements untill we figure out copy paste completely
+        //Strip block elements until we figure out copy paste completely
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
@@ -1056,7 +1056,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     attributePredicate.matches(it.attributes)
                 }
                 .forEach {
-                    it.setOverayLevel(index, level)
+                    it.setOverlayLevel(index, level)
                 }
     }
 

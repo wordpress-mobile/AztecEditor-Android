@@ -189,7 +189,7 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         if (newlineBefore && newlineAfter) {
             cursorTagIndex--
 
-            // remove one of the newlines as those are an artefact of the extra formatting applied around the cursor marker
+            // remove one of the newlines as those are an artifact of the extra formatting applied around the cursor marker
             styledHtml.delete(cursorTagIndex, cursorTagIndex + 1)
         }
 

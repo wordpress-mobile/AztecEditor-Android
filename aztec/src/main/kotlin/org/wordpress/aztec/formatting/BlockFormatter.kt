@@ -398,11 +398,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             }
 
             applyBlock(spanToApply, startOfBlock, endOfBlock)
-
-            //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
-//            if (isEmptyLine) {
-                editor.onSelectionChanged(startOfLine, endOfLine)
-//            }
+            editor.onSelectionChanged(startOfLine, endOfLine)
         }
     }
 

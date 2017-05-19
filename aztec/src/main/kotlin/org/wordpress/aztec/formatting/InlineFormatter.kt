@@ -232,8 +232,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             //special check for StyleSpan
             if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
                 return firstSpan.style == secondSpan.style
-//            } else if (firstSpan is AztecHeadingSpan && secondSpan is AztecHeadingSpan) {
-//                return firstSpan.heading == secondSpan.heading
             } else {
                 return true
             }

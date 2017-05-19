@@ -997,10 +997,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-//            if (beforeLength == 1 && afterLength == 0) {
-//                return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
-//            }
-
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }

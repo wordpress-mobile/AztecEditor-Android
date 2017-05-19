@@ -76,8 +76,6 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<div class=\"fourth\"><u>Under</u>line</div>\n" +
                     "<div class=\"fifth\"></div>\n</div>\n</div>"
 
-//    private val FORMATTED_COMPLEX_HTML =
-
     /**
      * Initialize variables.
      */

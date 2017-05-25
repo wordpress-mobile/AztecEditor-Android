@@ -778,10 +778,19 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
-        clearFocus()
+        setFocusOnParentView()
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
+    }
+
+    fun setFocusOnParentView() {
+        if (parent is View) {
+            val parentView = parent as View
+            parentView.isFocusable = true
+            parentView.isFocusableInTouchMode = true
+            parentView.requestFocus()
+        }
     }
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {

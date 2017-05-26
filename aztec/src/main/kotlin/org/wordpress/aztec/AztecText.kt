@@ -1022,8 +1022,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
+    fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+        return lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -1057,6 +1057,10 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     attributePredicate.matches(it.attributes)
                 }
                 .firstOrNull()?.attributes = attrs
+    }
+
+    fun updateMediaSpan(mediaSpan: AztecMediaSpan) {
+        editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {

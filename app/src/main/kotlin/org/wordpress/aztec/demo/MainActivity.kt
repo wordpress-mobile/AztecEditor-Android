@@ -197,7 +197,7 @@ class MainActivity : AppCompatActivity(),
         attrs.setValue("id", id)
         attrs.setValue("uploading", "true")
 
-        aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+        val mediaSpan = aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -221,7 +221,7 @@ class MainActivity : AppCompatActivity(),
         val runnable: Runnable = Runnable {
             aztec.setOverlayLevel(predicate, 1, progress)
             aztec.updateElementAttributes(predicate, attrs)
-            aztec.refreshText()
+            aztec.updateMediaSpan(mediaSpan)
             progress += 2000
 
             if (progress >= 10000) {

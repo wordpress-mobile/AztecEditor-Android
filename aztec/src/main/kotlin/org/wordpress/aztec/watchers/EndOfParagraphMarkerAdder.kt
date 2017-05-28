@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import java.lang.ref.WeakReference
 
@@ -36,6 +37,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
             val inputEnd = textChangedEventDetails.inputEnd
 
             val isInsideList = aztecText.text.getSpans(inputStart, inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+            val isInsidePre = aztecText.text.getSpans(inputStart, inputEnd, AztecPreformatSpan::class.java).isNotEmpty()
             var insideHeading = aztecText.text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
 
             if (insideHeading && (aztecText.text.length > inputEnd
@@ -43,7 +45,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
                 insideHeading = false
             }
 
-            if (!isInsideList && !insideHeading) {
+            if (!isInsideList && !insideHeading && !isInsidePre) {
                 aztecText.text.setSpan(EndOfParagraphMarker(verticalParagraphMargin), inputStart, inputEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }

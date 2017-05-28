@@ -182,6 +182,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     public int unknownTagLevel = 0;
     public Unknown unknown;
+    private boolean insidePreTag = false;
 
     private String mSource;
     private UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener;
@@ -293,6 +294,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
         } else {
             if (tagHandler != null) {
+                if(tag.equalsIgnoreCase("pre")){
+                    insidePreTag = true;
+                }
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
                         context, attributes, nestingLevel);
                 if (tagHandled) {
@@ -367,6 +371,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
+            if(tag.equalsIgnoreCase("pre")){
+                insidePreTag = false;
+            }
             tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, new AztecAttributes(),
                     nestingLevel);
         }
@@ -597,14 +604,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         StringBuilder sb = new StringBuilder();
 
         /*
-         * Ignore whitespace that immediately follows other whitespace;
+         * Ignore whitespace that immediately follows other whitespace, unless in pre tag;
          * newlines count as spaces.
          */
 
         for (int i = 0; i < length; i++) {
             char c = ch[i + start];
 
-            if (c == ' ' || c == '\n') {
+            if (!insidePreTag &&  c == ' ' || c == '\n') {
                 char pred;
                 int len = sb.length();
 

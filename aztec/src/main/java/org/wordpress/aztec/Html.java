@@ -611,7 +611,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         StringBuilder sb = new StringBuilder();
 
         /*
-         * Ignore whitespace that immediately follows other whitespace, unless in pre tag;
+         * Ignore whitespace that immediately follows other whitespace, unless in pre or comment tags;
          * newlines count as spaces.
          */
 

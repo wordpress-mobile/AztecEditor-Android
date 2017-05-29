@@ -4,10 +4,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.spans.AztecHeadingSpan
-import org.wordpress.aztec.spans.AztecListItemSpan
-import org.wordpress.aztec.spans.AztecPreformatSpan
-import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.*
 import java.lang.ref.WeakReference
 
 
@@ -36,20 +33,28 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
             val inputStart = textChangedEventDetails.inputStart
             val inputEnd = textChangedEventDetails.inputEnd
 
-            val isInsideList = aztecText.text.getSpans(inputStart, inputEnd, AztecListItemSpan::class.java).isNotEmpty()
-            val isInsidePre = aztecText.text.getSpans(inputStart, inputEnd, AztecPreformatSpan::class.java).isNotEmpty()
-            var insideHeading = aztecText.text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
-
-            if (insideHeading && (aztecText.text.length > inputEnd
-                    && aztecText.text[inputEnd] == '\n')) {
-                insideHeading = false
-            }
-
-            if (!isInsideList && !insideHeading && !isInsidePre) {
+            if (paragraphMarkerCanBeApplied(aztecText.text)) {
                 aztecText.text.setSpan(EndOfParagraphMarker(verticalParagraphMargin), inputStart, inputEnd,
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
+    }
+
+    fun paragraphMarkerCanBeApplied(text: Editable): Boolean {
+        val inputStart = textChangedEventDetails.inputStart
+        val inputEnd = textChangedEventDetails.inputEnd
+
+        val isInsideList = text.getSpans(inputStart, inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+        val isInsidePre = text.getSpans(inputStart, inputEnd, AztecPreformatSpan::class.java).isNotEmpty()
+        val isInsideCode = text.getSpans(inputStart, inputEnd, AztecCodeSpan::class.java).isNotEmpty()
+        var insideHeading = text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
+
+        if (insideHeading && (text.length > inputEnd
+                && text[inputEnd] == '\n')) {
+            insideHeading = false
+        }
+
+        return !isInsideList && !insideHeading && !isInsidePre && !isInsideCode
     }
 
     override fun afterTextChanged(text: Editable) {

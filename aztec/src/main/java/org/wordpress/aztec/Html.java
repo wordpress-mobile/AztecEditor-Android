@@ -90,8 +90,11 @@ public class Html {
 
         interface Callbacks {
             void onUseDefaultImage();
+
             void onImageFailed();
+
             void onImageLoaded(Drawable drawable);
+
             void onImageLoading(Drawable drawable);
         }
     }
@@ -106,7 +109,7 @@ public class Html {
          * a tag that it does not know how to interpret.
          */
         boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
-                Context context, Attributes attributes, int nestingLevel);
+                          Context context, Attributes attributes, int nestingLevel);
     }
 
     private Html() {
@@ -183,6 +186,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     public int unknownTagLevel = 0;
     public Unknown unknown;
     private boolean insidePreTag = false;
+    private boolean insideCodeTag = false;
 
     private String mSource;
     private UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener;
@@ -291,12 +295,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("sub")) {
             start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes);
         } else if (tag.equalsIgnoreCase("code")) {
+            insideCodeTag = true;
             start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
         } else {
             if (tagHandler != null) {
-                if(tag.equalsIgnoreCase("pre")){
+                if (tag.equalsIgnoreCase("pre")) {
                     insidePreTag = true;
                 }
+
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
                         context, attributes, nestingLevel);
                 if (tagHandled) {
@@ -369,9 +375,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("sub")) {
             end(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
         } else if (tag.equalsIgnoreCase("code")) {
+            insideCodeTag = false;
             end(spannableStringBuilder, TextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
-            if(tag.equalsIgnoreCase("pre")){
+            if (tag.equalsIgnoreCase("pre")) {
                 insidePreTag = false;
             }
             tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, new AztecAttributes(),
@@ -611,7 +618,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         for (int i = 0; i < length; i++) {
             char c = ch[i + start];
 
-            if (!insidePreTag &&  c == ' ' || c == '\n') {
+            if (!insidePreTag && !insideCodeTag && c == ' ' || c == '\n') {
                 char pred;
                 int len = sb.length();
 

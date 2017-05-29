@@ -123,7 +123,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
             fm.descent = previousFontMetrics!!.descent
             fm.bottom = previousFontMetrics!!.bottom
         }
-
     }
 
     override fun updateDrawState(textPaint: TextPaint) {

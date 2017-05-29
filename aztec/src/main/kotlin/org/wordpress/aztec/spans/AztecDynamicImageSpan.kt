@@ -131,8 +131,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
-    fun calculateWantedWidth(widthMeasureSpec: Int): Int
-    {
+    fun calculateWantedWidth(widthMeasureSpec: Int): Int {
         val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
         val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
 

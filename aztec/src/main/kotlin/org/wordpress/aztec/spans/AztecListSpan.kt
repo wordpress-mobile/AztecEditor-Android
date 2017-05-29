@@ -7,7 +7,6 @@ import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
 import java.util.*
 
-
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),
         AztecBlockSpan, LineHeightSpan, UpdateLayout {
 

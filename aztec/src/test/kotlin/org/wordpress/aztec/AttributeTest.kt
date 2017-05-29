@@ -426,5 +426,4 @@ class AttributeTest {
         val output = editText.toHtml()
         Assert.assertEquals(input, output)
     }
-
 }

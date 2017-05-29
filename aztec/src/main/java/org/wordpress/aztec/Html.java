@@ -174,7 +174,6 @@ public class Html {
         }
         return sb;
     }
-
 }
 
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
@@ -642,32 +641,26 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     @Override
     public void startDTD(String s, String s1, String s2) throws SAXException {
-
     }
 
     @Override
     public void endDTD() throws SAXException {
-
     }
 
     @Override
     public void startEntity(String s) throws SAXException {
-
     }
 
     @Override
     public void endEntity(String s) throws SAXException {
-
     }
 
     @Override
     public void startCDATA() throws SAXException {
-
     }
 
     @Override
     public void endCDATA() throws SAXException {
-
     }
 
     @Override

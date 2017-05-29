@@ -10,7 +10,6 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecURLSpan
 
-
 class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(editor) {
 
     data class LinkStyle(val linkColor: Int, val linkUnderline: Boolean)
@@ -29,7 +28,6 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(
 
             url = if (TextUtils.isEmpty(clipboardUrl)) "" else clipboardUrl
             anchor = if (selectionStart == selectionEnd) "" else editor.getSelectedText()
-
         } else {
             val urlSpan = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java).first()
 
@@ -51,7 +49,6 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(
         }
 
         return Pair(url, anchor)
-
     }
 
     /**
@@ -80,7 +77,6 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(
         }
         return Pair(spanStart, spanEnd)
     }
-
 
     fun addLink(link: String, anchor: String, start: Int, end: Int) {
         val cleanLink = link.trim()

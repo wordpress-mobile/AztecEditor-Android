@@ -12,7 +12,6 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.*
 
-
 class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
     fun applyMoreComment() {

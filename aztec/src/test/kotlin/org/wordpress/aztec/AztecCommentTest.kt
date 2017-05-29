@@ -21,7 +21,7 @@ import org.wordpress.aztec.spans.AztecCommentSpan
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class AztecCommentTest() : AndroidTestCase() {
+class AztecCommentTest : AndroidTestCase() {
     lateinit var editText: AztecText
 
     private val HTML_COMMENT_MORE = "<!--more-->"

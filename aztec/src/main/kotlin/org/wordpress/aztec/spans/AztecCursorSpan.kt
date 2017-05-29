@@ -1,6 +1,5 @@
 package org.wordpress.aztec.spans
 
-
 class AztecCursorSpan  {
 
     companion object {

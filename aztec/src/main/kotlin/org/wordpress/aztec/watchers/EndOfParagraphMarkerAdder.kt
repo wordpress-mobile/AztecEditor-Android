@@ -49,8 +49,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
         val isInsideCode = text.getSpans(inputStart, inputEnd, AztecCodeSpan::class.java).isNotEmpty()
         var insideHeading = text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
 
-        if (insideHeading && (text.length > inputEnd
-                && text[inputEnd] == '\n')) {
+        if (insideHeading && (text.length > inputEnd && text[inputEnd] == '\n')) {
             insideHeading = false
         }
 

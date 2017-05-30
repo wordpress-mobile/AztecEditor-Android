@@ -25,7 +25,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
 
-        if (!textChangedEventDetails.isNewLineButNotAtTheBeginning()) return
+        if (!textChangedEventDetails.isNewLine()) return
 
         val aztecText = aztecTextRef.get()
         if (aztecText != null && !aztecText.isTextChangedListenerDisabled() && aztecText.isInCalypsoMode) {

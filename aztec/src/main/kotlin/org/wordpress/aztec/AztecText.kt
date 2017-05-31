@@ -271,7 +271,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         FullWidthImageElementWatcher.install(this)
 
         EndOfBufferMarkerAdder.install(this)
-
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -327,7 +326,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         if (retainedSelectionEnd < editableText.length) {
             setSelection(retainedSelectionStart, retainedSelectionEnd)
         }
-
 
         val isLinkDialogVisible = customState.getBoolean(LINK_DIALOG_VISIBLE_KEY, false)
         if (isLinkDialogVisible) {
@@ -407,7 +405,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             out.writeBundle(state)
         }
 
-
         companion object {
             @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
@@ -466,7 +463,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         if (!isViewInitialized) return
 
         if (length() != 0) {
-            // if the text end has the marker, let's make sure the cursor never includes it or surpusses it
+            // if the text end has the marker, let's make sure the cursor never includes it or surpasses it
             if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
                 var start = selStart
                 var end = selEnd
@@ -514,7 +511,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         } else if (newSelStart > 0 && !isTextSelected()) {
             newSelStart--
         }
-
 
         TextFormat.values().forEach {
             if (contains(it, newSelStart, newSelEnd)) {
@@ -778,9 +774,19 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
+        setFocusOnParentView()
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()
+    }
+
+    fun setFocusOnParentView() {
+        if (parent is View) {
+            val parentView = parent as View
+            parentView.isFocusable = true
+            parentView.isFocusableInTouchMode = true
+            parentView.requestFocus()
+        }
     }
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {
@@ -790,7 +796,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINE, start, end)
         inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
     }
-
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
         blockFormatter.removeBlockStyle(TextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
@@ -828,7 +833,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         val parser = AztecParser()
         val output = SpannableStringBuilder(selectedText)
 
-        //Strip block elements untill we figure out copy paste completely
+        //Strip block elements until we figure out copy paste completely
         output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
@@ -885,7 +890,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
     }
 
-
     fun removeLink() {
         val urlSpanBounds = linkFormatter.getUrlSpanBounds()
 
@@ -917,7 +921,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
             link(linkText, anchorText)
-
         })
 
         if (linkFormatter.isUrlSelected()) {
@@ -998,22 +1001,17 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     history.handleHistory(this@AztecText)
                     return false
                 }
-
             }
             return super.sendKeyEvent(event)
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-//            if (beforeLength == 1 && afterLength == 0) {
-//                return sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL)) && sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
-//            }
-
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
+    fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+        return lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -1049,13 +1047,17 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                 .firstOrNull()?.attributes = attrs
     }
 
+    fun updateMediaSpan(mediaSpan: AztecMediaSpan) {
+        editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }
+
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
                 .forEach {
-                    it.setOverayLevel(index, level)
+                    it.setOverlayLevel(index, level)
                 }
     }
 

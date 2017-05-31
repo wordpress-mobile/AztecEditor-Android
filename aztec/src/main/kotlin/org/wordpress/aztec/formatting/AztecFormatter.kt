@@ -3,7 +3,6 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import org.wordpress.aztec.AztecText
 
-
 abstract class AztecFormatter(editor: AztecText) {
 
     val editor: AztecText
@@ -20,5 +19,4 @@ abstract class AztecFormatter(editor: AztecText) {
     init {
         this.editor = editor
     }
-
 }

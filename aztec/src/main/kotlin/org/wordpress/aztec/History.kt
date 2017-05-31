@@ -96,7 +96,6 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         editText.isFocusable = false
         editText.isFocusableInTouchMode = false
 
-
         setTextFromHistory(editText)
 
         historyWorking = false

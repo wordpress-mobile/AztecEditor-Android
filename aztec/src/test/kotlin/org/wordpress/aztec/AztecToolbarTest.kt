@@ -594,7 +594,6 @@ class AztecToolbarTest {
 
         Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br><del>Hidden</del></div>",
                 editText.toHtml())
-
     }
 
     /**

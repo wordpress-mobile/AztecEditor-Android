@@ -119,6 +119,15 @@ class MainActivity : AppCompatActivity(),
                 UNKNOWN +
                 EMOJI +
                 LONG_TEXT
+
+        private val isRunningTest : Boolean by lazy {
+            try {
+                Class.forName("android.support.test.espresso.Espresso")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
     }
 
     private val MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE: Int = 1001
@@ -188,7 +197,7 @@ class MainActivity : AppCompatActivity(),
         attrs.setValue("id", id)
         attrs.setValue("uploading", "true")
 
-        aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+        val mediaSpan = aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
 
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -212,7 +221,7 @@ class MainActivity : AppCompatActivity(),
         val runnable: Runnable = Runnable {
             aztec.setOverlayLevel(predicate, 1, progress)
             aztec.updateElementAttributes(predicate, attrs)
-            aztec.refreshText()
+            aztec.updateMediaSpan(mediaSpan)
             progress += 2000
 
             if (progress >= 10000) {
@@ -256,7 +265,9 @@ class MainActivity : AppCompatActivity(),
         aztec.setToolbar(formattingToolbar)
 
         // initialize the text & HTML
-        source.displayStyledAndFormattedHtml(EXAMPLE)
+        if (!isRunningTest) {
+            source.displayStyledAndFormattedHtml(EXAMPLE)
+        }
 
         if (savedInstanceState == null) {
             aztec.fromHtml(source.getPureHtml())

@@ -39,7 +39,6 @@ class HiddenHtmlSpan(tag: String, attributes: AztecAttributes = AztecAttributes(
     }
 
     override fun updateDrawState(textPaint: TextPaint) {
-
     }
 
     fun close(order: Int) {

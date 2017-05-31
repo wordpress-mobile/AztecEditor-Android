@@ -36,7 +36,7 @@ object TestUtils {
      * Issue a Backspace key event
      *
      * @param text The EditText to issue the key event to
-     * @param position The position to set the cursor prior to issueing the backspace
+     * @param position The position to set the cursor prior to issuing the backspace
      */
     fun backspaceAt(text: EditText, position: Int) {
         text.setSelection(position)
@@ -50,7 +50,7 @@ object TestUtils {
     /**
      * Helper for calculating the EditText's length *without* counting the the end-of-text marker char if present
      *
-     * @param text The EditText to check for lengh sans the end-of-text marker char if present
+     * @param text The EditText to check for length sans the end-of-text marker char if present
      * @return The length of text sans the end-of-text marker char if present
      */
     fun safeLength(text: EditText): Int {

@@ -38,7 +38,6 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
             }
             return actions
         }
-
     }
 
     fun isStylingAction(): Boolean {

@@ -1093,7 +1093,7 @@ class AztecParserTest : AndroidTestCase() {
     }
 
     /**
-     * Parse HTML of header with single character surounded by other headers to span to HTML.  If input and output are equal with
+     * Parse HTML of header with single character surrounded by other headers to span to HTML.  If input and output are equal with
      * the same length and corresponding characters, [AztecParser] is correct.
      *
      * @throws Exception
@@ -1163,7 +1163,7 @@ class AztecParserTest : AndroidTestCase() {
 
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlMixedContentInListitem_isEqual() {
+    fun parseHtmlToSpanToHtmlMixedContentInListItem_isEqual() {
         val input = "<ul><li>some text<blockquote>Quote</blockquote>some text</li></ul>"
         val span = SpannableString(mParser.fromHtml(input, null, null, context))
         val output = mParser.toHtml(span)

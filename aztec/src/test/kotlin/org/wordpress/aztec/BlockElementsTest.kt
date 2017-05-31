@@ -56,7 +56,6 @@ class BlockElementsTest {
         Assert.assertEquals("some text<blockquote>quote</blockquote><ul><li>list</li></ul>some text", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun mixedInlineAndBlockElementsWithExtraSpacing() {

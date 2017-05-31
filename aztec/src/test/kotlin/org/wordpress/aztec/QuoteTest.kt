@@ -18,7 +18,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
-class QuoteTest() {
+class QuoteTest {
 
     val formattingType = TextFormat.FORMAT_QUOTE
     val quoteTag = "blockquote"
@@ -42,7 +42,6 @@ class QuoteTest() {
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -88,7 +87,6 @@ class QuoteTest() {
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("first item<$quoteTag>second item</$quoteTag>third item", editText.toHtml())
     }
-
 
     //enable styling on empty line and enter text
 
@@ -136,7 +134,6 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun closingEmptyQuote() {
@@ -153,7 +150,6 @@ class QuoteTest() {
         editText.text.insert(5, "\n")
         Assert.assertEquals("<$quoteTag>first<br>item</$quoteTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -227,7 +223,6 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<br>third item<$quoteTag>fourth item</$quoteTag>not in quote", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun emptyQuoteSurroundedBytItems() {
@@ -244,7 +239,6 @@ class QuoteTest() {
 
         Assert.assertEquals("<$quoteTag>first item<br><br>third item</$quoteTag>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -267,18 +261,15 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag><br>not in quote", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun openQuoteByAddingNewline() {
         editText.fromHtml("<$quoteTag>first item<br>second item</$quoteTag>not in quote")
 
-
         val mark = editText.text.indexOf("second item") + "second item".length
 
         editText.text.insert(mark, "\n")
         editText.text.insert(mark + 1, "third item")
-
 
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in quote", editText.toHtml())
     }
@@ -359,7 +350,6 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>not in the quote", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun handleQuoteReopeningAfterLastElementDeletion() {
@@ -418,7 +408,6 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun addItemToQuoteFromTop() {
@@ -457,7 +446,6 @@ class QuoteTest() {
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun appendToQuoteFromTopAtFirstLine() {
@@ -488,7 +476,6 @@ class QuoteTest() {
         Assert.assertEquals("not in quote<$quoteTag>addition first item<br>second item</$quoteTag>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun deleteFirstItemWithKeyboard() {
@@ -514,5 +501,4 @@ class QuoteTest() {
 
         Assert.assertEquals("<$quoteTag><br><br>third item</$quoteTag>", editText.toHtml())
     }
-
 }

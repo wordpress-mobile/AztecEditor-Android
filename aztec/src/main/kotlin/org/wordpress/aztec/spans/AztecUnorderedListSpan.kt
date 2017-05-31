@@ -61,7 +61,5 @@ class AztecUnorderedListSpan(
 
         p.color = oldColor
         p.style = style
-
     }
-
 }

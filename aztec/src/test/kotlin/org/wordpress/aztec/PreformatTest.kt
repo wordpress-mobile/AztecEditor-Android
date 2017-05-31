@@ -58,7 +58,7 @@ class PreformatTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "not preformat")
-        Assert.assertEquals("<$tag>first item\n\nsecond item</$tag>\n\nnot preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item</$tag>not preformat", editText.toHtml())
     }
 
     @Test
@@ -134,7 +134,7 @@ class PreformatTest {
         safeAppend(editText, "first item")
         safeAppend(editText, "\n")
         safeAppend(editText, "second item")
-        Assert.assertEquals("<$tag>first item\n\nsecond item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item</$tag>", editText.toHtml())
     }
 
     @Test
@@ -143,7 +143,7 @@ class PreformatTest {
         toolbar.onMenuItemClick(menuPreformat)
         editText.append("firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<$tag>first\n\nitem</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first\nitem</$tag>", editText.toHtml())
     }
 
     @Test
@@ -152,7 +152,7 @@ class PreformatTest {
         editText.fromHtml("<$tag>Preformat 1</$tag><$tag>Preformat 2</$tag>")
         val mark = editText.text.indexOf("Preformat 2") - 1
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$tag>Preformat 1</$tag>\n<$tag>Preformat 2</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>Preformat 1</$tag><$tag>Preformat 2</$tag>", editText.toHtml())
     }
 
     @Test
@@ -181,7 +181,7 @@ class PreformatTest {
         editText.fromHtml("<$tag>Preformat 1</$tag><$tag>Preformat 2</$tag>")
         val mark = editText.text.indexOf("Preformat 2")
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$tag>Preformat 1</$tag><$tag>\n\nPreformat 2</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>Preformat 1</$tag><$tag>\nPreformat 2</$tag>", editText.toHtml())
     }
 
     @Test
@@ -223,7 +223,7 @@ class PreformatTest {
         val secondMark = safeLength(editText)
         safeAppend(editText, "third item")
         editText.text.delete(firstMark, secondMark - 1)
-        Assert.assertEquals("<$tag>first item\n\n\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\n\nthird item</$tag>", editText.toHtml())
     }
 
     @Test
@@ -236,11 +236,11 @@ class PreformatTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "third item")
         safeAppend(editText, "\n")
-        Assert.assertEquals("<$tag>first item\n\nsecond item\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>", editText.toHtml())
         safeAppend(editText, "\n")
-        Assert.assertEquals("<$tag>first item\n\nsecond item\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>", editText.toHtml())
         safeAppend(editText, "not preformat")
-        Assert.assertEquals("<$tag>first item\n\nsecond item\n\nthird item</$tag>\n\nnot preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>not preformat", editText.toHtml())
     }
 
     @Test
@@ -250,7 +250,7 @@ class PreformatTest {
         val mark = editText.text.indexOf("second item") + "second item".length
         editText.text.insert(mark, "\n")
         editText.text.insert(mark + 1, "third item")
-        Assert.assertEquals("<$tag>first item\nsecond item\n\nthird item</$tag>not preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>not preformat", editText.toHtml())
     }
 
     @Test
@@ -289,17 +289,17 @@ class PreformatTest {
         editText.setSelection(safeLength(editText))
         safeAppend(editText, "\n")
         safeAppend(editText, "third item")
-        Assert.assertEquals("<$tag>first item\nsecond item\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>", editText.toHtml())
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         val mark = safeLength(editText) - 1
         safeAppend(editText, "not preformat")
-        Assert.assertEquals("<$tag>first item\nsecond item\n\nthird item</$tag>\n\nnot preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>not preformat", editText.toHtml())
         safeAppend(editText, "\n")
         safeAppend(editText, "foo")
-        Assert.assertEquals("<$tag>first item\nsecond item\n\nthird item</$tag>\n\nnot preformat\n\nfoo", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird item</$tag>not preformat\n\nfoo", editText.toHtml())
         editText.text.delete(mark, mark + 1)
-        Assert.assertEquals("<$tag>first item\nsecond item\n\nthird itemnot preformat</$tag>\n\nfoo", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item\nthird itemnot preformat</$tag>\n\nfoo", editText.toHtml())
     }
 
     @Test
@@ -316,7 +316,7 @@ class PreformatTest {
         editText.text.insert(editText.text.indexOf("not preformat") - 1, "\n")
         editText.text.insert(editText.text.indexOf("not preformat") - 1, "third item")
         Assert.assertEquals("first item\nsecond item addition\nthird item\nnot preformat", editText.text.toString())
-        Assert.assertEquals("<$tag>first item\nsecond item addition\n\nthird item</$tag>not preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item addition\nthird item</$tag>not preformat", editText.toHtml())
     }
 
     @Test
@@ -330,9 +330,9 @@ class PreformatTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "not preformat")
-        Assert.assertEquals("<$tag>first item\n\nsecond item</$tag>\n\nnot preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item</$tag>not preformat", editText.toHtml())
         editText.text.insert(mark, " (addition)")
-        Assert.assertEquals("<$tag>first item\n\nsecond item (addition)</$tag>\n\nnot preformat", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\nsecond item (addition)</$tag>not preformat", editText.toHtml())
     }
 
     @Test
@@ -344,7 +344,7 @@ class PreformatTest {
         safeAppend(editText, "second item")
         editText.setSelection(0)
         editText.text.insert(0, "addition ")
-        Assert.assertEquals("<$tag>addition first item\n\nsecond item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>addition first item\nsecond item</$tag>", editText.toHtml())
     }
 
     @Test
@@ -359,7 +359,7 @@ class PreformatTest {
         safeAppend(editText, "second item")
         editText.setSelection(mark)
         editText.text.insert(mark, "addition ")
-        Assert.assertEquals("not preformat\n<$tag>addition first item\n\nsecond item</$tag>", editText.toHtml())
+        Assert.assertEquals("not preformat\n<$tag>addition first item\nsecond item</$tag>", editText.toHtml())
     }
 
     @Test
@@ -377,8 +377,8 @@ class PreformatTest {
         Assert.assertEquals("first item\nsecond item\nthird item", editText.text.toString())
         editText.text.delete(firstMark + 1, secondMark)
         Assert.assertEquals("first item\n\nthird item", editText.text.toString())
-        Assert.assertEquals("<$tag>first item\n\n\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>first item\n\nthird item</$tag>", editText.toHtml())
         editText.text.delete(0, firstMark)
-        Assert.assertEquals("<$tag>\n\n\n\nthird item</$tag>", editText.toHtml())
+        Assert.assertEquals("<$tag>\n\nthird item</$tag>", editText.toHtml())
     }
 }

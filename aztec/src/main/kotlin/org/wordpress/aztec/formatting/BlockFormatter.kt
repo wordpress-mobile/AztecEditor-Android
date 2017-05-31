@@ -231,7 +231,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-
     //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: TextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<AztecBlockSpan> {
         when (textFormat) {
@@ -287,7 +286,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-
     fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
         val startOfLine: Int
         val endOfLine: Int
@@ -310,13 +308,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             }
         }
 
-
         startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
         endOfLine = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
         return IntRange(startOfLine, endOfLine)
     }
-
 
     fun applyBlockStyle(blockElementType: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         if (start != end) {
@@ -352,7 +348,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + 1,
                         (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1))
             }
-
         } else {
             val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
 
@@ -365,7 +360,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             var startOfBlock: Int = startOfLine
             var endOfBlock: Int = endOfLine
-
 
             if (startOfLine != 0) {
                 val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
@@ -404,11 +398,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             }
 
             applyBlock(spanToApply, startOfBlock, endOfBlock)
-
-            //if the line was empty trigger onSelectionChanged manually to update toolbar buttons status
-//            if (isEmptyLine) {
-                editor.onSelectionChanged(startOfLine, endOfLine)
-//            }
+            editor.onSelectionChanged(startOfLine, endOfLine)
         }
     }
 
@@ -474,7 +464,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
-
         for (i in lines.indices) {
             val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
@@ -519,7 +508,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat, nestingLevel).javaClass)
         return spans.isNotEmpty()
     }
-
 
     fun containQuote(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")

@@ -63,6 +63,14 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
         return false
     }
 
+    fun isEndOfBufferMarker(): Boolean {
+        if (isAddingCharacters && numberOfAddedCharacters == 1) {
+            val currentCharacter = text[inputStart]
+            return currentCharacter == Constants.END_OF_BUFFER_MARKER
+        }
+        return false
+    }
+
     fun isNewLineAtTheBeginning(): Boolean {
         if (!isAddingCharacters) return false
 

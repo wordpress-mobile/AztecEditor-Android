@@ -1,4 +1,6 @@
 package org.wordpress.aztec.plugins.html2visual
 
-interface IAztecHtmlToSpanPreprocessor {
+import org.wordpress.aztec.plugins.IAztecPlugin
+
+interface IAztecHtmlToSpanPreprocessor : IAztecPlugin {
 }

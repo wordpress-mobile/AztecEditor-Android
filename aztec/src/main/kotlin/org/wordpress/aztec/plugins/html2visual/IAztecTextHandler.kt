@@ -1,3 +1,5 @@
 package org.wordpress.aztec.plugins.html2visual
 
-interface IAztecTextHandler
+import org.wordpress.aztec.plugins.IAztecPlugin
+
+interface IAztecTextHandler : IAztecPlugin

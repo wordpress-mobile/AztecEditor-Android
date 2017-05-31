@@ -1,5 +1,5 @@
 package org.wordpress.aztec.plugins
 
-interface IAztecToolBarButton {
+interface IAztecToolBarButton : IAztecPlugin {
     fun onClick()
 }

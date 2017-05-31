@@ -9,7 +9,7 @@ import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.AztecCommentSpan
 
-class WordPressCommentsPlugin : IAztecPlugin, IAztecCommentHandler {
+class WordPressCommentsPlugin : IAztecCommentHandler {
 
     override fun handleComment(text: String, output: Editable, context: Context, nestingLevel: Int) {
 

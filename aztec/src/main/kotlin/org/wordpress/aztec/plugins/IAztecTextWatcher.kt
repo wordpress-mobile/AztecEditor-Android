@@ -1,3 +1,3 @@
 package org.wordpress.aztec.plugins
 
-interface IAztecTextWatcher
+interface IAztecTextWatcher : IAztecPlugin

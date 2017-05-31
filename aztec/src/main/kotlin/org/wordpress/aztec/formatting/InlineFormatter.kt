@@ -84,11 +84,13 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isNewLineButNotAtTheBeginning()) return
+        if (!editor.formattingHasChanged() || textChangedEvent.isEndOfBufferMarker()) return
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLineButNotAtTheBeginning())
+
+        if(textChangedEvent.isNewLineButNotAtTheBeginning()) return
 
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {

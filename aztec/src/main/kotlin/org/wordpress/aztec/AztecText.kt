@@ -483,8 +483,10 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
 
         previousCursorPosition = selEnd
 
-        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        //do not update toolbar and selected style when we focus on empty editor with END_OF_BUFFER_MARKER in it
+        if (length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
 
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 

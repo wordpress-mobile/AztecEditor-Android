@@ -3,19 +3,17 @@ import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.R
-import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
+import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
-import org.wordpress.aztec.spans.AztecCommentSpan
 
 class WordPressCommentsPlugin : IAztecCommentHandler {
 
-    override fun handleComment(text: String, output: Editable, context: Context, nestingLevel: Int) {
+    override fun handleComment(text: String, output: Editable, context: Context, nestingLevel: Int) : Boolean {
 
         val spanStart = output.length
 
-        if (text.toLowerCase() == AztecCommentSpan.Comment.MORE.html.toLowerCase()) {
+        if (text.toLowerCase() == WordPressCommentSpan.Comment.MORE.html.toLowerCase()) {
 
             output.append(Constants.MAGIC_CHAR)
 
@@ -30,7 +28,8 @@ class WordPressCommentsPlugin : IAztecCommentHandler {
                     text.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-        } else if (text.toLowerCase() == AztecCommentSpan.Comment.PAGE.html.toLowerCase()) {
+            return true
+        } else if (text.toLowerCase() == WordPressCommentSpan.Comment.PAGE.html.toLowerCase()) {
 
             output.append(Constants.MAGIC_CHAR)
 
@@ -45,6 +44,8 @@ class WordPressCommentsPlugin : IAztecCommentHandler {
                     text.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
+            return true
         }
+        return false
     }
 }

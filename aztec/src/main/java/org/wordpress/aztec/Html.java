@@ -97,6 +97,19 @@ public class Html {
         }
     }
 
+    public interface VideoThumbnailGetter {
+
+        void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth);
+
+        interface Callbacks {
+            void onThumbnailFailed();
+
+            void onThumbnailLoaded(Drawable drawable);
+
+            void onThumbnailLoading(Drawable drawable);
+        }
+    }
+
     /**
      * Is notified when HTML tags are encountered that the parser does
      * not know how to interpret.

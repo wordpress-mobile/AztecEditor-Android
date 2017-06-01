@@ -31,6 +31,7 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
+import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -98,6 +99,8 @@ class MainActivity : AppCompatActivity(),
 
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
 
+        private val VIDEO = "<video src=\"https://www.w3schools.com/html/mov_bbb.mp4\" />"
+
         private val EXAMPLE =
                 IMG +
                 HEADING +
@@ -118,7 +121,8 @@ class MainActivity : AppCompatActivity(),
                 CODE +
                 UNKNOWN +
                 EMOJI +
-                LONG_TEXT
+                LONG_TEXT +
+                VIDEO
 
         private val isRunningTest : Boolean by lazy {
             try {
@@ -253,7 +257,7 @@ class MainActivity : AppCompatActivity(),
         aztec = findViewById(R.id.aztec) as AztecText
 
         aztec.imageGetter = PicassoImageLoader(this, aztec)
-//        aztec.imageGetter = GlideImageLoader(this)
+        aztec.videoThumbnailGetter = GlideImageLoader(this)
 
         aztec.setOnMediaTappedListener(this)
 

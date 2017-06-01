@@ -89,8 +89,6 @@ public class Html {
         void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth);
 
         interface Callbacks {
-            void onUseDefaultImage();
-
             void onImageFailed();
 
             void onImageLoaded(Drawable drawable);

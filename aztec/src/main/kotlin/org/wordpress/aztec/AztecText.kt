@@ -680,10 +680,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     replaceImage(ContextCompat.getDrawable(context, drawableLoading))
                 }
 
-                override fun onUseDefaultImage() {
-                    // we already have a default image loaded so, noop
-                }
-
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
                     post {

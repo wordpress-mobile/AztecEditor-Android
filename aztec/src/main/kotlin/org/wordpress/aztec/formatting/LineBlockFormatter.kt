@@ -117,8 +117,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?): AztecMediaSpan {
-        val span = AztecMediaSpan(editor.context, drawable, AztecAttributes(attributes), onMediaTappedListener, editor)
+    fun insertImage(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?): AztecMediaSpan {
+        val span = AztecImageSpan(editor.context, drawable, AztecAttributes(attributes), onMediaTappedListener, editor)
 
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
             .firstOrNull {

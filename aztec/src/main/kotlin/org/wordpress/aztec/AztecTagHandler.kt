@@ -73,7 +73,7 @@ class AztecTagHandler : Html.TagHandler {
                     start(output, AztecMediaClickableSpan(mediaSpan))
                     output.append(Constants.IMG_CHAR)
                 } else {
-                    end(output, AztecMediaSpan::class.java)
+                    end(output, AztecImageSpan::class.java)
                     end(output, AztecMediaClickableSpan::class.java)
                 }
                 return true
@@ -112,7 +112,7 @@ class AztecTagHandler : Html.TagHandler {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
-        return AztecMediaSpan(context, loadingDrawable, attributes, onMediaTappedListener)
+        return AztecImageSpan(context, loadingDrawable, attributes, onMediaTappedListener)
     }
 
     private fun handleElement(output: Editable, opening: Boolean, span: Any) {

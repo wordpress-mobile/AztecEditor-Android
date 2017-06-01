@@ -11,10 +11,10 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.OnMediaTappedListener
 import java.util.*
 
-class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
-                     val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
+abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+                              val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
 
-    private val TAG: String = "img"
+    abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 

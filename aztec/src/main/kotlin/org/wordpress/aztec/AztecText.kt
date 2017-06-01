@@ -664,7 +664,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
     private fun loadImages() {
-        val spans = this.text.getSpans(0, text.length, AztecMediaSpan::class.java)
+        val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
@@ -1011,7 +1011,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
-        return lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
+        return lineBlockFormatter.insertImage(drawable, attributes, onMediaTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

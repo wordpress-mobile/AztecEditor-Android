@@ -21,7 +21,10 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.media.MediaMetadataRetriever
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -114,6 +117,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     lateinit var linkFormatter: LinkFormatter
 
     var imageGetter: Html.ImageGetter? = null
+    var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
 
     var widthMeasureSpec: Int = 0
 
@@ -661,6 +665,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         setSelection(cursorPosition)
 
         loadImages()
+        loadVideos()
     }
 
     private fun loadImages() {
@@ -692,6 +697,36 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
                     context.resources.displayMetrics.heightPixels)
             imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+        }
+    }
+
+    private fun loadVideos() {
+        val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
+
+        spans.forEach {
+            val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
+
+                override fun onThumbnailFailed() {
+                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                }
+
+                override fun onThumbnailLoaded(drawable: Drawable?) {
+                    replaceImage(drawable)
+                }
+
+                override fun onThumbnailLoading(drawable: Drawable?) {
+                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                }
+
+                private fun replaceImage(drawable: Drawable?) {
+                    it.drawable = drawable
+                    post {
+                        refreshText()
+                    }
+                }
+            }
+
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
         }
     }
 

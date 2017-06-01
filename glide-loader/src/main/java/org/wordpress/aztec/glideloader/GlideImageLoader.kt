@@ -12,7 +12,51 @@ import com.bumptech.glide.request.target.Target
 
 import org.wordpress.aztec.Html
 
-class GlideImageLoader(private val context: Context) : Html.ImageGetter {
+
+class GlideImageLoader(private val context: Context) : Html.ImageGetter, Html.VideoThumbnailGetter {
+
+    override fun loadVideoThumbnail(source: String, callbacks: Html.VideoThumbnailGetter.Callbacks, maxWidth: Int) {
+
+        Glide.with(context)
+                .using(VideoThumbnailLoader())
+                .load(source)
+                .fitCenter()
+                .into(object : Target<GlideDrawable> {
+                    override fun onLoadStarted(placeholder: Drawable?) {
+                        callbacks.onThumbnailLoading(placeholder)
+                    }
+
+                    override fun onLoadFailed(e: Exception?, errorDrawable: Drawable?) {
+                        callbacks.onThumbnailFailed()
+                    }
+
+                    override fun onResourceReady(resource: GlideDrawable?, glideAnimation: GlideAnimation<in GlideDrawable>?) {
+                        callbacks.onThumbnailLoaded(resource)
+                    }
+
+                    override fun onLoadCleared(placeholder: Drawable?) {}
+
+                    override fun getSize(cb: SizeReadyCallback?) {
+                        cb?.onSizeReady(maxWidth, maxWidth)
+                    }
+
+                    override fun setRequest(request: Request?) {
+                    }
+
+                    override fun getRequest(): Request? {
+                        return null
+                    }
+
+                    override fun onStart() {
+                    }
+
+                    override fun onStop() {
+                    }
+
+                    override fun onDestroy() {
+                    }
+                })
+    }
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
         Glide.with(context).load(source).fitCenter().into(object : Target<GlideDrawable> {

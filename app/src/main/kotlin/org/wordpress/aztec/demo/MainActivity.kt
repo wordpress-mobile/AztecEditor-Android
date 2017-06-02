@@ -717,6 +717,15 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onVideoTapped(attrs: AztecAttributes) {
-        ToastUtils.showToast(this, "Video tapped!")
+        val url = attrs.getValue("src")
+        url?.let {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.setDataAndType(Uri.parse(url), "video/*")
+                startActivity(intent)
+            } catch (e: Exception) {
+                ToastUtils.showToast(this, "Image tapped!")
+            }
+        }
     }
 }

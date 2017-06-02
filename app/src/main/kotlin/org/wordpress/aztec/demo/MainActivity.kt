@@ -32,6 +32,7 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
 import org.wordpress.aztec.glideloader.GlideImageLoader
+import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -257,7 +258,7 @@ class MainActivity : AppCompatActivity(),
         aztec = findViewById(R.id.aztec) as AztecText
 
         aztec.imageGetter = PicassoImageLoader(this, aztec)
-        aztec.videoThumbnailGetter = GlideImageLoader(this)
+        aztec.videoThumbnailGetter = GlideVideoThumbnailLoader(this)
 
         aztec.setOnMediaTappedListener(this)
 

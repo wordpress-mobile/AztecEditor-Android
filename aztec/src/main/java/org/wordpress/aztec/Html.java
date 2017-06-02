@@ -245,7 +245,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] paragraphs = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
         for (Object paragraph : paragraphs) {
-            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof AztecBlockSpan || paragraph instanceof AztecMediaSpan || paragraph instanceof AztecHeadingSpan) {
+            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof AztecBlockSpan || paragraph instanceof AztecMediaSpan) {
                 continue;
             }
             int start = spannableStringBuilder.getSpanStart(paragraph);

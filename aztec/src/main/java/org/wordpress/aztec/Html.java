@@ -33,7 +33,8 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.AztecText.OnMediaTappedListener;
+import org.wordpress.aztec.AztecText.OnImageTappedListener;
+import org.wordpress.aztec.AztecText.OnVideoTappedListener;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
@@ -119,7 +120,9 @@ public class Html {
          * This method will be called whenn the HTML parser encounters
          * a tag that it does not know how to interpret.
          */
-        boolean handleTag(boolean opening, String tag, Editable output, OnMediaTappedListener onMediaTappedListener,
+        boolean handleTag(boolean opening, String tag, Editable output,
+                          OnImageTappedListener onImageTappedListener,
+                          AztecText.OnVideoTappedListener onVideoTappedListener,
                           Context context, Attributes attributes, int nestingLevel);
     }
 
@@ -134,9 +137,9 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, OnMediaTappedListener onMediaTappedListener,
+    public static Spanned fromHtml(String source, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        return fromHtml(source, null, onMediaTappedListener, onUnknownHtmlClickListener, context);
+        return fromHtml(source, null, onImageTappedListener, onVideoTappedListener, onUnknownHtmlClickListener, context);
     }
 
     /**
@@ -157,8 +160,12 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, TagHandler tagHandler, OnMediaTappedListener onMediaTappedListener,
-                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
+    public static Spanned fromHtml(String source, TagHandler tagHandler,
+                                   OnImageTappedListener onImageTappedListener,
+                                   OnVideoTappedListener onVideoTappedListener,
+                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
+                                   Context context) {
+
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
@@ -173,7 +180,8 @@ public class Html {
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, tagHandler,
-                        parser, onMediaTappedListener, onUnknownHtmlClickListener, context);
+                        parser, onImageTappedListener, onVideoTappedListener,
+                        onUnknownHtmlClickListener, context);
         return converter.convert();
     }
 
@@ -204,18 +212,20 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
-    private OnMediaTappedListener onMediaTappedListener;
+    private OnImageTappedListener onImageTappedListener;
+    private OnVideoTappedListener onVideoTappedListener;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, OnMediaTappedListener onMediaTappedListener,
+            Parser parser, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
             UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
         mSource = source;
         spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         mReader = parser;
         this.context = context;
-        this.onMediaTappedListener = onMediaTappedListener;
+        this.onImageTappedListener = onImageTappedListener;
+        this.onVideoTappedListener = onVideoTappedListener;
         this.onUnknownHtmlClickListener = onUnknownHtmlClickListener;
     }
 
@@ -313,8 +323,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                     insidePreTag = true;
                 }
 
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder, onMediaTappedListener,
-                        context, attributes, nestingLevel);
+                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder,
+                        onImageTappedListener, onVideoTappedListener, context, attributes, nestingLevel);
+
                 if (tagHandled) {
                     return;
                 }
@@ -391,8 +402,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (tag.equalsIgnoreCase("pre")) {
                 insidePreTag = false;
             }
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onMediaTappedListener, context, new AztecAttributes(),
-                    nestingLevel);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, onImageTappedListener,
+                    onVideoTappedListener, context, new AztecAttributes(), nestingLevel);
         }
     }
 

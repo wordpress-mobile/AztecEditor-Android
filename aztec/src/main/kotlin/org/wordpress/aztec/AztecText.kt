@@ -21,10 +21,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.media.MediaMetadataRetriever
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -89,7 +86,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
-    private var onMediaTappedListener: OnMediaTappedListener? = null
+    private var onImageTappedListener: OnImageTappedListener? = null
+    private var onVideoTappedListener: OnVideoTappedListener? = null
 
     private var isViewInitialized = false
     private var previousCursorPosition = 0
@@ -131,8 +129,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         fun onImeBack()
     }
 
-    interface OnMediaTappedListener {
-        fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
+    interface OnImageTappedListener {
+        fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
+    }
+
+    interface OnVideoTappedListener {
+        fun onVideoTapped(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -443,8 +445,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         this.onImeBackListener = listener
     }
 
-    fun setOnMediaTappedListener(listener: OnMediaTappedListener) {
-        this.onMediaTappedListener = listener
+    fun setOnImageTappedListener(listener: OnImageTappedListener) {
+        this.onImageTappedListener = listener
+    }
+
+    fun setOnVideoTappedListener(listener: OnVideoTappedListener) {
+        this.onVideoTappedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -647,7 +653,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         val parser = AztecParser()
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), onMediaTappedListener, this, context))
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
+                onImageTappedListener, onVideoTappedListener, this, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -885,8 +892,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), onMediaTappedListener,
-                        this, context).trim())
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()),
+                        onImageTappedListener, onVideoTappedListener, this, context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -986,7 +993,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onMediaTappedListener, this, context).trim())
+            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onImageTappedListener,
+                    onVideoTappedListener, this, context).trim())
             setSelection(spanStart)
 
             disableTextChangedListener()
@@ -1042,7 +1050,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
-        return lineBlockFormatter.insertImage(drawable, attributes, onMediaTappedListener)
+        return lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

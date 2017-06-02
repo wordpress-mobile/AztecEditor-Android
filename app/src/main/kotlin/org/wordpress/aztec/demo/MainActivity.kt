@@ -31,7 +31,6 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
-import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
@@ -42,7 +41,8 @@ import java.io.File
 
 class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
-        AztecText.OnMediaTappedListener,
+        AztecText.OnImageTappedListener,
+        AztecText.OnVideoTappedListener,
         AztecToolbarClickListener,
         HistoryListener,
         OnRequestPermissionsResultCallback,
@@ -260,7 +260,8 @@ class MainActivity : AppCompatActivity(),
         aztec.imageGetter = PicassoImageLoader(this, aztec)
         aztec.videoThumbnailGetter = GlideVideoThumbnailLoader(this)
 
-        aztec.setOnMediaTappedListener(this)
+        aztec.setOnImageTappedListener(this)
+        aztec.setOnVideoTappedListener(this)
 
         source = findViewById(R.id.source) as SourceViewEditText
 
@@ -711,7 +712,11 @@ class MainActivity : AppCompatActivity(),
         addVideoMediaDialog!!.show()
     }
 
-    override fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
-        ToastUtils.showToast(this, "Media tapped!")
+    override fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
+        ToastUtils.showToast(this, "Image tapped!")
+    }
+
+    override fun onVideoTapped(attrs: AztecAttributes) {
+        ToastUtils.showToast(this, "Video tapped!")
     }
 }

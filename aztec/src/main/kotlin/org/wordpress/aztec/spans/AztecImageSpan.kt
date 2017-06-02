@@ -6,9 +6,13 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 
 class AztecImageSpan(context: Context, drawable: Drawable?, attributes: AztecAttributes = AztecAttributes(),
-                     onMediaTappedListener: AztecText.OnMediaTappedListener?,
+                     val onImageTappedListener: AztecText.OnImageTappedListener?,
                      editor: AztecText? = null) :
-        AztecMediaSpan(context, drawable, attributes, onMediaTappedListener, editor) {
+        AztecMediaSpan(context, drawable, attributes, editor) {
 
     override val TAG: String = "img"
+
+    override fun onClick() {
+        onImageTappedListener?.onImageTapped(attributes, getWidth(imageDrawable), getHeight(imageDrawable))
+    }
 }

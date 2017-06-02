@@ -8,11 +8,11 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.AztecText.OnMediaTappedListener
+import org.wordpress.aztec.AztecText.OnImageTappedListener
 import java.util.*
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
-                              val onMediaTappedListener: OnMediaTappedListener?, editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
+                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
 
     abstract val TAG: String
 
@@ -102,11 +102,9 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         return sb.toString()
     }
 
-    fun onClick() {
-        onMediaTappedListener?.mediaTapped(attributes, getWidth(imageDrawable), getHeight(imageDrawable))
-    }
-
     fun getSource(): String {
         return attributes.getValue("src") ?: ""
     }
+
+    abstract fun onClick()
 }

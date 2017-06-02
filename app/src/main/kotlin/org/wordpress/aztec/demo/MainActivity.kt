@@ -724,7 +724,7 @@ class MainActivity : AppCompatActivity(),
                 intent.setDataAndType(Uri.parse(url), "video/*")
                 startActivity(intent)
             } catch (e: Exception) {
-                ToastUtils.showToast(this, "Image tapped!")
+                ToastUtils.showToast(this, "Video tapped!")
             }
         }
     }

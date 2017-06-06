@@ -8,8 +8,10 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,9 +33,11 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
+import org.wordpress.aztec.Html
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -172,8 +176,8 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
-                }
-                REQUEST_MEDIA_CAMERA_VIDEO -> {
+
+                    insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
@@ -183,27 +187,64 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeStream(stream, null, options)
+
+                    insertImageAndSimulateUpload(bitmap, mediaPath)
+                }
+                REQUEST_MEDIA_CAMERA_VIDEO -> {
+                    mediaPath = data?.data.toString()
                 }
                 REQUEST_MEDIA_VIDEO -> {
+                    mediaPath = data?.data.toString()
+
+                    aztec.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
+                        override fun onThumbnailFailed() {
+                        }
+
+                        override fun onThumbnailLoaded(drawable: Drawable?) {
+                            val conf = Bitmap.Config.ARGB_8888 // see other conf types
+                            bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
+                            val canvas = Canvas(bitmap)
+                            drawable.setBounds(0, 0, canvas.width, canvas.height)
+                            drawable.draw(canvas)
+
+                            insertVideoAndSimulateUpload(bitmap, mediaPath)
+                        }
+
+                        override fun onThumbnailLoading(drawable: Drawable?) {
+                        }
+
+                    }, this.resources.displayMetrics.widthPixels)
                 }
             }
-
-            insertMediaAndSimulateUpload(bitmap, mediaPath)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+    fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val (id, attrs) = generateAttributesForMedia(mediaPath)
+        val mediaSpan = aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+    }
+
+    fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val (id, attrs) = generateAttributesForMedia(mediaPath)
+        val mediaSpan = aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+    }
+
+    private fun generateAttributesForMedia(mediaPath: String): Pair<String, AztecAttributes> {
         val id = (Math.random() * Int.MAX_VALUE).toString()
 
         val attrs = AztecAttributes()
         attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
         attrs.setValue("id", id)
         attrs.setValue("uploading", "true")
+        attrs.setValue("video", "true")
+        return Pair(id, attrs)
+    }
 
-        val mediaSpan = aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
-
+    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes, mediaSpan: AztecMediaSpan) {
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getValue("id") == id
@@ -232,6 +273,12 @@ class MainActivity : AppCompatActivity(),
             if (progress >= 10000) {
                 attrs.removeAttribute(attrs.getIndex("uploading"))
                 aztec.clearOverlays(predicate)
+
+                if (attrs.hasAttribute("video")) {
+                    attrs.removeAttribute(attrs.getIndex("video"))
+                    aztec.setOverlay(predicate, 0, ContextCompat.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
+                }
+
                 aztec.updateElementAttributes(predicate, attrs)
             }
         }

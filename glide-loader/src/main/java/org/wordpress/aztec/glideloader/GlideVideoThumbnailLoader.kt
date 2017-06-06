@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.data.DataFetcher
@@ -26,7 +27,7 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
     override fun loadVideoThumbnail(source: String, callbacks: Html.VideoThumbnailGetter.Callbacks, maxWidth: Int) {
 
         Glide.with(context)
-                .using(ThumbnailLoader())
+                .using(ThumbnailLoader(context))
                 .load(source)
                 .fitCenter()
                 .into(object : Target<GlideDrawable> {
@@ -67,17 +68,17 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
     }
 
     // Based on a Gist from Stepan Goncharov (https://gist.github.com/stepango/5edcbdb408b0ba87f8383f868961c257)
-    class ThumbnailLoader : StreamModelLoader<String> {
+    internal class ThumbnailLoader(val context: Context) : StreamModelLoader<String> {
 
-        override fun getResourceFetcher(src: String, width: Int, height: Int) = VideoThumbnailFetcher(src)
+        override fun getResourceFetcher(src: String, width: Int, height: Int) = VideoThumbnailFetcher(src, context)
 
         internal class Factory : ModelLoaderFactory<String, InputStream> {
-            override fun build(context: Context, factories: GenericLoaderFactory) = ThumbnailLoader()
+            override fun build(context: Context, factories: GenericLoaderFactory) = ThumbnailLoader(context)
 
             override fun teardown() = Unit
         }
 
-        class VideoThumbnailFetcher(val source: String) : DataFetcher<InputStream> {
+        class VideoThumbnailFetcher(val source: String, val context: Context) : DataFetcher<InputStream> {
             var stream: InputStream? = null
             @Volatile var cancelled = false
 
@@ -86,7 +87,12 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
             override fun loadData(priority: Priority): InputStream? {
                 val retriever = MediaMetadataRetriever()
                 try {
-                    retriever.setDataSource(source, emptyMap())
+                    val uri = Uri.parse(source)
+                    if (uri != null) {
+                        retriever.setDataSource(context, uri)
+                    } else {
+                        retriever.setDataSource(source, emptyMap())
+                    }
                     if (cancelled) return null
                     val picture = retriever.frameAtTime
                     if (cancelled) return null

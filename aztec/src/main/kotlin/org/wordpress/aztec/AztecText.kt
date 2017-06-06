@@ -1049,8 +1049,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+    fun insertImage(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
         return lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
+    }
+
+    fun insertVideo(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+        return lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

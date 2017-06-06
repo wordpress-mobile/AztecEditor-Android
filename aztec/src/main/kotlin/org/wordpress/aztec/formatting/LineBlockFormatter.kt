@@ -7,6 +7,7 @@ import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.AztecText.OnImageTappedListener
+import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
@@ -117,18 +118,28 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
+
+    fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?): AztecMediaSpan {
+        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val span = AztecVideoSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onVideoTappedListener, editor)
+        return insertMedia(span)
+    }
+
     fun insertImage(drawable: Drawable?, attributes: Attributes, onImageTappedListener: OnImageTappedListener?): AztecMediaSpan {
         val span = AztecImageSpan(editor.context, drawable, AztecAttributes(attributes), onImageTappedListener, editor)
+        return insertMedia(span)
+    }
 
+    private fun insertMedia(span: AztecMediaSpan): AztecMediaSpan {
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-            .firstOrNull {
-                selectionStart == editableText.getSpanEnd(it)
-            }
+                .firstOrNull {
+                    selectionStart == editableText.getSpanEnd(it)
+                }
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-            .firstOrNull {
-                selectionStart == editableText.getSpanStart(it)
-            }
+                .firstOrNull {
+                    selectionStart == editableText.getSpanStart(it)
+                }
 
         val mediaStartIndex = selectionStart
         val mediaEndIndex = selectionStart + 1

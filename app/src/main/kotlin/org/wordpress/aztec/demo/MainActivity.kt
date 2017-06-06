@@ -634,15 +634,15 @@ class MainActivity : AppCompatActivity(),
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
-            org.wordpress.aztec.R.id.gallery -> {
+            R.id.gallery -> {
                 onGalleryMediaOptionSelected()
                 return true
             }
-            org.wordpress.aztec.R.id.photo -> {
+            R.id.photo -> {
                 showPhotoMediaDialog()
                 return true
             }
-            org.wordpress.aztec.R.id.video -> {
+            R.id.video -> {
                 showVideoMediaDialog()
                 return true
             }

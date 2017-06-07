@@ -1091,7 +1091,9 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
     fun updateMediaSpan(mediaSpan: AztecMediaSpan) {
-        editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (text.getSpanStart(mediaSpan) != -1 && text.getSpanEnd(mediaSpan) != -1) {
+            editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {

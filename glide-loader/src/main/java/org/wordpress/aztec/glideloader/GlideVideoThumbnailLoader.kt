@@ -87,8 +87,9 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
             override fun loadData(priority: Priority): InputStream? {
                 val retriever = MediaMetadataRetriever()
                 try {
+
                     val uri = Uri.parse(source)
-                    if (uri != null) {
+                    if (uri != null && !uri.scheme.startsWith("http", true)) {
                         retriever.setDataSource(context, uri)
                     } else {
                         retriever.setDataSource(source, emptyMap())

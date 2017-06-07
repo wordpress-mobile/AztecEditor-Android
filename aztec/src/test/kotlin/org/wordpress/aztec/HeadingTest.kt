@@ -301,7 +301,7 @@ class HeadingTest {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuPreformat)
         Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -335,7 +335,7 @@ class HeadingTest {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuPreformat)
         Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -357,10 +357,7 @@ class HeadingTest {
         editText.setSelection(mark)
         toolbar.onMenuItemClick(menuPreformat)
         Assert.assertEquals("<ol><li>Ordered</li></ol><pre>Preformat</pre><ol><li>Ordered</li></ol>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Preformat should be selected.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -544,12 +541,7 @@ class HeadingTest {
 
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 2 should be selected.
-//        AztecToolbar.highlightAppliedStyles returns Heading 1, Heading 2, and Heading 3 so then
-//        AztecToolbar.selectHeaderMenu selects the first format.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test

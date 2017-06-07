@@ -141,38 +141,36 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     selectionStart == editableText.getSpanStart(it)
                 }
 
-        val mediaStartIndex = selectionStart
-        val mediaEndIndex = selectionStart + 1
-
-        editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, Constants.IMG_STRING)
-        editor.enableTextChangedListener()
-
         if (spanAfterMedia != null) {
-            editableText.setSpan(spanAfterMedia, mediaStartIndex, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(spanAfterMedia, selectionStart, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanBeforeMedia != null) {
-            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), mediaEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), selectionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
+        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
 
-        editableText.setSpan(
+        val ssb = SpannableStringBuilder(Constants.IMG_STRING)
+
+        ssb.setSpan(
                 span,
-                mediaStartIndex,
-                mediaEndIndex,
+                0,
+                1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editableText.setSpan(
+        ssb.setSpan(
                 AztecMediaClickableSpan(span),
-                mediaStartIndex,
-                mediaEndIndex,
+                0,
+                1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editor.setSelection(mediaEndIndex)
+        editableText.replace(selectionStart, selectionEnd, ssb)
+
+        editor.setSelection(
+                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
         editor.isMediaAdded = true
 
         return span

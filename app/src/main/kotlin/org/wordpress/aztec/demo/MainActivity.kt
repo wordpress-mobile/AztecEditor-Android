@@ -769,6 +769,7 @@ class MainActivity : AppCompatActivity(),
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 intent.setDataAndType(Uri.parse(url), "video/*")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent)
             } catch (e: Exception) {
                 ToastUtils.showToast(this, "Video tapped!")

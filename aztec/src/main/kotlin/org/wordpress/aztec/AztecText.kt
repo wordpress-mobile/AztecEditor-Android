@@ -89,6 +89,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     private var onMediaTappedListener: OnMediaTappedListener? = null
 
     private var isViewInitialized = false
+    private var isLeadingStyleRemoved = false
+    private var isBackspacePressed = false
     private var previousCursorPosition = 0
 
     var isInCalypsoMode = true
@@ -226,8 +228,16 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             var consumeKeyEvent = false
             history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                inlineFormatter.tryRemoveLeadingInlineStyle()
+
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+
+                if (selectionStart == 0 || selectionEnd == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                }else if(selectionStart == selectionEnd){
+                    isBackspacePressed = true
+                }
             }
 
             if (consumeKeyEvent) {
@@ -271,6 +281,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         FullWidthImageElementWatcher.install(this)
 
         EndOfBufferMarkerAdder.install(this)
+//        EmptyEditorWatcher.install(this)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -475,7 +486,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                 if (end == length()) {
                     end--
                 }
-
                 setSelection(start, end)
                 return
             }
@@ -483,11 +493,21 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
 
         previousCursorPosition = selEnd
 
-        //do not update toolbar and selected style when we focus on empty editor with END_OF_BUFFER_MARKER in it
-        if (length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
+        //in case when onSelectionChanged is triggered in empty editor we do not want to updates selected stylesb
+        if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
 
-        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-        setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        if(selStart == 0 && isBackspacePressed){
+            isBackspacePressed = false
+            return
+        }
+
+        //if backspace
+//        if (selStart > 0 && || isLeadingStyleRemoved) {
+            onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+            setSelectedStyles(getAppliedStyles(selStart, selEnd))
+//        }
+
+        isLeadingStyleRemoved = false
     }
 
     fun getSelectedText(): String {
@@ -822,6 +842,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             android.R.id.cut -> {
                 copy(text, min, max)
                 text.delete(min, max) //this will hide text action menu
+
+                if (min == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                }
             }
             else -> return super.onTextContextMenuItem(id)
         }
@@ -998,7 +1024,17 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                 history.beforeTextChanged(toFormattedHtml())
 
                 inlineFormatter.tryRemoveLeadingInlineStyle()
+
+                if (selectionStart == 0 || selectionEnd == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                }else if(selectionStart == selectionEnd){
+                    isBackspacePressed = true
+                }
+
                 val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+                isLeadingStyleRemoved = true
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
                     return false

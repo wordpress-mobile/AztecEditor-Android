@@ -3,10 +3,7 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
-import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecPart
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.*
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.TextChangedEvent
 import java.util.*
@@ -83,14 +80,13 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
-        //trailing styling
-        if (!editor.formattingHasChanged() || textChangedEvent.isEndOfBufferMarker()) return
+        if (textChangedEvent.isEndOfBufferMarker()) return
 
         //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
-        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLineButNotAtTheBeginning())
+        clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
 
-        if(textChangedEvent.isNewLineButNotAtTheBeginning()) return
+        if (textChangedEvent.isNewLine()) return
 
         if (editor.formattingIsApplied()) {
             for (item in editor.selectedStyles) {
@@ -99,7 +95,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
                     TextFormat.FORMAT_UNDERLINE,
-                    TextFormat.FORMAT_CODE -> if (!editor.contains(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)) {
+                    TextFormat.FORMAT_CODE ->  {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
@@ -381,16 +377,29 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun tryRemoveLeadingInlineStyle() {
+    fun tryRemoveLeadingInlineStyle(): Boolean {
+
+        var isSpanRemoved = false
+
         val selectionStart = editor.selectionStart
         val selectionEnd = editor.selectionEnd
 
-        if (selectionStart == 1 && selectionEnd == selectionStart) {
+        if ((selectionStart == 1 && selectionEnd == selectionStart)) {
             editableText.getSpans(0, 0, AztecInlineSpan::class.java).forEach {
                 if (editableText.getSpanEnd(it) == selectionEnd && editableText.getSpanEnd(it) == selectionStart) {
                     editableText.removeSpan(it)
+                    isSpanRemoved = true
+                }
+            }
+        } else if (editor.length() == 1 && editor.text[0] == Constants.END_OF_BUFFER_MARKER) {
+            editableText.getSpans(0, 1, AztecInlineSpan::class.java).forEach {
+                if (editableText.getSpanStart(it) == 1 && editableText.getSpanEnd(it) == 1) {
+                    editableText.removeSpan(it)
+                    isSpanRemoved = true
                 }
             }
         }
+
+        return isSpanRemoved
     }
 }

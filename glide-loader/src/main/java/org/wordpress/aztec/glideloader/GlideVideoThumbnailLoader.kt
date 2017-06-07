@@ -89,11 +89,13 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
                 try {
 
                     val uri = Uri.parse(source)
-                    if (uri != null && !uri.scheme.startsWith("http", true)) {
-                        retriever.setDataSource(context, uri)
-                    } else {
+                    val isRemote = uri?.scheme?.startsWith("http", true) ?: false
+                    if (isRemote) {
                         retriever.setDataSource(source, emptyMap())
+                    } else {
+                        retriever.setDataSource(context, uri)
                     }
+                    
                     if (cancelled) return null
                     val picture = retriever.frameAtTime
                     if (cancelled) return null

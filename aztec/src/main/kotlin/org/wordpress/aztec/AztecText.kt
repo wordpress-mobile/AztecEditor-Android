@@ -794,6 +794,16 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+        val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
+        imageSpans.forEach {
+            it.onImageTappedListener = onImageTappedListener
+        }
+
+        val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
+        videoSpans.forEach {
+            it.onVideoTappedListener = onVideoTappedListener
+        }
     }
 
     fun disableTextChangedListener() {

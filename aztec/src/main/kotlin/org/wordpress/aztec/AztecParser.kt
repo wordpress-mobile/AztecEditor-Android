@@ -40,7 +40,7 @@ class AztecParser {
         val tidySource = tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
-                onImageTappedListener, onVideoTappedListener, onUnknownHtmlClickListener, context))
+                onUnknownHtmlClickListener, context))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

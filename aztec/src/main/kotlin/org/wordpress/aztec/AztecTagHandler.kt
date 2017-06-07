@@ -34,8 +34,6 @@ class AztecTagHandler : Html.TagHandler {
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
-                           onImageTappedListener: AztecText.OnImageTappedListener?,
-                           onVideoTappedListener: AztecText.OnVideoTappedListener?,
                            context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
 
@@ -70,7 +68,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             IMAGE -> {
                 if (opening) {
-                    val mediaSpan = createImageSpan(AztecAttributes(attributes), onImageTappedListener, context)
+                    val mediaSpan = createImageSpan(AztecAttributes(attributes), context)
                     start(output, mediaSpan)
                     start(output, AztecMediaClickableSpan(mediaSpan))
                     output.append(Constants.IMG_CHAR)
@@ -82,7 +80,7 @@ class AztecTagHandler : Html.TagHandler {
             }
             VIDEO -> {
                 if (opening) {
-                    val mediaSpan = createVideoSpan(AztecAttributes(attributes), onVideoTappedListener, context, nestingLevel)
+                    val mediaSpan = createVideoSpan(AztecAttributes(attributes), context, nestingLevel)
                     start(output, mediaSpan)
                     start(output, AztecMediaClickableSpan(mediaSpan))
                     output.append(Constants.IMG_CHAR)
@@ -121,20 +119,19 @@ class AztecTagHandler : Html.TagHandler {
         return false
     }
 
-    private fun createImageSpan(attributes: AztecAttributes, onImageTappedListener: AztecText.OnImageTappedListener?,
-                                context: Context) : AztecMediaSpan {
+    private fun createImageSpan(attributes: AztecAttributes, context: Context) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
-        return AztecImageSpan(context, loadingDrawable, attributes, onImageTappedListener)
+        return AztecImageSpan(context, loadingDrawable, attributes)
     }
 
-    private fun createVideoSpan(attributes: AztecAttributes, onVideoTappedListener: AztecText.OnVideoTappedListener?,
+    private fun createVideoSpan(attributes: AztecAttributes,
                                 context: Context, nestingLevel: Int) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
-        return AztecVideoSpan(context, loadingDrawable, nestingLevel, attributes, onVideoTappedListener)
+        return AztecVideoSpan(context, loadingDrawable, nestingLevel, attributes)
     }
 
     private fun handleElement(output: Editable, opening: Boolean, span: Any) {

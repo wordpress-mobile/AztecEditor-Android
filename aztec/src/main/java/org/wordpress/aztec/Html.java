@@ -39,7 +39,6 @@ import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecHeadingSpan;
 import org.wordpress.aztec.spans.AztecInlineSpan;
 import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
@@ -121,8 +120,6 @@ public class Html {
          * a tag that it does not know how to interpret.
          */
         boolean handleTag(boolean opening, String tag, Editable output,
-                          OnImageTappedListener onImageTappedListener,
-                          AztecText.OnVideoTappedListener onVideoTappedListener,
                           Context context, Attributes attributes, int nestingLevel);
     }
 
@@ -139,7 +136,7 @@ public class Html {
      */
     public static Spanned fromHtml(String source, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        return fromHtml(source, null, onImageTappedListener, onVideoTappedListener, onUnknownHtmlClickListener, context);
+        return fromHtml(source, null, onUnknownHtmlClickListener, context);
     }
 
     /**
@@ -161,8 +158,6 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
-                                   OnImageTappedListener onImageTappedListener,
-                                   OnVideoTappedListener onVideoTappedListener,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
                                    Context context) {
 
@@ -179,9 +174,8 @@ public class Html {
         }
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler,
-                        parser, onImageTappedListener, onVideoTappedListener,
-                        onUnknownHtmlClickListener, context);
+                new HtmlToSpannedConverter(source, tagHandler, parser, onUnknownHtmlClickListener, context);
+
         return converter.convert();
     }
 
@@ -212,20 +206,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
-    private OnImageTappedListener onImageTappedListener;
-    private OnVideoTappedListener onVideoTappedListener;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
-            UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
+            Parser parser, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
         mSource = source;
         spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         mReader = parser;
         this.context = context;
-        this.onImageTappedListener = onImageTappedListener;
-        this.onVideoTappedListener = onVideoTappedListener;
         this.onUnknownHtmlClickListener = onUnknownHtmlClickListener;
     }
 
@@ -324,7 +313,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
 
                 boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder,
-                        onImageTappedListener, onVideoTappedListener, context, attributes, nestingLevel);
+                        context, attributes, nestingLevel);
 
                 if (tagHandled) {
                     return;
@@ -402,8 +391,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             if (tag.equalsIgnoreCase("pre")) {
                 insidePreTag = false;
             }
-            tagHandler.handleTag(false, tag, spannableStringBuilder, onImageTappedListener,
-                    onVideoTappedListener, context, new AztecAttributes(), nestingLevel);
+            tagHandler.handleTag(false, tag, spannableStringBuilder, context,
+                    new AztecAttributes(), nestingLevel);
         }
     }
 

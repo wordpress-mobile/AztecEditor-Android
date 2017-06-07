@@ -6,7 +6,7 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 
 class AztecImageSpan(context: Context, drawable: Drawable?, attributes: AztecAttributes = AztecAttributes(),
-                     val onImageTappedListener: AztecText.OnImageTappedListener?,
+                     var onImageTappedListener: AztecText.OnImageTappedListener? = null,
                      editor: AztecText? = null) :
         AztecMediaSpan(context, drawable, attributes, editor) {
 

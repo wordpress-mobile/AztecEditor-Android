@@ -1,13 +1,15 @@
 package org.wordpress.aztec.demo;
 
+import android.support.test.espresso.DataInteraction;
 import android.support.test.espresso.ViewInteraction;
 
+import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasToString;
 
 /**
  * Test utilities to be used with instrumentation tests.
@@ -37,13 +39,13 @@ public class TestUtils {
     public static ViewInteraction unorderedListButton = onView(withId(R.id.format_bar_button_ul));
 
     // Heading/Paragraph Format Selectors
-    public static ViewInteraction headingOneSelector = onView(allOf(withId(android.R.id.title), withText("Heading 1")));
-    public static ViewInteraction headingTwoSelector = onView(withText("Heading 2"));
-    public static ViewInteraction headingThreeSelector = onView(withText("Heading 3"));
-    public static ViewInteraction headingFourSelector = onView(withText("Heading 4"));
-    public static ViewInteraction headingFiveSelector = onView(withText("Heading 5"));
-    public static ViewInteraction headingSixSelector = onView(withText("Heading 6"));
-    public static ViewInteraction preSelector = onView(withText("Heading 6"));
+    public static DataInteraction headingOneSelector = onData(hasToString("Heading 1"));
+    public static DataInteraction headingTwoSelector = onData(hasToString("Heading 2"));
+    public static DataInteraction headingThreeSelector = onData(hasToString("Heading 3"));
+    public static DataInteraction headingFourSelector = onData(hasToString("Heading 4"));
+    public static DataInteraction headingFiveSelector = onData(hasToString("Heading 5"));
+    public static DataInteraction headingSixSelector = onData(hasToString("Heading 6"));
+    public static DataInteraction preSelector = onData(hasToString("Preformat"));
 
     // Link Modal
     public static ViewInteraction linkOKButton = onView(withId(android.R.id.button1));

@@ -27,6 +27,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
@@ -54,7 +55,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"

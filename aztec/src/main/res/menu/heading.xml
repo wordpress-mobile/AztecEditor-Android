@@ -40,10 +40,11 @@
             android:title="@string/heading_6" >
         </item>
 
-        <item
-            android:id="@+id/preformat"
-            android:title="@string/preformat" >
-        </item>
+        <!--TODO: Uncomment when Preformat is to be added back as a feature-->
+        <!--<item-->
+            <!--android:id="@+id/preformat"-->
+            <!--android:title="@string/preformat" >-->
+        <!--</item>-->
 
     </group>
 

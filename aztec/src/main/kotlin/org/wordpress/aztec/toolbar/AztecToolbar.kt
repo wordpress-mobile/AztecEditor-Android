@@ -219,10 +219,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                 return true
             }
-            R.id.preformat -> {
-                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
-                return true
-            }
+//            TODO: Uncomment when Preformat is to be added back as a feature
+//            R.id.preformat -> {
+//                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
+//                return true
+//            }
             else -> return false
         }
     }

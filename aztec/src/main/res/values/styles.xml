@@ -8,8 +8,12 @@
         <item name="android:textOff">""</item>
     </style>
 
-    <style name="Divider">
-        <item name="android:background">@color/format_bar_divider</item>
+    <style name="DividerHorizontal">
+        <item name="android:background">@color/format_bar_divider_horizontal</item>
+    </style>
+
+    <style name="DividerVertical">
+        <item name="android:background">@color/format_bar_divider_vertical</item>
     </style>
 
     <style name="DividerSourceView">

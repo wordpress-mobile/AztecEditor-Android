@@ -14,7 +14,7 @@
         android:id="@+id/format_bar_horizontal_divider"
         android:layout_height="@dimen/format_bar_horizontal_divider_height"
         android:layout_width="fill_parent"
-        style="@style/Divider" >
+        style="@style/DividerHorizontal" >
     </View>
 
     <LinearLayout
@@ -34,10 +34,9 @@
                 android:clipToPadding="false"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:paddingLeft="@dimen/format_bar_left_margin"
                 android:paddingRight="@dimen/format_bar_right_margin"
                 android:orientation="horizontal"
-                tools:ignore="RtlHardcoded" >
+                tools:ignore="RtlHardcoded,RtlSymmetry" >
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_media"
@@ -48,11 +47,19 @@
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
+                <View
+                    android:id="@+id/format_bar_vertical_divider"
+                    android:layout_height="fill_parent"
+                    android:layout_width="@dimen/format_bar_horizontal_divider_height"
+                    style="@style/DividerVertical" >
+                </View>
+
                 <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_heading"
                     android:background="@drawable/format_bar_button_heading_selector"
                     android:contentDescription="@string/format_bar_description_heading"
                     android:layout_height="fill_parent"
+                    android:layout_marginLeft="@dimen/format_bar_left_margin"
                     android:layout_width="wrap_content"
                     style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>

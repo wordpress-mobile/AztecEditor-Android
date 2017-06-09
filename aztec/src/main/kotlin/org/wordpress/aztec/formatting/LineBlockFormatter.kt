@@ -43,8 +43,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
              *                                                  multiple lines (before), current partially or entirely selected
              */
             if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                    || (selEnd in lineStart..lineEnd)
+                    || (selStart in lineStart..lineEnd)) {
                 list.add(i)
             }
         }

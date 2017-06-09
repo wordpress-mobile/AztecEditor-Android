@@ -28,7 +28,7 @@
     <dimen name="format_bar_height">44dp</dimen>
     <dimen name="format_bar_height_tablet">49dp</dimen>
     <dimen name="format_bar_left_margin">5dp</dimen>
-    <dimen name="format_bar_right_margin">2dp</dimen>
+    <dimen name="format_bar_right_margin">5dp</dimen>
     <dimen name="format_bar_html_button_left_margin">3dp</dimen>
     <dimen name="format_bar_scroll_right_margin">-7dp</dimen>
 

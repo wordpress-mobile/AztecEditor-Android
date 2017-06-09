@@ -153,7 +153,7 @@
                     android:contentDescription="@string/format_bar_description_html"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
-                    style="@style/FormatBarHtmlButton" >
+                    style="@style/FormatBarButton" >
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
             </LinearLayout>

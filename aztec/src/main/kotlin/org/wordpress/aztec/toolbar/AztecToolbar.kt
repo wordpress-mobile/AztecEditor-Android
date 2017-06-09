@@ -444,6 +444,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         if (textFormats.size == 0) {
             // Select no list by default.
             listMenu?.menu?.getItem(2)?.isChecked = true
+            // Use unordered list selector by default.
+            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
         } else {
             textFormats.forEach {
                 when (it) {
@@ -454,6 +456,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         listMenu?.menu?.getItem(2)?.isChecked = true
                     }
                 }
+
+                setListMenuSelector(it)
 
                 return
             }
@@ -470,6 +474,17 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         listMenu = PopupMenu(context, view)
         listMenu?.setOnMenuItemClickListener(this)
         listMenu?.inflate(R.menu.list)
+    }
+
+    private fun setListMenuSelector(textFormat: TextFormat) {
+        when (textFormat) {
+            TextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+            TextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
+            else -> {
+                // Use unordered list selector by default.
+                findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+            }
+        }
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

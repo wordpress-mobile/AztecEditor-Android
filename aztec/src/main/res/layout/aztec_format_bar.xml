@@ -59,51 +59,6 @@
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_bold"
-                    android:background="@drawable/format_bar_button_bold_selector"
-                    android:contentDescription="@string/format_bar_description_bold"
-                    android:layout_height="fill_parent"
-                    android:layout_width="wrap_content"
-                    style="@style/FormatBarButton" >
-                </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_italic"
-                    android:background="@drawable/format_bar_button_italic_selector"
-                    android:contentDescription="@string/format_bar_description_italic"
-                    android:layout_height="fill_parent"
-                    android:layout_width="wrap_content"
-                    style="@style/FormatBarButton" >
-                </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_strikethrough"
-                    android:background="@drawable/format_bar_button_strikethrough_selector"
-                    android:contentDescription="@string/format_bar_description_strike"
-                    android:layout_height="fill_parent"
-                    android:layout_width="wrap_content"
-                    style="@style/FormatBarButton" >
-                </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_underline"
-                    android:background="@drawable/format_bar_button_underline_selector"
-                    android:contentDescription="@string/format_bar_description_underline"
-                    android:layout_height="fill_parent"
-                    android:layout_width="wrap_content"
-                    style="@style/FormatBarButton" >
-                </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_quote"
-                    android:background="@drawable/format_bar_button_quote_selector"
-                    android:contentDescription="@string/format_bar_description_quote"
-                    android:layout_height="fill_parent"
-                    android:layout_width="wrap_content"
-                    style="@style/FormatBarButton" >
-                </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_ul"
                     android:background="@drawable/format_bar_button_ul_selector"
                     android:contentDescription="@string/format_bar_description_ul"
@@ -122,9 +77,54 @@
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_quote"
+                    android:background="@drawable/format_bar_button_quote_selector"
+                    android:contentDescription="@string/format_bar_description_quote"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_bold"
+                    android:background="@drawable/format_bar_button_bold_selector"
+                    android:contentDescription="@string/format_bar_description_bold"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_italic"
+                    android:background="@drawable/format_bar_button_italic_selector"
+                    android:contentDescription="@string/format_bar_description_italic"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_link"
                     android:background="@drawable/format_bar_button_link_selector"
                     android:contentDescription="@string/format_bar_description_link"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_underline"
+                    android:background="@drawable/format_bar_button_underline_selector"
+                    android:contentDescription="@string/format_bar_description_underline"
+                    android:layout_height="fill_parent"
+                    android:layout_width="wrap_content"
+                    style="@style/FormatBarButton" >
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_strikethrough"
+                    android:background="@drawable/format_bar_button_strikethrough_selector"
+                    android:contentDescription="@string/format_bar_description_strike"
                     android:layout_height="fill_parent"
                     android:layout_width="wrap_content"
                     style="@style/FormatBarButton" >

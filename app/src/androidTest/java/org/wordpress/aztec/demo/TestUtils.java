@@ -1,7 +1,12 @@
 package org.wordpress.aztec.demo;
 
 import android.support.test.espresso.DataInteraction;
+import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Tap;
+import android.support.test.espresso.action.ViewActions;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
@@ -52,8 +57,19 @@ public class TestUtils {
     public static ViewInteraction linkTextField = onView(withId(R.id.linkText));
     public static ViewInteraction linkURLField = onView(withId(R.id.linkURL));
 
+    // Switch to HTML view
     public static void toggleHTMLView() {
         ViewInteraction htmlButton = onView(withId(R.id.format_bar_button_html));
         htmlButton.perform(click());
+    }
+
+    // Better scrolling action for last toolbar item (<90% of item displayed)
+    public static ViewAction betterScrollTo() {
+        return ViewActions.actionWithAssertions(new BetterScrollToAction());
+    }
+
+    // Better click action for last toolbar item (<90% of item displayed)
+    public static ViewAction betterClick() {
+        return new BetterClickAction(Tap.SINGLE, GeneralLocation.CENTER, Press.FINGER);
     }
 }

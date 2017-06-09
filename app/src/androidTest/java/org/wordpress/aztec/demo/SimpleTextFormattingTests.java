@@ -15,6 +15,8 @@ import static android.support.test.espresso.action.ViewActions.typeTextIntoFocus
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.wordpress.aztec.demo.TestUtils.aztecText;
+import static org.wordpress.aztec.demo.TestUtils.betterClick;
+import static org.wordpress.aztec.demo.TestUtils.betterScrollTo;
 import static org.wordpress.aztec.demo.TestUtils.boldButton;
 import static org.wordpress.aztec.demo.TestUtils.formattedText;
 import static org.wordpress.aztec.demo.TestUtils.headingButton;
@@ -163,12 +165,12 @@ public class SimpleTextFormattingTests {
     public void testSimplePageBreakFormatting() {
         // Enter text in visual editor with page break in between
         aztecText.perform(typeText(unformattedText));
-        pageButton.perform(scrollTo(), click());
+        pageButton.perform(betterScrollTo(), betterClick());
         aztecText.perform(typeTextIntoFocusedView(unformattedText));
 
         // Check that page break was correctly added
         toggleHTMLView();
-        sourceText.check(matches(withText(unformattedText + "\n\n<!--pagebreak-->\n\n" + unformattedText)));
+        sourceText.check(matches(withText(unformattedText + "\n\n<!--nextpage-->\n\n" + unformattedText)));
     }
 
     @Test

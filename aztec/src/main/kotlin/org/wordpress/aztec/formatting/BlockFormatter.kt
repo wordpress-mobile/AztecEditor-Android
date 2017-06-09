@@ -27,8 +27,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             } else {
                 applyBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
             }
-        } else {
-            removeBlockStyle(TextFormat.FORMAT_ORDERED_LIST)
         }
     }
 
@@ -39,8 +37,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             } else {
                 applyBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
             }
-        } else {
-            removeBlockStyle(TextFormat.FORMAT_UNORDERED_LIST)
         }
     }
 

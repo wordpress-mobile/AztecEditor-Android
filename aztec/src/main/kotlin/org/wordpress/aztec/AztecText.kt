@@ -489,6 +489,15 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
     }
 
+    override fun getSelectionStart(): Int {
+        return Math.min(super.getSelectionStart(), super.getSelectionEnd())
+    }
+
+
+    override fun getSelectionEnd(): Int {
+        return Math.max(super.getSelectionStart(), super.getSelectionEnd())
+    }
+
     fun getSelectedText(): String {
         if (selectionStart == -1 || selectionEnd == -1
                 || editableText.length < selectionEnd || editableText.length < selectionStart) return ""

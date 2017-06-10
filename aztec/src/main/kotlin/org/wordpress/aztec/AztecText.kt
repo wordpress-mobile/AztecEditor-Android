@@ -27,6 +27,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
@@ -54,7 +55,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
 
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
@@ -87,7 +88,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
-    private var onMediaTappedListener: OnMediaTappedListener? = null
+    private var onImageTappedListener: OnImageTappedListener? = null
+    private var onVideoTappedListener: OnVideoTappedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -117,6 +119,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     lateinit var linkFormatter: LinkFormatter
 
     var imageGetter: Html.ImageGetter? = null
+    var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
 
     var widthMeasureSpec: Int = 0
 
@@ -130,8 +133,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         fun onImeBack()
     }
 
-    interface OnMediaTappedListener {
-        fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
+    interface OnImageTappedListener {
+        fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
+    }
+
+    interface OnVideoTappedListener {
+        fun onVideoTapped(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -449,8 +456,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         this.onImeBackListener = listener
     }
 
-    fun setOnMediaTappedListener(listener: OnMediaTappedListener) {
-        this.onMediaTappedListener = listener
+    fun setOnImageTappedListener(listener: OnImageTappedListener) {
+        this.onImageTappedListener = listener
+    }
+
+    fun setOnVideoTappedListener(listener: OnVideoTappedListener) {
+        this.onVideoTappedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -509,6 +520,16 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
 
         isLeadingStyleRemoved = false
+    }
+
+
+    override fun getSelectionStart(): Int {
+        return Math.min(super.getSelectionStart(), super.getSelectionEnd())
+    }
+
+
+    override fun getSelectionEnd(): Int {
+        return Math.max(super.getSelectionStart(), super.getSelectionEnd())
     }
 
 
@@ -667,7 +688,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         val parser = AztecParser()
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), onMediaTappedListener, this, context))
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
+                onImageTappedListener, onVideoTappedListener, this, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -685,10 +707,11 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         setSelection(cursorPosition)
 
         loadImages()
+        loadVideos()
     }
 
     private fun loadImages() {
-        val spans = this.text.getSpans(0, text.length, AztecMediaSpan::class.java)
+        val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
@@ -704,10 +727,6 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     replaceImage(ContextCompat.getDrawable(context, drawableLoading))
                 }
 
-                override fun onUseDefaultImage() {
-                    // we already have a default image loaded so, noop
-                }
-
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
                     post {
@@ -720,6 +739,36 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
                     context.resources.displayMetrics.heightPixels)
             imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+        }
+    }
+
+    private fun loadVideos() {
+        val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
+
+        spans.forEach {
+            val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
+
+                override fun onThumbnailFailed() {
+                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                }
+
+                override fun onThumbnailLoaded(drawable: Drawable?) {
+                    replaceImage(drawable)
+                }
+
+                override fun onThumbnailLoading(drawable: Drawable?) {
+                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                }
+
+                private fun replaceImage(drawable: Drawable?) {
+                    it.drawable = drawable
+                    post {
+                        refreshText()
+                    }
+                }
+            }
+
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
         }
     }
 
@@ -779,6 +828,16 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val spanEnd = editable.getSpanEnd(it)
             editable.removeSpan(it)
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
+        imageSpans.forEach {
+            it.onImageTappedListener = onImageTappedListener
+        }
+
+        val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
+        videoSpans.forEach {
+            it.onVideoTappedListener = onVideoTappedListener
         }
     }
 
@@ -897,8 +956,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), onMediaTappedListener,
-                        this, context).trim())
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()),
+                        onImageTappedListener, onVideoTappedListener, this, context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -998,7 +1057,8 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onMediaTappedListener, this, context).trim())
+            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onImageTappedListener,
+                    onVideoTappedListener, this, context).trim())
             setSelection(spanStart)
 
             disableTextChangedListener()
@@ -1062,8 +1122,12 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
-        return lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)
+    fun insertImage(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+        return lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
+    }
+
+    fun insertVideo(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
+        return lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -1100,7 +1164,9 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
     }
 
     fun updateMediaSpan(mediaSpan: AztecMediaSpan) {
-        editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        if (text.getSpanStart(mediaSpan) != -1 && text.getSpanEnd(mediaSpan) != -1) {
+            editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {

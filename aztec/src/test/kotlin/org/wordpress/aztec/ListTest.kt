@@ -1,6 +1,8 @@
 package org.wordpress.aztec
 
 import android.app.Activity
+import android.view.MenuItem
+import android.widget.PopupMenu
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -8,6 +10,8 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
@@ -22,6 +26,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     val listType = listTextFormat
     val listTag = listHtmlTag
     lateinit var editText: AztecText
+    lateinit var menuList: PopupMenu
+    lateinit var menuListOrdered: MenuItem
+    lateinit var menuListUnordered: MenuItem
+    lateinit var sourceText: SourceViewEditText
+    lateinit var toolbar: AztecToolbar
 
     companion object {
         @JvmStatic
@@ -42,6 +51,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
         editText.setCalypsoMode(false)
+        sourceText = SourceViewEditText(activity)
+        sourceText.setCalypsoMode(false)
+        toolbar = AztecToolbar(activity)
+        toolbar.setEditor(editText, sourceText)
+        menuList = toolbar.getListMenu() as PopupMenu
+        menuListOrdered = menuList.menu.getItem(1)
+        menuListUnordered = menuList.menu.getItem(0)
         activity.setContentView(editText)
     }
 
@@ -714,5 +730,62 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         // but not in the html
         Assert.assertEquals(html, editText.toHtml())
+    }
+
+    /**
+     * Update list menu based on selection.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listMenuSelection() {
+        val html = "<ol><li>Ordered</li></ol>Text<ul><li>Unordered</li></ul>"
+        editText.fromHtml(html)
+
+        // Select ordered list.
+        editText.setSelection(editText.text.indexOf("Ordered"))
+        Assert.assertTrue(menuListOrdered.isChecked)
+        Assert.assertFalse(menuListUnordered.isChecked)
+
+        // Select neither ordered nor unordered list.
+        editText.setSelection(editText.text.indexOf("Text"))
+        Assert.assertFalse(menuListOrdered.isChecked)
+        Assert.assertFalse(menuListUnordered.isChecked)
+
+        // Select unordered list.
+        editText.setSelection(editText.text.indexOf("Unordered"))
+        Assert.assertFalse(menuListOrdered.isChecked)
+        Assert.assertTrue(menuListUnordered.isChecked)
+    }
+
+    /**
+     * Toggle ordered list button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listOrderedTyping() {
+        Assert.assertFalse(menuListOrdered.isChecked)
+        toolbar.onMenuItemClick(menuListOrdered)
+        Assert.assertTrue(menuListOrdered.isChecked)
+        editText.append("ordered")
+        Assert.assertEquals("<ol><li>ordered</li></ol>", editText.toHtml())
+    }
+
+    /**
+     * Toggle unordered list button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listUnorderedTyping() {
+        Assert.assertFalse(menuListUnordered.isChecked)
+        toolbar.onMenuItemClick(menuListUnordered)
+        Assert.assertTrue(menuListUnordered.isChecked)
+        editText.append("unordered")
+        Assert.assertEquals("<ul><li>unordered</li></ul>", editText.toHtml())
     }
 }

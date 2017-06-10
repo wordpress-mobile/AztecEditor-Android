@@ -233,7 +233,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     inlineFormatter.tryRemoveLeadingInlineStyle()
                     isLeadingStyleRemoved = true
                     onSelectionChanged(0, 0)
-                }else if(selectionStart == selectionEnd){
+                } else if (selectionStart == selectionEnd) {
                     isBackspacePressed = true
                 }
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
@@ -472,7 +472,7 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
 
-        if(isOnSelectionListenerDisabled()){
+        if (isOnSelectionListenerDisabled()) {
             enableOnSelectionListener()
             return
         }
@@ -500,20 +500,16 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         //in case when onSelectionChanged is triggered in empty editor we do not want to updates selected stylesb
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
 
-        if(selStart == 0 && isBackspacePressed){
+        if (selStart == 0 && isBackspacePressed) {
             isBackspacePressed = false
             return
         }
 
-        //if backspace
-//        if (selStart > 0 && || isLeadingStyleRemoved) {
-            onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-            setSelectedStyles(getAppliedStyles(selStart, selEnd))
-//        }
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        setSelectedStyles(getAppliedStyles(selStart, selEnd))
 
         isLeadingStyleRemoved = false
     }
-
 
 
     fun getSelectedText(): String {
@@ -1048,10 +1044,9 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
                     isLeadingStyleRemoved = true
                     onSelectionChanged(0, 0)
                     return false
-                }else if(selectionStart == selectionEnd){
+                } else if (selectionStart == selectionEnd) {
                     isBackspacePressed = true
                 }
-
 
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
@@ -1062,14 +1057,10 @@ class AztecText : android.support.v7.widget.AppCompatEditText, TextWatcher, Unkn
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            if(beforeLength == 1 && afterLength == 0){
-                inlineFormatter.tryRemoveLeadingInlineStyle()
-                isLeadingStyleRemoved = true
-                onSelectionChanged(0, 0)
-            }
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }
+
 
     fun insertMedia(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
         return lineBlockFormatter.insertMedia(drawable, attributes, onMediaTappedListener)

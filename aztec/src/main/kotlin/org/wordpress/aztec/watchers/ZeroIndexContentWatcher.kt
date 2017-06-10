@@ -5,6 +5,8 @@ import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import java.lang.ref.WeakReference
 
+//on some combinations of API levels and keyboards there is no KEYCODE_DEL event coming from IME on zero index of EditText
+//we are using this watcher to try and detect those instances in order to remove leading spans when necessary
 class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
@@ -23,19 +25,15 @@ class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
 
         if (textChangedEventDetails.isNewLine()) return
 
-
         val aztecText = aztecTextRef.get()
         //last character was removed
-        if(aztecText != null && textChangedEventDetails.inputEnd == 0 && textChangedEventDetails.inputStart == 1){
+        if (aztecText != null && textChangedEventDetails.inputEnd == 0 && textChangedEventDetails.inputStart == 1) {
             aztecText.disableOnSelectionListener()
         }
     }
 
 
     override fun afterTextChanged(text: Editable) {
-//        text.getSpans(0, text.length, EndOfParagraphMarker::class.java).forEach {
-//            text.setSpan(it, text.getSpanStart(it), text.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-//        }
     }
 
     companion object {

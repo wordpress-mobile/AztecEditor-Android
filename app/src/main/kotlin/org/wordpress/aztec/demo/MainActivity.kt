@@ -222,25 +222,29 @@ class MainActivity : AppCompatActivity(),
     }
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        val (id, attrs) = generateAttributesForMedia(mediaPath)
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
         val mediaSpan = aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
         insertMediaAndSimulateUpload(id, attrs, mediaSpan)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        val (id, attrs) = generateAttributesForMedia(mediaPath)
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
         val mediaSpan = aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
         insertMediaAndSimulateUpload(id, attrs, mediaSpan)
     }
 
-    private fun generateAttributesForMedia(mediaPath: String): Pair<String, AztecAttributes> {
+    private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
         val id = (Math.random() * Int.MAX_VALUE).toString()
 
         val attrs = AztecAttributes()
         attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
         attrs.setValue("id", id)
         attrs.setValue("uploading", "true")
-        attrs.setValue("video", "true")
+
+        if (isVideo) {
+            attrs.setValue("video", "true")
+        }
+
         return Pair(id, attrs)
     }
 

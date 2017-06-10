@@ -10,13 +10,7 @@
     <!-- @color/grey_lighten_20 -->
     <path
         android:fillColor="#ffc8d7e1"
-        android:pathData="M22,30h-3v-6h-6v6h-3V15h3v6h6v-6h3V30" >
-    </path>
-
-    <!-- @color/grey_lighten_20 -->
-    <path
-        android:fillColor="#ffc8d7e1"
-        android:pathData="M34,20.7l-4.5,4.5L25,20.7l0.8-0.8l3.7,3.7l3.7-3.7" >
+        android:pathData="M28,30h-3v-6h-6v6h-3V15h3v6h6v-6h3V30z" >
     </path>
 
 </vector>

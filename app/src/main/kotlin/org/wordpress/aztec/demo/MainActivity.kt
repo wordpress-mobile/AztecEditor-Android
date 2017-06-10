@@ -8,8 +8,10 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,8 +33,11 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
+import org.wordpress.aztec.Html
+import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -40,7 +45,8 @@ import java.io.File
 
 class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
-        AztecText.OnMediaTappedListener,
+        AztecText.OnImageTappedListener,
+        AztecText.OnVideoTappedListener,
         AztecToolbarClickListener,
         HistoryListener,
         OnRequestPermissionsResultCallback,
@@ -98,6 +104,8 @@ class MainActivity : AppCompatActivity(),
 
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
 
+        private val VIDEO = "<video src=\"https://www.w3schools.com/html/mov_bbb.mp4\" />"
+
         private val EXAMPLE =
                 IMG +
                 HEADING +
@@ -118,7 +126,8 @@ class MainActivity : AppCompatActivity(),
                 CODE +
                 UNKNOWN +
                 EMOJI +
-                LONG_TEXT
+                LONG_TEXT +
+                VIDEO
 
         private val isRunningTest : Boolean by lazy {
             try {
@@ -167,8 +176,8 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
-                }
-                REQUEST_MEDIA_CAMERA_VIDEO -> {
+
+                    insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
@@ -178,18 +187,53 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeStream(stream, null, options)
+
+                    insertImageAndSimulateUpload(bitmap, mediaPath)
+                }
+                REQUEST_MEDIA_CAMERA_VIDEO -> {
+                    mediaPath = data?.data.toString()
                 }
                 REQUEST_MEDIA_VIDEO -> {
+                    mediaPath = data?.data.toString()
+
+                    aztec.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
+                        override fun onThumbnailFailed() {
+                        }
+
+                        override fun onThumbnailLoaded(drawable: Drawable?) {
+                            val conf = Bitmap.Config.ARGB_8888 // see other conf types
+                            bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
+                            val canvas = Canvas(bitmap)
+                            drawable.setBounds(0, 0, canvas.width, canvas.height)
+                            drawable.draw(canvas)
+
+                            insertVideoAndSimulateUpload(bitmap, mediaPath)
+                        }
+
+                        override fun onThumbnailLoading(drawable: Drawable?) {
+                        }
+
+                    }, this.resources.displayMetrics.widthPixels)
                 }
             }
-
-            insertMediaAndSimulateUpload(bitmap, mediaPath)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun insertMediaAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+    fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
+        val mediaSpan = aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+    }
+
+    fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
+        val mediaSpan = aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+    }
+
+    private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
         val id = (Math.random() * Int.MAX_VALUE).toString()
 
         val attrs = AztecAttributes()
@@ -197,8 +241,14 @@ class MainActivity : AppCompatActivity(),
         attrs.setValue("id", id)
         attrs.setValue("uploading", "true")
 
-        val mediaSpan = aztec.insertMedia(BitmapDrawable(resources, bitmap), attrs)
+        if (isVideo) {
+            attrs.setValue("video", "true")
+        }
 
+        return Pair(id, attrs)
+    }
+
+    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes, mediaSpan: AztecMediaSpan) {
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getValue("id") == id
@@ -227,6 +277,12 @@ class MainActivity : AppCompatActivity(),
             if (progress >= 10000) {
                 attrs.removeAttribute(attrs.getIndex("uploading"))
                 aztec.clearOverlays(predicate)
+
+                if (attrs.hasAttribute("video")) {
+                    attrs.removeAttribute(attrs.getIndex("video"))
+                    aztec.setOverlay(predicate, 0, ContextCompat.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
+                }
+
                 aztec.updateElementAttributes(predicate, attrs)
             }
         }
@@ -253,9 +309,10 @@ class MainActivity : AppCompatActivity(),
         aztec = findViewById(R.id.aztec) as AztecText
 
         aztec.imageGetter = PicassoImageLoader(this, aztec)
-//        aztec.imageGetter = GlideImageLoader(this)
+        aztec.videoThumbnailGetter = GlideVideoThumbnailLoader(this)
 
-        aztec.setOnMediaTappedListener(this)
+        aztec.setOnImageTappedListener(this)
+        aztec.setOnVideoTappedListener(this)
 
         source = findViewById(R.id.source) as SourceViewEditText
 
@@ -628,15 +685,15 @@ class MainActivity : AppCompatActivity(),
         item?.isChecked = (item?.isChecked == false)
 
         when (item?.itemId) {
-            org.wordpress.aztec.R.id.gallery -> {
+            R.id.gallery -> {
                 onGalleryMediaOptionSelected()
                 return true
             }
-            org.wordpress.aztec.R.id.photo -> {
+            R.id.photo -> {
                 showPhotoMediaDialog()
                 return true
             }
-            org.wordpress.aztec.R.id.video -> {
+            R.id.video -> {
                 showVideoMediaDialog()
                 return true
             }
@@ -706,7 +763,21 @@ class MainActivity : AppCompatActivity(),
         addVideoMediaDialog!!.show()
     }
 
-    override fun mediaTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
-        ToastUtils.showToast(this, "Media tapped!")
+    override fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
+        ToastUtils.showToast(this, "Image tapped!")
+    }
+
+    override fun onVideoTapped(attrs: AztecAttributes) {
+        val url = attrs.getValue("src")
+        url?.let {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.setDataAndType(Uri.parse(url), "video/*")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(intent)
+            } catch (e: Exception) {
+                ToastUtils.showToast(this, "Video tapped!")
+            }
+        }
     }
 }

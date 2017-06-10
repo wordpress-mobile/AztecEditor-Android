@@ -104,18 +104,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun emptyList() {
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
-
-        //remove list
-        editText.toggleFormatting(listType)
-        Assert.assertEquals(0, TestUtils.safeLength(editText))
-        Assert.assertEquals("", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(listType)
         TestUtils.safeAppend(editText, "first item")
@@ -165,16 +153,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun bulletListSplitWithToolbar() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
-        editText.setSelection(14)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<$listTag><li>third item</li></$listTag>", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun splitTwoListsWithNewline() {
         editText.fromHtml("<$listTag><li>List 1</li></$listTag><$listTag><li>List 2</li></$listTag>")
         val mark2 = editText.text.indexOf("List 2")
@@ -187,49 +165,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.insert(mark1 + 1, "\n")
         Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStyling() {
-        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
-        editText.setSelection(1)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("first item", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStylingForPartialSelection() {
-        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
-        editText.setSelection(2, 4)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("first item", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStylingForMultilinePartialSelection() {
-        editText.toggleFormatting(listType)
-        TestUtils.safeAppend(editText, "first item")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "second item")
-        val firstMark = editText.length() - 4
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "third item")
-        TestUtils.safeAppend(editText, "\n")
-        val secondMark = editText.length() - 4
-        TestUtils.safeAppend(editText, "fourth item")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "not in list")
-
-        editText.setSelection(firstMark, secondMark)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test

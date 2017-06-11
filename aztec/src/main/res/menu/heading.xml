@@ -7,7 +7,7 @@
         <item
             android:id="@+id/paragraph"
             android:checked="true"
-            android:title="@string/paragraph" >
+            android:title="@string/heading_default" >
         </item>
 
         <item

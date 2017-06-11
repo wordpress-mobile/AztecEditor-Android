@@ -195,30 +195,37 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             // Heading Menu
             R.id.paragraph -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
+                setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
             R.id.heading_1 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_1)
                 return true
             }
             R.id.heading_2 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_2)
                 return true
             }
             R.id.heading_3 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_3)
                 return true
             }
             R.id.heading_4 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_4)
                 return true
             }
             R.id.heading_5 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_5)
                 return true
             }
             R.id.heading_6 -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
+                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_6)
                 return true
             }
 //            TODO: Uncomment when Preformat is to be added back as a feature
@@ -418,6 +425,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         if (textFormats.size == 0) {
             // Select paragraph by default.
             headingMenu?.menu?.getItem(0)?.isChecked = true
+            // Use unnumbered heading selector by default.
+            setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
         } else {
             textFormats.forEach {
                 when (it) {
@@ -434,6 +443,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         headingMenu?.menu?.getItem(0)?.isChecked = true
                     }
                 }
+
+                setHeadingMenuSelector(it)
 
                 return
             }
@@ -485,6 +496,35 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
             }
         }
+    }
+
+    private fun setHeadingMenuSelector(textFormat: TextFormat) {
+        when (textFormat) {
+            TextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1)
+            TextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2)
+            TextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3)
+            TextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4)
+            TextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5)
+            TextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6)
+            TextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading)
+            else -> {
+                // Use unnumbered heading selector by default.
+                findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading)
+            }
+        }
+    }
+
+    fun getSelectedHeadingMenuItem(): TextFormat? {
+        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+        else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
+        else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
+        else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
+        else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
+        else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
+//        TODO: Uncomment when Preformat is to be added back as a feature
+//        else if (headingMenu?.menu?.getItem(7)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
+        return null
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

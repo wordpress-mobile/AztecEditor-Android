@@ -514,19 +514,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun getSelectedHeadingMenuItem(): TextFormat? {
-        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
-        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
-        else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
-        else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
-        else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
-        else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
-        else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
-//        TODO: Uncomment when Preformat is to be added back as a feature
-//        else if (headingMenu?.menu?.getItem(7)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
-        return null
-    }
-
     private fun toggleHtmlMode(isHtmlMode: Boolean) {
         ToolbarAction.values().forEach { action ->
             if (action == ToolbarAction.HTML) {

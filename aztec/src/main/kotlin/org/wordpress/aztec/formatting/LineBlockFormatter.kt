@@ -6,7 +6,8 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.*
-import org.wordpress.aztec.AztecText.OnMediaTappedListener
+import org.wordpress.aztec.AztecText.OnImageTappedListener
+import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
@@ -43,8 +44,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
              *                                                  multiple lines (before), current partially or entirely selected
              */
             if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                    || (selEnd in lineStart..lineEnd)
+                    || (selStart in lineStart..lineEnd)) {
                 list.add(i)
             }
         }
@@ -117,51 +118,59 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
-    fun insertMedia(drawable: Drawable?, attributes: Attributes, onMediaTappedListener: OnMediaTappedListener?): AztecMediaSpan {
-        val span = AztecMediaSpan(editor.context, drawable, AztecAttributes(attributes), onMediaTappedListener, editor)
 
+    fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?): AztecMediaSpan {
+        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val span = AztecVideoSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onVideoTappedListener, editor)
+        return insertMedia(span)
+    }
+
+    fun insertImage(drawable: Drawable?, attributes: Attributes, onImageTappedListener: OnImageTappedListener?): AztecMediaSpan {
+        val span = AztecImageSpan(editor.context, drawable, AztecAttributes(attributes), onImageTappedListener, editor)
+        return insertMedia(span)
+    }
+
+    private fun insertMedia(span: AztecMediaSpan): AztecMediaSpan {
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-            .firstOrNull {
-                selectionStart == editableText.getSpanEnd(it)
-            }
+                .firstOrNull {
+                    selectionStart == editableText.getSpanEnd(it)
+                }
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
-            .firstOrNull {
-                selectionStart == editableText.getSpanStart(it)
-            }
-
-        val mediaStartIndex = selectionStart
-        val mediaEndIndex = selectionStart + 1
-
-        editor.disableTextChangedListener()
-        editableText.replace(selectionStart, selectionEnd, Constants.IMG_STRING)
-        editor.enableTextChangedListener()
+                .firstOrNull {
+                    selectionStart == editableText.getSpanStart(it)
+                }
 
         if (spanAfterMedia != null) {
-            editableText.setSpan(spanAfterMedia, mediaStartIndex, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(spanAfterMedia, selectionStart, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         if (spanBeforeMedia != null) {
-            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), mediaEndIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), selectionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        editor.removeInlineStylesFromRange(mediaStartIndex, mediaEndIndex)
+        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
 
-        editableText.setSpan(
+        val ssb = SpannableStringBuilder(Constants.IMG_STRING)
+
+        ssb.setSpan(
                 span,
-                mediaStartIndex,
-                mediaEndIndex,
+                0,
+                1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editableText.setSpan(
+        ssb.setSpan(
                 AztecMediaClickableSpan(span),
-                mediaStartIndex,
-                mediaEndIndex,
+                0,
+                1,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-        editor.setSelection(mediaEndIndex)
+        editableText.replace(selectionStart, selectionEnd, ssb)
+
+        editor.setSelection(
+                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
         editor.isMediaAdded = true
 
         return span

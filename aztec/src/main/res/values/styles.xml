@@ -8,12 +8,12 @@
         <item name="android:textOff">""</item>
     </style>
 
-    <style name="FormatBarHtmlButton" parent="FormatBarButton">
-        <item name="android:layout_marginLeft">@dimen/format_bar_html_button_left_margin</item>
+    <style name="DividerHorizontal">
+        <item name="android:background">@color/format_bar_divider_horizontal</item>
     </style>
 
-    <style name="Divider">
-        <item name="android:background">@color/format_bar_divider</item>
+    <style name="DividerVertical">
+        <item name="android:background">@color/format_bar_divider_vertical</item>
     </style>
 
     <style name="DividerSourceView">

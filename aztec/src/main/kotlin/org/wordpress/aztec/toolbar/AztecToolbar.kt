@@ -403,44 +403,44 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun getSelectedHeadingMenuItem(): TextFormat? {
-        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
-        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
-        else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
-        else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
-        else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
-        else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
-        else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
+        if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+        else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
+        else if (headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
+        else if (headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
+        else if (headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
+        else if (headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
 //        TODO: Uncomment when Preformat is to be added back as a feature
-//        else if (headingMenu?.menu?.getItem(7)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
+//        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
         return null
     }
 
     fun getSelectedListMenuItem(): TextFormat? {
-        if (listMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
-        else if (listMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
+        if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
+        else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
         return null
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
         if (textFormats.size == 0) {
             // Select paragraph by default.
-            headingMenu?.menu?.getItem(0)?.isChecked = true
+            headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
             // Use unnumbered heading selector by default.
             setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
         } else {
             textFormats.forEach {
                 when (it) {
-                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
 //                    TODO: Uncomment when Preformat is to be added back as a feature
-//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.getItem(7)?.isChecked = true
+//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
                     else -> {
                         // Select paragraph by default.
-                        headingMenu?.menu?.getItem(0)?.isChecked = true
+                        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
                     }
                 }
 
@@ -454,17 +454,17 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun selectListMenuItem(textFormats: ArrayList<TextFormat>) {
         if (textFormats.size == 0) {
             // Select no list by default.
-            listMenu?.menu?.getItem(2)?.isChecked = true
+            listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
             // Use unordered list selector by default.
             setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
         } else {
             textFormats.forEach {
                 when (it) {
-                    TextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.getItem(0)?.isChecked = true
-                    TextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.getItem(1)?.isChecked = true
+                    TextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
+                    TextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
                     else -> {
                         // Select no list by default.
-                        listMenu?.menu?.getItem(2)?.isChecked = true
+                        listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
                     }
                 }
 

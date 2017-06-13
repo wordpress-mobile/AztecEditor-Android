@@ -22,8 +22,7 @@
     <string name="format_bar_description_more">More</string>
     <string name="format_bar_description_page">Page Break</string>
     <string name="format_bar_description_media">Media</string>
-    <string name="format_bar_description_ul">Unordered list</string>
-    <string name="format_bar_description_ol">Ordered list</string>
+    <string name="format_bar_description_list">List</string>
     <string name="format_bar_description_html">HTML</string>
     <string name="visual_editor">Visual toolbarActionListener</string>
     <string name="image_thumbnail">Image thumbnail</string>
@@ -77,6 +76,7 @@
     <string name="item_format_heading_5">Heading 5</string>
     <string name="item_format_heading_6">Heading 6</string>
     <string name="item_format_italic">Italic</string>
+    <string name="item_format_list_no">No List</string>
     <string name="item_format_list_ordered">Ordered List</string>
     <string name="item_format_list_unordered">Unordered List</string>
     <string name="item_format_paragraph">Paragraph</string>

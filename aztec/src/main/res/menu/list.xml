@@ -1,0 +1,25 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <group
+        android:checkableBehavior="single" >
+
+        <item
+            android:id="@+id/list_unordered"
+            android:title="@string/item_format_list_unordered" >
+        </item>
+
+        <item
+            android:id="@+id/list_ordered"
+            android:title="@string/item_format_list_ordered" >
+        </item>
+
+        <item
+            android:id="@+id/list_none"
+            android:title="@string/item_format_list_no"
+            android:visible="false" >
+        </item>
+
+    </group>
+
+</menu>

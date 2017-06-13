@@ -189,7 +189,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-        item?.isChecked = (item?.isChecked == false)
+        val checked = (item?.isChecked == false)
+        item?.isChecked = checked
 
         when (item?.itemId) {
             // Heading Menu
@@ -236,10 +237,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             // List Menu
             R.id.list_ordered -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+                toggleListMenuSelection(item.itemId, checked)
                 return true
             }
             R.id.list_unordered -> {
                 editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+                toggleListMenuSelection(item.itemId, checked)
                 return true
             }
             else -> return false
@@ -521,6 +524,23 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             } else {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
+        }
+    }
+
+    private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
+        if (isChecked) {
+            listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
+
+            when (listMenuItemId) {
+                R.id.list_ordered -> setListMenuSelector(TextFormat.FORMAT_ORDERED_LIST)
+                R.id.list_unordered -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
+                else -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST) // Use unordered list selector by default.
+            }
+        } else {
+            listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
+
+            // Use unordered list selector by default.
+            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
         }
     }
 

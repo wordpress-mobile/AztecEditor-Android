@@ -30,6 +30,7 @@ import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
+import org.wordpress.aztec.*
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.HistoryListener
@@ -148,11 +149,9 @@ class MainActivity : AppCompatActivity(),
     private val REQUEST_MEDIA_PHOTO: Int = 2003
     private val REQUEST_MEDIA_VIDEO: Int = 2004
 
-    private lateinit var aztec: AztecText
+    private lateinit var aztec: Aztec
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
-    private lateinit var source: SourceViewEditText
-    private lateinit var formattingToolbar: AztecToolbar
 
     private lateinit var invalidateOptionsHandler: Handler
     private lateinit var invalidateOptionsRunnable: Runnable
@@ -196,7 +195,7 @@ class MainActivity : AppCompatActivity(),
                 REQUEST_MEDIA_VIDEO -> {
                     mediaPath = data?.data.toString()
 
-                    aztec.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
+                    aztec.visualEditor.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
                         override fun onThumbnailFailed() {
                         }
 
@@ -223,13 +222,13 @@ class MainActivity : AppCompatActivity(),
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        val mediaSpan = aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        val mediaSpan = aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
         insertMediaAndSimulateUpload(id, attrs, mediaSpan)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        val mediaSpan = aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        val mediaSpan = aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
         insertMediaAndSimulateUpload(id, attrs, mediaSpan)
     }
 
@@ -255,35 +254,35 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        aztec.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
-        aztec.updateElementAttributes(predicate, attrs)
+        aztec.visualEditor.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
+        aztec.visualEditor.updateElementAttributes(predicate, attrs)
 
         val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
 
-        aztec.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP)
-        aztec.updateElementAttributes(predicate, attrs)
+        aztec.visualEditor.setOverlay(predicate, 1, progressDrawable, Gravity.FILL_HORIZONTAL or Gravity.TOP)
+        aztec.visualEditor.updateElementAttributes(predicate, attrs)
 
         var progress = 0
 
         // simulate an upload delay
         val runnable: Runnable = Runnable {
-            aztec.setOverlayLevel(predicate, 1, progress)
-            aztec.updateElementAttributes(predicate, attrs)
-            aztec.updateMediaSpan(mediaSpan)
+            aztec.visualEditor.setOverlayLevel(predicate, 1, progress)
+            aztec.visualEditor.updateElementAttributes(predicate, attrs)
+            aztec.visualEditor.updateMediaSpan(mediaSpan)
             progress += 2000
 
             if (progress >= 10000) {
                 attrs.removeAttribute(attrs.getIndex("uploading"))
-                aztec.clearOverlays(predicate)
+                aztec.visualEditor.clearOverlays(predicate)
 
                 if (attrs.hasAttribute("video")) {
                     attrs.removeAttribute(attrs.getIndex("video"))
-                    aztec.setOverlay(predicate, 0, ContextCompat.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
+                    aztec.visualEditor.setOverlay(predicate, 0, ContextCompat.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
                 }
 
-                aztec.updateElementAttributes(predicate, attrs)
+                aztec.visualEditor.updateElementAttributes(predicate, attrs)
             }
         }
 
@@ -293,7 +292,7 @@ class MainActivity : AppCompatActivity(),
         Handler().postDelayed(runnable, 6000)
         Handler().postDelayed(runnable, 8000)
 
-        aztec.refreshText()
+        aztec.visualEditor.refreshText()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -306,36 +305,28 @@ class MainActivity : AppCompatActivity(),
             mHideActionBarOnSoftKeyboardUp = true
         }
 
-        aztec = findViewById(R.id.aztec) as AztecText
+        val visualEditor = findViewById(R.id.aztec) as AztecText
+        val sourceEditor = findViewById(R.id.source) as SourceViewEditText
+        val toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
 
-        aztec.imageGetter = PicassoImageLoader(this, aztec)
-        aztec.videoThumbnailGetter = GlideVideoThumbnailLoader(this)
-
-        aztec.setOnImageTappedListener(this)
-        aztec.setOnVideoTappedListener(this)
-
-        source = findViewById(R.id.source) as SourceViewEditText
-
-        formattingToolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
-        formattingToolbar.setEditor(aztec, source)
-        formattingToolbar.setToolbarListener(this)
-        aztec.setToolbar(formattingToolbar)
+        aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
+            .setImageGetter(PicassoImageLoader(this, visualEditor))
+            .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
+            .setOnImeBackListener(this)
+            .setOnTouchListener(this)
+            .setHistoryListener(this)
+            .setOnImageTappedListener(this)
+            .setOnVideoTappedListener(this)
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            source.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor.displayStyledAndFormattedHtml(EXAMPLE)
         }
 
         if (savedInstanceState == null) {
-            aztec.fromHtml(source.getPureHtml())
-            source.history = aztec.history
+            aztec.visualEditor.fromHtml(aztec.sourceEditor.getPureHtml())
+            aztec.initHistory()
         }
-
-        aztec.history.setHistoryListener(this)
-        aztec.setOnImeBackListener(this)
-        aztec.setOnTouchListener(this)
-        source.setOnImeBackListener(this)
-        source.setOnTouchListener(this)
 
         invalidateOptionsHandler = Handler()
         invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
@@ -369,7 +360,7 @@ class MainActivity : AppCompatActivity(),
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        source.history = aztec.history
+        aztec.initHistory()
 
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
@@ -470,16 +461,16 @@ class MainActivity : AppCompatActivity(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.undo ->
-                if (aztec.visibility == View.VISIBLE) {
-                    aztec.undo()
+                if (aztec.visualEditor.visibility == View.VISIBLE) {
+                    aztec.visualEditor.undo()
                 } else {
-                    source.undo()
+                    aztec.sourceEditor.undo()
                 }
             R.id.redo ->
-                if (aztec.visibility == View.VISIBLE) {
-                    aztec.redo()
+                if (aztec.visualEditor.visibility == View.VISIBLE) {
+                    aztec.visualEditor.redo()
                 } else {
-                    source.redo()
+                    aztec.sourceEditor.redo()
                 }
             else -> {
             }
@@ -489,8 +480,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.redo)?.isEnabled = aztec.history.redoValid()
-        menu?.findItem(R.id.undo)?.isEnabled = aztec.history.undoValid()
+        menu?.findItem(R.id.redo)?.isEnabled = aztec.visualEditor.history.redoValid()
+        menu?.findItem(R.id.undo)?.isEnabled = aztec.visualEditor.history.undoValid()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -665,17 +656,17 @@ class MainActivity : AppCompatActivity(),
             }
         }
 
-        val mediaPending = aztec.getAllElementAttributes(uploadingPredicate).isNotEmpty()
+        val mediaPending = aztec.visualEditor.getAllElementAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
         } else {
-            formattingToolbar.toggleEditorMode()
+            aztec.toolbar.toggleEditorMode()
         }
     }
 
     override fun onToolbarAddMediaClicked() {
-        mediaMenu = PopupMenu(this, formattingToolbar)
+        mediaMenu = PopupMenu(this, aztec.toolbar)
         mediaMenu?.setOnMenuItemClickListener(this)
         mediaMenu?.inflate(R.menu.media)
         mediaMenu?.show()

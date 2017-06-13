@@ -9,90 +9,137 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import java.util.*
 
-class Aztec private constructor(var activity: Activity) {
-
-    var visualEditor: AztecText? = null
-    var sourceEditor: SourceViewEditText? = null
-    var formattingToolbar: AztecToolbar? = null
+open class Aztec private constructor(val visualEditor: AztecText, val sourceEditor: SourceViewEditText,
+                                     val toolbar: AztecToolbar, val toolbarClickListener: AztecToolbarClickListener) {
+        
+    var imageGetter: Html.ImageGetter? = null
+    var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    var imeBackListener: AztecText.OnImeBackListener? = null
+    var onTouchListener: View.OnTouchListener? = null
+    var historyListener: HistoryListener? = null
+    var onImageTappedListener: AztecText.OnImageTappedListener? = null
+    var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
 
     var plugins: List<IAztecPlugin> = ArrayList()
 
+    init {
+        initHistory()
+        initToolbar()
+    }
+    
+    constructor(activity: Activity, @IdRes aztecTextId: Int,
+                @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
+                toolbarClickListener: AztecToolbarClickListener) : this(activity.findViewById(aztecTextId) as AztecText,
+            activity.findViewById(sourceTextId) as SourceViewEditText, activity.findViewById(toolbarId) as AztecToolbar, toolbarClickListener)
+
     companion object Factory {
-        fun with(activity: Activity) : Aztec {
-            return Aztec(activity)
+        fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int, 
+                 @IdRes toolbarId: Int, toolbarClickListener: AztecToolbarClickListener) : Aztec {
+            return Aztec(activity, aztecTextId, sourceTextId, toolbarId, toolbarClickListener)
         }
-    }
 
-    fun initVisualEditor(@IdRes aztecTextId: Int) : Aztec {
-        visualEditor = activity.findViewById(aztecTextId) as AztecText
-        initHistory()
-        return this
-    }
-
-    fun setVisualEditor(visualEditor: AztecText) : Aztec {
-        this.visualEditor = visualEditor
-        initHistory()
-        return this
-    }
-
-    fun initSourceEditor(@IdRes sourceTextId: Int) : Aztec {
-        sourceEditor = activity.findViewById(sourceTextId) as SourceViewEditText
-        initHistory()
-        return this
-    }
-
-    fun setSourceEditor(sourceEditor: SourceViewEditText) : Aztec {
-        this.sourceEditor = sourceEditor
-        initHistory()
-        return this
-    }
-
-    private fun initHistory() {
-        if (sourceEditor != null && visualEditor != null) {
-            sourceEditor!!.history = visualEditor!!.history
+        fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
+                 toolbar: AztecToolbar, toolbarClickListener: AztecToolbarClickListener) : Aztec {
+            return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
-    }
-
-    fun initToolbar(@IdRes toolbarId: Int, toolbarClickListener: AztecToolbarClickListener) : Aztec {
-        formattingToolbar = activity.findViewById(toolbarId) as AztecToolbar
-        if (formattingToolbar != null && visualEditor != null && sourceEditor != null) {
-            formattingToolbar!!.setEditor(visualEditor!!, sourceEditor!!)
-            formattingToolbar!!.setToolbarListener(toolbarClickListener)
-            visualEditor!!.setToolbar(formattingToolbar!!)
-        }
-        return this
     }
 
     fun setImageGetter(imageGetter: Html.ImageGetter) : Aztec {
+        this.imageGetter = imageGetter
+        initImageGetter()
         return this
     }
 
     fun setVideoThumbnailGetter(videoThumbnailGetter: Html.VideoThumbnailGetter) : Aztec {
+        this.videoThumbnailGetter = videoThumbnailGetter
+        initVideoGetter()
         return this
     }
 
     fun setOnImeBackListener(imeBackListener: AztecText.OnImeBackListener) : Aztec {
+        this.imeBackListener = imeBackListener
+        initImeBackListener()
         return this
     }
 
     fun setOnTouchListener(onTouchListener: View.OnTouchListener) : Aztec {
-        return this
-    }
-
-    fun setHistoryListener(historyListener: HistoryListener) : Aztec {
+        this.onTouchListener = onTouchListener
+        initTouchListener()
         return this
     }
 
     fun setOnImageTappedListener(onImageTappedListener: AztecText.OnImageTappedListener) : Aztec {
+        this.onImageTappedListener = onImageTappedListener
+        initImageTappedListener()
         return this
     }
 
     fun setOnVideoTappedListener(onVideoTappedListener: AztecText.OnVideoTappedListener) : Aztec {
+        this.onVideoTappedListener = onVideoTappedListener
+        initVideoTappedListener()
+        return this
+    }
+
+    fun setHistoryListener(historyListener: HistoryListener) : Aztec {
+        this.historyListener = historyListener
+        initHistoryListener()
         return this
     }
 
     fun addPlugin(plugin: IAztecPlugin) : Aztec {
         plugins += plugin
         return this
+    }
+
+    fun initHistory() {
+        sourceEditor.history = visualEditor.history
+    }
+
+    private fun initToolbar() {
+        toolbar.setEditor(visualEditor, sourceEditor)
+        toolbar.setToolbarListener(toolbarClickListener)
+        visualEditor.setToolbar(toolbar)
+    }
+
+    private fun initHistoryListener() {
+        if (historyListener != null) {
+            visualEditor.history.setHistoryListener(historyListener!!)
+        }
+    }
+
+    private fun initImageGetter() {
+        if (imageGetter != null) {
+            visualEditor.imageGetter = imageGetter
+        }
+    }
+
+    private fun initVideoGetter() {
+        if (videoThumbnailGetter != null) {
+            visualEditor.videoThumbnailGetter = videoThumbnailGetter
+        }
+    }
+
+    private fun initImeBackListener() {
+        if (imeBackListener != null) {
+            visualEditor.setOnImeBackListener(imeBackListener!!)
+        }
+    }
+
+    private fun initTouchListener() {
+        if (onTouchListener != null) {
+            visualEditor.setOnTouchListener(onTouchListener!!)
+        }
+    }
+
+    private fun initImageTappedListener() {
+        if (onImageTappedListener != null) {
+            visualEditor.setOnImageTappedListener(onImageTappedListener!!)
+        }
+    }
+
+    private fun initVideoTappedListener() {
+        if (onVideoTappedListener != null) {
+            visualEditor.setOnVideoTappedListener(onVideoTappedListener!!)
+        }
     }
 }

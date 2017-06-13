@@ -135,18 +135,38 @@ public class SimpleTextFormattingTests {
         sourceText.check(matches(withText(unformattedText + "\n<ol>\n\t<li>" + formattedText + "</li>\n</ol>")));
     }
 
-    @Test
-    public void testSimpleLinkFormatting() {
+    /*
+    * This test is disabled because Espresso does not click in the correct position for the link dialog's OK button.
+    * See replacement test below.
+     */
+    //@Test
+    //public void testSimpleLinkFormatting() {
         // Enter text in visual editor with formatting
-        aztecText.perform(typeText(unformattedText));
-        linkButton.perform(scrollTo(), click());
-        linkURLField.perform(typeTextIntoFocusedView(linkURLText));
-        linkTextField.perform(typeText(formattedText));
-        linkOKButton.perform(click());
+        //aztecText.perform(typeText(unformattedText));
+        //linkButton.perform(scrollTo(), click());
+        //linkURLField.perform(replaceText(linkURLText));
+        //linkTextField.perform(replaceText(formattedText));
+        //linkOKButton.perform(click());
 
         // Check that HTML formatting tags were correctly added
+        //toggleHTMLView();
+        //sourceText.check(matches(withText(unformattedText + "<a href='" + linkURLText + "'>" + formattedText + "</a>")));
+    //}
+
+    /*
+    * This test enters link HTML and then checks the link dialog values.
+     */
+    @Test
+    public void testSimpleLinkFormatting() {
+        // Enter link HTML
         toggleHTMLView();
-        sourceText.check(matches(withText(unformattedText + "<a href='" + linkURLText + "'>" + formattedText + "</a>")));
+        sourceText.perform(typeText("<a href='" + linkURLText + "'>" + formattedText + "</a>"));
+
+        // Check that link dialog contains the correct values
+        toggleHTMLView();
+        linkButton.perform(scrollTo(), click());
+        linkURLField.check(matches(withText(linkURLText)));
+        linkTextField.check(matches(withText(formattedText)));
     }
 
     @Test

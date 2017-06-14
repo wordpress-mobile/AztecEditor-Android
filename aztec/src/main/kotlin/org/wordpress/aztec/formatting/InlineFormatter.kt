@@ -379,10 +379,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun tryRemoveLeadingInlineStyle(): Boolean {
-
-        var isSpanRemoved = false
-
+    fun tryRemoveLeadingInlineStyle() {
         val selectionStart = editor.selectionStart
         val selectionEnd = editor.selectionEnd
 
@@ -390,18 +387,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             editableText.getSpans(0, 0, AztecInlineSpan::class.java).forEach {
                 if (editableText.getSpanEnd(it) == selectionEnd && editableText.getSpanEnd(it) == selectionStart) {
                     editableText.removeSpan(it)
-                    isSpanRemoved = true
                 }
             }
         } else if (editor.length() == 1 && editor.text[0] == Constants.END_OF_BUFFER_MARKER) {
             editableText.getSpans(0, 1, AztecInlineSpan::class.java).forEach {
                 if (editableText.getSpanStart(it) == 1 && editableText.getSpanEnd(it) == 1) {
                     editableText.removeSpan(it)
-                    isSpanRemoved = true
                 }
             }
         }
-
-        return isSpanRemoved
     }
 }

@@ -501,6 +501,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 if (end == length()) {
                     end--
                 }
+
                 setSelection(start, end)
                 return
             }
@@ -508,9 +509,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-        //in case when onSelectionChanged is triggered in empty editor we do not want to updates selected stylesb
+        //do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
 
+        //do not update toolbar or selected styles when we removed first character in not empty editor
         if (selStart == 0 && isBackspacePressed) {
             isBackspacePressed = false
             return
@@ -527,11 +529,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return Math.min(super.getSelectionStart(), super.getSelectionEnd())
     }
 
-
     override fun getSelectionEnd(): Int {
         return Math.max(super.getSelectionStart(), super.getSelectionEnd())
     }
-
 
     fun getSelectedText(): String {
         if (selectionStart == -1 || selectionEnd == -1
@@ -917,6 +917,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 copy(text, min, max)
                 text.delete(min, max) //this will hide text action menu
 
+                //if we are cutting text from the beginning of editor, remove leading inline style
                 if (min == 0) {
                     inlineFormatter.tryRemoveLeadingInlineStyle()
                     isLeadingStyleRemoved = true
@@ -1120,7 +1121,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }
-
 
     fun insertImage(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
         return lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)

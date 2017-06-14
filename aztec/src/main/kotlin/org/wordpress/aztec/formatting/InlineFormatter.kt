@@ -95,7 +95,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
                     TextFormat.FORMAT_UNDERLINE,
-                    TextFormat.FORMAT_CODE ->  {
+                    TextFormat.FORMAT_CODE -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
@@ -110,16 +110,18 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
         val newStart = if (start > end) end else start
+        //if there is END_OF_BUFFER_MARKER at the end of or range, extend the range to include it
+        val newEnd = if (editableText.length > end && editableText[end] == Constants.END_OF_BUFFER_MARKER) end + 1 else end
 
-        editor.getAppliedStyles(start, end).forEach {
-            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (start == 0 && end == 0) ||
-                    (start > end && editableText.length > end && editableText[end] == '\n')) {
+        editor.getAppliedStyles(newStart, newEnd).forEach {
+            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (newStart == 0 && newEnd == 0) ||
+                    (newStart > newEnd && editableText.length > newEnd && editableText[newEnd] == '\n')) {
                 when (it) {
                     TextFormat.FORMAT_BOLD,
                     TextFormat.FORMAT_ITALIC,
                     TextFormat.FORMAT_STRIKETHROUGH,
                     TextFormat.FORMAT_UNDERLINE,
-                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, end)
+                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, newEnd)
                     else -> {
                         //do nothing
                     }

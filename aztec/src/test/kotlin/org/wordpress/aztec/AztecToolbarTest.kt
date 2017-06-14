@@ -28,8 +28,6 @@ class AztecToolbarTest {
     lateinit var strikeThroughButton: ToggleButton
     lateinit var underlineButton: ToggleButton
     lateinit var quoteButton: ToggleButton
-    lateinit var bulletListButton: ToggleButton
-    lateinit var numberedListButton: ToggleButton
     lateinit var linkButton: ToggleButton
     lateinit var moreButton: ToggleButton
     lateinit var pageButton: ToggleButton
@@ -54,8 +52,6 @@ class AztecToolbarTest {
         strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough) as ToggleButton
         underlineButton = toolbar.findViewById(R.id.format_bar_button_underline) as ToggleButton
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
-        bulletListButton = toolbar.findViewById(R.id.format_bar_button_ul) as ToggleButton
-        numberedListButton = toolbar.findViewById(R.id.format_bar_button_ol) as ToggleButton
         linkButton = toolbar.findViewById(R.id.format_bar_button_link) as ToggleButton
         moreButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
         pageButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
@@ -75,8 +71,6 @@ class AztecToolbarTest {
         Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(quoteButton.isChecked)
-        Assert.assertFalse(bulletListButton.isChecked)
-        Assert.assertFalse(numberedListButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
         Assert.assertFalse(moreButton.isChecked)
         Assert.assertFalse(pageButton.isChecked)
@@ -662,31 +656,8 @@ class AztecToolbarTest {
         Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(quoteButton.isChecked)
-        Assert.assertFalse(bulletListButton.isChecked)
-        Assert.assertFalse(numberedListButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
-    }
-
-    /**
-     * Toggle bullet list button and type.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun bulletListTyping() {
-        Assert.assertFalse(bulletListButton.isChecked)
-        bulletListButton.performClick()
-        Assert.assertTrue(bulletListButton.isChecked)
-
-        editText.append("bullet")
-        Assert.assertEquals("<ul><li>bullet</li></ul>", editText.toHtml())
-
-        bulletListButton.performClick()
-        Assert.assertFalse(boldButton.isChecked)
-
-        Assert.assertEquals("bullet", editText.toHtml())
     }
 
     /**

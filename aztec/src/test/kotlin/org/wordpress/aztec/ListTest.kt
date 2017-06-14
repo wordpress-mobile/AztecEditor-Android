@@ -1,6 +1,8 @@
 package org.wordpress.aztec
 
 import android.app.Activity
+import android.view.MenuItem
+import android.widget.PopupMenu
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -8,6 +10,8 @@ import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 /**
@@ -22,6 +26,11 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
     val listType = listTextFormat
     val listTag = listHtmlTag
     lateinit var editText: AztecText
+    lateinit var menuList: PopupMenu
+    lateinit var menuListOrdered: MenuItem
+    lateinit var menuListUnordered: MenuItem
+    lateinit var sourceText: SourceViewEditText
+    lateinit var toolbar: AztecToolbar
 
     companion object {
         @JvmStatic
@@ -42,6 +51,13 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
         editText.setCalypsoMode(false)
+        sourceText = SourceViewEditText(activity)
+        sourceText.setCalypsoMode(false)
+        toolbar = AztecToolbar(activity)
+        toolbar.setEditor(editText, sourceText)
+        menuList = toolbar.getListMenu() as PopupMenu
+        menuListOrdered = menuList.menu.getItem(1)
+        menuListUnordered = menuList.menu.getItem(0)
         activity.setContentView(editText)
     }
 
@@ -104,18 +120,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun emptyList() {
-        editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
-
-        //remove list
-        editText.toggleFormatting(listType)
-        Assert.assertEquals(0, TestUtils.safeLength(editText))
-        Assert.assertEquals("", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(listType)
         TestUtils.safeAppend(editText, "first item")
@@ -165,16 +169,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun bulletListSplitWithToolbar() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
-        editText.setSelection(14)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<$listTag><li>third item</li></$listTag>", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun splitTwoListsWithNewline() {
         editText.fromHtml("<$listTag><li>List 1</li></$listTag><$listTag><li>List 2</li></$listTag>")
         val mark2 = editText.text.indexOf("List 2")
@@ -187,49 +181,6 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         editText.text.insert(mark1 + 1, "\n")
         Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStyling() {
-        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
-        editText.setSelection(1)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("first item", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStylingForPartialSelection() {
-        editText.fromHtml("<$listTag><li>first item</li></$listTag>")
-        editText.setSelection(2, 4)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("first item", editText.toHtml())
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun removeBulletListStylingForMultilinePartialSelection() {
-        editText.toggleFormatting(listType)
-        TestUtils.safeAppend(editText, "first item")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "second item")
-        val firstMark = editText.length() - 4
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "third item")
-        TestUtils.safeAppend(editText, "\n")
-        val secondMark = editText.length() - 4
-        TestUtils.safeAppend(editText, "fourth item")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "not in list")
-
-        editText.setSelection(firstMark, secondMark)
-        editText.toggleFormatting(listType)
-
-        Assert.assertEquals("<$listTag><li>first item</li></$listTag>second item<br>third item<$listTag><li>fourth item</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test
@@ -779,5 +730,62 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
         // but not in the html
         Assert.assertEquals(html, editText.toHtml())
+    }
+
+    /**
+     * Update list menu based on selection.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listMenuSelection() {
+        val html = "<ol><li>Ordered</li></ol>Text<ul><li>Unordered</li></ul>"
+        editText.fromHtml(html)
+
+        // Select ordered list.
+        editText.setSelection(editText.text.indexOf("Ordered"))
+        Assert.assertTrue(menuListOrdered.isChecked)
+        Assert.assertFalse(menuListUnordered.isChecked)
+
+        // Select neither ordered nor unordered list.
+        editText.setSelection(editText.text.indexOf("Text"))
+        Assert.assertFalse(menuListOrdered.isChecked)
+        Assert.assertFalse(menuListUnordered.isChecked)
+
+        // Select unordered list.
+        editText.setSelection(editText.text.indexOf("Unordered"))
+        Assert.assertFalse(menuListOrdered.isChecked)
+        Assert.assertTrue(menuListUnordered.isChecked)
+    }
+
+    /**
+     * Toggle ordered list button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listOrderedTyping() {
+        Assert.assertFalse(menuListOrdered.isChecked)
+        toolbar.onMenuItemClick(menuListOrdered)
+        Assert.assertTrue(menuListOrdered.isChecked)
+        editText.append("ordered")
+        Assert.assertEquals("<ol><li>ordered</li></ol>", editText.toHtml())
+    }
+
+    /**
+     * Toggle unordered list button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun listUnorderedTyping() {
+        Assert.assertFalse(menuListUnordered.isChecked)
+        toolbar.onMenuItemClick(menuListUnordered)
+        Assert.assertTrue(menuListUnordered.isChecked)
+        editText.append("unordered")
+        Assert.assertEquals("<ul><li>unordered</li></ul>", editText.toHtml())
     }
 }

@@ -124,7 +124,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
 
-        val span = AztecHorizontalLineSpan(
+        val span = AztecHorizontalRuleSpan(
             editor.context,
             ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
             nestingLevel

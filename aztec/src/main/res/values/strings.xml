@@ -24,6 +24,8 @@
     <string name="format_bar_description_media">Media</string>
     <string name="format_bar_description_list">List</string>
     <string name="format_bar_description_html">HTML</string>
+    <string name="format_bar_description_ellipsis_collapse">Collapse Toolbar</string>
+    <string name="format_bar_description_ellipsis_expand">Expand Toolbar</string>
     <string name="visual_editor">Visual toolbarActionListener</string>
     <string name="image_thumbnail">Image thumbnail</string>
 

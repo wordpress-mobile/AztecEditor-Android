@@ -28,6 +28,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
     private var isAdvanced: Boolean = false
+    private var isExpanded: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
     constructor(context: Context) : super(context) {
@@ -256,6 +257,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val restoredState = savedState.state
         toggleHtmlMode(restoredState.getBoolean("isSourceVisible"))
         enableMediaMode(restoredState.getBoolean("isMediaMode"))
+        isExpanded = restoredState.getBoolean("isExpanded")
+        restoreAdvancedState()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -264,6 +267,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val bundle = Bundle()
         bundle.putBoolean("isSourceVisible", sourceEditor?.visibility == View.VISIBLE)
         bundle.putBoolean("isMediaMode", isMediaModeEnabled)
+        bundle.putBoolean("isExpanded", isExpanded)
         savedState.state = bundle
         return savedState
     }
@@ -381,6 +385,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.LIST -> listMenu?.show()
             ToolbarAction.LINK -> editor!!.showLinkDialog()
             ToolbarAction.HTML -> aztecToolbarListener?.onToolbarHtmlModeClicked()
+            ToolbarAction.ELLIPSIS_COLLAPSE -> showCollapsedToolbar()
+            ToolbarAction.ELLIPSIS_EXPAND -> showExpandedToolbar()
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
@@ -428,6 +434,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
         else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
         return null
+    }
+
+    fun setExpanded(expanded: Boolean) {
+        isExpanded = expanded
+        restoreAdvancedState()
+    }
+
+    private fun restoreAdvancedState() {
+        if (isAdvanced) {
+            if (isExpanded) {
+                showExpandedToolbar()
+            } else {
+                showCollapsedToolbar()
+            }
+        }
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
@@ -521,6 +542,34 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
             }
         }
+    }
+
+    private fun showCollapsedToolbar() {
+        findViewById(R.id.format_bar_button_underline).visibility = View.GONE
+        findViewById(R.id.format_bar_button_strikethrough).visibility = View.GONE
+//        TODO: Uncomment once Horizontal Rule format button is merged.
+//        findViewById(R.id.format_bar_button_horizontal_rule).visibility = View.GONE
+        findViewById(R.id.format_bar_button_more).visibility = View.GONE
+//        TODO: Uncomment when Page Break is to be added back as a feature.
+//        findViewById(R.id.format_bar_button_page).visibility = View.GONE
+        findViewById(R.id.format_bar_button_html).visibility = View.GONE
+        findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.VISIBLE
+        findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.GONE
+        isExpanded = false
+    }
+
+    private fun showExpandedToolbar() {
+        findViewById(R.id.format_bar_button_underline).visibility = View.VISIBLE
+        findViewById(R.id.format_bar_button_strikethrough).visibility = View.VISIBLE
+//        TODO: Uncomment once Horizontal Rule format button is merged.
+//        findViewById(R.id.format_bar_button_horizontal_rule).visibility = View.VISIBLE
+        findViewById(R.id.format_bar_button_more).visibility = View.VISIBLE
+//        TODO: Uncomment when Page Break is to be added back as a feature.
+//        findViewById(R.id.format_bar_button_page).visibility = View.VISIBLE
+        findViewById(R.id.format_bar_button_html).visibility = View.VISIBLE
+        findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.GONE
+        findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.VISIBLE
+        isExpanded = true
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

@@ -19,7 +19,9 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
     MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_MORE),
     PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PAGE),
-    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);
+    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null),
+    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapse, ToolbarActionType.OTHER, null),
+    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expand, ToolbarActionType.OTHER, null);
 
     companion object {
         fun getToolbarActionForStyle(style: TextFormat): ToolbarAction? {

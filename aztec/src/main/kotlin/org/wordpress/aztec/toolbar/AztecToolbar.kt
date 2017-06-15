@@ -9,6 +9,8 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.PopupMenu.OnMenuItemClickListener
@@ -30,6 +32,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var isAdvanced: Boolean = false
     private var isExpanded: Boolean = false
     private var isMediaModeEnabled: Boolean = false
+
+    private lateinit var ellipsisSpinLeft: Animation
+    private lateinit var ellipsisSpinRight: Animation
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -258,7 +263,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         toggleHtmlMode(restoredState.getBoolean("isSourceVisible"))
         enableMediaMode(restoredState.getBoolean("isMediaMode"))
         isExpanded = restoredState.getBoolean("isExpanded")
-        restoreAdvancedState()
+        setAdvancedState()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -295,6 +300,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
         View.inflate(context, layout, this)
+        setAdvancedState()
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
@@ -385,8 +391,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             ToolbarAction.LIST -> listMenu?.show()
             ToolbarAction.LINK -> editor!!.showLinkDialog()
             ToolbarAction.HTML -> aztecToolbarListener?.onToolbarHtmlModeClicked()
-            ToolbarAction.ELLIPSIS_COLLAPSE -> showCollapsedToolbar()
-            ToolbarAction.ELLIPSIS_EXPAND -> showExpandedToolbar()
+            ToolbarAction.ELLIPSIS_COLLAPSE -> animateToolbarCollapse()
+            ToolbarAction.ELLIPSIS_EXPAND -> animateToolbarExpand()
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
@@ -438,11 +444,23 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun setExpanded(expanded: Boolean) {
         isExpanded = expanded
-        restoreAdvancedState()
+        setAdvancedState()
     }
 
-    private fun restoreAdvancedState() {
+    private fun animateToolbarCollapse() {
+        findViewById(R.id.format_bar_button_ellipsis_collapse).startAnimation(ellipsisSpinLeft)
+        isExpanded = false
+    }
+
+    private fun animateToolbarExpand() {
+        findViewById(R.id.format_bar_button_ellipsis_expand).startAnimation(ellipsisSpinRight)
+        isExpanded = true
+    }
+
+    private fun setAdvancedState() {
         if (isAdvanced) {
+            setAnimations()
+
             if (isExpanded) {
                 showExpandedToolbar()
             } else {
@@ -505,6 +523,38 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
+    private fun setAnimations() {
+        ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
+        ellipsisSpinRight.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    showExpandedToolbar()
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        ellipsisSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_90)
+        ellipsisSpinLeft.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    showCollapsedToolbar()
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+    }
+
     private fun setHeadingMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
@@ -556,7 +606,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         findViewById(R.id.format_bar_button_html).visibility = View.GONE
         findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.VISIBLE
         findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.GONE
-        isExpanded = false
     }
 
     private fun showExpandedToolbar() {
@@ -571,7 +620,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         findViewById(R.id.format_bar_button_html).visibility = View.VISIBLE
         findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.GONE
         findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.VISIBLE
-        isExpanded = true
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

@@ -545,6 +545,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun showCollapsedToolbar() {
+        findViewById(R.id.format_bar_button_link).visibility = View.GONE
         findViewById(R.id.format_bar_button_underline).visibility = View.GONE
         findViewById(R.id.format_bar_button_strikethrough).visibility = View.GONE
 //        TODO: Uncomment once Horizontal Rule format button is merged.
@@ -559,6 +560,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun showExpandedToolbar() {
+        findViewById(R.id.format_bar_button_link).visibility = View.VISIBLE
         findViewById(R.id.format_bar_button_underline).visibility = View.VISIBLE
         findViewById(R.id.format_bar_button_strikethrough).visibility = View.VISIBLE
 //        TODO: Uncomment once Horizontal Rule format button is merged.

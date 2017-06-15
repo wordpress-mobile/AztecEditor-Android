@@ -136,25 +136,9 @@ public class SimpleTextFormattingTests {
     }
 
     /*
-    * This test is disabled because Espresso does not click in the correct position for the link dialog's OK button.
-    * See replacement test below.
-     */
-    //@Test
-    //public void testSimpleLinkFormatting() {
-        // Enter text in visual editor with formatting
-        //aztecText.perform(typeText(unformattedText));
-        //linkButton.perform(scrollTo(), click());
-        //linkURLField.perform(replaceText(linkURLText));
-        //linkTextField.perform(replaceText(formattedText));
-        //linkOKButton.perform(click());
-
-        // Check that HTML formatting tags were correctly added
-        //toggleHTMLView();
-        //sourceText.check(matches(withText(unformattedText + "<a href='" + linkURLText + "'>" + formattedText + "</a>")));
-    //}
-
-    /*
     * This test enters link HTML and then checks the link dialog values.
+    * This is opposite of the steps in the other tests (which enter rich text and check the HTML),
+    * because Espresso does not click in the correct position for the link dialog's OK button.
      */
     @Test
     public void testSimpleLinkFormatting() {

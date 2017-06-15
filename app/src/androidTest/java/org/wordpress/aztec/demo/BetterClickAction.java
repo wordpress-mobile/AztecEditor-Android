@@ -39,6 +39,7 @@ public final class BetterClickAction implements ViewAction {
     @Override
     @SuppressWarnings("unchecked")
     public Matcher<View> getConstraints() {
+        // Check that at least 65% of the element is displayed (instead of default 90%)
         Matcher<View> standardConstraint = isDisplayingAtLeast(65);
         if (rollbackAction.isPresent()) {
             return allOf(standardConstraint, rollbackAction.get().getConstraints());

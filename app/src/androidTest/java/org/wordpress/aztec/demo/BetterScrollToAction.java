@@ -36,6 +36,7 @@ public final class BetterScrollToAction implements ViewAction {
 
     @Override
     public void perform(UiController uiController, View view) {
+        // Check that at least 65% of the element is displayed (instead of default 90%)
         if (isDisplayingAtLeast(65).matches(view)) {
             Log.i(TAG, "View is already displayed. Returning.");
             return;
@@ -46,6 +47,7 @@ public final class BetterScrollToAction implements ViewAction {
             Log.w(TAG, "Scrolling to view was requested, but none of the parents scrolled.");
         }
         uiController.loopMainThreadUntilIdle();
+        // Check that at least 65% of the element is displayed (instead of default 90%)
         if (!isDisplayingAtLeast(65).matches(view)) {
             throw new PerformException.Builder()
                     .withActionDescription(this.getDescription())

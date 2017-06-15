@@ -27,18 +27,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var listMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
+    private var isAdvanced: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
     constructor(context: Context) : super(context) {
-        initView()
+        initView(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        initView()
+        initView(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        initView()
+        initView(attrs)
     }
 
     fun setToolbarListener(listener: AztecToolbarClickListener) {
@@ -283,8 +284,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         })
     }
 
-    private fun initView() {
-        View.inflate(context, R.layout.aztec_format_bar_basic, this)
+    private fun initView(attrs: AttributeSet?) {
+        val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
+        isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+        styles.recycle()
+
+        val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
+        View.inflate(context, layout, this)
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)

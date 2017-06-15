@@ -33,6 +33,10 @@
         <attr name="textColorHint" format="reference|color" />
     </declare-styleable>
 
+    <declare-styleable name="AztecToolbar">
+        <attr name="advanced" format="reference|boolean" />
+    </declare-styleable>
+
     <declare-styleable name="SourceViewEditText">
         <attr name="attributeColor" format="reference|color" />
         <attr name="codeBackgroundColor" format="reference|color" />

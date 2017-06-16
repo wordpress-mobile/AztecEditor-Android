@@ -44,8 +44,31 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //    private lateinit var buttonRule: RippleToggleButton
     private lateinit var buttonStrikethrough: RippleToggleButton
     private lateinit var buttonUnderline: RippleToggleButton
+    private lateinit var buttonScaleInHtml: Animation
+    private lateinit var buttonScaleOutHtml: Animation
+    private lateinit var buttonScaleInLink: Animation
+    private lateinit var buttonScaleOutLink: Animation
+    private lateinit var buttonScaleInMore: Animation
+    private lateinit var buttonScaleOutMore: Animation
+//    TODO: Uncomment when Page Break is to be added back as a feature.
+//    private lateinit var buttonScaleInPage: Animation
+//    private lateinit var buttonScaleOutPage: Animation
+//    TODO: Uncomment once Horizontal Rule format button is merged.
+//    private lateinit var buttonScaleInRule: Animation
+//    private lateinit var buttonScaleOutRule: Animation
+    private lateinit var buttonScaleInStrikethrough: Animation
+    private lateinit var buttonScaleOutStrikethrough: Animation
+    private lateinit var buttonScaleInUnderline: Animation
+    private lateinit var buttonScaleOutUnderline: Animation
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
+
+    private val DELAY_ANIM_IN_BUTTON_0: Long = 0   // value in milliseconds
+    private val DELAY_ANIM_IN_BUTTON_1: Long = 100 // value in milliseconds
+    private val DELAY_ANIM_IN_BUTTON_2: Long = 200 // value in milliseconds
+    private val DELAY_ANIM_IN_BUTTON_3: Long = 300 // value in milliseconds
+    private val DELAY_ANIM_IN_BUTTON_4: Long = 400 // value in milliseconds
+    private val DELAY_ANIM_IN_BUTTON_5: Long = 500 // value in milliseconds
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -536,11 +559,153 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setAnimations() {
-        ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
-        ellipsisSpinRight.setAnimationListener(
+        // TODO: Use programmatic or better approach to button animations.
+
+        buttonScaleInHtml = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInHtml.startOffset = DELAY_ANIM_IN_BUTTON_4
+        buttonScaleInHtml.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
-                    showExpandedToolbar()
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonHtml.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutHtml = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutHtml.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonHtml.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        buttonScaleInLink = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInLink.startOffset = DELAY_ANIM_IN_BUTTON_0
+        buttonScaleInLink.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonLink.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutLink = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutLink.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonLink.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        buttonScaleInMore = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInMore.startOffset = DELAY_ANIM_IN_BUTTON_3
+        buttonScaleInMore.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonMore.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutMore = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutMore.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonMore.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        buttonScaleInStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInStrikethrough.startOffset = DELAY_ANIM_IN_BUTTON_2
+        buttonScaleInStrikethrough.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonStrikethrough.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutStrikethrough.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonStrikethrough.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        buttonScaleInUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInUnderline.startOffset = DELAY_ANIM_IN_BUTTON_1
+        buttonScaleInUnderline.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonUnderline.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutUnderline.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonUnderline.visibility = View.GONE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {
@@ -555,13 +720,40 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ellipsisSpinLeft.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
-                    showCollapsedToolbar()
+                    buttonEllipsisExpand.visibility = View.VISIBLE
+                    buttonEllipsisCollapse.visibility = View.GONE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {
                 }
 
                 override fun onAnimationStart(animation: Animation) {
+                    buttonLink.startAnimation(buttonScaleOutLink)
+                    buttonUnderline.startAnimation(buttonScaleOutUnderline)
+                    buttonStrikethrough.startAnimation(buttonScaleOutStrikethrough)
+                    buttonMore.startAnimation(buttonScaleOutMore)
+                    buttonHtml.startAnimation(buttonScaleOutHtml)
+                }
+            }
+        )
+
+        ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
+        ellipsisSpinRight.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonEllipsisExpand.visibility = View.GONE
+                    buttonEllipsisCollapse.visibility = View.VISIBLE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonLink.startAnimation(buttonScaleInLink)
+                    buttonUnderline.startAnimation(buttonScaleInUnderline)
+                    buttonStrikethrough.startAnimation(buttonScaleInStrikethrough)
+                    buttonMore.startAnimation(buttonScaleInMore)
+                    buttonHtml.startAnimation(buttonScaleInHtml)
                 }
             }
         )

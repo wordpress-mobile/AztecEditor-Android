@@ -3,5 +3,6 @@
 <resources>
 
     <integer name="history_size">100</integer>
+    <integer name="animation_button">300</integer>
 
 </resources>

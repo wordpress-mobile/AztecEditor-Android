@@ -33,6 +33,17 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var isExpanded: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
+    private lateinit var buttonEllipsisCollapse: RippleToggleButton
+    private lateinit var buttonEllipsisExpand: RippleToggleButton
+    private lateinit var buttonHtml: RippleToggleButton
+    private lateinit var buttonLink: RippleToggleButton
+    private lateinit var buttonMore: RippleToggleButton
+//    TODO: Uncomment when Page Break is to be added back as a feature.
+//    private lateinit var buttonPage: RippleToggleButton
+//    TODO: Uncomment once Horizontal Rule format button is merged.
+//    private lateinit var buttonRule: RippleToggleButton
+    private lateinit var buttonStrikethrough: RippleToggleButton
+    private lateinit var buttonUnderline: RippleToggleButton
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
 
@@ -448,17 +459,18 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun animateToolbarCollapse() {
-        findViewById(R.id.format_bar_button_ellipsis_collapse).startAnimation(ellipsisSpinLeft)
+        buttonEllipsisCollapse.startAnimation(ellipsisSpinLeft)
         isExpanded = false
     }
 
     private fun animateToolbarExpand() {
-        findViewById(R.id.format_bar_button_ellipsis_expand).startAnimation(ellipsisSpinRight)
+        buttonEllipsisExpand.startAnimation(ellipsisSpinRight)
         isExpanded = true
     }
 
     private fun setAdvancedState() {
         if (isAdvanced) {
+            setButtonViews()
             setAnimations()
 
             if (isExpanded) {
@@ -555,6 +567,20 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         )
     }
 
+    private fun setButtonViews() {
+        buttonLink = findViewById(R.id.format_bar_button_link) as RippleToggleButton
+        buttonUnderline = findViewById(R.id.format_bar_button_underline) as RippleToggleButton
+        buttonStrikethrough = findViewById(R.id.format_bar_button_strikethrough) as RippleToggleButton
+//        TODO: Uncomment once Horizontal Rule format button is merged.
+//        buttonRule = findViewById(R.id.format_bar_button_horizontal_rule) as RippleToggleButton
+        buttonMore = findViewById(R.id.format_bar_button_more) as RippleToggleButton
+//        TODO: Uncomment when Page Break is to be added back as a feature.
+//        buttonPage = findViewById(R.id.format_bar_button_page) as RippleToggleButton
+        buttonHtml = findViewById(R.id.format_bar_button_html) as RippleToggleButton
+        buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse) as RippleToggleButton
+        buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand) as RippleToggleButton
+    }
+
     private fun setHeadingMenu(view: View) {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
@@ -595,31 +621,31 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun showCollapsedToolbar() {
-        findViewById(R.id.format_bar_button_link).visibility = View.GONE
-        findViewById(R.id.format_bar_button_underline).visibility = View.GONE
-        findViewById(R.id.format_bar_button_strikethrough).visibility = View.GONE
+        buttonLink.visibility = View.GONE
+        buttonUnderline.visibility = View.GONE
+        buttonStrikethrough.visibility = View.GONE
 //        TODO: Uncomment once Horizontal Rule format button is merged.
-//        findViewById(R.id.format_bar_button_horizontal_rule).visibility = View.GONE
-        findViewById(R.id.format_bar_button_more).visibility = View.GONE
+//        buttonRule.visibility = View.GONE
+        buttonMore.visibility = View.GONE
 //        TODO: Uncomment when Page Break is to be added back as a feature.
-//        findViewById(R.id.format_bar_button_page).visibility = View.GONE
-        findViewById(R.id.format_bar_button_html).visibility = View.GONE
-        findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.GONE
+//        buttonPage.visibility = View.GONE
+        buttonHtml.visibility = View.GONE
+        buttonEllipsisExpand.visibility = View.VISIBLE
+        buttonEllipsisCollapse.visibility = View.GONE
     }
 
     private fun showExpandedToolbar() {
-        findViewById(R.id.format_bar_button_link).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_underline).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_strikethrough).visibility = View.VISIBLE
+        buttonLink.visibility = View.VISIBLE
+        buttonUnderline.visibility = View.VISIBLE
+        buttonStrikethrough.visibility = View.VISIBLE
 //        TODO: Uncomment once Horizontal Rule format button is merged.
-//        findViewById(R.id.format_bar_button_horizontal_rule).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_more).visibility = View.VISIBLE
+//        buttonRule.visibility = View.VISIBLE
+        buttonMore.visibility = View.VISIBLE
 //        TODO: Uncomment when Page Break is to be added back as a feature.
-//        findViewById(R.id.format_bar_button_page).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_html).visibility = View.VISIBLE
-        findViewById(R.id.format_bar_button_ellipsis_expand).visibility = View.GONE
-        findViewById(R.id.format_bar_button_ellipsis_collapse).visibility = View.VISIBLE
+//        buttonPage.visibility = View.VISIBLE
+        buttonHtml.visibility = View.VISIBLE
+        buttonEllipsisExpand.visibility = View.GONE
+        buttonEllipsisCollapse.visibility = View.VISIBLE
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

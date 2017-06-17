@@ -118,6 +118,32 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
+    fun applyHorizontalRule() {
+        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
+        editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
+
+        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+
+        val span = AztecHorizontalRuleSpan(
+            editor.context,
+            ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
+            nestingLevel,
+            editor
+        )
+
+        val builder = SpannableStringBuilder(Constants.MAGIC_STRING)
+        builder.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        editableText.replace(selectionStart, selectionEnd, builder)
+
+        editor.setSelection(
+            if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) {
+                selectionEnd + 1
+            } else {
+                selectionEnd
+            }
+        )
+    }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?): AztecMediaSpan {
         val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)

@@ -17,6 +17,7 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
     UNDERLINE(R.id.format_bar_button_underline, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_UNDERLINE),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
+    HORIZONTAL_RULE(R.id.format_bar_button_horizontal_rule, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HORIZONTAL_RULE),
     MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_MORE),
     PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PAGE),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null),

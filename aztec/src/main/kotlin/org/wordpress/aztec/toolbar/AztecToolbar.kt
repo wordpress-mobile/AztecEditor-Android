@@ -40,8 +40,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var buttonMore: RippleToggleButton
 //    TODO: Uncomment when Page Break is to be added back as a feature.
 //    private lateinit var buttonPage: RippleToggleButton
-//    TODO: Uncomment once Horizontal Rule format button is merged.
-//    private lateinit var buttonRule: RippleToggleButton
+    private lateinit var buttonRule: RippleToggleButton
     private lateinit var buttonStrikethrough: RippleToggleButton
     private lateinit var buttonUnderline: RippleToggleButton
     private lateinit var buttonScaleInHtml: Animation
@@ -53,9 +52,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //    TODO: Uncomment when Page Break is to be added back as a feature.
 //    private lateinit var buttonScaleInPage: Animation
 //    private lateinit var buttonScaleOutPage: Animation
-//    TODO: Uncomment once Horizontal Rule format button is merged.
-//    private lateinit var buttonScaleInRule: Animation
-//    private lateinit var buttonScaleOutRule: Animation
+    private lateinit var buttonScaleInRule: Animation
+    private lateinit var buttonScaleOutRule: Animation
     private lateinit var buttonScaleInStrikethrough: Animation
     private lateinit var buttonScaleOutStrikethrough: Animation
     private lateinit var buttonScaleInUnderline: Animation
@@ -565,7 +563,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         // TODO: Use programmatic or better approach to button animations.
 
         buttonScaleInHtml = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInHtml.startOffset = DELAY_ANIM_IN_BUTTON_4
+        buttonScaleInHtml.startOffset = DELAY_ANIM_IN_BUTTON_5
         buttonScaleInHtml.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
@@ -626,8 +624,39 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
         )
 
+        buttonScaleInRule = AnimationUtils.loadAnimation(context, R.anim.scale_in)
+        buttonScaleInRule.startOffset = DELAY_ANIM_IN_BUTTON_3
+        buttonScaleInRule.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonRule.visibility = View.VISIBLE
+                }
+            }
+        )
+
+        buttonScaleOutRule = AnimationUtils.loadAnimation(context, R.anim.scale_out)
+        buttonScaleOutRule.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonRule.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
         buttonScaleInMore = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInMore.startOffset = DELAY_ANIM_IN_BUTTON_3
+        buttonScaleInMore.startOffset = DELAY_ANIM_IN_BUTTON_4
         buttonScaleInMore.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
@@ -734,6 +763,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     buttonLink.startAnimation(buttonScaleOutLink)
                     buttonUnderline.startAnimation(buttonScaleOutUnderline)
                     buttonStrikethrough.startAnimation(buttonScaleOutStrikethrough)
+                    buttonRule.startAnimation(buttonScaleOutRule)
                     buttonMore.startAnimation(buttonScaleOutMore)
                     buttonHtml.startAnimation(buttonScaleOutHtml)
                 }
@@ -755,6 +785,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     buttonLink.startAnimation(buttonScaleInLink)
                     buttonUnderline.startAnimation(buttonScaleInUnderline)
                     buttonStrikethrough.startAnimation(buttonScaleInStrikethrough)
+                    buttonRule.startAnimation(buttonScaleInRule)
                     buttonMore.startAnimation(buttonScaleInMore)
                     buttonHtml.startAnimation(buttonScaleInHtml)
                 }
@@ -766,8 +797,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         buttonLink = findViewById(R.id.format_bar_button_link) as RippleToggleButton
         buttonUnderline = findViewById(R.id.format_bar_button_underline) as RippleToggleButton
         buttonStrikethrough = findViewById(R.id.format_bar_button_strikethrough) as RippleToggleButton
-//        TODO: Uncomment once Horizontal Rule format button is merged.
-//        buttonRule = findViewById(R.id.format_bar_button_horizontal_rule) as RippleToggleButton
+        buttonRule = findViewById(R.id.format_bar_button_horizontal_rule) as RippleToggleButton
         buttonMore = findViewById(R.id.format_bar_button_more) as RippleToggleButton
 //        TODO: Uncomment when Page Break is to be added back as a feature.
 //        buttonPage = findViewById(R.id.format_bar_button_page) as RippleToggleButton
@@ -819,8 +849,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         buttonLink.visibility = View.GONE
         buttonUnderline.visibility = View.GONE
         buttonStrikethrough.visibility = View.GONE
-//        TODO: Uncomment once Horizontal Rule format button is merged.
-//        buttonRule.visibility = View.GONE
+        buttonRule.visibility = View.GONE
         buttonMore.visibility = View.GONE
 //        TODO: Uncomment when Page Break is to be added back as a feature.
 //        buttonPage.visibility = View.GONE
@@ -833,8 +862,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         buttonLink.visibility = View.VISIBLE
         buttonUnderline.visibility = View.VISIBLE
         buttonStrikethrough.visibility = View.VISIBLE
-//        TODO: Uncomment once Horizontal Rule format button is merged.
-//        buttonRule.visibility = View.VISIBLE
+        buttonRule.visibility = View.VISIBLE
         buttonMore.visibility = View.VISIBLE
 //        TODO: Uncomment when Page Break is to be added back as a feature.
 //        buttonPage.visibility = View.VISIBLE

@@ -564,19 +564,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInHtml = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInHtml.startOffset = DELAY_ANIM_IN_BUTTON_5
-        buttonScaleInHtml.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonHtml.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutHtml = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutHtml.setAnimationListener(
@@ -595,19 +582,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInLink = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInLink.startOffset = DELAY_ANIM_IN_BUTTON_0
-        buttonScaleInLink.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonLink.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutLink = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutLink.setAnimationListener(
@@ -626,19 +600,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInRule = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInRule.startOffset = DELAY_ANIM_IN_BUTTON_3
-        buttonScaleInRule.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonRule.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutRule = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutRule.setAnimationListener(
@@ -657,19 +618,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInMore = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInMore.startOffset = DELAY_ANIM_IN_BUTTON_4
-        buttonScaleInMore.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonMore.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutMore = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutMore.setAnimationListener(
@@ -688,19 +636,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInStrikethrough.startOffset = DELAY_ANIM_IN_BUTTON_2
-        buttonScaleInStrikethrough.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonStrikethrough.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutStrikethrough.setAnimationListener(
@@ -719,19 +654,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         buttonScaleInUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_in)
         buttonScaleInUnderline.startOffset = DELAY_ANIM_IN_BUTTON_1
-        buttonScaleInUnderline.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                    buttonUnderline.visibility = View.VISIBLE
-                }
-            }
-        )
 
         buttonScaleOutUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_out)
         buttonScaleOutUnderline.setAnimationListener(
@@ -752,8 +674,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ellipsisSpinLeft.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisExpand.visibility = View.VISIBLE
                     buttonEllipsisCollapse.visibility = View.GONE
+                    buttonEllipsisExpand.visibility = View.VISIBLE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {
@@ -774,19 +696,25 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ellipsisSpinRight.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisExpand.visibility = View.GONE
                     buttonEllipsisCollapse.visibility = View.VISIBLE
+                    buttonEllipsisExpand.visibility = View.GONE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {
                 }
 
                 override fun onAnimationStart(animation: Animation) {
+                    buttonLink.visibility = View.VISIBLE
                     buttonLink.startAnimation(buttonScaleInLink)
+                    buttonUnderline.visibility = View.VISIBLE
                     buttonUnderline.startAnimation(buttonScaleInUnderline)
+                    buttonStrikethrough.visibility = View.VISIBLE
                     buttonStrikethrough.startAnimation(buttonScaleInStrikethrough)
+                    buttonRule.visibility = View.VISIBLE
                     buttonRule.startAnimation(buttonScaleInRule)
+                    buttonMore.visibility = View.VISIBLE
                     buttonMore.startAnimation(buttonScaleInMore)
+                    buttonHtml.visibility = View.VISIBLE
                     buttonHtml.startAnimation(buttonScaleInHtml)
                 }
             }
@@ -854,8 +782,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //        TODO: Uncomment when Page Break is to be added back as a feature.
 //        buttonPage.visibility = View.GONE
         buttonHtml.visibility = View.GONE
-        buttonEllipsisExpand.visibility = View.VISIBLE
         buttonEllipsisCollapse.visibility = View.GONE
+        buttonEllipsisExpand.visibility = View.VISIBLE
     }
 
     private fun showExpandedToolbar() {
@@ -867,8 +795,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //        TODO: Uncomment when Page Break is to be added back as a feature.
 //        buttonPage.visibility = View.VISIBLE
         buttonHtml.visibility = View.VISIBLE
-        buttonEllipsisExpand.visibility = View.GONE
         buttonEllipsisCollapse.visibility = View.VISIBLE
+        buttonEllipsisExpand.visibility = View.GONE
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

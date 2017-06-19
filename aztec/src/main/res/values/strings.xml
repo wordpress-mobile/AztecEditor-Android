@@ -19,11 +19,14 @@
     <string name="format_bar_description_strike">Strikethrough</string>
     <string name="format_bar_description_quote">Block quote</string>
     <string name="format_bar_description_link">Link</string>
+    <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>
     <string name="format_bar_description_more">More</string>
     <string name="format_bar_description_page">Page Break</string>
     <string name="format_bar_description_media">Media</string>
     <string name="format_bar_description_list">List</string>
     <string name="format_bar_description_html">HTML</string>
+    <string name="format_bar_description_ellipsis_collapse">Collapse Toolbar</string>
+    <string name="format_bar_description_ellipsis_expand">Expand Toolbar</string>
     <string name="visual_editor">Visual toolbarActionListener</string>
     <string name="image_thumbnail">Image thumbnail</string>
 

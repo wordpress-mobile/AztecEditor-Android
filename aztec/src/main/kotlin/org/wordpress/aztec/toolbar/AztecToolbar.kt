@@ -11,11 +11,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.FrameLayout
-import android.widget.PopupMenu
+import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
-import android.widget.Toast
-import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
@@ -33,40 +30,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var isExpanded: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
+    private lateinit var buttonScroll: HorizontalScrollView
     private lateinit var buttonEllipsisCollapse: RippleToggleButton
     private lateinit var buttonEllipsisExpand: RippleToggleButton
-    private lateinit var buttonHtml: RippleToggleButton
-    private lateinit var buttonLink: RippleToggleButton
-    private lateinit var buttonMore: RippleToggleButton
-//    TODO: Uncomment when Page Break is to be added back as a feature.
-//    private lateinit var buttonPage: RippleToggleButton
-    private lateinit var buttonRule: RippleToggleButton
-    private lateinit var buttonStrikethrough: RippleToggleButton
-    private lateinit var buttonUnderline: RippleToggleButton
-    private lateinit var buttonScaleInHtml: Animation
-    private lateinit var buttonScaleOutHtml: Animation
-    private lateinit var buttonScaleInLink: Animation
-    private lateinit var buttonScaleOutLink: Animation
-    private lateinit var buttonScaleInMore: Animation
-    private lateinit var buttonScaleOutMore: Animation
-//    TODO: Uncomment when Page Break is to be added back as a feature.
-//    private lateinit var buttonScaleInPage: Animation
-//    private lateinit var buttonScaleOutPage: Animation
-    private lateinit var buttonScaleInRule: Animation
-    private lateinit var buttonScaleOutRule: Animation
-    private lateinit var buttonScaleInStrikethrough: Animation
-    private lateinit var buttonScaleOutStrikethrough: Animation
-    private lateinit var buttonScaleInUnderline: Animation
-    private lateinit var buttonScaleOutUnderline: Animation
+    private lateinit var layoutExpandedTranslateInRight: Animation
+    private lateinit var layoutExpandedTranslateOutLeft: Animation
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
-
-    private val DELAY_ANIM_IN_BUTTON_0: Long = 0   // value in milliseconds
-    private val DELAY_ANIM_IN_BUTTON_1: Long = 100 // value in milliseconds
-    private val DELAY_ANIM_IN_BUTTON_2: Long = 200 // value in milliseconds
-    private val DELAY_ANIM_IN_BUTTON_3: Long = 300 // value in milliseconds
-    private val DELAY_ANIM_IN_BUTTON_4: Long = 400 // value in milliseconds
-    private val DELAY_ANIM_IN_BUTTON_5: Long = 500 // value in milliseconds
+    private lateinit var layoutExpanded: LinearLayout
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -560,106 +531,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setAnimations() {
-        // TODO: Use programmatic or better approach to button animations.
+        layoutExpandedTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
 
-        buttonScaleInHtml = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInHtml.startOffset = DELAY_ANIM_IN_BUTTON_5
-
-        buttonScaleOutHtml = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutHtml.setAnimationListener(
+        layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
+        layoutExpandedTranslateOutLeft.setAnimationListener(
             object : Animation.AnimationListener {
                 override fun onAnimationEnd(animation: Animation) {
-                    buttonHtml.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                }
-            }
-        )
-
-        buttonScaleInLink = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInLink.startOffset = DELAY_ANIM_IN_BUTTON_0
-
-        buttonScaleOutLink = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutLink.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonLink.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                }
-            }
-        )
-
-        buttonScaleInRule = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInRule.startOffset = DELAY_ANIM_IN_BUTTON_3
-
-        buttonScaleOutRule = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutRule.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonRule.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                }
-            }
-        )
-
-        buttonScaleInMore = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInMore.startOffset = DELAY_ANIM_IN_BUTTON_4
-
-        buttonScaleOutMore = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutMore.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonMore.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                }
-            }
-        )
-
-        buttonScaleInStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInStrikethrough.startOffset = DELAY_ANIM_IN_BUTTON_2
-
-        buttonScaleOutStrikethrough = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutStrikethrough.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonStrikethrough.visibility = View.GONE
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-                }
-
-                override fun onAnimationStart(animation: Animation) {
-                }
-            }
-        )
-
-        buttonScaleInUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_in)
-        buttonScaleInUnderline.startOffset = DELAY_ANIM_IN_BUTTON_1
-
-        buttonScaleOutUnderline = AnimationUtils.loadAnimation(context, R.anim.scale_out)
-        buttonScaleOutUnderline.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonUnderline.visibility = View.GONE
+                    layoutExpanded.visibility = View.GONE
                 }
 
                 override fun onAnimationRepeat(animation: Animation) {
@@ -682,12 +560,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
 
                 override fun onAnimationStart(animation: Animation) {
-                    buttonLink.startAnimation(buttonScaleOutLink)
-                    buttonUnderline.startAnimation(buttonScaleOutUnderline)
-                    buttonStrikethrough.startAnimation(buttonScaleOutStrikethrough)
-                    buttonRule.startAnimation(buttonScaleOutRule)
-                    buttonMore.startAnimation(buttonScaleOutMore)
-                    buttonHtml.startAnimation(buttonScaleOutHtml)
+                    buttonScroll.smoothScrollTo(0, 0)
+                    layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
                 }
             }
         )
@@ -704,32 +578,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
 
                 override fun onAnimationStart(animation: Animation) {
-                    buttonLink.visibility = View.VISIBLE
-                    buttonLink.startAnimation(buttonScaleInLink)
-                    buttonUnderline.visibility = View.VISIBLE
-                    buttonUnderline.startAnimation(buttonScaleInUnderline)
-                    buttonStrikethrough.visibility = View.VISIBLE
-                    buttonStrikethrough.startAnimation(buttonScaleInStrikethrough)
-                    buttonRule.visibility = View.VISIBLE
-                    buttonRule.startAnimation(buttonScaleInRule)
-                    buttonMore.visibility = View.VISIBLE
-                    buttonMore.startAnimation(buttonScaleInMore)
-                    buttonHtml.visibility = View.VISIBLE
-                    buttonHtml.startAnimation(buttonScaleInHtml)
+                    layoutExpanded.visibility = View.VISIBLE
+                    layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
                 }
             }
         )
     }
 
     private fun setButtonViews() {
-        buttonLink = findViewById(R.id.format_bar_button_link) as RippleToggleButton
-        buttonUnderline = findViewById(R.id.format_bar_button_underline) as RippleToggleButton
-        buttonStrikethrough = findViewById(R.id.format_bar_button_strikethrough) as RippleToggleButton
-        buttonRule = findViewById(R.id.format_bar_button_horizontal_rule) as RippleToggleButton
-        buttonMore = findViewById(R.id.format_bar_button_more) as RippleToggleButton
-//        TODO: Uncomment when Page Break is to be added back as a feature.
-//        buttonPage = findViewById(R.id.format_bar_button_page) as RippleToggleButton
-        buttonHtml = findViewById(R.id.format_bar_button_html) as RippleToggleButton
+        layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded) as LinearLayout
+        buttonScroll = findViewById(R.id.format_bar_button_scroll) as HorizontalScrollView
         buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse) as RippleToggleButton
         buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand) as RippleToggleButton
     }
@@ -774,27 +632,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun showCollapsedToolbar() {
-        buttonLink.visibility = View.GONE
-        buttonUnderline.visibility = View.GONE
-        buttonStrikethrough.visibility = View.GONE
-        buttonRule.visibility = View.GONE
-        buttonMore.visibility = View.GONE
-//        TODO: Uncomment when Page Break is to be added back as a feature.
-//        buttonPage.visibility = View.GONE
-        buttonHtml.visibility = View.GONE
+        layoutExpanded.visibility = View.GONE
         buttonEllipsisCollapse.visibility = View.GONE
         buttonEllipsisExpand.visibility = View.VISIBLE
     }
 
     private fun showExpandedToolbar() {
-        buttonLink.visibility = View.VISIBLE
-        buttonUnderline.visibility = View.VISIBLE
-        buttonStrikethrough.visibility = View.VISIBLE
-        buttonRule.visibility = View.VISIBLE
-        buttonMore.visibility = View.VISIBLE
-//        TODO: Uncomment when Page Break is to be added back as a feature.
-//        buttonPage.visibility = View.VISIBLE
-        buttonHtml.visibility = View.VISIBLE
+        layoutExpanded.visibility = View.VISIBLE
         buttonEllipsisCollapse.visibility = View.VISIBLE
         buttonEllipsisExpand.visibility = View.GONE
     }

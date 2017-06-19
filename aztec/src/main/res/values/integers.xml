@@ -2,7 +2,6 @@
 
 <resources>
 
-    <integer name="animation_button">300</integer>
     <integer name="history_size">100</integer>
 
 </resources>

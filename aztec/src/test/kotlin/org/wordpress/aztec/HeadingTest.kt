@@ -557,12 +557,7 @@ class HeadingTest {
 
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>", editText.toHtml())
-//        TODO: Correct heading menu selection.  This is incorrect.  Heading 2 should be selected.
-//        AztecToolbar.highlightAppliedStyles returns Heading 1, Heading 2, and Heading 3 so then
-//        AztecToolbar.selectHeaderMenu selects the first format.  See this issue for details.
-//        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-//        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test

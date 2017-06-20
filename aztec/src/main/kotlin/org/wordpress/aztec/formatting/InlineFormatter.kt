@@ -109,25 +109,40 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
-        val newStart = if (start > end) end else start
+        val newStart = Math.min(start, end)
         //if there is END_OF_BUFFER_MARKER at the end of or range, extend the range to include it
-        val newEnd = if (editableText.length > end && editableText[end] == Constants.END_OF_BUFFER_MARKER) end + 1 else end
+        var newEnd = Math.max(start, end)
 
-        editor.getAppliedStyles(newStart, newEnd).forEach {
-            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (newStart == 0 && newEnd == 0) ||
-                    (newStart > newEnd && editableText.length > newEnd && editableText[newEnd] == '\n')) {
-                when (it) {
-                    TextFormat.FORMAT_BOLD,
-                    TextFormat.FORMAT_ITALIC,
-                    TextFormat.FORMAT_STRIKETHROUGH,
-                    TextFormat.FORMAT_UNDERLINE,
-                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, newEnd)
-                    else -> {
-                        //do nothing
-                    }
-                }
-            }
+        if (newEnd > editableText.length) return
+
+        if (editableText.length > newEnd + 1 && editableText[newEnd] == Constants.END_OF_BUFFER_MARKER) {
+            newEnd++
         }
+
+
+        editableText.getSpans(newStart, newEnd, AztecInlineSpan::class.java).forEach {
+            if (!editor.selectedStyles.contains(spanToTextFormat(it)) || ignoreSelectedStyles || (newStart == 0 && newEnd == 0) ||
+                                        (newStart > newEnd && editableText.length > newEnd && editableText[newEnd] == '\n')){
+                removeInlineStyle(it, newStart, newEnd)
+            }
+
+        }
+
+//        editor.getAppliedStyles(newStart, newEnd).forEach {
+//            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (newStart == 0 && newEnd == 0) ||
+//                    (newStart > newEnd && editableText.length > newEnd && editableText[newEnd] == '\n')) {
+//                when (it) {
+//                    TextFormat.FORMAT_BOLD,
+//                    TextFormat.FORMAT_ITALIC,
+//                    TextFormat.FORMAT_STRIKETHROUGH,
+//                    TextFormat.FORMAT_UNDERLINE,
+//                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, newEnd)
+//                    else -> {
+//                        //do nothing
+//                    }
+//                }
+//            }
+//        }
     }
 
     fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -193,6 +208,44 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 editableText.setSpan(existingSpanOfSameStyle, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
             } else {
                 editableText.setSpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            }
+        }
+
+        joinStyleSpans(start, end)
+    }
+
+    fun spanToTextFormat(span: AztecInlineSpan): TextFormat? {
+        when (span::class.java) {
+            AztecStyleBoldSpan::class.java -> return TextFormat.FORMAT_BOLD
+            AztecStyleItalicSpan::class.java -> return TextFormat.FORMAT_ITALIC
+            AztecStrikethroughSpan::class.java -> return TextFormat.FORMAT_STRIKETHROUGH
+            AztecUnderlineSpan::class.java -> return TextFormat.FORMAT_UNDERLINE
+            AztecCodeSpan::class.java -> return TextFormat.FORMAT_CODE
+            else -> return null
+        }
+    }
+
+    fun removeInlineStyle(spanToRemove: AztecInlineSpan, start: Int = selectionStart, end: Int = selectionEnd) {
+        val textFormat = spanToTextFormat(spanToRemove) ?: return
+
+        val spans = editableText.getSpans(start, end, AztecInlineSpan::class.java)
+        val list = ArrayList<AztecPart>()
+
+        spans.forEach {
+            if (isSameInlineSpanType(it, spanToRemove)) {
+                list.add(AztecPart(editableText.getSpanStart(it), editableText.getSpanEnd(it)))
+                editableText.removeSpan(it)
+            }
+        }
+
+        list.forEach {
+            if (it.isValid) {
+                if (it.start < start) {
+                    applyInlineStyle(textFormat, it.start, start)
+                }
+                if (it.end > end) {
+                    applyInlineStyle(textFormat, end, it.end)
+                }
             }
         }
 

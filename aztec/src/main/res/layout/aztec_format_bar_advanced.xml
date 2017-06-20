@@ -179,7 +179,7 @@
 
             <org.wordpress.aztec.toolbar.RippleToggleButton
                 android:id="@+id/format_bar_button_ellipsis_expand"
-                android:background="@drawable/format_bar_button_ellipsis_horizontal"
+                android:background="@drawable/format_bar_button_ellipsis_horizontal_selector"
                 android:contentDescription="@string/format_bar_description_ellipsis_expand"
                 android:layout_alignParentRight="true"
                 android:layout_alignRight="@+id/format_bar_button_layout_expanded"
@@ -190,7 +190,7 @@
 
             <org.wordpress.aztec.toolbar.RippleToggleButton
                 android:id="@+id/format_bar_button_ellipsis_collapse"
-                android:background="@drawable/format_bar_button_ellipsis_vertical"
+                android:background="@drawable/format_bar_button_ellipsis_vertical_selector"
                 android:contentDescription="@string/format_bar_description_ellipsis_collapse"
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/format_bar_button_layout_expanded"

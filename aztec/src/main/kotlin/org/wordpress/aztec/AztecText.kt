@@ -93,7 +93,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
-    private var isBackspacePressed = false
+//    private var isBackspacePressed = false
     private var previousCursorPosition = 0
 
     var isInCalypsoMode = true
@@ -240,9 +240,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     inlineFormatter.tryRemoveLeadingInlineStyle()
                     isLeadingStyleRemoved = true
                     onSelectionChanged(0, 0)
-                } else if (selectionStart == selectionEnd) {
-                    isBackspacePressed = true
                 }
+//                else if (selectionStart == selectionEnd) {
+//                    isBackspacePressed = true
+//                }
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
@@ -509,12 +510,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-        //do not update toolbar or selected styles when we removed the last character in editor
-        if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) return
+//        val isFirstCharacterDeleted = selStart == 0 && isBackspacePressed
+        val isFirstCharacterDeleted = false
 
-        //do not update toolbar or selected styles when we removed first character in not empty editor
-        if (selStart == 0 && isBackspacePressed) {
-            isBackspacePressed = false
+        //do not update toolbar or selected styles when we removed the last character in editor
+        //or when we removed first character in not empty editor
+        if ((!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)) {
+//            isBackspacePressed = false
             return
         }
 
@@ -1106,9 +1108,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     isLeadingStyleRemoved = true
                     onSelectionChanged(0, 0)
                     return false
-                } else if (selectionStart == selectionEnd) {
-                    isBackspacePressed = true
                 }
+//                else if (selectionStart == selectionEnd) {
+//                    isBackspacePressed = true
+//                }
 
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
@@ -1119,6 +1122,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
+            //detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
+            if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
+                sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+            }
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }

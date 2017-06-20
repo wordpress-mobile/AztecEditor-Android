@@ -59,60 +59,70 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (keyCode) {
             KeyEvent.KEYCODE_1 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                     return true
                 }
             }
             KeyEvent.KEYCODE_2 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                     return true
                 }
             }
             KeyEvent.KEYCODE_3 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                     return true
                 }
             }
             KeyEvent.KEYCODE_4 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                     return true
                 }
             }
             KeyEvent.KEYCODE_5 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
                     return true
                 }
             }
             KeyEvent.KEYCODE_6 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                     return true
                 }
             }
             KeyEvent.KEYCODE_7 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                     return true
                 }
             }
             KeyEvent.KEYCODE_8 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_BOLD, true)
                     findViewById(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_STRIKETHROUGH, true)
                     findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
@@ -125,51 +135,60 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ITALIC, true)
                     findViewById(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
                 if (event.isCtrlPressed) { // Link = Ctrl + K
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, true)
                     findViewById(ToolbarAction.LINK.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
+                    aztecToolbarListener?.onToolbarAddMediaClicked()
                     findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_O -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
                     return true
                 }
             }
             KeyEvent.KEYCODE_P -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Page Break = Alt + Ctrl + P
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PAGE, true)
                     findViewById(ToolbarAction.PAGE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_QUOTE, true)
                     findViewById(ToolbarAction.QUOTE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_T -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Read More = Alt + Ctrl + T
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_MORE, true)
                     findViewById(ToolbarAction.MORE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_U -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
                     return true
                 } else if (event.isCtrlPressed) { // Underline = Ctrl + U
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNDERLINE, true)
                     findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
                     return true
                 }
@@ -205,52 +224,62 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (item?.itemId) {
             // Heading Menu
             R.id.paragraph -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
             R.id.heading_1 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_1)
                 return true
             }
             R.id.heading_2 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_2)
                 return true
             }
             R.id.heading_3 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_3)
                 return true
             }
             R.id.heading_4 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_4)
                 return true
             }
             R.id.heading_5 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_5)
                 return true
             }
             R.id.heading_6 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_6)
                 return true
             }
 //            TODO: Uncomment when Preformat is to be added back as a feature
 //            R.id.preformat -> {
+//                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, false)
 //                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
 //                return true
 //            }
             // List Menu
             R.id.list_ordered -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
                 return true
             }
             R.id.list_unordered -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
                 return true
@@ -382,23 +411,44 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 textFormats.add(getSelectedListMenuItem()!!)
             }
 
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
             return editor!!.setSelectedStyles(textFormats)
         }
 
         //if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
             return editor!!.toggleFormatting(action.textFormat!!)
         }
 
         //other toolbar action
         when (action) {
-            ToolbarAction.ADD_MEDIA -> aztecToolbarListener?.onToolbarAddMediaClicked()
-            ToolbarAction.HEADING -> headingMenu?.show()
-            ToolbarAction.LIST -> listMenu?.show()
-            ToolbarAction.LINK -> editor!!.showLinkDialog()
-            ToolbarAction.HTML -> aztecToolbarListener?.onToolbarHtmlModeClicked()
-            ToolbarAction.ELLIPSIS_COLLAPSE -> animateToolbarCollapse()
-            ToolbarAction.ELLIPSIS_EXPAND -> animateToolbarExpand()
+            ToolbarAction.ADD_MEDIA -> {
+                aztecToolbarListener?.onToolbarAddMediaClicked()
+            }
+            ToolbarAction.HEADING -> {
+                aztecToolbarListener?.onToolbarHeadingButtonClicked()
+                headingMenu?.show()
+            }
+            ToolbarAction.LIST -> {
+                aztecToolbarListener?.onToolbarListButtonClicked()
+                listMenu?.show()
+            }
+            ToolbarAction.LINK -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, false)
+                editor!!.showLinkDialog()
+            }
+            ToolbarAction.HTML -> {
+                aztecToolbarListener?.onToolbarHtmlModeClicked()
+            }
+            ToolbarAction.ELLIPSIS_COLLAPSE -> {
+                aztecToolbarListener?.onToolbarExpandButtonClicked()
+                animateToolbarCollapse()
+            }
+            ToolbarAction.ELLIPSIS_EXPAND -> {
+                aztecToolbarListener?.onToolbarCollapseButtonClicked()
+                animateToolbarExpand()
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }

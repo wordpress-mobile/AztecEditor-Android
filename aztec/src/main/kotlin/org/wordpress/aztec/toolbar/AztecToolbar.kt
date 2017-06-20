@@ -149,7 +149,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
-                    aztecToolbarListener?.onToolbarAddMediaClicked()
+                    aztecToolbarListener?.onToolbarMediaButtonClicked()
                     findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
                     return true
                 }
@@ -424,7 +424,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         //other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA -> {
-                aztecToolbarListener?.onToolbarAddMediaClicked()
+                aztecToolbarListener?.onToolbarMediaButtonClicked()
             }
             ToolbarAction.HEADING -> {
                 aztecToolbarListener?.onToolbarHeadingButtonClicked()
@@ -439,7 +439,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 editor!!.showLinkDialog()
             }
             ToolbarAction.HTML -> {
-                aztecToolbarListener?.onToolbarHtmlModeClicked()
+                aztecToolbarListener?.onToolbarHtmlButtonClicked()
             }
             ToolbarAction.ELLIPSIS_COLLAPSE -> {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()

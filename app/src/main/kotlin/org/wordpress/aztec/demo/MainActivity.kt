@@ -665,10 +665,7 @@ class MainActivity : AppCompatActivity(),
     override fun onToolbarHeadingButtonClicked() {
     }
 
-    override fun onToolbarListButtonClicked() {
-    }
-
-    override fun onToolbarHtmlModeClicked() {
+    override fun onToolbarHtmlButtonClicked() {
         val uploadingPredicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getIndex("uploading") > -1
@@ -684,7 +681,10 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onToolbarAddMediaClicked() {
+    override fun onToolbarListButtonClicked() {
+    }
+
+    override fun onToolbarMediaButtonClicked() {
         mediaMenu = PopupMenu(this, formattingToolbar)
         mediaMenu?.setOnMenuItemClickListener(this)
         mediaMenu?.inflate(R.menu.media)

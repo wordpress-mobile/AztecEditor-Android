@@ -28,7 +28,7 @@ before_script:
 
 #before_install:
 #  # TODO: Remove the following line when Travis' platform-tools are updated to v24+
-#  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
+  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
 
 script:
   - ./gradlew build

@@ -43,7 +43,7 @@ public class TestUtils {
 
     // List Selectors
     public static DataInteraction listUnorderedSelector = onData(hasToString("Unordered List"));
-    public static DataInteraction listOrderedSelector = onData(hasToString("Oredered List"));
+    public static DataInteraction listOrderedSelector = onData(hasToString("Ordered List"));
 
     // Heading/Paragraph Format Selectors
     public static DataInteraction headingOneSelector = onData(hasToString("Heading 1"));

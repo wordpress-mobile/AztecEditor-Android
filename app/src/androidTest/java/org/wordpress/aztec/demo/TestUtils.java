@@ -10,7 +10,6 @@ import android.support.test.espresso.action.ViewActions;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
@@ -36,12 +35,15 @@ public class TestUtils {
     public static ViewInteraction italicButton = onView(withId(R.id.format_bar_button_italic));
     public static ViewInteraction linkButton = onView(withId(R.id.format_bar_button_link));
     public static ViewInteraction moreButton = onView(withId(R.id.format_bar_button_more));
-    public static ViewInteraction orderedListButton = onView(withId(R.id.format_bar_button_ol));
     public static ViewInteraction pageButton = onView(withId(R.id.format_bar_button_page));
     public static ViewInteraction quoteButton = onView(withId(R.id.format_bar_button_quote));
     public static ViewInteraction strikethroughButton = onView(withId(R.id.format_bar_button_strikethrough));
     public static ViewInteraction underlineButton = onView(withId(R.id.format_bar_button_underline));
-    public static ViewInteraction unorderedListButton = onView(withId(R.id.format_bar_button_ul));
+    public static ViewInteraction listButton = onView(withId(R.id.format_bar_button_list));
+
+    // List Selectors
+    public static DataInteraction listUnorderedSelector = onData(hasToString("Unordered List"));
+    public static DataInteraction listOrderedSelector = onData(hasToString("Oredered List"));
 
     // Heading/Paragraph Format Selectors
     public static DataInteraction headingOneSelector = onData(hasToString("Heading 1"));
@@ -60,7 +62,7 @@ public class TestUtils {
     // Switch to HTML view
     public static void toggleHTMLView() {
         ViewInteraction htmlButton = onView(withId(R.id.format_bar_button_html));
-        htmlButton.perform(click());
+        htmlButton.perform(betterScrollTo(),betterClick());
     }
 
     // Better scrolling action for last toolbar item (<90% of item displayed)

@@ -28,21 +28,20 @@ install:
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-25'
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;m2repository'
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;android;support'
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;google_play_services'
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'extras;google;m2repository'
 
 env:
   - ANDROID_HOME=$HOME/android-sdk
 
-#android:
-#  components:
-#    - extra-android-m2repository
-#    - extra-android-support
-#    - extra-google-m2repository
-#    - platform-tools
-#    - tools
-#    - build-tools-25.0.2
-#    - android-25
+android:
+  components:
+    - extra-android-m2repository
+    - extra-android-support
+    - extra-google-m2repository
+    - platform-tools
+    - tools
+    - build-tools-25.0.2
+    - android-25
 
 env:
   global:

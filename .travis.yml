@@ -21,7 +21,6 @@ env:
     - ANDROID_TARGET=android-14
 
 before_script:
-  - android-update-sdk --components=sys-img-armeabi-v7a-android-19 --accept-licenses='android-sdk-license-[0-9a-f]{8}'
   - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window
   - android-wait-for-emulator

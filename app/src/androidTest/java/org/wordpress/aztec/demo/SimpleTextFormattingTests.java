@@ -35,8 +35,6 @@ import static org.wordpress.aztec.demo.TestUtils.listButton;
 import static org.wordpress.aztec.demo.TestUtils.listOrderedSelector;
 import static org.wordpress.aztec.demo.TestUtils.listUnorderedSelector;
 import static org.wordpress.aztec.demo.TestUtils.moreButton;
-import static org.wordpress.aztec.demo.TestUtils.pageButton;
-import static org.wordpress.aztec.demo.TestUtils.preSelector;
 import static org.wordpress.aztec.demo.TestUtils.quoteButton;
 import static org.wordpress.aztec.demo.TestUtils.sourceText;
 import static org.wordpress.aztec.demo.TestUtils.strikethroughButton;
@@ -116,7 +114,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         listButton.perform(scrollTo(), click());
-        listUnorderedSelector.perform(betterScrollTo(),betterClick());
+        listUnorderedSelector.perform(betterClick());
         aztecText.perform(typeText(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -129,7 +127,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         listButton.perform(scrollTo(), click());
-        listOrderedSelector.perform(betterScrollTo(),betterClick());
+        listOrderedSelector.perform(betterClick());
         aztecText.perform(typeText(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -167,24 +165,25 @@ public class SimpleTextFormattingTests {
         sourceText.check(matches(withText(unformattedText + "\n\n<!--more-->\n\n" + unformattedText)));
     }
 
-    @Test
-    public void testSimplePageBreakFormatting() {
-        // Enter text in visual editor with page break in between
-        aztecText.perform(typeText(unformattedText));
-        pageButton.perform(betterScrollTo(), betterClick());
-        aztecText.perform(typeTextIntoFocusedView(unformattedText));
-
-        // Check that page break was correctly added
-        toggleHTMLView();
-        sourceText.check(matches(withText(unformattedText + "\n\n<!--nextpage-->\n\n" + unformattedText)));
-    }
+    //TODO: uncomment when Page Break is to be added back as a feature
+//    @Test
+//    public void testSimplePageBreakFormatting() {
+//        // Enter text in visual editor with page break in between
+//        aztecText.perform(typeText(unformattedText));
+//        pageButton.perform(betterScrollTo(), betterClick());
+//        aztecText.perform(typeTextIntoFocusedView(unformattedText));
+//
+//        // Check that page break was correctly added
+//        toggleHTMLView();
+//        sourceText.check(matches(withText(unformattedText + "\n\n<!--nextpage-->\n\n" + unformattedText)));
+//    }
 
     @Test
     public void testSimpleHeadingOneFormatting() {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingOneSelector.perform(betterScrollTo(),betterClick());
+        headingOneSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -197,7 +196,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingTwoSelector.perform(betterScrollTo(),betterClick());
+        headingTwoSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -210,7 +209,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingThreeSelector.perform(betterScrollTo(),betterClick());
+        headingThreeSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -223,7 +222,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingFourSelector.perform(betterScrollTo(),betterClick());
+        headingFourSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -236,7 +235,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingFiveSelector.perform(betterScrollTo(),betterClick());
+        headingFiveSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -249,7 +248,7 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText + "\n"));
         headingButton.perform(betterScrollTo(),betterClick());
-        headingSixSelector.perform(betterScrollTo(),betterClick());
+        headingSixSelector.perform(betterClick());
         aztecText.perform(typeTextIntoFocusedView(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -257,16 +256,17 @@ public class SimpleTextFormattingTests {
         sourceText.check(matches(withText(unformattedText + "\n<h6>" + formattedText + "</h6>")));
     }
 
-    @Test
-    public void testSimplePreformattedTextFormatting() {
-        // Enter text in visual editor with formatting
-        aztecText.perform(typeText(unformattedText + "\n"));
-        headingButton.perform(betterScrollTo(),betterClick());
-        preSelector.perform(betterScrollTo(),betterClick());
-        aztecText.perform(typeTextIntoFocusedView(formattedText));
-
-        // Check that HTML formatting tags were correctly added
-        toggleHTMLView();
-        sourceText.check(matches(withText(unformattedText + "\n<pre>" + formattedText + "</pre>")));
-    }
+    //TODO: uncomment when Preformatted will be added back as a feature
+//    @Test
+//    public void testSimplePreformattedTextFormatting() {
+//        // Enter text in visual editor with formatting
+//        aztecText.perform(typeText(unformattedText + "\n"));
+//        headingButton.perform(betterScrollTo(),betterClick());
+//        preSelector.perform(betterScrollTo(),betterClick());
+//        aztecText.perform(typeTextIntoFocusedView(formattedText));
+//
+//        // Check that HTML formatting tags were correctly added
+//        toggleHTMLView();
+//        sourceText.check(matches(withText(unformattedText + "\n<pre>" + formattedText + "</pre>")));
+//    }
 }

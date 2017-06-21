@@ -2,7 +2,6 @@ package org.wordpress.aztec.demo;
 
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.LargeTest;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +41,6 @@ import static org.wordpress.aztec.demo.TestUtils.toggleHTMLView;
 import static org.wordpress.aztec.demo.TestUtils.underlineButton;
 import static org.wordpress.aztec.demo.TestUtils.unformattedText;
 
-@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class SimpleTextFormattingTests {
 
@@ -53,7 +51,7 @@ public class SimpleTextFormattingTests {
     public void testSimpleBoldFormatting() {
         // Enter text in visual editor with formatting
         aztecText.perform(typeText(unformattedText));
-        boldButton.perform(betterScrollTo(),betterClick());
+        boldButton.perform(betterScrollTo(), betterClick());
         aztecText.perform(typeText(formattedText));
 
         // Check that HTML formatting tags were correctly added
@@ -148,7 +146,7 @@ public class SimpleTextFormattingTests {
 
         // Check that link dialog contains the correct values
         toggleHTMLView();
-        linkButton.perform(scrollTo(), click());
+        linkButton.perform(scrollTo(), betterClick());
         linkURLField.check(matches(withText(linkURLText)));
         linkTextField.check(matches(withText(formattedText)));
     }
@@ -269,4 +267,5 @@ public class SimpleTextFormattingTests {
 //        toggleHTMLView();
 //        sourceText.check(matches(withText(unformattedText + "\n<pre>" + formattedText + "</pre>")));
 //    }
+
 }

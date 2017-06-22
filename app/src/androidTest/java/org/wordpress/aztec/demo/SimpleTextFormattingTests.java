@@ -7,16 +7,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.action.ViewActions.typeTextIntoFocusedView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.wordpress.aztec.demo.TestUtils.aztecText;
 import static org.wordpress.aztec.demo.TestUtils.betterClick;
 import static org.wordpress.aztec.demo.TestUtils.betterScrollTo;
-import static org.wordpress.aztec.demo.TestUtils.boldButton;
 import static org.wordpress.aztec.demo.TestUtils.formattedText;
 import static org.wordpress.aztec.demo.TestUtils.headingButton;
 import static org.wordpress.aztec.demo.TestUtils.headingFiveSelector;
@@ -64,13 +65,13 @@ public class SimpleTextFormattingTests {
     @Test
     public void testSimpleBoldFormatting() {
         // Enter text in visual editor with formatting
-        aztecText.perform(typeText(unformattedText));
-        boldButton.perform(betterScrollTo(),betterClick());
-        aztecText.perform(typeText(formattedText));
+        onView(withId(R.id.aztec)).perform(typeText(unformattedText));
+        onView(withId(R.id.format_bar_button_bold)).perform(betterScrollTo(),betterClick());
+        onView(withId(R.id.aztec)).perform(typeText(formattedText));
 
         // Check that HTML formatting tags were correctly added
         toggleHTMLView();
-        sourceText.check(matches(withText(unformattedText + "<b>" + formattedText + "</b>")));
+        onView(withId(R.id.source)).check(matches(withText(unformattedText + "<b>" + formattedText + "</b>")));
     }
 
     @Test
@@ -156,11 +157,11 @@ public class SimpleTextFormattingTests {
     public void testSimpleLinkFormatting() {
         // Enter link HTML
         toggleHTMLView();
-        sourceText.perform(typeText("<a href='" + linkURLText + "'>" + formattedText + "</a>"));
+        sourceText.perform(betterClick(), typeText("<a href='" + linkURLText + "'>" + formattedText + "</a>"));
 
         // Check that link dialog contains the correct values
         toggleHTMLView();
-        linkButton.perform(scrollTo(), click());
+        linkButton.perform(scrollTo(), betterClick());
         linkURLField.check(matches(withText(linkURLText)));
         linkTextField.check(matches(withText(formattedText)));
     }

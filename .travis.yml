@@ -11,7 +11,7 @@ android:
     - tools
     - build-tools-25.0.2
     - android-25
-    - sys-img-armeabi-v7a-$ANDROID_TARGET
+    - sys-img-armeabi-v7a-android-19
 
 env:
   global:
@@ -22,8 +22,8 @@ env:
     - ADB_INSTALL_TIMEOUT=10
 
 before_script:
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a --sdcard 200M
-  - emulator -avd test -no-audio -no-window &
+  - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a --sdcard 200M
+  - emulator -avd test -no-audio &
   - android-wait-for-emulator
   - sleep 10
   - adb shell settings put global window_animation_scale 0 &
@@ -33,7 +33,7 @@ before_script:
 
 #before_install:
 #  # TODO: Remove the following line when Travis' platform-tools are updated to v24+
-  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
+#  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
 
 script:
 #  - ./gradlew build

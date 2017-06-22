@@ -11,19 +11,21 @@ android:
     - tools
     - build-tools-25.0.2
     - android-25
-    - sys-img-armeabi-v7a-android-19
+    - sys-img-armeabi-v7a-android-21
 
 env:
   global:
     - MALLOC_ARENA_MAX=2
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
     - ANDROID_SDKS=android-14
-    - ANDROID_TARGET=android-19
+    - ANDROID_TARGET=android-21
     - ADB_INSTALL_TIMEOUT=10
+    - QT_QPA_PLATFORM=offscreen
 
 before_script:
-  - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a --sdcard 200M
-  - emulator -avd test -no-audio &
+  - sudo apt-get install -y libqt5widgets5
+  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a --sdcard 200M
+  - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
   - sleep 10
   - adb shell settings put global window_animation_scale 0 &

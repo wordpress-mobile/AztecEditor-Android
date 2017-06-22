@@ -9,12 +9,14 @@ import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.action.ViewActions.typeTextIntoFocusedView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.wordpress.aztec.demo.TestUtils.aztecText;
 import static org.wordpress.aztec.demo.TestUtils.betterClick;
 import static org.wordpress.aztec.demo.TestUtils.betterScrollTo;
@@ -67,11 +69,11 @@ public class SimpleTextFormattingTests {
         // Enter text in visual editor with formatting
         onView(withId(R.id.aztec)).perform(typeText(unformattedText));
         onView(withId(R.id.format_bar_button_bold)).perform(betterScrollTo(),betterClick());
-        onView(withId(R.id.aztec)).perform(typeText(formattedText));
+        onView(withId(R.id.aztec)).perform(typeText(formattedText),closeSoftKeyboard());
 
         // Check that HTML formatting tags were correctly added
         toggleHTMLView();
-        onView(withId(R.id.source)).check(matches(withText(unformattedText + "<b>" + formattedText + "</b>")));
+        onView(allOf(withId(R.id.source), withText(unformattedText + "<b>" + formattedText + "</b>"))).check(matches(withText(unformattedText + "<b>" + formattedText + "</b>")));
     }
 
     @Test

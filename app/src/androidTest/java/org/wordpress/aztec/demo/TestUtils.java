@@ -10,9 +10,7 @@ import android.support.test.espresso.action.ViewActions;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasToString;
 
 /**
@@ -27,7 +25,7 @@ public class TestUtils {
 
     // Editor Views
     public static ViewInteraction aztecText = onView(withId(R.id.aztec));
-    public static ViewInteraction sourceText = onView(allOf(withId(R.id.source), isDisplayed()));
+    public static ViewInteraction sourceText = onView(withId(R.id.source));
 
     // Format Toolbar Buttons
     public static ViewInteraction boldButton = onView(withId(R.id.format_bar_button_bold));

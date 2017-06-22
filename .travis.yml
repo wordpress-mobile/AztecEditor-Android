@@ -11,20 +11,24 @@ android:
     - tools
     - build-tools-25.0.2
     - android-25
-    - sys-img-armeabi-android-21
+    - sys-img-armeabi-v7a-$ANDROID_TARGET
 
 env:
   global:
     - MALLOC_ARENA_MAX=2
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
     - ANDROID_SDKS=android-14
-    - ANDROID_TARGET=android-14
+    - ANDROID_TARGET=android-19
     - ADB_INSTALL_TIMEOUT=10
 
 before_script:
-  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi armeabi-v7a --sdcard 200M
+  - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
+  - sleep 10
+  - adb shell settings put global window_animation_scale 0 &
+  - adb shell settings put global transition_animation_scale 0 &
+  - adb shell settings put global animator_duration_scale 0 &
   - adb shell input keyevent 82 &
 
 #before_install:
@@ -33,4 +37,4 @@ before_script:
 
 script:
 #  - ./gradlew build
-  - ./gradlew clean connectedAndroidTest
+  - ./gradlew assembleDebug connectedAndroidTest

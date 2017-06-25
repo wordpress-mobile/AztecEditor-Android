@@ -3,11 +3,13 @@ package org.wordpress.aztec.demo;
 import android.support.test.espresso.DataInteraction;
 import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.action.GeneralLocation;
+import android.support.test.espresso.action.Press;
+import android.support.test.espresso.action.Tap;
 import android.support.test.espresso.action.ViewActions;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.hasToString;
 
@@ -68,7 +70,6 @@ public class TestUtils {
 
     // Better click action for last toolbar item (<90% of item displayed)
     public static ViewAction betterClick() {
-//        return new BetterClickAction(Tap.SINGLE, GeneralLocation.CENTER, Press.FINGER);
-        return click();
+        return new BetterClickAction(Tap.SINGLE, GeneralLocation.CENTER, Press.FINGER);
     }
 }

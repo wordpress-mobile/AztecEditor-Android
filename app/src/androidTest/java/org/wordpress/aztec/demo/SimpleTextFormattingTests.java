@@ -1,20 +1,11 @@
 package org.wordpress.aztec.demo;
 
-import android.support.test.espresso.PerformException;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.util.HumanReadables;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.view.View;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.core.IsAnything;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.TimeoutException;
 
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
@@ -151,7 +142,7 @@ public class SimpleTextFormattingTests {
     public void testSimpleLinkFormatting() {
         // Enter link HTML
         toggleHTMLView();
-        sourceText.perform(betterClick(), typeText("<a href='" + linkURLText + "'>" + formattedText + "</a>"));
+        sourceText.perform(typeText("<a href='" + linkURLText + "'>" + formattedText + "</a>"));
 
         // Check that link dialog contains the correct values
         toggleHTMLView();
@@ -277,71 +268,4 @@ public class SimpleTextFormattingTests {
 //        sourceText.check(matches(withText(unformattedText + "\n<pre>" + formattedText + "</pre>")));
 //    }
 
-
-    public static ViewAction waitVisibility(int visibility, long millis) {
-        return new WaitVisibility(visibility, millis);
-    }
-
-    public static abstract class WaitBase implements ViewAction {
-        protected long millis = 0;
-
-        WaitBase(long millis) {
-            this.millis = millis;
-        }
-
-        @Override
-        public Matcher<View> getConstraints() {
-            return new IsAnything<>();
-        }
-
-        @Override
-        public String getDescription() {
-            return"wait during " + millis + " millis.";
-        }
-
-        @Override
-        public void perform(UiController uiController, View view) {
-            uiController.loopMainThreadUntilIdle();
-            final long startTime = System.currentTimeMillis();
-            final long endTime = startTime + millis;
-
-            do {
-                if (check(view)) {
-                    return;
-                }
-
-                uiController.loopMainThreadForAtLeast(50);
-            }
-            while (System.currentTimeMillis() < endTime);
-
-            // timeout happens
-            throw new PerformException.Builder()
-                    .withActionDescription(this.getDescription())
-                    .withViewDescription(HumanReadables.describe(view))
-                    .withCause(new TimeoutException())
-                    .build();
-        }
-
-
-        abstract protected boolean check(final View view);
-    }
-
-    public static class WaitVisibility extends WaitBase {
-        private final int mVisibility;
-
-        public WaitVisibility(int visibility, long millis) {
-            super(millis);
-            mVisibility = visibility;
-        }
-
-        @Override
-        public String getDescription() {
-            return "wait for a specific view with visibility <" + mVisibility + "> during " + millis + " millis.";
-        }
-
-        @Override
-        protected boolean check(final View view) {
-            return view.getVisibility() == mVisibility;
-        }
-    }
 }

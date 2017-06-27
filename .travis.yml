@@ -11,31 +11,17 @@ android:
     - tools
     - build-tools-25.0.2
     - android-25
-    - sys-img-armeabi-v7a-android-19
 
 env:
   global:
     - MALLOC_ARENA_MAX=2
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
     - ANDROID_SDKS=android-14
-    - ANDROID_TARGET=android-19
-    - ADB_INSTALL_TIMEOUT=10
+    - ANDROID_TARGET=android-14
 
-before_script:
-  - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a --device 'Nexus 5' --skin 1080x1920
-  - emulator -avd test -no-audio -no-window &
-  - android-wait-for-emulator
-  - sleep 10
-  - adb shell settings put global window_animation_scale 0 &
-  - adb shell settings put secure long_press_timeout 1000 &
-  - adb shell settings put global transition_animation_scale 0 &
-  - adb shell settings put global animator_duration_scale 0 &
-  - adb shell input keyevent 82 &
-
-#before_install:
-#  # TODO: Remove the following line when Travis' platform-tools are updated to v24+
-#  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
+before_install:
+  # TODO: Remove the following line when Travis' platform-tools are updated to v24+
+  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
 
 script:
-#  - ./gradlew build
-  - ./gradlew assembleDebug connectedAndroidTest
+  - ./gradlew build

@@ -1,6 +1,7 @@
 package org.wordpress.aztec.demo
 
 import android.support.test.espresso.action.ViewActions
+import android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import android.support.test.espresso.action.ViewActions.typeText
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.*
@@ -100,14 +101,19 @@ class ToolbarHighlightingTest {
     //make sure that selected toolbar style in empty editor remains when soft keyboard is displayed
     @Test
     fun testStyleHighlightPersistenceInEmptyEditorOnWindowFocusChange() {
+        aztecText.perform(closeSoftKeyboard()) //make sure keyboard is closed
         boldButton.perform(betterScrollTo(), betterClick())
-        aztecText.perform(betterClick())
+        aztecText.perform(betterClick()) //click in editor so the soft keyboard is up
 
         boldButton.check(matches(isChecked()))
 
-        aztecText.perform(ViewActions.pressKey(KeyEvent.KEYCODE_DEL))
-        boldButton.check(matches(isNotChecked()))
+        aztecText.perform(closeSoftKeyboard())
 
+        boldButton.check(matches(isChecked()))
+
+        aztecText.perform(typeText(formattedText))
+        toggleHTMLView()
+        sourceText.check(matches(withText("<b>$formattedText</b>")))
     }
 
 }

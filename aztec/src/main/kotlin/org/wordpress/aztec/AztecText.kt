@@ -93,7 +93,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
-//    private var isBackspacePressed = false
     private var previousCursorPosition = 0
 
     var isInCalypsoMode = true
@@ -241,9 +240,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     isLeadingStyleRemoved = true
                     onSelectionChanged(0, 0)
                 }
-//                else if (selectionStart == selectionEnd) {
-//                    isBackspacePressed = true
-//                }
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
@@ -510,13 +506,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-//        val isFirstCharacterDeleted = selStart == 0 && isBackspacePressed
-        val isFirstCharacterDeleted = false
 
         //do not update toolbar or selected styles when we removed the last character in editor
-        //or when we removed first character in not empty editor
-        if ((!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)) {
-//            isBackspacePressed = false
+        if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
         }
 
@@ -1109,9 +1101,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     onSelectionChanged(0, 0)
                     return false
                 }
-//                else if (selectionStart == selectionEnd) {
-//                    isBackspacePressed = true
-//                }
 
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)

@@ -113,15 +113,12 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         //if there is END_OF_BUFFER_MARKER at the end of or range, extend the range to include it
         var newEnd = end
 
-        if (newEnd > editableText.length) {
+        //remove lingering empty spans when removing characters
+        if (start > end) {
             editableText.getSpans(newStart, newEnd, AztecInlineSpan::class.java)
                     .filter { editableText.getSpanStart(it) == editableText.getSpanEnd(it) }
                     .forEach { editableText.removeSpan(it) }
             return
-        }
-
-        if (editableText.length > newEnd + 1 && editableText[newEnd] == Constants.END_OF_BUFFER_MARKER) {
-            newEnd++
         }
 
 
@@ -132,22 +129,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             }
 
         }
-
-//        editor.getAppliedStyles(newStart, newEnd).forEach {
-//            if (!editor.selectedStyles.contains(it) || ignoreSelectedStyles || (newStart == 0 && newEnd == 0) ||
-//                    (newStart > newEnd && editableText.length > newEnd && editableText[newEnd] == '\n')) {
-//                when (it) {
-//                    TextFormat.FORMAT_BOLD,
-//                    TextFormat.FORMAT_ITALIC,
-//                    TextFormat.FORMAT_STRIKETHROUGH,
-//                    TextFormat.FORMAT_UNDERLINE,
-//                    TextFormat.FORMAT_CODE -> removeInlineStyle(it, newStart, newEnd)
-//                    else -> {
-//                        //do nothing
-//                    }
-//                }
-//            }
-//        }
     }
 
     fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {

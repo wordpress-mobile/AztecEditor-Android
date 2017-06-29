@@ -30,10 +30,7 @@ import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
-import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.HistoryListener
-import org.wordpress.aztec.Html
+import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
@@ -656,7 +653,19 @@ class MainActivity : AppCompatActivity(),
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun onToolbarHtmlModeClicked() {
+    override fun onToolbarCollapseButtonClicked() {
+    }
+
+    override fun onToolbarExpandButtonClicked() {
+    }
+
+    override fun onToolbarFormatButtonClicked(format: TextFormat, isKeyboardShortcut: Boolean) {
+    }
+
+    override fun onToolbarHeadingButtonClicked() {
+    }
+
+    override fun onToolbarHtmlButtonClicked() {
         val uploadingPredicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getIndex("uploading") > -1
@@ -672,7 +681,10 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onToolbarAddMediaClicked() {
+    override fun onToolbarListButtonClicked() {
+    }
+
+    override fun onToolbarMediaButtonClicked() {
         mediaMenu = PopupMenu(this, formattingToolbar)
         mediaMenu?.setOnMenuItemClickListener(this)
         mediaMenu?.inflate(R.menu.media)

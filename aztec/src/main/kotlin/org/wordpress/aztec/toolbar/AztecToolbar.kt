@@ -363,7 +363,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         for (action in ToolbarAction.values()) {
             if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
-                action != ToolbarAction.ELLIPSIS_EXPAND) {
+                    action != ToolbarAction.ELLIPSIS_EXPAND) {
                 val view = findViewById(action.buttonId) as ToggleButton
                 if (view.isChecked) actions.add(action)
             }
@@ -527,27 +527,33 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
-        // Select TextFormat.FORMAT_PARAGRAPH by default.
-        headingMenu?.menu?.getItem(0)?.isChecked = true
-        // Use unnumbered heading selector by default.
-        setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
-
-        textFormats.forEach {
-            when (it) {
-                TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
-                TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
-                TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
-                TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
-                TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
-                TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+        if (textFormats.size == 0) {
+            // Select paragraph by default.
+            headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
+            // Use unnumbered heading selector by default.
+            setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
+        } else {
+            textFormats.forEach {
+                when (it) {
+                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
 //                    TODO: Uncomment when Preformat is to be added back as a feature
-//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.getItem(7)?.isChecked = true
+//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
+                    else -> {
+                        // Select paragraph by default.
+                        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
+                    }
+                }
 
+                setHeadingMenuSelector(it)
+
+                return
             }
-
-            setHeadingMenuSelector(it)
         }
-
     }
 
     private fun selectListMenuItem(textFormats: ArrayList<TextFormat>) {
@@ -579,53 +585,53 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
         layoutExpandedTranslateOutLeft.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    layoutExpanded.visibility = View.GONE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        layoutExpanded.visibility = View.GONE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
+                    override fun onAnimationStart(animation: Animation) {
+                    }
                 }
-            }
         )
 
         ellipsisSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_90)
         ellipsisSpinLeft.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisCollapse.visibility = View.GONE
-                    buttonEllipsisExpand.visibility = View.VISIBLE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonEllipsisCollapse.visibility = View.GONE
+                        buttonEllipsisExpand.visibility = View.VISIBLE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
-                    buttonScroll.smoothScrollTo(0, 0)
-                    layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                    override fun onAnimationStart(animation: Animation) {
+                        buttonScroll.smoothScrollTo(0, 0)
+                        layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                    }
                 }
-            }
         )
 
         ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
         ellipsisSpinRight.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisCollapse.visibility = View.VISIBLE
-                    buttonEllipsisExpand.visibility = View.GONE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonEllipsisCollapse.visibility = View.VISIBLE
+                        buttonEllipsisExpand.visibility = View.GONE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
-                    layoutExpanded.visibility = View.VISIBLE
-                    layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                    override fun onAnimationStart(animation: Animation) {
+                        layoutExpanded.visibility = View.VISIBLE
+                        layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                    }
                 }
-            }
         )
     }
 

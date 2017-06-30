@@ -442,11 +442,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 aztecToolbarListener?.onToolbarHtmlButtonClicked()
             }
             ToolbarAction.ELLIPSIS_COLLAPSE -> {
-                aztecToolbarListener?.onToolbarExpandButtonClicked()
+                aztecToolbarListener?.onToolbarCollapseButtonClicked()
                 animateToolbarCollapse()
             }
             ToolbarAction.ELLIPSIS_EXPAND -> {
-                aztecToolbarListener?.onToolbarCollapseButtonClicked()
+                aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
             }
             else -> {

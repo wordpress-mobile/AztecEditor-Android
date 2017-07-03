@@ -1111,7 +1111,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 .firstOrNull()?.attributes = attrs
     }
 
-    fun resetAttributeMediaSpan(attributePredicate: AttributePredicate) {
+    fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes) && text.getSpanStart(it) != -1 && text.getSpanEnd(it) != -1

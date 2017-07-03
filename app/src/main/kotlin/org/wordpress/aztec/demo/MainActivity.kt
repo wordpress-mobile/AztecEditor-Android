@@ -268,7 +268,7 @@ class MainActivity : AppCompatActivity(),
         val runnable: Runnable = Runnable {
             aztec.setOverlayLevel(predicate, 1, progress)
             aztec.updateElementAttributes(predicate, attrs)
-            aztec.resetAttributedSpan(predicate)
+            aztec.resetAttributeMediaSpan(predicate)
             progress += 2000
 
             if (progress >= 10000) {

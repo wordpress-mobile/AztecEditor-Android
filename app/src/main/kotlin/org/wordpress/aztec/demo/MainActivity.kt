@@ -34,7 +34,6 @@ import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -124,7 +123,7 @@ class MainActivity : AppCompatActivity(),
                 LONG_TEXT +
                 VIDEO
 
-        private val isRunningTest : Boolean by lazy {
+        private val isRunningTest: Boolean by lazy {
             try {
                 Class.forName("android.support.test.espresso.Espresso")
                 true
@@ -218,14 +217,14 @@ class MainActivity : AppCompatActivity(),
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        val mediaSpan = aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
-        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+        aztec.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        val mediaSpan = aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
-        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+        aztec.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
@@ -243,7 +242,7 @@ class MainActivity : AppCompatActivity(),
         return Pair(id, attrs)
     }
 
-    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes, mediaSpan: AztecMediaSpan) {
+    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes) {
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getValue("id") == id
@@ -266,7 +265,7 @@ class MainActivity : AppCompatActivity(),
         val runnable: Runnable = Runnable {
             aztec.setOverlayLevel(predicate, 1, progress)
             aztec.updateElementAttributes(predicate, attrs)
-            aztec.updateMediaSpan(mediaSpan)
+            aztec.resetAttributedMediaSpan(predicate)
             progress += 2000
 
             if (progress >= 10000) {

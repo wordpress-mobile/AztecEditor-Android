@@ -23,11 +23,13 @@ import android.text.*
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText.OnImageTappedListener
 import org.wordpress.aztec.AztecText.OnVideoTappedListener
+import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.*
 
-class AztecParser {
+class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
     internal var hiddenIndex = 0
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
@@ -43,7 +45,7 @@ class AztecParser {
         val tidySource = tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
-                onUnknownHtmlClickListener, context))
+                onUnknownHtmlClickListener, context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
@@ -412,11 +414,13 @@ class AztecParser {
                     out.append("<!--")
                 }
 
-                if (span is AztecCommentSpan) {
-                    out.append("<!--")
-                    out.append(span.commentText)
-                    i = next
-                }
+                plugins.filter { it is IAztecCommentHandler && it.canHandle(span) }
+                        .forEach {
+                            (it as IAztecCommentHandler).handleCommentSpanStart(out, span)
+                            if (!it.shouldParseContent()) {
+                                i = next
+                            }
+                        }
 
                 if (span is AztecHorizontalRuleSpan) {
                     out.append("<${span.startTag}>")
@@ -442,9 +446,14 @@ class AztecParser {
                     out.append("</${span.endTag}>")
                 }
 
-                if (span is AztecCommentSpan || span is CommentSpan) {
+                if (span is CommentSpan) {
                     out.append("-->")
                 }
+
+                plugins.filter { it is IAztecCommentHandler && it.canHandle(span) }
+                        .forEach {
+                            (it as IAztecCommentHandler).handleCommentSpanEnd(out, span)
+                        }
 
                 if (span is HiddenHtmlSpan) {
                     parseHiddenSpans(next, out, span, text)

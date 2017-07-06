@@ -2,6 +2,8 @@ import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
+import android.text.Spanned
+import android.text.style.CharacterStyle
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
 import org.wordpress.aztec.plugins.wpcomments.R
@@ -9,7 +11,24 @@ import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 
 class WordPressCommentsPlugin : IAztecCommentHandler {
 
-    override fun handleComment(text: String, output: Editable, context: Context, nestingLevel: Int) : Boolean {
+    override fun canHandle(span: CharacterStyle): Boolean {
+        return span is WordPressCommentSpan
+    }
+
+    override fun shouldParseContent(): Boolean {
+        return false
+    }
+
+    override fun handleCommentSpanStart(out: StringBuilder, span: CharacterStyle) {
+        out.append("<!--")
+        out.append((span as WordPressCommentSpan).commentText)
+    }
+
+    override fun handleCommentSpanEnd(out: StringBuilder, span: CharacterStyle){
+        out.append("-->")
+    }
+
+    override fun handleCommentHtml(text: String, output: Editable, context: Context, nestingLevel: Int) : Boolean {
 
         val spanStart = output.length
 

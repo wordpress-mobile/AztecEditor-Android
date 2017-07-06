@@ -21,6 +21,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -33,8 +34,9 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.AztecText.OnImageTappedListener;
-import org.wordpress.aztec.AztecText.OnVideoTappedListener;
+import org.jetbrains.annotations.NotNull;
+import org.wordpress.aztec.plugins.IAztecPlugin;
+import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCommentSpan;
@@ -64,6 +66,7 @@ import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 // This class was imported from AOSP and was modified to fit our needs, it's probably a good idea to keep it as a
 // Java file.
@@ -134,9 +137,9 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
-                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        return fromHtml(source, null, onUnknownHtmlClickListener, context);
+    public static Spanned fromHtml(String source, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
+                                   Context context, List<IAztecPlugin> plugins) {
+        return fromHtml(source, null, onUnknownHtmlClickListener, context, plugins);
     }
 
     /**
@@ -159,7 +162,7 @@ public class Html {
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
-                                   Context context) {
+                                   Context context, List<IAztecPlugin> plugins) {
 
         Parser parser = new Parser();
         try {
@@ -174,7 +177,7 @@ public class Html {
         }
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler, parser, onUnknownHtmlClickListener, context);
+                new HtmlToSpannedConverter(source, tagHandler, parser, onUnknownHtmlClickListener, context, plugins);
 
         return converter.convert();
     }
@@ -195,34 +198,37 @@ public class Html {
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private int nestingLevel = 0;
 
-    public int unknownTagLevel = 0;
-    public Unknown unknown;
+    private int unknownTagLevel = 0;
+    private Unknown unknown;
     private boolean insidePreTag = false;
     private boolean insideCodeTag = false;
 
-    private String mSource;
+    private String source;
+    private List<IAztecPlugin> plugins;
     private UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener;
-    private XMLReader mReader;
+    private XMLReader reader;
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        mSource = source;
-        spannableStringBuilder = new SpannableStringBuilder();
+            Parser parser, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
+            Context context, List<IAztecPlugin> plugins) {
+        this.source = source;
+        this.plugins = plugins;
+        this.spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
-        mReader = parser;
+        this.reader = parser;
         this.context = context;
         this.onUnknownHtmlClickListener = onUnknownHtmlClickListener;
     }
 
     public Spanned convert() {
-        mReader.setContentHandler(this);
+        reader.setContentHandler(this);
         try {
-            mReader.setProperty(Parser.lexicalHandlerProperty, this);
-            mReader.parse(new InputSource(new StringReader(mSource)));
+            reader.setProperty(Parser.lexicalHandlerProperty, this);
+            reader.parse(new InputSource(new StringReader(source)));
         } catch (IOException e) {
             // We are reading from a string. There should not be IO problems.
             throw new RuntimeException(e);
@@ -702,33 +708,19 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         String comment = new String(chars, start, length);
         int spanStart = spannableStringBuilder.length();
 
-        if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
-            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
-            spannableStringBuilder.setSpan(
-                    new AztecCommentSpan(
-                            comment,
-                            context,
-                            context.getResources().getDrawable(R.drawable.img_more),
-                            nestingLevel
-                    ),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
-            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
-            spannableStringBuilder.setSpan(
-                    new AztecCommentSpan(
-                            comment,
-                            context,
-                            context.getResources().getDrawable(R.drawable.img_page),
-                            nestingLevel
-                    ),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        } else {
+        boolean wasCommentHandled = false;
+        if (plugins != null) {
+            for (IAztecPlugin plugin : plugins) {
+                if (plugin instanceof IAztecCommentHandler) {
+                    wasCommentHandled = ((IAztecCommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, context, nestingLevel);
+                    if (wasCommentHandled) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!wasCommentHandled) {
             spannableStringBuilder.append(comment);
             spannableStringBuilder.setSpan(
                     new CommentSpan(),

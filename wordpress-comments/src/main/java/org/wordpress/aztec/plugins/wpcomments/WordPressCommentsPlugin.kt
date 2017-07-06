@@ -1,12 +1,12 @@
+package org.wordpress.aztec.plugins.wpcomments
+
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
-import android.text.Spanned
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
-import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 
 class WordPressCommentsPlugin : IAztecCommentHandler {

@@ -46,6 +46,7 @@ import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.handlers.*
+import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -117,6 +118,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+
+    var plugins: List<IAztecPlugin> = ArrayList()
 
     var widthMeasureSpec: Int = 0
 

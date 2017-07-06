@@ -25,6 +25,8 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
     init {
         initHistory()
         initToolbar()
+
+        visualEditor.plugins = plugins
     }
     
     constructor(activity: Activity, @IdRes aztecTextId: Int,

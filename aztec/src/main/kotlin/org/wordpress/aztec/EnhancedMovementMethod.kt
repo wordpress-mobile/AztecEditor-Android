@@ -29,7 +29,11 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
-            val off = layout.getOffsetForHorizontal(line, x.toFloat()) +1
+            var off = layout.getOffsetForHorizontal(line, x.toFloat())
+
+            if (text.length > off) {
+                off++
+            }
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -49,7 +53,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                     if (action == MotionEvent.ACTION_UP) {
                         link.onClick(widget)
                     } else {
-                        Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
+                        if (link is UnknownClickableSpan)
+                            Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
                     }
 
                     return true

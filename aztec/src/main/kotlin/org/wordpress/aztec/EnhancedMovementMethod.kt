@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.graphics.Rect
-import android.text.Selection
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
@@ -52,11 +51,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
                     if (action == MotionEvent.ACTION_UP) {
                         link.onClick(widget)
-                    } else {
-                        if (link is UnknownClickableSpan)
-                            Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
                     }
-
                     return true
                 }
             }

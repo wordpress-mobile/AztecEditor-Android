@@ -33,6 +33,7 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
+import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
@@ -310,6 +311,7 @@ class MainActivity : AppCompatActivity(),
             .setHistoryListener(this)
             .setOnImageTappedListener(this)
             .setOnVideoTappedListener(this)
+            .addPlugin(WordPressCommentsPlugin())
 
         // initialize the text & HTML
         if (!isRunningTest) {

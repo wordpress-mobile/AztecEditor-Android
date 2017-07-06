@@ -31,14 +31,9 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
-import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.HistoryListener
-import org.wordpress.aztec.Html
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -100,12 +95,10 @@ class MainActivity : AppCompatActivity(),
                 "}" +
                 "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
-        private val IMG = "<img src=\"https://cloud.githubusercontent.com/assets/3827611/21950131/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
-        private val EMOJI = "aaa&#x1F44D;&#x2764;ccc"
-
+        private val IMG = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
+        private val EMOJI = "&#x1F44D;"
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-
-        private val VIDEO = "<video src=\"https://www.w3schools.com/html/mov_bbb.mp4\" />"
+        private val VIDEO = "<video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\" />"
 
         private val EXAMPLE =
                 IMG +
@@ -130,7 +123,7 @@ class MainActivity : AppCompatActivity(),
                 LONG_TEXT +
                 VIDEO
 
-        private val isRunningTest : Boolean by lazy {
+        private val isRunningTest: Boolean by lazy {
             try {
                 Class.forName("android.support.test.espresso.Espresso")
                 true
@@ -222,14 +215,14 @@ class MainActivity : AppCompatActivity(),
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        val mediaSpan = aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
-        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        val mediaSpan = aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
-        insertMediaAndSimulateUpload(id, attrs, mediaSpan)
+        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
@@ -247,7 +240,7 @@ class MainActivity : AppCompatActivity(),
         return Pair(id, attrs)
     }
 
-    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes, mediaSpan: AztecMediaSpan) {
+    private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes) {
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getValue("id") == id
@@ -270,7 +263,7 @@ class MainActivity : AppCompatActivity(),
         val runnable: Runnable = Runnable {
             aztec.visualEditor.setOverlayLevel(predicate, 1, progress)
             aztec.visualEditor.updateElementAttributes(predicate, attrs)
-            aztec.visualEditor.updateMediaSpan(mediaSpan)
+            aztec.visualEditor.resetAttributedMediaSpan(predicate)
             progress += 2000
 
             if (progress >= 10000) {
@@ -649,7 +642,19 @@ class MainActivity : AppCompatActivity(),
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun onToolbarHtmlModeClicked() {
+    override fun onToolbarCollapseButtonClicked() {
+    }
+
+    override fun onToolbarExpandButtonClicked() {
+    }
+
+    override fun onToolbarFormatButtonClicked(format: TextFormat, isKeyboardShortcut: Boolean) {
+    }
+
+    override fun onToolbarHeadingButtonClicked() {
+    }
+
+    override fun onToolbarHtmlButtonClicked() {
         val uploadingPredicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return attrs.getIndex("uploading") > -1
@@ -665,7 +670,10 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onToolbarAddMediaClicked() {
+    override fun onToolbarListButtonClicked() {
+    }
+
+    override fun onToolbarMediaButtonClicked() {
         mediaMenu = PopupMenu(this, aztec.toolbar)
         mediaMenu?.setOnMenuItemClickListener(this)
         mediaMenu?.inflate(R.menu.media)

@@ -10,17 +10,19 @@ import java.util.*
 enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
     ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
     HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, null),
+    LIST(R.id.format_bar_button_list, ToolbarActionType.BLOCK_STYLE, null),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
     ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
     STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),
     UNDERLINE(R.id.format_bar_button_underline, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_UNDERLINE),
-    UNORDERED_LIST(R.id.format_bar_button_ul, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_UNORDERED_LIST),
-    ORDERED_LIST(R.id.format_bar_button_ol, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_ORDERED_LIST),
     QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
+    HORIZONTAL_RULE(R.id.format_bar_button_horizontal_rule, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HORIZONTAL_RULE),
     MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_MORE),
     PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PAGE),
-    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null);
+    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null),
+    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapse, ToolbarActionType.OTHER, null),
+    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expand, ToolbarActionType.OTHER, null);
 
     companion object {
         fun getToolbarActionForStyle(style: TextFormat): ToolbarAction? {

@@ -398,7 +398,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             }
 
             applyBlock(spanToApply, startOfBlock, endOfBlock)
-            editor.onSelectionChanged(startOfLine, endOfLine)
+            editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
         }
     }
 

@@ -22,7 +22,25 @@ Run unit tests only:
 $ ./gradlew test
 ```
 
-Note: There are no instrumentation tests at the moment.
+### Before running instrumentation tests
+
+Espresso [advises](https://google.github.io/android-testing-support-library/docs/espresso/setup/#setup-your-test-environment) disabling system animations on devices used for testing:
+
+> On your device, under Settings->Developer options disable the following 3 settings:
+> 
+> - Window animation scale
+> - Transition animation scale
+> - Animator duration scale
+
+One additional setup step is also required to handle an Espresso issue with clicks (see the caveats below):
+
+On your device, under Settings -> Accessibility -> Touch & hold delay, set the delay to `Long`.
+
+Run the instrumentation tests:
+
+```shell
+$ adb shell am instrument -w -r -e package org.wordpress.aztec.demo -e debug false org.wordpress.aztec.test/android.support.test.runner.AndroidJUnitRunner
+```
 
 ## Integrating Aztec in your project
 

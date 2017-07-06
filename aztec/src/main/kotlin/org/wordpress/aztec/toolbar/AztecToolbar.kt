@@ -9,11 +9,10 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.PopupMenu
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
-import android.widget.Toast
-import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
@@ -24,20 +23,32 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var aztecToolbarListener: AztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
+    private var listMenu: PopupMenu? = null
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
+    private var isAdvanced: Boolean = false
+    private var isExpanded: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
+    private lateinit var buttonScroll: HorizontalScrollView
+    private lateinit var buttonEllipsisCollapse: RippleToggleButton
+    private lateinit var buttonEllipsisExpand: RippleToggleButton
+    private lateinit var layoutExpandedTranslateInRight: Animation
+    private lateinit var layoutExpandedTranslateOutLeft: Animation
+    private lateinit var ellipsisSpinLeft: Animation
+    private lateinit var ellipsisSpinRight: Animation
+    private lateinit var layoutExpanded: LinearLayout
+
     constructor(context: Context) : super(context) {
-        initView()
+        initView(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        initView()
+        initView(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        initView()
+        initView(attrs)
     }
 
     fun setToolbarListener(listener: AztecToolbarClickListener) {
@@ -48,60 +59,70 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (keyCode) {
             KeyEvent.KEYCODE_1 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                     return true
                 }
             }
             KeyEvent.KEYCODE_2 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                     return true
                 }
             }
             KeyEvent.KEYCODE_3 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                     return true
                 }
             }
             KeyEvent.KEYCODE_4 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                     return true
                 }
             }
             KeyEvent.KEYCODE_5 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
                     return true
                 }
             }
             KeyEvent.KEYCODE_6 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                     return true
                 }
             }
             KeyEvent.KEYCODE_7 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                     return true
                 }
             }
             KeyEvent.KEYCODE_8 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, true)
                     editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_BOLD, true)
                     findViewById(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_STRIKETHROUGH, true)
                     findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
@@ -114,51 +135,60 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ITALIC, true)
                     findViewById(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
                 if (event.isCtrlPressed) { // Link = Ctrl + K
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, true)
                     findViewById(ToolbarAction.LINK.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
+                    aztecToolbarListener?.onToolbarMediaButtonClicked()
                     findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_O -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
-                    findViewById(ToolbarAction.ORDERED_LIST.buttonId).performClick()
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, true)
+                    editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
                     return true
                 }
             }
             KeyEvent.KEYCODE_P -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Page Break = Alt + Ctrl + P
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PAGE, true)
                     findViewById(ToolbarAction.PAGE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_QUOTE, true)
                     findViewById(ToolbarAction.QUOTE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_T -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Read More = Alt + Ctrl + T
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_MORE, true)
                     findViewById(ToolbarAction.MORE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_U -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
-                    findViewById(ToolbarAction.UNORDERED_LIST.buttonId).performClick()
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, true)
+                    editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
                     return true
                 } else if (event.isCtrlPressed) { // Underline = Ctrl + U
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNDERLINE, true)
                     findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
                     return true
                 }
@@ -188,49 +218,72 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-        item?.isChecked = (item?.isChecked == false)
+        val checked = (item?.isChecked == false)
+        item?.isChecked = checked
 
         when (item?.itemId) {
+            // Heading Menu
             R.id.paragraph -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
                 setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
                 return true
             }
             R.id.heading_1 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_1)
                 return true
             }
             R.id.heading_2 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_2)
                 return true
             }
             R.id.heading_3 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_3)
                 return true
             }
             R.id.heading_4 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_4)
                 return true
             }
             R.id.heading_5 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_5)
                 return true
             }
             R.id.heading_6 -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, false)
                 editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
                 setHeadingMenuSelector(TextFormat.FORMAT_HEADING_6)
                 return true
             }
 //            TODO: Uncomment when Preformat is to be added back as a feature
 //            R.id.preformat -> {
+//                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, false)
 //                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
 //                return true
 //            }
+            // List Menu
+            R.id.list_ordered -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, false)
+                editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+                toggleListMenuSelection(item.itemId, checked)
+                return true
+            }
+            R.id.list_unordered -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, false)
+                editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+                toggleListMenuSelection(item.itemId, checked)
+                return true
+            }
             else -> return false
         }
     }
@@ -241,6 +294,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val restoredState = savedState.state
         toggleHtmlMode(restoredState.getBoolean("isSourceVisible"))
         enableMediaMode(restoredState.getBoolean("isMediaMode"))
+        isExpanded = restoredState.getBoolean("isExpanded")
+        setAdvancedState()
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -249,6 +304,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val bundle = Bundle()
         bundle.putBoolean("isSourceVisible", sourceEditor?.visibility == View.VISIBLE)
         bundle.putBoolean("isMediaMode", isMediaModeEnabled)
+        bundle.putBoolean("isExpanded", isExpanded)
         savedState.state = bundle
         return savedState
     }
@@ -269,8 +325,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         })
     }
 
-    private fun initView() {
-        View.inflate(context, R.layout.aztec_format_bar, this)
+    private fun initView(attrs: AttributeSet?) {
+        val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
+        isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+        styles.recycle()
+
+        val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
+        View.inflate(context, layout, this)
+        setAdvancedState()
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById(toolbarAction.buttonId)
@@ -278,6 +340,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
             if (toolbarAction == ToolbarAction.HEADING) {
                 setHeadingMenu(findViewById(toolbarAction.buttonId))
+            }
+
+            if (toolbarAction == ToolbarAction.LIST) {
+                setListMenu(findViewById(toolbarAction.buttonId))
             }
         }
     }
@@ -296,8 +362,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val actions = ArrayList<ToolbarAction>()
 
         for (action in ToolbarAction.values()) {
-            val view = findViewById(action.buttonId) as ToggleButton
-            if (view.isChecked) actions.add(action)
+            if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
+                action != ToolbarAction.ELLIPSIS_EXPAND) {
+                val view = findViewById(action.buttonId) as ToggleButton
+                if (view.isChecked) actions.add(action)
+            }
         }
 
         return actions
@@ -321,6 +390,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val appliedStyles = editor!!.getAppliedStyles(selStart, selEnd)
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
         selectHeadingMenuItem(appliedStyles)
+        selectListMenuItem(appliedStyles)
     }
 
     private fun onToolbarAction(action: ToolbarAction) {
@@ -332,23 +402,53 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val textFormats = ArrayList<TextFormat>()
 
             actions.forEach { if (it.isStylingAction() && it.textFormat != null) textFormats.add(it.textFormat) }
+
             if (getSelectedHeadingMenuItem() != null) {
                 textFormats.add(getSelectedHeadingMenuItem()!!)
             }
+
+            if (getSelectedListMenuItem() != null) {
+                textFormats.add(getSelectedListMenuItem()!!)
+            }
+
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
             return editor!!.setSelectedStyles(textFormats)
         }
 
         //if text is selected and action is styling - toggle the style
-        if (action.isStylingAction() && action != ToolbarAction.HEADING) {
+        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
             return editor!!.toggleFormatting(action.textFormat!!)
         }
 
         //other toolbar action
         when (action) {
-            ToolbarAction.ADD_MEDIA -> aztecToolbarListener?.onToolbarAddMediaClicked()
-            ToolbarAction.HEADING -> headingMenu?.show()
-            ToolbarAction.LINK -> editor!!.showLinkDialog()
-            ToolbarAction.HTML -> aztecToolbarListener?.onToolbarHtmlModeClicked()
+            ToolbarAction.ADD_MEDIA -> {
+                aztecToolbarListener?.onToolbarMediaButtonClicked()
+            }
+            ToolbarAction.HEADING -> {
+                aztecToolbarListener?.onToolbarHeadingButtonClicked()
+                headingMenu?.show()
+            }
+            ToolbarAction.LIST -> {
+                aztecToolbarListener?.onToolbarListButtonClicked()
+                listMenu?.show()
+            }
+            ToolbarAction.LINK -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, false)
+                editor!!.showLinkDialog()
+            }
+            ToolbarAction.HTML -> {
+                aztecToolbarListener?.onToolbarHtmlButtonClicked()
+            }
+            ToolbarAction.ELLIPSIS_COLLAPSE -> {
+                aztecToolbarListener?.onToolbarCollapseButtonClicked()
+                animateToolbarCollapse()
+            }
+            ToolbarAction.ELLIPSIS_EXPAND -> {
+                aztecToolbarListener?.onToolbarExpandButtonClicked()
+                animateToolbarExpand()
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
@@ -371,26 +471,81 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
+    fun getHeadingMenu(): PopupMenu? {
+        return headingMenu
+    }
+
+    fun getListMenu(): PopupMenu? {
+        return listMenu
+    }
+
+    fun getSelectedHeadingMenuItem(): TextFormat? {
+        if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
+        else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
+        else if (headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
+        else if (headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
+        else if (headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
+        else if (headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
+//        TODO: Uncomment when Preformat is to be added back as a feature
+//        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
+        return null
+    }
+
+    fun getSelectedListMenuItem(): TextFormat? {
+        if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
+        else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
+        return null
+    }
+
+    fun setExpanded(expanded: Boolean) {
+        isExpanded = expanded
+        setAdvancedState()
+    }
+
+    private fun animateToolbarCollapse() {
+        buttonEllipsisCollapse.startAnimation(ellipsisSpinLeft)
+        isExpanded = false
+    }
+
+    private fun animateToolbarExpand() {
+        buttonEllipsisExpand.startAnimation(ellipsisSpinRight)
+        isExpanded = true
+    }
+
+    private fun setAdvancedState() {
+        if (isAdvanced) {
+            setButtonViews()
+            setAnimations()
+
+            if (isExpanded) {
+                showExpandedToolbar()
+            } else {
+                showCollapsedToolbar()
+            }
+        }
+    }
+
     private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
         if (textFormats.size == 0) {
-            // Select TextFormat.FORMAT_PARAGRAPH by default.
-            headingMenu?.menu?.getItem(0)?.isChecked = true
+            // Select paragraph by default.
+            headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
             // Use unnumbered heading selector by default.
             setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
         } else {
             textFormats.forEach {
                 when (it) {
-                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.getItem(1)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.getItem(2)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.getItem(3)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.getItem(4)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.getItem(5)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.getItem(6)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
+                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
 //                    TODO: Uncomment when Preformat is to be added back as a feature
-//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.getItem(7)?.isChecked = true
+//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
                     else -> {
-                        // Select TextFormat.FORMAT_PARAGRAPH by default.
-                        headingMenu?.menu?.getItem(0)?.isChecked = true
+                        // Select paragraph by default.
+                        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
                     }
                 }
 
@@ -401,8 +556,90 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun getHeadingMenu(): PopupMenu? {
-        return headingMenu
+    private fun selectListMenuItem(textFormats: ArrayList<TextFormat>) {
+        if (textFormats.size == 0) {
+            // Select no list by default.
+            listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
+            // Use unordered list selector by default.
+            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
+        } else {
+            textFormats.forEach {
+                when (it) {
+                    TextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
+                    TextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
+                    else -> {
+                        // Select no list by default.
+                        listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
+                    }
+                }
+
+                setListMenuSelector(it)
+
+                return
+            }
+        }
+    }
+
+    private fun setAnimations() {
+        layoutExpandedTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
+
+        layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
+        layoutExpandedTranslateOutLeft.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    layoutExpanded.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                }
+            }
+        )
+
+        ellipsisSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_90)
+        ellipsisSpinLeft.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonEllipsisCollapse.visibility = View.GONE
+                    buttonEllipsisExpand.visibility = View.VISIBLE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    buttonScroll.smoothScrollTo(0, 0)
+                    layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                }
+            }
+        )
+
+        ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
+        ellipsisSpinRight.setAnimationListener(
+            object : Animation.AnimationListener {
+                override fun onAnimationEnd(animation: Animation) {
+                    buttonEllipsisCollapse.visibility = View.VISIBLE
+                    buttonEllipsisExpand.visibility = View.GONE
+                }
+
+                override fun onAnimationRepeat(animation: Animation) {
+                }
+
+                override fun onAnimationStart(animation: Animation) {
+                    layoutExpanded.visibility = View.VISIBLE
+                    layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                }
+            }
+        )
+    }
+
+    private fun setButtonViews() {
+        layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded) as LinearLayout
+        buttonScroll = findViewById(R.id.format_bar_button_scroll) as HorizontalScrollView
+        buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse) as RippleToggleButton
+        buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand) as RippleToggleButton
     }
 
     private fun setHeadingMenu(view: View) {
@@ -411,33 +648,49 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         headingMenu?.inflate(R.menu.heading)
     }
 
-    private fun setHeadingMenuSelector(textFormat: TextFormat) {
+    private fun setListMenu(view: View) {
+        listMenu = PopupMenu(context, view)
+        listMenu?.setOnMenuItemClickListener(this)
+        listMenu?.inflate(R.menu.list)
+    }
+
+    private fun setListMenuSelector(textFormat: TextFormat) {
         when (textFormat) {
-            TextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1)
-            TextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2)
-            TextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3)
-            TextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4)
-            TextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5)
-            TextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6)
-            TextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading)
+            TextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+            TextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
             else -> {
-                // Use unnumbered heading selector by default.
-                findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading)
+                // Use unordered list selector by default.
+                findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
             }
         }
     }
 
-    fun getSelectedHeadingMenuItem(): TextFormat? {
-        if (headingMenu?.menu?.getItem(0)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
-        else if (headingMenu?.menu?.getItem(1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
-        else if (headingMenu?.menu?.getItem(2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
-        else if (headingMenu?.menu?.getItem(3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
-        else if (headingMenu?.menu?.getItem(4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
-        else if (headingMenu?.menu?.getItem(5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
-        else if (headingMenu?.menu?.getItem(6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
-//        TODO: Uncomment when Preformat is to be added back as a feature
-//        else if (headingMenu?.menu?.getItem(7)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
-        return null
+    private fun setHeadingMenuSelector(textFormat: TextFormat) {
+        when (textFormat) {
+            TextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
+            TextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
+            TextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
+            TextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
+            TextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
+            TextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
+            TextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+            else -> {
+                // Use unnumbered heading selector by default.
+                findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+            }
+        }
+    }
+
+    private fun showCollapsedToolbar() {
+        layoutExpanded.visibility = View.GONE
+        buttonEllipsisCollapse.visibility = View.GONE
+        buttonEllipsisExpand.visibility = View.VISIBLE
+    }
+
+    private fun showExpandedToolbar() {
+        layoutExpanded.visibility = View.VISIBLE
+        buttonEllipsisCollapse.visibility = View.VISIBLE
+        buttonEllipsisExpand.visibility = View.GONE
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {
@@ -447,6 +700,23 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             } else {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
+        }
+    }
+
+    private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
+        if (isChecked) {
+            listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
+
+            when (listMenuItemId) {
+                R.id.list_ordered -> setListMenuSelector(TextFormat.FORMAT_ORDERED_LIST)
+                R.id.list_unordered -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
+                else -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST) // Use unordered list selector by default.
+            }
+        } else {
+            listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
+
+            // Use unordered list selector by default.
+            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
         }
     }
 

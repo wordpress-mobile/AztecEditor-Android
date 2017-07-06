@@ -418,7 +418,7 @@ class AztecParser {
                     i = next
                 }
 
-                if (span is AztecHorizontalLineSpan) {
+                if (span is AztecHorizontalRuleSpan) {
                     out.append("<${span.startTag}>")
                     i = next
                 }

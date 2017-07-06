@@ -579,6 +579,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
+            TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
             TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
@@ -1069,12 +1070,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
-        return lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
+    fun insertImage(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
     }
 
-    fun insertVideo(drawable: Drawable?, attributes: Attributes): AztecMediaSpan {
-        return lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
+    fun insertVideo(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -1110,10 +1111,14 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 .firstOrNull()?.attributes = attrs
     }
 
-    fun updateMediaSpan(mediaSpan: AztecMediaSpan) {
-        if (text.getSpanStart(mediaSpan) != -1 && text.getSpanEnd(mediaSpan) != -1) {
-            editableText.setSpan(mediaSpan, text.getSpanStart(mediaSpan), text.getSpanEnd(mediaSpan), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+    fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {
+        text.getSpans(0, text.length, AztecMediaSpan::class.java)
+                .filter {
+                    attributePredicate.matches(it.attributes) && text.getSpanStart(it) != -1 && text.getSpanEnd(it) != -1
+                }
+                .forEach {
+                    editableText.setSpan(it, text.getSpanStart(it), text.getSpanEnd(it), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
     }
 
     fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {

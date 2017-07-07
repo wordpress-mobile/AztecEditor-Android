@@ -821,7 +821,7 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "2\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "3\n")
-        TestUtils.safeAppend(editText, "4\n")
+        TestUtils.safeAppend(editText, "4")
         editText.setSelection(4)
         editText.toggleFormatting(listType)
 

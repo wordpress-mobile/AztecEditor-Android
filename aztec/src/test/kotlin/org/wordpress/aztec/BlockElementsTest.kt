@@ -92,4 +92,26 @@ class BlockElementsTest {
         Assert.assertTrue(safeEmpty(editText))
         Assert.assertEquals("", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCollapsingEmptyQuoteAboveNewline() {
+        safeAppend(editText, "\n")
+        editText.setSelection(0)
+        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.text.insert(0,"\n")
+
+        Assert.assertEquals("", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCollapsingEmptyListAboveNewline() {
+        safeAppend(editText, "\n")
+        editText.setSelection(0)
+        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        editText.text.insert(0,"\n")
+
+        Assert.assertEquals("", editText.toHtml())
+    }
 }

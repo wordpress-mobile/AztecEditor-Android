@@ -816,6 +816,19 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
+    fun styleMultipleEmptyLines() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(0,2)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li></li><li></li><li></li></$listTag><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun styleEmptyLineSurroundedByText() {
         TestUtils.safeAppend(editText, "1\n")
         TestUtils.safeAppend(editText, "2\n")

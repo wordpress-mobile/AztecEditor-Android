@@ -346,7 +346,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             if (numberOfLines == numberOfLinesWithSpanApplied) {
                 removeBlockStyle(blockElementType)
             } else {
-                applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + 1,
+                //if block starts with newline do not move index to the right
+                val startOfBlockModifier = if(startOfBlock >= 0 && editableText[startOfBlock] == '\n') 0 else 1
+                applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + startOfBlockModifier,
                         (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1))
             }
         } else {
@@ -416,10 +418,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
-
-        if (end - start == 1 && (editableText[end-1] == '\n' || editableText[end-1] == Constants.END_OF_BUFFER_MARKER)) {
+        //special case for styling single empty lines
+        if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
+            //there is always something at the end (newline or EOB), so we shift end index to the left
+            //to avoid empty lines
             val listContent = editableText.substring(start, end - 1)
 
             val lines = TextUtils.split(listContent, "\n")

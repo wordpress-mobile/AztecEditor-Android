@@ -88,7 +88,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     }
                 }
             }
-            else -> { }
+            else -> {
+            }
         }
     }
 
@@ -134,7 +135,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         //if splitting block set a range that would be excluded from it
         val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end)
-                else getSelectedTextBounds(editableText, start, end)
+        else getSelectedTextBounds(editableText, start, end)
 
         var startOfBounds = boundsOfSelectedText.start
         var endOfBounds = boundsOfSelectedText.endInclusive
@@ -416,19 +417,26 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
 
-        val lines = TextUtils.split(editableText.substring(start, end), "\n")
-        for (i in lines.indices) {
-            val lineLength = lines[i].length
+        if (end - start == 1 && (editableText[end-1] == '\n' || editableText[end-1] == Constants.END_OF_BUFFER_MARKER)) {
+            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
+        } else {
+            val listContent = editableText.substring(start, end - 1)
 
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = (lineStart + lineLength).let {
-                if ((start + it) != editableText.length) it + 1 else it // include the newline or not
+            val lines = TextUtils.split(listContent, "\n")
+            for (i in lines.indices) {
+                val lineLength = lines[i].length
+
+                val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+
+                val lineEnd = (lineStart + lineLength).let {
+                    if ((start + it) != editableText.length) it + 1 else it // include the newline or not
+                }
+
+                ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
             }
-
-            if (lineLength == 0) continue
-
-            ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
         }
+
+
     }
 
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
@@ -635,12 +643,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 TextFormat.FORMAT_HEADING_5,
                 TextFormat.FORMAT_HEADING_6,
                 TextFormat.FORMAT_PREFORMAT)
-            .filter { it != textFormat }
-            .forEach {
-                if (containsHeading(it, selStart, selEnd)) {
-                    return true
+                .filter { it != textFormat }
+                .forEach {
+                    if (containsHeading(it, selStart, selEnd)) {
+                        return true
+                    }
                 }
-            }
 
         return false
     }
@@ -654,7 +662,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 TextFormat.FORMAT_HEADING_5,
                 TextFormat.FORMAT_HEADING_6,
                 TextFormat.FORMAT_PREFORMAT)
-            .filter { it != textFormat }
+                .filter { it != textFormat }
 
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
     }

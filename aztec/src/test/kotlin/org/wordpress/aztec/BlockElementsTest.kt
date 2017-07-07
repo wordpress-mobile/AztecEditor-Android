@@ -101,7 +101,7 @@ class BlockElementsTest {
         editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
         editText.text.insert(0,"\n")
 
-        Assert.assertEquals("", editText.toHtml())
+        Assert.assertEquals("<br>", editText.toHtml())
     }
 
     @Test
@@ -112,6 +112,6 @@ class BlockElementsTest {
         editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
         editText.text.insert(0,"\n")
 
-        Assert.assertEquals("", editText.toHtml())
+        Assert.assertEquals("<br>", editText.toHtml())
     }
 }

@@ -14,7 +14,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.backspaceAt
 import org.wordpress.aztec.TestUtils.safeEmpty
-import org.wordpress.aztec.spans.AztecCommentSpan
 
 /**
  * Tests for special comments ([AztecCommentSpan.Comment.MORE] and [AztecCommentSpan.Comment.PAGE])

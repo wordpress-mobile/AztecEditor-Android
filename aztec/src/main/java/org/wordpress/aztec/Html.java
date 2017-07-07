@@ -34,12 +34,10 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.jetbrains.annotations.NotNull;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler;
 import org.wordpress.aztec.spans.AztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
-import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
 import org.wordpress.aztec.spans.AztecInlineSpan;
 import org.wordpress.aztec.spans.AztecMediaSpan;

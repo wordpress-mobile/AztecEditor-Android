@@ -788,4 +788,69 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
         editText.append("unordered")
         Assert.assertEquals("<ul><li>unordered</li></ul>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleFirstEmptyLineAboveEmptyLine() {
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(0)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineInTheMiddleOfEmptyLines() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(3)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<br><br><br><$listTag><li></li></$listTag><br><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineSurroundedByText() {
+        TestUtils.safeAppend(editText, "1\n")
+        TestUtils.safeAppend(editText, "2\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "3\n")
+        TestUtils.safeAppend(editText, "4\n")
+        editText.setSelection(4)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("1<br>2<$listTag><li></li></$listTag>3<br>4", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleMultipleLinesWitEmptyLines() {
+        TestUtils.safeAppend(editText, "1\n")
+        TestUtils.safeAppend(editText, "2\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "3\n")
+        TestUtils.safeAppend(editText, "4\n")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(0,TestUtils.safeLength(editText)-1)
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>1</li><li>2</li><li></li><li>3</li><li>4</li><li></li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineAtTheEnd() {
+        TestUtils.safeAppend(editText, "1")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(TestUtils.safeLength(editText))
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("1<$listTag><li></li></$listTag>", editText.toHtml())
+    }
 }

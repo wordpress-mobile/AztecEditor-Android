@@ -21,13 +21,11 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
     var onImageTappedListener: AztecText.OnImageTappedListener? = null
     var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
 
-    var plugins: List<IAztecPlugin> = ArrayList()
+    var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
 
     init {
         initHistory()
         initToolbar()
-
-        visualEditor.plugins = plugins
     }
     
     constructor(activity: Activity, @IdRes aztecTextId: Int,
@@ -90,7 +88,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
     }
 
     fun addPlugin(plugin: IAztecPlugin) : Aztec {
-        plugins += plugin
+        plugins.add(plugin)
 
         if (plugin is IAztecToolbarButton) {
             toolbar.addButton(plugin)

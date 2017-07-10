@@ -47,6 +47,7 @@ import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IAztecToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -119,7 +120,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
 
-    var plugins: List<IAztecPlugin> = ArrayList()
+    var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
     var widthMeasureSpec: Int = 0
 
@@ -540,6 +541,14 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 styles.add(it)
             }
         }
+
+        plugins.filter { it is IAztecToolbarButton }.forEach {
+            val format = (it as IAztecToolbarButton).action.textFormat
+            if (contains(format, newSelStart, newSelEnd)) {
+                styles.add(format)
+            }
+        }
+
         return styles
     }
 
@@ -665,7 +674,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
                         Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
@@ -767,7 +776,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     //platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(text)
 
         clearMetaSpans(output)
@@ -893,7 +902,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     //Convert selected text to html and add it to clipboard
     fun copy(editable: Editable, start: Int, end: Int) {
         val selectedText = editable.subSequence(start, end)
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(selectedText)
 
         //Strip block elements until we figure out copy paste completely
@@ -911,7 +920,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         if (clip != null) {
-            val parser = AztecParser()
+            val parser = AztecParser(plugins)
 
             for (i in 0..clip.itemCount - 1) {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
@@ -1018,7 +1027,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onImageTappedListener,
+            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), onImageTappedListener,
                     onVideoTappedListener, this, context).trim())
             setSelection(spanStart)
 

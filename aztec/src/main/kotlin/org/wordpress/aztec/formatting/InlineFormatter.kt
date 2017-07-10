@@ -292,7 +292,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
-            // TODO: Handle toggle of plugin
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

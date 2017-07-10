@@ -13,7 +13,6 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.*
 
-// TODO: Handle toggle of plugin
 class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
     fun containsHeading(textFormat: ITextFormat, selStart: Int, selEnd: Int): Boolean {

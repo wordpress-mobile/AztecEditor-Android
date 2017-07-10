@@ -10,7 +10,6 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.*
 import java.util.*
 
-// TODO: Handle toggle of plugin
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)

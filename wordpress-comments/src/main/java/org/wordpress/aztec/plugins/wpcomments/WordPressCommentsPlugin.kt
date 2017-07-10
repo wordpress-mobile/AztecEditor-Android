@@ -5,11 +5,12 @@ import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.CharacterStyle
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IAztecCommentHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 
-class WordPressCommentsPlugin : IAztecCommentHandler {
+class WordPressCommentsPlugin(val visualEditor: AztecText) : IAztecCommentHandler {
 
     override fun canHandle(span: CharacterStyle): Boolean {
         return span is WordPressCommentSpan

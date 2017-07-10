@@ -18,7 +18,7 @@
 //@Config(constants = BuildConfig::class)
 //class CodeTest {
 //
-//    val formattingType = TextFormat.FORMAT_CODE
+//    val formattingType = AztecTextFormat.FORMAT_CODE
 //    val codeTag = "code"
 //    lateinit var editText: AztecText
 //
@@ -33,7 +33,7 @@
 //    }
 //
 //    fun setStyles(editText: AztecText) {
-//        val styles = ArrayList<TextFormat>()
+//        val styles = ArrayList<ITextFormat>()
 //        styles.add(formattingType)
 //        editText.setSelectedStyles(styles)
 //    }
@@ -117,8 +117,8 @@
 //    @Test
 //    @Throws(Exception::class)
 //    fun closingPopulatedCode1() {
-//        val styles = ArrayList<TextFormat>()
-//        styles.add(TextFormat.FORMAT_STRIKETHROUGH)
+//        val styles = ArrayList<ITextFormat>()
+//        styles.add(AztecTextFormat.FORMAT_STRIKETHROUGH)
 //        editText.setSelectedStyles(styles)
 //        editText.append("first item")
 //        Assert.assertEquals("<s>first item</s>", editText.toHtml().toString())
@@ -127,7 +127,7 @@
 //    @Test
 //    @Throws(Exception::class)
 //    fun closingPopulatedCode() {
-//        val styles = ArrayList<TextFormat>()
+//        val styles = ArrayList<ITextFormat>()
 //        styles.add(formattingType)
 //        editText.setSelectedStyles(styles)
 //        editText.append("first item")

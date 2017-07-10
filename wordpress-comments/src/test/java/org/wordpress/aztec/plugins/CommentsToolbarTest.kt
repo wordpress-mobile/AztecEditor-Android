@@ -19,7 +19,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.AztecToolbarClickListener
+import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 
 /**
  * Combined test for toolbar and inline styles.
@@ -48,7 +48,7 @@ class CommentsToolbarTest {
         activity.setContentView(editText)
         toolbar = AztecToolbar(activity)
 
-        Aztec.with(editText, sourceText, toolbar, object : AztecToolbarClickListener {
+        Aztec.with(editText, sourceText, toolbar, object : IAztecToolbarClickListener {
                     override fun onToolbarCollapseButtonClicked() {}
                     override fun onToolbarExpandButtonClicked() {}
                     override fun onToolbarFormatButtonClicked(format: ITextFormat, isKeyboardShortcut: Boolean) {}

@@ -3,7 +3,7 @@ package org.wordpress.aztec
 /**
  * Describes styles that could be applied to text
  */
-enum class TextFormat : ITextFormat {
+enum class AztecTextFormat : ITextFormat {
     FORMAT_NONE,
     FORMAT_HEADING_1,
     FORMAT_HEADING_2,

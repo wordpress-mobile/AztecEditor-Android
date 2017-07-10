@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.annotation.SuppressLint
 
 @SuppressLint("NewApi")
-interface ParagraphFlagged {
+interface IParagraphFlagged {
     var startBeforeCollapse: Int
     fun clearStartBeforeCollapse() { startBeforeCollapse = -1 }
     fun hasCollapsed(): Boolean { return startBeforeCollapse != -1 }

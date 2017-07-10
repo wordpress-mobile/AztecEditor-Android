@@ -65,17 +65,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         for (span in spans) {
             when (textFormat) {
-                TextFormat.FORMAT_HEADING_1 ->
+                AztecTextFormat.FORMAT_HEADING_1 ->
                     return span.heading == AztecHeadingSpan.Heading.H1
-                TextFormat.FORMAT_HEADING_2 ->
+                AztecTextFormat.FORMAT_HEADING_2 ->
                     return span.heading == AztecHeadingSpan.Heading.H2
-                TextFormat.FORMAT_HEADING_3 ->
+                AztecTextFormat.FORMAT_HEADING_3 ->
                     return span.heading == AztecHeadingSpan.Heading.H3
-                TextFormat.FORMAT_HEADING_4 ->
+                AztecTextFormat.FORMAT_HEADING_4 ->
                     return span.heading == AztecHeadingSpan.Heading.H4
-                TextFormat.FORMAT_HEADING_5 ->
+                AztecTextFormat.FORMAT_HEADING_5 ->
                     return span.heading == AztecHeadingSpan.Heading.H5
-                TextFormat.FORMAT_HEADING_6 ->
+                AztecTextFormat.FORMAT_HEADING_6 ->
                     return span.heading == AztecHeadingSpan.Heading.H6
                 else -> return false
             }
@@ -88,7 +88,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
         editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
 
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
 
         val span = AztecHorizontalRuleSpan(
                 editor.context,
@@ -112,7 +112,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?) {
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
         val span = AztecVideoSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onVideoTappedListener, editor)
         insertMedia(span)
     }
@@ -123,12 +123,12 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun insertMedia(span: AztecMediaSpan) {
-        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanEnd(it)
                 }
 
-        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanStart(it)
                 }

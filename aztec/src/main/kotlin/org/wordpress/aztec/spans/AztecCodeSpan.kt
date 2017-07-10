@@ -24,7 +24,7 @@ import android.text.style.MetricAffectingSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.InlineFormatter
 
-class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()) : MetricAffectingSpan(), AztecInlineSpan {
+class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()) : MetricAffectingSpan(), IAztecInlineSpan {
 
     override val TAG = "code"
 

@@ -52,7 +52,6 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.ToolbarActionType
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -537,7 +536,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             newSelStart--
         }
 
-        TextFormat.values().forEach {
+        AztecTextFormat.values().forEach {
             if (contains(it, newSelStart, newSelEnd)) {
                 styles.add(it)
             }
@@ -578,23 +577,23 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         history.beforeTextChanged(toFormattedHtml())
 
         when (textFormat) {
-            TextFormat.FORMAT_PARAGRAPH,
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6,
-            TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
-            TextFormat.FORMAT_BOLD -> inlineFormatter.toggle(TextFormat.FORMAT_BOLD)
-            TextFormat.FORMAT_ITALIC -> inlineFormatter.toggle(TextFormat.FORMAT_ITALIC)
-            TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggle(TextFormat.FORMAT_UNDERLINE)
-            TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggle(TextFormat.FORMAT_STRIKETHROUGH)
-            TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
-            TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
-            TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-            TextFormat.FORMAT_CODE -> inlineFormatter.toggle(TextFormat.FORMAT_CODE)
+            AztecTextFormat.FORMAT_PARAGRAPH,
+            AztecTextFormat.FORMAT_HEADING_1,
+            AztecTextFormat.FORMAT_HEADING_2,
+            AztecTextFormat.FORMAT_HEADING_3,
+            AztecTextFormat.FORMAT_HEADING_4,
+            AztecTextFormat.FORMAT_HEADING_5,
+            AztecTextFormat.FORMAT_HEADING_6,
+            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
+            AztecTextFormat.FORMAT_BOLD -> inlineFormatter.toggle(AztecTextFormat.FORMAT_BOLD)
+            AztecTextFormat.FORMAT_ITALIC -> inlineFormatter.toggle(AztecTextFormat.FORMAT_ITALIC)
+            AztecTextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_UNDERLINE)
+            AztecTextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggle(AztecTextFormat.FORMAT_STRIKETHROUGH)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
+            AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
+            AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
+            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
+            AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_CODE)
             else -> {
                 plugins.filter { it is IAztecToolbarButton && textFormat == it.action.textFormat }
                         .map { it as IAztecToolbarButton }
@@ -607,22 +606,22 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
-            TextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
-            TextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
-            TextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_UNDERLINE, selStart, selEnd)
-            TextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
-            TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
-            TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
-            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
-            TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
-            TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
+            AztecTextFormat.FORMAT_HEADING_1,
+            AztecTextFormat.FORMAT_HEADING_2,
+            AztecTextFormat.FORMAT_HEADING_3,
+            AztecTextFormat.FORMAT_HEADING_4,
+            AztecTextFormat.FORMAT_HEADING_5,
+            AztecTextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
+            AztecTextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_BOLD, selStart, selEnd)
+            AztecTextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_ITALIC, selStart, selEnd)
+            AztecTextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, selStart, selEnd)
+            AztecTextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
+            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
+            AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false
         }
     }
@@ -802,7 +801,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
+        editable.getSpans(start, end, IAztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
         editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
@@ -864,15 +863,15 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINE, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
     }
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
-        blockFormatter.removeBlockStyle(TextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
+        blockFormatter.removeBlockStyle(AztecTextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(IAztecBlockSpan::class.java), ignoreLineBounds)
     }
 
     //logic party copied from TextView
@@ -1119,7 +1118,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
-        text.getSpans(0, text.length, AztecAttributedSpan::class.java)
+        text.getSpans(0, text.length, IAztecAttributedSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
@@ -1177,7 +1176,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun getAllElementAttributes(attributePredicate: AttributePredicate): List<AztecAttributes> {
         return text
-                .getSpans(0, text.length, AztecAttributedSpan::class.java)
+                .getSpans(0, text.length, IAztecAttributedSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }

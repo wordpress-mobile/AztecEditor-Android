@@ -8,7 +8,7 @@ import android.text.style.UpdateLayout
 import java.util.*
 
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),
-        AztecBlockSpan, LineHeightSpan, UpdateLayout {
+        IAztecBlockSpan, LineHeightSpan, UpdateLayout {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
@@ -60,6 +60,6 @@ abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding
 
     fun nestingDepth(text: Spanned, index: Int, nextIndex: Int) : Int {
         val finalNextIndex = if (nextIndex > text.length) index else nextIndex
-        return AztecNestable.getNestingLevelAt(text, index, finalNextIndex)
+        return IAztecNestable.getNestingLevelAt(text, index, finalNextIndex)
     }
 }

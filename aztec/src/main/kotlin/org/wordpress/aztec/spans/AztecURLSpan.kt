@@ -23,7 +23,7 @@ import android.text.style.URLSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.LinkFormatter
 
-class AztecURLSpan : URLSpan, AztecInlineSpan {
+class AztecURLSpan : URLSpan, IAztecInlineSpan {
 
     override val TAG = "a"
 

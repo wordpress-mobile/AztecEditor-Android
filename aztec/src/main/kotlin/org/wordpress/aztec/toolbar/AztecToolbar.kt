@@ -16,13 +16,13 @@ import android.widget.PopupMenu.OnMenuItemClickListener
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.plugins.IAztecToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
-    private var aztecToolbarListener: AztecToolbarClickListener? = null
+    private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
     private var listMenu: PopupMenu? = null
@@ -55,7 +55,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    fun setToolbarListener(listener: AztecToolbarClickListener) {
+    fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
     }
 
@@ -63,70 +63,70 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (keyCode) {
             KeyEvent.KEYCODE_1 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_1, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_1)
                     return true
                 }
             }
             KeyEvent.KEYCODE_2 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_2, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_2)
                     return true
                 }
             }
             KeyEvent.KEYCODE_3 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_3, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_3)
                     return true
                 }
             }
             KeyEvent.KEYCODE_4 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_4, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_4)
                     return true
                 }
             }
             KeyEvent.KEYCODE_5 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_5, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_5)
                     return true
                 }
             }
             KeyEvent.KEYCODE_6 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_6, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_6)
                     return true
                 }
             }
             KeyEvent.KEYCODE_7 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PARAGRAPH, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_PARAGRAPH)
                     return true
                 }
             }
             KeyEvent.KEYCODE_8 -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_BOLD, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_BOLD, true)
                     findViewById(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_STRIKETHROUGH, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRIKETHROUGH, true)
                     findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
@@ -139,14 +139,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ITALIC, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ITALIC, true)
                     findViewById(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
                 if (event.isCtrlPressed) { // Link = Ctrl + K
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, true)
                     findViewById(ToolbarAction.LINK.buttonId).performClick()
                     return true
                 }
@@ -160,25 +160,25 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_O -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
                     return true
                 }
             }
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_QUOTE, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_QUOTE, true)
                     findViewById(ToolbarAction.QUOTE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_U -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, true)
-                    editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
                     return true
                 } else if (event.isCtrlPressed) { // Underline = Ctrl + U
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNDERLINE, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNDERLINE, true)
                     findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
                     return true
                 }
@@ -223,63 +223,63 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         when (item?.itemId) {
             // Heading Menu
             R.id.paragraph -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PARAGRAPH, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_PARAGRAPH)
-                setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PARAGRAPH, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_PARAGRAPH)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_PARAGRAPH)
                 return true
             }
             R.id.heading_1 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_1, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_1)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_1)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_1, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_1)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_1)
                 return true
             }
             R.id.heading_2 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_2, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_2)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_2)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_2, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_2)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_2)
                 return true
             }
             R.id.heading_3 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_3, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_3)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_3)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_3, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_3)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_3)
                 return true
             }
             R.id.heading_4 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_4, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_4)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_4)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_4, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_4)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_4)
                 return true
             }
             R.id.heading_5 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_5, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_5)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_5)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_5, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_5)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_5)
                 return true
             }
             R.id.heading_6 -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_HEADING_6, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_HEADING_6)
-                setHeadingMenuSelector(TextFormat.FORMAT_HEADING_6)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_6, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_6)
+                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_6)
                 return true
             }
 //            TODO: Uncomment when Preformat is to be added back as a feature
 //            R.id.preformat -> {
-//                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PREFORMAT, false)
-//                editor?.toggleFormatting(TextFormat.FORMAT_PREFORMAT)
+//                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, false)
+//                editor?.toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
 //                return true
 //            }
             // List Menu
             R.id.list_ordered -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_ORDERED_LIST, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
                 return true
             }
             R.id.list_unordered -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_UNORDERED_LIST, false)
-                editor?.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
                 return true
             }
@@ -444,7 +444,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 listMenu?.show()
             }
             ToolbarAction.LINK -> {
-                aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_LINK, false)
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, false)
                 editor!!.showLinkDialog()
             }
             ToolbarAction.HTML -> {
@@ -489,21 +489,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun getSelectedHeadingMenuItem(): ITextFormat? {
-        if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
-        else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
-        else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
-        else if (headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked!!) return TextFormat.FORMAT_HEADING_3
-        else if (headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked!!) return TextFormat.FORMAT_HEADING_4
-        else if (headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked!!) return TextFormat.FORMAT_HEADING_5
-        else if (headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked!!) return TextFormat.FORMAT_HEADING_6
+        if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return AztecTextFormat.FORMAT_PARAGRAPH
+        else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_1
+        else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_2
+        else if (headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_3
+        else if (headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_4
+        else if (headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_5
+        else if (headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_6
 //        TODO: Uncomment when Preformat is to be added back as a feature
-//        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return TextFormat.FORMAT_PREFORMAT
+//        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return AztecTextFormat.FORMAT_PREFORMAT
         return null
     }
 
     fun getSelectedListMenuItem(): ITextFormat? {
-        if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
-        else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
+        if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return AztecTextFormat.FORMAT_UNORDERED_LIST
+        else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return AztecTextFormat.FORMAT_ORDERED_LIST
         return null
     }
 
@@ -540,18 +540,18 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             // Select paragraph by default.
             headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
             // Use unnumbered heading selector by default.
-            setHeadingMenuSelector(TextFormat.FORMAT_PARAGRAPH)
+            setHeadingMenuSelector(AztecTextFormat.FORMAT_PARAGRAPH)
         } else {
             textFormats.forEach {
                 when (it) {
-                    TextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
-                    TextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
+                    AztecTextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
 //                    TODO: Uncomment when Preformat is to be added back as a feature
-//                    TextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
+//                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
                     else -> {
                         // Select paragraph by default.
                         headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
@@ -570,12 +570,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             // Select no list by default.
             listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
             // Use unordered list selector by default.
-            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
+            setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
         } else {
             textFormats.forEach {
                 when (it) {
-                    TextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
-                    TextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
+                    AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
+                    AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
                     else -> {
                         // Select no list by default.
                         listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
@@ -665,8 +665,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setListMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
-            TextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
-            TextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
             else -> {
                 // Use unordered list selector by default.
                 findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
@@ -676,13 +676,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setHeadingMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
-            TextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
-            TextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
-            TextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
-            TextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
-            TextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
-            TextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
-            TextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+            AztecTextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
+            AztecTextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
+            AztecTextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
+            AztecTextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
+            AztecTextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
+            AztecTextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
+            AztecTextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
             else -> {
                 // Use unnumbered heading selector by default.
                 findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
@@ -721,15 +721,15 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
 
             when (listMenuItemId) {
-                R.id.list_ordered -> setListMenuSelector(TextFormat.FORMAT_ORDERED_LIST)
-                R.id.list_unordered -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
-                else -> setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST) // Use unordered list selector by default.
+                R.id.list_ordered -> setListMenuSelector(AztecTextFormat.FORMAT_ORDERED_LIST)
+                R.id.list_unordered -> setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
+                else -> setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST) // Use unordered list selector by default.
             }
         } else {
             listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
 
             // Use unordered list selector by default.
-            setListMenuSelector(TextFormat.FORMAT_UNORDERED_LIST)
+            setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
         }
     }
 

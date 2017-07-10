@@ -1,6 +1,6 @@
 package org.wordpress.aztec
 
-interface HistoryListener {
+interface IHistoryListener {
     fun onRedoEnabled()
     fun onUndoEnabled()
 }

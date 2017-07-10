@@ -6,7 +6,7 @@ import org.wordpress.aztec.AztecAttributes
 class ParagraphSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes()
-    ) : ParagraphStyle, AztecBlockSpan {
+    ) : ParagraphStyle, IAztecBlockSpan {
 
     override var TAG: String = "p"
 

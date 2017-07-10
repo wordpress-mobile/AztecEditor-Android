@@ -38,7 +38,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.AztecToolbarClickListener
+import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.xml.sax.Attributes
 import java.io.File
 
@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
-        AztecToolbarClickListener,
-        HistoryListener,
+        IAztecToolbarClickListener,
+        IHistoryListener,
         OnRequestPermissionsResultCallback,
         PopupMenu.OnMenuItemClickListener,
         View.OnTouchListener {

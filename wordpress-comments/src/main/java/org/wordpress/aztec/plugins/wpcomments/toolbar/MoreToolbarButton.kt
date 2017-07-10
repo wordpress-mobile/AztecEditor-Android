@@ -11,7 +11,7 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IAztecToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
-import org.wordpress.aztec.spans.AztecNestable
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
@@ -24,7 +24,7 @@ class MoreToolbarButton(val visualEditor: AztecText) : IAztecToolbarButton {
         visualEditor.removeInlineStylesFromRange(visualEditor.selectionStart, visualEditor.selectionEnd)
         visualEditor.removeBlockStylesFromRange(visualEditor.selectionStart, visualEditor.selectionEnd, true)
 
-        val nestingLevel = AztecNestable.getNestingLevelAt(visualEditor.editableText, visualEditor.selectionStart)
+        val nestingLevel = IAztecNestable.getNestingLevelAt(visualEditor.editableText, visualEditor.selectionStart)
 
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.MORE.html,

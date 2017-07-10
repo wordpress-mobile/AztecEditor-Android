@@ -7,7 +7,7 @@ import org.wordpress.aztec.AztecText
 
 class AztecHorizontalRuleSpan(context: Context, drawable: Drawable, override var nestingLevel: Int,
                               editor: AztecText? = null, override var attributes: AztecAttributes = AztecAttributes()) :
-        AztecDynamicImageSpan(context, drawable), AztecFullWidthImageSpan, AztecSpan {
+        AztecDynamicImageSpan(context, drawable), IAztecFullWidthImageSpan, IAztecSpan {
 
     init {
         textView = editor

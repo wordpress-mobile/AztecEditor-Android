@@ -16,14 +16,6 @@ import java.util.*
 // TODO: Handle toggle of plugin
 class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
-    fun applyMoreComment() {
-        applyComment(AztecCommentSpan.Comment.MORE)
-    }
-
-    fun applyPageComment() {
-        applyComment(AztecCommentSpan.Comment.PAGE)
-    }
-
     fun containsHeading(textFormat: ITextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
@@ -91,32 +83,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
 
         return false
-    }
-
-    private fun applyComment(comment: AztecCommentSpan.Comment) {
-        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
-        editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
-
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
-
-        val span = AztecCommentSpan(
-                comment.html,
-                editor.context,
-                when (comment) {
-                    AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
-                    AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
-                },
-                nestingLevel,
-                editor
-        )
-
-        val ssb = SpannableStringBuilder(Constants.MAGIC_STRING)
-        ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        editableText.replace(selectionStart, selectionEnd, ssb)
-
-        editor.setSelection(
-                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
     }
 
     fun applyHorizontalRule() {

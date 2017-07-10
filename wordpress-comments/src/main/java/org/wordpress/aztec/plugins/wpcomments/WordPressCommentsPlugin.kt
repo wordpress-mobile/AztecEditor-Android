@@ -45,7 +45,7 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IAztecCommentHandle
                             nestingLevel
                     ),
                     spanStart,
-                    text.length,
+                    output.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             return true
@@ -61,7 +61,7 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IAztecCommentHandle
                             nestingLevel
                     ),
                     spanStart,
-                    text.length,
+                    output.length,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             return true

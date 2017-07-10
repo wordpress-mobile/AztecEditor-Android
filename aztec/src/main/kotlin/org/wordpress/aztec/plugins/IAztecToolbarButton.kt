@@ -14,7 +14,7 @@ interface IAztecToolbarButton : IAztecPlugin {
     val action: IToolbarAction
     val context: Context
 
-    fun onClick()
+    fun toggle()
 
     fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
         return false

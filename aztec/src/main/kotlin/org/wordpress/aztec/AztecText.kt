@@ -52,6 +52,7 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.toolbar.ToolbarActionType
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -542,12 +543,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             }
         }
 
-        plugins.filter { it is IAztecToolbarButton }.forEach {
-            val format = (it as IAztecToolbarButton).action.textFormat
-            if (contains(format, newSelStart, newSelEnd)) {
-                styles.add(format)
-            }
-        }
+        plugins.filter { it is IAztecToolbarButton }
+                .map { (it as IAztecToolbarButton).action.textFormat }
+                .forEach {
+                    if (contains(it, newSelStart, newSelEnd)) {
+                        styles.add(it)
+                    }
+                }
 
         return styles
     }
@@ -592,11 +594,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-//            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
-//            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             TextFormat.FORMAT_CODE -> inlineFormatter.toggle(TextFormat.FORMAT_CODE)
             else -> {
-                // TODO: Handle toggle of plugin
+                plugins.filter { it is IAztecToolbarButton && textFormat == it.action.textFormat }
+                        .map { it as IAztecToolbarButton }
+                        .forEach { it.toggle() }
             }
         }
 

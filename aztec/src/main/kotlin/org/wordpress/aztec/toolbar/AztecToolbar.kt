@@ -41,7 +41,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var ellipsisSpinRight: Animation
     private lateinit var layoutExpanded: LinearLayout
 
-    var toolbarButtonPlugins: List<IAztecToolbarButton> = ArrayList()
+    var toolbarButtonPlugins: ArrayList<IAztecToolbarButton> = ArrayList()
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -206,7 +206,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toolbarButtonPlugins.forEach {
                     if (it.matchesKeyShortcut(keyCode, event)) {
                         aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormat, true)
-                        it.onClick()
+                        it.toggle()
                         return true
                     }
                 }
@@ -350,6 +350,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     fun addButton(buttonPlugin: IAztecToolbarButton) {
         val pluginContainer = findViewById(R.id.plugin_buttons) as LinearLayout
         buttonPlugin.inflateButton(pluginContainer)
+
+        toolbarButtonPlugins.add(buttonPlugin)
+        
+        val button = findViewById(buttonPlugin.action.buttonId)
+        button?.setOnClickListener { _ -> buttonPlugin.toggle() }
     }
 
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
@@ -705,6 +710,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
             }
         }
+
+        toolbarButtonPlugins.forEach {
+            toggleButtonState(findViewById(it.action.buttonId), !isHtmlMode)
+        }
     }
 
     private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
@@ -729,6 +738,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             if (action != ToolbarAction.HTML) {
                 toggleButtonState(findViewById(action.buttonId), isEnabled)
             }
+        }
+
+        toolbarButtonPlugins.forEach {
+            toggleButtonState(findViewById(it.action.buttonId), isEnabled)
         }
     }
 

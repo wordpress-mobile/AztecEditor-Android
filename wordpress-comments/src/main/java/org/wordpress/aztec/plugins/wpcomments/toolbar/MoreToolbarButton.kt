@@ -20,7 +20,7 @@ class MoreToolbarButton(val visualEditor: AztecText) : IAztecToolbarButton {
     override val action: IToolbarAction = CommentsToolbarAction.MORE
     override val context = visualEditor.context!!
 
-    override fun onClick() {
+    override fun toggle() {
         visualEditor.removeInlineStylesFromRange(visualEditor.selectionStart, visualEditor.selectionEnd)
         visualEditor.removeBlockStylesFromRange(visualEditor.selectionStart, visualEditor.selectionEnd, true)
 

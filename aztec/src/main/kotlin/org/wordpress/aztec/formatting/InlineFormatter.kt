@@ -3,10 +3,7 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
-import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecPart
-import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.*
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.TextChangedEvent
 import java.util.*
@@ -130,7 +127,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun applyInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun applyInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val spanToApply = makeInlineSpan(textFormat)
 
         if (start >= end) {
@@ -199,7 +196,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         joinStyleSpans(start, end)
     }
 
-    fun removeInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun removeInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         //for convenience sake we are initializing the span of same type we are planing to remove
         val spanToRemove = makeInlineSpan(textFormat)
 
@@ -320,13 +317,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun makeInlineSpan(textFormat: TextFormat): AztecInlineSpan {
+    fun makeInlineSpan(textFormat: ITextFormat): AztecInlineSpan {
         when (textFormat) {
             TextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
             TextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
             TextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             TextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             TextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
+            // TODO: Handle toggle of plugin
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
@@ -338,7 +336,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun containsInlineStyle(textFormat: TextFormat, start: Int = selectionStart, end: Int = selectionEnd): Boolean {
+    fun containsInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd): Boolean {
         val spanToCheck = makeInlineSpan(textFormat)
 
         if (start > end) {

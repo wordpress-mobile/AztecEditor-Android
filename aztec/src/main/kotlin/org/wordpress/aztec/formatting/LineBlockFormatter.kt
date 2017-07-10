@@ -13,6 +13,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.*
 
+// TODO: Handle toggle of plugin
 class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
     fun applyMoreComment() {
@@ -23,7 +24,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         applyComment(AztecCommentSpan.Comment.PAGE)
     }
 
-    fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    fun containsHeading(textFormat: ITextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -55,7 +56,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         return list.any { containHeadingType(textFormat, it) }
     }
 
-    private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
+    private fun containHeadingType(textFormat: ITextFormat, index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {

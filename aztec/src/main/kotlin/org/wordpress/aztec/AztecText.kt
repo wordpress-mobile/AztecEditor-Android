@@ -100,7 +100,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private var formatToolbar: AztecToolbar? = null
 
-    val selectedStyles = ArrayList<TextFormat>()
+    val selectedStyles = ArrayList<ITextFormat>()
 
     private var isNewStyleSelected = false
 
@@ -435,7 +435,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    fun setSelectedStyles(styles: ArrayList<TextFormat>) {
+    fun setSelectedStyles(styles: ArrayList<ITextFormat>) {
         isNewStyleSelected = true
         selectedStyles.clear()
         selectedStyles.addAll(styles)
@@ -517,8 +517,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return editableText.substring(selectionStart, selectionEnd)
     }
 
-    fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
-        val styles = ArrayList<TextFormat>()
+    fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<ITextFormat> {
+        val styles = ArrayList<ITextFormat>()
 
         var newSelStart = if (selectionStart > selectionEnd) selectionEnd else selectionStart
         var newSelEnd = selectionEnd
@@ -563,7 +563,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return selectionStart != selectionEnd
     }
 
-    fun toggleFormatting(textFormat: TextFormat) {
+    fun toggleFormatting(textFormat: ITextFormat) {
         history.beforeTextChanged(toFormattedHtml())
 
         when (textFormat) {
@@ -583,17 +583,18 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
-            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
+//            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
+//            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
             TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
             else -> {
+                // TODO: Handle toggle of plugin
             }
         }
 
         history.handleHistory(this)
     }
 
-    fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
             TextFormat.FORMAT_HEADING_1,
             TextFormat.FORMAT_HEADING_2,

@@ -14,6 +14,7 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.source.SourceViewEditText
@@ -348,7 +349,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun highlightActionButtons(toolbarActions: ArrayList<ToolbarAction>) {
+    fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {
                 toggleButton(findViewById(action.buttonId), true)
@@ -358,8 +359,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun getSelectedActions(): ArrayList<ToolbarAction> {
-        val actions = ArrayList<ToolbarAction>()
+    private fun getSelectedActions(): ArrayList<IToolbarAction> {
+        val actions = ArrayList<IToolbarAction>()
 
         for (action in ToolbarAction.values()) {
             if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
@@ -393,15 +394,15 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         selectListMenuItem(appliedStyles)
     }
 
-    private fun onToolbarAction(action: ToolbarAction) {
+    private fun onToolbarAction(action: IToolbarAction) {
         if (!isEditorAttached()) return
 
         //if nothing is selected just mark the style as active
         if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
-            val textFormats = ArrayList<TextFormat>()
+            val textFormats = ArrayList<ITextFormat>()
 
-            actions.forEach { if (it.isStylingAction() && it.textFormat != null) textFormats.add(it.textFormat) }
+            actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat) }
 
             if (getSelectedHeadingMenuItem() != null) {
                 textFormats.add(getSelectedHeadingMenuItem()!!)
@@ -411,14 +412,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 textFormats.add(getSelectedListMenuItem()!!)
             }
 
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
             return editor!!.setSelectedStyles(textFormats)
         }
 
         //if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat!!, false)
-            return editor!!.toggleFormatting(action.textFormat!!)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
+            return editor!!.toggleFormatting(action.textFormat)
         }
 
         //other toolbar action
@@ -479,7 +480,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return listMenu
     }
 
-    fun getSelectedHeadingMenuItem(): TextFormat? {
+    fun getSelectedHeadingMenuItem(): ITextFormat? {
         if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return TextFormat.FORMAT_PARAGRAPH
         else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return TextFormat.FORMAT_HEADING_1
         else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return TextFormat.FORMAT_HEADING_2
@@ -492,7 +493,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return null
     }
 
-    fun getSelectedListMenuItem(): TextFormat? {
+    fun getSelectedListMenuItem(): ITextFormat? {
         if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked!!) return TextFormat.FORMAT_UNORDERED_LIST
         else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked!!) return TextFormat.FORMAT_ORDERED_LIST
         return null
@@ -526,7 +527,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun selectHeadingMenuItem(textFormats: ArrayList<TextFormat>) {
+    private fun selectHeadingMenuItem(textFormats: ArrayList<ITextFormat>) {
         if (textFormats.size == 0) {
             // Select paragraph by default.
             headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
@@ -556,7 +557,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun selectListMenuItem(textFormats: ArrayList<TextFormat>) {
+    private fun selectListMenuItem(textFormats: ArrayList<ITextFormat>) {
         if (textFormats.size == 0) {
             // Select no list by default.
             listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
@@ -654,7 +655,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         listMenu?.inflate(R.menu.list)
     }
 
-    private fun setListMenuSelector(textFormat: TextFormat) {
+    private fun setListMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
             TextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
             TextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
@@ -665,7 +666,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun setHeadingMenuSelector(textFormat: TextFormat) {
+    private fun setHeadingMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
             TextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
             TextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)

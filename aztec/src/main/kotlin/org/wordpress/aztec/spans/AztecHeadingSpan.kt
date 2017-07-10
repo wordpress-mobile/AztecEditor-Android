@@ -7,12 +7,13 @@ import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.TextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecHeadingSpan @JvmOverloads constructor(
         override var nestingLevel: Int,
-        textFormat: TextFormat,
+        textFormat: ITextFormat,
         override var attributes: AztecAttributes,
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), AztecBlockSpan, LineHeightSpan, UpdateLayout {
@@ -23,7 +24,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
-    var textFormat: TextFormat = TextFormat.FORMAT_HEADING_1
+    var textFormat: ITextFormat = TextFormat.FORMAT_HEADING_1
         get() = field
         set(value) {
             field = value
@@ -52,7 +53,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
         private val SCALE_H5: Float = 0.72f
         private val SCALE_H6: Float = 0.60f
 
-        fun tagToTextFormat(tag: String): TextFormat {
+        fun tagToTextFormat(tag: String): ITextFormat {
             when (tag.toLowerCase()) {
                 "h1" -> return TextFormat.FORMAT_HEADING_1
                 "h2" -> return TextFormat.FORMAT_HEADING_2
@@ -64,7 +65,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
             }
         }
 
-        fun textFormatToHeading(textFormat: TextFormat): Heading {
+        fun textFormatToHeading(textFormat: ITextFormat): Heading {
             when (textFormat) {
                 TextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan.Heading.H1
                 TextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan.Heading.H2

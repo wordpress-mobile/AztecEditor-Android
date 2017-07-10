@@ -21,7 +21,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, manifest = "src/main/AndroidManifest.xml", sdk = intArrayOf(23))
-class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
+class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
     val listType = listTextFormat
     val listTag = listHtmlTag

@@ -654,7 +654,7 @@ class MainActivity : AppCompatActivity(),
     override fun onToolbarExpandButtonClicked() {
     }
 
-    override fun onToolbarFormatButtonClicked(format: TextFormat, isKeyboardShortcut: Boolean) {
+    override fun onToolbarFormatButtonClicked(format: ITextFormat, isKeyboardShortcut: Boolean) {
     }
 
     override fun onToolbarHeadingButtonClicked() {

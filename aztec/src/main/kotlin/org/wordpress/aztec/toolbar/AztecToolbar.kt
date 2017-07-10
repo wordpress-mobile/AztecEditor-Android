@@ -17,6 +17,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.plugins.IAztecToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
@@ -39,6 +40,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
     private lateinit var layoutExpanded: LinearLayout
+
+    var toolbarButtonPlugins: List<IAztecToolbarButton> = ArrayList()
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -162,24 +165,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     return true
                 }
             }
-            KeyEvent.KEYCODE_P -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Page Break = Alt + Ctrl + P
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_PAGE, true)
-                    findViewById(ToolbarAction.PAGE.buttonId).performClick()
-                    return true
-                }
-            }
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
                     aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_QUOTE, true)
                     findViewById(ToolbarAction.QUOTE.buttonId).performClick()
-                    return true
-                }
-            }
-            KeyEvent.KEYCODE_T -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Read More = Alt + Ctrl + T
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(TextFormat.FORMAT_MORE, true)
-                    findViewById(ToolbarAction.MORE.buttonId).performClick()
                     return true
                 }
             }
@@ -211,6 +200,15 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 if (event.isCtrlPressed) { // Undo  = Ctrl + Z
                     editor?.undo()
                     return true
+                }
+            }
+            else -> {
+                toolbarButtonPlugins.forEach {
+                    if (it.matchesKeyShortcut(keyCode, event)) {
+                        aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormat, true)
+                        it.onClick()
+                        return true
+                    }
                 }
             }
         }
@@ -347,6 +345,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 setListMenu(findViewById(toolbarAction.buttonId))
             }
         }
+    }
+
+    fun addButton(buttonPlugin: IAztecToolbarButton) {
+        val pluginContainer = findViewById(R.id.plugin_buttons) as LinearLayout
+        buttonPlugin.inflateButton(pluginContainer)
     }
 
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {

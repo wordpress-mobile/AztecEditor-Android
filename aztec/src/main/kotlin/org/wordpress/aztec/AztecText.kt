@@ -584,17 +584,17 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             TextFormat.FORMAT_HEADING_5,
             TextFormat.FORMAT_HEADING_6,
             TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
-            TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
-            TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
-            TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
-            TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggleStrikethrough()
+            TextFormat.FORMAT_BOLD -> inlineFormatter.toggle(TextFormat.FORMAT_BOLD)
+            TextFormat.FORMAT_ITALIC -> inlineFormatter.toggle(TextFormat.FORMAT_ITALIC)
+            TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggle(TextFormat.FORMAT_UNDERLINE)
+            TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggle(TextFormat.FORMAT_STRIKETHROUGH)
             TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
 //            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
 //            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
-            TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
+            TextFormat.FORMAT_CODE -> inlineFormatter.toggle(TextFormat.FORMAT_CODE)
             else -> {
                 // TODO: Handle toggle of plugin
             }

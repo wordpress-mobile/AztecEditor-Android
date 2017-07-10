@@ -15,43 +15,11 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
-    fun toggleBold() {
-        if (!containsInlineStyle(TextFormat.FORMAT_BOLD)) {
-            applyInlineStyle(TextFormat.FORMAT_BOLD)
+    fun toggle(textFormat: ITextFormat) {
+        if (!containsInlineStyle(textFormat)) {
+            applyInlineStyle(textFormat)
         } else {
-            removeInlineStyle(TextFormat.FORMAT_BOLD)
-        }
-    }
-
-    fun toggleItalic() {
-        if (!containsInlineStyle(TextFormat.FORMAT_ITALIC)) {
-            applyInlineStyle(TextFormat.FORMAT_ITALIC)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_ITALIC)
-        }
-    }
-
-    fun toggleStrikethrough() {
-        if (!containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)) {
-            applyInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH)
-        }
-    }
-
-    fun toggleUnderline() {
-        if (!containsInlineStyle(TextFormat.FORMAT_UNDERLINE)) {
-            applyInlineStyle(TextFormat.FORMAT_UNDERLINE)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_UNDERLINE)
-        }
-    }
-
-    fun toggleCode() {
-        if (!containsInlineStyle(TextFormat.FORMAT_CODE)) {
-            applyInlineStyle(TextFormat.FORMAT_CODE)
-        } else {
-            removeInlineStyle(TextFormat.FORMAT_CODE)
+            removeInlineStyle(textFormat)
         }
     }
 

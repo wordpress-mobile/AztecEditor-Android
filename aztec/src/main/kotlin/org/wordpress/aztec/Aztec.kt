@@ -4,6 +4,7 @@ import android.app.Activity
 import android.support.annotation.IdRes
 import android.view.View
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IAztecToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.AztecToolbarClickListener
@@ -90,6 +91,11 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
 
     fun addPlugin(plugin: IAztecPlugin) : Aztec {
         plugins += plugin
+
+        if (plugin is IAztecToolbarButton) {
+            toolbar.addButton(plugin)
+        }
+
         return this
     }
 

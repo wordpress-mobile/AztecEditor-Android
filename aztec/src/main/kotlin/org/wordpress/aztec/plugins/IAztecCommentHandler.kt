@@ -1,4 +1,4 @@
-package org.wordpress.aztec.plugins.html2visual
+package org.wordpress.aztec.plugins
 
 import android.annotation.SuppressLint
 import android.content.Context

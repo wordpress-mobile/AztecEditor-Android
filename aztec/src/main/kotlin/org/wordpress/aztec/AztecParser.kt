@@ -180,7 +180,7 @@ class AztecParser {
             val spanEnd = spanned.getSpanEnd(it)
 
             // block spans include a newline at the end, we need to account for that
-            val newlineExpected = if (it is AztecBlockSpan) spanEnd - 1 else spanEnd
+            val newlineExpected = if (it is AztecBlockSpan && spanEnd > 0) spanEnd - 1 else spanEnd
 
             if (spanEnd == spanned.length) {
                 // no visual newline if at text end

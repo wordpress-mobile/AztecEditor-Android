@@ -21,14 +21,14 @@ class TextDeleter private constructor(aztecText: AztecText) : TextWatcher {
             return
         }
 
-        aztecTextRef.get()?.text?.let { text ->
-            text.getSpans(0, text.length, MarkForDeletion::class.java).forEach {
-                val start = text.getSpanStart(it)
-                val end = text.getSpanEnd(it)
+        text.getSpans(0, text.length, MarkForDeletion::class.java).forEach {
+            val start = text.getSpanStart(it)
+            val end = text.getSpanEnd(it)
 
-                if (start > -1 && end > -1) {
-                    text.delete(text.getSpanStart(it), text.getSpanEnd(it))
-                }
+            if (start > -1 && end > -1) {
+                aztecTextRef.get()?.disableTextChangedListener()
+                text.delete(start, end)
+                aztecTextRef.get()?.enableTextChangedListener()
             }
         }
     }

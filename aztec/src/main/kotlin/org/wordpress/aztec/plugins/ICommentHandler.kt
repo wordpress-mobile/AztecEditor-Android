@@ -8,7 +8,7 @@ import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
 
 @SuppressLint("NewApi")
-interface IAztecCommentHandler : IAztecPlugin {
+interface ICommentHandler : IAztecPlugin {
 
     fun canHandle(span: CharacterStyle): Boolean {
         return true

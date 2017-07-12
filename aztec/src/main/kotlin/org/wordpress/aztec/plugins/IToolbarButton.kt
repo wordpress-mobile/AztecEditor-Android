@@ -10,7 +10,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.toolbar.RippleToggleButton
 
-interface IAztecToolbarButton : IAztecPlugin {
+interface IToolbarButton : IAztecPlugin {
     val action: IToolbarAction
     val context: Context
 

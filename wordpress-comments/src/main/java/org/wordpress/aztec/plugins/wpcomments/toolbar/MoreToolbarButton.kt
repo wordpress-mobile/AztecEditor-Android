@@ -8,14 +8,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.plugins.IAztecToolbarButton
+import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
-class MoreToolbarButton(val visualEditor: AztecText) : IAztecToolbarButton {
+class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
 
     override val action: IToolbarAction = CommentsToolbarAction.MORE
     override val context = visualEditor.context!!

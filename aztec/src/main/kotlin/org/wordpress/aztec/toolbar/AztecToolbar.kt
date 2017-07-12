@@ -17,7 +17,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.AztecTextFormat
-import org.wordpress.aztec.plugins.IAztecToolbarButton
+import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*
 
@@ -41,7 +41,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var ellipsisSpinRight: Animation
     private lateinit var layoutExpanded: LinearLayout
 
-    var toolbarButtonPlugins: ArrayList<IAztecToolbarButton> = ArrayList()
+    var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -347,7 +347,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun addButton(buttonPlugin: IAztecToolbarButton) {
+    fun addButton(buttonPlugin: IToolbarButton) {
         val pluginContainer = findViewById(R.id.plugin_buttons) as LinearLayout
         buttonPlugin.inflateButton(pluginContainer)
 

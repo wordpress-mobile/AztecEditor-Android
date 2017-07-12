@@ -47,7 +47,7 @@ import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.plugins.IAztecPlugin
-import org.wordpress.aztec.plugins.IAztecToolbarButton
+import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -542,8 +542,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             }
         }
 
-        plugins.filter { it is IAztecToolbarButton }
-                .map { (it as IAztecToolbarButton).action.textFormat }
+        plugins.filter { it is IToolbarButton }
+                .map { (it as IToolbarButton).action.textFormat }
                 .forEach {
                     if (contains(it, newSelStart, newSelEnd)) {
                         styles.add(it)
@@ -595,8 +595,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_CODE)
             else -> {
-                plugins.filter { it is IAztecToolbarButton && textFormat == it.action.textFormat }
-                        .map { it as IAztecToolbarButton }
+                plugins.filter { it is IToolbarButton && textFormat == it.action.textFormat }
+                        .map { it as IToolbarButton }
                         .forEach { it.toggle() }
             }
         }

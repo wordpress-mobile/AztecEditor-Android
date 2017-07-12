@@ -34,7 +34,7 @@ import android.text.style.TypefaceSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
-import org.wordpress.aztec.plugins.IAztecCommentHandler;
+import org.wordpress.aztec.plugins.ICommentHandler;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
@@ -708,8 +708,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         boolean wasCommentHandled = false;
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
-                if (plugin instanceof IAztecCommentHandler) {
-                    wasCommentHandled = ((IAztecCommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, context, nestingLevel);
+                if (plugin instanceof ICommentHandler) {
+                    wasCommentHandled = ((ICommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, context, nestingLevel);
                     if (wasCommentHandled) {
                         break;
                     }

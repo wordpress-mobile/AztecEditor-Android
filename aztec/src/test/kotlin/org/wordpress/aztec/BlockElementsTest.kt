@@ -98,7 +98,7 @@ class BlockElementsTest {
     fun testCollapsingEmptyQuoteAboveNewline() {
         safeAppend(editText, "\n")
         editText.setSelection(0)
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         editText.text.insert(0,"\n")
 
         Assert.assertEquals("<br>", editText.toHtml())
@@ -109,7 +109,7 @@ class BlockElementsTest {
     fun testCollapsingEmptyListAboveNewline() {
         safeAppend(editText, "\n")
         editText.setSelection(0)
-        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
         editText.text.insert(0,"\n")
 
         Assert.assertEquals("<br>", editText.toHtml())

@@ -134,8 +134,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         var end = originalEnd
 
         //if splitting block set a range that would be excluded from it
-        val boundsOfSelectedText = if (ignoreLineBounds) IntRange(start, end)
-        else getSelectedTextBounds(editableText, start, end)
+        val boundsOfSelectedText = if (ignoreLineBounds) {
+            IntRange(start, end)
+        } else {
+            getSelectedTextBounds(editableText, start, end)
+        }
 
         var startOfBounds = boundsOfSelectedText.start
         var endOfBounds = boundsOfSelectedText.endInclusive
@@ -186,7 +189,13 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         spanTypes.forEach { spanType ->
-            val spans = editableText.getSpans(start, end, spanType)
+            val mightHaveLingeringListItem = spanType.isAssignableFrom(AztecListItemSpan::class.java)
+                    && editableText.length > end
+                    && (editableText[end] == '\n' || editableText[end] == Constants.END_OF_BUFFER_MARKER)
+
+            val endModifier = if (mightHaveLingeringListItem) 1 else 0
+
+            val spans = editableText.getSpans(start, end + endModifier, spanType)
             spans.forEach { span ->
 
                 val spanStart = editableText.getSpanStart(span)
@@ -303,7 +312,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             }
         } else {
             if (indexOfLastLineBreak == -1) {
-                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) + 1
+                indexOfFirstLineBreak = if (selectionStart == 0) 0 else {
+                    editable.lastIndexOf("\n", selectionStart) + 1
+                }
             } else {
                 indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
             }
@@ -347,7 +358,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 removeBlockStyle(blockElementType)
             } else {
                 //if block starts with newline do not move index to the right
-                val startOfBlockModifier = if(startOfBlock >= 0 && editableText[startOfBlock] == '\n') 0 else 1
+                val startOfBlockModifier = if (startOfBlock >= 0 && editableText[startOfBlock] == '\n') 0 else 1
                 applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + startOfBlockModifier,
                         (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1))
             }

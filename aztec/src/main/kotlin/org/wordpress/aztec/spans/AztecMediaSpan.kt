@@ -11,7 +11,7 @@ import org.wordpress.aztec.AztecText
 import java.util.*
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
-                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), AztecAttributedSpan {
+                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
 
     abstract val TAG: String
 

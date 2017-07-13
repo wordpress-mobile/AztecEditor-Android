@@ -22,7 +22,7 @@ import android.text.TextWatcher
 import android.text.style.LeadingMarginSpan
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.formatting.InlineFormatter
-import org.wordpress.aztec.spans.AztecInlineSpan
+import org.wordpress.aztec.spans.IAztecInlineSpan
 import java.lang.ref.WeakReference
 
 class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecText) : TextWatcher {
@@ -58,7 +58,7 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         }
 
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-            removeLeadingStyle(text, AztecInlineSpan::class.java)
+            removeLeadingStyle(text, IAztecInlineSpan::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 

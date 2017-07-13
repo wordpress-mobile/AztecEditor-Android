@@ -5,7 +5,7 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.spans.AztecNestable
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.MarkForReplay
 import java.lang.ref.WeakReference
 import java.util.*
@@ -35,7 +35,7 @@ class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
         var charCount = count
 
         do {
-            val nestingLevelToProcess = AztecNestable.getNestingLevelAt(s as Spanned, startIndex, startIndex + charCount)
+            val nestingLevelToProcess = IAztecNestable.getNestingLevelAt(s as Spanned, startIndex, startIndex + charCount)
 
             // handle the text change. The potential text deletion will happen in a scheduled Runnable, to run on next frame
             handlers.forEach { textChangeHandler ->

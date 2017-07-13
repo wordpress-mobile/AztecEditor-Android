@@ -11,7 +11,7 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
                      attributes: AztecAttributes = AztecAttributes(),
                      var onVideoTappedListener: AztecText.OnVideoTappedListener? = null,
                      editor: AztecText? = null) :
-        AztecMediaSpan(context, drawable, attributes, editor), AztecFullWidthImageSpan, AztecSpan {
+        AztecMediaSpan(context, drawable, attributes, editor), IAztecFullWidthImageSpan, IAztecSpan {
 
     override val TAG: String = "video"
 

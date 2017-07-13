@@ -46,6 +46,8 @@ import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
 import org.wordpress.aztec.handlers.*
+import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
@@ -99,7 +101,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private var formatToolbar: AztecToolbar? = null
 
-    val selectedStyles = ArrayList<TextFormat>()
+    val selectedStyles = ArrayList<ITextFormat>()
 
     private var isNewStyleSelected = false
 
@@ -117,6 +119,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+
+    var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
     var widthMeasureSpec: Int = 0
 
@@ -432,7 +436,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
-    fun setSelectedStyles(styles: ArrayList<TextFormat>) {
+    fun setSelectedStyles(styles: ArrayList<ITextFormat>) {
         isNewStyleSelected = true
         selectedStyles.clear()
         selectedStyles.addAll(styles)
@@ -514,8 +518,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return editableText.substring(selectionStart, selectionEnd)
     }
 
-    fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<TextFormat> {
-        val styles = ArrayList<TextFormat>()
+    fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<ITextFormat> {
+        val styles = ArrayList<ITextFormat>()
 
         var newSelStart = if (selectionStart > selectionEnd) selectionEnd else selectionStart
         var newSelEnd = selectionEnd
@@ -532,11 +536,20 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             newSelStart--
         }
 
-        TextFormat.values().forEach {
+        AztecTextFormat.values().forEach {
             if (contains(it, newSelStart, newSelEnd)) {
                 styles.add(it)
             }
         }
+
+        plugins.filter { it is IToolbarButton }
+                .map { (it as IToolbarButton).action.textFormat }
+                .forEach {
+                    if (contains(it, newSelStart, newSelEnd)) {
+                        styles.add(it)
+                    }
+                }
+
         return styles
     }
 
@@ -560,54 +573,55 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return selectionStart != selectionEnd
     }
 
-    fun toggleFormatting(textFormat: TextFormat) {
+    fun toggleFormatting(textFormat: ITextFormat) {
         history.beforeTextChanged(toFormattedHtml())
 
         when (textFormat) {
-            TextFormat.FORMAT_PARAGRAPH,
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6,
-            TextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
-            TextFormat.FORMAT_BOLD -> inlineFormatter.toggleBold()
-            TextFormat.FORMAT_ITALIC -> inlineFormatter.toggleItalic()
-            TextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggleUnderline()
-            TextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggleStrikethrough()
-            TextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
-            TextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
-            TextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            TextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-            TextFormat.FORMAT_MORE -> lineBlockFormatter.applyMoreComment()
-            TextFormat.FORMAT_PAGE -> lineBlockFormatter.applyPageComment()
-            TextFormat.FORMAT_CODE -> inlineFormatter.toggleCode()
+            AztecTextFormat.FORMAT_PARAGRAPH,
+            AztecTextFormat.FORMAT_HEADING_1,
+            AztecTextFormat.FORMAT_HEADING_2,
+            AztecTextFormat.FORMAT_HEADING_3,
+            AztecTextFormat.FORMAT_HEADING_4,
+            AztecTextFormat.FORMAT_HEADING_5,
+            AztecTextFormat.FORMAT_HEADING_6,
+            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
+            AztecTextFormat.FORMAT_BOLD -> inlineFormatter.toggle(AztecTextFormat.FORMAT_BOLD)
+            AztecTextFormat.FORMAT_ITALIC -> inlineFormatter.toggle(AztecTextFormat.FORMAT_ITALIC)
+            AztecTextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_UNDERLINE)
+            AztecTextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggle(AztecTextFormat.FORMAT_STRIKETHROUGH)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
+            AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
+            AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
+            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
+            AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_CODE)
             else -> {
+                plugins.filter { it is IToolbarButton && textFormat == it.action.textFormat }
+                        .map { it as IToolbarButton }
+                        .forEach { it.toggle() }
             }
         }
 
         history.handleHistory(this)
     }
 
-    fun contains(format: TextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         when (format) {
-            TextFormat.FORMAT_HEADING_1,
-            TextFormat.FORMAT_HEADING_2,
-            TextFormat.FORMAT_HEADING_3,
-            TextFormat.FORMAT_HEADING_4,
-            TextFormat.FORMAT_HEADING_5,
-            TextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
-            TextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_BOLD, selStart, selEnd)
-            TextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_ITALIC, selStart, selEnd)
-            TextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_UNDERLINE, selStart, selEnd)
-            TextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            TextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
-            TextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(TextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
-            TextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
-            TextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
-            TextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
-            TextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(TextFormat.FORMAT_CODE, selStart, selEnd)
+            AztecTextFormat.FORMAT_HEADING_1,
+            AztecTextFormat.FORMAT_HEADING_2,
+            AztecTextFormat.FORMAT_HEADING_3,
+            AztecTextFormat.FORMAT_HEADING_4,
+            AztecTextFormat.FORMAT_HEADING_5,
+            AztecTextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
+            AztecTextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_BOLD, selStart, selEnd)
+            AztecTextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_ITALIC, selStart, selEnd)
+            AztecTextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, selStart, selEnd)
+            AztecTextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
+            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
+            AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false
         }
     }
@@ -661,7 +675,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
                         Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
@@ -763,7 +777,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     //platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(text)
 
         clearMetaSpans(output)
@@ -787,7 +801,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
-        editable.getSpans(start, end, AztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
+        editable.getSpans(start, end, IAztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
         editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
 
         val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
@@ -849,15 +863,15 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_BOLD, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_ITALIC, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_STRIKETHROUGH, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_UNDERLINE, start, end)
-        inlineFormatter.removeInlineStyle(TextFormat.FORMAT_CODE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
     }
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
-        blockFormatter.removeBlockStyle(TextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(AztecBlockSpan::class.java), ignoreLineBounds)
+        blockFormatter.removeBlockStyle(AztecTextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(IAztecBlockSpan::class.java), ignoreLineBounds)
     }
 
     //logic party copied from TextView
@@ -889,7 +903,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     //Convert selected text to html and add it to clipboard
     fun copy(editable: Editable, start: Int, end: Int) {
         val selectedText = editable.subSequence(start, end)
-        val parser = AztecParser()
+        val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(selectedText)
 
         //Strip block elements until we figure out copy paste completely
@@ -907,7 +921,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         if (clip != null) {
-            val parser = AztecParser()
+            val parser = AztecParser(plugins)
 
             for (i in 0..clip.itemCount - 1) {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
@@ -1014,7 +1028,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser().fromHtml(source.getPureHtml(), onImageTappedListener,
+            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), onImageTappedListener,
                     onVideoTappedListener, this, context).trim())
             setSelection(spanStart)
 
@@ -1104,7 +1118,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
-        text.getSpans(0, text.length, AztecAttributedSpan::class.java)
+        text.getSpans(0, text.length, IAztecAttributedSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
@@ -1162,7 +1176,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun getAllElementAttributes(attributePredicate: AttributePredicate): List<AztecAttributes> {
         return text
-                .getSpans(0, text.length, AztecAttributedSpan::class.java)
+                .getSpans(0, text.length, IAztecAttributedSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }

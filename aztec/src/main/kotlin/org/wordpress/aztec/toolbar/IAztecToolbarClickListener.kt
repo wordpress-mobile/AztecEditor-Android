@@ -1,11 +1,11 @@
 package org.wordpress.aztec.toolbar
 
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.ITextFormat
 
-interface AztecToolbarClickListener {
+interface IAztecToolbarClickListener {
     fun onToolbarCollapseButtonClicked()
     fun onToolbarExpandButtonClicked()
-    fun onToolbarFormatButtonClicked(format: TextFormat, isKeyboardShortcut: Boolean)
+    fun onToolbarFormatButtonClicked(format: ITextFormat, isKeyboardShortcut: Boolean)
     fun onToolbarHeadingButtonClicked()
     fun onToolbarHtmlButtonClicked()
     fun onToolbarListButtonClicked()

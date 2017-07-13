@@ -41,14 +41,14 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "quote")
         editText.setSelection(safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         Assert.assertEquals("some text<blockquote>quote</blockquote>", editText.toHtml())
         editText.setSelection(safeLength(editText))
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "list")
         editText.setSelection(safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "some text")
@@ -64,7 +64,7 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "quote")
         editText.setSelection(safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         Assert.assertEquals("some text<br><br><blockquote>quote</blockquote>", editText.toHtml())
         editText.setSelection(safeLength(editText))
         safeAppend(editText, "\n")
@@ -72,7 +72,7 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         safeAppend(editText, "list")
         editText.setSelection(safeLength(editText))
-        editText.toggleFormatting(TextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
         safeAppend(editText, "\n")
@@ -84,7 +84,7 @@ class BlockElementsTest {
     @Test
     @Throws(Exception::class)
     fun checkForDanglingListWithoutItems() {
-        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
         Assert.assertEquals("<ol><li></li></ol>", editText.toHtml())
         Assert.assertTrue(safeEmpty(editText))
 
@@ -98,7 +98,7 @@ class BlockElementsTest {
     fun testCollapsingEmptyQuoteAboveNewline() {
         safeAppend(editText, "\n")
         editText.setSelection(0)
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         editText.text.insert(0,"\n")
 
         Assert.assertEquals("<br>", editText.toHtml())
@@ -109,7 +109,7 @@ class BlockElementsTest {
     fun testCollapsingEmptyListAboveNewline() {
         safeAppend(editText, "\n")
         editText.setSelection(0)
-        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
         editText.text.insert(0,"\n")
 
         Assert.assertEquals("<br>", editText.toHtml())

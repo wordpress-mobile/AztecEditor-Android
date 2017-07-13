@@ -1,37 +1,38 @@
 package org.wordpress.aztec.toolbar
 
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.TextFormat
+import org.wordpress.aztec.AztecTextFormat
 import java.util.*
 
 /**
  * Describes what actions toolbar can perform and what buttons they are bound to
  */
-enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarActionType, val textFormat: TextFormat?) {
-    ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, null),
-    HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, null),
-    LIST(R.id.format_bar_button_list, ToolbarActionType.BLOCK_STYLE, null),
-    BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_BOLD),
-    ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_ITALIC),
-    STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_STRIKETHROUGH),
-    UNDERLINE(R.id.format_bar_button_underline, ToolbarActionType.INLINE_STYLE, TextFormat.FORMAT_UNDERLINE),
-    QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, TextFormat.FORMAT_QUOTE),
-    LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, TextFormat.FORMAT_LINK),
-    HORIZONTAL_RULE(R.id.format_bar_button_horizontal_rule, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_HORIZONTAL_RULE),
-    MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_MORE),
-    PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, TextFormat.FORMAT_PAGE),
-    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, null),
-    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapse, ToolbarActionType.OTHER, null),
-    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expand, ToolbarActionType.OTHER, null);
+enum class ToolbarAction constructor(override val buttonId: Int, override val actionType: ToolbarActionType,
+                                     override val textFormat: ITextFormat) : IToolbarAction {
+
+    ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, AztecTextFormat.FORMAT_NONE),
+    LIST(R.id.format_bar_button_list, ToolbarActionType.BLOCK_STYLE, AztecTextFormat.FORMAT_NONE),
+    BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, AztecTextFormat.FORMAT_BOLD),
+    ITALIC(R.id.format_bar_button_italic, ToolbarActionType.INLINE_STYLE, AztecTextFormat.FORMAT_ITALIC),
+    STRIKETHROUGH(R.id.format_bar_button_strikethrough, ToolbarActionType.INLINE_STYLE, AztecTextFormat.FORMAT_STRIKETHROUGH),
+    UNDERLINE(R.id.format_bar_button_underline, ToolbarActionType.INLINE_STYLE, AztecTextFormat.FORMAT_UNDERLINE),
+    QUOTE(R.id.format_bar_button_quote, ToolbarActionType.BLOCK_STYLE, AztecTextFormat.FORMAT_QUOTE),
+    LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_LINK),
+    HORIZONTAL_RULE(R.id.format_bar_button_horizontal_rule, ToolbarActionType.LINE_BLOCK, AztecTextFormat.FORMAT_HORIZONTAL_RULE),
+    HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapse, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expand, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE);
 
     companion object {
-        fun getToolbarActionForStyle(style: TextFormat): ToolbarAction? {
-            ToolbarAction.values().forEach { if (it.textFormat != null && it.textFormat == style) return it }
+        fun getToolbarActionForStyle(style: ITextFormat): IToolbarAction? {
+            ToolbarAction.values().forEach { if (it.textFormat == style) return it }
             return null
         }
 
-        fun getToolbarActionsForStyles(styles: ArrayList<TextFormat>): ArrayList<ToolbarAction> {
-            val actions = ArrayList<ToolbarAction>()
+        fun getToolbarActionsForStyles(styles: ArrayList<ITextFormat>): ArrayList<IToolbarAction> {
+            val actions = ArrayList<IToolbarAction>()
             styles.forEach {
                 val action = getToolbarActionForStyle(it)
                 if (action != null) {
@@ -40,9 +41,5 @@ enum class ToolbarAction constructor(val buttonId: Int, val actionType: ToolbarA
             }
             return actions
         }
-    }
-
-    fun isStylingAction(): Boolean {
-        return actionType != ToolbarActionType.OTHER
     }
 }

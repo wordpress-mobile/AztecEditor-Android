@@ -29,8 +29,6 @@ class AztecToolbarTest {
     lateinit var underlineButton: ToggleButton
     lateinit var quoteButton: ToggleButton
     lateinit var linkButton: ToggleButton
-    lateinit var moreButton: ToggleButton
-    lateinit var pageButton: ToggleButton
     lateinit var htmlButton: ToggleButton
 
     /**
@@ -53,8 +51,6 @@ class AztecToolbarTest {
         underlineButton = toolbar.findViewById(R.id.format_bar_button_underline) as ToggleButton
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
         linkButton = toolbar.findViewById(R.id.format_bar_button_link) as ToggleButton
-        moreButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
-        pageButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html) as ToggleButton
     }
 
@@ -72,8 +68,6 @@ class AztecToolbarTest {
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(quoteButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
-        Assert.assertFalse(moreButton.isChecked)
-        Assert.assertFalse(pageButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
 
         Assert.assertTrue(TestUtils.safeEmpty(editText))
@@ -712,93 +706,5 @@ class AztecToolbarTest {
 
         htmlButton.performClick()
         TestUtils.equalsIgnoreWhitespace("", sourceText.text.toString())
-    }
-
-    /**
-     * Insert comment at selection when More format toolbar button is tapped.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun insertMoreWithButton() {
-        editText.fromHtml("")
-        moreButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<!--more-->", sourceText.text.toString())
-
-        // Select location.
-        editText.fromHtml("<b>Bold</b>")
-        editText.setSelection(3)
-        moreButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--more--><br><b>d</b><br>", sourceText.text.toString())
-
-        // Select characters.
-        editText.fromHtml("<b>Bold</b>")
-        editText.setSelection(2, 3)
-        moreButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>B</b><br><!--more--><br><b>d</b><br>", sourceText.text.toString())
-
-        // Select characters across lines.
-        editText.fromHtml("<b>Bold</b><br><i>Italic</i><br>")
-        editText.setSelection(3, 5)
-        moreButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--more--><br><i>talic</i><br>", sourceText.text.toString())
-    }
-
-    /**
-     * Insert comment when <!--more--> is input.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun insertMoreWithCode() {
-        editText.fromHtml("")
-        sourceText.append("<!--more-->")
-        TestUtils.equalsIgnoreWhitespace("more", editText.text.toString())
-    }
-
-    /**
-     * Insert comment at selection when Page Break format toolbar button is tapped.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun insertPageWithButton() {
-        editText.fromHtml("")
-        pageButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<!--nextpage-->", sourceText.text.toString())
-
-        // Select location.
-        editText.fromHtml("<b>Bold</b>")
-        editText.setSelection(3)
-        pageButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--nextpage--><br><b>d</b><br>", sourceText.text.toString())
-
-        // Select characters.
-        editText.fromHtml("<b>Bold</b>")
-        editText.setSelection(2, 3)
-        pageButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>B</b><br><!--nextpage--><br><b>d</b><br>", sourceText.text.toString())
-
-        // Select characters across lines.
-        editText.fromHtml("<b>Bold</b><br><i>Italic</i><br>")
-        editText.setSelection(3, 5)
-        pageButton.performClick()
-        TestUtils.equalsIgnoreWhitespace("<b>Bol</b><br><!--nextpage--><br><i>talic</i><br>", sourceText.text.toString())
-    }
-
-    /**
-     * Insert comment when <!--nextpage--> is input.
-     *
-     * @throws Exception
-     */
-    @Test
-    @Throws(Exception::class)
-    fun insertPageWithCode() {
-        editText.fromHtml("")
-        sourceText.append("<!--nextpage-->")
-        TestUtils.equalsIgnoreWhitespace("nextpage", editText.text.toString())
     }
 }

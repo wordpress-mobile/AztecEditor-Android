@@ -322,7 +322,7 @@ object Format {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
 
-                if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, AztecParagraphStyle::class.java)
+                if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, IAztecParagraphStyle::class.java)
                         .filter { it !is ParagraphSpan && text.getSpanStart(it) == spanEnd }.isEmpty()) {
                     text.insert(spanEnd, "\n")
                 }

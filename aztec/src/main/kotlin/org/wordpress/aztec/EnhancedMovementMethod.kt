@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.graphics.Rect
-import android.text.Selection
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
@@ -29,7 +28,11 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
-            val off = layout.getOffsetForHorizontal(line, x.toFloat())
+            var off = layout.getOffsetForHorizontal(line, x.toFloat())
+
+            if (text.length > off) {
+                off++
+            }
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -40,7 +43,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val lineRect = Rect()
             layout.getLineBounds(line, lineRect)
 
-            if (((x >= charPrevX && x <= charX) || (x >= charX && x <= charNextX))
+            if (((x in charPrevX..charX) || (x in charX..charNextX))
                     && y >= lineRect.top && y <= lineRect.bottom) {
                 val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
 
@@ -48,10 +51,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
                     if (action == MotionEvent.ACTION_UP) {
                         link.onClick(widget)
-                    } else {
-                        Selection.setSelection(text, text.getSpanStart(link), text.getSpanEnd(link))
                     }
-
                     return true
                 }
             }

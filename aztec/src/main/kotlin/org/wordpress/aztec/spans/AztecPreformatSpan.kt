@@ -17,7 +17,7 @@ class AztecPreformatSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
-    ) : AztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
+    ) : IAztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
 
     override val TAG: String = "pre"
 

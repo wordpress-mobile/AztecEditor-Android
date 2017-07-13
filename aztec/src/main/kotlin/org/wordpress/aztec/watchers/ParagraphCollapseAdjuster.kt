@@ -4,7 +4,7 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.TextWatcher
 import android.widget.TextView
-import org.wordpress.aztec.spans.ParagraphFlagged
+import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.SpanWrapper
 
 class ParagraphCollapseAdjuster : TextWatcher {
@@ -23,7 +23,7 @@ class ParagraphCollapseAdjuster : TextWatcher {
         // OK, the change will cause an end-of-text paragraph collapse so, mark the paragraphs
         //  with their current anchor position
 
-        SpanWrapper.getSpans(s as Spannable, start, start, ParagraphFlagged::class.java)
+        SpanWrapper.getSpans(s as Spannable, start, start, IParagraphFlagged::class.java)
                 .filter { it.start == start && it.end > start }
                 .forEach { it.span.startBeforeCollapse = start }
     }
@@ -35,7 +35,7 @@ class ParagraphCollapseAdjuster : TextWatcher {
         }
 
         // OK, chars where added so, let's check for collapses and adjust
-        SpanWrapper.getSpans(s as Spannable, s.length, s.length, ParagraphFlagged::class.java)
+        SpanWrapper.getSpans(s as Spannable, s.length, s.length, IParagraphFlagged::class.java)
                 .filter { it.span.hasCollapsed() }
                 .forEach {
                     it.start = it.span.startBeforeCollapse

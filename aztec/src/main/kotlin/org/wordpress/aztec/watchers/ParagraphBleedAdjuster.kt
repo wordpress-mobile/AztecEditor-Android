@@ -6,7 +6,7 @@ import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.ParagraphFlagged
+import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 
@@ -43,7 +43,7 @@ class ParagraphBleedAdjuster private constructor(aztecText: AztecText) : TextWat
         //  with their current anchor position
 
         val newline = s.subSequence(start - 1, start) as Spanned
-        SpanWrapper.getSpans(s as Spannable, newline.getSpans<ParagraphFlagged>(0, 1, ParagraphFlagged::class.java))
+        SpanWrapper.getSpans(s as Spannable, newline.getSpans<IParagraphFlagged>(0, 1, IParagraphFlagged::class.java))
                 .filter { it.start < start && it.end == start }
                 .forEach { it.span.endBeforeBleed = start }
     }
@@ -59,7 +59,7 @@ class ParagraphBleedAdjuster private constructor(aztecText: AztecText) : TextWat
         }
 
         // OK, chars where added so, let's check for bleeding and adjust
-        SpanWrapper.getSpans(s as Spannable, start, start, ParagraphFlagged::class.java)
+        SpanWrapper.getSpans(s as Spannable, start, start, IParagraphFlagged::class.java)
                 .filter { it.span.hasBled() }
                 .forEach {
                     it.end = it.span.endBeforeBleed

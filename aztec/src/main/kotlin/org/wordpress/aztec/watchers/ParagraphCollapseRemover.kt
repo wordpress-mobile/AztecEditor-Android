@@ -6,7 +6,7 @@ import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.ParagraphFlagged
+import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 
@@ -22,7 +22,7 @@ class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextW
         val charsOld = s.subSequence(start, start + count) as Spanned
 
         val paragraphs = SpanWrapper.getSpans(s as Spannable,
-                start, start + count, ParagraphFlagged::class.java)
+                start, start + count, IParagraphFlagged::class.java)
         if (paragraphs.isEmpty() && start + count >= s.length) {
             // no paragraphs in the text to be removed and no other text beyond the change so, nothing to do here. Bail.
             return
@@ -49,13 +49,13 @@ class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextW
                 continue
             }
 
-            var paragraphsToCheck: Array<ParagraphFlagged>
+            var paragraphsToCheck: Array<IParagraphFlagged>
 
             if (start + lastNewlineIndex + 1 < s.length) {
                 val postNewline = s.subSequence(start + lastNewlineIndex + 1, start + lastNewlineIndex + 2) as Spanned
-                paragraphsToCheck = postNewline.getSpans<ParagraphFlagged>(0, 1, ParagraphFlagged::class.java)
+                paragraphsToCheck = postNewline.getSpans<IParagraphFlagged>(0, 1, IParagraphFlagged::class.java)
             } else {
-                paragraphsToCheck = charsOld.getSpans<ParagraphFlagged>(lastNewlineIndex + 1, lastNewlineIndex + 1, ParagraphFlagged::class.java)
+                paragraphsToCheck = charsOld.getSpans<IParagraphFlagged>(lastNewlineIndex + 1, lastNewlineIndex + 1, IParagraphFlagged::class.java)
             }
 
             SpanWrapper.getSpans(s, paragraphsToCheck)

@@ -9,7 +9,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     var historyList = LinkedList<String>()
     var inputLast: String = ""
 
-    private var historyListener: HistoryListener? = null
+    private var historyListener: IHistoryListener? = null
 
     private var historyWorking = false
 
@@ -140,7 +140,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         historyList.clear()
     }
 
-    fun setHistoryListener(listener: HistoryListener) {
+    fun setHistoryListener(listener: IHistoryListener) {
         historyListener = listener
     }
 

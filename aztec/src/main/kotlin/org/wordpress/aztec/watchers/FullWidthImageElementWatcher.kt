@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.AztecFullWidthImageSpan
+import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.FullWidthImageProcessingMarker
 import java.lang.ref.WeakReference
 
@@ -40,8 +40,8 @@ class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
                 aztecText.text.getSpans(0, 0, FullWidthImageProcessingMarker::class.java).isEmpty()) {
 
             val end = start + count
-            var lines = aztecText.text.getSpans(start, start, AztecFullWidthImageSpan::class.java)
-            lines += aztecText.text.getSpans(end, end, AztecFullWidthImageSpan::class.java)
+            var lines = aztecText.text.getSpans(start, start, IAztecFullWidthImageSpan::class.java)
+            lines += aztecText.text.getSpans(end, end, IAztecFullWidthImageSpan::class.java)
 
             lines.distinct().forEach {
                 val changedLineBeginning = aztecText.text.getSpanStart(it) == end && end - 1 >= 0 &&

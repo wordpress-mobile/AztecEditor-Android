@@ -64,7 +64,7 @@ class LinkTest {
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoEmptyQuote() {
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         Assert.assertEquals("<blockquote></blockquote>", editText.toHtml())
         editText.setSelection(editText.length())
         editText.link("http://wordpress.com", "WordPress")
@@ -74,7 +74,7 @@ class LinkTest {
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoEmptyList() {
-        editText.toggleFormatting(TextFormat.FORMAT_ORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
         Assert.assertEquals("<ol><li></li></ol>", editText.toHtml())
         editText.setSelection(editText.length())
         editText.link("http://wordpress.com", "WordPress")

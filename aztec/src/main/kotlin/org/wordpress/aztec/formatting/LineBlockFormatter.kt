@@ -15,15 +15,7 @@ import java.util.*
 
 class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
-    fun applyMoreComment() {
-        applyComment(AztecCommentSpan.Comment.MORE)
-    }
-
-    fun applyPageComment() {
-        applyComment(AztecCommentSpan.Comment.PAGE)
-    }
-
-    fun containsHeading(textFormat: TextFormat, selStart: Int, selEnd: Int): Boolean {
+    fun containsHeading(textFormat: ITextFormat, selStart: Int, selEnd: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
@@ -55,7 +47,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         return list.any { containHeadingType(textFormat, it) }
     }
 
-    private fun containHeadingType(textFormat: TextFormat, index: Int): Boolean {
+    private fun containHeadingType(textFormat: ITextFormat, index: Int): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
 
         if (index < 0 || index >= lines.size) {
@@ -73,17 +65,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         for (span in spans) {
             when (textFormat) {
-                TextFormat.FORMAT_HEADING_1 ->
+                AztecTextFormat.FORMAT_HEADING_1 ->
                     return span.heading == AztecHeadingSpan.Heading.H1
-                TextFormat.FORMAT_HEADING_2 ->
+                AztecTextFormat.FORMAT_HEADING_2 ->
                     return span.heading == AztecHeadingSpan.Heading.H2
-                TextFormat.FORMAT_HEADING_3 ->
+                AztecTextFormat.FORMAT_HEADING_3 ->
                     return span.heading == AztecHeadingSpan.Heading.H3
-                TextFormat.FORMAT_HEADING_4 ->
+                AztecTextFormat.FORMAT_HEADING_4 ->
                     return span.heading == AztecHeadingSpan.Heading.H4
-                TextFormat.FORMAT_HEADING_5 ->
+                AztecTextFormat.FORMAT_HEADING_5 ->
                     return span.heading == AztecHeadingSpan.Heading.H5
-                TextFormat.FORMAT_HEADING_6 ->
+                AztecTextFormat.FORMAT_HEADING_6 ->
                     return span.heading == AztecHeadingSpan.Heading.H6
                 else -> return false
             }
@@ -92,43 +84,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         return false
     }
 
-    private fun applyComment(comment: AztecCommentSpan.Comment) {
-        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
-        editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
-
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
-
-        val span = AztecCommentSpan(
-                comment.html,
-                editor.context,
-                when (comment) {
-                    AztecCommentSpan.Comment.MORE -> ContextCompat.getDrawable(editor.context, R.drawable.img_more)
-                    AztecCommentSpan.Comment.PAGE -> ContextCompat.getDrawable(editor.context, R.drawable.img_page)
-                },
-                nestingLevel,
-                editor
-        )
-
-        val ssb = SpannableStringBuilder(Constants.MAGIC_STRING)
-        ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        editableText.replace(selectionStart, selectionEnd, ssb)
-
-        editor.setSelection(
-                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
-    }
-
     fun applyHorizontalRule() {
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
         editor.removeBlockStylesFromRange(selectionStart, selectionEnd, true)
 
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
 
         val span = AztecHorizontalRuleSpan(
-            editor.context,
-            ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
-            nestingLevel,
-            editor
+                editor.context,
+                ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
+                nestingLevel,
+                editor
         )
 
         val builder = SpannableStringBuilder(Constants.MAGIC_STRING)
@@ -137,32 +103,32 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editableText.replace(selectionStart, selectionEnd, builder)
 
         editor.setSelection(
-            if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) {
-                selectionEnd + 1
-            } else {
-                selectionEnd
-            }
+                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) {
+                    selectionEnd + 1
+                } else {
+                    selectionEnd
+                }
         )
     }
 
-    fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?): AztecMediaSpan {
-        val nestingLevel = AztecNestable.getNestingLevelAt(editableText, selectionStart)
+    fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?) {
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
         val span = AztecVideoSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onVideoTappedListener, editor)
-        return insertMedia(span)
+        insertMedia(span)
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes, onImageTappedListener: OnImageTappedListener?): AztecMediaSpan {
+    fun insertImage(drawable: Drawable?, attributes: Attributes, onImageTappedListener: OnImageTappedListener?) {
         val span = AztecImageSpan(editor.context, drawable, AztecAttributes(attributes), onImageTappedListener, editor)
-        return insertMedia(span)
+        insertMedia(span)
     }
 
-    private fun insertMedia(span: AztecMediaSpan): AztecMediaSpan {
-        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+    private fun insertMedia(span: AztecMediaSpan) {
+        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanEnd(it)
                 }
 
-        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, AztecBlockSpan::class.java)
+        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
                     selectionStart == editableText.getSpanStart(it)
                 }
@@ -198,7 +164,5 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         editor.setSelection(
                 if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
         editor.isMediaAdded = true
-
-        return span
     }
 }

@@ -4,7 +4,7 @@ import android.text.TextPaint
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
 
-class FontSpan(override var attributes: AztecAttributes = AztecAttributes()) : CharacterStyle(), AztecInlineSpan {
+class FontSpan(override var attributes: AztecAttributes = AztecAttributes()) : CharacterStyle(), IAztecInlineSpan {
 
     override var TAG = "font"
 

@@ -7,4 +7,4 @@ import android.text.style.ParagraphStyle
  * Created in order to distinguish between spans that implement ParagraphStyle for various reasons, but have separate
  * parsing logic, like  {@link org.wordpress.aztec.spans.AztecHeadingSpan}
  **/
-interface AztecParagraphStyle : ParagraphStyle
+interface IAztecParagraphStyle : ParagraphStyle

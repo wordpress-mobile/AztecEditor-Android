@@ -816,15 +816,18 @@ class ListTest(listTextFormat: TextFormat, listHtmlTag: String) {
 
     @Test
     @Throws(Exception::class)
-    fun styleMultipleEmptyLines() {
+    fun styleMultilineSelectionWithLeadingEmptyLIne() {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(0,2)
+        editText.setSelection(0,TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li></li><li></li><li></li></$listTag><br>", editText.toHtml())
+        Assert.assertEquals("<$listTag><li></li><li></li><li></li><li></li></$listTag>", editText.toHtml())
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<br><br><br>", editText.toHtml())
     }
 
     @Test

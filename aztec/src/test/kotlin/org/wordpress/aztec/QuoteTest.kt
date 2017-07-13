@@ -501,4 +501,20 @@ class QuoteTest {
 
         Assert.assertEquals("<$quoteTag><br><br>third item</$quoteTag>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleMultilineSelectionWithLeadingEmptyLIne() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(0,TestUtils.safeLength(editText))
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br><br><br>", editText.toHtml())
+    }
 }

@@ -33,13 +33,12 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.AztecText.OnImageTappedListener;
-import org.wordpress.aztec.AztecText.OnVideoTappedListener;
-import org.wordpress.aztec.spans.AztecBlockSpan;
+import org.wordpress.aztec.plugins.IAztecPlugin;
+import org.wordpress.aztec.plugins.ICommentHandler;
+import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
-import org.wordpress.aztec.spans.AztecCommentSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecInlineSpan;
+import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
@@ -64,6 +63,7 @@ import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 // This class was imported from AOSP and was modified to fit our needs, it's probably a good idea to keep it as a
 // Java file.
@@ -134,9 +134,9 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, OnImageTappedListener onImageTappedListener, OnVideoTappedListener onVideoTappedListener,
-                                   UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        return fromHtml(source, null, onUnknownHtmlClickListener, context);
+    public static Spanned fromHtml(String source, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
+                                   Context context, List<IAztecPlugin> plugins) {
+        return fromHtml(source, null, onUnknownHtmlClickListener, context, plugins);
     }
 
     /**
@@ -159,7 +159,7 @@ public class Html {
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
                                    UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
-                                   Context context) {
+                                   Context context, List<IAztecPlugin> plugins) {
 
         Parser parser = new Parser();
         try {
@@ -174,7 +174,7 @@ public class Html {
         }
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler, parser, onUnknownHtmlClickListener, context);
+                new HtmlToSpannedConverter(source, tagHandler, parser, onUnknownHtmlClickListener, context, plugins);
 
         return converter.convert();
     }
@@ -195,34 +195,37 @@ public class Html {
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private int nestingLevel = 0;
 
-    public int unknownTagLevel = 0;
-    public Unknown unknown;
+    private int unknownTagLevel = 0;
+    private Unknown unknown;
     private boolean insidePreTag = false;
     private boolean insideCodeTag = false;
 
-    private String mSource;
+    private String source;
+    private List<IAztecPlugin> plugins;
     private UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener;
-    private XMLReader mReader;
+    private XMLReader reader;
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
-            Parser parser, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener, Context context) {
-        mSource = source;
-        spannableStringBuilder = new SpannableStringBuilder();
+            Parser parser, UnknownHtmlSpan.OnUnknownHtmlClickListener onUnknownHtmlClickListener,
+            Context context, List<IAztecPlugin> plugins) {
+        this.source = source;
+        this.plugins = plugins;
+        this.spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
-        mReader = parser;
+        this.reader = parser;
         this.context = context;
         this.onUnknownHtmlClickListener = onUnknownHtmlClickListener;
     }
 
     public Spanned convert() {
-        mReader.setContentHandler(this);
+        reader.setContentHandler(this);
         try {
-            mReader.setProperty(Parser.lexicalHandlerProperty, this);
-            mReader.parse(new InputSource(new StringReader(mSource)));
+            reader.setProperty(Parser.lexicalHandlerProperty, this);
+            reader.parse(new InputSource(new StringReader(source)));
         } catch (IOException e) {
             // We are reading from a string. There should not be IO problems.
             throw new RuntimeException(e);
@@ -234,7 +237,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Fix flags and range for paragraph-type markup.
         Object[] paragraphs = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
         for (Object paragraph : paragraphs) {
-            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof AztecBlockSpan || paragraph instanceof AztecMediaSpan) {
+            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof IAztecBlockSpan || paragraph instanceof AztecMediaSpan) {
                 continue;
             }
             int start = spannableStringBuilder.getSpanStart(paragraph);
@@ -276,36 +279,36 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             handleCursor(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("b")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BOLD, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("em")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("i")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("big")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_BIG, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_BIG, attributes);
         } else if (tag.equalsIgnoreCase("small")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SMALL, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_SMALL, attributes);
         } else if (tag.equalsIgnoreCase("font")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_FONT, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_FONT, attributes);
         } else if (tag.equalsIgnoreCase("tt")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_MONOSPACE, attributes);
         } else if (tag.equalsIgnoreCase("a")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_LINK, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_LINK, attributes);
         } else if (tag.equalsIgnoreCase("u")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_UNDERLINE, attributes);
         } else if (tag.equalsIgnoreCase("sup")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_SUPERSCRIPT, attributes);
         } else if (tag.equalsIgnoreCase("sub")) {
-            start(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_SUBSCRIPT, attributes);
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = true;
-            start(spannableStringBuilder, TextFormat.FORMAT_CODE, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_CODE, attributes);
         } else {
             if (tagHandler != null) {
                 if (tag.equalsIgnoreCase("pre")) {
@@ -357,36 +360,36 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (tag.equalsIgnoreCase("br")) {
             handleBr(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_BOLD);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("b")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_BOLD);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("dfn")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("big")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_BIG);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_BIG);
         } else if (tag.equalsIgnoreCase("small")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_SMALL);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_SMALL);
         } else if (tag.equalsIgnoreCase("font")) {
             endFont(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("tt")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_MONOSPACE);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_MONOSPACE);
         } else if (tag.equalsIgnoreCase("a")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_LINK);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_LINK);
         } else if (tag.equalsIgnoreCase("u")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_UNDERLINE);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_UNDERLINE);
         } else if (tag.equalsIgnoreCase("sup")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_SUPERSCRIPT);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_SUPERSCRIPT);
         } else if (tag.equalsIgnoreCase("sub")) {
-            end(spannableStringBuilder, TextFormat.FORMAT_SUBSCRIPT);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_SUBSCRIPT);
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = false;
-            end(spannableStringBuilder, TextFormat.FORMAT_CODE);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_CODE);
         } else if (tagHandler != null) {
             if (tag.equalsIgnoreCase("pre")) {
                 insidePreTag = false;
@@ -426,9 +429,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void start(SpannableStringBuilder text, TextFormat textFormat, Attributes attrs) {
+    private static void start(SpannableStringBuilder text, AztecTextFormat textFormat, Attributes attrs) {
         final AztecAttributes attributes = new AztecAttributes(attrs);
-        AztecInlineSpan newSpan;
+        IAztecInlineSpan newSpan;
 
         switch (textFormat) {
             case FORMAT_BOLD:
@@ -473,8 +476,8 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.setSpan(newSpan, len, len, Spannable.SPAN_MARK_MARK);
     }
 
-    private static void end(SpannableStringBuilder text, TextFormat textFormat) {
-        AztecInlineSpan span;
+    private static void end(SpannableStringBuilder text, AztecTextFormat textFormat) {
+        IAztecInlineSpan span;
 
         switch (textFormat) {
             case FORMAT_BOLD:
@@ -523,7 +526,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         FontSpan font = (FontSpan) getLast(text, FontSpan.class);
         int where = text.getSpanStart(font);
 
-        end(text, TextFormat.FORMAT_FONT);
+        end(text, AztecTextFormat.FORMAT_FONT);
 
         if (font != null && where != len) {
 
@@ -702,33 +705,19 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         String comment = new String(chars, start, length);
         int spanStart = spannableStringBuilder.length();
 
-        if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.MORE.getHtml())) {
-            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
-            spannableStringBuilder.setSpan(
-                    new AztecCommentSpan(
-                            comment,
-                            context,
-                            context.getResources().getDrawable(R.drawable.img_more),
-                            nestingLevel
-                    ),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        } else if (comment.equalsIgnoreCase(AztecCommentSpan.Comment.PAGE.getHtml())) {
-            spannableStringBuilder.append(Constants.INSTANCE.getMAGIC_CHAR());
-            spannableStringBuilder.setSpan(
-                    new AztecCommentSpan(
-                            comment,
-                            context,
-                            context.getResources().getDrawable(R.drawable.img_page),
-                            nestingLevel
-                    ),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        } else {
+        boolean wasCommentHandled = false;
+        if (plugins != null) {
+            for (IAztecPlugin plugin : plugins) {
+                if (plugin instanceof ICommentHandler) {
+                    wasCommentHandled = ((ICommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, context, nestingLevel);
+                    if (wasCommentHandled) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!wasCommentHandled) {
             spannableStringBuilder.append(comment);
             spannableStringBuilder.setSpan(
                     new CommentSpan(),

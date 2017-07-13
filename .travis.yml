@@ -9,15 +9,15 @@ android:
     - extra-google-m2repository
     - platform-tools
     - tools
-    - build-tools-25.0.2
+    - build-tools-25.0.3
     - android-25
 
 env:
   global:
     - MALLOC_ARENA_MAX=2
     - GRADLE_OPTS="-XX:MaxPermSize=4g -Xmx4g"
-    - ANDROID_SDKS=android-14
-    - ANDROID_TARGET=android-14
+    - ANDROID_SDKS=android-16
+    - ANDROID_TARGET=android-16
 
 before_install:
   # TODO: Remove the following line when Travis' platform-tools are updated to v24+

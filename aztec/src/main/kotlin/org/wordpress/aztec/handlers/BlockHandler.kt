@@ -3,12 +3,12 @@ package org.wordpress.aztec.handlers
 import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.AztecBlockSpan
-import org.wordpress.aztec.spans.AztecNestable
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.watchers.BlockElementWatcher.TextChangeHandler
 
-abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType>) : TextChangeHandler {
+abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanType>) : TextChangeHandler {
     private enum class PositionType {
         START_OF_BLOCK,
         EMPTY_LINE_AT_BLOCK_END,
@@ -86,7 +86,7 @@ abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType
         }
 
         if (text[newlineIndex - 1] == Constants.NEWLINE
-                && AztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) == AztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1) // prev newline needs to be at the same nesting level to account for "double-enter"
+                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) == IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1) // prev newline needs to be at the same nesting level to account for "double-enter"
                 && atEndOfblock) {
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }
@@ -108,7 +108,7 @@ abstract class BlockHandler<SpanType : AztecBlockSpan>(val clazz: Class<SpanType
     open fun handleEndOfBufferMarker() { /* nothing special to do*/ }
 
     companion object {
-        fun set(text: Spannable, block: AztecBlockSpan, start: Int, end: Int) {
+        fun set(text: Spannable, block: IAztecBlockSpan, start: Int, end: Int) {
             text.setSpan(block, start, end, Spanned.SPAN_PARAGRAPH)
         }
     }

@@ -3,7 +3,7 @@ package org.wordpress.aztec.spans
 import android.annotation.SuppressLint
 
 @SuppressLint("NewApi")
-interface AztecSpan : AztecAttributedSpan {
+interface IAztecSpan : IAztecAttributedSpan {
 
     val TAG: String
         get

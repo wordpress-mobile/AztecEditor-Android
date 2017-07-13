@@ -1,6 +1,6 @@
 package org.wordpress.aztec.handlers
 
-import org.wordpress.aztec.spans.AztecBlockSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 
@@ -8,7 +8,7 @@ import org.wordpress.aztec.watchers.TextDeleter
  * A general html block editing handler that closes when a newline is entered at an empty line ("double-enter").
  * If completely empty, the whole block is removed with double-enter.
  */
-open class GenericBlockHandler<T : AztecBlockSpan>(clazz: Class<T>) : BlockHandler<T>(clazz) {
+open class GenericBlockHandler<T : IAztecBlockSpan>(clazz: Class<T>) : BlockHandler<T>(clazz) {
     // fun handleNewlineAtStartOfBlock()
     // nothing special to do
 

@@ -20,7 +20,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class QuoteTest {
 
-    val formattingType = TextFormat.FORMAT_QUOTE
+    val formattingType = AztecTextFormat.FORMAT_QUOTE
     val quoteTag = "blockquote"
     lateinit var editText: AztecText
 

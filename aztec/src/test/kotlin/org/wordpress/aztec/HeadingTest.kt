@@ -62,7 +62,7 @@ class HeadingTest {
         editText.append("Heading 1")
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -72,7 +72,7 @@ class HeadingTest {
 //        safeAppend(editText, "Preformat")
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<pre>Preformat</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -82,7 +82,7 @@ class HeadingTest {
         editText.setSelection(1, editText.length() - 2)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>Heading 1</h1>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -93,7 +93,7 @@ class HeadingTest {
 //        editText.setSelection(1, editText.length() - 2)
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<pre>Preformat</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -105,7 +105,7 @@ class HeadingTest {
         editText.setSelection(3, editText.length() - 3)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<h1>First line</h1><h1>Second line</h1>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -118,7 +118,7 @@ class HeadingTest {
 //        editText.setSelection(3, editText.length() - 3)
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<pre>First line<br>Second line</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -128,7 +128,7 @@ class HeadingTest {
         toolbar.onMenuItemClick(menuHeading1)
         editText.text.insert(0, "inserted")
         Assert.assertEquals("<h1>insertedHeading 1</h1>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -139,7 +139,7 @@ class HeadingTest {
 //        toolbar.onMenuItemClick(menuPreformat)
 //        editText.text.insert(0, "inserted")
 //        Assert.assertEquals("<pre>insertedPreformat</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -246,7 +246,7 @@ class HeadingTest {
         toolbar.onMenuItemClick(menuHeading1)
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -257,7 +257,7 @@ class HeadingTest {
 //        toolbar.onMenuItemClick(menuHeading1)
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<pre foo=\"bar\">Text</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -267,7 +267,7 @@ class HeadingTest {
         editText.setSelection(0, safeLength(editText))
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h2 foo=\"bar\">Heading 1</h2><h2>Heading 2</h2>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -278,10 +278,10 @@ class HeadingTest {
 //        editText.setSelection(0, safeLength(editText))
 //        toolbar.onMenuItemClick(menuParagraph)
 //        Assert.assertEquals("Heading 1<br>Preformat", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<pre>Heading 1<br>Preformat</pre>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -291,7 +291,7 @@ class HeadingTest {
         editText.setSelection(0)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li><h1>Item 1</h1></li><li>Item 2</li></ol>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test
@@ -300,7 +300,7 @@ class HeadingTest {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -310,14 +310,14 @@ class HeadingTest {
 //        editText.fromHtml("<blockquote>Quote</blockquote>")
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
     @Throws(Exception::class)
     fun applyQuoteToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
-        editText.toggleFormatting(TextFormat.FORMAT_QUOTE)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         Assert.assertEquals("<h1 foo=\"bar\"><blockquote>Quote</blockquote></h1>", editText.toHtml())
     }
 
@@ -335,7 +335,7 @@ class HeadingTest {
         editText.fromHtml("<blockquote>Quote</blockquote>")
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote><h1>Quote</h1></blockquote>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -345,7 +345,7 @@ class HeadingTest {
 //        editText.fromHtml("<blockquote>Quote</blockquote>")
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -356,7 +356,7 @@ class HeadingTest {
         editText.setSelection(mark)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<ol><li>Ordered</li></ol><h1>Heading 1</h1><ol><li>Ordered</li></ol>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -370,8 +370,8 @@ class HeadingTest {
 //        Assert.assertEquals("<ol><li>Ordered</li></ol><pre>Preformat</pre><ol><li>Ordered</li></ol>", editText.toHtml())
 ////        TODO: Correct heading menu selection.  This is incorrect.  Preformat should be selected.
 ////        https://github.com/wordpress-mobile/AztecEditor-Android/issues/317
-////        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
-//        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+////        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -382,7 +382,7 @@ class HeadingTest {
         editText.setSelection(mark)
         toolbar.onMenuItemClick(menuHeading1)
         Assert.assertEquals("<blockquote>Quote</blockquote><h1>Heading 1</h1><blockquote>Quote</blockquote>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
     }
 
 //    TODO: Uncomment when Preformat is to be added back as a feature
@@ -394,7 +394,7 @@ class HeadingTest {
 //        editText.setSelection(mark)
 //        toolbar.onMenuItemClick(menuPreformat)
 //        Assert.assertEquals("<blockquote>Quote</blockquote><pre>Preformat</pre><blockquote>Quote</blockquote>", editText.toHtml())
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
 //    }
 
     @Test
@@ -402,7 +402,7 @@ class HeadingTest {
     fun applyTextStyleToHeading() {
         editText.fromHtml("<h5>Heading 5</h5><h1 foo=\"bar\">Heading 1</h1><h5>Heading 5</h5>")
         editText.setSelection(editText.text.indexOf("Heading 1"), editText.text.indexOf("Heading 1") + "Heading 1".length)
-        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h5>Heading 5</h5><h1 foo=\"bar\"><b>Heading 1</b></h1><h5>Heading 5</h5>", editText.toHtml())
     }
 
@@ -411,7 +411,7 @@ class HeadingTest {
     fun applyTextStyleToPreformat() {
         editText.fromHtml("<h5>Heading 5</h5><pre foo=\"bar\">Preformat</pre><h5>Heading 5</h5>")
         editText.setSelection(editText.text.indexOf("Preformat"), editText.text.indexOf("Preformat") + "Preformat".length)
-        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h5>Heading 5</h5><pre foo=\"bar\"><b>Preformat</b></pre><h5>Heading 5</h5>", editText.toHtml())
     }
 
@@ -420,7 +420,7 @@ class HeadingTest {
     fun applyTextStyleToPartiallySelectedHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.setSelection(0, 3)
-        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
         Assert.assertEquals("<h1 foo=\"bar\"><b>Hea</b>ding 1</h1>", editText.toHtml())
     }
 
@@ -429,7 +429,7 @@ class HeadingTest {
     fun applyTextStyleToPartiallySelectedPreformat() {
         editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
         editText.setSelection(0, 3)
-        editText.toggleFormatting(TextFormat.FORMAT_BOLD)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
         Assert.assertEquals("<pre foo=\"bar\"><b>Pre</b>format</pre>", editText.toHtml())
     }
 
@@ -477,32 +477,32 @@ class HeadingTest {
 
         cursor = editText.text.indexOf("ing 1")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_1, toolbar.getSelectedHeadingMenuItem())
 
         cursor = editText.text.indexOf("ld")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 
         cursor = editText.text.indexOf("ing 2")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
 
         cursor = editText.text.indexOf("lic")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 
         cursor = editText.text.indexOf("ing 3")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_3, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_3, toolbar.getSelectedHeadingMenuItem())
 
         cursor = editText.text.indexOf("one")
         editText.setSelection(cursor)
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 
 //        TODO: Uncomment when Preformat is to be added back as a feature
 //        cursor = editText.text.indexOf("format")
 //        editText.setSelection(cursor)
-//        Assert.assertEquals(TextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
+//        Assert.assertEquals(AztecTextFormat.FORMAT_PREFORMAT, toolbar.getSelectedHeadingMenuItem())
     }
 
     /**
@@ -534,11 +534,11 @@ class HeadingTest {
         editText.setSelection(safeLength(editText))
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h1>Heading 1</h1><h2></h2>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
 
         safeAppend(editText, "Heading 2")
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     /**
@@ -553,11 +553,11 @@ class HeadingTest {
 
         toolbar.onMenuItemClick(menuParagraph)
         Assert.assertEquals("<h1>Heading 1</h1>Heading 2<h3>Heading 3</h3>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_PARAGRAPH, toolbar.getSelectedHeadingMenuItem())
 
         toolbar.onMenuItemClick(menuHeading2)
         Assert.assertEquals("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>", editText.toHtml())
-        Assert.assertEquals(TextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
+        Assert.assertEquals(AztecTextFormat.FORMAT_HEADING_2, toolbar.getSelectedHeadingMenuItem())
     }
 
     @Test

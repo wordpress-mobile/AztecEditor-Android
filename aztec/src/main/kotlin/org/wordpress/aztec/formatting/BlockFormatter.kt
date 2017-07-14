@@ -186,11 +186,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         spanTypes.forEach { spanType ->
-            val mightHaveLingeringListItem = spanType.isAssignableFrom(AztecListItemSpan::class.java)
+            // when removing style from multiple selected lines, if the last selected line is empty
+            // or at the end of editor the selection wont include the trailing newline/EOB marker
+            // that will leave us with orphan <li> tag, so we need to shift index to the right
+            val hasLingeringEmptyListItem = spanType.isAssignableFrom(AztecListItemSpan::class.java)
                     && editableText.length > end
                     && (editableText[end] == '\n' || editableText[end] == Constants.END_OF_BUFFER_MARKER)
 
-            val endModifier = if (mightHaveLingeringListItem) 1 else 0
+            val endModifier = if (hasLingeringEmptyListItem) 1 else 0
 
             val spans = editableText.getSpans(start, end + endModifier, spanType)
             spans.forEach { span ->

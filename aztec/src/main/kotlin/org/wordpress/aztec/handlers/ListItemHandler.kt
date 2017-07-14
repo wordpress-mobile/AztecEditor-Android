@@ -18,9 +18,9 @@ class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class
     override fun handleNewlineAtEmptyLineAtBlockEnd() {
         val parent = IAztecNestable.getParent(text, block)
 
-        if (parent == null) {
+        if (parent == null || (parent.end == 0 && parent.start == 0)) {
             // no parent (or parent has already adjusted its bounds away from this list item so,
-            //  just remove ourselves and bail
+            // just remove ourselves and bail
             block.remove()
             return
         }

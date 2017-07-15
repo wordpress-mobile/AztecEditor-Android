@@ -16,7 +16,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
     override fun onTouchEvent(widget: TextView, text: Spannable, event: MotionEvent): Boolean {
         val action = event.action
 
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
+        if (action == MotionEvent.ACTION_UP) {
             var x = event.x.toInt()
             var y = event.y.toInt()
 
@@ -30,9 +30,15 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             var off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            if (text.length > off) {
-                off++
-            }
+
+            val isClickedSpanAmbiguous = text.getSpans(off, off, AztecMediaClickableSpan::class.java).size > 1 ||
+                    (text.getSpans(off, off, AztecMediaClickableSpan::class.java).size == 1 &&
+                            text.getSpans(off + 1, off + 1, AztecMediaClickableSpan::class.java).isNotEmpty())
+//            val ignoreBoundingBox =
+
+//            if (text.length > off && ignoreBoundingBox) {
+//                off++
+//            }
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -43,17 +49,42 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val lineRect = Rect()
             layout.getLineBounds(line, lineRect)
 
-            if (((x in charPrevX..charX) || (x in charX..charNextX))
-                    && y >= lineRect.top && y <= lineRect.bottom) {
-                val link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
+            val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
+            val clickedToSpanToTheLeftOfCursor = x in charPrevX..charX
+            val clickedToSpanToTheRightOfCursor = x in charX..charNextX
 
-                // Only react to AztecMediaClickableSpan and UnknownClickableSpan; not to regular links.
+            val clickedOnSpan = clickedWithinLineHeight && (clickedToSpanToTheLeftOfCursor || clickedToSpanToTheRightOfCursor)
+
+            val ignoreBounds = isClickedSpanAmbiguous && !clickedToSpanToTheLeftOfCursor && !clickedToSpanToTheRightOfCursor
+
+            if (ignoreBounds) {
+                val link = text.getSpans(off+1, off+1, ClickableSpan::class.java).firstOrNull()
                 if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
                     if (action == MotionEvent.ACTION_UP) {
                         link.onClick(widget)
                     }
                     return true
                 }
+            } else if (clickedOnSpan) {
+                var link: ClickableSpan? = null
+
+                if (isClickedSpanAmbiguous) {
+                    if (clickedToSpanToTheLeftOfCursor) {
+                        link = text.getSpans(off, off, ClickableSpan::class.java)[0]
+                    } else if (clickedToSpanToTheRightOfCursor) {
+                        link = text.getSpans(off, off, ClickableSpan::class.java)[1]
+                    }
+                } else {
+                    link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
+                }
+
+                if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
+                    if (action == MotionEvent.ACTION_UP) {
+                        link.onClick(widget)
+                    }
+                    return true
+                }
+
             }
         }
 

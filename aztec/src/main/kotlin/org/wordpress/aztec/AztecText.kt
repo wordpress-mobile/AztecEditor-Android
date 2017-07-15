@@ -86,6 +86,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var addLinkDialog: AlertDialog? = null
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
+    private var consumeSelectionChangedEvent: Boolean = false
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -93,6 +94,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var onVideoTappedListener: OnVideoTappedListener? = null
 
     private var isViewInitialized = false
+    private var isLeadingStyleRemoved = false
     private var previousCursorPosition = 0
 
     var isInCalypsoMode = true
@@ -235,9 +237,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
         setOnKeyListener { v, keyCode, event ->
             var consumeKeyEvent = false
-            history.beforeTextChanged(toFormattedHtml())
             if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                inlineFormatter.tryRemoveLeadingInlineStyle()
+                history.beforeTextChanged(toFormattedHtml())
+                if (selectionStart == 0 || selectionEnd == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                }
                 consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
             }
 
@@ -282,6 +288,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         FullWidthImageElementWatcher.install(this)
 
         EndOfBufferMarkerAdder.install(this)
+        ZeroIndexContentWatcher.install(this)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -477,6 +484,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
 
+        if (isOnSelectionListenerDisabled()) {
+            enableOnSelectionListener()
+            return
+        }
+
         if (length() != 0) {
             // if the text end has the marker, let's make sure the cursor never includes it or surpasses it
             if ((selStart == length() || selEnd == length()) && text[length() - 1] == Constants.END_OF_BUFFER_MARKER) {
@@ -498,15 +510,22 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
 
+        //do not update toolbar or selected styles when we removed the last character in editor
+        if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
+            return
+        }
+
+        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
         setSelectedStyles(getAppliedStyles(selStart, selEnd))
+
+        isLeadingStyleRemoved = false
     }
+
 
     override fun getSelectionStart(): Int {
         return Math.min(super.getSelectionStart(), super.getSelectionEnd())
     }
-
 
     override fun getSelectionEnd(): Int {
         return Math.max(super.getSelectionStart(), super.getSelectionEnd())
@@ -843,6 +862,19 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return consumeEditEvent
     }
 
+    fun disableOnSelectionListener() {
+        consumeSelectionChangedEvent = true
+    }
+
+    fun enableOnSelectionListener() {
+        consumeSelectionChangedEvent = false
+    }
+
+    fun isOnSelectionListenerDisabled(): Boolean {
+        return consumeSelectionChangedEvent
+    }
+
+
     fun refreshText() {
         disableTextChangedListener()
         val selStart = selectionStart
@@ -893,6 +925,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             android.R.id.cut -> {
                 copy(text, min, max)
                 text.delete(min, max) //this will hide text action menu
+
+                //if we are cutting text from the beginning of editor, remove leading inline style
+                if (min == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                }
             }
             else -> return super.onTextContextMenuItem(id)
         }
@@ -1067,10 +1106,16 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
             if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
-                history.beforeTextChanged(toFormattedHtml())
-
-                inlineFormatter.tryRemoveLeadingInlineStyle()
                 val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+
+                history.beforeTextChanged(toFormattedHtml())
+                if (selectionStart == 0 || selectionEnd == 0) {
+                    inlineFormatter.tryRemoveLeadingInlineStyle()
+                    isLeadingStyleRemoved = true
+                    onSelectionChanged(0, 0)
+                    return false
+                }
+
                 if (isStyleRemoved) {
                     history.handleHistory(this@AztecText)
                     return false
@@ -1080,6 +1125,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
+            //detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
+            if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
+                sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+            }
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }

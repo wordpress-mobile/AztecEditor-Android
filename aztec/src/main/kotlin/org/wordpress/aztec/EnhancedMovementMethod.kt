@@ -26,14 +26,11 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             x += widget.scrollX
             y += widget.scrollY
 
+            if(x < 0) return true
+
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
-
-            val clickedSpanBordersAnotherOne = (text.getSpans(off, off, AztecMediaClickableSpan::class.java).size == 1 &&
-                    text.getSpans(off + 1, off + 1, AztecMediaClickableSpan::class.java).isNotEmpty())
-
-            val isClickedSpanAmbiguous = text.getSpans(off, off, AztecMediaClickableSpan::class.java).size > 1
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -49,6 +46,11 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val clickedOnSpanToTheRightOfCursor = x in charX..charNextX
 
             val clickedOnSpan = clickedWithinLineHeight && (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
+
+            val clickedSpanBordersAnotherOne = (text.getSpans(off, off, ClickableSpan::class.java).size == 1 &&
+                    text.getSpans(off + 1, off + 1, ClickableSpan::class.java).isNotEmpty())
+
+            val isClickedSpanAmbiguous = text.getSpans(off, off, ClickableSpan::class.java).size > 1
 
             val failedToPinpointClickedSpan = (isClickedSpanAmbiguous || clickedSpanBordersAnotherOne)
                     && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor

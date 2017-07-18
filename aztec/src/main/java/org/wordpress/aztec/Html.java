@@ -730,7 +730,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
                 if (plugin instanceof ICommentHandler) {
-                    wasCommentHandled = ((ICommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, nestingLevel);
+                    wasCommentHandled = ((ICommentHandler) plugin).handleCommentHtml(comment, spannableStringBuilder, context, nestingLevel);
                     if (wasCommentHandled) {
                         break;
                     }

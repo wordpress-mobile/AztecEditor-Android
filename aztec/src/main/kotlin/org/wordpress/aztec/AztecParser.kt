@@ -24,7 +24,7 @@ import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText.OnImageTappedListener
 import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.plugins.IAztecPlugin
-import org.wordpress.aztec.plugins.ICommentHandler
+import org.wordpress.aztec.plugins.visual2html.ISpanHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.*
@@ -414,9 +414,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                     out.append("<!--")
                 }
 
-                plugins.filter { it is ICommentHandler && it.canHandle(span) }
+                plugins.filter { it is ISpanHandler && it.canHandleSpan(span) }
                         .forEach {
-                            (it as ICommentHandler).handleCommentSpanStart(out, span)
+                            (it as ISpanHandler).handleSpanStart(out, span)
                             if (!it.shouldParseContent()) {
                                 i = next
                             }
@@ -450,9 +450,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                     out.append("-->")
                 }
 
-                plugins.filter { it is ICommentHandler && it.canHandle(span) }
+                plugins.filter { it is ISpanHandler && it.canHandleSpan(span) }
                         .forEach {
-                            (it as ICommentHandler).handleCommentSpanEnd(out, span)
+                            (it as ISpanHandler).handleSpanEnd(out, span)
                         }
 
                 if (span is HiddenHtmlSpan) {

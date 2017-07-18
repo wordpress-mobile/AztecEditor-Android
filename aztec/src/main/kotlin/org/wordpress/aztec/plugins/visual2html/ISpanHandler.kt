@@ -1,4 +1,4 @@
-package org.wordpress.aztec.plugins
+package org.wordpress.aztec.plugins.visual2html
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,32 +8,16 @@ import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
 
 /**
- * An interface for HTML comment processing plugins.
+ * An interface for processing spans during visual-to-HTML.
  */
 @SuppressLint("NewApi")
-interface ICommentHandler : IAztecPlugin {
+interface ISpanHandler : IAztecPlugin {
     /**
-     * Determines, whether the content of a comment (the text) should be parsed/rendered by [org.wordpress.aztec.AztecParser]
+     * Determines, whether the content of a span (text, if any) should be parsed/rendered by [org.wordpress.aztec.AztecParser]
      *
-     * @return true if text should be parsed, false otherwise.
+     * @return true if content should be parsed, false otherwise.
      */
     fun shouldParseContent(): Boolean {
-        return true
-    }
-
-    /**
-     * A plugin handler used by [org.wordpress.aztec.Html] parser during HTML-to-span parsing.
-     *
-     * This method is called when a comment is encountered in HTML.
-     *
-     * @param text the content/text of the comment.
-     * @param output the parsed output [Editable], used for span manipulation.
-     * @param context the Android context.
-     * @param nestingLevel the nesting level within the HTML DOM tree.
-     *
-     * @return true if this plugin handled the comment and no other handler should be called, false otherwise.
-     */
-    fun handleCommentHtml(text: String, output: Editable, context: Context, nestingLevel: Int) : Boolean {
         return true
     }
 
@@ -44,7 +28,7 @@ interface ICommentHandler : IAztecPlugin {
      *
      * @return true for compatible spans, false otherwise.
      */
-    fun canHandle(span: CharacterStyle): Boolean {
+    fun canHandleSpan(span: CharacterStyle): Boolean {
         return true
     }
 
@@ -56,7 +40,7 @@ interface ICommentHandler : IAztecPlugin {
      * @param html the resulting HTML string output.
      * @param span the encountered span.
      */
-    fun handleCommentSpanStart(html: StringBuilder, span: CharacterStyle)
+    fun handleSpanStart(html: StringBuilder, span: CharacterStyle)
 
     /**
      * A plugin handler used by [org.wordpress.aztec.AztecParser] during span-to-HTML parsing.
@@ -66,5 +50,5 @@ interface ICommentHandler : IAztecPlugin {
      * @param html the resulting HTML string output.
      * @param span the encountered span.
      */
-    fun handleCommentSpanEnd(html: StringBuilder, span: CharacterStyle)
+    fun handleSpanEnd(html: StringBuilder, span: CharacterStyle)
 }

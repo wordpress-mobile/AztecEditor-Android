@@ -12,7 +12,7 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 import java.lang.ref.WeakReference
 
-abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, private var imageDrawable: Drawable?) : DynamicDrawableSpan() {
 
     var textView: AztecText? = null
     var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
@@ -20,7 +20,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
     private var measuring = false
 
-    private var mDrawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
+    protected var mDrawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {

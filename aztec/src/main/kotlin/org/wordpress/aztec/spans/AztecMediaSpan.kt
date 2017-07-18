@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import java.lang.ref.WeakReference
 import java.util.*
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
@@ -22,9 +23,9 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     fun setDrawable(newDrawable: Drawable?) {
-        imageDrawable = newDrawable
+        mDrawableRef = WeakReference<Drawable>(newDrawable)
 
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+        originalBounds = Rect(getDrawable()?.bounds ?: Rect(0, 0, 0, 0))
 
         setInitBounds(newDrawable)
 
@@ -53,8 +54,8 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     private fun applyOverlayGravity(overlay: Drawable?, gravity: Int) {
-        if (imageDrawable != null && overlay != null) {
-            val rect = Rect(0, 0, imageDrawable!!.bounds.width(), imageDrawable!!.bounds.height())
+        if (getDrawable() != null && overlay != null) {
+            val rect = Rect(0, 0, getDrawable()!!.bounds.width(), getDrawable()!!.bounds.height())
             val outRect = Rect()
 
             Gravity.apply(gravity, overlay.bounds.width(), overlay.bounds.height(), rect, outRect)
@@ -66,14 +67,14 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (getDrawable() != null) {
             var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 
             canvas.translate(x, transY.toFloat())
-            imageDrawable!!.draw(canvas)
+            getDrawable()!!.draw(canvas)
         }
 
         overlays.forEach {

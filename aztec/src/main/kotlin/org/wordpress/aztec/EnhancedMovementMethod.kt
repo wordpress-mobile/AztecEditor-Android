@@ -45,7 +45,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val clickedOnSpanToTheLeftOfCursor = x in charPrevX..charX
             val clickedOnSpanToTheRightOfCursor = x in charX..charNextX
 
-            val clickedOnSpan = clickedWithinLineHeight && (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
+            val clickedOnSpan = clickedWithinLineHeight &&
+                    (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
 
             val clickedSpanBordersAnotherOne = (text.getSpans(off, off, ClickableSpan::class.java).size == 1 &&
                     text.getSpans(off + 1, off + 1, ClickableSpan::class.java).isNotEmpty())
@@ -54,7 +55,6 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             val failedToPinpointClickedSpan = (isClickedSpanAmbiguous || clickedSpanBordersAnotherOne)
                     && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor
-
 
             var link: ClickableSpan? = null
 

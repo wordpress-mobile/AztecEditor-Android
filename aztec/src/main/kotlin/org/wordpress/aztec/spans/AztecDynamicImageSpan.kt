@@ -10,6 +10,7 @@ import android.text.Layout
 import android.text.style.DynamicDrawableSpan
 import android.view.View
 import org.wordpress.aztec.AztecText
+import java.lang.ref.WeakReference
 
 abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
 
@@ -18,6 +19,8 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     var aspectRatio: Double = 1.0
 
     private var measuring = false
+
+    private var mDrawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
@@ -56,16 +59,16 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     init {
-        computeAspectRatio()
+        computeAspectRatio(mDrawableRef?.get())
 
-        setInitBounds(imageDrawable)
+        setInitBounds(mDrawableRef?.get())
     }
 
-    fun computeAspectRatio() {
-        if ((imageDrawable?.intrinsicWidth ?: -1) > -1 && (imageDrawable?.intrinsicHeight ?: -1) > -1) {
-            aspectRatio = 1.0 * (imageDrawable?.intrinsicWidth ?: 1) / (imageDrawable?.intrinsicHeight ?: 1)
-        } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
-            aspectRatio = 1.0 * (imageDrawable?.bounds?.width() ?: 0) / (imageDrawable?.bounds?.height() ?: 1)
+    fun computeAspectRatio(drawable: Drawable?) {
+        if ((drawable?.intrinsicWidth ?: -1) > -1 && (drawable?.intrinsicHeight ?: -1) > -1) {
+            aspectRatio = 1.0 * (drawable?.intrinsicWidth ?: 1) / (drawable?.intrinsicHeight ?: 1)
+        } else if (!(drawable?.bounds?.isEmpty ?: true)) {
+            aspectRatio = 1.0 * (drawable?.bounds?.width() ?: 0) / (drawable?.bounds?.height() ?: 1)
         } else {
             aspectRatio = 1.0
         }
@@ -86,8 +89,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     fun adjustBounds(start: Int): Rect {
+        var drawable: Drawable? = mDrawableRef?.get()
+
         if (textView == null || textView?.widthMeasureSpec == 0) {
-            return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+            return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 
         val layout = textView?.layout
@@ -115,10 +120,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         //  just assume maximum size.
 
         var width = if (originalBounds.width() > 0) originalBounds.width()
-        else if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        else if ((drawable?.intrinsicWidth ?: -1) > -1) drawable?.intrinsicWidth ?: -1
         else maxWidth
         var height = if (originalBounds.height() > 0) originalBounds.height()
-        else if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        else if ((drawable?.intrinsicHeight ?: -1) > -1) drawable?.intrinsicHeight ?: -1
         else (width / aspectRatio).toInt()
 
         if (width > maxWidth) {
@@ -126,9 +131,9 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             height = (width / aspectRatio).toInt()
         }
 
-        imageDrawable?.bounds = Rect(0, 0, width, height)
+        drawable?.bounds = Rect(0, 0, width, height)
 
-        return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+        return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
     fun calculateWantedWidth(widthMeasureSpec: Int): Int {
@@ -169,20 +174,20 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     override fun getDrawable(): Drawable? {
-        return imageDrawable
+        return mDrawableRef?.get()
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (getDrawable() != null) {
             var transY = top
             if (mVerticalAlignment == DynamicDrawableSpan.ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 
             canvas.translate(x, transY.toFloat())
-            imageDrawable!!.draw(canvas)
+            getDrawable()!!.draw(canvas)
         }
 
         canvas.restore()

@@ -28,7 +28,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
 
         setInitBounds(newDrawable)
 
-        computeAspectRatio()
+        computeAspectRatio(newDrawable)
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {

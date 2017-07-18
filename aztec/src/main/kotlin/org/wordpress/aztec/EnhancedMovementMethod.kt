@@ -28,17 +28,12 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
-            var off = layout.getOffsetForHorizontal(line, x.toFloat())
+            val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
+            val clickedSpanBordersAnotherOne = (text.getSpans(off, off, AztecMediaClickableSpan::class.java).size == 1 &&
+                    text.getSpans(off + 1, off + 1, AztecMediaClickableSpan::class.java).isNotEmpty())
 
-            val isClickedSpanAmbiguous = text.getSpans(off, off, AztecMediaClickableSpan::class.java).size > 1 ||
-                    (text.getSpans(off, off, AztecMediaClickableSpan::class.java).size == 1 &&
-                            text.getSpans(off + 1, off + 1, AztecMediaClickableSpan::class.java).isNotEmpty())
-//            val ignoreBoundingBox =
-
-//            if (text.length > off && ignoreBoundingBox) {
-//                off++
-//            }
+            val isClickedSpanAmbiguous = text.getSpans(off, off, AztecMediaClickableSpan::class.java).size > 1
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -50,41 +45,36 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             layout.getLineBounds(line, lineRect)
 
             val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
-            val clickedToSpanToTheLeftOfCursor = x in charPrevX..charX
-            val clickedToSpanToTheRightOfCursor = x in charX..charNextX
+            val clickedOnSpanToTheLeftOfCursor = x in charPrevX..charX
+            val clickedOnSpanToTheRightOfCursor = x in charX..charNextX
 
-            val clickedOnSpan = clickedWithinLineHeight && (clickedToSpanToTheLeftOfCursor || clickedToSpanToTheRightOfCursor)
+            val clickedOnSpan = clickedWithinLineHeight && (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)
 
-            val ignoreBounds = isClickedSpanAmbiguous && !clickedToSpanToTheLeftOfCursor && !clickedToSpanToTheRightOfCursor
+            val failedToPinpointClickedSpan = (isClickedSpanAmbiguous || clickedSpanBordersAnotherOne)
+                    && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor
 
-            if (ignoreBounds) {
-                val link = text.getSpans(off+1, off+1, ClickableSpan::class.java).firstOrNull()
-                if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
-                    if (action == MotionEvent.ACTION_UP) {
-                        link.onClick(widget)
-                    }
-                    return true
-                }
-            } else if (clickedOnSpan) {
-                var link: ClickableSpan? = null
 
+            var link: ClickableSpan? = null
+
+            if (clickedOnSpan) {
                 if (isClickedSpanAmbiguous) {
-                    if (clickedToSpanToTheLeftOfCursor) {
+                    if (clickedOnSpanToTheLeftOfCursor) {
                         link = text.getSpans(off, off, ClickableSpan::class.java)[0]
-                    } else if (clickedToSpanToTheRightOfCursor) {
+                    } else if (clickedOnSpanToTheRightOfCursor) {
                         link = text.getSpans(off, off, ClickableSpan::class.java)[1]
                     }
                 } else {
                     link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull()
                 }
+            } else if (failedToPinpointClickedSpan) {
+                link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
+            }
 
-                if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
-                    if (action == MotionEvent.ACTION_UP) {
-                        link.onClick(widget)
-                    }
-                    return true
+            if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
+                if (action == MotionEvent.ACTION_UP) {
+                    link.onClick(widget)
                 }
-
+                return true
             }
         }
 

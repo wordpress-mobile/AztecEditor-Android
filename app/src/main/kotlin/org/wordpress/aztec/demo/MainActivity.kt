@@ -33,6 +33,7 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
+import org.wordpress.aztec.plugins.shortcodes.CaptionPlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -316,6 +317,7 @@ class MainActivity : AppCompatActivity(),
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
+            .addPlugin(CaptionPlugin())
 
         // initialize the text & HTML
         if (!isRunningTest) {

@@ -6,7 +6,7 @@
 Aztec (which extends EditText) is a rich-text editor component for writing HTML
 documents in Android.
 
-Supports Android 4.0+
+Supports Android 4.1+ (API 16 - Jelly Bean)
 
 ## Build and test
 

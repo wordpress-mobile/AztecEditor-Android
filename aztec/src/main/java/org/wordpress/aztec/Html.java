@@ -36,6 +36,7 @@ import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
 import org.wordpress.aztec.plugins.visual2html.ISpanHandler;
+import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
@@ -65,6 +66,8 @@ import org.xml.sax.ext.LexicalHandler;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // This class was imported from AOSP and was modified to fit our needs, it's probably a good idea to keep it as a
 // Java file.
@@ -653,6 +656,24 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             } else {
                 sb.append(c);
+            }
+        }
+
+        if (plugins != null) {
+            for (IAztecPlugin plugin : plugins) {
+                if (plugin instanceof IHtmlTextHandler) {
+                    IHtmlTextHandler textPlugin = (IHtmlTextHandler)plugin;
+                    Pattern pattern = Pattern.compile(textPlugin.getPattern());
+                    Matcher matcher = pattern.matcher(sb.toString());
+
+                    while (matcher.find()) {
+                        boolean textHandled = textPlugin.onHtmlTextMatch(matcher.group(), spannableStringBuilder, nestingLevel);
+                        if (textHandled) {
+                            sb.delete(matcher.start(), matcher.end());
+                            matcher = pattern.matcher(sb.toString());
+                        }
+                    }
+                }
             }
         }
 

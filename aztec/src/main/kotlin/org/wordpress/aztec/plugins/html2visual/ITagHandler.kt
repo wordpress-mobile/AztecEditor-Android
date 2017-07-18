@@ -6,7 +6,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.xml.sax.Attributes
 
-interface IAztecTagHandler : IAztecPlugin {
+interface ITagHandler : IAztecPlugin {
     fun handleTag(opening: Boolean, tag: String, output: Editable, context: Context,
                   attributes: Attributes, nestingLevel: Int): Boolean
 }

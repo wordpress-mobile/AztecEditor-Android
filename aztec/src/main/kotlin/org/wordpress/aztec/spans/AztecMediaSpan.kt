@@ -23,7 +23,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     fun setDrawable(newDrawable: Drawable?) {
-        mDrawableRef = WeakReference<Drawable>(newDrawable)
+        drawableRef = WeakReference<Drawable>(newDrawable)
 
         originalBounds = Rect(getDrawable()?.bounds ?: Rect(0, 0, 0, 0))
 

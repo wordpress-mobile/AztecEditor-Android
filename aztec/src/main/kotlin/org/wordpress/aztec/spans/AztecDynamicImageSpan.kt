@@ -20,7 +20,7 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
 
     private var measuring = false
 
-    protected var mDrawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
+    protected var drawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
@@ -59,9 +59,9 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     init {
-        computeAspectRatio(mDrawableRef?.get())
+        computeAspectRatio(drawableRef?.get())
 
-        setInitBounds(mDrawableRef?.get())
+        setInitBounds(drawableRef?.get())
     }
 
     fun computeAspectRatio(drawable: Drawable?) {
@@ -89,7 +89,7 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     fun adjustBounds(start: Int): Rect {
-        var drawable: Drawable? = mDrawableRef?.get()
+        var drawable: Drawable? = drawableRef?.get()
 
         if (textView == null || textView?.widthMeasureSpec == 0) {
             return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
@@ -174,7 +174,7 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     override fun getDrawable(): Drawable? {
-        return mDrawableRef?.get()
+        return drawableRef?.get()
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {

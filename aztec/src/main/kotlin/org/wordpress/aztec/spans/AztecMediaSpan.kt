@@ -49,7 +49,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     fun setOverlayLevel(index: Int, level: Int): Boolean {
-        return overlays[index].first?.setLevel(level) ?: false
+        return overlays.getOrNull(index)?.first?.setLevel(level) ?: false
     }
 
     private fun applyOverlayGravity(overlay: Drawable?, gravity: Int) {

@@ -13,7 +13,7 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
                      editor: AztecText? = null) :
         AztecMediaSpan(context, drawable, attributes, editor), IAztecFullWidthImageSpan, IAztecSpan {
 
-    override val TAG: String = "video"
+    override val TAG: String = "link"
 
     init {
         setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_media_play), Gravity.CENTER)

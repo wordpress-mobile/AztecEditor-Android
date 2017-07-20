@@ -109,7 +109,12 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
 
     companion object {
         fun set(text: Spannable, block: IAztecBlockSpan, start: Int, end: Int) {
-            text.setSpan(block, start, end, Spanned.SPAN_PARAGRAPH)
+            //TODO Super temporary fix that disables styling multiline selection with trailing/leading newlines
+            try{
+                text.setSpan(block, start, end, Spanned.SPAN_PARAGRAPH)
+            }catch (e: RuntimeException){
+            }
+
         }
     }
 }

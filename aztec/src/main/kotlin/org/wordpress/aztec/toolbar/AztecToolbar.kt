@@ -221,7 +221,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         item?.isChecked = checked
 
         when (item?.itemId) {
-            // Heading Menu
+        // Heading Menu
             R.id.paragraph -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PARAGRAPH, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_PARAGRAPH)
@@ -270,7 +270,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 //                editor?.toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
 //                return true
 //            }
-            // List Menu
+        // List Menu
             R.id.list_ordered -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
@@ -372,7 +372,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         for (action in ToolbarAction.values()) {
             if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
-                action != ToolbarAction.ELLIPSIS_EXPAND) {
+                    action != ToolbarAction.ELLIPSIS_EXPAND) {
                 val view = findViewById(action.buttonId) as ToggleButton
                 if (view.isChecked) actions.add(action)
             }
@@ -594,53 +594,53 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
         layoutExpandedTranslateOutLeft.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    layoutExpanded.visibility = View.GONE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        layoutExpanded.visibility = View.GONE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
+                    override fun onAnimationStart(animation: Animation) {
+                    }
                 }
-            }
         )
 
         ellipsisSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_90)
         ellipsisSpinLeft.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisCollapse.visibility = View.GONE
-                    buttonEllipsisExpand.visibility = View.VISIBLE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonEllipsisCollapse.visibility = View.GONE
+                        buttonEllipsisExpand.visibility = View.VISIBLE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
-                    buttonScroll.smoothScrollTo(0, 0)
-                    layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                    override fun onAnimationStart(animation: Animation) {
+                        buttonScroll.smoothScrollTo(0, 0)
+                        layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                    }
                 }
-            }
         )
 
         ellipsisSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_90)
         ellipsisSpinRight.setAnimationListener(
-            object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation) {
-                    buttonEllipsisCollapse.visibility = View.VISIBLE
-                    buttonEllipsisExpand.visibility = View.GONE
-                }
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonEllipsisCollapse.visibility = View.VISIBLE
+                        buttonEllipsisExpand.visibility = View.GONE
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {
-                }
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
 
-                override fun onAnimationStart(animation: Animation) {
-                    layoutExpanded.visibility = View.VISIBLE
-                    layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                    override fun onAnimationStart(animation: Animation) {
+                        layoutExpanded.visibility = View.VISIBLE
+                        layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                    }
                 }
-            }
         )
     }
 

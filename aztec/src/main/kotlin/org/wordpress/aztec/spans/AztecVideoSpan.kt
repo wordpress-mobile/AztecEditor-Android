@@ -13,10 +13,29 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
                      editor: AztecText? = null) :
         AztecMediaSpan(context, drawable, attributes, editor), IAztecFullWidthImageSpan, IAztecSpan {
 
-    override val TAG: String = "link"
+    override val TAG: String = "a"
 
     init {
         setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_media_play), Gravity.CENTER)
+    }
+
+    override fun getHtml(): String {
+        val linkText = attributes.getValue("href") ?: ""
+
+        val sb = StringBuilder()
+        sb.append("<")
+        sb.append(TAG)
+        sb.append(' ')
+
+        attributes.removeAttribute("aztec_id")
+
+        sb.append(attributes)
+        sb.append(">")
+        sb.append(linkText)
+        sb.append("</")
+        sb.append(TAG)
+        sb.append(">")
+        return sb.toString()
     }
 
     override fun onClick() {

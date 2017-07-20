@@ -19,6 +19,7 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
         setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_media_play), Gravity.CENTER)
     }
 
+    
     override fun onClick() {
         onVideoTappedListener?.onVideoTapped(attributes)
     }

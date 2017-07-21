@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-v4:25.4.0"
+    compile "com.android.support:support-v4:25.3.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
     compile 'org.jsoup:jsoup:1.10.2'
@@ -33,7 +33,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.3.2'
 
-    compile 'com.android.support:design:25.4.0'
+    compile 'com.android.support:design:25.3.1'
     //https://github.com/robolectric/robolectric/issues/1932
     testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
 }

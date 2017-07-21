@@ -37,7 +37,7 @@ dependencies {
     compile project(':wordpress-comments')
 
     //noinspection GradleCompatible
-    compile "com.android.support:appcompat-v7:25.4.0"
+    compile "com.android.support:appcompat-v7:25.3.1"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.wordpress:utils:1.16.0"
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {

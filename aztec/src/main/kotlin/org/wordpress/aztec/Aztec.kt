@@ -13,15 +13,14 @@ import java.util.*
 open class Aztec private constructor(val visualEditor: AztecText, val sourceEditor: SourceViewEditText,
                                      val toolbar: AztecToolbar, val toolbarClickListener: IAztecToolbarClickListener) {
         
-    var imageGetter: Html.ImageGetter? = null
-    var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
-    var imeBackListener: AztecText.OnImeBackListener? = null
-    var onTouchListener: View.OnTouchListener? = null
-    var historyListener: IHistoryListener? = null
-    var onImageTappedListener: AztecText.OnImageTappedListener? = null
-    var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
-
-    var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
+    private var imageGetter: Html.ImageGetter? = null
+    private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    private var imeBackListener: AztecText.OnImeBackListener? = null
+    private var onTouchListener: View.OnTouchListener? = null
+    private var historyListener: IHistoryListener? = null
+    private var onImageTappedListener: AztecText.OnImageTappedListener? = null
+    private var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
+    private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
 
     init {
         initHistory()

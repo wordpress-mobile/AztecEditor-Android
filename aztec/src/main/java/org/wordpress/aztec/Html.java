@@ -35,7 +35,6 @@ import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
-import org.wordpress.aztec.plugins.visual2html.ISpanHandler;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;

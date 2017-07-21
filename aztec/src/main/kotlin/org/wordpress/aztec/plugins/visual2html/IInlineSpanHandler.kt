@@ -11,7 +11,7 @@ import org.wordpress.aztec.plugins.IAztecPlugin
  * An interface for processing spans during visual-to-HTML.
  */
 @SuppressLint("NewApi")
-interface ISpanHandler : IAztecPlugin {
+interface IInlineSpanHandler : IAztecPlugin {
     /**
      * Determines, whether the content of a span (text, if any) should be parsed/rendered by [org.wordpress.aztec.AztecParser]
      *

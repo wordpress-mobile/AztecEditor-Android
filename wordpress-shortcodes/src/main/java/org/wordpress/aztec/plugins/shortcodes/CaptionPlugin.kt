@@ -33,6 +33,10 @@ class CaptionPlugin : ShortcodePlugin("caption"), IInlineSpanHandler, IHtmlTextH
         return true
     }
 
+    override fun shouldParseContent(): Boolean {
+        return false
+    }
+
     override fun canHandleSpan(span: CharacterStyle): Boolean {
         return span is CaptionShortcodeSpan
     }

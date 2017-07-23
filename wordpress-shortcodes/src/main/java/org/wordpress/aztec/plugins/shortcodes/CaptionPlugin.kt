@@ -47,6 +47,7 @@ class CaptionPlugin : ShortcodePlugin("caption"), IInlineSpanHandler, IHtmlTextH
     }
 
     override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle) {
+        html.append((span as CaptionShortcodeSpan).caption)
         html.append("[/$tagName]")
     }
 }

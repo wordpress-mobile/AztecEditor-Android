@@ -1,18 +1,18 @@
 package org.wordpress.aztec.plugins.wpcomments
 
-import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.plugins.ICommentHandler
+import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
+import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 
-class WordPressCommentsPlugin(val visualEditor: AztecText) : ICommentHandler {
+class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler, IHtmlCommentHandler {
 
-    override fun canHandle(span: CharacterStyle): Boolean {
+    override fun canHandleSpan(span: CharacterStyle): Boolean {
         return span is WordPressCommentSpan
     }
 
@@ -20,16 +20,16 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : ICommentHandler {
         return false
     }
 
-    override fun handleCommentSpanStart(out: StringBuilder, span: CharacterStyle) {
-        out.append("<!--")
-        out.append((span as WordPressCommentSpan).commentText)
+    override fun handleSpanStart(html: StringBuilder, span: CharacterStyle) {
+        html.append("<!--")
+        html.append((span as WordPressCommentSpan).commentText)
     }
 
-    override fun handleCommentSpanEnd(out: StringBuilder, span: CharacterStyle){
-        out.append("-->")
+    override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle){
+        html.append("-->")
     }
 
-    override fun handleCommentHtml(text: String, output: Editable, context: Context, nestingLevel: Int) : Boolean {
+    override fun handleComment(text: String, output: Editable, nestingLevel: Int) : Boolean {
 
         val spanStart = output.length
 
@@ -40,8 +40,8 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : ICommentHandler {
             output.setSpan(
                     WordPressCommentSpan(
                             text,
-                            context,
-                            ContextCompat.getDrawable(context, R.drawable.img_more),
+                            visualEditor.context,
+                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
                             nestingLevel
                     ),
                     spanStart,
@@ -56,8 +56,8 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : ICommentHandler {
             output.setSpan(
                     WordPressCommentSpan(
                             text,
-                            context,
-                            ContextCompat.getDrawable(context, R.drawable.img_page),
+                            visualEditor.context,
+                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page),
                             nestingLevel
                     ),
                     spanStart,

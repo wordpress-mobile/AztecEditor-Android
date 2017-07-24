@@ -976,7 +976,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     editable.replace(min, max, builder)
                 } catch (e: RuntimeException) {
                     // try to get more context for this crash: https://github.com/wordpress-mobile/AztecEditor-Android/issues/424
-                    throw RuntimeException("min: $min; max: $max; text: ${editable.toString()}; pasted: ${builder.toString()}", e)
+                    throw RuntimeException("### MIN: $min, MAX: $max\n---\n### TEXT:${toHtml()}\n---\n### PASTED:${parser.toHtml(builder)}", e)
                 }
                 enableTextChangedListener()
 

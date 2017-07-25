@@ -87,7 +87,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         canvas.restore()
     }
 
-    fun getHtml(): String {
+    open fun getHtml(): String {
         val sb = StringBuilder()
         sb.append("<")
         sb.append(TAG)

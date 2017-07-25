@@ -225,6 +225,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         reader.setContentHandler(this);
         try {
             reader.setProperty(Parser.lexicalHandlerProperty, this);
+            source = source.replaceAll("\\[video([^\\]]*)\\]", "<video$1/>");
             reader.parse(new InputSource(new StringReader(source)));
         } catch (IOException e) {
             // We are reading from a string. There should not be IO problems.

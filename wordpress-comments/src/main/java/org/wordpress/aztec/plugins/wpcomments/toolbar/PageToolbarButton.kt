@@ -29,7 +29,8 @@ class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.PAGE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page),
+                null,
+                R.drawable.img_page,
                 nestingLevel,
                 visualEditor
         )

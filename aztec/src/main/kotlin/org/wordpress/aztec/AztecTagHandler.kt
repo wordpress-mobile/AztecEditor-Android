@@ -97,7 +97,7 @@ class AztecTagHandler : Html.TagHandler {
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
+                    start(output, AztecHorizontalRuleSpan(context, R.drawable.img_hr, nestingLevel))
 
                     output.append(Constants.MAGIC_CHAR)
                 } else {
@@ -121,17 +121,21 @@ class AztecTagHandler : Html.TagHandler {
 
     private fun createImageSpan(attributes: AztecAttributes, context: Context) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
+        val image =  AztecImageSpan(context, null, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading), attributes)
         styles.recycle()
-        return AztecImageSpan(context, loadingDrawable, attributes)
+        return image
     }
 
     private fun createVideoSpan(attributes: AztecAttributes,
                                 context: Context, nestingLevel: Int) : AztecMediaSpan {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
+        val video =  AztecVideoSpan(context,
+                null, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading),
+                nestingLevel,
+                attributes
+        )
         styles.recycle()
-        return AztecVideoSpan(context, loadingDrawable, nestingLevel, attributes)
+        return video
     }
 
     private fun handleElement(output: Editable, opening: Boolean, span: Any) {

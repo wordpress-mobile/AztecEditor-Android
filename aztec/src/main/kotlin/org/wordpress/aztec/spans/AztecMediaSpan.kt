@@ -11,8 +11,8 @@ import org.wordpress.aztec.AztecText
 import java.lang.ref.WeakReference
 import java.util.*
 
-abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
-                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
+abstract class AztecMediaSpan(context: Context, imageURI: String?, resId : Int?, override var attributes: AztecAttributes = AztecAttributes(),
+                              editor: AztecText? = null) : AztecDynamicImageSpan(context, imageURI, resId), IAztecAttributedSpan {
 
     abstract val TAG: String
 
@@ -22,7 +22,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         textView = editor
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
+    fun setDrawablePath(newDrawable: Drawable?) {
         drawableRef = WeakReference<Drawable>(newDrawable)
 
         originalBounds = Rect(getDrawable()?.bounds ?: Rect(0, 0, 0, 0))

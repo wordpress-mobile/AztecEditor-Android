@@ -4,23 +4,34 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
 import android.text.BoringLayout
 import android.text.Layout
 import android.text.style.DynamicDrawableSpan
 import android.view.View
+import android.webkit.URLUtil
+import org.wordpress.android.util.ImageUtils
+import org.wordpress.android.util.StringUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Html
+import org.wordpress.aztec.R
 import java.lang.ref.WeakReference
 
-abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, val imageURI: String?, val resId : Int?) : DynamicDrawableSpan() {
 
     var textView: AztecText? = null
-    var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+    var originalBounds : Rect
     var aspectRatio: Double = 1.0
 
     private var measuring = false
 
-    protected var drawableRef: WeakReference<Drawable>? = WeakReference<Drawable>(imageDrawable)
+    protected var drawableRef: WeakReference<Drawable>? = null
+
+    private val drawableFailed: Drawable
+    private val drawableLoading: Drawable
+    protected var imageGetter: Html.ImageGetter? = null
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
@@ -59,9 +70,15 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     init {
-        computeAspectRatio(drawableRef?.get())
 
-        setInitBounds(drawableRef?.get())
+        drawableLoading = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+        drawableFailed = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
+
+        originalBounds = Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+
+        computeAspectRatio(drawable)
+
+        setInitBounds(drawable)
     }
 
     fun computeAspectRatio(drawable: Drawable?) {
@@ -89,8 +106,6 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     fun adjustBounds(start: Int): Rect {
-        var drawable: Drawable? = drawableRef?.get()
-
         if (textView == null || textView?.widthMeasureSpec == 0) {
             return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
         }
@@ -174,7 +189,42 @@ abstract class AztecDynamicImageSpan(val context: Context, imageDrawable: Drawab
     }
 
     override fun getDrawable(): Drawable? {
-        return drawableRef?.get()
+        val wr = drawableRef
+        var d: Drawable? = null
+
+        if (wr != null)
+            d = wr.get()
+
+        if (d == null) {
+            // Check if ResID was passed as parameter. In this case use it!
+            if (resId != null) {
+                val d = ContextCompat.getDrawable(context, resId)
+                drawableRef = WeakReference<Drawable>(d)
+            } else {
+                // A path to image was passed
+                if (!URLUtil.isNetworkUrl(imageURI)) {
+                    // load a scaled version of the image to prevent OOM exception
+                    val maxWidth = ImageUtils.getMaximumThumbnailWidthForEditor(context)
+                    val bitmapToShow = ImageUtils.getWPImageSpanThumbnailFromFilePath(
+                            context,
+                            escapeQuotes(imageURI),
+                            maxWidth
+                    )
+                    val d = BitmapDrawable(context.resources, bitmapToShow)
+                    drawableRef = WeakReference<Drawable>(d)
+                } else {
+
+
+                }
+            }
+        }
+
+        return d
+    }
+
+    fun escapeQuotes(text: String?): String {
+        val textNotNull = StringUtils.notNullStr(text)
+        return textNotNull.replace("'", "\\'").replace("\"", "\\\"")
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {

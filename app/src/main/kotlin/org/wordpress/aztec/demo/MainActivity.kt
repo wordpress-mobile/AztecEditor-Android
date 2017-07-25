@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity(),
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
 
-                    insertImageAndSimulateUpload(bitmap, mediaPath)
+                    insertImageAndSimulateUpload(mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
                     mediaPath = data?.data.toString()
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity(),
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeStream(stream, null, options)
 
-                    insertImageAndSimulateUpload(bitmap, mediaPath)
+                    insertImageAndSimulateUpload(mediaPath)
                 }
                 REQUEST_MEDIA_CAMERA_VIDEO -> {
                     mediaPath = data?.data.toString()
@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity(),
                             drawable.setBounds(0, 0, canvas.width, canvas.height)
                             drawable.draw(canvas)
 
-                            insertVideoAndSimulateUpload(bitmap, mediaPath)
+                            insertVideoAndSimulateUpload(mediaPath)
                         }
 
                         override fun onThumbnailLoading(drawable: Drawable?) {
@@ -216,15 +216,15 @@ class MainActivity : AppCompatActivity(),
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+    fun insertImageAndSimulateUpload(imagePath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertImage(imagePath, attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
-    fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+    fun insertVideoAndSimulateUpload(imagePath: String) {
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertVideo(imagePath, attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 

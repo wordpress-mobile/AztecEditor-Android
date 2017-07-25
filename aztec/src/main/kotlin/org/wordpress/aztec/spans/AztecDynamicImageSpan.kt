@@ -4,20 +4,36 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
 import android.text.BoringLayout
 import android.text.Layout
 import android.text.style.DynamicDrawableSpan
 import android.view.View
+import android.webkit.URLUtil
+import org.wordpress.android.util.ImageUtils
+import org.wordpress.android.util.StringUtils
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Html
+import org.wordpress.aztec.R
+import java.lang.ref.WeakReference
 
-abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, var imageURI: String?, val resId : Int?) : DynamicDrawableSpan() {
 
     var textView: AztecText? = null
-    var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+    var originalBounds : Rect
     var aspectRatio: Double = 1.0
 
     private var measuring = false
+
+    protected var drawableRef: WeakReference<Drawable>? = null
+
+    private val drawableFailed: Drawable
+    private val drawableLoading: Drawable
+
+    var imageGetter: Html.ImageGetter? = null
+    var imageGetterCallbacks : Html.ImageGetter.Callbacks? = null
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
@@ -56,16 +72,22 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     init {
-        computeAspectRatio()
 
-        setInitBounds(imageDrawable)
+        drawableLoading = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+        drawableFailed = ContextCompat.getDrawable(context, R.drawable.ic_image_failed)
+
+        originalBounds = Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
+
+        computeAspectRatio(drawable)
+
+        setInitBounds(drawable)
     }
 
-    fun computeAspectRatio() {
-        if ((imageDrawable?.intrinsicWidth ?: -1) > -1 && (imageDrawable?.intrinsicHeight ?: -1) > -1) {
-            aspectRatio = 1.0 * (imageDrawable?.intrinsicWidth ?: 1) / (imageDrawable?.intrinsicHeight ?: 1)
-        } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
-            aspectRatio = 1.0 * (imageDrawable?.bounds?.width() ?: 0) / (imageDrawable?.bounds?.height() ?: 1)
+    fun computeAspectRatio(drawable: Drawable?) {
+        if ((drawable?.intrinsicWidth ?: -1) > -1 && (drawable?.intrinsicHeight ?: -1) > -1) {
+            aspectRatio = 1.0 * (drawable?.intrinsicWidth ?: 1) / (drawable?.intrinsicHeight ?: 1)
+        } else if (!(drawable?.bounds?.isEmpty ?: true)) {
+            aspectRatio = 1.0 * (drawable?.bounds?.width() ?: 0) / (drawable?.bounds?.height() ?: 1)
         } else {
             aspectRatio = 1.0
         }
@@ -87,7 +109,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
     fun adjustBounds(start: Int): Rect {
         if (textView == null || textView?.widthMeasureSpec == 0) {
-            return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+            return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 
         val layout = textView?.layout
@@ -115,10 +137,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         //  just assume maximum size.
 
         var width = if (originalBounds.width() > 0) originalBounds.width()
-        else if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        else if ((drawable?.intrinsicWidth ?: -1) > -1) drawable?.intrinsicWidth ?: -1
         else maxWidth
         var height = if (originalBounds.height() > 0) originalBounds.height()
-        else if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        else if ((drawable?.intrinsicHeight ?: -1) > -1) drawable?.intrinsicHeight ?: -1
         else (width / aspectRatio).toInt()
 
         if (width > maxWidth) {
@@ -126,9 +148,9 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             height = (width / aspectRatio).toInt()
         }
 
-        imageDrawable?.bounds = Rect(0, 0, width, height)
+        drawable?.bounds = Rect(0, 0, width, height)
 
-        return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+        return Rect(drawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
     fun calculateWantedWidth(widthMeasureSpec: Int): Int {
@@ -169,20 +191,69 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     override fun getDrawable(): Drawable? {
-        return imageDrawable
+        val wr = drawableRef
+        var d: Drawable? = null
+
+        if (wr != null)
+            d = wr.get()
+
+        if (d == null) {
+            // Check if ResID was passed in the constructor use it!
+            if (resId != null && imageURI == null) {
+                return ContextCompat.getDrawable(context, resId)
+            } else {
+                val maxWidth = ImageUtils.getMaximumThumbnailWidthForEditor(context)
+                val callbacks = object : Html.ImageGetter.Callbacks {
+                    override fun onImageFailed() {
+                        drawableRef = null
+                        imageGetterCallbacks?.onImageFailed()
+                    }
+
+                    override fun onImageLoaded(drawable: Drawable?) {
+                        drawableRef = WeakReference<Drawable>(drawable)
+                        imageGetterCallbacks?.onImageLoaded(drawable)
+                    }
+
+                    override fun onImageLoading(drawable: Drawable?) {
+                        drawableRef = null
+                    }
+                }
+
+                if (URLUtil.isNetworkUrl(imageURI)) {
+                    imageGetter?.loadImage(imageURI, callbacks, maxWidth)
+                    d = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+                } else {
+                    // Local picture: load a scaled version of the image to prevent OOM exception
+                    val bitmapToShow = ImageUtils.getWPImageSpanThumbnailFromFilePath(
+                            context,
+                            escapeQuotes(imageURI),
+                            maxWidth
+                    )
+                    val d = BitmapDrawable(context.resources, bitmapToShow)
+                    callbacks.onImageLoaded(d)
+                }
+            }
+        }
+
+        return d
+    }
+
+    fun escapeQuotes(text: String?): String {
+        val textNotNull = StringUtils.notNullStr(text)
+        return textNotNull.replace("'", "\\'").replace("\"", "\\\"")
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (getDrawable() != null) {
             var transY = top
             if (mVerticalAlignment == DynamicDrawableSpan.ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 
             canvas.translate(x, transY.toFloat())
-            imageDrawable!!.draw(canvas)
+            getDrawable()!!.draw(canvas)
         }
 
         canvas.restore()

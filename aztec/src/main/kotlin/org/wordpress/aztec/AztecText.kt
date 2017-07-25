@@ -722,10 +722,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
         spans.forEach {
+            it.imageGetter = imageGetter
             val callbacks = object : Html.ImageGetter.Callbacks {
 
                 override fun onImageFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                   replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
@@ -737,17 +738,14 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
                     post {
                         refreshText()
                     }
                 }
             }
-
-            // maxidth set to the biggest of screen width/height to cater for device rotation
-            val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
-                    context.resources.displayMetrics.heightPixels)
-            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+            it.imageURI = it.getSource()
+            it.imageGetterCallbacks = callbacks
+            it.getDrawable() // To start downloading the picture
         }
     }
 
@@ -758,22 +756,22 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
 
                 override fun onThumbnailFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    //replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
-                    replaceImage(drawable)
+                    //replaceImage(drawable)
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                    //replaceImage(ContextCompat.getDrawable(context, drawableLoading))
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
+                    /*it.drawable = drawable
                     post {
                         refreshText()
-                    }
+                    }*/
                 }
             }
 
@@ -1139,12 +1137,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
+    fun insertImage(imagePath : String, attributes: Attributes) {
+        lineBlockFormatter.insertImage(imagePath, attributes, onImageTappedListener)
     }
 
-    fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
+    fun insertVideo(imagePath : String, attributes: Attributes) {
+        lineBlockFormatter.insertVideo(imagePath, attributes, onVideoTappedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

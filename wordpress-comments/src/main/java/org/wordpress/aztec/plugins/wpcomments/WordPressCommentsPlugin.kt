@@ -41,7 +41,8 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                            null,
+                            R.drawable.img_more,
                             nestingLevel
                     ),
                     spanStart,
@@ -57,7 +58,8 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page),
+                            null,
+                            R.drawable.img_page,
                             nestingLevel
                     ),
                     spanStart,

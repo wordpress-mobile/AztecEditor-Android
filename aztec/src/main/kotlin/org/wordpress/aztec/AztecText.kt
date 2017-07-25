@@ -971,7 +971,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
-                editable.replace(min, max, builder)
+                // FIXME
+                try {
+                    editable.replace(min, max, builder)
+                } catch (e: RuntimeException) {
+                    // try to get more context for this crash: https://github.com/wordpress-mobile/AztecEditor-Android/issues/424
+                    throw RuntimeException("### MIN: $min, MAX: $max\n---\n### TEXT:${toHtml()}\n---\n### PASTED:${parser.toHtml(builder)}", e)
+                }
                 enableTextChangedListener()
 
                 inlineFormatter.joinStyleSpans(0, editable.length) //TODO: see how this affects performance

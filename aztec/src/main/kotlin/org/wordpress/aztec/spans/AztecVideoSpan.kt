@@ -19,6 +19,19 @@ class AztecVideoSpan(context: Context, imageURI: String?, resId : Int?, override
         setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_media_play), Gravity.CENTER)
     }
 
+    override fun getHtml(): String {
+        val sb = StringBuilder()
+        sb.append(" [")
+        sb.append(TAG)
+        sb.append(' ')
+
+        attributes.removeAttribute("aztec_id")
+
+        sb.append(attributes)
+        sb.append("] ")
+        return sb.toString()
+    }
+
     override fun onClick() {
         onVideoTappedListener?.onVideoTapped(attributes)
     }

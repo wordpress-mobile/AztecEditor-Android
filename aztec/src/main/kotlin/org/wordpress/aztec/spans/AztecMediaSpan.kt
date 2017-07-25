@@ -22,16 +22,6 @@ abstract class AztecMediaSpan(context: Context, imageURI: String?, resId : Int?,
         textView = editor
     }
 
-    fun setDrawablePath(newDrawable: Drawable?) {
-        drawableRef = WeakReference<Drawable>(newDrawable)
-
-        originalBounds = Rect(getDrawable()?.bounds ?: Rect(0, 0, 0, 0))
-
-        setInitBounds(newDrawable)
-
-        computeAspectRatio(newDrawable)
-    }
-
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
         if (overlays.lastIndex >= index) {
             overlays.removeAt(index)

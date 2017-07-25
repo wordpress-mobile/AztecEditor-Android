@@ -19,7 +19,7 @@ import org.wordpress.aztec.Html
 import org.wordpress.aztec.R
 import java.lang.ref.WeakReference
 
-abstract class AztecDynamicImageSpan(val context: Context, val imageURI: String?, val resId : Int?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, var imageURI: String?, val resId : Int?) : DynamicDrawableSpan() {
 
     var textView: AztecText? = null
     var originalBounds : Rect
@@ -31,7 +31,9 @@ abstract class AztecDynamicImageSpan(val context: Context, val imageURI: String?
 
     private val drawableFailed: Drawable
     private val drawableLoading: Drawable
-    protected var imageGetter: Html.ImageGetter? = null
+
+    var imageGetter: Html.ImageGetter? = null
+    var imageGetterCallbacks : Html.ImageGetter.Callbacks? = null
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
@@ -196,25 +198,39 @@ abstract class AztecDynamicImageSpan(val context: Context, val imageURI: String?
             d = wr.get()
 
         if (d == null) {
-            // Check if ResID was passed as parameter. In this case use it!
-            if (resId != null) {
-                val d = ContextCompat.getDrawable(context, resId)
-                drawableRef = WeakReference<Drawable>(d)
+            // Check if ResID was passed in the constructor use it!
+            if (resId != null && imageURI == null) {
+                return ContextCompat.getDrawable(context, resId)
             } else {
-                // A path to image was passed
-                if (!URLUtil.isNetworkUrl(imageURI)) {
-                    // load a scaled version of the image to prevent OOM exception
-                    val maxWidth = ImageUtils.getMaximumThumbnailWidthForEditor(context)
+                val maxWidth = ImageUtils.getMaximumThumbnailWidthForEditor(context)
+                val callbacks = object : Html.ImageGetter.Callbacks {
+                    override fun onImageFailed() {
+                        drawableRef = null
+                        imageGetterCallbacks?.onImageFailed()
+                    }
+
+                    override fun onImageLoaded(drawable: Drawable?) {
+                        drawableRef = WeakReference<Drawable>(drawable)
+                        imageGetterCallbacks?.onImageLoaded(drawable)
+                    }
+
+                    override fun onImageLoading(drawable: Drawable?) {
+                        drawableRef = null
+                    }
+                }
+
+                if (URLUtil.isNetworkUrl(imageURI)) {
+                    imageGetter?.loadImage(imageURI, callbacks, maxWidth)
+                    d = ContextCompat.getDrawable(context, R.drawable.ic_image_loading)
+                } else {
+                    // Local picture: load a scaled version of the image to prevent OOM exception
                     val bitmapToShow = ImageUtils.getWPImageSpanThumbnailFromFilePath(
                             context,
                             escapeQuotes(imageURI),
                             maxWidth
                     )
                     val d = BitmapDrawable(context.resources, bitmapToShow)
-                    drawableRef = WeakReference<Drawable>(d)
-                } else {
-
-
+                    callbacks.onImageLoaded(d)
                 }
             }
         }

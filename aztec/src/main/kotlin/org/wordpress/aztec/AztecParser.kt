@@ -25,6 +25,7 @@ import org.wordpress.aztec.AztecText.OnImageTappedListener
 import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
+import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.*
@@ -95,7 +96,15 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         }
 
         withinHtml(out, data)
-        return tidy(out.toString())
+        var html = tidy(out.toString())
+
+        plugins.filter { it is IHtmlPostprocessor }
+                .map {it as IHtmlPostprocessor }
+                .forEach {
+                    html = it.processHtmlAfterSerialization(html)
+                }
+
+        return html
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {

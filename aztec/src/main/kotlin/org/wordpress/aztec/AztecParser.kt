@@ -432,8 +432,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 plugins.filter { it is IInlineSpanHandler && it.canHandleSpan(span) }
+                        .map { it as IInlineSpanHandler }
                         .forEach {
-                            (it as IInlineSpanHandler).handleSpanStart(out, span)
+                            it.handleSpanStart(out, span)
                             if (!it.shouldParseContent()) {
                                 i = next
                             }
@@ -468,8 +469,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 plugins.filter { it is IInlineSpanHandler && it.canHandleSpan(span) }
+                        .map { it as IInlineSpanHandler }
                         .forEach {
-                            (it as IInlineSpanHandler).handleSpanEnd(out, span)
+                            it.handleSpanEnd(out, span)
                         }
 
                 if (span is HiddenHtmlSpan) {

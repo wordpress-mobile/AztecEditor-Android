@@ -26,11 +26,14 @@ import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
+import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
+import java.util.ArrayList
 
-class AztecTagHandler : Html.TagHandler {
+class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
 
     private var order = 0
 
@@ -114,6 +117,17 @@ class AztecTagHandler : Html.TagHandler {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
                     handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
                     return true
+                } else {
+                    plugins.filter { it is IHtmlTagHandler }
+                            .map { it as IHtmlTagHandler }
+                            .forEach( {
+                                if (it.canHandleTag(tag)) {
+                                    val wasHandled = it.handleTag(opening, tag, output, attributes, nestingLevel)
+                                    if (wasHandled) {
+                                        return true
+                                    }
+                                }
+                            })
                 }
             }
         }
@@ -192,18 +206,6 @@ class AztecTagHandler : Html.TagHandler {
         private val IMAGE = "img"
         private val VIDEO = "video"
         private val LINE = "hr"
-
-        private fun getLast(text: Editable, kind: Class<*>): Any? {
-            val spans = text.getSpans(0, text.length, kind)
-
-            if (spans.isEmpty()) {
-                return null
-            } else {
-                return (spans.size downTo 1)
-                        .firstOrNull { text.getSpanFlags(spans[it - 1]) == Spannable.SPAN_MARK_MARK }
-                        ?.let { spans[it - 1] }
-            }
-        }
 
         private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {
             val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)

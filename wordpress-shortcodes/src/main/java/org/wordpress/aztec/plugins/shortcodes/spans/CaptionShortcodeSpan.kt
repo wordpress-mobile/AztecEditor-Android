@@ -2,10 +2,11 @@ package org.wordpress.aztec.plugins.shortcodes.spans
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle
+import android.text.style.ParagraphStyle
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.*
+import org.xml.sax.Attributes
 
-class CaptionShortcodeSpan(val attrs: Map<String, String>) : CharacterStyle() {
-    var caption: String = ""
-
-    override fun updateDrawState(tp: TextPaint?) {
-    }
-}
+class CaptionShortcodeSpan(override var attributes: AztecAttributes,
+                           override val TAG: String, override var nestingLevel: Int)
+    : IAztecInlineBlockSpan

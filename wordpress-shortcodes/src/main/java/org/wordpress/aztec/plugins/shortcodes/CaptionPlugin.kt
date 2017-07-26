@@ -2,54 +2,44 @@ package org.wordpress.aztec.plugins.shortcodes
 
 import android.text.Editable
 import android.text.Spannable
-import android.text.style.CharacterStyle
-import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
+import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
-import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
+import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
+import org.xml.sax.Attributes
 
-class CaptionPlugin : ShortcodePlugin("caption"), IInlineSpanHandler, IHtmlTextHandler {
+class CaptionPlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
-    override val pattern = "(\\[$tagName.*\\]|.*\\[/$tagName\\])"
+    // "captio" tag name is used on purpose because "caption" gets eaten up by the Jsoup parser.
+    private val TAG = "captio"
 
-    override fun onHtmlTextMatch(text: String, output: Editable, nestingLevel: Int): Boolean {
-        if (isStart(text)) {
-            val attrs = parseAttributes(text)
-            output.setSpan(CaptionShortcodeSpan(attrs), output.length, output.length, Spannable.SPAN_MARK_MARK)
+    override fun canHandleTag(tag: String): Boolean {
+        return tag == TAG
+    }
+
+    override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
+        if (opening) {
+            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), TAG, nestingLevel), output.length, output.length, Spannable.SPAN_MARK_MARK)
         } else {
-            val caption = text.substring(0..text.indexOf('[')-1)
-            val span = getLastSpan(output)
-
-            if (caption.isNotBlank()) {
-                span?.let {
-                    output.append(caption)
-
-                    span.caption = caption
-                    val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
-                    output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
             val span = output.getLast<CaptionShortcodeSpan>()
+            span?.let {
+                val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
+                output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             }
         }
         return true
     }
 
-    override fun shouldParseContent(): Boolean {
-        return false
+    override fun processHtmlBeforeParsing(source: String): String {
+        return source.replace(Regex("\\[caption([^\\]]*)\\]"), "<captio$1>")
+                .replace(Regex("\\[\\/caption\\]"), "</captio>")
     }
 
-    override fun canHandleSpan(span: CharacterStyle): Boolean {
-        return span is CaptionShortcodeSpan
-    }
-
-    override fun handleSpanStart(html: StringBuilder, span: CharacterStyle) {
-        val captionSpan = span as CaptionShortcodeSpan
-        html.append("[$tagName ${joinAttributes(span.attrs)}]")
-    }
-
-    override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle) {
-        html.append((span as CaptionShortcodeSpan).caption)
-        html.append("[/$tagName]")
+    override fun processHtmlAfterSerialization(source: String): String {
+        return source.replace(Regex("<captio([^>]*)>"), "[caption$1]")
+                .replace(Regex("<\\/captio>"), "[/caption]")
     }
 }

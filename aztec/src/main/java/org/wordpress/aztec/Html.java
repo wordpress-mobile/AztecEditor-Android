@@ -35,6 +35,7 @@ import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
+import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
 import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.AztecCodeSpan;
@@ -176,6 +177,12 @@ public class Html {
         } catch (org.xml.sax.SAXNotSupportedException e) {
             // Should not happen.
             throw new RuntimeException(e);
+        }
+
+        for (IAztecPlugin plugin : plugins) {
+            if (plugin instanceof IHtmlPreprocessor) {
+                source = ((IHtmlPreprocessor)plugin).processHtmlBeforeParsing(source);
+            }
         }
 
         HtmlToSpannedConverter converter =

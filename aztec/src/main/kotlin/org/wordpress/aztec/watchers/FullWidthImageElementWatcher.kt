@@ -5,8 +5,8 @@ import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.FullWidthImageProcessingMarker
+import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import java.lang.ref.WeakReference
 
 class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {

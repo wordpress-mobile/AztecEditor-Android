@@ -1,6 +1,5 @@
 package org.wordpress.aztec.plugins.html2visual
 
-import android.content.Context
 import android.text.Editable
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.xml.sax.Attributes

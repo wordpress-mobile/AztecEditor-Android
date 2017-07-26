@@ -31,7 +31,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
-import java.util.ArrayList
+import java.util.*
 
 class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
 

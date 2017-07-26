@@ -24,8 +24,8 @@ import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecText.OnImageTappedListener
 import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.plugins.IAztecPlugin
-import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
+import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.*

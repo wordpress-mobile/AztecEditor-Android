@@ -27,6 +27,7 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 
 class AztecTagHandler : Html.TagHandler {
@@ -162,7 +163,7 @@ class AztecTagHandler : Html.TagHandler {
     }
 
     private fun end(output: Editable, kind: Class<*>) {
-        val last = getLast(output, kind)
+        val last = output.getLast(kind)
         val start = output.getSpanStart(last)
         val end = output.length
 

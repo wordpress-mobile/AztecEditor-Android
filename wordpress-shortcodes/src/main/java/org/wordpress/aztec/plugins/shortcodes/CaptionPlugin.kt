@@ -7,6 +7,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.util.SpanWrapper
+import org.wordpress.aztec.util.getLast
 
 class CaptionPlugin : ShortcodePlugin("caption"), IInlineSpanHandler, IHtmlTextHandler {
 
@@ -28,6 +29,7 @@ class CaptionPlugin : ShortcodePlugin("caption"), IInlineSpanHandler, IHtmlTextH
                     val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
                     output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
+            val span = output.getLast<CaptionShortcodeSpan>()
             }
         }
         return true

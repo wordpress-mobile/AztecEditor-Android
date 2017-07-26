@@ -68,6 +68,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.wordpress.aztec.util.ExtensionsKt.getLast;
+
 // This class was imported from AOSP and was modified to fit our needs, it's probably a good idea to keep it as a
 // Java file.
 
@@ -419,19 +421,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.append("\n");
     }
 
-    private static Object getLast(Spanned text, Class kind) {
-        /*
-         * This knows that the last returned object from getSpans()
-         * will be the most recently added.
-         */
-        Object[] objs = text.getSpans(0, text.length(), kind);
-
-        if (objs.length == 0) {
-            return null;
-        } else {
-            return objs[objs.length - 1];
-        }
-    }
 
     private static void start(SpannableStringBuilder text, AztecTextFormat textFormat, Attributes attrs) {
         final AztecAttributes attributes = new AztecAttributes(attrs);

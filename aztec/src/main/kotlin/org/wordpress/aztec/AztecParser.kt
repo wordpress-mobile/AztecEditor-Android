@@ -45,7 +45,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(plugins),
                 onUnknownHtmlClickListener, context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
@@ -344,6 +344,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             when (paragraph) {
                 is IAztecBlockSpan -> withinBlock(out, text, i, next, paragraph, parents, paragraph.nestingLevel)
                 is UnknownHtmlSpan -> withinUnknown(out, text, i, next, paragraph)
+                is IAztecInlineBlockSpan -> withinInlineBlock(out, text, i, next, paragraph, parents, paragraph.nestingLevel)
                 else -> withinContent(out, text, i, next, parents)
             }
 
@@ -351,6 +352,13 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         } while (i < end)
 
         consumeCursorIfInInput(out, text, text.length)
+    }
+
+    private fun withinInlineBlock(out: StringBuilder, text: Spanned, start: Int, end: Int,
+                                  blockSpan: IAztecInlineBlockSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+        out.append("<${blockSpan.startTag}>")
+        withinHtml(out, text, start, end, parents, nestingLevel)
+        out.append("</${blockSpan.endTag}>")
     }
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {

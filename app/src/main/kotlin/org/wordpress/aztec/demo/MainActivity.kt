@@ -35,6 +35,7 @@ import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -320,6 +321,7 @@ class MainActivity : AppCompatActivity(),
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
             .addPlugin(CaptionShortcodePlugin())
+            .addPlugin(VideoShortcodePlugin())
 
         BlockElementWatcher(visualEditor)
                 .add(CaptionHandler())
@@ -788,8 +790,13 @@ class MainActivity : AppCompatActivity(),
                 intent.setDataAndType(Uri.parse(url), "video/*")
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent)
-            } catch (e: Exception) {
-                ToastUtils.showToast(this, "Video tapped!")
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
+                } catch (e: ActivityNotFoundException) {
+                    ToastUtils.showToast(this, "Video tapped!")
+                }
             }
         }
     }

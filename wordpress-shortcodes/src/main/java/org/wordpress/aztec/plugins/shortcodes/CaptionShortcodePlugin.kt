@@ -11,7 +11,7 @@ import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 
-class CaptionPlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
+class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
     // "captio" is used as tag name on purpose because "caption" gets eaten up by the Jsoup parser.
     private val TAG = "captio"

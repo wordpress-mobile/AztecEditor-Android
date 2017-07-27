@@ -13,7 +13,7 @@ import org.xml.sax.Attributes
 
 class CaptionPlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
-    // "captio" tag name is used on purpose because "caption" gets eaten up by the Jsoup parser.
+    // "captio" is used as tag name on purpose because "caption" gets eaten up by the Jsoup parser.
     private val TAG = "captio"
 
     override fun canHandleTag(tag: String): Boolean {
@@ -27,19 +27,21 @@ class CaptionPlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
             val span = output.getLast<CaptionShortcodeSpan>()
             span?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
-                output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
         return true
     }
 
     override fun processHtmlBeforeParsing(source: String): String {
-        return source.replace(Regex("\\[caption([^\\]]*)\\]"), "<captio$1>")
-                .replace(Regex("\\[\\/caption\\]"), "</captio>")
+        return StringBuilder(source)
+                .replace(Regex("\\[${TAG}n([^\\]]*)\\]"), "<$TAG$1>")
+                .replace(Regex("\\[/${TAG}n\\]"), "</$TAG>")
     }
 
     override fun processHtmlAfterSerialization(source: String): String {
-        return source.replace(Regex("<captio([^>]*)>"), "[caption$1]")
-                .replace(Regex("<\\/captio>"), "[/caption]")
+        return StringBuilder(source)
+                .replace(Regex("<$TAG([^>]*)>"), "[${TAG}n$1]")
+                .replace(Regex("</$TAG>"), "[/${TAG}n]")
     }
 }

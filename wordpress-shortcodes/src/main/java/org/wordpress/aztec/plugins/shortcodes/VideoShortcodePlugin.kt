@@ -12,6 +12,8 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     }
 
     override fun processHtmlAfterSerialization(source: String): String {
-        return source.replace(Regex("<$TAG([^>]*)/?>"), "[$TAG$1]")
+        return StringBuilder(source)
+                .replace(Regex("<$TAG([^>]*(?<! )) */>"), "[$TAG$1]")
+                .replace(Regex("<$TAG([^>]*(?<! )) *></$TAG>"), "[$TAG$1]")
     }
 }

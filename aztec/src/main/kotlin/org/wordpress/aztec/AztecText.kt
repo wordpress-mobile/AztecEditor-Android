@@ -733,7 +733,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onImageLoading(drawable: Drawable?) {
-                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
@@ -766,7 +766,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
                 }
 
                 private fun replaceImage(drawable: Drawable?) {

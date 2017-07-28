@@ -42,7 +42,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun toggleQuote() {
-        if (!containQuote()) {
+        if (!containsQuote()) {
             applyBlockStyle(AztecTextFormat.FORMAT_QUOTE)
         } else {
             removeBlockStyle(AztecTextFormat.FORMAT_QUOTE)
@@ -316,7 +316,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (selectionStartIsBetweenNewlines) {
             indexOfFirstLineBreak = selectionStart
         } else if (selectionStartIsOnTheNewLine) {
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) -1
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart) - 1
         } else {
             if (indexOfLastLineBreak > 0) {
                 val characterBeforeLastLineBreak = editable[indexOfLastLineBreak - 1]
@@ -557,57 +557,18 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return spans.isNotEmpty()
     }
 
-    fun containQuote(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        val list = ArrayList<Int>()
+    fun containsQuote(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        if (selStart < 0 || selEnd < 0) return false
 
-        return  editableText.getSpans(selectionStart, selectionEnd, AztecQuoteSpan::class.java).isNotEmpty()
-//
-//        if(selectionStart == selectionEnd) return editableText.getSpans(selectionStart, selectionEnd, AztecQuoteSpan::class.java).isNotEmpty()
-//
-//        for (i in lines.indices) {
-//            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-//            val lineEnd = lineStart + lines[i].length
-//
-//            if (lineStart > lineEnd) {
-//                continue
-//            }
-//
-//            /**
-//             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
-//             *                                                  multiple lines (before and/or after), current entirely selected
-//             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
-//             *                                                  multiple lines (after), current partially or entirely selected
-//             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
-//             *                                                  multiple lines (before), current partially or entirely selected
-//             */
-//            if ((lineStart >= selStart && selEnd >= lineEnd)
-//                    || (lineStart <= selEnd && selEnd <= lineEnd)
-//                    || (lineStart <= selStart && selStart <= lineEnd)) {
-//                list.add(i)
-//            }
-//        }
-//
-//        if (list.isEmpty()) return false
-//
-//        return list.any { containQuote(it) }
-    }
+        val selectionHasTrailingNewline = selectionStart != selectionEnd
+                && editableText.length > selEnd
+                && editableText[selEnd-1] == '\n'
 
-    fun containQuote(index: Int): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        if (index < 0 || index >= lines.size) {
-            return false
-        }
-
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
-        val end = start + lines[index].length
-
-        if (start >= end) {
-            return false
-        }
-
-        val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
-        return spans.isNotEmpty()
+        return editableText.getSpans(selStart, selEnd + if(selectionHasTrailingNewline) 1 else 0, AztecQuoteSpan::class.java)
+                .any {
+                    selStart in editableText.getSpanStart(it)..editableText.getSpanEnd(it) - 1
+                            || selEnd in (editableText.getSpanStart(it) - if (selectionHasTrailingNewline) 1 else 0)..editableText.getSpanEnd(it) - 1
+                }
     }
 
     fun containsHeading(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {

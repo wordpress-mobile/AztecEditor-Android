@@ -707,4 +707,64 @@ class AztecToolbarTest {
         htmlButton.performClick()
         TestUtils.equalsIgnoreWhitespace("", sourceText.text.toString())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun quoteSingleSelectionHighlight() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(0)
+        Assert.assertFalse(quoteButton.isChecked)
+
+        editText.setSelection(1)
+        Assert.assertFalse(quoteButton.isChecked)
+
+        editText.setSelection(2)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(3)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(4)
+        Assert.assertFalse(quoteButton.isChecked)
+
+        editText.setSelection(5)
+        Assert.assertFalse(quoteButton.isChecked)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun quoteMultiSelectionHighlight() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(0, 1)
+        Assert.assertFalse(quoteButton.isChecked)
+
+        editText.setSelection(0,2)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(1,2)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(2,3)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(3,4)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(3,5)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(4,5)
+        Assert.assertFalse(quoteButton.isChecked)
+
+        editText.setSelection(0,5)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(0,4)
+        Assert.assertTrue(quoteButton.isChecked)
+
+        editText.setSelection(0,3)
+        Assert.assertTrue(quoteButton.isChecked)
+    }
 }

@@ -92,6 +92,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var onImeBackListener: OnImeBackListener? = null
     private var onImageTappedListener: OnImageTappedListener? = null
     private var onVideoTappedListener: OnVideoTappedListener? = null
+    private var onAudioTappedListener: OnAudioTappedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -142,6 +143,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     interface OnVideoTappedListener {
         fun onVideoTapped(attrs: AztecAttributes)
+    }
+
+    interface OnAudioTappedListener {
+        fun onAudioTapped(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -463,6 +468,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun setOnVideoTappedListener(listener: OnVideoTappedListener) {
         this.onVideoTappedListener = listener
+    }
+
+    fun setOnAudioTappedListener(listener: OnAudioTappedListener) {
+        this.onAudioTappedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -846,6 +855,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
         videoSpans.forEach {
             it.onVideoTappedListener = onVideoTappedListener
+        }
+
+        val audioSpans = editable.getSpans(start, end, AztecAudioSpan::class.java)
+        audioSpans.forEach {
+            it.onAudioTappedListener = onAudioTappedListener
         }
 
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)

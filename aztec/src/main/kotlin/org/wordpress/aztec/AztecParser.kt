@@ -92,14 +92,17 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         }
 
         withinHtml(out, data)
-        var html = tidy(out.toString())
+        val html = postprocessHtml(tidy(out.toString()))
+        return html
+    }
 
+    private fun postprocessHtml(source: String): String {
+        var html = source
         plugins.filter { it is IHtmlPostprocessor }
-                .map {it as IHtmlPostprocessor }
+                .map { it as IHtmlPostprocessor }
                 .forEach {
                     html = it.processHtmlAfterSerialization(html)
                 }
-
         return html
     }
 

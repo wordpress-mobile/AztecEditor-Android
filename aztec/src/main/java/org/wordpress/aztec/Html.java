@@ -177,16 +177,21 @@ public class Html {
             throw new RuntimeException(e);
         }
 
-        for (IAztecPlugin plugin : plugins) {
-            if (plugin instanceof IHtmlPreprocessor) {
-                source = ((IHtmlPreprocessor)plugin).processHtmlBeforeParsing(source);
-            }
-        }
+        source = preprocessSource(source, plugins);
 
         HtmlToSpannedConverter converter =
                 new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins);
 
         return converter.convert();
+    }
+
+    private static String preprocessSource(String source, List<IAztecPlugin> plugins) {
+        for (IAztecPlugin plugin : plugins) {
+            if (plugin instanceof IHtmlPreprocessor) {
+                source = ((IHtmlPreprocessor)plugin).processHtmlBeforeParsing(source);
+            }
+        }
+        return source;
     }
 
     public static StringBuilder stringifyAttributes(Attributes attributes) {
@@ -717,6 +722,20 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         String comment = new String(chars, start, length);
         int spanStart = spannableStringBuilder.length();
 
+        boolean wasCommentHandled = processCommentHandlerPlugins(comment);
+
+        if (!wasCommentHandled) {
+            spannableStringBuilder.append(comment);
+            spannableStringBuilder.setSpan(
+                    new CommentSpan(),
+                    spanStart,
+                    spannableStringBuilder.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+        }
+    }
+
+    private boolean processCommentHandlerPlugins(String comment) {
         boolean wasCommentHandled = false;
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
@@ -728,16 +747,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             }
         }
-
-        if (!wasCommentHandled) {
-            spannableStringBuilder.append(comment);
-            spannableStringBuilder.setSpan(
-                    new CommentSpan(),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        }
+        return wasCommentHandled;
     }
 
     private static class Unknown {

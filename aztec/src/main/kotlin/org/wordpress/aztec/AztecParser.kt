@@ -21,8 +21,6 @@ package org.wordpress.aztec
 import android.content.Context
 import android.text.*
 import android.text.style.CharacterStyle
-import org.wordpress.aztec.AztecText.OnImageTappedListener
-import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.spans.*
@@ -37,15 +35,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     internal var hiddenSpans: IntArray = IntArray(0)
     internal var spanCursorPosition = -1
 
-    fun fromHtml(source: String, onImageTappedListener: OnImageTappedListener?,
-                 onVideoTappedListener: OnVideoTappedListener?,
-                 onUnknownHtmlClickListener: UnknownHtmlSpan.OnUnknownHtmlClickListener?,
-                 context: Context): Spanned {
+    fun fromHtml(source: String, context: Context): Spanned {
 
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(),
-                onUnknownHtmlClickListener, context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

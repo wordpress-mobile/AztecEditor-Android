@@ -38,15 +38,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     internal var hiddenSpans: IntArray = IntArray(0)
     internal var spanCursorPosition = -1
 
-    fun fromHtml(source: String, onImageTappedListener: OnImageTappedListener?,
-                 onVideoTappedListener: OnVideoTappedListener?,
-                 onUnknownHtmlClickListener: UnknownHtmlSpan.OnUnknownHtmlClickListener?,
-                 context: Context): Spanned {
+    fun fromHtml(source: String, context: Context): Spanned {
 
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(plugins),
-                onUnknownHtmlClickListener, context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(plugins), context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

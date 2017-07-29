@@ -33,6 +33,7 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
+import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
+        AztecText.OnAudioTappedListener,
         IAztecToolbarClickListener,
         IHistoryListener,
         OnRequestPermissionsResultCallback,
@@ -317,11 +319,13 @@ class MainActivity : AppCompatActivity(),
             .setHistoryListener(this)
             .setOnImageTappedListener(this)
             .setOnVideoTappedListener(this)
+            .setOnAudioTappedListener(this)
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
             .addPlugin(CaptionShortcodePlugin())
             .addPlugin(VideoShortcodePlugin())
+            .addPlugin(AudioShortcodePlugin())
 
         BlockElementWatcher(visualEditor)
                 .add(CaptionHandler())
@@ -796,6 +800,25 @@ class MainActivity : AppCompatActivity(),
                     startActivity(browserIntent)
                 } catch (e: ActivityNotFoundException) {
                     ToastUtils.showToast(this, "Video tapped!")
+                }
+            }
+        }
+    }
+
+    override fun onAudioTapped(attrs: AztecAttributes) {
+        val url = attrs.getValue("src")
+        url?.let {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.setDataAndType(Uri.parse(url), "audio/*")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
+                } catch (e: ActivityNotFoundException) {
+                    ToastUtils.showToast(this, "Audio tapped!")
                 }
             }
         }

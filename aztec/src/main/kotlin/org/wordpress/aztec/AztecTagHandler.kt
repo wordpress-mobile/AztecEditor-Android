@@ -22,6 +22,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
@@ -71,27 +72,18 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 return true
             }
             IMAGE -> {
-                if (opening) {
-                    val mediaSpan = createImageSpan(AztecAttributes(attributes), context)
-                    start(output, mediaSpan)
-                    start(output, AztecMediaClickableSpan(mediaSpan))
-                    output.append(Constants.IMG_CHAR)
-                } else {
-                    end(output, AztecImageSpan::class.java)
-                    end(output, AztecMediaClickableSpan::class.java)
-                }
+                handleMediaElement(opening, context, attributes, output,
+                        AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
-                if (opening) {
-                    val mediaSpan = createVideoSpan(AztecAttributes(attributes), context, nestingLevel)
-                    start(output, mediaSpan)
-                    start(output, AztecMediaClickableSpan(mediaSpan))
-                    output.append(Constants.IMG_CHAR)
-                } else {
-                    end(output, AztecVideoSpan::class.java)
-                    end(output, AztecMediaClickableSpan::class.java)
-                }
+                handleMediaElement(opening, context, attributes, output,
+                        AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                return true
+            }
+            AUDIO -> {
+                handleMediaElement(opening, context, attributes, output,
+                        AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             PARAGRAPH -> {
@@ -102,7 +94,6 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
                     start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
-
                     output.append(Constants.MAGIC_CHAR)
                 } else {
                     end(output, AztecHorizontalRuleSpan::class.java)
@@ -118,35 +109,44 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                     handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
                     return true
                 } else {
-                    plugins.filter { it is IHtmlTagHandler }
-                            .map { it as IHtmlTagHandler }
-                            .forEach( {
-                                if (it.canHandleTag(tag)) {
-                                    val wasHandled = it.handleTag(opening, tag, output, attributes, nestingLevel)
-                                    if (wasHandled) {
-                                        return true
-                                    }
-                                }
-                            })
+                    if (processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)) return true
                 }
             }
         }
         return false
     }
 
-    private fun createImageSpan(attributes: AztecAttributes, context: Context) : AztecMediaSpan {
-        val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
-        styles.recycle()
-        return AztecImageSpan(context, loadingDrawable, attributes)
+    private fun processTagHandlerPlugins(tag: String, opening: Boolean, output: Editable, attributes: Attributes, nestingLevel: Int) : Boolean {
+        plugins.filter { it is IHtmlTagHandler }
+                .map { it as IHtmlTagHandler }
+                .forEach({
+                    if (it.canHandleTag(tag)) {
+                        val wasHandled = it.handleTag(opening, tag, output, attributes, nestingLevel)
+                        if (wasHandled) {
+                            return true
+                        }
+                    }
+                })
+        return false
     }
 
-    private fun createVideoSpan(attributes: AztecAttributes,
-                                context: Context, nestingLevel: Int) : AztecMediaSpan {
+    private fun getLoadingDrawable(context: Context): Drawable? {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
         styles.recycle()
-        return AztecVideoSpan(context, loadingDrawable, nestingLevel, attributes)
+        return loadingDrawable
+    }
+
+    private fun handleMediaElement(opening: Boolean, context: Context, attributes: Attributes,
+                                   output: Editable, mediaSpan: AztecMediaSpan) {
+        if (opening) {
+            start(output, mediaSpan)
+            start(output, AztecMediaClickableSpan(mediaSpan))
+            output.append(Constants.IMG_CHAR)
+        } else {
+            end(output, mediaSpan.javaClass)
+            end(output, AztecMediaClickableSpan::class.java)
+        }
     }
 
     private fun handleElement(output: Editable, opening: Boolean, span: Any) {
@@ -205,6 +205,7 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
         private val PREFORMAT = "pre"
         private val IMAGE = "img"
         private val VIDEO = "video"
+        private val AUDIO = "audio"
         private val LINE = "hr"
 
         private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {

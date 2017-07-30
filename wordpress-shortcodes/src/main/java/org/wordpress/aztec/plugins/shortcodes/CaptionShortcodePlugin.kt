@@ -35,8 +35,8 @@ class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostproc
 
     override fun processHtmlBeforeParsing(source: String): String {
         return StringBuilder(source)
-                .replace(Regex("\\[${TAG}n([^\\]]*)\\]"), "<$TAG$1>")
-                .replace(Regex("\\[/${TAG}n\\]"), "</$TAG>")
+                .replace(Regex("(?<!\\[)\\[${TAG}n([^\\]]*)\\]"), "<$TAG$1>")
+                .replace(Regex("\\[/${TAG}n\\](?!\\])"), "</$TAG>")
     }
 
     override fun processHtmlAfterSerialization(source: String): String {

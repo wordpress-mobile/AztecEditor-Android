@@ -8,7 +8,7 @@ class AudioShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     private val TAG = "audio"
 
     override fun processHtmlBeforeParsing(source: String): String {
-        return source.replace(Regex("\\[$TAG([^\\]]*)\\]"), "<$TAG$1 />")
+        return source.replace(Regex("(?<!\\[)\\[$TAG([^\\]]*)\\](?!\\])"), "<$TAG$1 />")
     }
 
     override fun processHtmlAfterSerialization(source: String): String {

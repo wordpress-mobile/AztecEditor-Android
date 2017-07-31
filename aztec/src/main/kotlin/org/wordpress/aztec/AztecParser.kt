@@ -21,8 +21,6 @@ package org.wordpress.aztec
 import android.content.Context
 import android.text.*
 import android.text.style.CharacterStyle
-import org.wordpress.aztec.AztecText.OnImageTappedListener
-import org.wordpress.aztec.AztecText.OnVideoTappedListener
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler

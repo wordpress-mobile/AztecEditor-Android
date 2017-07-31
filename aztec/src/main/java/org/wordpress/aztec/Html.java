@@ -286,6 +286,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             return;
         }
 
+        if (tagHandler != null) {
+            if (tag.equalsIgnoreCase("pre")) {
+                insidePreTag = true;
+            }
+
+            if (tagHandler.handleTag(true, tag, spannableStringBuilder,
+                    context, attributes, nestingLevel)) {
+                return; // tag was handled
+            }
+        }
+
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
@@ -322,30 +333,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = true;
             start(spannableStringBuilder, AztecTextFormat.FORMAT_CODE, attributes);
-        } else {
-            if (tagHandler != null) {
-                if (tag.equalsIgnoreCase("pre")) {
-                    insidePreTag = true;
-                }
-
-                boolean tagHandled = tagHandler.handleTag(true, tag, spannableStringBuilder,
-                        context, attributes, nestingLevel);
-
-                if (tagHandled) {
-                    return;
-                }
-            }
-
-            if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
-                // Initialize a new "Unknown" node
-                if (unknownTagLevel == 0) {
-                    unknownTagLevel = 1;
-                    unknown = new Unknown();
-                    unknown.rawHtml = new StringBuilder();
-                    unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
-                    spannableStringBuilder.setSpan(unknown, spannableStringBuilder.length(),
-                            spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
-                }
+        } else if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
+            // Initialize a new "Unknown" node
+            if (unknownTagLevel == 0) {
+                unknownTagLevel = 1;
+                unknown = new Unknown();
+                unknown.rawHtml = new StringBuilder();
+                unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+                spannableStringBuilder.setSpan(unknown, spannableStringBuilder.length(),
+                        spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
             }
         }
     }
@@ -368,6 +364,17 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 endUnknown(spannableStringBuilder, nestingLevel, unknown.rawHtml, context);
             }
             return;
+        }
+
+        if (tagHandler != null) {
+            if (tag.equalsIgnoreCase("pre")) {
+                insidePreTag = false;
+            }
+
+            if (tagHandler.handleTag(false, tag, spannableStringBuilder, context,
+                    new AztecAttributes(), nestingLevel)) {
+                return; // tag was handled
+            }
         }
 
         if (tag.equalsIgnoreCase("br")) {
@@ -403,12 +410,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = false;
             end(spannableStringBuilder, AztecTextFormat.FORMAT_CODE);
-        } else if (tagHandler != null) {
-            if (tag.equalsIgnoreCase("pre")) {
-                insidePreTag = false;
-            }
-            tagHandler.handleTag(false, tag, spannableStringBuilder, context,
-                    new AztecAttributes(), nestingLevel);
         }
     }
 

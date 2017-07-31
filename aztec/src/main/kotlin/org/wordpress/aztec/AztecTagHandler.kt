@@ -42,6 +42,10 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                            context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
 
+        if (processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)) {
+            return true
+        }
+
         when (tag.toLowerCase()) {
             LIST_LI -> {
                 handleElement(output, opening, AztecListItemSpan(nestingLevel, AztecAttributes(attributes)))
@@ -108,8 +112,6 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
                     handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
                     return true
-                } else {
-                    if (processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)) return true
                 }
             }
         }

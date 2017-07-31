@@ -57,7 +57,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
 
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
@@ -697,8 +697,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val parser = AztecParser(plugins)
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
-                onImageTappedListener, onVideoTappedListener, this, context))
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -848,6 +847,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         videoSpans.forEach {
             it.onVideoTappedListener = onVideoTappedListener
         }
+
+        val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
+        unknownHtmlSpans.forEach {
+            it.onUnknownHtmlTappedListener = this
+        }
     }
 
     fun disableTextChangedListener() {
@@ -966,8 +970,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()),
-                        onImageTappedListener, onVideoTappedListener, this, context).trim())
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -1069,12 +1072,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
-        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), onImageTappedListener,
-                    onVideoTappedListener, this, context).trim())
+            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), context).trim())
             setSelection(spanStart)
 
             disableTextChangedListener()
@@ -1238,7 +1240,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 .map { it.attributes }
     }
 
-    override fun onUnknownHtmlClicked(unknownHtmlSpan: UnknownHtmlSpan) {
+    override fun onUnknownHtmlTapped(unknownHtmlSpan: UnknownHtmlSpan) {
         showBlockEditorDialog(unknownHtmlSpan)
     }
 }

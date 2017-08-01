@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+## Fixed
+- Image/video loading placeholder drawable usage
+
 ### Added
 - This changelog
 

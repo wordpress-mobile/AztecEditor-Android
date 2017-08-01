@@ -3,96 +3,138 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.0-beta.6] - 2017-07-25
+### Changed
 - Plugin interface refactoring
-- Fixed image tap detection
 - Disabled the memory optimization of drawables (temporary fix for image disappearing bug)
 
+### Fixed
+- Fixed image tap detection
+
 ## [1.0-beta.5] - 2017-07-21
-- Fixed a possible memory leak connected to drawables
-- Fixed OOB crash in AztecMediaSpan
+### Fixed
+- A possible memory leak connected to drawables
+- OOB crash in AztecMediaSpan
+
+### Changed
 - Disabled styling of multiline text with lingering newlines (temporary crash fix)
 
 ## [1.0-beta.4] - 2017-07-14
+### Added
 - 1st stage of plugin architecture redesign – moved special comments to a separate WordPress comments plugin
-- Some UI tests got fixed
-- Fixed a crash during quote parsing
-- Fixed list styling, when 1st line was empty
-- Fixed a bug when toolbar buttons only work when device keyboard is open
-- Fixed a bug when style toolbar was erroneously highlighted
+
+### Fixed
+- Some UI tests
+- A crash during quote parsing
+- List styling, when 1st line was empty
+- A bug when toolbar buttons only work when device keyboard is open
+- A bug when style toolbar was erroneously highlighted
 
 ## [1.0-beta.3] - 2017-07-03
-- Fixed toolbar ellipsis button disabled state
+### Fixed
+- Toolbar ellipsis button disabled state
+- Ttoolbar collapse/expand triggers
+- Jittery cursor movement during media upload
+
+### Added
 - Added button click callbacks
+
+### Changed
 - Updated toolbar layout to allow switching between simple/advanced mode
-- Fixed toolbar collapse/expand triggers
-- Fixed jittery cursor movement during media upload
 
 ## [1.0-beta.2] - 2017-06-20
-- Major toolbar redesign & improvements (button reordering, updated icons & colors, new advanced mode, new list & heading menus and more)
-- Fixed a bug that prevented an inline style to be removed in the middle of text
+### Added
 - Implemented <video> tag support & video playback
-- Fixed a link selection crash
-- Updated example content in the demo app
 - Added UI tests for text formatting
-- Fixed a bug that caused a wrong block element being selected in the toolbar
+
+### Changed
+- Major toolbar redesign & improvements (button reordering, updated icons & colors, new advanced mode, new list & heading menus and more)
+- Updated example content in the demo app
+
+### Fixed
+- A bug that prevented an inline style to be removed in the middle of text
+- A link selection crash
+- A bug that caused a wrong block element being selected in the toolbar
 
 ## [1.0-beta.1] - 2017-06-05
+### Added
 - `<pre>` tag with white-space formatting support
-- Changing heading type for multiple headings bug fix
-- Disappearing context menu during image upload fix
-- Paragraphs disappearing while deleting fix
-- Toolbar buttons selected state style change
+
+### Fixed
+- Changing heading type for multiple headings
+- Disappearing context menu during image upload
+- Paragraphs disappearing while deleting
+
+### Changed
+- Toolbar buttons selected state style
 
 ## [1.0.0-beta] - 2017-04-24
-- Fixed the heading menu bug
-- Implemented paragraph support for double-newline separation in HTML
-- Implemented paragraph (larger) break on return key
-- Added support for embedded lists
-- Fixed the crash when pressing undo while uploading an image
-- Added ability to update element attributes from the library client
+### Added
+- Paragraph support for double-newline separation in HTML
+- Paragraph (larger) break on return key
+- Support for embedded lists
+- Ability to update element attributes from the library client
+
+### Fixed
+- The heading menu bug
+- The crash when pressing undo while uploading an image
 
 ## [0.5.0-alpha.5] - 2017-04-11
-- Added support for the `<hr>` tag
-- Fixed a bug that resulted in quote style removal
-- Fixed another quote style rendering issue
-- Fixed the crash when adding an image to an empty post
-- Fixed the freezing & lagging when having multiple images in a post
-- Fixed the weird cursor behavior around special comments
+### Added
+- Support for the `<hr>` tag
+
+### Fixed
+- A bug that resulted in quote style removal
+- Another quote style rendering issue
+- The crash when adding an image to an empty post
+- The freezing & lagging when having multiple images in a post
+- The weird cursor behavior around special comments
 
 ## [0.5.0-alpha.4] - 2017-03-27
-- Fixed Toolbar crash report
-- Having multiple bullets with nested lists
+### Fixed
+- Toolbar crash
+- The heading-deletion crash
+- A strange behavior when adding multiple different heading
 - Nested lists getting removed when switching to HTML mode
-- The nesting of lists/quotes getting swapped when toggling HTML mode
 - Disappearing newlines between headings
-- Closing lists with double enter adding extra newline
 - Text inside paragraph getting moved outside when toggling HTML mode
 - Heading inside list & quote adding extra newlines
-- Double space to end sentence inserting a space before period
 - Using backspace on Nougat causing weird cursor behavior
 - Weird cursor behavior when deleting text inside quote
 - Heading inside lists adding extra newlines
-- Dropped the Merriweather font and use the default serif & monospace fonts
+- Multiple bullets with nested lists
+- The nesting of lists/quotes getting swapped when toggling HTML mode
+- Closing lists with double enter adding extra newline
+- Double space to end sentence inserting a space before period
+
+### Changed
 - Updated the Heading icon
 - Updated unknown-HTML dialog style to match the WordPress colors
-- Fixed the heading-deletion crash
-- Fixed a strange behavior when adding multiple different heading
+
+### Removed
+- Dropped the Merriweather font & replaced it with default serif & monospace fonts
 
 ## [0.5.0-alpha.3] - 2017-02-27
-- fixed cursor visibility on highlighted background
-- fixed broken links on older Android versions
-- fixed empty block quotes being removed
-- wide images inside lists are now adjusted to fit
-- toolbar state is preserved on rotation
-- added keyboard shortcuts for format toolbar buttons
-- new unknown HTML (question mark icon) edit dialog
-- fixed the link crash
-- span tag is now formatted inline
+### Fixed
+- Cursor visibility on highlighted background
+- Broken links on older Android versions
+- Empty block quotes being removed
+- The link crash
+
+### Changed
+- Wide images inside lists are now adjusted to fit
+- Span tag is now formatted inline
+
+### Added
+- Toolbar state is preserved on rotation
+- Keyboard shortcuts for format toolbar buttons
+- New unknown HTML (question mark icon) edit dialog
 
 ## [0.5.0-alpha.2] - 2017-02-13
+### Fixed
 - a handful of bugfixes
 
 ## [0.5.0-alpha] - 2017-02-08
+### Added
 - Synchronized visual and HTML mode
 - Edit history with undo/redo
 - Images (both downloading & adding)

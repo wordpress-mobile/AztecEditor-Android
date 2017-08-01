@@ -6,6 +6,10 @@
 
 ### Added
 - This changelog
+- Plugin interface for regex plain text handler
+- Plugin interface for HTML preprocessor
+- Plugin interface for HTML postprocessor
+- Plugin module with `[video]`, `[audio]` and `[caption]` WordPress shrotcode support
 
 ## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed

@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Toolbar button highlighted state to use a color with more contrast
+
 ### Fixed
 - Image/video loading placeholder drawable usage
 

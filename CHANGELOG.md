@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.6) - 2017-07-25
+## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed
 - Plugin interface refactoring
 - Disabled the memory optimization of drawables (temporary fix for image disappearing bug)
@@ -8,7 +8,7 @@
 ### Fixed
 - Fixed image tap detection
 
-## [1.0-beta.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.5) - 2017-07-21
+## [1.0-beta.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.5) - 2017-07-21
 ### Fixed
 - A possible memory leak connected to drawables
 - OOB crash in AztecMediaSpan
@@ -16,7 +16,7 @@
 ### Changed
 - Disabled styling of multiline text with lingering newlines (temporary crash fix)
 
-## [1.0-beta.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.4) - 2017-07-14
+## [1.0-beta.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.4) - 2017-07-14
 ### Added
 - 1st stage of plugin architecture redesign – moved special comments to a separate WordPress comments plugin
 
@@ -27,7 +27,7 @@
 - A bug when toolbar buttons only work when device keyboard is open
 - A bug when style toolbar was erroneously highlighted
 
-## [1.0-beta.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.3) - 2017-07-03
+## [1.0-beta.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.3) - 2017-07-03
 ### Fixed
 - Toolbar ellipsis button disabled state
 - Ttoolbar collapse/expand triggers
@@ -39,7 +39,7 @@
 ### Changed
 - Updated toolbar layout to allow switching between simple/advanced mode
 
-## [1.0-beta.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.2) - 2017-06-20
+## [1.0-beta.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.2) - 2017-06-20
 ### Added
 - Implemented <video> tag support & video playback
 - Added UI tests for text formatting
@@ -53,7 +53,7 @@
 - A link selection crash
 - A bug that caused a wrong block element being selected in the toolbar
 
-## [1.0-beta.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.1) - 2017-06-05
+## [1.0-beta.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.1) - 2017-06-05
 ### Added
 - `<pre>` tag with white-space formatting support
 
@@ -65,7 +65,7 @@
 ### Changed
 - Toolbar buttons selected state style
 
-## [1.0.0-beta](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta) - 2017-04-24
+## [1.0.0-beta](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta) - 2017-04-24
 ### Added
 - Paragraph support for double-newline separation in HTML
 - Paragraph (larger) break on return key

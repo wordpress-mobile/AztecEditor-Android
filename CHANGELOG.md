@@ -1,8 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-## [1.0-beta.6] - 2017-07-25
+## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.6) - 2017-07-25
 ### Changed
 - Plugin interface refactoring
 - Disabled the memory optimization of drawables (temporary fix for image disappearing bug)
@@ -10,7 +8,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed image tap detection
 
-## [1.0-beta.5] - 2017-07-21
+## [1.0-beta.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.5) - 2017-07-21
 ### Fixed
 - A possible memory leak connected to drawables
 - OOB crash in AztecMediaSpan
@@ -18,7 +16,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Disabled styling of multiline text with lingering newlines (temporary crash fix)
 
-## [1.0-beta.4] - 2017-07-14
+## [1.0-beta.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.4) - 2017-07-14
 ### Added
 - 1st stage of plugin architecture redesign – moved special comments to a separate WordPress comments plugin
 
@@ -29,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - A bug when toolbar buttons only work when device keyboard is open
 - A bug when style toolbar was erroneously highlighted
 
-## [1.0-beta.3] - 2017-07-03
+## [1.0-beta.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.3) - 2017-07-03
 ### Fixed
 - Toolbar ellipsis button disabled state
 - Ttoolbar collapse/expand triggers
@@ -41,7 +39,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Updated toolbar layout to allow switching between simple/advanced mode
 
-## [1.0-beta.2] - 2017-06-20
+## [1.0-beta.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.2) - 2017-06-20
 ### Added
 - Implemented <video> tag support & video playback
 - Added UI tests for text formatting
@@ -55,7 +53,7 @@ All notable changes to this project will be documented in this file.
 - A link selection crash
 - A bug that caused a wrong block element being selected in the toolbar
 
-## [1.0-beta.1] - 2017-06-05
+## [1.0-beta.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta.1) - 2017-06-05
 ### Added
 - `<pre>` tag with white-space formatting support
 
@@ -67,7 +65,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Toolbar buttons selected state style
 
-## [1.0.0-beta] - 2017-04-24
+## [1.0.0-beta](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.0-beta) - 2017-04-24
 ### Added
 - Paragraph support for double-newline separation in HTML
 - Paragraph (larger) break on return key
@@ -78,7 +76,7 @@ All notable changes to this project will be documented in this file.
 - The heading menu bug
 - The crash when pressing undo while uploading an image
 
-## [0.5.0-alpha.5] - 2017-04-11
+## [0.5.0-alpha.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v0.5.0-alpha.5) - 2017-04-11
 ### Added
 - Support for the `<hr>` tag
 
@@ -89,7 +87,7 @@ All notable changes to this project will be documented in this file.
 - The freezing & lagging when having multiple images in a post
 - The weird cursor behavior around special comments
 
-## [0.5.0-alpha.4] - 2017-03-27
+## [0.5.0-alpha.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v0.5.0-alpha.4) - 2017-03-27
 ### Fixed
 - Toolbar crash
 - The heading-deletion crash
@@ -113,7 +111,7 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - Dropped the Merriweather font & replaced it with default serif & monospace fonts
 
-## [0.5.0-alpha.3] - 2017-02-27
+## [0.5.0-alpha.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v0.5.0-alpha.3) - 2017-02-27
 ### Fixed
 - Cursor visibility on highlighted background
 - Broken links on older Android versions
@@ -129,11 +127,11 @@ All notable changes to this project will be documented in this file.
 - Keyboard shortcuts for format toolbar buttons
 - New unknown HTML (question mark icon) edit dialog
 
-## [0.5.0-alpha.2] - 2017-02-13
+## [0.5.0-alpha.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v0.5.0-alpha.2) - 2017-02-13
 ### Fixed
 - a handful of bugfixes
 
-## [0.5.0-alpha] - 2017-02-08
+## [0.5.0-alpha](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v0.5.0-alpha) - 2017-02-08
 ### Added
 - Synchronized visual and HTML mode
 - Edit history with undo/redo

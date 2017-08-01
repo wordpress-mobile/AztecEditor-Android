@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Added
+- This changelog
+
 ## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed
 - Plugin interface refactoring

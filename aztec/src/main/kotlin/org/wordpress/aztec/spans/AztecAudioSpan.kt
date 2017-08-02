@@ -16,7 +16,7 @@ class AztecAudioSpan(context: Context, drawable: Drawable?, override var nesting
     override val TAG: String = "audio"
 
     init {
-        setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_menu_call), Gravity.CENTER)
+        setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_lock_silent_mode_off), Gravity.CENTER)
     }
 
     override fun onClick() {

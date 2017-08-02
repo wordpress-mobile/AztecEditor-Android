@@ -1,8 +1,8 @@
 package org.wordpress.aztec.toolbar
 
+import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.AztecTextFormat
 import java.util.*
 
 /**

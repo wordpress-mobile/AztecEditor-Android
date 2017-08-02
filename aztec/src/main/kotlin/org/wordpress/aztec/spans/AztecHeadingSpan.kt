@@ -7,8 +7,8 @@ import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 class AztecHeadingSpan @JvmOverloads constructor(

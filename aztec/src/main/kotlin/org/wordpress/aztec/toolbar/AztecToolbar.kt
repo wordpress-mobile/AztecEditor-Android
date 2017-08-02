@@ -14,9 +14,9 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import android.widget.PopupMenu.OnMenuItemClickListener
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.*

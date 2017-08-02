@@ -22,6 +22,7 @@ import android.content.Context
 import android.text.*
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.util.SpanWrapper
@@ -39,7 +40,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(), context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(plugins), context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
@@ -89,7 +90,18 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         }
 
         withinHtml(out, data)
-        return tidy(out.toString())
+        val html = postprocessHtml(tidy(out.toString()))
+        return html
+    }
+
+    private fun postprocessHtml(source: String): String {
+        var html = source
+        plugins.filter { it is IHtmlPostprocessor }
+                .map { it as IHtmlPostprocessor }
+                .forEach {
+                    html = it.processHtmlAfterSerialization(html)
+                }
+        return html
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {
@@ -409,8 +421,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 plugins.filter { it is IInlineSpanHandler && it.canHandleSpan(span) }
+                        .map { it as IInlineSpanHandler }
                         .forEach {
-                            (it as IInlineSpanHandler).handleSpanStart(out, span)
+                            it.handleSpanStart(out, span)
                             if (!it.shouldParseContent()) {
                                 i = next
                             }
@@ -445,8 +458,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 plugins.filter { it is IInlineSpanHandler && it.canHandleSpan(span) }
+                        .map { it as IInlineSpanHandler }
                         .forEach {
-                            (it as IInlineSpanHandler).handleSpanEnd(out, span)
+                            it.handleSpanEnd(out, span)
                         }
 
                 if (span is HiddenHtmlSpan) {
@@ -524,10 +538,10 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 out.append("&gt;")
             } else if (c == '&') {
                 out.append("&amp;")
-            } else if (c.toInt() >= 0xD800 && c.toInt() <= 0xDFFF) {
+            } else if (c.toInt() in 0xD800..0xDFFF) {
                 if (c.toInt() < 0xDC00 && i + 1 < end) {
                     val d = text[i + 1]
-                    if (d.toInt() >= 0xDC00 && d.toInt() <= 0xDFFF) {
+                    if (d.toInt() in 0xDC00..0xDFFF) {
                         i++
                         val codepoint = 0x010000 or ((c.toInt() - 0xD800) shl 10) or (d.toInt() - 0xDC00)
                         out.append("&#").append(codepoint).append(";")

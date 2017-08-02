@@ -7,19 +7,19 @@ import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 
-class AztecVideoSpan(context: Context, drawable: Drawable?, override var nestingLevel: Int,
+class AztecAudioSpan(context: Context, drawable: Drawable?, override var nestingLevel: Int,
                      attributes: AztecAttributes = AztecAttributes(),
-                     var onVideoTappedListener: AztecText.OnVideoTappedListener? = null,
+                     var onAudioTappedListener: AztecText.OnAudioTappedListener? = null,
                      editor: AztecText? = null) :
         AztecMediaSpan(context, drawable, attributes, editor), IAztecFullWidthImageSpan, IAztecSpan {
 
-    override val TAG: String = "video"
+    override val TAG: String = "audio"
 
     init {
-        setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_media_play), Gravity.CENTER)
+        setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_lock_silent_mode_off), Gravity.CENTER)
     }
 
     override fun onClick() {
-        onVideoTappedListener?.onVideoTapped(attributes)
+        onAudioTappedListener?.onAudioTapped(attributes)
     }
 }

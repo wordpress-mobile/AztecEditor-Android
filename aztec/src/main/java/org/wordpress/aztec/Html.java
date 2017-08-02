@@ -655,6 +655,12 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             }
         }
 
+        processTextHandlerPlugins(sb);
+
+        spannableStringBuilder.append(sb);
+    }
+
+    private void processTextHandlerPlugins(StringBuilder sb) {
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
                 if (plugin instanceof IHtmlTextHandler) {
@@ -672,8 +678,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
             }
         }
-
-        spannableStringBuilder.append(sb);
     }
 
     public void ignorableWhitespace(char ch[], int start, int length) throws SAXException {

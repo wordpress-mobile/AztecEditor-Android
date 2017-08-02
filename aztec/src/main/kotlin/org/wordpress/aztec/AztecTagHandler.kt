@@ -42,7 +42,8 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                            context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
 
-        if (processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)) {
+        val wasTagHandled = processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)
+        if (wasTagHandled) {
             return true
         }
 

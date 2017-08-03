@@ -735,35 +735,46 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun quoteMultiSelectionHighlight() {
+        // 1\n2\n3
         editText.fromHtml("1<blockquote>2</blockquote>3")
 
+        //selected 1
         editText.setSelection(0, 1)
         Assert.assertFalse(quoteButton.isChecked)
 
+        //selected 1\n
         editText.setSelection(0,2)
-        Assert.assertTrue(quoteButton.isChecked)
+        Assert.assertFalse(quoteButton.isChecked)
 
+        //selected \n
         editText.setSelection(1,2)
-        Assert.assertTrue(quoteButton.isChecked)
+        Assert.assertFalse(quoteButton.isChecked)
 
+        //selected 2
         editText.setSelection(2,3)
         Assert.assertTrue(quoteButton.isChecked)
 
+        //selected \n
         editText.setSelection(3,4)
         Assert.assertTrue(quoteButton.isChecked)
 
+        //selected \n3
         editText.setSelection(3,5)
         Assert.assertTrue(quoteButton.isChecked)
 
+        //selected 3
         editText.setSelection(4,5)
         Assert.assertFalse(quoteButton.isChecked)
 
+        //selected 1\n2\n3
         editText.setSelection(0,5)
         Assert.assertTrue(quoteButton.isChecked)
 
+        //selected 1\n2\n
         editText.setSelection(0,4)
         Assert.assertTrue(quoteButton.isChecked)
 
+        //selected 1\n2
         editText.setSelection(0,3)
         Assert.assertTrue(quoteButton.isChecked)
     }

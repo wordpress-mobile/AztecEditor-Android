@@ -18,6 +18,7 @@ object Format {
 
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
+        html = html.replace("<aztec_cursor>", "")
 
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
@@ -27,7 +28,6 @@ object Format {
                     .forEach { it.remove() }
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
-            html = html.replace("aztec_cursor", "")
 
             html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
             html = toCalypsoSourceEditorFormat(html)

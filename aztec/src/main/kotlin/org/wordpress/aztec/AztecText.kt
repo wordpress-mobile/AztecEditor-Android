@@ -964,7 +964,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val output = SpannableStringBuilder(selectedText)
 
         //Strip block elements until we figure out copy paste completely
-        output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
@@ -980,22 +979,16 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         if (clip != null) {
             val parser = AztecParser(plugins)
 
+            editable.replace(min, max, Constants.REPLACEMENT_MARKER_STRING)
+
             for (i in 0..clip.itemCount - 1) {
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
-                val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), context).trim())
-                Selection.setSelection(editable, max)
+                val oldHtml = Format.removeSourceEditorFormatting(parser.toHtml(editable))
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_CHAR_ESCAPED,
+                        Format.removeSourceEditorFormatting(textToPaste.toString()))
 
-                disableTextChangedListener()
-                // FIXME
-                try {
-                    editable.replace(min, max, builder)
-                } catch (e: RuntimeException) {
-                    // try to get more context for this crash: https://github.com/wordpress-mobile/AztecEditor-Android/issues/424
-                    throw RuntimeException("### MIN: $min, MAX: $max\n---\n### TEXT:${toHtml()}\n---\n### PASTED:${parser.toHtml(builder)}", e)
-                }
-                enableTextChangedListener()
+                fromHtml(newHtml)
 
                 inlineFormatter.joinStyleSpans(0, editable.length) //TODO: see how this affects performance
             }

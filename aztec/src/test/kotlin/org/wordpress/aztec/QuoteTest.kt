@@ -625,7 +625,6 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
 
-
         editText.setSelection(1,2)
         editText.toggleFormatting(formattingType)
 
@@ -639,12 +638,11 @@ class QuoteTest {
 
     @Test
     @Throws(Exception::class)
-    fun someTest() {
+    fun testMultiLineSelectionStylingWithSelectionEndOnEOL() {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "1")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-
 
         editText.setSelection(1,3)
         editText.toggleFormatting(formattingType)
@@ -654,6 +652,52 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<br>1<br><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWithCursorOnEOL() {
+        editText.fromHtml("123<blockquote>4</blockquote>567")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>123<br>4</blockquote>567", editText.toHtml())
+
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testSingleCharSelectionStylingWitWithCursorOnEOL() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1<br>2</blockquote>3", editText.toHtml())
+
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWitWithCursorOnEOL() {
+        editText.fromHtml("123<blockquote>4</blockquote>567")
+
+        editText.setSelection(0,4)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>123</blockquote><blockquote>4</blockquote>567", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWitWithSelectionEndOnEOL() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(0,1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
     }
 
 }

@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Fixed
 - Image/video loading placeholder drawable usage
+- The missing hint bug if text is empty
 
 ### Added
 - This changelog

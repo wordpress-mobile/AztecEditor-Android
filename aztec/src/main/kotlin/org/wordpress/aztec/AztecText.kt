@@ -240,22 +240,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         movementMethod = EnhancedMovementMethod
 
         // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
-        setOnKeyListener { v, keyCode, event ->
-            var consumeKeyEvent = false
-            if (keyCode == KeyEvent.KEYCODE_DEL && event.action == KeyEvent.ACTION_DOWN) {
-                history.beforeTextChanged(toFormattedHtml())
-                if (selectionStart == 0 || selectionEnd == 0) {
-                    inlineFormatter.tryRemoveLeadingInlineStyle()
-                    isLeadingStyleRemoved = true
-                    onSelectionChanged(0, 0)
-                }
-                consumeKeyEvent = blockFormatter.tryRemoveBlockStyleFromFirstLine()
-            }
-
-            if (consumeKeyEvent) {
-                history.handleHistory(this@AztecText)
-            }
-            consumeKeyEvent
+        setOnKeyListener { _, _, event ->
+            handleBackspace(event)
         }
 
         install()
@@ -266,6 +252,28 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         enableTextChangedListener()
 
         isViewInitialized = true
+    }
+
+    private fun handleBackspace(event: KeyEvent): Boolean {
+        var wasStyleRemoved = false
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+            history.beforeTextChanged(toFormattedHtml())
+            wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+
+            if (selectionStart == 0 || selectionEnd == 0) {
+                deleteInlineStyleFromTheBeginning()
+            }
+
+            // required to clear the toolbar style when using hardware keyboard
+            if (text.isEmpty()) {
+                disableTextChangedListener()
+                setText("")
+                enableTextChangedListener()
+            }
+
+            history.handleHistory(this@AztecText)
+        }
+        return wasStyleRemoved
     }
 
     private fun install() {
@@ -946,9 +954,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
                 //if we are cutting text from the beginning of editor, remove leading inline style
                 if (min == 0) {
-                    inlineFormatter.tryRemoveLeadingInlineStyle()
-                    isLeadingStyleRemoved = true
-                    onSelectionChanged(0, 0)
+                    deleteInlineStyleFromTheBeginning()
                 }
             }
             else -> return super.onTextContextMenuItem(id)
@@ -1123,22 +1129,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
 
         override fun sendKeyEvent(event: KeyEvent): Boolean {
-            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
-                val isStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
-
-                history.beforeTextChanged(toFormattedHtml())
-                if (selectionStart == 0 || selectionEnd == 0) {
-                    inlineFormatter.tryRemoveLeadingInlineStyle()
-                    isLeadingStyleRemoved = true
-                    onSelectionChanged(0, 0)
-                    return false
-                }
-
-                if (isStyleRemoved) {
-                    history.handleHistory(this@AztecText)
-                    return false
-                }
-            }
+            handleBackspace(event)
             return super.sendKeyEvent(event)
         }
 
@@ -1149,6 +1140,19 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             }
             return super.deleteSurroundingText(beforeLength, afterLength)
         }
+    }
+
+    private fun deleteInlineStyleFromTheBeginning() {
+        inlineFormatter.tryRemoveLeadingInlineStyle()
+        isLeadingStyleRemoved = true
+
+        // Remove the end-of-buffer character if the text is empty (so hint can become visible)
+        if (text.toString() == Constants.END_OF_BUFFER_MARKER.toString()) {
+            disableTextChangedListener()
+            text.delete(0, 1)
+            enableTextChangedListener()
+        }
+        onSelectionChanged(0, 0)
     }
 
     fun insertImage(drawable: Drawable?, attributes: Attributes) {

@@ -20,7 +20,7 @@
     <color name="format_bar_background">@color/grey_light</color>
     <color name="format_bar_button">@color/grey</color>
     <color name="format_bar_button_disabled">@color/grey_lighten_30</color>
-    <color name="format_bar_button_highlighted">@color/blue_wordpress</color>
+    <color name="format_bar_button_highlighted">@color/almost_black</color>
     <color name="format_bar_divider_horizontal">@color/grey_lighten_10</color>
     <color name="format_bar_divider_vertical">@color/grey_lighten_20</color>
     <color name="format_bar_ripple_animation">@color/grey_lighten_10</color>
@@ -43,6 +43,7 @@
     <color name="grey_c_30">#4dcccccc</color>
     <color name="grey_e">#ffeeeeee</color>
     <color name="white">#ffffffff</color>
+    <color name="almost_black">#ff11181D</color>
 
     <!-- WORDPRESS -->
     <color name="blue_dark">#005082</color>

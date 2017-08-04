@@ -1,1 +1,1 @@
-include ':app', ':aztec', ':glide-loader', ':picasso-loader', ':wordpress-comments'
+include ':app', ':aztec', ':glide-loader', ':picasso-loader', ':wordpress-comments', ':wordpress-shortcodes'

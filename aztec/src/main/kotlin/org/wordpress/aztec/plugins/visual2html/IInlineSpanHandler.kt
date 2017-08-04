@@ -1,9 +1,6 @@
 package org.wordpress.aztec.plugins.visual2html
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.text.Editable
-import android.text.Spanned
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
 

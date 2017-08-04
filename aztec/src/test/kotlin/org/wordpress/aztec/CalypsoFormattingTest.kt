@@ -93,7 +93,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatNestedHtmlCalypso() {
         val input = HTML_NESTED
-        val span = SpannableString(parser.fromHtml(input, null, null, null, context))
+        val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_NESTED_CALYPSO, output)
     }
@@ -107,7 +107,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatLineBreaksCalypso() {
         val input = HTML_LINE_BREAKS
-        val span = SpannableString(parser.fromHtml(input, null, null, null, context))
+        val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
     }
@@ -121,7 +121,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatMixedHtmlCalypso() {
         val input = HTML_MIXED_WITH_NEWLINES
-        val span = SpannableString(parser.fromHtml(input, null, null, null, context))
+        val span = SpannableString(parser.fromHtml(input, context))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_CALYPSO, output)
     }

@@ -33,12 +33,17 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.picassoloader.PicassoImageLoader
+import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
+import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.xml.sax.Attributes
 import java.io.File
 
@@ -46,6 +51,7 @@ class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
+        AztecText.OnAudioTappedListener,
         IAztecToolbarClickListener,
         IHistoryListener,
         OnRequestPermissionsResultCallback,
@@ -98,10 +104,11 @@ class MainActivity : AppCompatActivity(),
                 "}" +
                 "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
-        private val IMG = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
+        private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-        private val VIDEO = "<video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\" />"
+        private val VIDEO = "[video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"]"
+        private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
 
         private val EXAMPLE =
                 IMG +
@@ -124,7 +131,8 @@ class MainActivity : AppCompatActivity(),
                 UNKNOWN +
                 EMOJI +
                 LONG_TEXT +
-                VIDEO
+                VIDEO +
+                AUDIO
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -313,9 +321,17 @@ class MainActivity : AppCompatActivity(),
             .setHistoryListener(this)
             .setOnImageTappedListener(this)
             .setOnVideoTappedListener(this)
+            .setOnAudioTappedListener(this)
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
+            .addPlugin(CaptionShortcodePlugin())
+            .addPlugin(VideoShortcodePlugin())
+            .addPlugin(AudioShortcodePlugin())
+
+        BlockElementWatcher(visualEditor)
+                .add(CaptionHandler())
+                .install(visualEditor)
 
         // initialize the text & HTML
         if (!isRunningTest) {
@@ -780,8 +796,32 @@ class MainActivity : AppCompatActivity(),
                 intent.setDataAndType(Uri.parse(url), "video/*")
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 startActivity(intent)
-            } catch (e: Exception) {
-                ToastUtils.showToast(this, "Video tapped!")
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
+                } catch (e: ActivityNotFoundException) {
+                    ToastUtils.showToast(this, "Video tapped!")
+                }
+            }
+        }
+    }
+
+    override fun onAudioTapped(attrs: AztecAttributes) {
+        val url = attrs.getValue("src")
+        url?.let {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.setDataAndType(Uri.parse(url), "audio/*")
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    startActivity(browserIntent)
+                } catch (e: ActivityNotFoundException) {
+                    ToastUtils.showToast(this, "Audio tapped!")
+                }
             }
         }
     }

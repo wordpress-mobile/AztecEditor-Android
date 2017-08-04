@@ -57,7 +57,7 @@ import org.xml.sax.Attributes
 import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlClickListener {
+class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
 
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
@@ -92,6 +92,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var onImeBackListener: OnImeBackListener? = null
     private var onImageTappedListener: OnImageTappedListener? = null
     private var onVideoTappedListener: OnVideoTappedListener? = null
+    private var onAudioTappedListener: OnAudioTappedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -142,6 +143,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     interface OnVideoTappedListener {
         fun onVideoTapped(attrs: AztecAttributes)
+    }
+
+    interface OnAudioTappedListener {
+        fun onAudioTapped(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -465,6 +470,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         this.onVideoTappedListener = listener
     }
 
+    fun setOnAudioTappedListener(listener: OnAudioTappedListener) {
+        this.onAudioTappedListener = listener
+    }
+
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
@@ -697,8 +706,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val parser = AztecParser(plugins)
         builder.append(parser.fromHtml(
                 Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode),
-                onImageTappedListener, onVideoTappedListener, this, context))
+                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -733,7 +741,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onImageLoading(drawable: Drawable?) {
-                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
@@ -766,7 +774,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
@@ -847,6 +855,16 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
         videoSpans.forEach {
             it.onVideoTappedListener = onVideoTappedListener
+        }
+
+        val audioSpans = editable.getSpans(start, end, AztecAudioSpan::class.java)
+        audioSpans.forEach {
+            it.onAudioTappedListener = onAudioTappedListener
+        }
+
+        val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
+        unknownHtmlSpans.forEach {
+            it.onUnknownHtmlTappedListener = this
         }
     }
 
@@ -966,8 +984,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val textToPaste = clip.getItemAt(i).coerceToText(context)
 
                 val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()),
-                        onImageTappedListener, onVideoTappedListener, this, context).trim())
+                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), context).trim())
                 Selection.setSelection(editable, max)
 
                 disableTextChangedListener()
@@ -1069,12 +1086,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
-        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { dialog, which ->
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), onImageTappedListener,
-                    onVideoTappedListener, this, context).trim())
+            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), context).trim())
             setSelection(spanStart)
 
             disableTextChangedListener()
@@ -1238,7 +1254,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 .map { it.attributes }
     }
 
-    override fun onUnknownHtmlClicked(unknownHtmlSpan: UnknownHtmlSpan) {
+    override fun onUnknownHtmlTapped(unknownHtmlSpan: UnknownHtmlSpan) {
         showBlockEditorDialog(unknownHtmlSpan)
     }
 }

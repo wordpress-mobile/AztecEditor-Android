@@ -663,7 +663,6 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>123<br>4</blockquote>567", editText.toHtml())
-
     }
 
     @Test
@@ -698,6 +697,28 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testRemoveQuoteFromLastLine() {
+        editText.fromHtml("<blockquote>1<br>2</blockquote>")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote>2", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testRemoveQuoteFromLastNotTheLastLine() {
+        editText.fromHtml("<blockquote>1<br>2</blockquote>3")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote>2<br>3", editText.toHtml())
     }
 
 }

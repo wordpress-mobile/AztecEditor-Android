@@ -979,14 +979,17 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         if (clip != null) {
             val parser = AztecParser(plugins)
 
-            editable.replace(min, max, Constants.REPLACEMENT_MARKER_STRING)
+            if (min == 0 && max == text.length) {
+                setText(Constants.REPLACEMENT_MARKER_STRING)
+            } else {
+                editable.replace(min, max, Constants.REPLACEMENT_MARKER_STRING)
+            }
 
-            for (i in 0..clip.itemCount - 1) {
-                val textToPaste = clip.getItemAt(i).coerceToText(context)
+            if (clip.itemCount > 0) {
+                val textToPaste = clip.getItemAt(0).coerceToText(context)
 
-                val oldHtml = Format.removeSourceEditorFormatting(parser.toHtml(editable))
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_CHAR_ESCAPED,
-                        Format.removeSourceEditorFormatting(textToPaste.toString()))
+                val oldHtml = toPlainHtml()
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_CHAR_ESCAPED, textToPaste.toString())
 
                 fromHtml(newHtml)
 

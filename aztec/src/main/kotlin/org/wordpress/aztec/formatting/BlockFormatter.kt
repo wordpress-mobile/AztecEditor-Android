@@ -319,7 +319,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val isSingleCharacterLine = selectionStart > 1 && editableText[selectionStart - 1] != '\n' && editableText[selectionStart - 2] == '\n'
             indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - if (isSingleCharacterLine) 0 else 1) - if (isSingleCharacterLine) 1 else 0
         } else {
-
             if (selectionStart != selectionEnd
                     && editableText.length > selectionEnd
                     && editableText[selectionEnd] != Constants.END_OF_BUFFER_MARKER
@@ -569,9 +568,15 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     val spanEnd = editableText.getSpanEnd(it)
 
                     if (selStart == selEnd) {
-                        (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        if (editableText.length == selStart) {
+                            selStart in spanStart..spanEnd
+                        } else {
+                            (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        }
+
                     } else {
-                        (spanStart in selStart..selEnd || spanEnd in selStart..selEnd)
+                        (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
+                                (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)
                     }
 
                 }

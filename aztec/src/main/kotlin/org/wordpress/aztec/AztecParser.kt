@@ -538,19 +538,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 out.append("&gt;")
             } else if (c == '&') {
                 out.append("&amp;")
-            } else if (c.toInt() in 0xD800..0xDFFF) {
-                if (c.toInt() < 0xDC00 && i + 1 < end) {
-                    val d = text[i + 1]
-                    if (d.toInt() in 0xDC00..0xDFFF) {
-                        i++
-                        val codepoint = 0x010000 or ((c.toInt() - 0xD800) shl 10) or (d.toInt() - 0xDC00)
-                        out.append("&#").append(codepoint).append(";")
-                    }
-                }
-            } else if (c.toInt() > 0x7E || c < ' ') {
-                if (c != '\n') {
-                    out.append("&#").append(c.toInt()).append(";")
-                }
             } else if (c == ' ') {
                 while (i + 1 < end && text[i + 1] == ' ') {
                     out.append("&nbsp;")
@@ -593,8 +580,8 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
     private fun tidy(html: String): String {
         return html
-                .replace("&#8203;", "")
-                .replace("&#65279;", "")
+                .replace(Constants.ZWJ_STRING, "")
+                .replace(Constants.MAGIC_STRING, "")
                 .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")

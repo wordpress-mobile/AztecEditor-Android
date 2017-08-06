@@ -4,7 +4,6 @@ object Constants {
     val MAGIC_CHAR = '\uFEFF' //'*'
     val MAGIC_STRING = "" + MAGIC_CHAR
     val REPLACEMENT_MARKER_CHAR = '\u202F'
-    val REPLACEMENT_MARKER_CHAR_ESCAPED = "&#8239;"
     val REPLACEMENT_MARKER_STRING = "" + REPLACEMENT_MARKER_CHAR
     val ZWJ_CHAR = '\u200B'//'§'
     val ZWJ_STRING = "" + ZWJ_CHAR

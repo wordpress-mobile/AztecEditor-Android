@@ -995,7 +995,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val textToPaste = clip.getItemAt(0).coerceToText(context)
 
                 val oldHtml = toPlainHtml()
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_CHAR_ESCAPED, textToPaste.toString())
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste.toString())
 
                 fromHtml(newHtml)
 

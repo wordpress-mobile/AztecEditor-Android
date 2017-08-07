@@ -29,7 +29,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
-import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -967,9 +966,25 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(selectedText)
 
-        //Strip block elements until we figure out copy paste completely
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
+
+        // do not copy unnecessary block hierarchy, just the minimum required
+        var deleteNext = false
+        output.getSpans(0, output.length, IAztecBlockSpan::class.java)
+            .sortedBy { it.nestingLevel }
+            .reversed()
+            .forEach {
+                if (deleteNext) {
+                    output.removeSpan(it)
+                } else {
+                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                    if (deleteNext && it is AztecListItemSpan) {
+                        deleteNext = false
+                    }
+                }
+            }
+
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager

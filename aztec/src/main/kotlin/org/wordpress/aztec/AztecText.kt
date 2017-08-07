@@ -992,17 +992,31 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     //copied from TextView with some changes
-    private fun paste(editable: Editable, min: Int, max: Int) {
+    fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
         if (clip != null) {
-            val parser = AztecParser(plugins)
+            disableTextChangedListener()
 
             if (min == 0 && max == text.length) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
                 editable.replace(min, max, Constants.REPLACEMENT_MARKER_STRING)
             }
+
+            // don't let the pasted text be included in any existing style
+            editable.getSpans(min, min + 1, Object::class.java)
+                    .filter { editable.getSpanStart(it) != editable.getSpanEnd(it) && it !is IAztecBlockSpan }
+                    .forEach {
+                        if (editable.getSpanStart(it) == min) {
+                            editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
+                        }
+                        else if (editable.getSpanEnd(it) == min + 1) {
+                            editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
+                        }
+                    }
+
+            enableTextChangedListener()
 
             if (clip.itemCount > 0) {
                 val textToPaste = clip.getItemAt(0).coerceToText(context)
@@ -1011,8 +1025,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste.toString())
 
                 fromHtml(newHtml)
-
-                inlineFormatter.joinStyleSpans(0, editable.length) //TODO: see how this affects performance
             }
         }
     }

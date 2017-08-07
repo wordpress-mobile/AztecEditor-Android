@@ -212,7 +212,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             val spanStart = spanned.getSpanStart(it)
 
-            if (!repelling && spanStart < 1) {
+            if (spanStart < 1) {
+                return@forEach
+            }
+
+            if (!repelling) {
                 // no visual newline if at text start and not repelling so, return
                 return@forEach
             }
@@ -235,7 +239,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 return@forEach
             }
 
-            if (!repelling && spanned[spanStart - 2] == '\n') {
+            if (spanStart > 1 && !repelling && spanned[spanStart - 2] == '\n') {
                 // there's another newline before and we're not repelling a parent so, the adjacent one is not a visual one so, return
                 return@forEach
             }

@@ -721,4 +721,15 @@ class QuoteTest {
         Assert.assertEquals("<blockquote>1</blockquote>2<br>3", editText.toHtml())
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteToTheSelectedEndOfTheLine() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(1,2)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
+    }
+
 }

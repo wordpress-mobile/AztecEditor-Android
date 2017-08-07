@@ -34,7 +34,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var hiddenSpans: IntArray = IntArray(0)
-    internal var spanCursorPosition = -1
 
     fun fromHtml(source: String, context: Context): Spanned {
 
@@ -80,13 +79,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         hiddenIndex = 0
         Arrays.sort(hiddenSpans)
 
-        if (withCursor) {
+        if (!withCursor) {
             val cursorSpan = data.getSpans(0, data.length, AztecCursorSpan::class.java).firstOrNull()
-            if (cursorSpan != null) { //there can be only one cursor
-                spanCursorPosition = data.getSpanStart(cursorSpan)
+            cursorSpan?.let {
+                data.removeSpan(cursorSpan)
             }
-        } else {
-            spanCursorPosition = -1
         }
 
         withinHtml(out, data)

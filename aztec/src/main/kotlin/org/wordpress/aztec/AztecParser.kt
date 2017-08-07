@@ -546,7 +546,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 out.append(' ')
-            } else {
+            } else if (c != '\n') {
                 out.append(c)
             }
             i++

@@ -750,51 +750,47 @@ class AztecToolbarTest {
         Assert.assertFalse(quoteButton.isChecked)
 
         //selected 1\n
-        editText.setSelection(0,2)
+        editText.setSelection(0, 2)
         Assert.assertFalse(quoteButton.isChecked)
 
         //selected 1\n2
-        editText.setSelection(0,3)
+        editText.setSelection(0, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected 1\n2\n
-        editText.setSelection(0,4)
+        editText.setSelection(0, 4)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected 1\n2\n3\n4
-        editText.setSelection(0,7)
+        editText.setSelection(0, 7)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected \n
-        editText.setSelection(1,2)
+        editText.setSelection(1, 2)
         Assert.assertFalse(quoteButton.isChecked)
 
         //selected \n2
-        editText.setSelection(1,3)
+        editText.setSelection(1, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected 2
-        editText.setSelection(2,3)
+        editText.setSelection(2, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected \n
-        editText.setSelection(3,4)
+        editText.setSelection(3, 4)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected \n3
-        editText.setSelection(3,5)
+        editText.setSelection(3, 5)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected 3\n
-        editText.setSelection(4,6)
+        editText.setSelection(4, 6)
         Assert.assertTrue(quoteButton.isChecked)
 
         //selected \n4
-        editText.setSelection(5,7)
+        editText.setSelection(5, 7)
         Assert.assertTrue(quoteButton.isChecked)
-
-
-
-
     }
 }

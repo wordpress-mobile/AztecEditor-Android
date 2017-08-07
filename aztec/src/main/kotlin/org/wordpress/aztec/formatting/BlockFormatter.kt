@@ -297,13 +297,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     /**
-     * Returns the start and end bounds of text suitable for paragraph span.
-     *
-     * ex. for following content "hello\nAztec\nEditor", when cursor is placed somewhere within
-     * word "Aztec" the method will return left and right bounds of this word.
-     * In case of multiline selection, ex. when selStart is inside "Aztec" and selEnd is
-     * inside "Editor" the start of "Aztec" and end of "Editor" lines will be returned.
-     *
+     * Returns paragraph bounds (\n) to the left and to the right of selection.
      */
     fun getBoundsOfText(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
         val startOfBlock: Int

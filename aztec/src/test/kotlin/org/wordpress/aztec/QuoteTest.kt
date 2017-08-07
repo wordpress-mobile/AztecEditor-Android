@@ -520,7 +520,7 @@ class QuoteTest {
 
     @Test
     @Throws(Exception::class)
-    fun syleQuoteWithStartOnLineEnd() {
+    fun styleWithSelectionStartOnLineEnd() {
         TestUtils.safeAppend(editText, "a")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
@@ -536,7 +536,7 @@ class QuoteTest {
 
     @Test
     @Throws(Exception::class)
-    fun styleQuoteAmbigiosBlockStart() {
+    fun styleWithSelectionOnLineEndWithEmptyLineAbove() {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "1")
         TestUtils.safeAppend(editText, "\n")
@@ -553,7 +553,7 @@ class QuoteTest {
 
     @Test
     @Throws(Exception::class)
-    fun styleQuoteAmbigiosBlockStart2() {
+    fun styleWithSelectionAtTheStartOfTheLine() {
         TestUtils.safeAppend(editText, "1")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "2")
@@ -616,8 +616,6 @@ class QuoteTest {
         Assert.assertEquals("1<br><br>2", editText.toHtml())
     }
 
-
-
     @Test
     @Throws(Exception::class)
     fun styleMultilineQuoteSurroundedByQuotes() {
@@ -634,7 +632,6 @@ class QuoteTest {
 
         Assert.assertEquals("<br><br><br>", editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -731,5 +728,4 @@ class QuoteTest {
 
         Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
     }
-
 }

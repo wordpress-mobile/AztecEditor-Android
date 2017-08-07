@@ -6,7 +6,7 @@
 
 ### Fixed
 - Image/video loading placeholder drawable usage
-- Quote styling at the end of paragraphs and empty lines
+- Quote styling of the paragraph ends, empty and mixed lines
 
 ### Added
 - This changelog

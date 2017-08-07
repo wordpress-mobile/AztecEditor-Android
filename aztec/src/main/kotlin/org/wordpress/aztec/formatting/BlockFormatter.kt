@@ -313,6 +313,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 && editable[selectionStart - 1] == '\n'
 
         val isTrailingNewlineAtTheEndOfSelection = selectionStart != selectionEnd
+                && selectionEnd > 0
                 && editableText.length > selectionEnd
                 && editableText[selectionEnd] != Constants.END_OF_BUFFER_MARKER
                 && editableText[selectionEnd] != '\n'
@@ -358,7 +359,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             // TODO: styling across multiple nesting levels not support yet
             if (nestingLevelAtTheStartOfSelection != nestingLevelAtTheEndOfSelection) {
                 if (nestingLevelAtTheStartOfSelection == 0 && nestingLevelAtTheEndOfSelection == 1) {
-                    //extending existing block style
+                    // 0/1 is ok!
                 } else {
                     return
                 }
@@ -369,7 +370,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val startOfBlock = boundsOfSelectedText.start
             val endOfBlock = boundsOfSelectedText.endInclusive
 
-            //if block starts with newline do not move index to the right
             applyBlock(makeBlockSpan(blockElementType, nestingLevelAtTheStartOfSelection), startOfBlock,
                     (if (endOfBlock == editableText.length) endOfBlock else endOfBlock))
         } else {

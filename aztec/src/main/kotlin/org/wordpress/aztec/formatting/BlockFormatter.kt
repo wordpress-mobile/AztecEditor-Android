@@ -352,6 +352,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+
+        if (editableText.isEmpty()) {
+            editableText.append("" + Constants.END_OF_BUFFER_MARKER)
+        }
+
         if (start != end) {
             val nestingLevelAtTheStartOfSelection = IAztecNestable.getNestingLevelAt(editableText, start)
             val nestingLevelAtTheEndOfSelection = IAztecNestable.getNestingLevelAt(editableText, end)

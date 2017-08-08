@@ -642,7 +642,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
 
-        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
     }
 
@@ -654,11 +654,11 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(editText.length())
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
 
-        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
+        Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
 
         TestUtils.backspaceAt(editText, TestUtils.safeLength(editText))
-        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
+        Assert.assertEquals("", editText.text.toString())
     }
 
     @Test
@@ -696,10 +696,9 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
 
-        //Send key event since that's the way AztecText will remove the style when text is "empty" (only having the
-        //  end-of-text marker
+        //Send key event since that's the way AztecText will remove the style when text is empty
         TestUtils.backspaceAt(editText, TestUtils.safeLength(editText))
-        Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker(""), editText.text.toString())
+        Assert.assertEquals("", editText.text.toString())
         Assert.assertEquals("", editText.toHtml())
     }
 

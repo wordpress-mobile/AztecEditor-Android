@@ -7,6 +7,7 @@
 ### Fixed
 - Image/video loading placeholder drawable usage
 - Quote styling of the paragraph ends, empty and mixed lines
+- The missing hint bug if text is empty
 
 ### Added
 - This changelog
@@ -45,7 +46,7 @@
 ## [1.0-beta.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.3) - 2017-07-03
 ### Fixed
 - Toolbar ellipsis button disabled state
-- Ttoolbar collapse/expand triggers
+- Toolbar collapse/expand triggers
 - Jittery cursor movement during media upload
 
 ### Added

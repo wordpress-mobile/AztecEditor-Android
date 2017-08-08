@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.TextView
 import org.wordpress.aztec.Constants
+import org.wordpress.aztec.spans.IAztecBlockSpan
 
 class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
 
@@ -13,16 +14,20 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
         ensureEndOfTextMarker(text)
     }
 
+    var deletedText = false
+
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+        deletedText = before > 0
+    }
 
     override fun afterTextChanged(text: Editable) {
         // NOTE: According to the documentation, by the time this afterTextChanged have been called, the text might
         //  have been changed by other TextWatcher's afterTextChanged calls. This might introduce some inconsistency
         //  and "random" bugs.
 
-        ensureEndOfTextMarker(text)
+        ensureEndOfTextMarker(text, deletedText)
 
         // by the way, the cursor will be adjusted "automatically" by RichTextEditText's onSelectionChanged to before the marker
     }
@@ -32,21 +37,31 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
             editText.addTextChangedListener(EndOfBufferMarkerAdder(editText.text))
         }
 
-        fun ensureEndOfTextMarker(text: Editable): Editable {
+        fun ensureEndOfTextMarker(text: Editable, deletedText: Boolean = false): Editable {
             // NOTE: According to the documentation, by the time this afterTextChanged have been called, the text might
             //  have been changed by other TextWatcher's afterTextChanged calls. This might introduce some inconsistency
             //  and "random" bugs.
 
             if (text.isEmpty()) {
-                // need to add a end-of-text marker so a block element can render in the empty text.
-                text.append("" + Constants.END_OF_BUFFER_MARKER)
+                if (text.getSpans(0, 0, IAztecBlockSpan::class.java).isNotEmpty()) {
+                    // need to add a end-of-text marker so a block element can render in the empty text.
+                    text.append(Constants.END_OF_BUFFER_MARKER)
+                }
+                return text
+            }
+            else if (text.length == 1 && text[0] == Constants.END_OF_BUFFER_MARKER && deletedText) {
+                // if text got deleted, the only character is the end-of-buffer marker and there is
+                // no block style applied, we can remove the marker and show the hint
+                if (text.getSpans(0, 1, IAztecBlockSpan::class.java).isEmpty()) {
+                    text.delete(0, 1)
+                }
                 return text
             }
 
             when (text[text.length - 1]) {
                 Constants.NEWLINE ->
                     // need to add a ZWJ so a block element can render at the last line.
-                    text.append("" + Constants.END_OF_BUFFER_MARKER)
+                    text.append(Constants.END_OF_BUFFER_MARKER)
 
                 Constants.END_OF_BUFFER_MARKER -> {
                     // there's a marker but let's make sure it's still needed.

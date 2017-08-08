@@ -41,8 +41,7 @@ object TestUtils {
     fun backspaceAt(text: EditText, position: Int) {
         text.setSelection(position)
 
-        // Send key event since that's the way AztecText will remove the style when text is "empty" (only having the
-        //  end-of-text marker
+        // Send key event since that's the way AztecText will remove the style when text is empty
         text.dispatchKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL, 0))
         text.dispatchKeyEvent(KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL, 0))
     }
@@ -76,6 +75,6 @@ object TestUtils {
      * @return True if the EditText is empty even if it holds the end-of-text marker char, false otherwise.
      */
     fun safeEmpty(editText: EditText): Boolean {
-        return editText.text.toString() == EndOfBufferMarkerAdder.ensureEndOfTextMarker("")
+        return editText.text.toString() == EndOfBufferMarkerAdder.ensureEndOfTextMarker(editText.text.toString())
     }
 }

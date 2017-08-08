@@ -10,7 +10,7 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecURLSpan
 
-class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(editor) {
+class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatter(editor) {
 
     data class LinkStyle(val linkColor: Int, val linkUnderline: Boolean)
 
@@ -61,7 +61,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle):AztecFormatter(
 
         val data = clipboard.primaryClip
         if (data == null || data.itemCount <= 0) return ""
-        val clipText = data.getItemAt(0).text.toString()
+        val clipText = data.getItemAt(0).coerceToText(context).toString()
         return if (Patterns.WEB_URL.matcher(clipText).matches()) clipText else ""
     }
 

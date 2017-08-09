@@ -565,13 +565,14 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
      *   input string.
      */
     private fun consumeCursorIfInInput(out: StringBuilder, text: CharSequence, position: Int) {
-        val cursorSpan = (text as SpannableStringBuilder).getSpans(position, position, AztecCursorSpan::class.java)
-                .firstOrNull()
-        if (cursorSpan != null) {
-            out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
+        if (text is SpannableStringBuilder) {
+            val cursorSpan = text.getSpans(position, position, AztecCursorSpan::class.java).firstOrNull()
+            if (cursorSpan != null) {
+                out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
 
-            // remove the cursor mark from the input string. It's work is finished.
-            text.removeSpan(cursorSpan)
+                // remove the cursor mark from the input string. It's work is finished.
+                text.removeSpan(cursorSpan)
+            }
         }
     }
 

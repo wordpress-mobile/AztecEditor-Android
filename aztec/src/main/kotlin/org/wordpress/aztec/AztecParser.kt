@@ -111,7 +111,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val parent = IAztecNestable.getParent(spanned, SpanWrapper(spanned, it))
 
             // a list item "repels" a child list so the list will appear in the next line
-            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+            val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
 
             val spanStart = spanned.getSpanStart(it)
 
@@ -137,8 +137,8 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             // expand all same-start parents to include the new newline
             SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1 }
-                    .forEach { parent -> parent.start-- }
+                    .filter { subParent -> subParent.span.nestingLevel < it.nestingLevel && subParent.start == spanStart + 1 }
+                    .forEach { subParent -> subParent.start-- }
 
             markBlockElementLineBreak(spanned, spanStart)
         }
@@ -208,7 +208,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val parent = IAztecNestable.getParent(spanned, SpanWrapper(spanned, it))
 
             // a list item "repels" a child list so the list will appear in the next line
-            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+            val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
 
             val spanStart = spanned.getSpanStart(it)
 

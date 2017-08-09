@@ -51,6 +51,8 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.coerceToHtmlText
+import org.wordpress.aztec.util.coerceToStyledText
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -989,13 +991,14 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText(null, html)
+        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
     }
 
     //copied from TextView with some changes
     fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
+
         if (clip != null) {
             disableTextChangedListener()
 
@@ -1021,7 +1024,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = clip.getItemAt(0).coerceToText(context)
+                val textToPaste = clip.getItemAt(0).coerceToHtmlText(context, AztecParser(plugins))
 
                 val oldHtml = toPlainHtml()
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste.toString())

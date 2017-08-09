@@ -7,6 +7,7 @@
 ### Fixed
 - Image/video loading placeholder drawable usage
 - The missing hint bug if text is empty
+- Crash in URL dialog caused by content of clipboard is not being a plain text
 
 ### Added
 - This changelog

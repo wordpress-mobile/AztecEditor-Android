@@ -968,6 +968,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
+        Format.postProcessSpanedText(output, isInCalypsoMode)
 
         // do not copy unnecessary block hierarchy, just the minimum required
         var deleteNext = false
@@ -985,7 +986,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
             }
 
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newPlainText(null, html)

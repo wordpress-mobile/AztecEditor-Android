@@ -93,6 +93,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var onImageTappedListener: OnImageTappedListener? = null
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
+    private var onMediaDeletedListener: OnMediaDeletedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -147,6 +148,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     interface OnAudioTappedListener {
         fun onAudioTapped(attrs: AztecAttributes)
+    }
+
+    interface OnMediaDeletedListener {
+        fun onMediaDeleted(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -302,6 +307,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
+
+        DeleteMediaElementWatcher.install(this)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -480,6 +487,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun setOnAudioTappedListener(listener: OnAudioTappedListener) {
         this.onAudioTappedListener = listener
+    }
+
+    fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
+        this.onMediaDeletedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -858,16 +869,19 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
         imageSpans.forEach {
             it.onImageTappedListener = onImageTappedListener
+            it.onMediaDeletedListener = onMediaDeletedListener
         }
 
         val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
         videoSpans.forEach {
             it.onVideoTappedListener = onVideoTappedListener
+            it.onMediaDeletedListener = onMediaDeletedListener
         }
 
         val audioSpans = editable.getSpans(start, end, AztecAudioSpan::class.java)
         audioSpans.forEach {
             it.onAudioTappedListener = onAudioTappedListener
+            it.onMediaDeletedListener = onMediaDeletedListener
         }
 
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
@@ -1160,11 +1174,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener)
+        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener)
+        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

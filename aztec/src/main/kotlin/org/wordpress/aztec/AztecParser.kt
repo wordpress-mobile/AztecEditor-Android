@@ -212,12 +212,8 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             val spanStart = spanned.getSpanStart(it)
 
-            if (spanStart < 1) {
-                return@forEach
-            }
-
-            if (!repelling) {
-                // no visual newline if at text start and not repelling so, return
+            // we're looking for newlines before the spans, no need to continue if span at the beginning
+            if (spanStart == 0) {
                 return@forEach
             }
 

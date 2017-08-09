@@ -1171,4 +1171,13 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlProperVisualNewlineSync_isEqual() {
+        val input = "<blockquote>Hello</blockquote><u>Bye</u><blockquote>Hello</blockquote>End"
+        val span = SpannableString(mParser.fromHtml(input, context))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

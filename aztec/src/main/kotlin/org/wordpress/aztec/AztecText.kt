@@ -1001,7 +1001,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             if (min == 0 && max == text.length) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
-                editable.replace(min, max, Constants.REPLACEMENT_MARKER_STRING)
+                editable.delete(min, max)
+                editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
             }
 
             // don't let the pasted text be included in any existing style

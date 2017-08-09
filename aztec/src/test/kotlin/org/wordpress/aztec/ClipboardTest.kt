@@ -37,7 +37,7 @@ class ClipboardTest {
         editText.setSelection(editText.length())
         TestUtils.pasteFromClipboard(editText)
 
-        Assert.assertEquals("<b>Bold</b><b>Bold</b>", editText.toHtml())
+        Assert.assertEquals("<b>BoldBold</b>", editText.toHtml())
     }
 
     @Test

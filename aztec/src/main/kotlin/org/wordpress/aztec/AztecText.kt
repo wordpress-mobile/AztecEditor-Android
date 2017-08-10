@@ -724,7 +724,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
-        builder.append(parser.fromHtml(source, context))
+
+        val cleanSource = Format.removeSourceEditorFormatting(source, isInCalypsoMode)
+        builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 

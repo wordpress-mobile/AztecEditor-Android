@@ -316,8 +316,6 @@ class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById(R.id.source) as SourceViewEditText
         val toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
 
-        visualEditor.setCalypsoMode(false)
-        sourceEditor.setCalypsoMode(false)
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
             .setImageGetter(PicassoImageLoader(this, visualEditor))

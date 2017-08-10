@@ -16,9 +16,7 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
             return
         }
 
-        var deletedMedia = count > 0  && containsMediaChars(text, start, count)
-
-        if (deletedMedia) {
+        if (count > 0) {
             aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
                     ?.forEach {
                         it.onMediaDeleted()
@@ -32,15 +30,6 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
 
     override fun afterTextChanged(text: Editable) {
         // no op
-    }
-
-    fun containsMediaChars(text: CharSequence, start: Int, count: Int): Boolean {
-        for (i in 0..(count-1)) {
-            if (text[start + i] == Constants.IMG_CHAR) {
-                return true
-            }
-        }
-        return false
     }
 
     companion object {

@@ -3,7 +3,6 @@ package org.wordpress.aztec.watchers
 import android.text.Editable
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecMediaSpan
 import java.lang.ref.WeakReference
 

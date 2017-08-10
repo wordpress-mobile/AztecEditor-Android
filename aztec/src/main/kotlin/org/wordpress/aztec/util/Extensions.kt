@@ -3,7 +3,6 @@ package org.wordpress.aztec.util
 import android.content.ClipData
 import android.content.Context
 import android.text.Editable
-import android.text.Html
 import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.AztecParser

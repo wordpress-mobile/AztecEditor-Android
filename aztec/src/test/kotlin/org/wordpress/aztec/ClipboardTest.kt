@@ -2,8 +2,6 @@ package org.wordpress.aztec
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.text.Html
-import android.text.SpannableString
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

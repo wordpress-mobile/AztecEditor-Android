@@ -52,7 +52,6 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.coerceToHtmlText
-import org.wordpress.aztec.util.coerceToStyledText
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -1043,7 +1042,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val textToPaste = clip.getItemAt(0).coerceToHtmlText(context, AztecParser(plugins))
 
                 val oldHtml = toPlainHtml()
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste.toString())
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste)
 
                 fromHtml(newHtml)
 

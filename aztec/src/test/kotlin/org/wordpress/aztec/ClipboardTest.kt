@@ -11,10 +11,97 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class ClipboardTest {
+
+    private val HEADING =
+            "<h1>Heading 1</h1>" +
+                    "<h2>Heading 2</h2>" +
+                    "<h3>Heading 3</h3>" +
+                    "<h4>Heading 4</h4>" +
+                    "<h5>Heading 5</h5>" +
+                    "<h6>Heading 6</h6>"
+    private val BOLD = "<b>Bold</b><br>"
+    private val ITALIC = "<i>Italic</i><br>"
+    private val UNDERLINE = "<u>Underline</u><br>"
+    private val STRIKETHROUGH = "<s class=\"test\">Strikethrough</s>" // <s> or <strike> or <del>
+    private val ORDERED = "<ol><li>Ordered</li><li></li></ol>"
+    private val LINE = "<hr>"
+    private val UNORDERED = "<ul><li>Unordered</li><li></li></ul>"
+    private val QUOTE = "<blockquote>Quote</blockquote>"
+    private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
+    private val UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br>"
+    private val COMMENT = "<!--Comment--><br>"
+    private val COMMENT_MORE = "<!--more--><br>"
+    private val COMMENT_PAGE = "<!--nextpage--><br>"
+    private val HIDDEN =
+            "<span></span>" +
+                    "<div class=\"first\">" +
+                    "    <div class=\"second\">" +
+                    "        <div class=\"third\">" +
+                    "            Div<br><span><b>Span</b></span><br>Hidden" +
+                    "</div>" +
+                    "        <div class=\"fourth\"></div>" +
+                    "        <div class=\"fifth\"></div>" +
+                    "    </div>" +
+                    "    <span class=\"second last\"></span>" +
+                    "</div>" +
+                    "<br>"
+    private val PREFORMAT = "<pre>if (this) then that;</pre>"
+    private val CODE = "<code>if (value == 5) printf(value)</code><br>"
+    private val IMG = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
+    private val EMOJI = "\uD83D\uDC4D"
+    private val HTML_NON_LATIN_TEXT = "测试一个"
+    private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+
+    private val EVERYTHING =
+            IMG +
+                    HEADING +
+                    BOLD +
+                    ITALIC +
+                    UNDERLINE +
+                    STRIKETHROUGH +
+                    ORDERED +
+                    LINE +
+                    UNORDERED +
+                    QUOTE +
+                    PREFORMAT +
+                    LINK +
+                    HIDDEN +
+                    COMMENT +
+                    COMMENT_MORE +
+                    COMMENT_PAGE +
+                    CODE +
+                    UNKNOWN +
+                    EMOJI +
+                    HTML_NON_LATIN_TEXT +
+                    LONG_TEXT
+
+    private val EVERYTHING_EXPECTED =
+            IMG +
+                    HEADING +
+                    BOLD +
+                    ITALIC +
+                    UNDERLINE +
+                    STRIKETHROUGH +
+                    ORDERED +
+                    LINE +
+                    UNORDERED +
+                    QUOTE +
+                    PREFORMAT +
+                    LINK +
+                    Format.removeSourceEditorFormatting(HIDDEN) +
+                    COMMENT +
+                    COMMENT_MORE +
+                    COMMENT_PAGE +
+                    CODE +
+                    UNKNOWN +
+                    EMOJI +
+                    HTML_NON_LATIN_TEXT +
+                    LONG_TEXT
 
     lateinit var editText: AztecText
 
@@ -165,5 +252,33 @@ class ClipboardTest {
         Assert.assertEquals("aaa\n\nbbb\n\nccc\n\naaa\n\nbbb\n\nccc", editText.toHtml())
 
         editText.setCalypsoMode(false)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndPasteEverything() {
+        editText.fromHtml(EVERYTHING)
+
+        editText.setSelection(0, editText.length())
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(editText.length())
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals(EVERYTHING_EXPECTED + EVERYTHING_EXPECTED, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndReplaceEverything() {
+        editText.fromHtml(EVERYTHING)
+
+        editText.setSelection(0, editText.length())
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(0, editText.length())
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals(EVERYTHING_EXPECTED, editText.toHtml())
     }
 }

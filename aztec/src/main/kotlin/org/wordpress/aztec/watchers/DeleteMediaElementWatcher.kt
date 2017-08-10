@@ -11,15 +11,15 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
-    private var deletedMedia: Boolean = false
-    private var mediaSpan: AztecMediaSpan? = null
-
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        deletedMedia = count > 0 && text[start + count - 1] == Constants.IMG_CHAR
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+            return
+        }
+        var deletedMedia = count > 0 && text[start + count - 1] == Constants.IMG_CHAR
 
         if (deletedMedia) {
-            val aztecText = aztecTextRef.get()
-            mediaSpan = aztecText?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)?.firstOrNull()
+            var mediaSpan = aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)?.firstOrNull()
+            mediaSpan?.onMediaDeleted()
         }
     }
 
@@ -28,14 +28,7 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     override fun afterTextChanged(text: Editable) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
-            return
-        }
-
-        if (deletedMedia) {
-            deletedMedia = false
-            mediaSpan?.onMediaDeleted()
-        }
+        // no op
     }
 
     companion object {

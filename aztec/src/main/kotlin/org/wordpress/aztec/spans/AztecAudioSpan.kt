@@ -10,8 +10,9 @@ import org.wordpress.aztec.AztecText
 class AztecAudioSpan(context: Context, drawable: Drawable?, override var nestingLevel: Int,
                      attributes: AztecAttributes = AztecAttributes(),
                      var onAudioTappedListener: AztecText.OnAudioTappedListener? = null,
+                     onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                      editor: AztecText? = null) :
-        AztecMediaSpan(context, drawable, attributes, editor), IAztecFullWidthImageSpan, IAztecSpan {
+        AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
 
     override val TAG: String = "audio"
 

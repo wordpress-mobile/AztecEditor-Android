@@ -15,11 +15,14 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
         if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
             return
         }
-        var deletedMedia = count > 0 && text[start + count - 1] == Constants.IMG_CHAR
+
+        var deletedMedia = count > 0  && containsMediaChars(text, start, count)
 
         if (deletedMedia) {
-            var mediaSpan = aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)?.firstOrNull()
-            mediaSpan?.onMediaDeleted()
+            var mediaSpanList = findAllMediaSpansWithinRange(start, count)
+            mediaSpanList?.forEach {
+                it.onMediaDeleted()
+            }
         }
     }
 
@@ -29,6 +32,19 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
 
     override fun afterTextChanged(text: Editable) {
         // no op
+    }
+
+    fun containsMediaChars(text: CharSequence, start: Int, count: Int): Boolean {
+        for (i in 0..count) {
+            if (text[start + i - 1] == Constants.IMG_CHAR) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun findAllMediaSpansWithinRange(start: Int, count: Int): Array<AztecMediaSpan>? {
+        return aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
     }
 
     companion object {

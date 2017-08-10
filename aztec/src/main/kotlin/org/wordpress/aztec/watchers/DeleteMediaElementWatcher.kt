@@ -19,10 +19,10 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
         var deletedMedia = count > 0  && containsMediaChars(text, start, count)
 
         if (deletedMedia) {
-            var mediaSpanList = findAllMediaSpansWithinRange(start, count)
-            mediaSpanList?.forEach {
-                it.onMediaDeleted()
-            }
+            aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
+                    ?.forEach {
+                        it.onMediaDeleted()
+                    }
         }
     }
 
@@ -41,10 +41,6 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
             }
         }
         return false
-    }
-
-    fun findAllMediaSpansWithinRange(start: Int, count: Int): Array<AztecMediaSpan>? {
-        return aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
     }
 
     companion object {

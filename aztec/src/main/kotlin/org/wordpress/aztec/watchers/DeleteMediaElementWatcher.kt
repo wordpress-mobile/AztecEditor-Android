@@ -35,8 +35,8 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     fun containsMediaChars(text: CharSequence, start: Int, count: Int): Boolean {
-        for (i in 0..count) {
-            if (text[start + i - 1] == Constants.IMG_CHAR) {
+        for (i in 0..(count-1)) {
+            if (text[start + i] == Constants.IMG_CHAR) {
                 return true
             }
         }

@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity(),
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
         AztecText.OnAudioTappedListener,
+        AztecText.OnMediaDeletedListener,
         IAztecToolbarClickListener,
         IHistoryListener,
         OnRequestPermissionsResultCallback,
@@ -327,6 +328,7 @@ class MainActivity : AppCompatActivity(),
             .setOnImageTappedListener(this)
             .setOnVideoTappedListener(this)
             .setOnAudioTappedListener(this)
+            .setOnMediaDeletedListener(this)
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
@@ -829,5 +831,10 @@ class MainActivity : AppCompatActivity(),
                 }
             }
         }
+    }
+
+    override fun onMediaDeleted(attrs: AztecAttributes) {
+        val url = attrs.getValue("src")
+        ToastUtils.showToast(this, "Media Deleted! " + url)
     }
 }

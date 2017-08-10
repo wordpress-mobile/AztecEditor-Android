@@ -7,8 +7,9 @@ import org.wordpress.aztec.AztecText
 
 class AztecImageSpan(context: Context, drawable: Drawable?, attributes: AztecAttributes = AztecAttributes(),
                      var onImageTappedListener: AztecText.OnImageTappedListener? = null,
+                     onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                      editor: AztecText? = null) :
-        AztecMediaSpan(context, drawable, attributes, editor) {
+        AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor) {
 
     override val TAG: String = "img"
 

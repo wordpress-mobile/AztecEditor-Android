@@ -9,6 +9,7 @@
 - The missing hint bug if text is empty
 - Crash when copy/pasting lists
 - Copy/pasting of non-latin unicode characters
+- Crash in the URL dialog caused by the non plain text content of a clipboard
 
 ### Added
 - This changelog
@@ -17,6 +18,7 @@
 - Plugin interface for HTML postprocessor
 - Plugin module with `[video]`, `[audio]` and `[caption]` WordPress shrotcode support
 - Copy/pasting of block element styles
+- OnMediaDeletedListener interface, detection and handling
 
 ## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed

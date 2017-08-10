@@ -11,6 +11,7 @@ import org.wordpress.aztec.AztecText
 import java.util.*
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+                              var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                               editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
 
     abstract val TAG: String
@@ -104,4 +105,9 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     abstract fun onClick()
+
+    fun onMediaDeleted() {
+        onMediaDeletedListener?.onMediaDeleted(attributes)
+    }
+
 }

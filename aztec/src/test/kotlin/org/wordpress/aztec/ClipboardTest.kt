@@ -148,4 +148,22 @@ class ClipboardTest {
 
         Assert.assertEquals("<h1>H1</h1><h2>H2</h2><u>Bye</u>End<h1>1</h1><h2>H</h2>", editText.toHtml())
     }
+
+    @SuppressLint("SetTextI18n")
+    @Test
+    @Throws(Exception::class)
+    fun copyAndPasteCalypsoParagraphs() {
+        editText.setCalypsoMode(true)
+        editText.fromHtml("<p>aaa</p><p>bbb</p><p>ccc</p>")
+
+        editText.setSelection(0, editText.length())
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(editText.length())
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals("aaa\n\nbbb\n\nccc\n\naaa\n\nbbb\n\nccc", editText.toHtml())
+
+        editText.setCalypsoMode(false)
+    }
 }

@@ -41,7 +41,7 @@ class ClipboardTest {
                     "    <div class=\"second\">" +
                     "        <div class=\"third\">" +
                     "            Div<br><span><b>Span</b></span><br>Hidden" +
-                    "</div>" +
+                    "        </div>" +
                     "        <div class=\"fourth\"></div>" +
                     "        <div class=\"fifth\"></div>" +
                     "    </div>" +
@@ -53,7 +53,8 @@ class ClipboardTest {
     private val IMG = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
     private val EMOJI = "\uD83D\uDC4D"
     private val HTML_NON_LATIN_TEXT = "测试一个"
-    private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+    private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    private val LONG_TEXT_EXPECTED = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
     private val EVERYTHING =
             IMG +
@@ -278,5 +279,36 @@ class ClipboardTest {
         TestUtils.pasteFromClipboard(editText)
 
         Assert.assertEquals(EVERYTHING_EXPECTED, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndReplacePlainText() {
+        editText.fromHtml(LONG_TEXT)
+
+        editText.setSelection(0, editText.text.indexOf(' ', 2))
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(0, editText.text.indexOf(' ', 2))
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals(LONG_TEXT, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndReplacePlainTextCalypsoMode() {
+        editText.setCalypsoMode(true)
+        editText.fromHtml(LONG_TEXT)
+
+        editText.setSelection(0, editText.text.indexOf(' ', 2))
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(0, editText.text.indexOf(' ', 2))
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals(LONG_TEXT_EXPECTED, editText.toHtml())
+
+        editText.setCalypsoMode(false)
     }
 }

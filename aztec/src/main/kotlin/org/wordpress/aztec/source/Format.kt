@@ -12,7 +12,7 @@ import java.util.regex.Pattern
 object Format {
 
     // list of block elements
-    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr|aztec_cursor"
+    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
@@ -251,7 +251,6 @@ object Format {
             html = sb.toString()
         }
 
-        html += "\n\n"
 
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")

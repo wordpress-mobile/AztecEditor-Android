@@ -698,6 +698,23 @@ class QuoteTest {
 
     @Test
     @Throws(Exception::class)
+    fun testToggleQuoteSurroundedByTextWithSelectionAtTheEndOfIt() {
+        //1\nQuote\n2
+        editText.fromHtml("1<blockquote>Quote</blockquote>2")
+
+        //set selection at the end of the Quote
+        editText.setSelection(7)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<br>Quote<br>2", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("1<blockquote>Quote</blockquote>2", editText.toHtml())
+
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun testRemoveQuoteFromLastLine() {
         editText.fromHtml("<blockquote>1<br>2</blockquote>")
 

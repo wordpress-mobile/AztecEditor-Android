@@ -303,7 +303,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val startOfBlock: Int
         val endOfBlock: Int
 
-        val selectionStartIsOnTheNewLine = selectionStart > 0
+        val selectionStartIsOnTheNewLine = selectionStart != selectionEnd && selectionStart > 0
                 && selectionStart < editableText.length
                 && editable[selectionStart] == '\n'
 

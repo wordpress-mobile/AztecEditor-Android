@@ -665,7 +665,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
-            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containsQuote(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE, selStart, selEnd)

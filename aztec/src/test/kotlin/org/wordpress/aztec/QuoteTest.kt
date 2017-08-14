@@ -517,4 +517,232 @@ class QuoteTest {
 
         Assert.assertEquals("<br><br><br>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleWithSelectionStartOnLineEnd() {
+        TestUtils.safeAppend(editText, "a")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(1,editText.length())
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<$quoteTag>a</$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("a<br><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleWithSelectionOnLineEndWithEmptyLineAbove() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "1")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "2")
+        editText.setSelection(2,editText.length())
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br><$quoteTag>1<br>2</$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br>1<br>2", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleWithSelectionAtTheStartOfTheLine() {
+        TestUtils.safeAppend(editText, "1")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "2")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "3")
+        editText.setSelection(2,editText.length())
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<$quoteTag>2<br>3</$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<br>2<br>3", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineWithTrailingEmptyLine() {
+        TestUtils.safeAppend(editText, "\n")
+        editText.setSelection(0)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineWithTrailingNonEmptyLine() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "1")
+        editText.setSelection(0)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<$quoteTag></$quoteTag>1", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br>1", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleEmptyLineSurroundedByNonEmptyLines() {
+        TestUtils.safeAppend(editText, "1")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "2")
+
+        editText.setSelection(2)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<$quoteTag></$quoteTag>2", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<br><br>2", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun styleMultilineQuoteSurroundedByQuotes() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+
+        editText.setSelection(1,2)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br><$quoteTag></$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br><br><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiLineSelectionStylingWithSelectionEndOnEOL() {
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "1")
+        TestUtils.safeAppend(editText, "\n")
+        TestUtils.safeAppend(editText, "\n")
+
+        editText.setSelection(1,3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br><$quoteTag>1</$quoteTag>", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<br>1<br><br>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWithCursorOnEOL() {
+        editText.fromHtml("123<blockquote>4</blockquote>567")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>123<br>4</blockquote>567", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testSingleCharSelectionStylingWitWithCursorOnEOL() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1<br>2</blockquote>3", editText.toHtml())
+
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWitWithCursorOnEOL() {
+        editText.fromHtml("123<blockquote>4</blockquote>567")
+
+        editText.setSelection(0,4)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>123</blockquote><blockquote>4</blockquote>567", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultiCharSelectionStylingWitWithSelectionEndOnEOL() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(0,1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testToggleQuoteSurroundedByTextWithSelectionAtTheEndOfIt() {
+        //1\nQuote\n2
+        editText.fromHtml("1<blockquote>Quote</blockquote>2")
+
+        //set selection at the end of the Quote
+        editText.setSelection(7)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("1<br>Quote<br>2", editText.toHtml())
+
+        editText.toggleFormatting(formattingType)
+        Assert.assertEquals("1<blockquote>Quote</blockquote>2", editText.toHtml())
+
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testRemoveQuoteFromLastLine() {
+        editText.fromHtml("<blockquote>1<br>2</blockquote>")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote>2", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testRemoveQuoteFromLastNotTheLastLine() {
+        editText.fromHtml("<blockquote>1<br>2</blockquote>3")
+
+        editText.setSelection(3)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote>2<br>3", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteToTheSelectedEndOfTheLine() {
+        editText.fromHtml("1<blockquote>2</blockquote>3")
+
+        editText.setSelection(1,2)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
+    }
 }

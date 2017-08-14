@@ -6,6 +6,7 @@
 
 ### Fixed
 - Image/video loading placeholder drawable usage
+- Quote styling of the paragraph ends, empty and mixed lines
 - The missing hint bug if text is empty
 - Crash in the URL dialog caused by the non plain text content of a clipboard
 - Crash when copy/pasting lists

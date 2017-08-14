@@ -1044,7 +1044,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 val oldHtml = toPlainHtml()
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste)
 
+                history.beforeTextChanged(toFormattedHtml())
                 fromHtml(newHtml)
+                history.handleHistory(this@AztecText)
 
                 inlineFormatter.joinStyleSpans(0, length())
             }

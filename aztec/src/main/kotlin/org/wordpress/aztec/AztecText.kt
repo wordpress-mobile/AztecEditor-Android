@@ -1041,7 +1041,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = clip.getItemAt(0).coerceToHtmlText(context, AztecParser(plugins))
+                val textToPaste = clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
 
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")

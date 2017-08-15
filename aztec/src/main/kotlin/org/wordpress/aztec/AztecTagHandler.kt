@@ -77,18 +77,15 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             AUDIO -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             PARAGRAPH -> {
@@ -140,8 +137,7 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
         return loadingDrawable
     }
 
-    private fun handleMediaElement(opening: Boolean, context: Context, attributes: Attributes,
-                                   output: Editable, mediaSpan: AztecMediaSpan) {
+    private fun handleMediaElement(opening: Boolean, output: Editable, mediaSpan: AztecMediaSpan) {
         if (opening) {
             start(output, mediaSpan)
             start(output, AztecMediaClickableSpan(mediaSpan))

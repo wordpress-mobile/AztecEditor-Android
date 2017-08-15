@@ -29,7 +29,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
-import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -52,6 +51,7 @@ import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.*
 import org.xml.sax.Attributes
 import java.util.*
@@ -723,9 +723,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
-        builder.append(parser.fromHtml(
-                Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), context))
+
+        val cleanSource = Format.removeSourceEditorFormatting(source, isInCalypsoMode)
+        builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -983,41 +983,73 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(selectedText)
 
-        //Strip block elements until we figure out copy paste completely
-        output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
+        Format.postProcessSpanedText(output, isInCalypsoMode)
+
+        // do not copy unnecessary block hierarchy, just the minimum required
+        var deleteNext = false
+        output.getSpans(0, output.length, IAztecBlockSpan::class.java)
+            .sortedBy { it.nestingLevel }
+            .reversed()
+            .forEach {
+                if (deleteNext) {
+                    output.removeSpan(it)
+                } else {
+                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                    if (deleteNext && it is AztecListItemSpan) {
+                        deleteNext = false
+                    }
+                }
+            }
+
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText(null, html)
+        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
     }
 
     //copied from TextView with some changes
-    private fun paste(editable: Editable, min: Int, max: Int) {
+    fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
+
         if (clip != null) {
-            val parser = AztecParser(plugins)
+            history.beforeTextChanged(toFormattedHtml())
 
-            for (i in 0..clip.itemCount - 1) {
-                val textToPaste = clip.getItemAt(i).coerceToText(context)
+            disableTextChangedListener()
 
-                val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), context).trim())
-                Selection.setSelection(editable, max)
+            if (min == 0 && max == text.length) {
+                setText(Constants.REPLACEMENT_MARKER_STRING)
+            } else {
+                editable.delete(min, max)
+                editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
+            }
 
-                disableTextChangedListener()
-                // FIXME
-                try {
-                    editable.replace(min, max, builder)
-                } catch (e: RuntimeException) {
-                    // try to get more context for this crash: https://github.com/wordpress-mobile/AztecEditor-Android/issues/424
-                    throw RuntimeException("### MIN: $min, MAX: $max\n---\n### TEXT:${toHtml()}\n---\n### PASTED:${parser.toHtml(builder)}", e)
-                }
-                enableTextChangedListener()
+            // don't let the pasted text be included in any existing style
+            editable.getSpans(min, min + 1, Object::class.java)
+                    .filter { editable.getSpanStart(it) != editable.getSpanEnd(it) && it !is IAztecBlockSpan }
+                    .forEach {
+                        if (editable.getSpanStart(it) == min) {
+                            editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
+                        }
+                        else if (editable.getSpanEnd(it) == min + 1) {
+                            editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
+                        }
+                    }
 
-                inlineFormatter.joinStyleSpans(0, editable.length) //TODO: see how this affects performance
+            enableTextChangedListener()
+
+            if (clip.itemCount > 0) {
+                val textToPaste = clip.getItemAt(0).coerceToHtmlText(context, AztecParser(plugins))
+
+                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
+
+                fromHtml(newHtml)
+                history.handleHistory(this@AztecText)
+
+                inlineFormatter.joinStyleSpans(0, length())
             }
         }
     }

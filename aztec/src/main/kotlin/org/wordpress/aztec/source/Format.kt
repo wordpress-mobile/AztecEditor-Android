@@ -12,12 +12,13 @@ import java.util.regex.Pattern
 object Format {
 
     // list of block elements
-    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr|aztec_cursor"
+    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
+        html = html.replace("<aztec_cursor>", "")
 
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
@@ -27,7 +28,6 @@ object Format {
                     .forEach { it.remove() }
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
-            html = html.replace("aztec_cursor", "")
 
             html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
             html = toCalypsoSourceEditorFormat(html)
@@ -251,7 +251,6 @@ object Format {
             html = sb.toString()
         }
 
-        html += "\n\n"
 
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")

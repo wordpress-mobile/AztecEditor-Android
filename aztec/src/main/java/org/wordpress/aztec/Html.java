@@ -297,6 +297,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             }
         }
 
+        //noinspection StatementWithEmptyBody
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.

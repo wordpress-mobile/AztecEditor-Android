@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity(),
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
+        private val NON_LATIN_TEXT = "测试一个"
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
         private val VIDEO = "[video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"]"
         private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
@@ -131,6 +132,7 @@ class MainActivity : AppCompatActivity(),
                 CODE +
                 UNKNOWN +
                 EMOJI +
+                NON_LATIN_TEXT +
                 LONG_TEXT +
                 VIDEO +
                 AUDIO
@@ -313,6 +315,7 @@ class MainActivity : AppCompatActivity(),
         val visualEditor = findViewById(R.id.aztec) as AztecText
         val sourceEditor = findViewById(R.id.source) as SourceViewEditText
         val toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
+
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
             .setImageGetter(PicassoImageLoader(this, visualEditor))

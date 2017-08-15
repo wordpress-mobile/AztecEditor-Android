@@ -34,7 +34,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var hiddenSpans: IntArray = IntArray(0)
-    internal var spanCursorPosition = -1
 
     fun fromHtml(source: String, context: Context): Spanned {
 
@@ -80,13 +79,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         hiddenIndex = 0
         Arrays.sort(hiddenSpans)
 
-        if (withCursor) {
+        if (!withCursor) {
             val cursorSpan = data.getSpans(0, data.length, AztecCursorSpan::class.java).firstOrNull()
-            if (cursorSpan != null) { //there can be only one cursor
-                spanCursorPosition = data.getSpanStart(cursorSpan)
+            cursorSpan?.let {
+                data.removeSpan(cursorSpan)
             }
-        } else {
-            spanCursorPosition = -1
         }
 
         withinHtml(out, data)
@@ -114,7 +111,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val parent = IAztecNestable.getParent(spanned, SpanWrapper(spanned, it))
 
             // a list item "repels" a child list so the list will appear in the next line
-            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+            val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
 
             val spanStart = spanned.getSpanStart(it)
 
@@ -140,8 +137,8 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             // expand all same-start parents to include the new newline
             SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { parent -> parent.span.nestingLevel < it.nestingLevel && parent.start == spanStart + 1 }
-                    .forEach { parent -> parent.start-- }
+                    .filter { subParent -> subParent.span.nestingLevel < it.nestingLevel && subParent.start == spanStart + 1 }
+                    .forEach { subParent -> subParent.start-- }
 
             markBlockElementLineBreak(spanned, spanStart)
         }
@@ -211,12 +208,12 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val parent = IAztecNestable.getParent(spanned, SpanWrapper(spanned, it))
 
             // a list item "repels" a child list so the list will appear in the next line
-            val repelling = (parent?.span is AztecListItemSpan) && (it is AztecListSpan)
+            val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
 
             val spanStart = spanned.getSpanStart(it)
 
-            if (!repelling && spanStart < 1) {
-                // no visual newline if at text start and not repelling so, return
+            // we're looking for newlines before the spans, no need to continue if span at the beginning
+            if (spanStart == 0) {
                 return@forEach
             }
 
@@ -238,7 +235,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 return@forEach
             }
 
-            if (!repelling && spanned[spanStart - 2] == '\n') {
+            if (spanStart > 1 && !repelling && spanned[spanStart - 2] == '\n') {
                 // there's another newline before and we're not repelling a parent so, the adjacent one is not a visual one so, return
                 return@forEach
             }
@@ -538,19 +535,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 out.append("&gt;")
             } else if (c == '&') {
                 out.append("&amp;")
-            } else if (c.toInt() in 0xD800..0xDFFF) {
-                if (c.toInt() < 0xDC00 && i + 1 < end) {
-                    val d = text[i + 1]
-                    if (d.toInt() in 0xDC00..0xDFFF) {
-                        i++
-                        val codepoint = 0x010000 or ((c.toInt() - 0xD800) shl 10) or (d.toInt() - 0xDC00)
-                        out.append("&#").append(codepoint).append(";")
-                    }
-                }
-            } else if (c.toInt() > 0x7E || c < ' ') {
-                if (c != '\n') {
-                    out.append("&#").append(c.toInt()).append(";")
-                }
             } else if (c == ' ') {
                 while (i + 1 < end && text[i + 1] == ' ') {
                     out.append("&nbsp;")
@@ -559,7 +543,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 }
 
                 out.append(' ')
-            } else {
+            } else if (c != '\n') {
                 out.append(c)
             }
             i++
@@ -581,20 +565,21 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
      *   input string.
      */
     private fun consumeCursorIfInInput(out: StringBuilder, text: CharSequence, position: Int) {
-        val cursorSpan = (text as SpannableStringBuilder).getSpans(position, position, AztecCursorSpan::class.java)
-                .firstOrNull()
-        if (cursorSpan != null) {
-            out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
+        if (text is SpannableStringBuilder) {
+            val cursorSpan = text.getSpans(position, position, AztecCursorSpan::class.java).firstOrNull()
+            if (cursorSpan != null) {
+                out.append(AztecCursorSpan.AZTEC_CURSOR_TAG)
 
-            // remove the cursor mark from the input string. It's work is finished.
-            text.removeSpan(cursorSpan)
+                // remove the cursor mark from the input string. It's work is finished.
+                text.removeSpan(cursorSpan)
+            }
         }
     }
 
     private fun tidy(html: String): String {
         return html
-                .replace("&#8203;", "")
-                .replace("&#65279;", "")
+                .replace(Constants.ZWJ_STRING, "")
+                .replace(Constants.MAGIC_STRING, "")
                 .replace("(</? ?br>)*((aztec_cursor)?)</blockquote>".toRegex(), "$2</blockquote>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</li>".toRegex(), "$2</li>")
                 .replace("(</? ?br>)*((aztec_cursor)?)</p>".toRegex(), "$2</p>")

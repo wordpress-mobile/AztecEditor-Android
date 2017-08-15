@@ -18,15 +18,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
-    compile project(':aztec')
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.3.2'
+    implementation project(':aztec')
 
-    //https://github.com/robolectric/robolectric/issues/1932
-    testCompile 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
+    implementation "com.android.support:support-v4:$supportLibVersion"
+    implementation "com.android.support:design:$supportLibVersion"
+
+    testImplementation "junit:junit:$jUnitVersion"
+    testImplementation "org.robolectric:robolectric:$robolectricVersion"
 }

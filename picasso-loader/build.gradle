@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -20,7 +21,12 @@ android {
 }
 
 dependencies {
-    compile project(':aztec')
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    implementation project(':aztec')
+
+    implementation "com.android.support:support-v4:$supportLibVersion"
+    implementation "com.android.support:design:$supportLibVersion"
+
+    implementation "com.squareup.picasso:picasso:$picassoVersion"
 }

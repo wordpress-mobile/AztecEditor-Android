@@ -30,18 +30,19 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':aztec')
-    compile project(':glide-loader')
-    compile project(':picasso-loader')
-    compile project(':wordpress-comments')
-    compile project(':wordpress-shortcodes')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':aztec')
+    implementation project(':glide-loader')
+    implementation project(':picasso-loader')
+    implementation project(':wordpress-comments')
+    implementation project(':wordpress-shortcodes')
 
-    //noinspection GradleCompatible
-    compile "com.android.support:appcompat-v7:25.3.1"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.wordpress:utils:1.16.0"
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "org.wordpress:utils:$wordpressUtilsVersion"
+
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
 }

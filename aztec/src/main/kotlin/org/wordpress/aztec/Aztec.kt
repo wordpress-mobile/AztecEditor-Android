@@ -10,8 +10,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import java.util.*
 
-open class Aztec private constructor(val visualEditor: AztecText, val sourceEditor: SourceViewEditText,
-                                     val toolbar: AztecToolbar, val toolbarClickListener: IAztecToolbarClickListener) {
+open class Aztec private constructor(val visualEditor: AztecText) {
         
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
@@ -23,16 +22,24 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
     private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
     private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
+    var toolbar: AztecToolbar? = null
+    var sourceEditor: SourceViewEditText? = null
+    private var toolbarClickListener: IAztecToolbarClickListener? = null
 
-    init {
-        initHistory()
-        initToolbar()
-    }
-    
     constructor(activity: Activity, @IdRes aztecTextId: Int,
                 @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
                 toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById(aztecTextId) as AztecText,
             activity.findViewById(sourceTextId) as SourceViewEditText, activity.findViewById(toolbarId) as AztecToolbar, toolbarClickListener)
+
+
+    constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
+                toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this (visualEditor) {
+        this.sourceEditor = sourceEditor
+        this.toolbar = toolbar
+        this.toolbarClickListener = toolbarClickListener
+        initHistory()
+        initToolbar()
+    }
 
     companion object Factory {
         fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int, 
@@ -43,6 +50,10 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
                  toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
+        }
+
+        fun with(visualEditor: AztecText) : Aztec {
+            return Aztec(visualEditor)
         }
     }
 
@@ -104,20 +115,20 @@ open class Aztec private constructor(val visualEditor: AztecText, val sourceEdit
         plugins.add(plugin)
 
         if (plugin is IToolbarButton) {
-            toolbar.addButton(plugin)
+            toolbar?.addButton(plugin)
         }
 
         return this
     }
 
     fun initHistory() {
-        sourceEditor.history = visualEditor.history
+        sourceEditor?.history = visualEditor.history
     }
 
     private fun initToolbar() {
-        toolbar.setEditor(visualEditor, sourceEditor)
-        toolbar.setToolbarListener(toolbarClickListener)
-        visualEditor.setToolbar(toolbar)
+        toolbar?.setEditor(visualEditor, sourceEditor!!)
+        toolbar?.setToolbarListener(toolbarClickListener!!)
+        visualEditor.setToolbar(toolbar!!)
     }
 
     private fun initHistoryListener() {

@@ -32,10 +32,10 @@ android {
 }
 
 dependencies {
-    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-    api "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
-    api "org.jsoup:jsoup:$jSoupVersion"
+    implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
+    implementation "org.jsoup:jsoup:$jSoupVersion"
 
     implementation "com.android.support:support-v4:$supportLibVersion"
     implementation "com.android.support:design:$supportLibVersion"

@@ -42,8 +42,6 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
-    implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
-    implementation "org.jsoup:jsoup:$jSoupVersion"
 
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'

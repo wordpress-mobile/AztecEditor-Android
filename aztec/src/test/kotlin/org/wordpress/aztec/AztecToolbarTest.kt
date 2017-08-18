@@ -45,13 +45,13 @@ class AztecToolbarTest {
         toolbar = AztecToolbar(activity)
         toolbar.setEditor(editText, sourceText)
 
-        boldButton = toolbar.findViewById(R.id.format_bar_button_bold) as ToggleButton
-        italicButton = toolbar.findViewById(R.id.format_bar_button_italic) as ToggleButton
-        strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough) as ToggleButton
-        underlineButton = toolbar.findViewById(R.id.format_bar_button_underline) as ToggleButton
-        quoteButton = toolbar.findViewById(R.id.format_bar_button_quote) as ToggleButton
-        linkButton = toolbar.findViewById(R.id.format_bar_button_link) as ToggleButton
-        htmlButton = toolbar.findViewById(R.id.format_bar_button_html) as ToggleButton
+        boldButton = toolbar.findViewById(R.id.format_bar_button_bold)
+        italicButton = toolbar.findViewById(R.id.format_bar_button_italic)
+        strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough)
+        underlineButton = toolbar.findViewById(R.id.format_bar_button_underline)
+        quoteButton = toolbar.findViewById(R.id.format_bar_button_quote)
+        linkButton = toolbar.findViewById(R.id.format_bar_button_link)
+        htmlButton = toolbar.findViewById(R.id.format_bar_button_html)
     }
 
     /**

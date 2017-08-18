@@ -61,8 +61,8 @@ class CommentsToolbarTest {
                 .addPlugin(MoreToolbarButton(editText))
                 .addPlugin(PageToolbarButton(editText))
 
-        moreButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
-        pageButton = toolbar.findViewById(R.id.format_bar_button_more) as ToggleButton
+        moreButton = toolbar.findViewById(R.id.format_bar_button_more)
+        pageButton = toolbar.findViewById(R.id.format_bar_button_more)
     }
 
     /**

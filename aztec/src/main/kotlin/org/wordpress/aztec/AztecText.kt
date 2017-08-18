@@ -408,19 +408,19 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean(LINK_DIALOG_VISIBLE_KEY, true)
 
-            val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
-            val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
+            val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
+            val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
 
-            bundle.putString(LINK_DIALOG_URL_KEY, urlInput.text.toString())
-            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput.text.toString())
+            bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
+            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
         }
 
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
-            val source = blockEditorDialog!!.findViewById(R.id.source) as SourceViewEditText
+            val source = blockEditorDialog!!.findViewById<SourceViewEditText>(R.id.source)
 
             bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
             bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
-            bundle.putString(BLOCK_EDITOR_HTML_KEY, source.getPureHtml(false))
+            bundle.putString(BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false))
         }
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
@@ -1094,8 +1094,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null)
 
-        val urlInput = dialogView.findViewById(R.id.linkURL) as EditText
-        val anchorInput = dialogView.findViewById(R.id.linkText) as EditText
+        val urlInput = dialogView.findViewById<EditText>(R.id.linkURL)
+        val anchorInput = dialogView.findViewById<EditText>(R.id.linkText)
 
         urlInput.setText(url)
         anchorInput.setText(anchor)
@@ -1103,7 +1103,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         builder.setView(dialogView)
         builder.setTitle(R.string.link_dialog_title)
 
-        builder.setPositiveButton(R.string.link_dialog_button_ok, { dialog, which ->
+        builder.setPositiveButton(R.string.link_dialog_button_ok, { _, _ ->
             val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
@@ -1111,12 +1111,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         })
 
         if (linkFormatter.isUrlSelected()) {
-            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { dialogInterface, i ->
+            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { _, _ ->
                 removeLink()
             })
         }
 
-        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, _ ->
             dialogInterface.dismiss()
         })
 
@@ -1128,7 +1128,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val builder = AlertDialog.Builder(context)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
-        val source = dialogView.findViewById(R.id.source) as SourceViewEditText
+        val source = dialogView.findViewById<SourceViewEditText>(R.id.source)
 
         var editHtml = html
         if (TextUtils.isEmpty(editHtml)) {

@@ -55,7 +55,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    fun setToolbarListener(listener: IAztecToolbarClickListener) {
+    fun setToolbarListener(listener: IAztecToolbarClickListener?) {
         aztecToolbarListener = listener
     }
 
@@ -312,7 +312,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 

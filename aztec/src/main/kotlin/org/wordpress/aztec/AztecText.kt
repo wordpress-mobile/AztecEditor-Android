@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -247,6 +248,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
         setOnKeyListener { _, _, event ->
             handleBackspace(event)
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
         install()

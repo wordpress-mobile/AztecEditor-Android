@@ -55,7 +55,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    fun setToolbarListener(listener: IAztecToolbarClickListener?) {
+    fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
     }
 

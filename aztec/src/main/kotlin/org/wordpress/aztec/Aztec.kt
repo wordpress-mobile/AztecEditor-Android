@@ -11,7 +11,7 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import java.util.*
 
 open class Aztec private constructor(val visualEditor: AztecText, val toolbar:
-                            AztecToolbar? = null, val toolbarClickListener: IAztecToolbarClickListener? = null) {
+                            AztecToolbar? = null, val toolbarClickListener: IAztecToolbarClickListener) {
         
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null

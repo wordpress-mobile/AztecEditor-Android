@@ -42,7 +42,7 @@ fun ClipData.Item.coerceToStyledText(context: Context, parser: AztecParser): Cha
     return parser.fromHtml(html, context)
 }
 
-fun ClipData.Item.coerceToHtmlText(context: Context, parser: AztecParser): String {
+fun ClipData.Item.coerceToHtmlText(parser: AztecParser): String {
     // If the item has an explicit HTML value, simply return that.
     val htmlText = htmlText
     if (htmlText != null) {

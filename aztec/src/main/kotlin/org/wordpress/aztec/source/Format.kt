@@ -9,7 +9,7 @@ import org.wordpress.aztec.spans.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-object Format {
+internal object Format {
 
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"

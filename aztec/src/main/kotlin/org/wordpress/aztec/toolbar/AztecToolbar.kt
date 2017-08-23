@@ -120,14 +120,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_BOLD, true)
-                    findViewById(ToolbarAction.BOLD.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRIKETHROUGH, true)
-                    findViewById(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
             }
@@ -140,21 +140,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ITALIC, true)
-                    findViewById(ToolbarAction.ITALIC.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
                 if (event.isCtrlPressed) { // Link = Ctrl + K
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, true)
-                    findViewById(ToolbarAction.LINK.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.LINK.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
                     aztecToolbarListener?.onToolbarMediaButtonClicked()
-                    findViewById(ToolbarAction.ADD_MEDIA.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.ADD_MEDIA.buttonId).performClick()
                     return true
                 }
             }
@@ -168,7 +168,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_QUOTE, true)
-                    findViewById(ToolbarAction.QUOTE.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.QUOTE.buttonId).performClick()
                     return true
                 }
             }
@@ -179,14 +179,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     return true
                 } else if (event.isCtrlPressed) { // Underline = Ctrl + U
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNDERLINE, true)
-                    findViewById(ToolbarAction.UNDERLINE.buttonId).performClick()
+                    findViewById<ToggleButton>(ToolbarAction.UNDERLINE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_X -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Code = Alt + Ctrl + X
 //                    TODO: Add Code action.
-//                    findViewById(ToolbarAction.CODE.buttonId).performClick()
+//                    findViewById<ToggleButton>(ToolbarAction.CODE.buttonId).performClick()
                     return true
                 }
             }
@@ -334,7 +334,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         setAdvancedState()
 
         for (toolbarAction in ToolbarAction.values()) {
-            val button = findViewById(toolbarAction.buttonId)
+            val button = findViewById<ToggleButton>(toolbarAction.buttonId)
             button?.setOnClickListener { onToolbarAction(toolbarAction) }
 
             if (toolbarAction == ToolbarAction.HEADING) {
@@ -348,21 +348,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun addButton(buttonPlugin: IToolbarButton) {
-        val pluginContainer = findViewById(R.id.plugin_buttons) as LinearLayout
+        val pluginContainer = findViewById<LinearLayout>(R.id.plugin_buttons)
         buttonPlugin.inflateButton(pluginContainer)
 
         toolbarButtonPlugins.add(buttonPlugin)
         
-        val button = findViewById(buttonPlugin.action.buttonId)
-        button?.setOnClickListener { _ -> buttonPlugin.toggle() }
+        val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
+        button.setOnClickListener { _: View -> buttonPlugin.toggle() }
     }
 
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {
-                toggleButton(findViewById(action.buttonId), true)
+                toggleButton(findViewById<ToggleButton>(action.buttonId), true)
             } else {
-                toggleButton(findViewById(action.buttonId), false)
+                toggleButton(findViewById<ToggleButton>(action.buttonId), false)
             }
         }
     }
@@ -373,7 +373,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         for (action in ToolbarAction.values()) {
             if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
                     action != ToolbarAction.ELLIPSIS_EXPAND) {
-                val view = findViewById(action.buttonId) as ToggleButton
+                val view = findViewById<ToggleButton>(action.buttonId)
                 if (view.isChecked) actions.add(action)
             }
         }
@@ -645,10 +645,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setButtonViews() {
-        layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded) as LinearLayout
-        buttonScroll = findViewById(R.id.format_bar_button_scroll) as HorizontalScrollView
-        buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse) as RippleToggleButton
-        buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand) as RippleToggleButton
+        layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
+        buttonScroll = findViewById(R.id.format_bar_button_scroll)
+        buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse)
+        buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand)
     }
 
     private fun setHeadingMenu(view: View) {
@@ -665,27 +665,27 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setListMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
-            AztecTextFormat.FORMAT_ORDERED_LIST -> findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
             else -> {
                 // Use unordered list selector by default.
-                findViewById(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+                findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
             }
         }
     }
 
     private fun setHeadingMenuSelector(textFormat: ITextFormat) {
         when (textFormat) {
-            AztecTextFormat.FORMAT_HEADING_1 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
-            AztecTextFormat.FORMAT_HEADING_2 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
-            AztecTextFormat.FORMAT_HEADING_3 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
-            AztecTextFormat.FORMAT_HEADING_4 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
-            AztecTextFormat.FORMAT_HEADING_5 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
-            AztecTextFormat.FORMAT_HEADING_6 -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
-            AztecTextFormat.FORMAT_PARAGRAPH -> findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+            AztecTextFormat.FORMAT_HEADING_1 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
+            AztecTextFormat.FORMAT_HEADING_2 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
+            AztecTextFormat.FORMAT_HEADING_3 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
+            AztecTextFormat.FORMAT_HEADING_4 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
+            AztecTextFormat.FORMAT_HEADING_5 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
+            AztecTextFormat.FORMAT_HEADING_6 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
+            AztecTextFormat.FORMAT_PARAGRAPH -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
             else -> {
                 // Use unnumbered heading selector by default.
-                findViewById(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+                findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
             }
         }
     }

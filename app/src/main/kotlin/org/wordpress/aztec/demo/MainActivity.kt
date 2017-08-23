@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.*
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.PermissionUtils
@@ -312,9 +313,9 @@ class MainActivity : AppCompatActivity(),
             mHideActionBarOnSoftKeyboardUp = true
         }
 
-        val visualEditor = findViewById(R.id.aztec) as AztecText
-        val sourceEditor = findViewById(R.id.source) as SourceViewEditText
-        val toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
+        val visualEditor = findViewById<AztecText>(R.id.aztec)
+        val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
+        val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
@@ -738,19 +739,19 @@ class MainActivity : AppCompatActivity(),
     private fun showPhotoMediaDialog() {
         val dialog = layoutInflater.inflate(R.layout.dialog_photo_media, null)
 
-        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
         camera.setOnClickListener({
             onCameraPhotoMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
         })
 
-        val photos = dialog.findViewById(org.wordpress.aztec.R.id.media_photos)
+        val photos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_photos)
         photos.setOnClickListener({
             onPhotosMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
         })
 
-        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
         library.setOnClickListener({
             onPhotoLibraryMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
@@ -765,19 +766,19 @@ class MainActivity : AppCompatActivity(),
     private fun showVideoMediaDialog() {
         val dialog = layoutInflater.inflate(org.wordpress.aztec.R.layout.dialog_video_media, null)
 
-        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
         camera.setOnClickListener({
             onCameraVideoMediaOptionSelected()
             addVideoMediaDialog?.dismiss()
         })
 
-        val videos = dialog.findViewById(org.wordpress.aztec.R.id.media_videos)
+        val videos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_videos)
         videos.setOnClickListener({
             onVideosMediaOptionSelected()
             addVideoMediaDialog?.dismiss()
         })
 
-        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
         library.setOnClickListener({
             onVideoLibraryMediaOptionSelected()
             addVideoMediaDialog?.dismiss()

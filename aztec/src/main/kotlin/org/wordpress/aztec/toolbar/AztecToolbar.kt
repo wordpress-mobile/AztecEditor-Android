@@ -465,6 +465,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun toggleEditorMode() {
+        // only allow toggling if sourceEditor is present
+        if (sourceEditor == null) return;
+
         if (editor!!.visibility == View.VISIBLE) {
             sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
             editor!!.visibility = View.GONE

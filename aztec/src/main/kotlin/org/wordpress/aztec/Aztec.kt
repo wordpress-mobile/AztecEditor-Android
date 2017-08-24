@@ -32,13 +32,13 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
                 @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById(aztecTextId) as AztecText,
-            activity.findViewById(sourceTextId) as SourceViewEditText, activity.findViewById(toolbarId) as AztecToolbar, toolbarClickListener)
+                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+            activity.findViewById<SourceViewEditText>(sourceTextId), activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
                 @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById(aztecTextId) as AztecText,
-            activity.findViewById(toolbarId) as AztecToolbar, toolbarClickListener)
+                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+            activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {

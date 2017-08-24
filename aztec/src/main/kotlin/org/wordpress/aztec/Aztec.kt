@@ -32,8 +32,8 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
                 @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById(aztecTextId) as AztecText,
-            activity.findViewById(sourceTextId) as SourceViewEditText, activity.findViewById(toolbarId) as AztecToolbar, toolbarClickListener)
+                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById(aztecTextId),
+            activity.findViewById(sourceTextId), activity.findViewById(toolbarId), toolbarClickListener)
 
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
@@ -47,11 +47,13 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     }
 
     companion object Factory {
+        @JvmStatic
         fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int, 
                  @IdRes toolbarId: Int, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
             return Aztec(activity, aztecTextId, sourceTextId, toolbarId, toolbarClickListener)
         }
 
+        @JvmStatic
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
                  toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)

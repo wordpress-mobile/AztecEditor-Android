@@ -673,7 +673,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
     }
 
-    fun setToolbar(toolbar: AztecToolbar?) {
+    fun setToolbar(toolbar: AztecToolbar) {
         formatToolbar = toolbar
     }
 

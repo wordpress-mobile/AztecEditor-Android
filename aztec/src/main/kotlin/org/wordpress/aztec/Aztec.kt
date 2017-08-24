@@ -120,7 +120,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         plugins.add(plugin)
 
         if (plugin is IToolbarButton) {
-            toolbar?.addButton(plugin)
+            toolbar.addButton(plugin)
         }
 
         return this
@@ -131,8 +131,8 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     }
 
     private fun initToolbar() {
-        toolbar?.setEditor(visualEditor, sourceEditor)
-        toolbar?.setToolbarListener(toolbarClickListener)
+        toolbar.setEditor(visualEditor, sourceEditor)
+        toolbar.setToolbarListener(toolbarClickListener)
         visualEditor.setToolbar(toolbar)
     }
 

@@ -312,7 +312,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText) {
+    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
@@ -465,6 +465,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun toggleEditorMode() {
+        // only allow toggling if sourceEditor is present
+        if (sourceEditor == null) return;
+
         if (editor!!.visibility == View.VISIBLE) {
             sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
             editor!!.visibility = View.GONE

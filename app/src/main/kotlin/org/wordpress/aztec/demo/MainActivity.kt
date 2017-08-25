@@ -341,11 +341,11 @@ class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            aztec.sourceEditor.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(aztec.sourceEditor.getPureHtml())
+            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
             aztec.initHistory()
         }
 
@@ -485,13 +485,13 @@ class MainActivity : AppCompatActivity(),
                 if (aztec.visualEditor.visibility == View.VISIBLE) {
                     aztec.visualEditor.undo()
                 } else {
-                    aztec.sourceEditor.undo()
+                    aztec.sourceEditor?.undo()
                 }
             R.id.redo ->
                 if (aztec.visualEditor.visibility == View.VISIBLE) {
                     aztec.visualEditor.redo()
                 } else {
-                    aztec.sourceEditor.redo()
+                    aztec.sourceEditor?.redo()
                 }
             else -> {
             }
@@ -694,7 +694,7 @@ class MainActivity : AppCompatActivity(),
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
         } else {
-            aztec.toolbar.toggleEditorMode()
+            aztec.toolbar?.toggleEditorMode()
         }
     }
 

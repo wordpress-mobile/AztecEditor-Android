@@ -26,7 +26,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     var sourceEditor: SourceViewEditText? = null
 
     init {
-        initHistory()
         initToolbar()
     }
 
@@ -43,6 +42,9 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
         this.sourceEditor = sourceEditor
+
+        initToolbar()
+        initSourceEditorHistory()
     }
 
     companion object Factory {
@@ -58,6 +60,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
 
+        @JvmStatic
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
@@ -127,7 +130,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         return this
     }
 
-    fun initHistory() {
+    fun initSourceEditorHistory() {
         sourceEditor?.history = visualEditor.history
     }
 

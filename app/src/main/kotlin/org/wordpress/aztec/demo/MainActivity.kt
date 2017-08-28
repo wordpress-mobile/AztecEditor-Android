@@ -346,7 +346,7 @@ class MainActivity : AppCompatActivity(),
 
         if (savedInstanceState == null) {
             aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
-            aztec.initHistory()
+            aztec.initSourceEditorHistory()
         }
 
         invalidateOptionsHandler = Handler()
@@ -381,7 +381,7 @@ class MainActivity : AppCompatActivity(),
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        aztec.initHistory()
+        aztec.initSourceEditorHistory()
 
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {

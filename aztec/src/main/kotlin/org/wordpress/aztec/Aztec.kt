@@ -44,7 +44,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         this.sourceEditor = sourceEditor
 
         initToolbar()
-        initHistory()
+        initSourceEditorHistory()
     }
 
     companion object Factory {
@@ -129,7 +129,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         return this
     }
 
-    fun initHistory() {
+    fun initSourceEditorHistory() {
         sourceEditor?.history = visualEditor.history
     }
 

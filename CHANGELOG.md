@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0-beta.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.8) - 2017-08-28
+### Changed
+- Gradle version to 4.1 and use the new `implementation` configuration to stop transient dependency leaking
+
+### Added
+- Configuration option to use the visual editor without the HTML editor
+
 ## [1.0-beta.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.7) - 2017-08-15
 ### Changed
 - Toolbar button highlighted state to use a color with more contrast

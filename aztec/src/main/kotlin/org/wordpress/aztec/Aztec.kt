@@ -60,6 +60,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
 
+        @JvmStatic
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }

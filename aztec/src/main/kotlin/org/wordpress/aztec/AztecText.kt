@@ -21,8 +21,10 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
@@ -31,10 +33,7 @@ import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -129,6 +128,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     var widthMeasureSpec: Int = 0
 
     var verticalParagraphMargin: Int = 0
+
+    private var invalidateMediaHandler = Handler()
+    private var invalidateMediaRunnable: Runnable? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -257,6 +259,25 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         enableTextChangedListener()
 
         isViewInitialized = true
+
+        viewTreeObserver.addOnScrollChangedListener(
+                object : ViewTreeObserver.OnScrollChangedListener {
+                    override fun onScrollChanged() {
+                        val scrollBounds = Rect()
+                       // this@AztecText.getLocalVisibleRect(scrollBounds)
+                      //  Log.d("DANILO", "Scroll " + scrollBounds.toString() )
+                        //
+                        if (invalidateMediaRunnable != null) {
+                            invalidateMediaHandler.removeCallbacks(invalidateMediaRunnable)
+                        }
+                        if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
+                            invalidateMediaRunnable = Runnable {  this@AztecText.refreshText() }
+                            invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 500L)
+                        }
+                        //
+                    }
+                }
+        )
     }
 
     private fun handleBackspace(event: KeyEvent): Boolean {

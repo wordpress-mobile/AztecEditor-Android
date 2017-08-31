@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
@@ -65,6 +66,28 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        if (textView == null) {
+            return
+        }
+
+        Log.d("DANILO", "draw -> start " + start + " end:" + end + " x:" + x + " top:" + top + " y:" + y + " bottom:" + bottom)
+
+        val scrollBounds = Rect()
+        textView?.getLocalVisibleRect(scrollBounds)
+
+        Log.d("DANILO", "draw - textview scrollBounds " + scrollBounds.toString() )
+
+        if (scrollBounds.top > bottom) {
+            // the picture is above the current visible area
+            Log.d("DANILO", " the picture is above the current visible area" )
+            return
+        }
+        if (top > scrollBounds.bottom) {
+            // the picture is below the current visible area
+            Log.d("DANILO", " the picture is below the current visible area" )
+            return
+        }
+
         canvas.save()
 
         if (imageDrawable != null) {

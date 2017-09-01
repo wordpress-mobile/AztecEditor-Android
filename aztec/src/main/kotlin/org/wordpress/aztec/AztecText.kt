@@ -789,7 +789,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             // maxidth set to the biggest of screen width/height to cater for device rotation
             val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
                     context.resources.displayMetrics.heightPixels)
-            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+
+            it.imageProvider = object : AztecDynamicImageSpan.IImageProvider {
+                override fun requestImage(span: AztecDynamicImageSpan) {
+                    imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, maxWidth)
+                }
+            }
+            it.imageProvider.requestImage(it)
         }
     }
 
@@ -1220,12 +1226,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         onSelectionChanged(0, 0)
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+    fun insertImage(imageProvider: AztecDynamicImageSpan.IImageProvider, attributes: Attributes) {
+        lineBlockFormatter.insertImage(imageProvider, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
-    fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
+    fun insertVideo(imageProvider: AztecDynamicImageSpan.IImageProvider, attributes: Attributes) {
+        lineBlockFormatter.insertVideo(imageProvider, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

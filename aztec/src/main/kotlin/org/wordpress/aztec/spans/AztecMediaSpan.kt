@@ -7,16 +7,15 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import java.util.*
 
 
-abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, override var attributes: AztecAttributes = AztecAttributes(),
                               var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
-                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
+                              editor: AztecText? = null) : AztecDynamicImageSpan(context, imageProvider), IAztecAttributedSpan {
 
     abstract val TAG: String
 
@@ -36,7 +35,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         return Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ALPHA_8)
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
+    override fun setDrawable(newDrawable: Drawable?) {
         innerPlaceholder = drawableToBitmap(newDrawable)
 
         imageDrawable = newDrawable
@@ -98,7 +97,8 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
             if (isDirty) {
                 //require real picture here
                 isDirty = false
-                
+                imageProvider.requestImage(this)
+                // Maybe return?
             }
         }
 

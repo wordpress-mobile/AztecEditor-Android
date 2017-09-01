@@ -9,6 +9,7 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
 
 class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler, IHtmlCommentHandler {
 
@@ -41,7 +42,11 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                            object : AztecDynamicImageSpan.IImageProvider {
+                                override fun requestImage(span: AztecDynamicImageSpan) {
+                                    span.drawable = ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)
+                                }
+                            },
                             nestingLevel
                     ),
                     spanStart,
@@ -57,7 +62,11 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page),
+                            object : AztecDynamicImageSpan.IImageProvider {
+                                override fun requestImage(span: AztecDynamicImageSpan) {
+                                    span.drawable = ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page)
+                                }
+                            },
                             nestingLevel
                     ),
                     spanStart,

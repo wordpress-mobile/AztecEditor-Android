@@ -77,15 +77,35 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, output, AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(context,
+                        object : AztecDynamicImageSpan.IImageProvider {
+                            override fun requestImage(span: AztecDynamicImageSpan) {
+                                span.drawable =   getLoadingDrawable(context)
+                            }
+                        },
+                        AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
-                handleMediaElement(opening, output, AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecVideoSpan(context,
+                        object : AztecDynamicImageSpan.IImageProvider {
+                            override fun requestImage(span: AztecDynamicImageSpan) {
+                                span.drawable =   getLoadingDrawable(context)
+                            }
+                        },
+                        nestingLevel,
+                        AztecAttributes(attributes)))
                 return true
             }
             AUDIO -> {
-                handleMediaElement(opening, output, AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecAudioSpan(context,
+                        object : AztecDynamicImageSpan.IImageProvider {
+                            override fun requestImage(span: AztecDynamicImageSpan) {
+                                span.drawable =   getLoadingDrawable(context)
+                            }
+                        },
+                        nestingLevel,
+                        AztecAttributes(attributes)))
                 return true
             }
             PARAGRAPH -> {
@@ -95,7 +115,11 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
+                    start(output, AztecHorizontalRuleSpan(context, object : AztecDynamicImageSpan.IImageProvider {
+                        override fun requestImage(span: AztecDynamicImageSpan) {
+                            span.drawable = ContextCompat.getDrawable(context, R.drawable.img_hr)
+                        }
+                    }, nestingLevel))
                     output.append(Constants.MAGIC_CHAR)
                 } else {
                     end(output, AztecHorizontalRuleSpan::class.java)

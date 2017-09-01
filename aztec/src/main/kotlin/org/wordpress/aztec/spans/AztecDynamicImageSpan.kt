@@ -11,10 +11,15 @@ import android.text.style.DynamicDrawableSpan
 import android.view.View
 import org.wordpress.aztec.AztecText
 
-abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: IImageProvider) : DynamicDrawableSpan() {
+
+    interface IImageProvider {
+        fun requestImage(span: AztecDynamicImageSpan)
+    }
 
     var textView: AztecText? = null
-    var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+    var imageDrawable: Drawable?= null
+    lateinit var originalBounds: Rect
     var aspectRatio: Double = 1.0
 
     private var measuring = false
@@ -56,6 +61,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     init {
+        imageProvider.requestImage(this)
+
+        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+
         computeAspectRatio()
 
         setInitBounds(imageDrawable)
@@ -170,6 +179,17 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
     override fun getDrawable(): Drawable? {
         return imageDrawable
+    }
+
+    open fun setDrawable(newDrawable: Drawable?) {
+
+        imageDrawable = newDrawable
+
+        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+
+        setInitBounds(newDrawable)
+
+        computeAspectRatio()
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {

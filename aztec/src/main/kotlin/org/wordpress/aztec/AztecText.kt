@@ -259,19 +259,17 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         isViewInitialized = true
 
-        viewTreeObserver.addOnScrollChangedListener(
-                object : ViewTreeObserver.OnScrollChangedListener {
-                    override fun onScrollChanged() {
-                        if (invalidateMediaRunnable != null) {
-                            invalidateMediaHandler.removeCallbacks(invalidateMediaRunnable)
-                        }
-                        if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
-                            invalidateMediaRunnable = Runnable { this@AztecText.refreshText() }
-                            invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 500L)
-                        }
-                    }
+        viewTreeObserver.addOnScrollChangedListener {
+            if (this@AztecText.visibility == View.VISIBLE) {
+                if (invalidateMediaRunnable != null) {
+                    invalidateMediaHandler.removeCallbacks(invalidateMediaRunnable)
                 }
-        )
+                if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
+                    invalidateMediaRunnable = Runnable { this@AztecText.refreshText() }
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 500L)
+                }
+            }
+        }
     }
 
     private fun handleBackspace(event: KeyEvent): Boolean {

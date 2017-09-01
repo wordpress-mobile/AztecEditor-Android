@@ -1,7 +1,7 @@
 buildscript {
     ext {
         gradlePluginVersion = '3.0.0-beta3'
-        kotlinVersion = '1.1.4-2'
+        kotlinVersion = '1.1.4-3'
         supportLibVersion = '26.0.1'
         tagSoupVersion = '1.2.1'
         glideVersion = '3.7.0'
@@ -9,7 +9,7 @@ buildscript {
         robolectricVersion = '3.4.2'
         jUnitVersion = '4.12'
         jSoupVersion = '1.10.3'
-        wordpressUtilsVersion = '1.17.0'
+        wordpressUtilsVersion = '1.17.1'
         espressoVersion = '2.2.2'
     }
 

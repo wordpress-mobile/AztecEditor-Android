@@ -1,9 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.3"
+    buildToolsVersion "26.0.1"
 
     defaultConfig {
         minSdkVersion 16
@@ -37,9 +38,24 @@ dependencies {
     implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
     implementation "org.jsoup:jsoup:$jSoupVersion"
 
-    implementation "com.android.support:support-v4:$supportLibVersion"
-    implementation "com.android.support:design:$supportLibVersion"
+    api "com.android.support:support-v4:$supportLibVersion"
+    api "com.android.support:design:$supportLibVersion"
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
+}
+
+task installLocal(type: Upload) {
+    description "Installs library aar file to the local Maven repository."
+    configuration = configurations['archives']
+    repositories {
+        mavenDeployer {
+            repository url: mavenLocal().url
+            pom {
+                groupId = 'org.wordpress'
+                artifactId = 'aztec'
+                version = '111'
+            }
+        }
+    }
 }

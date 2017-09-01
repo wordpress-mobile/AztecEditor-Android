@@ -101,20 +101,10 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
 
         val layout = textView?.layout
 
-        if (measuring || layout == null) {
+        if (layout == null) {
             // if we're in pre-layout phase, just return a tiny rect
             return Rect(0, 0, 1, 1)
         }
-
-        // get the TextView's target width
-        calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
-                .minus(textView?.compoundPaddingLeft ?: 0)
-                .minus(textView?.compoundPaddingRight ?: 0)
-
-        // do a local pre-layout to measure the TextView's basic sizes and line margins
-        measuring = true
-
-        measuring = false
 
         val line = layout.getLineForOffset(start)
 

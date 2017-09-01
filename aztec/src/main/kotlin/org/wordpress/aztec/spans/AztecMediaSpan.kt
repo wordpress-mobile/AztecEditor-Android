@@ -1,15 +1,18 @@
 package org.wordpress.aztec.spans
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import java.util.*
+
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
                               var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
@@ -19,11 +22,23 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 
+    private var innerPlaceholder: Bitmap? = null
+    private var isDirty = false
+
     init {
         textView = editor
     }
 
+    private fun drawableToBitmap(drawable: Drawable?): Bitmap? {
+        if (drawable == null) {
+            return null
+        }
+        return Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ALPHA_8)
+    }
+
     fun setDrawable(newDrawable: Drawable?) {
+        innerPlaceholder = drawableToBitmap(newDrawable)
+
         imageDrawable = newDrawable
 
         originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
@@ -69,23 +84,22 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         if (textView == null) {
             return
         }
-
-        Log.d("DANILO", "draw -> start " + start + " end:" + end + " x:" + x + " top:" + top + " y:" + y + " bottom:" + bottom)
-
         val scrollBounds = Rect()
         textView?.getLocalVisibleRect(scrollBounds)
 
-        Log.d("DANILO", "draw - textview scrollBounds " + scrollBounds.toString() )
-
-        if (scrollBounds.top > bottom) {
-            // the picture is above the current visible area
-            Log.d("DANILO", " the picture is above the current visible area" )
-            return
-        }
-        if (top > scrollBounds.bottom) {
-            // the picture is below the current visible area
-            Log.d("DANILO", " the picture is below the current visible area" )
-            return
+        if (scrollBounds.top > bottom || top > scrollBounds.bottom) {
+            // the picture is outside the current viewable area. Use a placeholder instead, otherwise text jumps
+            if (innerPlaceholder != null) {
+                imageDrawable = BitmapDrawable(context.resources, innerPlaceholder)
+            }
+            isDirty = true
+        } else {
+            // The picture is visible on the screen. Check if it's a placeholder
+            if (isDirty) {
+                //require real picture here
+                isDirty = false
+                
+            }
         }
 
         canvas.save()

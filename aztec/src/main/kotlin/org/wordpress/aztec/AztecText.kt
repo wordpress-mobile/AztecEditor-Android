@@ -21,7 +21,6 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
@@ -263,18 +262,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         viewTreeObserver.addOnScrollChangedListener(
                 object : ViewTreeObserver.OnScrollChangedListener {
                     override fun onScrollChanged() {
-                        val scrollBounds = Rect()
-                       // this@AztecText.getLocalVisibleRect(scrollBounds)
-                      //  Log.d("DANILO", "Scroll " + scrollBounds.toString() )
-                        //
                         if (invalidateMediaRunnable != null) {
                             invalidateMediaHandler.removeCallbacks(invalidateMediaRunnable)
                         }
                         if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
-                            invalidateMediaRunnable = Runnable {  this@AztecText.refreshText() }
+                            invalidateMediaRunnable = Runnable { this@AztecText.refreshText() }
                             invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 500L)
                         }
-                        //
                     }
                 }
         )

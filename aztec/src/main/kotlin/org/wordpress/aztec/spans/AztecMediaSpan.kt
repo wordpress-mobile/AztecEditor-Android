@@ -32,7 +32,12 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         if (drawable == null) {
             return null
         }
-        return Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ALPHA_8)
+
+        return if (drawable is BitmapDrawable) {
+            Bitmap.createBitmap(drawable.bitmap.width, drawable.bitmap.height, Bitmap.Config.ALPHA_8)
+        } else {
+            Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ALPHA_8)
+        }
     }
 
     override fun setDrawable(newDrawable: Drawable?) {

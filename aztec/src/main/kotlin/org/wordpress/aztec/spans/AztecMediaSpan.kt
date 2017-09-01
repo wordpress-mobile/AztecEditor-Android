@@ -38,13 +38,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
     override fun setDrawable(newDrawable: Drawable?) {
         innerPlaceholder = drawableToBitmap(newDrawable)
 
-        imageDrawable = newDrawable
-
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
-
-        setInitBounds(newDrawable)
-
-        computeAspectRatio()
+        super.setDrawable(newDrawable)
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {

@@ -812,18 +812,24 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading), true)
                 }
 
-                private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
+                private fun replaceImage(drawable: Drawable?, isPlaceholder: Boolean = false) {
+                    it.setDrawable(drawable, isPlaceholder)
                     post {
                         refreshText()
                     }
                 }
             }
 
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
+            it.imageProvider = object : AztecDynamicImageSpan.IImageProvider {
+                override fun requestImage(span: AztecDynamicImageSpan) {
+                    videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
+                }
+            }
+
+            it.imageProvider.requestImage(it)
         }
     }
 

@@ -40,10 +40,14 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         }
     }
 
-    override fun setDrawable(newDrawable: Drawable?) {
-        innerPlaceholder = drawableToBitmap(newDrawable)
+    fun setDrawable(newDrawable: Drawable?, isPlaceholder: Boolean = false) {
+        if (!isPlaceholder) {
+            innerPlaceholder = drawableToBitmap(newDrawable)
+        }
 
-        super.setDrawable(newDrawable)
+        if (!isPlaceholder || innerPlaceholder == null) {
+            super.setDrawable(newDrawable)
+        }
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {

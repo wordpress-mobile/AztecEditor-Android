@@ -114,6 +114,8 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
             }
 
             canvas.translate(x, transY.toFloat())
+
+            adjustBounds(start)
             imageDrawable!!.draw(canvas)
         }
 

@@ -23,6 +23,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
     private var innerPlaceholder: Bitmap? = null
     private var isDirty = false
+    private val EXTRA_LOADING_SIZE = 500
 
     init {
         textView = editor
@@ -89,7 +90,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         val scrollBounds = Rect()
         textView?.getLocalVisibleRect(scrollBounds)
 
-        if (scrollBounds.top > bottom || top > scrollBounds.bottom) {
+        if (scrollBounds.top > bottom + EXTRA_LOADING_SIZE || top - EXTRA_LOADING_SIZE > scrollBounds.bottom) {
             // the picture is outside the current viewable area. Use a placeholder instead, otherwise text jumps
             if (innerPlaceholder != null) {
                 imageDrawable = BitmapDrawable(context.resources, innerPlaceholder)

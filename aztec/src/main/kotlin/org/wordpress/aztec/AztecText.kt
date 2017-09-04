@@ -266,7 +266,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
                 if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
                     invalidateMediaRunnable = Runnable { this@AztecText.refreshText() }
-                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 500L)
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 100L)
                 }
             }
         }

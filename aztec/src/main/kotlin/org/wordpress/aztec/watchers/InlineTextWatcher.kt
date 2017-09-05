@@ -54,6 +54,8 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             return
         }
 
+        inlineFormatter.handleInlineStyling(textChangedEventDetails)
+
         if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
             removeLeadingStyle(text, IAztecInlineSpan::class.java)
             removeLeadingStyle(text, LeadingMarginSpan::class.java)

@@ -8,6 +8,10 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.formatting.InlineFormatter
 import java.lang.ref.WeakReference
 
+/**
+ * Auto correct/suggestion in android often strip all the inline spans from the target words.
+ *This watcher monitors detects this behavior and reapplies style to the target words.
+ */
 class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
@@ -30,15 +34,15 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
 
         textChangedEventDetails = TextChangedEvent(text.toString())
 
+        val isMultiSelection = aztecTextRef.get()?.selectionStart != aztecTextRef.get()?.selectionEnd
 
         Log.v("SuggestionWatch", "SuggestionWatcher: beforeTextChanged, text:$text start:$start count:$count after:$after")
 
-
-        multipleCharactersWereDeleted = (count > 1 && after == 0 && aztecTextRef.get()?.selectionStart == aztecTextRef.get()?.selectionEnd)
+        multipleCharactersWereDeleted = (count > 1 && after == 0 && !isMultiSelection)
         restoringSuggestedText = beforeStart == start && beforeCount == after && multipleCharactersWereDeletedBefore
 
 
-        if (!multipleCharactersWereDeleted && !restoringSuggestedText) {
+        if (!multipleCharactersWereDeleted && !restoringSuggestedText && !isMultiSelection) {
             aztecTextRef.get()?.enableOnSelectionListener()
             Log.v("SuggestionWatch", "SuggestionWatcher: Normal Typing. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
             inlineFormatter.clearCarriedOverSpans()
@@ -46,7 +50,7 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
                 inlineFormatter.carryOverInlineSpans(start, count, after, multipleCharactersWereDeleted)
             }
             wasNormalTyping = true
-        } else if (multipleCharactersWereDeleted) {
+        } else if (multipleCharactersWereDeleted && wasNormalTyping) {
             Log.v("SuggestionWatch", "SuggestionWatcher: Multiple Characters were deleted. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
             aztecTextRef.get()?.disableOnSelectionListener()
             inlineFormatter.clearCarriedOverSpans()
@@ -57,7 +61,6 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             aztecTextRef.get()?.disableOnSelectionListener()
             wasNormalTyping = false
         }
-
 
         beforeStart = start
         beforeCount = count

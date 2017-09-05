@@ -22,7 +22,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -88,6 +87,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var consumeSelectionChangedEvent: Boolean = false
+    private var isInlineTextHandlerEnabled: Boolean = true
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -250,11 +250,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             handleBackspace(event)
         }
 
-        //disable auto suggestions/correct for older devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
-
         install()
 
         // Needed to properly initialize the cursor position
@@ -294,11 +289,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
+        SuggestionWatcher.install(inlineFormatter, this)
         InlineTextWatcher.install(inlineFormatter, this)
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            SuggestionWatcher.install(inlineFormatter, this)
-        }
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
         // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
@@ -918,6 +910,19 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun enableOnSelectionListener() {
         consumeSelectionChangedEvent = false
+    }
+
+
+    fun disableInlineTextHandling() {
+        isInlineTextHandlerEnabled = false
+    }
+
+    fun enableInlineTextHandling() {
+        isInlineTextHandlerEnabled = true
+    }
+
+    fun isInlineTextHandlerEnabled() : Boolean {
+        return isInlineTextHandlerEnabled
     }
 
     fun isOnSelectionListenerDisabled(): Boolean {

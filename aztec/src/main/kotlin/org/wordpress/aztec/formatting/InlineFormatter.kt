@@ -28,7 +28,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     fun carryOverInlineSpans(start: Int, count: Int, after: Int, multipleCharactersWereDeleted: Boolean) {
-
         val charsAdded = after - count
         val isAddingCharacters = charsAdded >= 0 && count > 0
 
@@ -62,7 +61,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun reapplyCarriedOverInlineSpans() {
         carryOverSpans.forEach {
-            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 

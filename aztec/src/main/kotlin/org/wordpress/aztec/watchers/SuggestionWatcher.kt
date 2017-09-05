@@ -94,6 +94,7 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         if (isRestoringSuggestedText) {
             isRestoringSuggestedText = false
             aztecTextRef.get()?.enableOnSelectionListener()
+            aztecTextRef.get()?.disableInlineTextHandling()
         }
 
         previousInputWasSuggestion = multipleCharactersWereDeleted

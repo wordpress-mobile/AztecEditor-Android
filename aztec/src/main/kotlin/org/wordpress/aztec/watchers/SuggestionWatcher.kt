@@ -100,7 +100,6 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         previousInputWasSuggestion = multipleCharactersWereDeleted
     }
 
-
     companion object {
         fun install(inlineFormatter: InlineFormatter, text: AztecText) {
             text.addTextChangedListener(SuggestionWatcher(inlineFormatter, text))

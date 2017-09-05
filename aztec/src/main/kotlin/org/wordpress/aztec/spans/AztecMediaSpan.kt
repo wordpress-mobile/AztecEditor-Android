@@ -108,7 +108,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (imageDrawable?.bounds?.width() ?: 0 != 0) {
             var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
@@ -118,14 +118,14 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
             adjustBounds(start)
             imageDrawable!!.draw(canvas)
-        }
 
-        overlays.forEach {
-            applyOverlayGravity(it.first, it.second)
-        }
+            overlays.forEach {
+                applyOverlayGravity(it.first, it.second)
+            }
 
-        overlays.forEach {
-            it.first?.draw(canvas)
+            overlays.forEach {
+                it.first?.draw(canvas)
+            }
         }
 
         canvas.restore()

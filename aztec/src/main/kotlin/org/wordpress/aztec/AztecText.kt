@@ -250,6 +250,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             handleBackspace(event)
         }
 
+        //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
@@ -294,7 +295,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
         InlineTextWatcher.install(inlineFormatter, this)
-        SuggestionWatcher.install(inlineFormatter, this)
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            SuggestionWatcher.install(inlineFormatter, this)
+        }
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
         // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!

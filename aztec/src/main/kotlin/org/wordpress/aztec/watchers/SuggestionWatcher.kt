@@ -3,7 +3,6 @@ package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.formatting.InlineFormatter
 import java.lang.ref.WeakReference
@@ -17,14 +16,15 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
 
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
 
-    var restoringSuggestedText = false
-
+    var isRestoringSuggestedText = false
     var multipleCharactersWereDeleted = false
-    var multipleCharactersWereDeletedBefore = false
-    var wasNormalTyping = false
 
-    var beforeStart = -1
-    var beforeCount = -1
+    var previousInputWasSuggestion = false
+    var previousInputEventWasRegular = false
+
+    //cached values of beforeTextChanged event
+    var previousStart = -1
+    var previousCount = -1
     var beforeAfter = -1
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
@@ -36,34 +36,33 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
 
         val isMultiSelection = aztecTextRef.get()?.selectionStart != aztecTextRef.get()?.selectionEnd
 
-        Log.v("SuggestionWatch", "SuggestionWatcher: beforeTextChanged, text:$text start:$start count:$count after:$after")
-
+        //possibly suggestion framework event
         multipleCharactersWereDeleted = (count > 1 && after == 0 && !isMultiSelection)
-        restoringSuggestedText = beforeStart == start && beforeCount == after && multipleCharactersWereDeletedBefore
+
+        isRestoringSuggestedText = previousStart == start && previousCount == after && previousInputWasSuggestion
 
 
-        if (!multipleCharactersWereDeleted && !restoringSuggestedText && !isMultiSelection) {
+        if (!multipleCharactersWereDeleted && !isRestoringSuggestedText && !isMultiSelection) {
             aztecTextRef.get()?.enableOnSelectionListener()
-            Log.v("SuggestionWatch", "SuggestionWatcher: Normal Typing. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
             inlineFormatter.clearCarriedOverSpans()
             if (after > 0) {
                 inlineFormatter.carryOverInlineSpans(start, count, after, multipleCharactersWereDeleted)
             }
-            wasNormalTyping = true
-        } else if (multipleCharactersWereDeleted && wasNormalTyping) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: Multiple Characters were deleted. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
+            previousInputEventWasRegular = true
+        } else if (multipleCharactersWereDeleted && previousInputEventWasRegular) {
+            //disable selection because moving cursor will cause selected style to reset
             aztecTextRef.get()?.disableOnSelectionListener()
+
             inlineFormatter.clearCarriedOverSpans()
             inlineFormatter.carryOverInlineSpans(start, count, after, multipleCharactersWereDeleted)
-            wasNormalTyping = false
-        } else if (restoringSuggestedText) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: Restoring suggested text. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
+            previousInputEventWasRegular = false
+        } else if (isRestoringSuggestedText) {
             aztecTextRef.get()?.disableOnSelectionListener()
-            wasNormalTyping = false
+            previousInputEventWasRegular = false
         }
 
-        beforeStart = start
-        beforeCount = count
+        previousStart = start
+        previousCount = count
         beforeAfter = after
     }
 
@@ -79,17 +78,12 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         textChangedEventDetails.initialize()
 
         if (!multipleCharactersWereDeleted) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: Reapplying carried over span. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
-            Log.v("SuggestionWatch", "SuggestionWatcher: Reapplying carried over span. Carried over " + inlineFormatter.carryOverSpans.size + " spans")
             inlineFormatter.reapplyCarriedOverInlineSpans()
         }
 
-        if (restoringSuggestedText) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: Clearing Carried over span")
+        if (isRestoringSuggestedText) {
             inlineFormatter.clearCarriedOverSpans()
         }
-
-        Log.v("SuggestionWatch", "InlineTextWatcher: onTextChanged")
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -97,19 +91,12 @@ class SuggestionWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             return
         }
 
-        if (!multipleCharactersWereDeleted && !restoringSuggestedText) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: handleInlineStyling Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
-            inlineFormatter.handleInlineStyling(textChangedEventDetails)
-        }
-
-
-        if (restoringSuggestedText) {
-            Log.v("SuggestionWatch", "SuggestionWatcher: Restored text. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
-            restoringSuggestedText = false
+        if (isRestoringSuggestedText) {
+            isRestoringSuggestedText = false
             aztecTextRef.get()?.enableOnSelectionListener()
         }
 
-        multipleCharactersWereDeletedBefore = multipleCharactersWereDeleted
+        previousInputWasSuggestion = multipleCharactersWereDeleted
     }
 
 

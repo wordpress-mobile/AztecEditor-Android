@@ -23,28 +23,65 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun carryOverInlineSpans(start: Int, count: Int, after: Int) {
+    fun autocorrectDeletedText(start: Int, count: Int, after: Int): Boolean {
+        val charsAdded = after - count
+
+        return charsAdded <= 0 && carryOverSpans.any { it.start == start && it.end == start + count }
+    }
+
+    fun carryingOverSpans(): Boolean {
+        return carryOverSpans.isNotEmpty()
+    }
+
+    fun clearCarriedOverSpans() {
         carryOverSpans.clear()
+    }
+
+    fun carryOverInlineSpans(start: Int, count: Int, after: Int, multipleCharactersWereDeleted: Boolean) {
+//        carryOverSpans.clear()
 
         val charsAdded = after - count
-        if (charsAdded > 0 && count > 0) {
+        if (charsAdded >= 0 && count > 0) {
             editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
                 val spanStart = editableText.getSpanStart(it)
                 val spanEnd = editableText.getSpanEnd(it)
 
-                if ((spanStart == start || spanEnd == count + start) && (spanEnd - spanStart) < after) {
+//                if ((spanStart == start || spanEnd == count + start) && (spanEnd - spanStart) < after) {
                     editableText.removeSpan(it)
                     carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
+//                }
+            }
+        } else if (charsAdded < 0 && count > 0) {
+            if (!multipleCharactersWereDeleted) {
+                editableText.getSpans(start, start+after, IAztecInlineSpan::class.java).forEach {
+                    val spanStart = editableText.getSpanStart(it)
+                    val spanEnd = if (editableText.getSpanEnd(it) > start + after) start + after else editableText.getSpanEnd(it)
+
+//                if ((spanStart in start..count + start || spanEnd in start..count + start)) {
+                    editableText.removeSpan(it)
+                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
+//                }
+                }
+            } else {
+                editableText.getSpans(start, start+count, IAztecInlineSpan::class.java).forEach {
+                    val spanStart = editableText.getSpanStart(it)
+                    val spanEnd = if (editableText.getSpanEnd(it) > start+count) start+count else editableText.getSpanEnd(it)
+
+//                if ((spanStart in start..count + start || spanEnd in start..count + start)) {
+                    editableText.removeSpan(it)
+                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
+//                }
                 }
             }
+
         }
     }
 
     fun reapplyCarriedOverInlineSpans() {
         carryOverSpans.forEach {
-            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
         }
-        carryOverSpans.clear()
+//        carryOverSpans.clear()
     }
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {

@@ -54,15 +54,15 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             return
         }
 
+        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
+            removeLeadingStyle(text, IAztecInlineSpan::class.java)
+            removeLeadingStyle(text, LeadingMarginSpan::class.java)
+        }
+
         if(aztecTextRef.get()?.isInlineTextHandlerEnabled() ?: true){
             inlineFormatter.handleInlineStyling(textChangedEventDetails)
         }else{
             aztecTextRef.get()?.enableInlineTextHandling()
-        }
-
-        if (textChangedEventDetails.inputStart == 0 && textChangedEventDetails.count == 0) {
-            removeLeadingStyle(text, IAztecInlineSpan::class.java)
-            removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
     }

@@ -171,7 +171,7 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (imageDrawable?.bounds?.width() ?: 0 != 0) {
             var transY = top
             if (mVerticalAlignment == DynamicDrawableSpan.ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent

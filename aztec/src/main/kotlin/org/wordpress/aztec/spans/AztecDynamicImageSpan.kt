@@ -19,7 +19,6 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
 
     var textView: AztecText? = null
     var imageDrawable: Drawable?= null
-    lateinit var originalBounds: Rect
     var aspectRatio: Double = 1.0
 
     private var measuring = false
@@ -63,8 +62,6 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     init {
         imageProvider.requestImage(this)
 
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
-
         computeAspectRatio()
 
         setInitBounds(imageDrawable)
@@ -95,29 +92,20 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     }
 
     fun adjustBounds(start: Int): Rect {
-        if (textView == null || textView?.widthMeasureSpec == 0) {
+        if (textView?.layout == null || textView?.widthMeasureSpec == 0) {
             return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 
-        val layout = textView?.layout
-
-        if (layout == null) {
-            // if we're in pre-layout phase, just return a tiny rect
-            return Rect(0, 0, 1, 1)
-        }
-
+        val layout = textView?.layout!!
         val line = layout.getLineForOffset(start)
-
         val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
 
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
 
-        var width = if (originalBounds.width() > 0) originalBounds.width()
-        else if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
         else maxWidth
-        var height = if (originalBounds.height() > 0) originalBounds.height()
-        else if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        var height = if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
         else (width / aspectRatio).toInt()
 
         if (width > maxWidth) {
@@ -174,8 +162,6 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     open fun setDrawable(newDrawable: Drawable?) {
 
         imageDrawable = newDrawable
-
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
 
         setInitBounds(newDrawable)
 

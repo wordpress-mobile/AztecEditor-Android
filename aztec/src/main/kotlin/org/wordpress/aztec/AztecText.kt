@@ -294,6 +294,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
         InlineTextWatcher.install(inlineFormatter, this)
+        SuggestionWatcher.install(inlineFormatter, this)
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
         // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!

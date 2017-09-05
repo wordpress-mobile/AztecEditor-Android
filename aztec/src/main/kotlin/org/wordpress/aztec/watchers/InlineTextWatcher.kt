@@ -35,7 +35,6 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             return
         }
         textChangedEventDetails = TextChangedEvent(text.toString())
-        inlineFormatter.carryOverInlineSpans(start, count, after)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -48,8 +47,6 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         textChangedEventDetails.countOfCharacters = count
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
-
-        inlineFormatter.reapplyCarriedOverInlineSpans()
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -62,7 +59,6 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        inlineFormatter.handleInlineStyling(textChangedEventDetails)
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

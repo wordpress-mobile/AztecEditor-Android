@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'maven'
 
 android {
     compileSdkVersion 26
@@ -43,19 +42,4 @@ dependencies {
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
-}
-
-task installLocal(type: Upload) {
-    description "Installs library aar file to the local Maven repository."
-    configuration = configurations['archives']
-    repositories {
-        mavenDeployer {
-            repository url: mavenLocal().url
-            pom {
-                groupId = 'org.wordpress'
-                artifactId = 'aztec'
-                version = '111'
-            }
-        }
-    }
 }

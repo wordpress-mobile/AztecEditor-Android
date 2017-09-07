@@ -17,7 +17,6 @@
 
 package org.wordpress.aztec.spans
 
-import android.os.Parcel
 import android.text.TextPaint
 import android.text.style.URLSpan
 import org.wordpress.aztec.AztecAttributes
@@ -43,17 +42,6 @@ class AztecURLSpan : URLSpan, IAztecInlineSpan {
     constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: AztecAttributes = AztecAttributes()) : this(url, attributes) {
         this.linkColor = linkStyle.linkColor
         this.linkUnderline = linkStyle.linkUnderline
-    }
-
-    constructor(src: Parcel) : super(src) {
-        this.linkColor = src.readInt()
-        this.linkUnderline = src.readInt() != 0
-    }
-
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        super.writeToParcel(dest, flags)
-        dest.writeInt(linkColor)
-        dest.writeInt(if (linkUnderline) 1 else 0)
     }
 
     override fun updateDrawState(ds: TextPaint) {

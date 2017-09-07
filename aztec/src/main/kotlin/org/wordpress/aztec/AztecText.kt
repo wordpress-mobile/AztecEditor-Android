@@ -265,7 +265,14 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     invalidateMediaHandler.removeCallbacks(invalidateMediaRunnable)
                 }
                 if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
-                    invalidateMediaRunnable = Runnable { this@AztecText.refreshText() }
+                    invalidateMediaRunnable = Runnable {
+                        editableText.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+                            val spanStart = editableText.getSpanStart(it)
+                            val spanEnd = editableText.getSpanEnd(it)
+                            val flags = editableText.getSpanFlags(it)
+                            editableText.setSpan(it, spanStart, spanEnd, flags)
+                        }
+                    }
                     invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 100L)
                 }
             }

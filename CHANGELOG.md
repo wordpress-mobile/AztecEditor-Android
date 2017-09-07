@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- OOB crash when unmarshalling URL span
+
 ## [1.0-beta.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.8) - 2017-08-28
 ### Changed
 - Gradle version to 4.1 and use the new `implementation` configuration to stop transient dependency leaking
@@ -28,7 +32,6 @@
 - OnMediaDeletedListener interface, detection and handling
 - Copy/pasting of block element styles
 - Copy/pasting of styled text and HTML from external sources
-
 
 ## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed

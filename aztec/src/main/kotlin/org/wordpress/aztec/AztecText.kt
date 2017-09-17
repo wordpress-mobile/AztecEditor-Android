@@ -130,7 +130,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private var invalidateMediaHandler = Handler()
     private var invalidateMediaRunnable: Runnable? = null
-    private var invalidateMediaCounter = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -266,29 +265,16 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     invalidateMediaHandler.removeCallbacks(null)
                 }
 
-                //TODO This should be fixed as soon as we found a fix for "editableText.setSpan(it, spanStart, spanEnd, flags)"
-                // that changes the dimensions of the background in some spans.
                 if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
-                   invalidateMediaCounter++
-                    if (invalidateMediaCounter % 10 == 0) {
-                        invalidateMediaCounter = 0
+                    invalidateMediaRunnable = Runnable {
                         editableText.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
                             val spanStart = editableText.getSpanStart(it)
                             val spanEnd = editableText.getSpanEnd(it)
                             val flags = editableText.getSpanFlags(it)
                             editableText.setSpan(it, spanStart, spanEnd, flags)
                         }
-                    } else {
-                        invalidateMediaRunnable = Runnable {
-                            editableText.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
-                                val spanStart = editableText.getSpanStart(it)
-                                val spanEnd = editableText.getSpanEnd(it)
-                                val flags = editableText.getSpanFlags(it)
-                                editableText.setSpan(it, spanStart, spanEnd, flags)
-                            }
-                        }
-                        invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 100L)
                     }
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 1000L)
                 }
             }
         }

@@ -1,7 +1,6 @@
 package org.wordpress.aztec.spans
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
@@ -21,29 +20,30 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 
-    private var innerPlaceholder: Bitmap? = null
-    private var isDirty = false
+    private var drawableHeight = 0
+    private var drawableWidth = 0
     private val EXTRA_LOADING_SIZE = 500
 
     init {
         textView = editor
     }
 
-    private fun drawableToBitmap(drawable: Drawable?): Bitmap? {
-        if (drawable == null || drawable !is BitmapDrawable || drawable.bitmap == null) {
-            return null
-        }
-
-        return Bitmap.createBitmap(drawable.bitmap.width, drawable.bitmap.height, Bitmap.Config.ALPHA_8)
-    }
-
     fun setDrawable(newDrawable: Drawable?, isPlaceholder: Boolean = false) {
-        if (!isPlaceholder) {
-            innerPlaceholder = drawableToBitmap(newDrawable)
-        }
+        super.setDrawable(newDrawable)
 
-        if (!isPlaceholder || innerPlaceholder == null) {
-            super.setDrawable(newDrawable)
+        // Store the picture size to be used later when drawing the white rectangle placeholder when picture
+        // is out of the viewable area
+        if (newDrawable != null) {
+           if (newDrawable is BitmapDrawable && newDrawable.bitmap != null) {
+                drawableHeight = newDrawable.bitmap.height
+                drawableWidth = newDrawable.bitmap.width
+            } else {
+                drawableHeight = getHeight(newDrawable)
+                drawableWidth = getWidth(newDrawable)
+            }
+        } else{
+            drawableHeight = 0
+            drawableWidth = 0
         }
     }
 
@@ -87,18 +87,12 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         textView?.getLocalVisibleRect(scrollBounds)
 
         if (scrollBounds.top > bottom + EXTRA_LOADING_SIZE || top - EXTRA_LOADING_SIZE > scrollBounds.bottom) {
-            // the picture is outside the current viewable area. Use a placeholder instead, otherwise text jumps
-            if (innerPlaceholder != null) {
-                imageDrawable = BitmapDrawable(context.resources, innerPlaceholder)
-            }
-            isDirty = true
+            // the picture is outside the current viewable area. We draw a blank rect, otherwise text jumps
+            this.drawable = null
         } else {
-            // The picture is visible on the screen. Check if it's a placeholder
-            if (isDirty) {
-                //require real picture here
-                isDirty = false
+            // The picture is on the visible area of the screen. Check if we had set it to null
+            if (this.drawable == null) {
                 imageProvider.requestImage(this)
-                // Maybe return?
             }
         }
 
@@ -121,6 +115,27 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
             overlays.forEach {
                 it.first?.draw(canvas)
+            }
+        } else {
+            // draw an empty rectangle in this case
+            if (this.drawable == null && drawableHeight > 0 && drawableWidth >0) {
+                var transY = top
+                if (mVerticalAlignment == ALIGN_BASELINE) {
+                    transY -= paint.fontMetricsInt.descent
+                }
+
+                canvas.translate(x, transY.toFloat())
+
+                val myRect =  Rect(imageDrawable?.bounds ?: Rect(0, 0, drawableWidth, drawableHeight))
+                canvas.drawRect(myRect, paint)
+
+                overlays.forEach {
+                    applyOverlayGravity(it.first, it.second)
+                }
+
+                overlays.forEach {
+                    it.first?.draw(canvas)
+                }
             }
         }
 

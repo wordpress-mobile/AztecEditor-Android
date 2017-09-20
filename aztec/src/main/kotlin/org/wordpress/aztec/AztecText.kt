@@ -29,7 +29,6 @@ import android.os.Handler
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
-import android.support.v4.util.LruCache
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatAutoCompleteTextView
 import android.text.*
@@ -82,14 +81,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
-
-        // Images cache shared in all instances of editors
-        val cacheSize = 4 * 1024 * 1024 // 4MiB
-        @JvmStatic val bitmapCache = object : LruCache<String, Bitmap>(cacheSize) {
-            override fun sizeOf(key: String?, value: Bitmap?): Int {
-                return value?.byteCount ?: 1
-            }
-        }
     }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -791,7 +782,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
 
         spans.forEach {
-            val cacheKey = (it as AztecImageSpan).getSource() + maxWidth
             val callbacks = object : Html.ImageGetter.Callbacks {
 
                 override fun onImageFailed() {
@@ -799,14 +789,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
-                    // Store the bitmap into cache once loaded
-                    if (drawable is BitmapDrawable && drawable.bitmap != null) {
-                        synchronized (bitmapCache) {
-                            if (bitmapCache.get(cacheKey) == null) {
-                                bitmapCache.put(cacheKey, drawable.bitmap)
-                            }
-                        }
-                    }
                     replaceImage(drawable)
                 }
 
@@ -824,15 +806,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
             it.imageProvider = object : AztecDynamicImageSpan.IImageProvider {
                 override fun requestImage(span: AztecDynamicImageSpan) {
-                    var bitmap :Bitmap? = null
-                    synchronized (bitmapCache) {
-                        bitmap = bitmapCache.get(cacheKey)
-                    }
-                    if (bitmap != null) {
-                        callbacks.replaceImage(BitmapDrawable(context.resources, bitmap), false)
-                    } else {
-                        imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, maxWidth)
-                    }
+                    imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, maxWidth)
                 }
             }
             it.imageProvider.requestImage(it)

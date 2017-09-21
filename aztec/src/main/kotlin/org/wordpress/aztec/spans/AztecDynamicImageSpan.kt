@@ -5,10 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.text.BoringLayout
-import android.text.Layout
 import android.text.style.DynamicDrawableSpan
-import android.view.View
 import org.wordpress.aztec.AztecText
 
 abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: IImageProvider) : DynamicDrawableSpan() {
@@ -62,12 +59,10 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     init {
         imageProvider.requestImage(this)
 
-        computeAspectRatio()
-
         setInitBounds(imageDrawable)
     }
 
-    fun computeAspectRatio() {
+    open fun computeAspectRatio() {
         if ((imageDrawable?.intrinsicWidth ?: -1) > -1 && (imageDrawable?.intrinsicHeight ?: -1) > -1) {
             aspectRatio = 1.0 * (imageDrawable?.intrinsicWidth ?: 1) / (imageDrawable?.intrinsicHeight ?: 1)
         } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
@@ -91,7 +86,7 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
         return sizeRect.width()
     }
 
-    fun adjustBounds(start: Int): Rect {
+    open fun adjustBounds(start: Int): Rect {
         if (textView?.layout == null || textView?.widthMeasureSpec == 0) {
             return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
         }
@@ -118,7 +113,7 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
-    fun calculateWantedWidth(widthMeasureSpec: Int): Int {
+    /*fun calculateWantedWidth(widthMeasureSpec: Int): Int {
         val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
         val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
 
@@ -153,7 +148,7 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
         }
 
         return width
-    }
+    }*/
 
     override fun getDrawable(): Drawable? {
         return imageDrawable

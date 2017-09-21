@@ -21,8 +21,6 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
@@ -279,7 +277,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                             editableText.setSpan(it, spanStart, spanEnd, flags)
                         }
                     }
-                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 2000L)
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 30)
                 }
             }
         }

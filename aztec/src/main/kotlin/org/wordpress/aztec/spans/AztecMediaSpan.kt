@@ -48,7 +48,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         } else {
             Log.d("Danilo", "bitmap NULLLLLL")
         }
-        Log.d("Danilo", "Dims are " + drawableHeight + " " +drawableWidth)
+        Log.d("Danilo", "Dims are "  + drawableWidth + " " + drawableHeight)
         Log.d("Danilo", "--------------------")
     }
 
@@ -86,24 +86,10 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         Log.d("Danilo", "Called getSize")
-        val size = mygetSize(paint, text, start, end, metrics)
+        val size = super.getSize(paint, text, start, end, metrics)
         Log.d("Danilo", "Size is " + size)
         Log.d("Danilo", "--------------------")
         return size
-    }
-
-    private fun mygetSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val sizeRect = adjustBounds(start)
-
-        if (metrics != null && sizeRect.width() > 0) {
-            metrics.ascent = - sizeRect.height()
-            metrics.descent = 0
-
-            metrics.top = metrics.ascent
-            metrics.bottom = 0
-        }
-
-        return sizeRect.width()
     }
 
     override fun computeAspectRatio() {
@@ -146,7 +132,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
         imageDrawable?.bounds = Rect(0, 0, width, height)
 
-
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, width, height))
     }
 
@@ -168,7 +153,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         }
 
         canvas.save()
-
         if (imageDrawable?.bounds?.width() ?: 0 != 0) {
             var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
@@ -176,8 +160,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
             }
 
             canvas.translate(x, transY.toFloat())
-
-            adjustBounds(start)
             imageDrawable!!.draw(canvas)
 
             overlays.forEach {
@@ -198,6 +180,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
                 canvas.translate(x, transY.toFloat())
 
                 val myRect =  Rect(imageDrawable?.bounds ?: Rect(0, 0, drawableWidth, drawableHeight))
+
                 canvas.drawRect(myRect, paint)
 
                 overlays.forEach {
@@ -208,7 +191,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
                     it.first?.draw(canvas)
                 }
             } else {
-                Log.d("Danilo", "???")
+                Log.d("Danilo", "Should not be here!")
             }
         }
 

@@ -6,16 +6,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.v4.util.ArrayMap
 import android.util.DisplayMetrics
-import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
-import com.squareup.picasso.Transformation
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 
 class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.ImageGetter {
     private val targets: MutableMap<String, com.squareup.picasso.Target>
-    private val transformations: ArrayList<Transformation> = ArrayList()
 
     init {
         this.targets = ArrayMap<String, Target>()
@@ -48,6 +45,6 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
         // add a strong reference to the target until it's called or the view gets destroyed
         targets.put(source, target)
 
-        picasso.load(source).resize(maxWidth, maxWidth).transform(transformations).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).centerInside().onlyScaleDown().into(target)
+        picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().into(target)
     }
 }

@@ -279,7 +279,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                             editableText.setSpan(it, spanStart, spanEnd, flags)
                         }
                     }
-                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 1000L)
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 2000L)
                 }
             }
         }
@@ -776,8 +776,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
 
         // max width set to the biggest of screen width/height to cater for device rotation
-        val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
-                context.resources.displayMetrics.heightPixels)
+        val maxWidth = 800 //Math.max(context.resources.displayMetrics.widthPixels,
+                //context.resources.displayMetrics.heightPixels)
 
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
 

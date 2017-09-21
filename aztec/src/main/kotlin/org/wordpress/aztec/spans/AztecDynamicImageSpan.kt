@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
+import android.util.Log
 import org.wordpress.aztec.AztecText
 
 abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: IImageProvider) : DynamicDrawableSpan() {
@@ -70,6 +71,7 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
         } else {
             aspectRatio = 1.0
         }
+        Log.d("Danilo", "Original aspectRatio is " + aspectRatio)
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
@@ -112,43 +114,6 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
 
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     }
-
-    /*fun calculateWantedWidth(widthMeasureSpec: Int): Int {
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-
-        var width: Int
-
-        val UNKNOWN_BORING = BoringLayout.Metrics()
-
-        var boring: BoringLayout.Metrics? = UNKNOWN_BORING
-
-        var des = -1
-
-        if (widthMode == View.MeasureSpec.EXACTLY) {
-            // Parent has told us how big to be. So be it.
-            width = widthSize
-        } else {
-            if (des < 0) {
-                boring = BoringLayout.isBoring("", textView?.paint)
-            }
-
-            if (boring == null || boring === UNKNOWN_BORING) {
-                if (des < 0) {
-                    des = Math.ceil(Layout.getDesiredWidth("", textView?.paint).toDouble()).toInt()
-                }
-                width = des
-            } else {
-                width = boring.width
-            }
-
-            if (widthMode == View.MeasureSpec.AT_MOST) {
-                width = Math.min(widthSize, width)
-            }
-        }
-
-        return width
-    }*/
 
     override fun getDrawable(): Drawable? {
         return imageDrawable

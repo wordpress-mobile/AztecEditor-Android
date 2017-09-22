@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
-import android.util.Log
 import org.wordpress.aztec.AztecText
 
 abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: IImageProvider) : DynamicDrawableSpan() {
@@ -71,7 +70,6 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
         } else {
             aspectRatio = 1.0
         }
-        Log.d("Danilo", "Original aspectRatio is " + aspectRatio)
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {

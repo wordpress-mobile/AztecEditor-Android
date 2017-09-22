@@ -122,7 +122,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
         imageDrawable?.bounds = Rect(0, 0, width, height)
 
-        return Rect(imageDrawable?.bounds ?: Rect(0, 0, width, height))
+        return Rect(0, 0, width, height)
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {

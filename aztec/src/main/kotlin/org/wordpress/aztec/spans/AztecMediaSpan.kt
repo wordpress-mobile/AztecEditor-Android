@@ -6,7 +6,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
@@ -36,8 +35,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
         super.setDrawable(newDrawable)
 
-      //  Log.d("Danilo", "Called setDrawable")
-
         // Store the picture size to be used later when drawing the white rectangle placeholder when picture
         // is out of the viewable area
         if (newDrawable != null) {
@@ -48,13 +45,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
                 drawableHeight = getHeight(newDrawable)
                 drawableWidth = getWidth(newDrawable)
             }
-        //    Log.d("Danilo", "bitmap was NOT null ")
-
-        } else {
-          //  Log.d("Danilo", "bitmap NULLLLLL")
         }
-     //   Log.d("Danilo", "Dims are "  + drawableWidth + " " + drawableHeight)
-      //  Log.d("Danilo", "--------------------")
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -90,15 +81,11 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-      //  Log.d("Danilo", "Called getSize")
         val size = super.getSize(paint, text, start, end, metrics)
-      //  Log.d("Danilo", "Size is " + size)
-      //  Log.d("Danilo", "--------------------")
         return size
     }
 
     override fun computeAspectRatio() {
-       // Log.d("Danilo", "Called computeAspectRatio")
         if (drawableWidth > 0 && drawableHeight > 0) {
             aspectRatio = 1.0 * ( drawableWidth / drawableHeight)
         } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
@@ -106,8 +93,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         } else {
             aspectRatio = 1.0
         }
-       // Log.d("Danilo", "aspectRatio is " + aspectRatio)
-       // Log.d("Danilo", "--------------------")
     }
 
     override fun adjustBounds(start: Int): Rect {

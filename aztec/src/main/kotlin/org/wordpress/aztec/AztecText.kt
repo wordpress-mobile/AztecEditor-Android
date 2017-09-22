@@ -797,7 +797,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 fun replaceImage(drawable: Drawable?, isPlaceholder: Boolean = false) {
                     it.setDrawable(drawable, isPlaceholder)
                     post {
-                        refreshText()
+                        val spanStart = editableText.getSpanStart(it)
+                        val spanEnd = editableText.getSpanEnd(it)
+                        val flags = editableText.getSpanFlags(it)
+                        editableText.setSpan(it, spanStart, spanEnd, flags)
                     }
                 }
             }
@@ -807,6 +810,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, maxWidth)
                 }
             }
+
             it.setDrawable(null, true)
         }
     }

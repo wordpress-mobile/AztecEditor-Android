@@ -28,10 +28,15 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         textView = editor
     }
 
-    fun setDrawable(newDrawable: Drawable?, isPlaceholder: Boolean = false) {
+    fun setDrawable(newDrawable: Drawable?, forceReload: Boolean = false) {
+        if (this.imageDrawable == null && newDrawable == null && !forceReload ) {
+            // Picture was already null - do nothing
+            return
+        }
+
         super.setDrawable(newDrawable)
 
-        Log.d("Danilo", "Called setDrawable")
+      //  Log.d("Danilo", "Called setDrawable")
 
         // Store the picture size to be used later when drawing the white rectangle placeholder when picture
         // is out of the viewable area
@@ -43,13 +48,13 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
                 drawableHeight = getHeight(newDrawable)
                 drawableWidth = getWidth(newDrawable)
             }
-            Log.d("Danilo", "bitmap was NOT null ")
+        //    Log.d("Danilo", "bitmap was NOT null ")
 
         } else {
-            Log.d("Danilo", "bitmap NULLLLLL")
+          //  Log.d("Danilo", "bitmap NULLLLLL")
         }
-        Log.d("Danilo", "Dims are "  + drawableWidth + " " + drawableHeight)
-        Log.d("Danilo", "--------------------")
+     //   Log.d("Danilo", "Dims are "  + drawableWidth + " " + drawableHeight)
+      //  Log.d("Danilo", "--------------------")
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -85,15 +90,15 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
     }
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        Log.d("Danilo", "Called getSize")
+      //  Log.d("Danilo", "Called getSize")
         val size = super.getSize(paint, text, start, end, metrics)
-        Log.d("Danilo", "Size is " + size)
-        Log.d("Danilo", "--------------------")
+      //  Log.d("Danilo", "Size is " + size)
+      //  Log.d("Danilo", "--------------------")
         return size
     }
 
     override fun computeAspectRatio() {
-        Log.d("Danilo", "Called computeAspectRatio")
+       // Log.d("Danilo", "Called computeAspectRatio")
         if (drawableWidth > 0 && drawableHeight > 0) {
             aspectRatio = 1.0 * ( drawableWidth / drawableHeight)
         } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
@@ -101,8 +106,8 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         } else {
             aspectRatio = 1.0
         }
-        Log.d("Danilo", "aspectRatio is " + aspectRatio)
-        Log.d("Danilo", "--------------------")
+       // Log.d("Danilo", "aspectRatio is " + aspectRatio)
+       // Log.d("Danilo", "--------------------")
     }
 
     override fun adjustBounds(start: Int): Rect {
@@ -139,12 +144,18 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
         if (textView == null) {
             return
         }
+
         val scrollBounds = Rect()
         textView?.getLocalVisibleRect(scrollBounds)
 
         if (scrollBounds.top > bottom + EXTRA_LOADING_SIZE || top - EXTRA_LOADING_SIZE > scrollBounds.bottom) {
             // the picture is outside the current viewable area. We draw a blank rect, otherwise text jumps
-            setDrawable(null, false)
+            if (this.drawable == null) {
+                // Picture was already null and drawn on the screen
+                return
+            } else {
+                setDrawable(null, false)
+            }
         } else {
             // The picture is on the visible area of the screen. Check if we had set it to null
             if (this.drawable == null) {
@@ -190,8 +201,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
                 overlays.forEach {
                     it.first?.draw(canvas)
                 }
-            } else {
-                Log.d("Danilo", "Should not be here!")
             }
         }
 

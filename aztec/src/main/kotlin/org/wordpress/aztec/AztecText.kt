@@ -807,7 +807,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, maxWidth)
                 }
             }
-            it.imageProvider.requestImage(it)
+            it.setDrawable(null, true)
         }
     }
 
@@ -843,7 +843,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
             }
 
-            it.imageProvider.requestImage(it)
+            it.setDrawable(null, true)
         }
     }
 

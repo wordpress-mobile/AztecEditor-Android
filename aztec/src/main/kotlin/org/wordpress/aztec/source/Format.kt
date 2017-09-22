@@ -105,11 +105,10 @@ internal object Format {
         }
 
         // Pretty it up for the source editor
-        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
-        val blocklist1 = blocklist + "|div|p"
+        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset|div|p"
 
-        content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
-        content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
+        content = replaceAll(content, "\\s*</($blocklist)>\\s*", "</$1>\n")
+        content = replaceAll(content, "\\s*<((?:$blocklist)(?: [^>]*)?)>", "\n<$1>")
 
         content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n\n<$1>\n\n")
 

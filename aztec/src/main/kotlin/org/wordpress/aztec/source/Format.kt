@@ -312,7 +312,7 @@ internal object Format {
         }
     }
 
-    fun postProcessSpanedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
+    fun postProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { text.getSpanStart(it) }

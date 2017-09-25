@@ -149,7 +149,7 @@ internal object Format {
         }
 
         // Unmark special paragraph closing tags
-        content = replaceAll(content, "</p#>", "</p>\n")
+        content = replaceAll(content, "</p#>", "</p>")
         content = replaceAll(content, "\\s*(<p [^>]+>[\\s\\S]*?</p>)", "\n$1")
 
         // Trim whitespace
@@ -328,7 +328,9 @@ internal object Format {
                 }
 
                 if (text.getSpans(spanStart, spanEnd, AztecQuoteSpan::class.java)
-                        .filter { text.getSpanEnd(it) == spanEnd }.isEmpty()) {
+                        .filter { text.getSpanEnd(it) == spanEnd }.isEmpty() &&
+                    text.getSpans(spanStart, spanEnd, ParagraphSpan::class.java)
+                            .filter { !it.attributes.isEmpty() }.isEmpty()) {
                     text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach { text.removeSpan(it) }
                 }
             }

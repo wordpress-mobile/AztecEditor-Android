@@ -240,7 +240,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         styles.recycle()
 
         // set the pictures max size to the min of screen width/height and DEFAULT_IMAGE_WIDTH
-        var minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
+        val minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
                 context.resources.displayMetrics.heightPixels)
         maxImagesWidth = Math.min(minScreenSize, DEFAULT_IMAGE_WIDTH)
 

@@ -29,6 +29,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
@@ -183,7 +184,6 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
-
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
@@ -229,14 +229,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Paragraphs with attributes being removed
+
 ## [1.0-beta.9](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.9) - 2017-09-25
 ### Fixed
 - OOB crash when unmarshalling URL span

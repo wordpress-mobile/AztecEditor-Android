@@ -9,18 +9,22 @@ import android.util.DisplayMetrics
 
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import com.squareup.picasso.Transformation
 
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 
 class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.ImageGetter {
     private val targets: MutableMap<String, com.squareup.picasso.Target>
+    private val transformations: ArrayList<Transformation> = ArrayList()
+
 
     init {
         this.targets = ArrayMap<String, Target>()
 
         // Picasso keeps a weak reference to targets so we need to attach them to AztecText
         aztec.tag = targets
+        transformations.add(CompressTransformation())
     }
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
@@ -47,6 +51,6 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
         // add a strong reference to the target until it's called or the view gets destroyed
         targets.put(source, target)
 
-        picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().into(target)
+        picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().transform(transformations).into(target)
     }
 }

@@ -290,7 +290,7 @@ class SimpleTextFormattingTests : BaseTest() {
 
         var text = "sample text\n"
         val expected1 = Regex("<ul>[\\S\\s]+</ul>")
-        val expected2 = Regex("<ul>[\\S\\s]+</ul>\n<ol>[\\S\\s]+</ol>\n<ul>[\\S\\s]+</ul>")
+        val expected2 = Regex("<ol>[\\S\\s]+</ol>")
 
         for (i in 1..4) {
             text += text

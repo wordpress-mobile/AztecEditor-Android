@@ -33,12 +33,12 @@ import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
+import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
-import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
-import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -321,7 +321,7 @@ class MainActivity : AppCompatActivity(),
 
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(PicassoImageLoader(this, visualEditor))
+            .setImageGetter(GlideImageLoader(this))
             .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
             .setOnImeBackListener(this)
             .setOnTouchListener(this)

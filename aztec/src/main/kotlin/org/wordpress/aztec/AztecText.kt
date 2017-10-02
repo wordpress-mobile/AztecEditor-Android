@@ -23,6 +23,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
@@ -132,6 +133,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     var verticalParagraphMargin: Int = 0
 
+    private var invalidateMediaHandler = Handler()
+    private var invalidateMediaRunnable: Runnable? = null
     var maxImagesWidth: Int = 0
 
     interface OnSelectionChangedListener {
@@ -266,6 +269,27 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         enableTextChangedListener()
 
         isViewInitialized = true
+
+
+        viewTreeObserver.addOnScrollChangedListener {
+            if (this@AztecText.visibility == View.VISIBLE) {
+                if (invalidateMediaRunnable != null) {
+                    invalidateMediaHandler.removeCallbacks(null)
+                }
+
+                if (this@AztecText.text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()) {
+                    invalidateMediaRunnable = Runnable {
+                        editableText.getSpans(0, text.length, AztecMediaSpan::class.java).forEach {
+                            val spanStart = editableText.getSpanStart(it)
+                            val spanEnd = editableText.getSpanEnd(it)
+                            val flags = editableText.getSpanFlags(it)
+                            editableText.setSpan(it, spanStart, spanEnd, flags)
+                        }
+                    }
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 30)
+                }
+            }
+        }
     }
 
     private fun handleBackspace(event: KeyEvent): Boolean {
@@ -453,7 +477,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
 
         companion object {
-            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)
                 }
@@ -758,6 +783,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
 
+        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
@@ -770,16 +797,24 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onImageLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(loadingDrawable, true)
                 }
 
-                private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
+                fun replaceImage(drawable: Drawable?, isPlaceholder: Boolean = false) {
+                    it.setDrawable(drawable, isPlaceholder)
                     post {
                         refreshText()
                     }
                 }
             }
+
+            it.imageProvider = object : AztecDynamicImageSpan.IImageProvider {
+                override fun requestImage(span: AztecDynamicImageSpan) {
+                    imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, this@AztecText.maxImagesWidth)
+                }
+            }
+            it.setDrawable(null, true)
+
             imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
@@ -798,16 +833,26 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading), true)
                 }
 
-                private fun replaceImage(drawable: Drawable?) {
+                private fun replaceImage(drawable: Drawable?, isPlaceholder: Boolean = false) {
+                    it.setDrawable(drawable, isPlaceholder)
                     it.drawable = drawable
                     post {
                         refreshText()
                     }
                 }
             }
+
+            it.imageProvider = object : AztecDynamicImageSpan.IImageProvider {
+                override fun requestImage(span: AztecDynamicImageSpan) {
+                    videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks,this@AztecText.maxImagesWidth)
+                }
+            }
+
+            it.setDrawable(null, true)
+
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
@@ -994,18 +1039,18 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         // do not copy unnecessary block hierarchy, just the minimum required
         var deleteNext = false
         output.getSpans(0, output.length, IAztecBlockSpan::class.java)
-            .sortedBy { it.nestingLevel }
-            .reversed()
-            .forEach {
-                if (deleteNext) {
-                    output.removeSpan(it)
-                } else {
-                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
-                    if (deleteNext && it is AztecListItemSpan) {
-                        deleteNext = false
+                .sortedBy { it.nestingLevel }
+                .reversed()
+                .forEach {
+                    if (deleteNext) {
+                        output.removeSpan(it)
+                    } else {
+                        deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                        if (deleteNext && it is AztecListItemSpan) {
+                            deleteNext = false
+                        }
                     }
                 }
-            }
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
@@ -1036,8 +1081,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     .forEach {
                         if (editable.getSpanStart(it) == min) {
                             editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
-                        }
-                        else if (editable.getSpanEnd(it) == min + 1) {
+                        } else if (editable.getSpanEnd(it) == min + 1) {
                             editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
                         }
                     }
@@ -1209,12 +1253,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         onSelectionChanged(0, 0)
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+    fun insertImage(imageProvider: AztecDynamicImageSpan.IImageProvider, attributes: Attributes) {
+        lineBlockFormatter.insertImage(imageProvider, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
-    fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
+    fun insertVideo(imageProvider: AztecDynamicImageSpan.IImageProvider, attributes: Attributes) {
+        lineBlockFormatter.insertVideo(imageProvider, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

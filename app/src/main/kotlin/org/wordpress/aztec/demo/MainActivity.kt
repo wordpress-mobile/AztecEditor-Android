@@ -43,6 +43,7 @@ import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.wordpress.aztec.watchers.BlockElementWatcher
@@ -64,11 +65,11 @@ class MainActivity : AppCompatActivity(),
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
-                "<h2>Heading 2</h2>" +
-                "<h3>Heading 3</h3>" +
-                "<h4>Heading 4</h4>" +
-                "<h5>Heading 5</h5>" +
-                "<h6>Heading 6</h6>"
+                        "<h2>Heading 2</h2>" +
+                        "<h3>Heading 3</h3>" +
+                        "<h4>Heading 4</h4>" +
+                        "<h5>Heading 5</h5>" +
+                        "<h6>Heading 6</h6>"
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"
@@ -84,28 +85,28 @@ class MainActivity : AppCompatActivity(),
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val HIDDEN =
                 "<span></span>" +
-                "<div class=\"first\">" +
-                "    <div class=\"second\">" +
-                "        <div class=\"third\">" +
-                "            Div<br><span><b>Span</b></span><br>Hidden" +
-                "        </div>" +
-                "        <div class=\"fourth\"></div>" +
-                "        <div class=\"fifth\"></div>" +
-                "    </div>" +
-                "    <span class=\"second last\"></span>" +
-                "</div>" +
-                "<br>"
+                        "<div class=\"first\">" +
+                        "    <div class=\"second\">" +
+                        "        <div class=\"third\">" +
+                        "            Div<br><span><b>Span</b></span><br>Hidden" +
+                        "        </div>" +
+                        "        <div class=\"fourth\"></div>" +
+                        "        <div class=\"fifth\"></div>" +
+                        "    </div>" +
+                        "    <span class=\"second last\"></span>" +
+                        "</div>" +
+                        "<br>"
         private val PREFORMAT =
                 "<pre>" +
-                "when (person) {<br>" +
-                "    MOCTEZUMA -> {<br>" +
-                "        print (\"friend\")<br>" +
-                "    }<br>" +
-                "    CORTES -> {<br>" +
-                "        print (\"foe\")<br>" +
-                "    }<br>" +
-                "}" +
-                "</pre>"
+                        "when (person) {<br>" +
+                        "    MOCTEZUMA -> {<br>" +
+                        "        print (\"friend\")<br>" +
+                        "    }<br>" +
+                        "    CORTES -> {<br>" +
+                        "        print (\"foe\")<br>" +
+                        "    }<br>" +
+                        "}" +
+                        "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
@@ -116,28 +117,28 @@ class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 IMG +
-                HEADING +
-                BOLD +
-                ITALIC +
-                UNDERLINE +
-                STRIKETHROUGH +
-                ORDERED +
-                LINE +
-                UNORDERED +
-                QUOTE +
-                PREFORMAT +
-                LINK +
-                HIDDEN +
-                COMMENT +
-                COMMENT_MORE +
-                COMMENT_PAGE +
-                CODE +
-                UNKNOWN +
-                EMOJI +
-                NON_LATIN_TEXT +
-                LONG_TEXT +
-                VIDEO +
-                AUDIO
+                        HEADING +
+                        BOLD +
+                        ITALIC +
+                        UNDERLINE +
+                        STRIKETHROUGH +
+                        ORDERED +
+                        LINE +
+                        UNORDERED +
+                        QUOTE +
+                        PREFORMAT +
+                        LINK +
+                        HIDDEN +
+                        COMMENT +
+                        COMMENT_MORE +
+                        COMMENT_PAGE +
+                        CODE +
+                        UNKNOWN +
+                        EMOJI +
+                        NON_LATIN_TEXT +
+                        LONG_TEXT +
+                        VIDEO +
+                        AUDIO
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -231,14 +232,23 @@ class MainActivity : AppCompatActivity(),
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
+        //aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertImage(object : AztecDynamicImageSpan.IImageProvider {
+            override fun requestImage(span: AztecDynamicImageSpan) {
+                span.drawable = BitmapDrawable(resources, bitmapResized)
+            }
+        }, attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
+        aztec.visualEditor.insertVideo(object : AztecDynamicImageSpan.IImageProvider {
+            override fun requestImage(span: AztecDynamicImageSpan) {
+                span.drawable = BitmapDrawable(resources, bitmapResized)
+            }
+        }, attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
@@ -321,21 +331,21 @@ class MainActivity : AppCompatActivity(),
 
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(GlideImageLoader(this))
-            .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
-            .setOnImeBackListener(this)
-            .setOnTouchListener(this)
-            .setHistoryListener(this)
-            .setOnImageTappedListener(this)
-            .setOnVideoTappedListener(this)
-            .setOnAudioTappedListener(this)
-            .setOnMediaDeletedListener(this)
-            .addPlugin(WordPressCommentsPlugin(visualEditor))
-            .addPlugin(MoreToolbarButton(visualEditor))
-            .addPlugin(PageToolbarButton(visualEditor))
-            .addPlugin(CaptionShortcodePlugin())
-            .addPlugin(VideoShortcodePlugin())
-            .addPlugin(AudioShortcodePlugin())
+                .setImageGetter(GlideImageLoader(this))
+                .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
+                .setOnImeBackListener(this)
+                .setOnTouchListener(this)
+                .setHistoryListener(this)
+                .setOnImageTappedListener(this)
+                .setOnVideoTappedListener(this)
+                .setOnAudioTappedListener(this)
+                .setOnMediaDeletedListener(this)
+                .addPlugin(WordPressCommentsPlugin(visualEditor))
+                .addPlugin(MoreToolbarButton(visualEditor))
+                .addPlugin(PageToolbarButton(visualEditor))
+                .addPlugin(CaptionShortcodePlugin())
+                .addPlugin(VideoShortcodePlugin())
+                .addPlugin(AudioShortcodePlugin())
 
         BlockElementWatcher(visualEditor)
                 .add(CaptionHandler())

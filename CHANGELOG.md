@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Changed
 - Toolbar button highlighted state to use a color with more contrast
+- Fixed conflicts of autocorrect/suggestions with editor styling
 
 ### Fixed
 - Image/video loading placeholder drawable usage

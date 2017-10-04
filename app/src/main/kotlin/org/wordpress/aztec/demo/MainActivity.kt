@@ -29,15 +29,16 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.*
+import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
-import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
-import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -183,7 +184,6 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
-
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
@@ -229,14 +229,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
@@ -319,7 +321,7 @@ class MainActivity : AppCompatActivity(),
 
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(PicassoImageLoader(this, visualEditor))
+            .setImageGetter(GlideImageLoader(this))
             .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
             .setOnImeBackListener(this)
             .setOnTouchListener(this)

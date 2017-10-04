@@ -95,7 +95,7 @@ internal object Format {
             sb = StringBuffer()
             if (m.find()) {
                 val result = replaceAll(content.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>")
-                m.appendReplacement(sb, replace(result, "[\\r\\n\\t]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replace(result, "[\\r\\n\\t]+", "")))
             }
             m.appendTail(sb)
             content = sb.toString()
@@ -142,7 +142,7 @@ internal object Format {
             m = p.matcher(content)
             sb = StringBuffer()
             if (m.find()) {
-                m.appendReplacement(sb, replace(content.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replace(content.substring(m.start(), m.end()), "[\\r\\n]+", "")))
             }
             m.appendTail(sb)
             content = sb.toString()
@@ -197,7 +197,7 @@ internal object Format {
             m = p.matcher(html)
             sb = StringBuffer()
             while (m.find()) {
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", "")))
             }
             m.appendTail(sb)
             html = sb.toString()
@@ -207,7 +207,7 @@ internal object Format {
         m = p.matcher(html)
         sb = StringBuffer()
         while (m.find()) {
-            m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+            m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", "")))
         }
         m.appendTail(sb)
         html = sb.toString()
@@ -230,7 +230,7 @@ internal object Format {
             sb = StringBuffer()
             while (m.find()) {
                 // keep existing <br>
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>"))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>")))
 
                 // no line breaks inside HTML tags
                 val p2 = Pattern.compile("<[a-zA-Z0-9]+( [^<>]+)?>")
@@ -238,13 +238,13 @@ internal object Format {
                 val m2 = p2.matcher(content)
                 val sb2 = StringBuffer()
                 while (m2.find()) {
-                    m2.appendReplacement(sb2, replace(content.substring(m2.start(), m2.end()), "[\\r\\n\\t]+", " "))
+                    m2.appendReplacement(sb2, Matcher.quoteReplacement(replace(content.substring(m2.start(), m2.end()), "[\\r\\n\\t]+", " ")))
                 }
                 m2.appendTail(sb2)
-                m.appendReplacement(sb, sb2.toString())
+                m.appendReplacement(sb, Matcher.quoteReplacement(sb2.toString()))
 
                 // convert remaining line breaks to <br>
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "\\s*\\n\\s*", "<wp-temp-br />"))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "\\s*\\n\\s*", "<wp-temp-br />")))
             }
             m.appendTail(sb)
             html = sb.toString()

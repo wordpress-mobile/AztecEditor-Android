@@ -77,15 +77,28 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<div class=\"fourth\"><u>Under</u>line</div>\n" +
                     "<div class=\"fifth\"></div>\n</div>\n</div>"
 
+
     private val HTML_PARAGRAPHS_WITH_ATTRIBUTES =
             "a\n<p a=\"A\">b</p>\nc"
 
     private val HTML_PARAGRAPHS_MIXED =
             "a\n<p a=\"A\">b</p>\n<p a=\"A\">b</p>\nc\n\nd\n<p>e</p>"
 
-
     private val HTML_PARAGRAPHS_MIXED_CALPYSO =
             "a\n<p a=\"A\">b</p>\n<p a=\"A\">b</p>c\n\nd\n\ne"
+
+    private val HTML_MIXED_REGEX =
+            "\n\n<span><i>Italic</i></span>\n\n<b>Bold</b><br>" +
+                    "\t<div class=\"\$\$\$first\">" +
+                    "<a href=\"https://github.com/wordpress-mobile/Word\\Press-Aztec-Android\">Link</a>" +
+                    "    \t<div class=\"sec $8 ond\"></div></div>"
+
+    private val HTML_MIXED_REGEX_CALYPSO =
+            "<span><i>Italic</i></span>\n\n<b>Bold</b>\n" +
+                    "<div class=\"\$\$\$first\">" +
+                    "<a href=\"https://github.com/wordpress-mobile/Word\\Press-Aztec-Android\">Link</a>\n" +
+                    "<div class=\"sec $8 ond\"></div>\n" +
+                    "</div>"
 
     /**
      * Initialize variables.
@@ -137,6 +150,20 @@ class CalypsoFormattingTest : AndroidTestCase() {
         Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_CALYPSO, output)
     }
 
+    /**
+     * Test the conversion of HTML containing special regex characters
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun formatRegexSpecialCharactersCalypso() {
+        val input = Format.removeSourceEditorFormatting(HTML_MIXED_REGEX, true)
+        val span = SpannableString(parser.fromHtml(input, context))
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_MIXED_REGEX_CALYPSO, output)
+    }
+  
     /**
      * Test the preservation of paragraphs with attributes (Calypso format)
      *

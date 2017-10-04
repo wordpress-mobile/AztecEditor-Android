@@ -78,6 +78,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
+
+        val DEFAULT_IMAGE_WIDTH = 800
     }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -129,6 +131,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     var widthMeasureSpec: Int = 0
 
     var verticalParagraphMargin: Int = 0
+
+    var maxImagesWidth: Int = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -234,6 +238,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         lineBlockFormatter = LineBlockFormatter(this)
 
         styles.recycle()
+
+        // set the pictures max size to the min of screen width/height and DEFAULT_IMAGE_WIDTH
+        val minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
+                context.resources.displayMetrics.heightPixels)
+        maxImagesWidth = Math.min(minScreenSize, DEFAULT_IMAGE_WIDTH)
 
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
@@ -748,6 +757,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
+
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
 
@@ -770,17 +780,12 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     }
                 }
             }
-
-            // maxidth set to the biggest of screen width/height to cater for device rotation
-            val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
-                    context.resources.displayMetrics.heightPixels)
-            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
 
@@ -803,8 +808,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     }
                 }
             }
-
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
 

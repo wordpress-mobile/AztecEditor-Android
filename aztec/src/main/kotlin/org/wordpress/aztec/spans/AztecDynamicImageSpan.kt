@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
 import org.wordpress.aztec.AztecText
@@ -23,8 +24,13 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
             drawable?.let {
-                if (it.bounds.isEmpty && (it.intrinsicWidth > -1 || it.intrinsicHeight > -1)) {
-                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                if (it.bounds.isEmpty) {
+
+                    if (drawable is BitmapDrawable && drawable.bitmap != null) {
+                        it.setBounds(0, 0, drawable.bitmap.width, drawable.bitmap.height)
+                    } else if (it.intrinsicWidth > -1 || it.intrinsicHeight > -1) {
+                        it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                    }
                 }
             }
         }

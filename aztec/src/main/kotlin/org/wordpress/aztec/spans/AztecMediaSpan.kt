@@ -19,7 +19,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
-    private val EXTRA_LOADING_SIZE = 1000
+    private val EXTRA_LOADING_SIZE = 500
     private var drawableHeight = 0
     private var drawableWidth = 0
 
@@ -78,11 +78,6 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
 
             overlay.setBounds(outRect.left, outRect.top, outRect.right, outRect.bottom)
         }
-    }
-
-    override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
-        val size = super.getSize(paint, text, start, end, metrics)
-        return size
     }
 
     override fun computeAspectRatio() {

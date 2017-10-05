@@ -286,7 +286,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                             editableText.setSpan(it, spanStart, spanEnd, flags)
                         }
                     }
-                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 30)
+                    invalidateMediaHandler.postDelayed(invalidateMediaRunnable, 200)
                 }
             }
         }

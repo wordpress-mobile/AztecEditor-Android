@@ -19,7 +19,7 @@ abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, o
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
-    private val EXTRA_LOADING_SIZE = 500
+    private val EXTRA_LOADING_SIZE = 1000
     private var drawableHeight = 0
     private var drawableWidth = 0
 

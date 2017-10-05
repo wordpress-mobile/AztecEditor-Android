@@ -80,7 +80,8 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 handleMediaElement(opening, output, AztecImageSpan(context,
                         object : AztecDynamicImageSpan.IImageProvider {
                             override fun requestImage(span: AztecDynamicImageSpan) {
-                                span.drawable =   getLoadingDrawable(context)
+                                // No need to load images here, since we're setting the image provider
+                                // later in AztecText
                             }
                         },
                         AztecAttributes(attributes)))
@@ -90,7 +91,8 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 handleMediaElement(opening, output, AztecVideoSpan(context,
                         object : AztecDynamicImageSpan.IImageProvider {
                             override fun requestImage(span: AztecDynamicImageSpan) {
-                                span.drawable =   getLoadingDrawable(context)
+                                // No need to load images here, since we're setting the image provider
+                                // later in AztecText
                             }
                         },
                         nestingLevel,

@@ -789,7 +789,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             val callbacks = object : Html.ImageGetter.Callbacks {
 
                 override fun onImageFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    replaceImage(ContextCompat.getDrawable(context, drawableFailed), true)
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
@@ -800,8 +800,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     replaceImage(loadingDrawable, true)
                 }
 
-                fun replaceImage(drawable: Drawable?, isPlaceholder: Boolean = false) {
-                    it.setDrawable(drawable, isPlaceholder)
+                fun replaceImage(drawable: Drawable?, forceReload: Boolean = false) {
+                    it.setDrawable(drawable, forceReload)
                     post {
                         refreshText()
                     }
@@ -813,7 +813,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     imageGetter?.loadImage((span as AztecImageSpan).getSource(), callbacks, this@AztecText.maxImagesWidth)
                 }
             }
-            it.setDrawable(null, true)
 
             imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
@@ -850,8 +849,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks,this@AztecText.maxImagesWidth)
                 }
             }
-
-            it.setDrawable(null, true)
 
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }

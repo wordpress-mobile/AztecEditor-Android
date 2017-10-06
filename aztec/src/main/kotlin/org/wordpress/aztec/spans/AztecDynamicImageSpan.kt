@@ -16,8 +16,8 @@ abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: II
     }
 
     var textView: AztecText? = null
-    var imageDrawable: Drawable?= null
-    var aspectRatio: Double = 1.0
+    protected var imageDrawable: Drawable?= null
+    protected var aspectRatio: Double = 1.0
 
     private var measuring = false
 

@@ -4,32 +4,48 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import java.util.*
 
-abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
+
+abstract class AztecMediaSpan(context: Context, imageProvider: IImageProvider, override var attributes: AztecAttributes = AztecAttributes(),
                               var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
-                              editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
+                              editor: AztecText? = null) : AztecDynamicImageSpan(context, imageProvider), IAztecAttributedSpan {
 
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
+    private val EXTRA_LOADING_SIZE = 500
+    private var drawableHeight = 0
+    private var drawableWidth = 0
 
     init {
         textView = editor
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
-        imageDrawable = newDrawable
+    fun setDrawable(newDrawable: Drawable?, forceReload: Boolean = false) {
+        if (this.imageDrawable == null && newDrawable == null && !forceReload ) {
+            // Picture was already null - do nothing
+            return
+        }
 
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+        super.setDrawable(newDrawable)
 
-        setInitBounds(newDrawable)
-
-        computeAspectRatio()
+        // Store the picture size to be used later when drawing the white rectangle placeholder when picture
+        // is out of the viewable area
+        if (newDrawable != null) {
+            if (newDrawable is BitmapDrawable && newDrawable.bitmap != null) {
+                drawableHeight = newDrawable.bitmap.height
+                drawableWidth = newDrawable.bitmap.width
+            } else {
+                drawableHeight = getHeight(newDrawable)
+                drawableWidth = getWidth(newDrawable)
+            }
+        }
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -64,10 +80,71 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         }
     }
 
-    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
-        canvas.save()
+    override fun computeAspectRatio() {
+        if (drawableWidth > 0 && drawableHeight > 0) {
+            aspectRatio = 1.0 * ( drawableWidth / drawableHeight)
+        } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
+            aspectRatio = 1.0 * (imageDrawable?.bounds?.width() ?: 0) / (imageDrawable?.bounds?.height() ?: 1)
+        } else {
+            aspectRatio = 1.0
+        }
+    }
 
-        if (imageDrawable != null) {
+    override fun adjustBounds(start: Int): Rect {
+
+        computeAspectRatio()
+
+        if (textView?.layout == null || textView?.widthMeasureSpec == 0) {
+            return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+        }
+
+        val layout = textView?.layout!!
+        val line = layout.getLineForOffset(start)
+        val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
+
+        // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
+        //  just assume maximum size.
+
+        var width = if (drawableWidth > 0) drawableWidth  //if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        else maxWidth
+        var height = if (drawableHeight > 0) drawableHeight //((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        else (width / aspectRatio).toInt()
+
+        if (width > maxWidth) {
+            width = maxWidth
+            height = (width / aspectRatio).toInt()
+        }
+
+        imageDrawable?.bounds = Rect(0, 0, width, height)
+
+        return Rect(0, 0, width, height)
+    }
+
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        if (textView == null) {
+            return
+        }
+
+        val scrollBounds = Rect()
+        textView?.getLocalVisibleRect(scrollBounds)
+
+        if (scrollBounds.top > bottom + EXTRA_LOADING_SIZE || top - EXTRA_LOADING_SIZE > scrollBounds.bottom) {
+            // the picture is outside the current viewable area. We draw a blank rect, otherwise text jumps
+            if (this.drawable == null) {
+                // Picture was already null and drawn on the screen
+                return
+            } else {
+                setDrawable(null, false)
+            }
+        } else {
+            // The picture is on the visible area of the screen. Check if we had set it to null
+            if (this.drawable == null) {
+                imageProvider.requestImage(this)
+            }
+        }
+
+        canvas.save()
+        if (imageDrawable?.bounds?.width() ?: 0 != 0) {
             var transY = top
             if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
@@ -75,14 +152,36 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
 
             canvas.translate(x, transY.toFloat())
             imageDrawable!!.draw(canvas)
-        }
 
-        overlays.forEach {
-            applyOverlayGravity(it.first, it.second)
-        }
+            overlays.forEach {
+                applyOverlayGravity(it.first, it.second)
+            }
 
-        overlays.forEach {
-            it.first?.draw(canvas)
+            overlays.forEach {
+                it.first?.draw(canvas)
+            }
+        } else {
+            // draw an empty rectangle in this case
+            if (this.drawable == null && drawableHeight > 0 && drawableWidth > 0) {
+                var transY = top
+                if (mVerticalAlignment == ALIGN_BASELINE) {
+                    transY -= paint.fontMetricsInt.descent
+                }
+
+                canvas.translate(x, transY.toFloat())
+
+                val myRect =  Rect(imageDrawable?.bounds ?: Rect(0, 0, drawableWidth, drawableHeight))
+
+                canvas.drawRect(myRect, paint)
+
+                overlays.forEach {
+                    applyOverlayGravity(it.first, it.second)
+                }
+
+                overlays.forEach {
+                    it.first?.draw(canvas)
+                }
+            }
         }
 
         canvas.restore()

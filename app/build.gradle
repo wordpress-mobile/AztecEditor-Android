@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.3"
+    buildToolsVersion "26.0.1"
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
@@ -41,7 +41,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
-    implementation "org.wordpress:utils:$wordpressUtilsVersion"
+    implementation "org.wordpress:utils:$wordpressUtilsVersion", {
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+    }
 
 
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {

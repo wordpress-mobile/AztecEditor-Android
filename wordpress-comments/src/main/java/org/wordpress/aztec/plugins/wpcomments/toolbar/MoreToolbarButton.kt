@@ -11,6 +11,7 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
@@ -29,7 +30,11 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.MORE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                object : AztecDynamicImageSpan.IImageProvider {
+                    override fun requestImage(span: AztecDynamicImageSpan) {
+                        span.drawable = ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)
+                    }
+                },
                 nestingLevel,
                 visualEditor
         )

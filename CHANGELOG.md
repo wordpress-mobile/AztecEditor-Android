@@ -9,6 +9,9 @@
 ### Fixed
 - OOB crash when unmarshalling URL span
 
+### Added
+- Memory performance improvements, when loading documents with multiple images on low-end devices
+
 ## [1.0-beta.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.8) - 2017-08-28
 ### Changed
 - Gradle version to 4.1 and use the new `implementation` configuration to stop transient dependency leaking

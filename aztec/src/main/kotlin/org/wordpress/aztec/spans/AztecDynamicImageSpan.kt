@@ -4,26 +4,33 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.text.BoringLayout
-import android.text.Layout
 import android.text.style.DynamicDrawableSpan
-import android.view.View
 import org.wordpress.aztec.AztecText
 
-abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
+abstract class AztecDynamicImageSpan(val context: Context, var imageProvider: IImageProvider) : DynamicDrawableSpan() {
+
+    interface IImageProvider {
+        fun requestImage(span: AztecDynamicImageSpan)
+    }
 
     var textView: AztecText? = null
-    var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
-    var aspectRatio: Double = 1.0
+    protected var imageDrawable: Drawable?= null
+    protected var aspectRatio: Double = 1.0
 
     private var measuring = false
 
     companion object {
         @JvmStatic protected fun setInitBounds(drawable: Drawable?) {
             drawable?.let {
-                if (it.bounds.isEmpty && (it.intrinsicWidth > -1 || it.intrinsicHeight > -1)) {
-                    it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                if (it.bounds.isEmpty) {
+
+                    if (drawable is BitmapDrawable && drawable.bitmap != null) {
+                        it.setBounds(0, 0, drawable.bitmap.width, drawable.bitmap.height)
+                    } else if (it.intrinsicWidth > -1 || it.intrinsicHeight > -1) {
+                        it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
+                    }
                 }
             }
         }
@@ -56,12 +63,12 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     init {
-        computeAspectRatio()
+        imageProvider.requestImage(this)
 
         setInitBounds(imageDrawable)
     }
 
-    fun computeAspectRatio() {
+    open fun computeAspectRatio() {
         if ((imageDrawable?.intrinsicWidth ?: -1) > -1 && (imageDrawable?.intrinsicHeight ?: -1) > -1) {
             aspectRatio = 1.0 * (imageDrawable?.intrinsicWidth ?: 1) / (imageDrawable?.intrinsicHeight ?: 1)
         } else if (!(imageDrawable?.bounds?.isEmpty ?: true)) {
@@ -85,40 +92,21 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         return sizeRect.width()
     }
 
-    fun adjustBounds(start: Int): Rect {
-        if (textView == null || textView?.widthMeasureSpec == 0) {
+    open fun adjustBounds(start: Int): Rect {
+        if (textView?.layout == null || textView?.widthMeasureSpec == 0) {
             return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 
-        val layout = textView?.layout
-
-        if (measuring || layout == null) {
-            // if we're in pre-layout phase, just return a tiny rect
-            return Rect(0, 0, 1, 1)
-        }
-
-        // get the TextView's target width
-        calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
-                .minus(textView?.compoundPaddingLeft ?: 0)
-                .minus(textView?.compoundPaddingRight ?: 0)
-
-        // do a local pre-layout to measure the TextView's basic sizes and line margins
-        measuring = true
-
-        measuring = false
-
+        val layout = textView?.layout!!
         val line = layout.getLineForOffset(start)
-
         val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
 
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
 
-        var width = if (originalBounds.width() > 0) originalBounds.width()
-        else if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
         else maxWidth
-        var height = if (originalBounds.height() > 0) originalBounds.height()
-        else if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        var height = if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
         else (width / aspectRatio).toInt()
 
         if (width > maxWidth) {
@@ -131,51 +119,23 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
-    fun calculateWantedWidth(widthMeasureSpec: Int): Int {
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-
-        var width: Int
-
-        val UNKNOWN_BORING = BoringLayout.Metrics()
-
-        var boring: BoringLayout.Metrics? = UNKNOWN_BORING
-
-        var des = -1
-
-        if (widthMode == View.MeasureSpec.EXACTLY) {
-            // Parent has told us how big to be. So be it.
-            width = widthSize
-        } else {
-            if (des < 0) {
-                boring = BoringLayout.isBoring("", textView?.paint)
-            }
-
-            if (boring == null || boring === UNKNOWN_BORING) {
-                if (des < 0) {
-                    des = Math.ceil(Layout.getDesiredWidth("", textView?.paint).toDouble()).toInt()
-                }
-                width = des
-            } else {
-                width = boring.width
-            }
-
-            if (widthMode == View.MeasureSpec.AT_MOST) {
-                width = Math.min(widthSize, width)
-            }
-        }
-
-        return width
-    }
-
     override fun getDrawable(): Drawable? {
         return imageDrawable
+    }
+
+    open fun setDrawable(newDrawable: Drawable?) {
+
+        imageDrawable = newDrawable
+
+        setInitBounds(newDrawable)
+
+        computeAspectRatio()
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 
-        if (imageDrawable != null) {
+        if (imageDrawable?.bounds?.width() ?: 0 != 0) {
             var transY = top
             if (mVerticalAlignment == DynamicDrawableSpan.ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent

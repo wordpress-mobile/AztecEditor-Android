@@ -61,7 +61,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         activity.setContentView(editText)
     }
 
-    //enter text and then enable styling
+    // enter text and then enable styling
 
     @Test
     @Throws(Exception::class)
@@ -95,7 +95,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "second item")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "third item")
-        editText.setSelection(4, 15) //we partially selected first and second item
+        editText.setSelection(4, 15) // we partially selected first and second item
 
         editText.toggleFormatting(listType)
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>third item", editText.toHtml())
@@ -116,7 +116,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals("first item<$listTag><li>second item</li></$listTag>third item", editText.toHtml())
     }
 
-    //enable styling on empty line and enter text
+    // enable styling on empty line and enter text
 
     @Test
     @Throws(Exception::class)
@@ -259,7 +259,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
         editText.setSelection(editText.length())
 
-        //delete last character from "second item"
+        // delete last character from "second item"
         editText.text.delete(editText.text.indexOf("not in list") - 2, editText.text.indexOf("not in list") - 1)
         Assert.assertEquals("<$listTag><li>first item</li><li>second ite</li></$listTag>not in list", editText.toHtml())
     }
@@ -282,7 +282,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "foo")
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
 
-        //reopen list
+        // reopen list
         editText.text.delete(mark - 1, mark) // delete the newline before the not-in-the-list text
         Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
@@ -492,12 +492,12 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun closeListWithEmptyLineBelowIt() {
         editText.fromHtml("<$listTag><li>Ordered</li></$listTag><br>not in list")
 
-        //remove newline after list (put cursor on newline after list and press backspace)
+        // remove newline after list (put cursor on newline after list and press backspace)
         val mark = editText.text.indexOf("Ordered") + "Ordered".length
         editText.text.delete(mark + 1, mark + 2) // +1 to cater for the item's endline
         Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
 
-        //press enter twice after at the end of the list to add new item and then remove it and close list
+        // press enter twice after at the end of the list to add new item and then remove it and close list
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
 
@@ -511,7 +511,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun closeListWithTrailingEmptyItem() {
         editText.fromHtml("<$listTag><li>Ordered</li><li></li></$listTag>")
 
-        //insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
+        // insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
         val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 1 because of the newline at item end
         editText.setSelection(mark)
         editText.text.insert(editText.selectionEnd, "\n")
@@ -696,7 +696,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
         Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
 
-        //Send key event since that's the way AztecText will remove the style when text is empty
+        // Send key event since that's the way AztecText will remove the style when text is empty
         TestUtils.backspaceAt(editText, TestUtils.safeLength(editText))
         Assert.assertEquals("", editText.text.toString())
         Assert.assertEquals("", editText.toHtml())

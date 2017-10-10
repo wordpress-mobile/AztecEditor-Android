@@ -321,7 +321,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
-        //highlight toolbar buttons based on what styles are applied to the text beneath cursor
+        // highlight toolbar buttons based on what styles are applied to the text beneath cursor
         this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 highlightAppliedStyles(selStart, selEnd)
@@ -410,7 +410,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun onToolbarAction(action: IToolbarAction) {
         if (!isEditorAttached()) return
 
-        //if nothing is selected just mark the style as active
+        // if nothing is selected just mark the style as active
         if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
             val textFormats = ArrayList<ITextFormat>()
@@ -429,13 +429,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             return editor!!.setSelectedStyles(textFormats)
         }
 
-        //if text is selected and action is styling - toggle the style
+        // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
             return editor!!.toggleFormatting(action.textFormat)
         }
 
-        //other toolbar action
+        // other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA -> {
                 aztecToolbarListener?.onToolbarMediaButtonClicked()

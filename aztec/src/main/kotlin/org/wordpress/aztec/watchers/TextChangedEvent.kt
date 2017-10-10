@@ -85,7 +85,7 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
 
         if (inputStart >= 1 && count == 1) {
             val currentCharacter = text[inputStart]
-            //special case for newline at the end of EditText
+            // special case for newline at the end of EditText
             if (text.length == inputStart + 1 && currentCharacter == '\n') {
                 return true
             } else if (text.length > inputStart + 1 && currentCharacter == '\n') {

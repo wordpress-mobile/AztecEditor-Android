@@ -50,7 +50,7 @@ class LinkTest {
         editText.fromHtml("<del><b>left</b><i>right</i></del>")
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
-        //Still valid, but order of b and del is switched here for some reason.
+        // Still valid, but order of b and del is switched here for some reason.
         Assert.assertEquals("<b><del>left</del></b><b><del><a href=\"http://wordpress.com\">WordPress</a></del></b><del><i>right</i></del>", editText.toHtml())
     }
 
@@ -128,7 +128,7 @@ class LinkTest {
         editText.fromHtml("Hello <b><a href=\"http://wordpress.com\">WordPress</a></b>")
         editText.setSelection(6, editText.length())
 
-        editText.link("", "World") //removing url wont cause anchor to change
+        editText.link("", "World") // removing url wont cause anchor to change
         Assert.assertEquals("Hello <b>WordPress</b>", editText.toHtml())
     }
 
@@ -152,9 +152,9 @@ class LinkTest {
         Assert.assertEquals("Hello <b><a href=\"http://automattic.com\">World</a></b>", editText.toHtml())
     }
 
-    //TODO: Modify parser to produce cleaner html
-    //Currently the way tags are closed (at every span transition) makes toHtml produce this:
-    //<a href="http://automattic.com">FirstUrl Hello </a><a href="http://automattic.com"><b>SecondUrl</b></a>
+    // TODO: Modify parser to produce cleaner html
+    // Currently the way tags are closed (at every span transition) makes toHtml produce this:
+    // <a href="http://automattic.com">FirstUrl Hello </a><a href="http://automattic.com"><b>SecondUrl</b></a>
     @Test
     @Throws(Exception::class)
     fun changeUrlOfMultipleSelectedLinks() {

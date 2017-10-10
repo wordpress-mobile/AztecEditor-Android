@@ -26,7 +26,7 @@ class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
         if (textChangedEventDetails.isNewLine()) return
 
         val aztecText = aztecTextRef.get()
-        //last character was removed
+        // last character was removed
         if (aztecText != null && textChangedEventDetails.inputEnd == 0 && textChangedEventDetails.inputStart == 1) {
             aztecText.disableOnSelectionListener()
         }

@@ -67,7 +67,7 @@ class QuoteTest {
         safeAppend(editText, "second item")
         safeAppend(editText, "\n")
         safeAppend(editText, "third item")
-        editText.setSelection(4, 15) //we partially selected first and second item
+        editText.setSelection(4, 15) // we partially selected first and second item
 
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag>first item<br>second item</$quoteTag>third item", editText.toHtml())
@@ -88,7 +88,7 @@ class QuoteTest {
         Assert.assertEquals("first item<$quoteTag>second item</$quoteTag>third item", editText.toHtml())
     }
 
-    //enable styling on empty line and enter text
+    // enable styling on empty line and enter text
 
     @Test
     @Throws(Exception::class)
@@ -96,7 +96,7 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
 
-        //remove quote
+        // remove quote
         editText.toggleFormatting(formattingType)
         Assert.assertEquals(0, safeLength(editText))
         Assert.assertEquals("", editText.toHtml())
@@ -303,7 +303,7 @@ class QuoteTest {
 
         val mark = editText.text.indexOf("second item") + "second item".length
 
-        //delete last character from "second item"
+        // delete last character from "second item"
         editText.text.delete(mark - 1, mark)
         Assert.assertEquals("<$quoteTag>first item<br>second ite</$quoteTag>not in quote", editText.toHtml())
     }
@@ -326,7 +326,7 @@ class QuoteTest {
         safeAppend(editText, "foo")
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third item</$quoteTag>not in the quote<br>foo", editText.toHtml())
 
-        //reopen quote
+        // reopen quote
         editText.text.delete(mark, mark + 1)
         Assert.assertEquals("<$quoteTag>first item<br>second item<br>third itemnot in the quote</$quoteTag>foo", editText.toHtml())
     }
@@ -698,10 +698,10 @@ class QuoteTest {
     @Test
     @Throws(Exception::class)
     fun testToggleQuoteSurroundedByTextWithSelectionAtTheEndOfIt() {
-        //1\nQuote\n2
+        // 1\nQuote\n2
         editText.fromHtml("1<blockquote>Quote</blockquote>2")
 
-        //set selection at the end of the Quote
+        // set selection at the end of the Quote
         editText.setSelection(7)
         editText.toggleFormatting(formattingType)
 

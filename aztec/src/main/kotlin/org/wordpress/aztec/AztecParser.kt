@@ -73,7 +73,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         // add a marker to the end of the text to aid nested group parsing
         val data = SpannableStringBuilder(text).append(Constants.ZWJ_CHAR)
 
-        //if there is no list or hidden html span at the end of the text, then we don't need zwj
+        // if there is no list or hidden html span at the end of the text, then we don't need zwj
         if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
                 data.getSpans(data.length - 1, data.length, AztecListSpan::class.java).isEmpty()) {
             data.delete(data.length - 1, data.length)

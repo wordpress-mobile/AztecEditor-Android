@@ -113,7 +113,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         var changed = false
 
-        //try to remove block styling when pressing backspace at the beginning of the text
+        // try to remove block styling when pressing backspace at the beginning of the text
         editableText.getSpans(0, 0, IAztecBlockSpan::class.java).forEach {
             val spanEnd = editableText.getSpanEnd(it)
 
@@ -143,7 +143,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         var start = originalStart
         var end = originalEnd
 
-        //if splitting block set a range that would be excluded from it
+        // if splitting block set a range that would be excluded from it
         val boundsOfSelectedText = if (ignoreLineBounds) {
             IntRange(start, end)
         } else {
@@ -254,7 +254,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
+    // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
@@ -455,12 +455,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
-        //special case for styling single empty lines
+        // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
-            //there is always something at the end (newline or EOB), so we shift end index to the left
-            //to avoid empty lines
+            // there is always something at the end (newline or EOB), so we shift end index to the left
+            // to avoid empty lines
             val listContent = editableText.substring(start, end - 1)
 
             val lines = TextUtils.split(listContent, "\n")

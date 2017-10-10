@@ -77,7 +77,6 @@ class ToolbarHighlightingTests : BaseTest() {
                 .verifyHTML("<b>$text1</b>$text2")
     }
 
-
     //make sure that selected toolbar style in empty editor remains when soft keyboard is displayed
     @Test
     fun testStyleHighlightPersistenceInEmptyEditorOnWindowFocusChange() {

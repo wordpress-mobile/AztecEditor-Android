@@ -113,9 +113,8 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
             try {
                 text.setSpan(block, start, end, Spanned.SPAN_PARAGRAPH)
             } catch (e: RuntimeException) {
-                throw RuntimeException("### START: $start, END: $end\n---\n### TEXT:${text.toString()}", e)
+                throw RuntimeException("### START: $start, END: $end\n---\n### TEXT:$text", e)
             }
         }
-
     }
 }

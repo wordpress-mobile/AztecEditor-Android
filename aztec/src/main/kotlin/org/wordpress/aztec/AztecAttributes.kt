@@ -4,7 +4,6 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 
 class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImpl(attributes) {
-
     fun setValue(key: String, value: String) {
         val index = getIndex(key)
         if (index == -1) {
@@ -31,7 +30,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
 
     override fun toString(): String {
         val sb = StringBuilder()
-        for (i in 0..this.length-1) {
+        for (i in 0..this.length - 1) {
             sb.append(this.getLocalName(i))
             sb.append("=\"")
             sb.append(this.getValue(i))

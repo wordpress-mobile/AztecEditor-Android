@@ -32,7 +32,6 @@ inline fun <reified T> Editable.getLast(): T? {
 }
 
 fun ClipData.Item.coerceToStyledText(context: Context, parser: AztecParser): CharSequence {
-
     val text = text ?: ""
     if (text is Spanned) {
         return text

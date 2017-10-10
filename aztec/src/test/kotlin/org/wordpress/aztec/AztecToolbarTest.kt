@@ -18,7 +18,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class AztecToolbarTest {
-
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
@@ -364,7 +363,6 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun testCrossStylesToggle() {
-
         editText.append("bold bolditalic italic strike underline normal")
         editText.setSelection(0, 4)
 

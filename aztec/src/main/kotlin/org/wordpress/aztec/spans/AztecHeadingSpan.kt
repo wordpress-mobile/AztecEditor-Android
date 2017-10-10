@@ -17,7 +17,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
         override var attributes: AztecAttributes,
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
     ) : MetricAffectingSpan(), IAztecBlockSpan, LineHeightSpan, UpdateLayout {
-
     override val TAG: String
         get() = heading.tag
 

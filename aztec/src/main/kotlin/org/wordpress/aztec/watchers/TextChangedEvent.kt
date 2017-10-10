@@ -67,7 +67,7 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
         if (isAddingCharacters && numberOfAddedCharacters == 1) {
             val currentCharacter = text[inputStart]
             return currentCharacter == Constants.END_OF_BUFFER_MARKER
-        }else if(!isAddingCharacters && numberOfRemovedCharacters == 1){
+        } else if (!isAddingCharacters && numberOfRemovedCharacters == 1) {
             val removedCharacter = textBefore[inputEnd]
             return removedCharacter == Constants.END_OF_BUFFER_MARKER
         }

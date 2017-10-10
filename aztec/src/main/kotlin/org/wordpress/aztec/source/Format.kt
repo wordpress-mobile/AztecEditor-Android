@@ -5,12 +5,15 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecParagraphStyle
+import org.wordpress.aztec.spans.ParagraphSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 internal object Format {
-
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
@@ -251,7 +254,6 @@ internal object Format {
             html = sb.toString()
         }
 
-
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
@@ -305,7 +307,7 @@ internal object Format {
             }
 
             //we don't need paragraph spans in calypso at this point
-            text.getSpans(0,text.length, ParagraphSpan::class.java).forEach {
+            text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
                 text.removeSpan(it)
             }
         }

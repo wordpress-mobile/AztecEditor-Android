@@ -202,11 +202,11 @@ class LinkTest {
         editText.fromHtml("<div class=\"third\">Div<br><span>Span</span><br>Hidden</div>")
         editText.setSelection(3)
 
-        editText.link("http://first_link","First Link")
+        editText.link("http://first_link", "First Link")
         Assert.assertEquals("<div class=\"third\">Div<a href=\"http://first_link\">First Link</a>" +
                 "<br><span>Span</span><br>Hidden</div>", editText.toHtml())
         editText.setSelection(14)
-        editText.link("http://second_link","Second Link")
+        editText.link("http://second_link", "Second Link")
 
         Assert.assertEquals("<div class=\"third\">Div<a href=\"http://first_link\">First Link</a>" +
                 "<br><a href=\"http://second_link\">Second Link</a><span>Span</span><br>Hidden</div>", editText.toHtml())
@@ -216,14 +216,14 @@ class LinkTest {
     @Throws(Exception::class)
     fun setLinkToHiddenHtmlSpanItems() {
         editText.fromHtml("<div class=\"third\">Div<br><span>Span</span><br>Hidden</div>")
-        editText.setSelection(4,8)
+        editText.setSelection(4, 8)
 
-        editText.link("http://span",editText.getSelectedText())
+        editText.link("http://span", editText.getSelectedText())
         Assert.assertEquals("<div class=\"third\">Div<br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.toHtml())
 
-        editText.setSelection(0,3)
+        editText.setSelection(0, 3)
 
-        editText.link("http://div",editText.getSelectedText())
+        editText.link("http://div", editText.getSelectedText())
         Assert.assertEquals("<div class=\"third\"><a href=\"http://div\">Div</a><br><span><a href=\"http://span\">Span</a></span><br>Hidden</div>", editText.toHtml())
     }
 
@@ -232,7 +232,7 @@ class LinkTest {
     fun setLinkToWholeHiddenHtmlSpan() {
         editText.fromHtml("<div class=\"third\">Div<br><span>Span</span><br>Hidden</div>")
         editText.selectAll()
-        editText.link("http://link",editText.getSelectedText())
+        editText.link("http://link", editText.getSelectedText())
 
         Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><a href=\"http://link\"><span>Span</span></a><br><a href=\"http://link\">Hidden</a></div>", editText.toHtml())
     }

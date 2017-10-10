@@ -28,7 +28,12 @@ import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatAutoCompleteTextView
-import android.text.*
+import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -44,21 +49,50 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.*
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.ListItemHandler
+import org.wordpress.aztec.handlers.PreformatHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecCursorSpan
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
+import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecURLSpan
+import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.UnknownClickableSpan
+import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.coerceToHtmlText
-import org.wordpress.aztec.watchers.*
+import org.wordpress.aztec.watchers.BlockElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
+import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
+import org.wordpress.aztec.watchers.InlineTextWatcher
+import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseRemover
+import org.wordpress.aztec.watchers.TextDeleter
+import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
 import org.xml.sax.Attributes
-import java.util.*
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
 class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
-
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -384,13 +418,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
         if (isBlockEditorDialogVisible) {
-
             val retainedBlockHtmlIndex = customState.getInt(BLOCK_EDITOR_START_INDEX_KEY, -1)
             if (retainedBlockHtmlIndex != -1) {
-
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
-
                     val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
                     showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
@@ -547,7 +578,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-
         //do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
@@ -558,7 +588,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         isLeadingStyleRemoved = false
     }
-
 
     override fun getSelectionStart(): Int {
         return Math.min(super.getSelectionStart(), super.getSelectionEnd())
@@ -760,7 +789,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
-
                 override fun onImageFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -788,7 +816,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
-
                 override fun onThumbnailFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -918,7 +945,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return consumeSelectionChangedEvent
     }
 
-
     fun refreshText() {
         disableTextChangedListener()
         val selStart = selectionStart
@@ -1036,8 +1062,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     .forEach {
                         if (editable.getSpanStart(it) == min) {
                             editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
-                        }
-                        else if (editable.getSpanEnd(it) == min + 1) {
+                        } else if (editable.getSpanEnd(it) == min + 1) {
                             editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
                         }
                     }

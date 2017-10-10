@@ -3,10 +3,21 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
-import org.wordpress.aztec.*
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecPart
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecStyleBoldSpan
+import org.wordpress.aztec.spans.AztecStyleItalicSpan
+import org.wordpress.aztec.spans.AztecStyleSpan
+import org.wordpress.aztec.spans.AztecUnderlineSpan
+import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.util.*
+import java.util.ArrayList
 
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
@@ -88,7 +99,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             return
         }
 
-
         editableText.getSpans(newStart, end, IAztecInlineSpan::class.java).forEach {
             if (!editor.selectedStyles.contains(spanToTextFormat(it)) || ignoreSelectedStyles || (newStart == 0 && end == 0) ||
                     (newStart > end && editableText.length > end && editableText[end] == '\n')) {
@@ -97,7 +107,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
         }
     }
-
 
     fun applyInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val spanToApply = makeInlineSpan(textFormat)
@@ -123,7 +132,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 val spanEnd = editableText.getSpanEnd(precedingSpan)
 
                 if (spanEnd > start) {
-                    return@applyInlineStyle  //we are adding text inside span - no need to do anything special
+                    return@applyInlineStyle //we are adding text inside span - no need to do anything special
                 } else {
                     editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
                 }

@@ -3,15 +3,28 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.spans.*
-import java.util.*
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecOrderedListSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.ParagraphSpan
+import java.util.ArrayList
+import java.util.Arrays
 
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
-
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
@@ -322,7 +335,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val indexOfFirstLineBreak: Int
         var indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
 
-
         if (selectionStartIsBetweenNewlines) {
             indexOfFirstLineBreak = selectionStart
         } else if (selectionStartIsOnTheNewLine) {
@@ -352,7 +364,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-
         if (editableText.isEmpty()) {
             editableText.append("" + Constants.END_OF_BUFFER_MARKER)
         }
@@ -465,8 +476,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
             }
         }
-
-
     }
 
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
@@ -637,7 +646,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         return false
     }
-
 
     fun containsOtherHeadings(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         arrayOf(AztecTextFormat.FORMAT_HEADING_1,

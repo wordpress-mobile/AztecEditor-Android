@@ -26,7 +26,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             x += widget.scrollX
             y += widget.scrollY
 
-            if(x < 0) return true
+            if (x < 0) return true
 
             val layout = widget.layout
             val line = layout.getLineForVertical(y)

@@ -508,7 +508,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(0,TestUtils.safeLength(editText))
+        editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<$quoteTag></$quoteTag>", editText.toHtml())
@@ -524,7 +524,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "a")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(1,editText.length())
+        editText.setSelection(1, editText.length())
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<$quoteTag>a</$quoteTag>", editText.toHtml())
@@ -541,7 +541,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "1")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "2")
-        editText.setSelection(2,editText.length())
+        editText.setSelection(2, editText.length())
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<br><$quoteTag>1<br>2</$quoteTag>", editText.toHtml())
@@ -559,7 +559,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "2")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "3")
-        editText.setSelection(2,editText.length())
+        editText.setSelection(2, editText.length())
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("1<$quoteTag>2<br>3</$quoteTag>", editText.toHtml())
@@ -623,7 +623,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
 
-        editText.setSelection(1,2)
+        editText.setSelection(1, 2)
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<br><$quoteTag></$quoteTag>", editText.toHtml())
@@ -641,7 +641,7 @@ class QuoteTest {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
 
-        editText.setSelection(1,3)
+        editText.setSelection(1, 3)
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<br><$quoteTag>1</$quoteTag>", editText.toHtml())
@@ -671,7 +671,6 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>1<br>2</blockquote>3", editText.toHtml())
-
     }
 
     @Test
@@ -679,7 +678,7 @@ class QuoteTest {
     fun testMultiCharSelectionStylingWitWithCursorOnEOL() {
         editText.fromHtml("123<blockquote>4</blockquote>567")
 
-        editText.setSelection(0,4)
+        editText.setSelection(0, 4)
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>123</blockquote><blockquote>4</blockquote>567", editText.toHtml())
@@ -690,7 +689,7 @@ class QuoteTest {
     fun testMultiCharSelectionStylingWitWithSelectionEndOnEOL() {
         editText.fromHtml("1<blockquote>2</blockquote>3")
 
-        editText.setSelection(0,1)
+        editText.setSelection(0, 1)
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
@@ -710,7 +709,6 @@ class QuoteTest {
 
         editText.toggleFormatting(formattingType)
         Assert.assertEquals("1<blockquote>Quote</blockquote>2", editText.toHtml())
-
     }
 
     @Test
@@ -740,7 +738,7 @@ class QuoteTest {
     fun testApplyQuoteToTheSelectedEndOfTheLine() {
         editText.fromHtml("1<blockquote>2</blockquote>3")
 
-        editText.setSelection(1,2)
+        editText.setSelection(1, 2)
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())

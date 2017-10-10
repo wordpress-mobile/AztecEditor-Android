@@ -13,7 +13,6 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
                      onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                      editor: AztecText? = null) :
         AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
-
     override val TAG: String = "video"
 
     init {

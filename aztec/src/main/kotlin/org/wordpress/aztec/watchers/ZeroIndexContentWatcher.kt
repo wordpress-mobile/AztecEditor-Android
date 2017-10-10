@@ -32,7 +32,6 @@ class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
         }
     }
 
-
     override fun afterTextChanged(text: Editable) {
     }
 

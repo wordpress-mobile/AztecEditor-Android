@@ -427,7 +427,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "second item")
         editText.setSelection(0)
-        editText.text.insert(0,"addition ")
+        editText.text.insert(0, "addition ")
 
         Assert.assertEquals("<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
@@ -444,7 +444,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "second item")
 
         editText.setSelection(mark)
-        editText.text.insert(mark,"addition ")
+        editText.text.insert(mark, "addition ")
 
         Assert.assertEquals("not in list<$listTag><li>addition first item</li><li>second item</li></$listTag>", editText.toHtml())
     }
@@ -461,11 +461,11 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "third item")
         editText.setSelection(0)
-        editText.text.delete(firstMark+1,secondMark)
+        editText.text.delete(firstMark+1, secondMark)
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
 
-        editText.text.delete(0,firstMark)
+        editText.text.delete(0, firstMark)
 
         Assert.assertEquals("<$listTag><li></li><li></li><li>third item</li></$listTag>", editText.toHtml())
     }
@@ -819,7 +819,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(0,TestUtils.safeLength(editText))
+        editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li></li></$listTag>", editText.toHtml())
@@ -852,7 +852,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "3\n")
         TestUtils.safeAppend(editText, "4\n")
         TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(0,TestUtils.safeLength(editText)-1)
+        editText.setSelection(0, TestUtils.safeLength(editText)-1)
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<$listTag><li>1</li><li>2</li><li></li><li>3</li><li>4</li><li></li></$listTag>", editText.toHtml())

@@ -22,7 +22,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class HeadingTest {
-
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar

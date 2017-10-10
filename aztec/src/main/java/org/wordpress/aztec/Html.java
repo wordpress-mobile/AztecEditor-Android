@@ -104,7 +104,6 @@ public class Html {
     }
 
     public interface VideoThumbnailGetter {
-
         void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth);
 
         interface Callbacks {

@@ -295,8 +295,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            SuggestionWatcher.install(inlineFormatter, this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SuggestionWatcher.install(this)
         }
         InlineTextWatcher.install(inlineFormatter, this)
 

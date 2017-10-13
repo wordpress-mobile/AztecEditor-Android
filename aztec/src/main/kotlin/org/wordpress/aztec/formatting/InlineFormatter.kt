@@ -10,58 +10,13 @@ import java.util.*
 
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
-    data class CarryOverSpan(val span: IAztecInlineSpan, val start: Int, val end: Int)
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
-
-    val carryOverSpans = ArrayList<CarryOverSpan>()
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
             applyInlineStyle(textFormat)
         } else {
             removeInlineStyle(textFormat)
-        }
-    }
-
-    fun clearCarriedOverSpans() {
-        carryOverSpans.clear()
-    }
-
-    fun carryOverInlineSpans(start: Int, count: Int, after: Int, multipleCharactersWereDeleted: Boolean) {
-        val charsAdded = after - count
-        val isAddingCharacters = charsAdded >= 0 && count > 0
-
-        if (isAddingCharacters) {
-            editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
-                val spanStart = editableText.getSpanStart(it)
-                val spanEnd = editableText.getSpanEnd(it)
-
-                editableText.removeSpan(it)
-                carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
-            }
-        } else if (charsAdded < 0 && count > 0) {
-            if (!multipleCharactersWereDeleted) {
-                editableText.getSpans(start, start + after, IAztecInlineSpan::class.java).forEach {
-                    val spanStart = editableText.getSpanStart(it)
-                    val spanEnd = if (editableText.getSpanEnd(it) > start + after) start + after else editableText.getSpanEnd(it)
-                    editableText.removeSpan(it)
-                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
-                }
-            } else {
-                editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
-                    val spanStart = editableText.getSpanStart(it)
-                    val spanEnd = if (editableText.getSpanEnd(it) > start + count) start + count else editableText.getSpanEnd(it)
-                    editableText.removeSpan(it)
-                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
-                }
-            }
-
-        }
-    }
-
-    fun reapplyCarriedOverInlineSpans() {
-        carryOverSpans.forEach {
-            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
@@ -115,7 +70,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
         }
     }
-
 
     fun applyInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
         val spanToApply = makeInlineSpan(textFormat)

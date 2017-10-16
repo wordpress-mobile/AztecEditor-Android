@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        gradlePluginVersion = '3.0.0-beta6'
+        gradlePluginVersion = '3.0.0-beta7'
         kotlinVersion = '1.1.50'
         supportLibVersion = '26.0.1'
         tagSoupVersion = '1.2.1'

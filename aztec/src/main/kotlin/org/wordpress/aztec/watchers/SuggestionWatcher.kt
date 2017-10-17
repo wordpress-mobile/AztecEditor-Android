@@ -18,6 +18,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
     data class CarryOverSpan(val span: IAztecInlineSpan, val start: Int, val end: Int)
+
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
     val carryOverSpans = ArrayList<CarryOverSpan>()
 
@@ -51,7 +52,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         val isMultiSelection = selectionStart != selectionEnd
 
 //      possibly suggestion framework event
-        frameworkEvent = (selectionStart != start + 1 && after == 0 && !isMultiSelection)
+        frameworkEvent = (selectionStart != start + 1 && after == 0 && !isMultiSelection && count > 1)
 
         isRestoringSuggestedText = previousStart == start && (previousCount == after || deletedAutoDot) && previousInputWasSuggestion
 
@@ -62,7 +63,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             clearCarriedOverSpans()
             if (after > 0) {
                 Log.v("SuggestionWatcher", "Carrying over spans")
-                carryOverInlineSpans(text as Editable,start, count, after, frameworkEvent)
+                carryOverInlineSpans(text as Editable, start, count, after, frameworkEvent)
             }
             previousInputEventWasRegular = true
         } else if (frameworkEvent && previousInputEventWasRegular) {
@@ -71,7 +72,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             aztecTextRef.get()?.disableOnSelectionListener()
 
             clearCarriedOverSpans()
-            carryOverInlineSpans(text as Editable,start, count, after, frameworkEvent,text.length > start && text[start] == '.' && count == 2 && !isMultiSelection && selectionStart == start + 2)
+            carryOverInlineSpans(text as Editable, start, count, after, frameworkEvent, text.length > start && text[start] == '.' && count == 2 && !isMultiSelection && selectionStart == start + 2)
             Log.v("SuggestionWatcher", "Carrying over spans : " + carryOverSpans.size)
             previousInputEventWasRegular = false
         } else if (isRestoringSuggestedText) {
@@ -109,14 +110,26 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         }
     }
 
+    override fun afterTextChanged(text: Editable) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+            return
+        }
+
+        if (isRestoringSuggestedText) {
+            isRestoringSuggestedText = false
+            aztecTextRef.get()?.enableOnSelectionListener()
+            aztecTextRef.get()?.disableInlineTextHandling()
+        }
+
+        previousInputWasSuggestion = frameworkEvent
+    }
+
 
     fun clearCarriedOverSpans() {
         carryOverSpans.clear()
     }
 
     fun carryOverInlineSpans(editableText: Editable, start: Int, count: Int, after: Int, multipleCharactersWereDeleted: Boolean, deletedAutodot: Boolean = false) {
-
-
         val charsAdded = after - count
         val isAddingCharacters = charsAdded >= 0 && count > 0
 
@@ -154,19 +167,6 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         }
     }
 
-    override fun afterTextChanged(text: Editable) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
-            return
-        }
-
-        if (isRestoringSuggestedText) {
-            isRestoringSuggestedText = false
-            aztecTextRef.get()?.enableOnSelectionListener()
-            aztecTextRef.get()?.disableInlineTextHandling()
-        }
-
-        previousInputWasSuggestion = frameworkEvent
-    }
 
     companion object {
         fun install(text: AztecText) {

@@ -56,9 +56,9 @@ compile ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAP
 
 When Aztec is ready, we'll publish the artifact in Maven.
 
-## Using ktlint
+## Code formatting
 
-The FluxC project uses [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can run ktlint using `./gradlew ktlint`, and you can also run `./gradlew ktlintFormat` for auto-formatting. There is no IDEA plugin (like Checkstyle's) at this time.
+We use [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can run ktlint using `./gradlew ktlint`, and you can also run `./gradlew ktlintFormat` for auto-formatting. There is no IDEA plugin (like Checkstyle's) at this time.
 
 ## Reference
 

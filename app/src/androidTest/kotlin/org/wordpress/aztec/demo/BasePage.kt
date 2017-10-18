@@ -9,10 +9,6 @@ import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 
-/**
- * Created by matisseh on 9/6/17.
- */
-
 abstract class BasePage {
 
     abstract val trait: ViewInteraction

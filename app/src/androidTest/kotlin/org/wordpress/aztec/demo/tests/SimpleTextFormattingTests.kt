@@ -8,10 +8,6 @@ import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditLinkPage
 import org.wordpress.aztec.demo.pages.EditorPage
 
-/**
- * Created by matisseh on 9/7/17.
- */
-
 class SimpleTextFormattingTests : BaseTest() {
 
     @Rule

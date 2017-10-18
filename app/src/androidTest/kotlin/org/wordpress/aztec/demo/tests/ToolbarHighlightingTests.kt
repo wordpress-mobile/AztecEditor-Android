@@ -9,10 +9,6 @@ import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditorPage
 
-/**
- * Created by matisseh on 9/7/17.
- */
-
 class ToolbarHighlightingTests : BaseTest() {
 
     @Rule

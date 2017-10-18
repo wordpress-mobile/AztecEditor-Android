@@ -235,7 +235,7 @@ class EditorPage : BasePage() {
 
     fun toggleStrikethrough(): EditorPage {
         strikethroughButton.perform(betterScrollTo(), Actions.invokeClick())
-        label("Made strigkethrough")
+        label("Made strikethrough")
 
         return this
     }

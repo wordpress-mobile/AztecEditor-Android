@@ -23,7 +23,6 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.LinkFormatter
 
 class AztecURLSpan : URLSpan, IAztecInlineSpan {
-
     override val TAG = "a"
 
     private var linkColor = 0

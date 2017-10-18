@@ -19,24 +19,42 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.text.*
+import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecCursorSpan
+import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.CommentSpan
+import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
+import org.wordpress.aztec.spans.IAztecInlineSpan
+import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
+import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
-import java.util.*
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.Comparator
+import java.util.TreeMap
 
 class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
-
     internal var hiddenIndex = 0
     internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
     internal var hiddenSpans: IntArray = IntArray(0)
 
     fun fromHtml(source: String, context: Context): Spanned {
-
         val tidySource = tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(context, plugins), context, plugins))
@@ -55,7 +73,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         // add a marker to the end of the text to aid nested group parsing
         val data = SpannableStringBuilder(text).append(Constants.ZWJ_CHAR)
 
-        //if there is no list or hidden html span at the end of the text, then we don't need zwj
+        // if there is no list or hidden html span at the end of the text, then we don't need zwj
         if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
                 data.getSpans(data.length - 1, data.length, AztecListSpan::class.java).isEmpty()) {
             data.delete(data.length - 1, data.length)
@@ -155,7 +173,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             // no need for newline if there's one and marked as visual
             if (spanned[spanEnd] == '\n'
                     && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
-
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is IAztecBlockSpan) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
@@ -472,7 +489,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         }
 
         for (z in 0..nl - 1) {
-            val parentSharesEnd = parents?.any {text.getSpanEnd(it) == end + 1 + z } ?: false
+            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + 1 + z } ?: false
             if (parentSharesEnd) {
                 continue
             }
@@ -496,7 +513,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val nextSpanIndex = hiddenSpans[hiddenIndex]
 
             if (openMap.contains(nextSpanIndex)) {
-
                 val nextSpan = openMap[nextSpanIndex]!!
                 if (!nextSpan.isOpened && text.getSpanStart(nextSpan) == position) {
                     out.append(nextSpan.startTag)
@@ -506,7 +522,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             }
 
             if (closeMap.containsKey(nextSpanIndex)) {
-
                 val nextSpan = closeMap[nextSpanIndex]!!
                 if (!nextSpan.isParsed && text.getSpanEnd(nextSpan) == position) {
                     out.append(nextSpan.endTag)

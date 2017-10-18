@@ -3,15 +3,28 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.spans.*
-import java.util.*
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecOrderedListSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.ParagraphSpan
+import java.util.ArrayList
+import java.util.Arrays
 
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
-
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
@@ -100,7 +113,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         var changed = false
 
-        //try to remove block styling when pressing backspace at the beginning of the text
+        // try to remove block styling when pressing backspace at the beginning of the text
         editableText.getSpans(0, 0, IAztecBlockSpan::class.java).forEach {
             val spanEnd = editableText.getSpanEnd(it)
 
@@ -130,7 +143,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         var start = originalStart
         var end = originalEnd
 
-        //if splitting block set a range that would be excluded from it
+        // if splitting block set a range that would be excluded from it
         val boundsOfSelectedText = if (ignoreLineBounds) {
             IntRange(start, end)
         } else {
@@ -241,7 +254,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
+    // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
@@ -322,7 +335,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val indexOfFirstLineBreak: Int
         var indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
 
-
         if (selectionStartIsBetweenNewlines) {
             indexOfFirstLineBreak = selectionStart
         } else if (selectionStartIsOnTheNewLine) {
@@ -352,7 +364,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-
         if (editableText.isEmpty()) {
             editableText.append("" + Constants.END_OF_BUFFER_MARKER)
         }
@@ -444,12 +455,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
-        //special case for styling single empty lines
+        // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
-            //there is always something at the end (newline or EOB), so we shift end index to the left
-            //to avoid empty lines
+            // there is always something at the end (newline or EOB), so we shift end index to the left
+            // to avoid empty lines
             val listContent = editableText.substring(start, end - 1)
 
             val lines = TextUtils.split(listContent, "\n")
@@ -465,8 +476,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
             }
         }
-
-
     }
 
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
@@ -637,7 +646,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         return false
     }
-
 
     fun containsOtherHeadings(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         arrayOf(AztecTextFormat.FORMAT_HEADING_1,

@@ -28,7 +28,12 @@ import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatAutoCompleteTextView
-import android.text.*
+import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -44,21 +49,50 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.*
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.ListItemHandler
+import org.wordpress.aztec.handlers.PreformatHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecCursorSpan
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
+import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecURLSpan
+import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.UnknownClickableSpan
+import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.coerceToHtmlText
-import org.wordpress.aztec.watchers.*
+import org.wordpress.aztec.watchers.BlockElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
+import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
+import org.wordpress.aztec.watchers.InlineTextWatcher
+import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseRemover
+import org.wordpress.aztec.watchers.TextDeleter
+import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
 import org.xml.sax.Attributes
-import java.util.*
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
 class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
-
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -326,7 +360,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         super.onWindowFocusChanged(hasWindowFocus)
         if (!hasWindowFocus) {
-            //on older android versions selection is lost when window loses focus, so we are making sure to keep it
+            // on older android versions selection is lost when window loses focus, so we are making sure to keep it
             setSelection(selStart, selEnd)
         }
     }
@@ -384,13 +418,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
         if (isBlockEditorDialogVisible) {
-
             val retainedBlockHtmlIndex = customState.getInt(BLOCK_EDITOR_START_INDEX_KEY, -1)
             if (retainedBlockHtmlIndex != -1) {
-
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
-
                     val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
                     showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
@@ -547,8 +578,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         previousCursorPosition = selEnd
 
-
-        //do not update toolbar or selected styles when we removed the last character in editor
+        // do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
         }
@@ -558,7 +588,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         isLeadingStyleRemoved = false
     }
-
 
     override fun getSelectionStart(): Int {
         return Math.min(super.getSelectionStart(), super.getSelectionEnd())
@@ -761,7 +790,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
-
                 override fun onImageFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -791,7 +819,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
-
                 override fun onThumbnailFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -815,20 +842,20 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
     }
 
-    //returns regular or "calypso" html depending on the mode
+    // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
         val html = toPlainHtml(withCursorTag)
 
         if (isInCalypsoMode) {
-            //calypso format is a mix of newline characters and html
-            //paragraphs and line breaks are added on server, from newline characters
+            // calypso format is a mix of newline characters and html
+            // paragraphs and line breaks are added on server, from newline characters
             return Format.addSourceEditorFormatting(html, true)
         } else {
             return html
         }
     }
 
-    //platform agnostic HTML
+    // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(text)
@@ -921,7 +948,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return consumeSelectionChangedEvent
     }
 
-
     fun refreshText() {
         disableTextChangedListener()
         val selStart = selectionStart
@@ -953,7 +979,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         blockFormatter.removeBlockStyle(AztecTextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(IAztecBlockSpan::class.java), ignoreLineBounds)
     }
 
-    //logic party copied from TextView
+    // logic party copied from TextView
     override fun onTextContextMenuItem(id: Int): Boolean {
         var min = 0
         var max = text.length
@@ -967,13 +993,13 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             android.R.id.paste -> paste(text, min, max)
             android.R.id.copy -> {
                 copy(text, min, max)
-                clearFocus() //hide text action menu
+                clearFocus() // hide text action menu
             }
             android.R.id.cut -> {
                 copy(text, min, max)
-                text.delete(min, max) //this will hide text action menu
+                text.delete(min, max) // this will hide text action menu
 
-                //if we are cutting text from the beginning of editor, remove leading inline style
+                // if we are cutting text from the beginning of editor, remove leading inline style
                 if (min == 0) {
                     deleteInlineStyleFromTheBeginning()
                 }
@@ -984,7 +1010,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         return true
     }
 
-    //Convert selected text to html and add it to clipboard
+    // Convert selected text to html and add it to clipboard
     fun copy(editable: Editable, start: Int, end: Int) {
         val selectedText = editable.subSequence(start, end)
         val parser = AztecParser(plugins)
@@ -1016,7 +1042,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
     }
 
-    //copied from TextView with some changes
+    // copied from TextView with some changes
     fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
@@ -1039,8 +1065,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
                     .forEach {
                         if (editable.getSpanStart(it) == min) {
                             editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
-                        }
-                        else if (editable.getSpanEnd(it) == min + 1) {
+                        } else if (editable.getSpanEnd(it) == min + 1) {
                             editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
                         }
                     }
@@ -1177,8 +1202,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         blockEditorDialog!!.show()
     }
 
-    //Custom input connection is used to detect the press of backspace when no characters are deleted
-    //(eg. at 0 index of EditText)
+    // Custom input connection is used to detect the press of backspace when no characters are deleted
+    // (eg. at 0 index of EditText)
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         return AztecInputConnection(super.onCreateInputConnection(outAttrs), true)
     }
@@ -1191,7 +1216,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            //detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
+            // detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
             if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
                 sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
             }

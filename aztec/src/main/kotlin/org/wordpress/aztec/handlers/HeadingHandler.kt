@@ -5,7 +5,6 @@ import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.watchers.TextDeleter
 
 class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
-
     override fun handleNewlineAtStartOfBlock() {
         // we got a newline at the start of the block. Let's just push the block after the newline
         block.start = newlineIndex + 1

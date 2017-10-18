@@ -29,7 +29,6 @@ class AztecUnorderedListSpan(
         override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
     ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
-
     override val TAG = "ul"
 
     override fun getLeadingMargin(first: Boolean): Int {

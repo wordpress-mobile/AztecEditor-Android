@@ -7,16 +7,13 @@ import android.support.test.espresso.action.CoordinatesProvider
 import android.support.test.espresso.action.GeneralClickAction
 import android.support.test.espresso.action.Press
 import android.support.test.espresso.action.Tap
-import android.support.test.espresso.matcher.ViewMatchers.*
+import android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import android.support.test.espresso.matcher.ViewMatchers.isClickable
+import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.view.View
 import android.widget.EditText
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
-
-
-/**
- * Created by matisseh on 9/7/17.
- */
 
 object Actions {
     fun invokeClick(): ViewAction {

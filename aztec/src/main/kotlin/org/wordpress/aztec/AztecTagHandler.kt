@@ -50,7 +50,6 @@ import org.xml.sax.Attributes
 import java.util.ArrayList
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
-
     private var order = 0
 
     private val loadingDrawable: Drawable
@@ -64,7 +63,6 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
                            context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
-
         val wasTagHandled = processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)
         if (wasTagHandled) {
             return true
@@ -199,7 +197,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         } else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
-            //if block element is empty add a ZWJ to make it non empty and extend span
+            // if block element is empty add a ZWJ to make it non empty and extend span
             output.append(Constants.ZWJ_CHAR)
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

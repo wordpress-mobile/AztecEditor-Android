@@ -29,23 +29,6 @@ allprojects {
         google()
         jcenter()
     }
-
-    apply plugin: 'checkstyle'
-
-
-    task checkstyle(type: Checkstyle) {
-        source 'src'
-        include '**/*.java'
-        include '**/*.kt'
-        exclude '**/gen/**'
-
-        classpath = files()
-    }
-
-    checkstyle {
-        toolVersion = '8.3'
-        configFile file("${project.rootDir}/config/checkstyle.xml")
-    }
 }
 
 task clean(type: Delete) {

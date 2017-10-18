@@ -45,6 +45,4 @@ annotations/
 !/.idea/compiler.xml
 # Enforce plugins
 !/.idea/externalDependencies.xml
-# Checkstyle configuration
-!/.idea/checkstyle-idea.xml
 

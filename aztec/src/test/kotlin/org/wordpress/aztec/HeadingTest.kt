@@ -22,7 +22,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class HeadingTest {
-
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
@@ -210,13 +209,13 @@ class HeadingTest {
     @Test
     @Throws(Exception::class)
     fun splitTwoHeadingsWithNewline() {
-        //cursor position right before Heading 2
+        // cursor position right before Heading 2
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         val mark = editText.text.indexOf("Heading 2")
         editText.text.insert(mark, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())
 
-        //alternative cursor position right after Heading 1
+        // alternative cursor position right after Heading 1
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1><h2>Heading 2</h2>")
         editText.text.insert(mark - 1, "\n")
         Assert.assertEquals("<h1 foo=\"bar\">Heading 1</h1><br><h2>Heading 2</h2>", editText.toHtml())

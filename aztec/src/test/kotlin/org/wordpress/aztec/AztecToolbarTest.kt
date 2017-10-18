@@ -18,7 +18,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class AztecToolbarTest {
-
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
@@ -364,7 +363,6 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun testCrossStylesToggle() {
-
         editText.append("bold bolditalic italic strike underline normal")
         editText.setSelection(0, 4)
 
@@ -464,56 +462,56 @@ class AztecToolbarTest {
     fun testSelection() {
         editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>normal")
 
-        //cursor is at bold text
+        // cursor is at bold text
         editText.setSelection(2)
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
 
-        //cursor is at bold/italic text
+        // cursor is at bold/italic text
         editText.setSelection(7)
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertTrue(italicButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
 
-        //bold and bold/italic styles selected
+        // bold and bold/italic styles selected
         editText.setSelection(2, 7)
         Assert.assertTrue(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
 
-        //cursor is at italic text
+        // cursor is at italic text
         editText.setSelection(15)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertTrue(italicButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
 
-        //cursor is at strikethrough text
+        // cursor is at strikethrough text
         editText.setSelection(22)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertTrue(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
 
-        //cursor is at underline text
+        // cursor is at underline text
         editText.setSelection(30)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertTrue(underlineButton.isChecked)
 
-        //cursor is at unstyled text
+        // cursor is at unstyled text
         editText.setSelection(38)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
         Assert.assertFalse(underlineButton.isChecked)
 
-        //whole text selected
+        // whole text selected
         editText.setSelection(0, editText.length() - 1)
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
@@ -534,7 +532,7 @@ class AztecToolbarTest {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         val selectedText = editText.text.substring(3, 5)
-        Assert.assertEquals("di", selectedText) //sanity check
+        Assert.assertEquals("di", selectedText) // sanity check
 
         editText.setSelection(3, 5)
         Assert.assertTrue(boldButton.isChecked)
@@ -557,7 +555,7 @@ class AztecToolbarTest {
         editText.fromHtml("<b>bold</b><b><del>strike</del></b>")
 
         val selectedText = editText.text.substring(3, 5)
-        Assert.assertEquals("ds", selectedText) //sanity check
+        Assert.assertEquals("ds", selectedText) // sanity check
 
         editText.setSelection(3, 5)
         Assert.assertTrue(boldButton.isChecked)
@@ -580,7 +578,7 @@ class AztecToolbarTest {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
 
         val selectedText = editText.text.substring(4, editText.length())
-        Assert.assertEquals("italic", selectedText) //sanity check
+        Assert.assertEquals("italic", selectedText) // sanity check
 
         editText.setSelection(4, editText.length())
 
@@ -644,7 +642,7 @@ class AztecToolbarTest {
 
         Assert.assertTrue(TestUtils.safeEmpty(editText))
 
-        //noting should be highlighted when we empty edit text
+        // noting should be highlighted when we empty edit text
         Assert.assertFalse(boldButton.isChecked)
         Assert.assertFalse(italicButton.isChecked)
         Assert.assertFalse(strikeThroughButton.isChecked)
@@ -745,51 +743,51 @@ class AztecToolbarTest {
         // 1\n2\n3\n4
         editText.fromHtml("1<blockquote>2<br>3</blockquote>4")
 
-        //selected 1
+        // selected 1
         editText.setSelection(0, 1)
         Assert.assertFalse(quoteButton.isChecked)
 
-        //selected 1\n
+        // selected 1\n
         editText.setSelection(0, 2)
         Assert.assertFalse(quoteButton.isChecked)
 
-        //selected 1\n2
+        // selected 1\n2
         editText.setSelection(0, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected 1\n2\n
+        // selected 1\n2\n
         editText.setSelection(0, 4)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected 1\n2\n3\n4
+        // selected 1\n2\n3\n4
         editText.setSelection(0, 7)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected \n
+        // selected \n
         editText.setSelection(1, 2)
         Assert.assertFalse(quoteButton.isChecked)
 
-        //selected \n2
+        // selected \n2
         editText.setSelection(1, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected 2
+        // selected 2
         editText.setSelection(2, 3)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected \n
+        // selected \n
         editText.setSelection(3, 4)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected \n3
+        // selected \n3
         editText.setSelection(3, 5)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected 3\n
+        // selected 3\n
         editText.setSelection(4, 6)
         Assert.assertTrue(quoteButton.isChecked)
 
-        //selected \n4
+        // selected \n4
         editText.setSelection(5, 7)
         Assert.assertTrue(quoteButton.isChecked)
     }

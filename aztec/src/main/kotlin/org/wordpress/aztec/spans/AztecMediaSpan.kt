@@ -8,12 +8,11 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
-import java.util.*
+import java.util.ArrayList
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
                               var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                               editor: AztecText? = null) : AztecDynamicImageSpan(context, drawable), IAztecAttributedSpan {
-
     abstract val TAG: String
 
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
@@ -109,5 +108,4 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     fun onMediaDeleted() {
         onMediaDeletedListener?.onMediaDeleted(attributes)
     }
-
 }

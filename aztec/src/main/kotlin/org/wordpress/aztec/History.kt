@@ -2,7 +2,7 @@ package org.wordpress.aztec
 
 import android.widget.EditText
 import org.wordpress.aztec.source.SourceViewEditText
-import java.util.*
+import java.util.LinkedList
 
 class History(val historyEnabled: Boolean, val historySize: Int) {
     var historyCursor = 0
@@ -28,8 +28,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
         if (editText is AztecText) {
             inputLast = editText.toFormattedHtml()
-        }
-        else if (editText is SourceViewEditText) {
+        } else if (editText is SourceViewEditText) {
             inputLast = editText.text.toString()
         }
 
@@ -67,8 +66,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
             if (editText is AztecText) {
                 editText.fromHtml(inputLast)
-            }
-            else if (editText is SourceViewEditText) {
+            } else if (editText is SourceViewEditText) {
                 editText.displayStyledHtml(inputLast)
             }
         } else {

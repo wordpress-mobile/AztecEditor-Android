@@ -18,7 +18,6 @@
 package org.wordpress.aztec
 
 class AztecPart(val start: Int, val end: Int) {
-
     val isValid: Boolean
         get() = start < end
 }

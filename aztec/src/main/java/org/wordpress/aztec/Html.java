@@ -104,7 +104,6 @@ public class Html {
     }
 
     public interface VideoThumbnailGetter {
-
         void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth);
 
         interface Callbacks {
@@ -168,7 +167,7 @@ public class Html {
         Parser parser = new Parser();
         try {
             parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
-            parser.setFeature(Parser.rootBogonsFeature, false); //allows the unknown tags to exist without root element
+            parser.setFeature(Parser.rootBogonsFeature, false); // allows the unknown tags to exist without root element
         } catch (org.xml.sax.SAXNotRecognizedException e) {
             // Should not happen.
             throw new RuntimeException(e);
@@ -297,6 +296,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             }
         }
 
+        // noinspection StatementWithEmptyBody
         if (tag.equalsIgnoreCase("br")) {
             // We don't need to handle this. TagSoup will ensure that there's a </br> for each <br>
             // so we can safely emite the linebreaks when we handle the close tag.
@@ -350,10 +350,10 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // Unknown tag previously detected
         if (unknownTagLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
-                return; //already handled at start tag
+                return; // already handled at start tag
             } else if (tag.equalsIgnoreCase("br")) {
                 unknownTagLevel -= 1;
-                return; //already handled at start tag
+                return; // already handled at start tag
             }
             // Swallow closing tag in current Unknown element
             unknown.rawHtml.append("</").append(tag).append(">");

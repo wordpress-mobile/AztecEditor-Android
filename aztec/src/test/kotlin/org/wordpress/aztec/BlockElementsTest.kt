@@ -20,7 +20,6 @@ import org.wordpress.aztec.TestUtils.safeLength
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class BlockElementsTest {
-
     lateinit var editText: AztecText
 
     /**
@@ -99,7 +98,7 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         editText.setSelection(0)
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
-        editText.text.insert(0,"\n")
+        editText.text.insert(0, "\n")
 
         Assert.assertEquals("<br>", editText.toHtml())
     }
@@ -110,7 +109,7 @@ class BlockElementsTest {
         safeAppend(editText, "\n")
         editText.setSelection(0)
         editText.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
-        editText.text.insert(0,"\n")
+        editText.text.insert(0, "\n")
 
         Assert.assertEquals("<br>", editText.toHtml())
     }

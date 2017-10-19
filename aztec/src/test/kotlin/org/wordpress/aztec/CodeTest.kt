@@ -69,7 +69,7 @@
 //        editText.append("second item")
 //        editText.append("\n")
 //        editText.append("third item")
-//        editText.setSelection(4, 15) //we partially selected first and second item
+//        editText.setSelection(4, 15) // we partially selected first and second item
 //        setStyles(editText)
 //        Assert.assertEquals("<$codeTag>first item<br>second item</$codeTag>third item", editText.toHtml())
 //    }
@@ -88,7 +88,7 @@
 //        Assert.assertEquals("first item<$codeTag>second item</$codeTag>third item", editText.toHtml())
 //    }
 //
-//    //enable styling on empty line and enter text
+//    // enable styling on empty line and enter text
 //    @Test
 //    @Throws(Exception::class)
 //    fun emptyCode() {
@@ -276,7 +276,7 @@
 //
 //        val mark = editText.text.indexOf("second item") + "second item".length;
 //
-//        //delete last character from "second item"
+//        // delete last character from "second item"
 //        editText.text.delete(mark - 1, mark)
 //        Assert.assertEquals("<$codeTag>first item<br>second ite</$codeTag>not in code", editText.toHtml())
 //    }
@@ -299,7 +299,7 @@
 //        editText.append("foo")
 //        Assert.assertEquals("<$codeTag>first item<br>second item<br>third item</$codeTag>not in the code<br>foo", editText.toHtml())
 //
-//        //reopen code
+//        // reopen code
 //        editText.text.delete(mark, mark + 1)
 //        Assert.assertEquals("<$codeTag>first item<br>second item<br>third itemnot in the code</$codeTag>foo", editText.toHtml())
 //    }

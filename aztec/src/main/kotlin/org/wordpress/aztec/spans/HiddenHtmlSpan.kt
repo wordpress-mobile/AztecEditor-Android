@@ -5,7 +5,6 @@ import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
 
 class HiddenHtmlSpan(tag: String, attributes: AztecAttributes = AztecAttributes(), openOrder: Int) : CharacterStyle() {
-
     val startTag: StringBuilder = StringBuilder()
     val endTag: StringBuilder = StringBuilder()
 

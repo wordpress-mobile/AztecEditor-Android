@@ -1,13 +1,32 @@
 # Changelog
 
-## [Unreleased]
+
+## [1.0-beta.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.10) - 2017-10-06
+### Fixed
+- crash when HTML tags contained special regex characters ('$' or '\\')
+
+## [1.0-beta.9](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.9) - 2017-09-25
+### Fixed
+- OOB crash when unmarshalling URL span
+
+## [1.0-beta.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.8) - 2017-08-28
+### Changed
+- Gradle version to 4.1 and use the new `implementation` configuration to stop transient dependency leaking
+
+### Added
+- Configuration option to use the visual editor without the HTML editor
+
+## [1.0-beta.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.7) - 2017-08-15
 ### Changed
 - Toolbar button highlighted state to use a color with more contrast
 
 ### Fixed
 - Image/video loading placeholder drawable usage
+- Quote styling of the paragraph ends, empty and mixed lines
 - The missing hint bug if text is empty
 - Crash in the URL dialog caused by the non plain text content of a clipboard
+- Crash when copy/pasting lists
+- Copy/pasting of non-latin unicode characters
 
 ### Added
 - This changelog
@@ -16,6 +35,8 @@
 - Plugin interface for HTML postprocessor
 - Plugin module with `[video]`, `[audio]` and `[caption]` WordPress shrotcode support
 - OnMediaDeletedListener interface, detection and handling
+- Copy/pasting of block element styles
+- Copy/pasting of styled text and HTML from external sources
 
 ## [1.0-beta.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.6) - 2017-07-25
 ### Changed

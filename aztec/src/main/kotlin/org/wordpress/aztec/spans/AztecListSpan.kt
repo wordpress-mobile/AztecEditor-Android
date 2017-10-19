@@ -5,11 +5,10 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
-import java.util.*
+import java.util.ArrayList
 
 abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding: Int = 0) : LeadingMarginSpan.Standard(0),
         IAztecBlockSpan, LineHeightSpan, UpdateLayout {
-
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 

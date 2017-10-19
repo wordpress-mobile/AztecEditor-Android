@@ -12,7 +12,6 @@ import android.view.View
 import org.wordpress.aztec.AztecText
 
 abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
-
     var textView: AztecText? = null
     var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     var aspectRatio: Double = 1.0

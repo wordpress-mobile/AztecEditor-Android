@@ -4,7 +4,6 @@ import android.text.Editable
 import org.wordpress.aztec.AztecText
 
 abstract class AztecFormatter(val editor: AztecText) {
-
     val selectionStart: Int
         get() = this.editor.selectionStart
 

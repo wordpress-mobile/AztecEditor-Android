@@ -24,19 +24,30 @@ import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
-import android.view.*
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.Aztec
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Html
+import org.wordpress.aztec.IHistoryListener
+import org.wordpress.aztec.ITextFormat
+import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
-import org.wordpress.aztec.picassoloader.PicassoImageLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
-import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -107,6 +118,7 @@ class MainActivity : AppCompatActivity(),
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
+        private val NON_LATIN_TEXT = "测试一个"
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
         private val VIDEO = "[video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"]"
         private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
@@ -131,6 +143,7 @@ class MainActivity : AppCompatActivity(),
                 CODE +
                 UNKNOWN +
                 EMOJI +
+                NON_LATIN_TEXT +
                 LONG_TEXT +
                 VIDEO +
                 AUDIO
@@ -180,7 +193,6 @@ class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     bitmap = BitmapFactory.decodeFile(mediaPath, options)
-
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
@@ -226,14 +238,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmap), attrs)
+        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
     }
 
@@ -310,12 +324,12 @@ class MainActivity : AppCompatActivity(),
             mHideActionBarOnSoftKeyboardUp = true
         }
 
-        val visualEditor = findViewById(R.id.aztec) as AztecText
-        val sourceEditor = findViewById(R.id.source) as SourceViewEditText
-        val toolbar = findViewById(R.id.formatting_toolbar) as AztecToolbar
+        val visualEditor = findViewById<AztecText>(R.id.aztec)
+        val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
+        val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(PicassoImageLoader(this, visualEditor))
+            .setImageGetter(GlideImageLoader(this))
             .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
             .setOnImeBackListener(this)
             .setOnTouchListener(this)
@@ -337,12 +351,12 @@ class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            aztec.sourceEditor.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(aztec.sourceEditor.getPureHtml())
-            aztec.initHistory()
+            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
+            aztec.initSourceEditorHistory()
         }
 
         invalidateOptionsHandler = Handler()
@@ -377,7 +391,7 @@ class MainActivity : AppCompatActivity(),
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        aztec.initHistory()
+        aztec.initSourceEditorHistory()
 
         savedInstanceState?.let {
             if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
@@ -481,13 +495,13 @@ class MainActivity : AppCompatActivity(),
                 if (aztec.visualEditor.visibility == View.VISIBLE) {
                     aztec.visualEditor.undo()
                 } else {
-                    aztec.sourceEditor.undo()
+                    aztec.sourceEditor?.undo()
                 }
             R.id.redo ->
                 if (aztec.visualEditor.visibility == View.VISIBLE) {
                     aztec.visualEditor.redo()
                 } else {
-                    aztec.sourceEditor.redo()
+                    aztec.sourceEditor?.redo()
                 }
             else -> {
             }
@@ -690,7 +704,7 @@ class MainActivity : AppCompatActivity(),
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
         } else {
-            aztec.toolbar.toggleEditorMode()
+            aztec.toolbar?.toggleEditorMode()
         }
     }
 
@@ -735,19 +749,19 @@ class MainActivity : AppCompatActivity(),
     private fun showPhotoMediaDialog() {
         val dialog = layoutInflater.inflate(R.layout.dialog_photo_media, null)
 
-        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
         camera.setOnClickListener({
             onCameraPhotoMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
         })
 
-        val photos = dialog.findViewById(org.wordpress.aztec.R.id.media_photos)
+        val photos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_photos)
         photos.setOnClickListener({
             onPhotosMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
         })
 
-        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
         library.setOnClickListener({
             onPhotoLibraryMediaOptionSelected()
             addPhotoMediaDialog?.dismiss()
@@ -762,19 +776,19 @@ class MainActivity : AppCompatActivity(),
     private fun showVideoMediaDialog() {
         val dialog = layoutInflater.inflate(org.wordpress.aztec.R.layout.dialog_video_media, null)
 
-        val camera = dialog.findViewById(org.wordpress.aztec.R.id.media_camera)
+        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
         camera.setOnClickListener({
             onCameraVideoMediaOptionSelected()
             addVideoMediaDialog?.dismiss()
         })
 
-        val videos = dialog.findViewById(org.wordpress.aztec.R.id.media_videos)
+        val videos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_videos)
         videos.setOnClickListener({
             onVideosMediaOptionSelected()
             addVideoMediaDialog?.dismiss()
         })
 
-        val library = dialog.findViewById(org.wordpress.aztec.R.id.media_library)
+        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
         library.setOnClickListener({
             onVideoLibraryMediaOptionSelected()
             addVideoMediaDialog?.dismiss()

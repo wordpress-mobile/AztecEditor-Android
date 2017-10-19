@@ -35,7 +35,6 @@ class AztecQuoteSpan(
         override var attributes: AztecAttributes = AztecAttributes(),
         var quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
     ) : QuoteSpan(), LineBackgroundSpan, IAztecBlockSpan, LineHeightSpan, UpdateLayout {
-
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 

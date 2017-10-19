@@ -29,19 +29,32 @@ import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
+import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecOrderedListSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
-import java.util.*
+import java.util.ArrayList
 
 class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
-
     private var order = 0
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
                            context: Context, attributes: Attributes,
                            nestingLevel: Int): Boolean {
-
         val wasTagHandled = processTagHandlerPlugins(tag, opening, output, attributes, nestingLevel)
         if (wasTagHandled) {
             return true
@@ -77,18 +90,15 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             AUDIO -> {
-                handleMediaElement(opening, context, attributes, output,
-                        AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             PARAGRAPH -> {
@@ -140,8 +150,7 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
         return loadingDrawable
     }
 
-    private fun handleMediaElement(opening: Boolean, context: Context, attributes: Attributes,
-                                   output: Editable, mediaSpan: AztecMediaSpan) {
+    private fun handleMediaElement(opening: Boolean, output: Editable, mediaSpan: AztecMediaSpan) {
         if (opening) {
             start(output, mediaSpan)
             start(output, AztecMediaClickableSpan(mediaSpan))
@@ -186,9 +195,8 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
 
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
-            //if block element is empty add a ZWJ to make it non empty and extend span
+        } else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
+            // if block element is empty add a ZWJ to make it non empty and extend span
             output.append(Constants.ZWJ_CHAR)
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

@@ -261,7 +261,7 @@ package org.wordpress.aztec
 //        editText.fromHtml("<$tag>first item<br>second item</$tag>not preformat")
 //        editText.setSelection(safeLength(editText))
 //        val mark = editText.text.indexOf("second item") + "second item".length
-//        //delete last character from "second item"
+//        // delete last character from "second item"
 //        editText.text.delete(mark - 1, mark)
 //        Assert.assertEquals("<$tag>first item\nsecond ite</$tag>not preformat", editText.toHtml())
 //    }

@@ -107,4 +107,23 @@ class MixedTextFormattingTests : BaseTest() {
                 .verifyHTML(text)
     }
 
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/476#issuecomment-327762497
+    @Test
+    fun testMixedBoldItalics() {
+        val regex = Regex("<b>a</b><i>b </i><[bi]><[bi]>c </[bi]></[bi]>")
+
+        EditorPage()
+                .toggleBold()
+                .insertText("a")
+                .toggleBold()
+                .toggleItalics()
+                .insertText("b")
+                .insertText(" ")
+                .toggleBold()
+                .insertText("c")
+                .insertText(" ")
+                .toggleHtml()
+                .verifyHTML(regex)
+    }
 }

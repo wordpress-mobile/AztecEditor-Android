@@ -306,4 +306,37 @@ class SimpleTextFormattingTests : BaseTest() {
                 .verifyHTML(expected2)
     }
 
+
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322404363
+    @Test
+    fun testInlineStyleAndDelete() {
+        val text1 = "some"
+        val html = "<i>som</i>"
+
+        EditorPage()
+                .toggleItalics()
+                .insertText(text1)
+                .delete(1)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322405856
+    @Test
+    fun testInlineStyleAndSpace() {
+        val text1 = "some"
+        val text2 = "text"
+        val text3 = " "
+        val html = "$text1<del>$text2$text3</del>"
+
+        EditorPage()
+                .insertText(text1)
+                .toggleStrikethrough()
+                .insertText(text2)
+                .insertText(text3)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
 }

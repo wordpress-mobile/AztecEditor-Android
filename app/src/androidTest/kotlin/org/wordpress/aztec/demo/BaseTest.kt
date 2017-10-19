@@ -1,5 +1,6 @@
 package org.wordpress.aztec.demo
 
+import android.support.test.rule.GrantPermissionRule
 import android.support.test.runner.AndroidJUnit4
 import com.xamarin.testcloud.espresso.Factory
 import com.xamarin.testcloud.espresso.ReportHelper
@@ -13,6 +14,11 @@ abstract class BaseTest {
     @Rule
     @JvmField
     val mReportHelper: ReportHelper = Factory.getReportHelper()
+
+    @Rule
+    @JvmField
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     companion object {
         private lateinit var reportHelper: ReportHelper

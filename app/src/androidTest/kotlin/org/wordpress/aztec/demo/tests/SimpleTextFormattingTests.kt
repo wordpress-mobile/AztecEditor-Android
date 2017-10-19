@@ -306,7 +306,6 @@ class SimpleTextFormattingTests : BaseTest() {
                 .verifyHTML(expected2)
     }
 
-
     // Test reproducing the issue described in
     // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322404363
     @Test

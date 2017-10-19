@@ -285,29 +285,4 @@ class SimpleTextFormattingTests : BaseTest() {
                 .verifyHTML(html)
     }
 
-    @Test
-    fun testMixedList() {
-
-        var text = "sample text\n"
-        val expected1 = Regex("<ul>[\\S\\s]+</ul>")
-        val expected2 = Regex("<ol>[\\S\\s]+</ol>")
-
-        for (i in 1..4) {
-            text += text
-        }
-
-        EditorPage()
-                .tapTop()
-                .insertText(text)
-                .selectAllText()
-                .makeList(EditorPage.ListStyle.UNORDERED)
-                .toggleHtml()
-                .verifyHTML(expected1)
-                .toggleHtml()
-                .tapTop()
-                .makeList(EditorPage.ListStyle.ORDERED)
-                .toggleHtml()
-                .verifyHTML(expected2)
-    }
-
 }

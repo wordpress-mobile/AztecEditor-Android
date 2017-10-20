@@ -58,7 +58,7 @@ class AztecOrderedListSpan(
         val textToDraw = if (lineIndex > -1) lineIndex.toString() + "." else ""
 
         var width = p.measureText(textToDraw)
-        var xStartDraw = (listStyle.indicatorMargin + x + dir - width) * dir
+        var xStartDraw = (x + listStyle.indicatorMargin + listStyle.indicatorPadding + dir - width) * dir
 
         // If we can't draw the item number in the available space, try with smaller text size until it fits the available space
         while (xStartDraw < 0) {

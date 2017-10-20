@@ -24,8 +24,6 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     fun setDrawable(newDrawable: Drawable?) {
         imageDrawable = newDrawable
 
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
-
         setInitBounds(newDrawable)
 
         computeAspectRatio()

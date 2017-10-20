@@ -3,10 +3,21 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
-import org.wordpress.aztec.*
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecPart
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecStyleBoldSpan
+import org.wordpress.aztec.spans.AztecStyleItalicSpan
+import org.wordpress.aztec.spans.AztecStyleSpan
+import org.wordpress.aztec.spans.AztecUnderlineSpan
+import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.util.*
+import java.util.ArrayList
 
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
@@ -23,7 +34,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         if (textChangedEvent.isEndOfBufferMarker()) return
 
-        //because we use SPAN_INCLUSIVE_INCLUSIVE for inline styles
+        //because we use SPAN_EXCLUSIVE_EXCLUSIVE for inline styles
         //we need to make sure unselected styles are not applied
         clearInlineStyles(textChangedEvent.inputStart, textChangedEvent.inputEnd, textChangedEvent.isNewLine())
 
@@ -204,7 +215,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             val spansBeforeSelection = editableText.getSpans(start - 1, start, IAztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
-                if (inSelectionSpanEnd == -1) return@forEach
+                val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
+                if (inSelectionSpanEnd == -1 || inSelectionSpanStart == -1) return@forEach
                 spansBeforeSelection.forEach { outerSpan ->
                     val outerSpanStart = editableText.getSpanStart(outerSpan)
 
@@ -221,8 +233,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             val spansInSelection = editableText.getSpans(start, end, IAztecInlineSpan::class.java)
             val spansAfterSelection = editableText.getSpans(end, end + 1, IAztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
+                val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
                 val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
-                if (inSelectionSpanStart == -1) return@forEach
+                if (inSelectionSpanEnd == -1 || inSelectionSpanStart == -1) return@forEach
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
 

@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers
 
-
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
@@ -8,7 +7,7 @@ import android.util.Log
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.ArrayList
 
 /**
  * Auto correct/suggestion in android often strip all the inline spans from the target words.
@@ -20,25 +19,21 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     data class CarryOverSpan(val span: IAztecInlineSpan, val start: Int, val end: Int)
 
     private var textChangedEventDetails = TextChangedEvent("", 0, 0, 0)
-    val carryOverSpans = ArrayList<CarryOverSpan>()
+    private val carryOverSpans = ArrayList<CarryOverSpan>()
 
+    private var isRestoringSuggestedText = false
+    private var frameworkEvent = false
 
-    var isRestoringSuggestedText = false
-    var frameworkEvent = false
-
-    var previousInputWasSuggestion = false
-    var previousInputEventWasRegular = false
+    private var previousInputWasSuggestion = false
+    private var previousInputEventWasRegular = false
 
     //cached values of beforeTextChanged event
-    var previousStart = -1
-    var previousCount = -1
-    var beforeAfter = -1
-
-    var deletedAutoDot = false
-
+    private var previousStart = -1
+    private var previousCount = -1
+    private var beforeAfter = -1
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
             return
         }
         Log.v("SuggestionWatcher", "selectionStart: ${aztecTextRef.get()?.selectionStart} selectionEnd: ${aztecTextRef.get()?.selectionEnd}")
@@ -54,42 +49,35 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 //      possibly suggestion framework event
         frameworkEvent = (selectionStart != start + 1 && after == 0 && !isMultiSelection && count > 1)
 
-        isRestoringSuggestedText = previousStart == start && (previousCount == after || deletedAutoDot) && previousInputWasSuggestion
+        isRestoringSuggestedText = previousStart == start && (previousCount == after) && previousInputWasSuggestion
 
 
         if (!frameworkEvent && !isRestoringSuggestedText && !isMultiSelection) {
             Log.v("SuggestionWatcher", "Normal Typing")
             aztecTextRef.get()?.enableOnSelectionListener()
             clearCarriedOverSpans()
-            if (after > 0) {
-                Log.v("SuggestionWatcher", "Carrying over spans")
-                carryOverInlineSpans(text as Editable, start, count, after, frameworkEvent)
-            }
+            carryOverInlineSpans(text as Editable, start, count, after)
+            Log.v("SuggestionWatcher", "Carrying over spans : " + carryOverSpans.size)
             previousInputEventWasRegular = true
         } else if (frameworkEvent && previousInputEventWasRegular) {
             Log.v("SuggestionWatcher", "Multiple characters were deleted.")
             //disable selection because moving cursor will cause selected style to reset
             aztecTextRef.get()?.disableOnSelectionListener()
-
-            clearCarriedOverSpans()
-            carryOverInlineSpans(text as Editable, start, count, after, frameworkEvent, text.length > start && text[start] == '.' && count == 2 && !isMultiSelection && selectionStart == start + 2)
-            Log.v("SuggestionWatcher", "Carrying over spans : " + carryOverSpans.size)
+            carryOverInlineSpans(text as Editable, start, count, after)
             previousInputEventWasRegular = false
         } else if (isRestoringSuggestedText) {
             Log.v("SuggestionWatcher", "Restoring text")
             aztecTextRef.get()?.disableInlineTextHandling()
             previousInputEventWasRegular = false
-            deletedAutoDot = false
         }
 
         previousStart = start
         previousCount = count
         beforeAfter = after
-        deletedAutoDot = text.length > start && text[start] == '.' && count == 2 && !isMultiSelection && selectionStart == start + 2
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
             return
         }
 
@@ -111,7 +99,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     override fun afterTextChanged(text: Editable) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
             return
         }
 
@@ -124,12 +112,11 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         previousInputWasSuggestion = frameworkEvent
     }
 
-
-    fun clearCarriedOverSpans() {
+    private fun clearCarriedOverSpans() {
         carryOverSpans.clear()
     }
 
-    fun carryOverInlineSpans(editableText: Editable, start: Int, count: Int, after: Int, multipleCharactersWereDeleted: Boolean, deletedAutodot: Boolean = false) {
+    private fun carryOverInlineSpans(editableText: Editable, start: Int, count: Int, after: Int) {
         val charsAdded = after - count
         val isAddingCharacters = charsAdded >= 0 && count > 0
 
@@ -137,36 +124,45 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
                 val spanStart = editableText.getSpanStart(it)
                 val spanEnd = editableText.getSpanEnd(it)
-
-                editableText.removeSpan(it)
                 carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
             }
         } else if (charsAdded < 0 && count > 0) {
-            if (!multipleCharactersWereDeleted) {
-                editableText.getSpans(start, start + after, IAztecInlineSpan::class.java).forEach {
+            if (count - after <= 1) {
+                var spans = editableText.getSpans(start, start + after, IAztecInlineSpan::class.java)
+
+                //special case for pre 5.0.0 devices
+                if (spans.isEmpty() && editableText[start] == ' ') {
+                    spans = editableText.getSpans(start - 2, start + after, IAztecInlineSpan::class.java)
+                }
+
+                spans.forEach {
                     val spanStart = editableText.getSpanStart(it)
-                    val spanEnd = if (editableText.getSpanEnd(it) > start + after) start + after else editableText.getSpanEnd(it)
-                    editableText.removeSpan(it)
+                    var spanEnd = editableText.getSpanEnd(it)
+
+                    if ((start == spanEnd && editableText[start] == ' ') || start + after >= spanEnd) {
+
+                    } else if (start < spanEnd && count - after == 1) {
+                        spanEnd--
+                    }
                     carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
                 }
             } else {
                 editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
+                    val replacingDoubleSpaceDot = count == 2 && editableText[start] == ' ' && editableText[start + 1] == ' '
+
                     val spanStart = editableText.getSpanStart(it)
-                    val spanEnd = if (editableText.getSpanEnd(it) > start + count) start + count else editableText.getSpanEnd(it)
-                    editableText.removeSpan(it)
-                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd - if (deletedAutodot) 1 else 0))
+                    val spanEnd = if (editableText.getSpanEnd(it) > start + count && !replacingDoubleSpaceDot) editableText.getSpanEnd(it) - (start + count) else editableText.getSpanEnd(it)
+                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd - if (replacingDoubleSpaceDot) 1 else 0))
                 }
             }
-
         }
     }
 
-    fun reapplyCarriedOverInlineSpans(editableText: Editable) {
+    private fun reapplyCarriedOverInlineSpans(editableText: Editable) {
         carryOverSpans.forEach {
             editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
-
 
     companion object {
         fun install(text: AztecText) {

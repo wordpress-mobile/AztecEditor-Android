@@ -326,15 +326,13 @@ class SimpleTextFormattingTests : BaseTest() {
     @Test
     fun testInlineStyleAndSpace() {
         val text1 = "some"
-        val text2 = "text"
-        val text3 = " "
-        val html = "$text1<del>$text2$text3</del>"
+        val text2 = "text "
+        val html = "$text1<del>$text2</del>"
 
         EditorPage()
                 .insertText(text1)
                 .toggleStrikethrough()
                 .insertText(text2)
-                .insertText(text3)
                 .toggleHtml()
                 .verifyHTML(html)
     }

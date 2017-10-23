@@ -151,7 +151,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
                     val replacingDoubleSpaceDot = count == 2 && editableText[start] == ' ' && editableText[start + 1] == ' '
 
                     val spanStart = editableText.getSpanStart(it)
-                    val spanEnd = if (editableText.getSpanEnd(it) > start + count && !replacingDoubleSpaceDot) editableText.getSpanEnd(it) - (start + count) else editableText.getSpanEnd(it)
+                    val spanEnd = if (editableText.getSpanEnd(it) >= start + count && !replacingDoubleSpaceDot) editableText.getSpanEnd(it) - (count - after) else editableText.getSpanEnd(it)
                     carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd - if (replacingDoubleSpaceDot) 1 else 0))
                 }
             }
@@ -160,7 +160,10 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
     private fun reapplyCarriedOverInlineSpans(editableText: Editable) {
         carryOverSpans.forEach {
-            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if(it.start < 0 || it.end < editableText.length){
+                editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+
         }
     }
 

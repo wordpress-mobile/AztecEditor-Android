@@ -118,6 +118,14 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         return imageDrawable
     }
 
+    open fun setDrawable(newDrawable: Drawable?) {
+        imageDrawable = newDrawable
+
+        setInitBounds(newDrawable)
+
+        computeAspectRatio()
+    }
+
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
         canvas.save()
 

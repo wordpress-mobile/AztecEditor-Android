@@ -1,9 +1,9 @@
 package org.wordpress.aztec.watchers
 
 import android.text.Editable
+import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
-import android.util.Log
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import java.lang.ref.WeakReference
@@ -33,11 +33,9 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     private var beforeAfter = -1
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false || text !is Spannable) {
             return
         }
-        Log.v("SuggestionWatcher", "selectionStart: ${aztecTextRef.get()?.selectionStart} selectionEnd: ${aztecTextRef.get()?.selectionEnd}")
-        Log.v("SuggestionWatcher", "start: $start count:$count after: $after")
 
         textChangedEventDetails = TextChangedEvent(text.toString())
 
@@ -46,27 +44,22 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
         val isMultiSelection = selectionStart != selectionEnd
 
-//      possibly suggestion framework event
+        //possibly autocorrect framework event
         frameworkEvent = (selectionStart != start + 1 && after == 0 && !isMultiSelection && count > 1)
 
         isRestoringSuggestedText = previousStart == start && (previousCount == after) && previousInputWasSuggestion
 
-
         if (!frameworkEvent && !isRestoringSuggestedText && !isMultiSelection) {
-            Log.v("SuggestionWatcher", "Normal Typing")
             aztecTextRef.get()?.enableOnSelectionListener()
             clearCarriedOverSpans()
-            carryOverInlineSpans(text as Editable, start, count, after)
-            Log.v("SuggestionWatcher", "Carrying over spans : " + carryOverSpans.size)
+            carryOverInlineSpans(text, start, count, after)
             previousInputEventWasRegular = true
         } else if (frameworkEvent && previousInputEventWasRegular) {
-            Log.v("SuggestionWatcher", "Multiple characters were deleted.")
             //disable selection because moving cursor will cause selected style to reset
             aztecTextRef.get()?.disableOnSelectionListener()
-            carryOverInlineSpans(text as Editable, start, count, after)
+            carryOverInlineSpans(text, start, count, after)
             previousInputEventWasRegular = false
         } else if (isRestoringSuggestedText) {
-            Log.v("SuggestionWatcher", "Restoring text")
             aztecTextRef.get()?.disableInlineTextHandling()
             previousInputEventWasRegular = false
         }
@@ -77,7 +70,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false || text !is Spannable) {
             return
         }
 
@@ -88,9 +81,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         textChangedEventDetails.initialize()
 
         if (!frameworkEvent && carryOverSpans.size > 0) {
-            Log.v("SuggestionWatcher", "Reapplying carried over span. Formatting is applied:" + aztecTextRef.get()?.formattingIsApplied())
-            Log.v("SuggestionWatcher", "Reapplying carried over span. Carried over " + carryOverSpans.size + " spans")
-            reapplyCarriedOverInlineSpans(text as Editable)
+            reapplyCarriedOverInlineSpans(text)
         }
 
         if (isRestoringSuggestedText) {
@@ -116,7 +107,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         carryOverSpans.clear()
     }
 
-    private fun carryOverInlineSpans(editableText: Editable, start: Int, count: Int, after: Int) {
+    private fun carryOverInlineSpans(editableText: Spannable, start: Int, count: Int, after: Int) {
         val charsAdded = after - count
         val isAddingCharacters = charsAdded >= 0 && count > 0
 
@@ -140,7 +131,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
                     var spanEnd = editableText.getSpanEnd(it)
 
                     if ((start == spanEnd && editableText[start] == ' ') || start + after >= spanEnd) {
-
+                        //do nothing
                     } else if (start < spanEnd && count - after == 1) {
                         spanEnd--
                     }
@@ -158,7 +149,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         }
     }
 
-    private fun reapplyCarriedOverInlineSpans(editableText: Editable) {
+    private fun reapplyCarriedOverInlineSpans(editableText: Spannable) {
         carryOverSpans.forEach {
             if(it.start < 0 || it.end < editableText.length){
                 editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

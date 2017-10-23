@@ -22,14 +22,19 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
-import android.text.*
+import android.text.Editable
+import android.text.Selection
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
@@ -46,16 +51,46 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.*
+import org.wordpress.aztec.handlers.HeadingHandler
+import org.wordpress.aztec.handlers.ListHandler
+import org.wordpress.aztec.handlers.ListItemHandler
+import org.wordpress.aztec.handlers.PreformatHandler
+import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecCursorSpan
+import org.wordpress.aztec.spans.AztecDynamicImageSpan
+import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecURLSpan
+import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.UnknownClickableSpan
+import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.watchers.*
+import org.wordpress.aztec.watchers.BlockElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
+import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
+import org.wordpress.aztec.watchers.InlineTextWatcher
+import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
+import org.wordpress.aztec.watchers.ParagraphCollapseRemover
+import org.wordpress.aztec.watchers.SuggestionWatcher
+import org.wordpress.aztec.watchers.TextDeleter
+import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
 import org.xml.sax.Attributes
-import java.util.*
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
 class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
@@ -251,11 +286,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             handleBackspace(event)
         }
 
-        //disable auto suggestions/correct for older devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
-
         install()
 
         // Needed to properly initialize the cursor position
@@ -295,9 +325,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            SuggestionWatcher.install(this)
-        }
+        SuggestionWatcher.install(this)
         InlineTextWatcher.install(inlineFormatter, this)
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers

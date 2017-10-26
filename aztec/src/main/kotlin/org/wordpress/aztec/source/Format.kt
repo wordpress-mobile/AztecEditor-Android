@@ -5,29 +5,32 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecParagraphStyle
+import org.wordpress.aztec.spans.ParagraphSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-object Format {
-
+internal object Format {
     // list of block elements
-    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr|aztec_cursor"
+    private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
+        html = html.replace("<aztec_cursor>", "")
 
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
-            //remove empty span tags
+            // remove empty span tags
             doc.select("*")
                     .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
                     .forEach { it.remove() }
 
             html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
-            html = html.replace("aztec_cursor", "")
 
             html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
             html = toCalypsoSourceEditorFormat(html)
@@ -60,8 +63,8 @@ object Format {
         return m.replaceAll(replacement)
     }
 
-    //Takes HTML and formats it for Source editor and calypso back-end
-    //based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
+    // Takes HTML and formats it for Source editor and calypso back-end
+    // based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoSourceEditorFormat(htmlContent: String): String {
         var content = htmlContent
         if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
@@ -95,7 +98,7 @@ object Format {
             sb = StringBuffer()
             if (m.find()) {
                 val result = replaceAll(content.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>")
-                m.appendReplacement(sb, replace(result, "[\\r\\n\\t]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replace(result, "[\\r\\n\\t]+", "")))
             }
             m.appendTail(sb)
             content = sb.toString()
@@ -143,7 +146,7 @@ object Format {
             m = p.matcher(content)
             sb = StringBuffer()
             if (m.find()) {
-                m.appendReplacement(sb, replace(content.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replace(content.substring(m.start(), m.end()), "[\\r\\n]+", "")))
             }
             m.appendTail(sb)
             content = sb.toString()
@@ -175,7 +178,7 @@ object Format {
     // Converts visual newlines to <p> and <br> tags. This method produces html used for html2span parser
     // based on wpautop() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoHtml(formattedHtml: String): String {
-        //remove references to cursor when in calypso mode
+        // remove references to cursor when in calypso mode
         var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>", "")
         if (TextUtils.isEmpty(html.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
@@ -198,7 +201,7 @@ object Format {
             m = p.matcher(html)
             sb = StringBuffer()
             while (m.find()) {
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", "")))
             }
             m.appendTail(sb)
             html = sb.toString()
@@ -208,7 +211,7 @@ object Format {
         m = p.matcher(html)
         sb = StringBuffer()
         while (m.find()) {
-            m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", ""))
+            m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "[\\r\\n]+", "")))
         }
         m.appendTail(sb)
         html = sb.toString()
@@ -231,7 +234,7 @@ object Format {
             sb = StringBuffer()
             while (m.find()) {
                 // keep existing <br>
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>"))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "<br([^>]*)>", "<wp-temp-br$1>")))
 
                 // no line breaks inside HTML tags
                 val p2 = Pattern.compile("<[a-zA-Z0-9]+( [^<>]+)?>")
@@ -239,19 +242,17 @@ object Format {
                 val m2 = p2.matcher(content)
                 val sb2 = StringBuffer()
                 while (m2.find()) {
-                    m2.appendReplacement(sb2, replace(content.substring(m2.start(), m2.end()), "[\\r\\n\\t]+", " "))
+                    m2.appendReplacement(sb2, Matcher.quoteReplacement(replace(content.substring(m2.start(), m2.end()), "[\\r\\n\\t]+", " ")))
                 }
                 m2.appendTail(sb2)
-                m.appendReplacement(sb, sb2.toString())
+                m.appendReplacement(sb, Matcher.quoteReplacement(sb2.toString()))
 
                 // convert remaining line breaks to <br>
-                m.appendReplacement(sb, replaceAll(html.substring(m.start(), m.end()), "\\s*\\n\\s*", "<wp-temp-br />"))
+                m.appendReplacement(sb, Matcher.quoteReplacement(replaceAll(html.substring(m.start(), m.end()), "\\s*\\n\\s*", "<wp-temp-br />")))
             }
             m.appendTail(sb)
             html = sb.toString()
         }
-
-        html += "\n\n"
 
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
@@ -305,8 +306,8 @@ object Format {
                 }
             }
 
-            //we don't need paragraph spans in calypso at this point
-            text.getSpans(0,text.length, ParagraphSpan::class.java).forEach {
+            // we don't need paragraph spans in calypso at this point
+            text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
                 text.removeSpan(it)
             }
         }
@@ -317,7 +318,7 @@ object Format {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { text.getSpanStart(it) }
 
-            //add additional newline to the end of every paragraph
+            // add additional newline to the end of every paragraph
             spans.forEach {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
@@ -333,7 +334,7 @@ object Format {
                 }
             }
 
-            //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
+            // we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
             text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
                 text.removeSpan(it)
             }

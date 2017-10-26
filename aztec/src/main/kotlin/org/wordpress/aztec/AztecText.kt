@@ -32,13 +32,11 @@ import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
-import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.text.style.ParagraphStyle
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -65,6 +63,7 @@ import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecDynamicImageSpan
 import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
@@ -75,6 +74,7 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
@@ -94,7 +94,6 @@ import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
 class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
-
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -114,6 +113,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
+
+        val DEFAULT_IMAGE_WIDTH = 800
     }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -168,6 +169,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var widthMeasureSpec: Int = 0
 
     var verticalParagraphMargin: Int = 0
+
+    var maxImagesWidth: Int = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -274,6 +277,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         styles.recycle()
 
+        // set the pictures max size to the min of screen width/height and DEFAULT_IMAGE_WIDTH
+        val minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
+                context.resources.displayMetrics.heightPixels)
+        maxImagesWidth = Math.min(minScreenSize, DEFAULT_IMAGE_WIDTH)
+
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
         }
@@ -379,7 +387,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         super.onWindowFocusChanged(hasWindowFocus)
         if (!hasWindowFocus) {
-            //on older android versions selection is lost when window loses focus, so we are making sure to keep it
+            // on older android versions selection is lost when window loses focus, so we are making sure to keep it
             setSelection(selStart, selEnd)
         }
     }
@@ -437,13 +445,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
         if (isBlockEditorDialogVisible) {
-
             val retainedBlockHtmlIndex = customState.getInt(BLOCK_EDITOR_START_INDEX_KEY, -1)
             if (retainedBlockHtmlIndex != -1) {
-
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
-
                     val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
                     showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
@@ -470,19 +475,19 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean(LINK_DIALOG_VISIBLE_KEY, true)
 
-            val urlInput = addLinkDialog!!.findViewById(R.id.linkURL) as EditText
-            val anchorInput = addLinkDialog!!.findViewById(R.id.linkText) as EditText
+            val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
+            val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
 
-            bundle.putString(LINK_DIALOG_URL_KEY, urlInput.text.toString())
-            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput.text.toString())
+            bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
+            bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
         }
 
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
-            val source = blockEditorDialog!!.findViewById(R.id.source) as SourceViewEditText
+            val source = blockEditorDialog!!.findViewById<SourceViewEditText>(R.id.source)
 
             bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
             bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
-            bundle.putString(BLOCK_EDITOR_HTML_KEY, source.getPureHtml(false))
+            bundle.putString(BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false))
         }
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
@@ -601,7 +606,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         previousCursorPosition = selEnd
 
-        //do not update toolbar or selected styles when we removed the last character in editor
+        // do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
         }
@@ -726,7 +731,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
-            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containQuote(selectionStart, selectionEnd)
+            AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containsQuote(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE, selStart, selEnd)
@@ -784,9 +789,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
-        builder.append(parser.fromHtml(
-                Format.removeSourceEditorFormatting(
-                        Format.addSourceEditorFormatting(source, isInCalypsoMode), isInCalypsoMode), context))
+
+        val cleanSource = Format.removeSourceEditorFormatting(source, isInCalypsoMode)
+        builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -809,9 +814,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
+
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
-
                 override fun onImageFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -831,20 +836,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-
-            // maxidth set to the biggest of screen width/height to cater for device rotation
-            val maxWidth = Math.max(context.resources.displayMetrics.widthPixels,
-                    context.resources.displayMetrics.heightPixels)
-            imageGetter?.loadImage(it.getSource(), callbacks, maxWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
-
                 override fun onThumbnailFailed() {
                     replaceImage(ContextCompat.getDrawable(context, drawableFailed))
                 }
@@ -864,25 +863,24 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, context.resources.displayMetrics.widthPixels)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
         }
     }
 
-    //returns regular or "calypso" html depending on the mode
+    // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
         val html = toPlainHtml(withCursorTag)
 
         if (isInCalypsoMode) {
-            //calypso format is a mix of newline characters and html
-            //paragraphs and line breaks are added on server, from newline characters
+            // calypso format is a mix of newline characters and html
+            // paragraphs and line breaks are added on server, from newline characters
             return Format.addSourceEditorFormatting(html, true)
         } else {
             return html
         }
     }
 
-    //platform agnostic HTML
+    // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(text)
@@ -1018,7 +1016,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         blockFormatter.removeBlockStyle(AztecTextFormat.FORMAT_PARAGRAPH, start, end, Arrays.asList(IAztecBlockSpan::class.java), ignoreLineBounds)
     }
 
-    //logic party copied from TextView
+    // logic party copied from TextView
     override fun onTextContextMenuItem(id: Int): Boolean {
         var min = 0
         var max = text.length
@@ -1032,13 +1030,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             android.R.id.paste -> paste(text, min, max)
             android.R.id.copy -> {
                 copy(text, min, max)
-                clearFocus() //hide text action menu
+                clearFocus() // hide text action menu
             }
             android.R.id.cut -> {
                 copy(text, min, max)
-                text.delete(min, max) //this will hide text action menu
+                text.delete(min, max) // this will hide text action menu
 
-                //if we are cutting text from the beginning of editor, remove leading inline style
+                // if we are cutting text from the beginning of editor, remove leading inline style
                 if (min == 0) {
                     deleteInlineStyleFromTheBeginning()
                 }
@@ -1049,47 +1047,78 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         return true
     }
 
-    //Convert selected text to html and add it to clipboard
+    // Convert selected text to html and add it to clipboard
     fun copy(editable: Editable, start: Int, end: Int) {
         val selectedText = editable.subSequence(start, end)
         val parser = AztecParser(plugins)
         val output = SpannableStringBuilder(selectedText)
 
-        //Strip block elements until we figure out copy paste completely
-        output.getSpans(0, output.length, ParagraphStyle::class.java).forEach { output.removeSpan(it) }
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output))
+        Format.postProcessSpanedText(output, isInCalypsoMode)
+
+        // do not copy unnecessary block hierarchy, just the minimum required
+        var deleteNext = false
+        output.getSpans(0, output.length, IAztecBlockSpan::class.java)
+            .sortedBy { it.nestingLevel }
+            .reversed()
+            .forEach {
+                if (deleteNext) {
+                    output.removeSpan(it)
+                } else {
+                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                    if (deleteNext && it is AztecListItemSpan) {
+                        deleteNext = false
+                    }
+                }
+            }
+
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText(null, html)
+        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
     }
 
-    //copied from TextView with some changes
-    private fun paste(editable: Editable, min: Int, max: Int) {
+    // copied from TextView with some changes
+    fun paste(editable: Editable, min: Int, max: Int) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
+
         if (clip != null) {
-            val parser = AztecParser(plugins)
+            history.beforeTextChanged(toFormattedHtml())
 
-            for (i in 0..clip.itemCount - 1) {
-                val textToPaste = clip.getItemAt(i).coerceToText(context)
+            disableTextChangedListener()
 
-                val builder = SpannableStringBuilder()
-                builder.append(parser.fromHtml(Format.removeSourceEditorFormatting(textToPaste.toString()), context).trim())
-                Selection.setSelection(editable, max)
+            if (min == 0 && max == text.length) {
+                setText(Constants.REPLACEMENT_MARKER_STRING)
+            } else {
+                editable.delete(min, max)
+                editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
+            }
 
-                disableTextChangedListener()
-                // FIXME
-                try {
-                    editable.replace(min, max, builder)
-                } catch (e: RuntimeException) {
-                    // try to get more context for this crash: https://github.com/wordpress-mobile/AztecEditor-Android/issues/424
-                    throw RuntimeException("### MIN: $min, MAX: $max\n---\n### TEXT:${toHtml()}\n---\n### PASTED:${parser.toHtml(builder)}", e)
-                }
-                enableTextChangedListener()
+            // don't let the pasted text be included in any existing style
+            editable.getSpans(min, min + 1, Object::class.java)
+                    .filter { editable.getSpanStart(it) != editable.getSpanEnd(it) && it !is IAztecBlockSpan }
+                    .forEach {
+                        if (editable.getSpanStart(it) == min) {
+                            editable.setSpan(it, min + 1, editable.getSpanEnd(it), editable.getSpanFlags(it))
+                        } else if (editable.getSpanEnd(it) == min + 1) {
+                            editable.setSpan(it, editable.getSpanStart(it), min, editable.getSpanFlags(it))
+                        }
+                    }
 
-                inlineFormatter.joinStyleSpans(0, editable.length) //TODO: see how this affects performance
+            enableTextChangedListener()
+
+            if (clip.itemCount > 0) {
+                val textToPaste = clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
+
+                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
+
+                fromHtml(newHtml)
+                history.handleHistory(this@AztecText)
+
+                inlineFormatter.joinStyleSpans(0, length())
             }
         }
     }
@@ -1134,8 +1163,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_link, null)
 
-        val urlInput = dialogView.findViewById(R.id.linkURL) as EditText
-        val anchorInput = dialogView.findViewById(R.id.linkText) as EditText
+        val urlInput = dialogView.findViewById<EditText>(R.id.linkURL)
+        val anchorInput = dialogView.findViewById<EditText>(R.id.linkText)
 
         urlInput.setText(url)
         anchorInput.setText(anchor)
@@ -1143,7 +1172,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         builder.setView(dialogView)
         builder.setTitle(R.string.link_dialog_title)
 
-        builder.setPositiveButton(R.string.link_dialog_button_ok, { dialog, which ->
+        builder.setPositiveButton(R.string.link_dialog_button_ok, { _, _ ->
             val linkText = urlInput.text.toString().trim { it <= ' ' }
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
@@ -1151,12 +1180,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         })
 
         if (linkFormatter.isUrlSelected()) {
-            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { dialogInterface, i ->
+            builder.setNeutralButton(R.string.link_dialog_button_remove_link, { _, _ ->
                 removeLink()
             })
         }
 
-        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.link_dialog_button_cancel, { dialogInterface, _ ->
             dialogInterface.dismiss()
         })
 
@@ -1168,7 +1197,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val builder = AlertDialog.Builder(context)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
-        val source = dialogView.findViewById(R.id.source) as SourceViewEditText
+        val source = dialogView.findViewById<SourceViewEditText>(R.id.source)
 
         var editHtml = html
         if (TextUtils.isEmpty(editHtml)) {

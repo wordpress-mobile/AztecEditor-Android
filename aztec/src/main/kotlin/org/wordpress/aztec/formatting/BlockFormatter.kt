@@ -3,15 +3,28 @@ package org.wordpress.aztec.formatting
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.spans.*
-import java.util.*
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecOrderedListSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.ParagraphSpan
+import java.util.ArrayList
+import java.util.Arrays
 
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
-
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
@@ -42,7 +55,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun toggleQuote() {
-        if (!containQuote()) {
+        if (!containsQuote()) {
             applyBlockStyle(AztecTextFormat.FORMAT_QUOTE)
         } else {
             removeBlockStyle(AztecTextFormat.FORMAT_QUOTE)
@@ -100,7 +113,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         var changed = false
 
-        //try to remove block styling when pressing backspace at the beginning of the text
+        // try to remove block styling when pressing backspace at the beginning of the text
         editableText.getSpans(0, 0, IAztecBlockSpan::class.java).forEach {
             val spanEnd = editableText.getSpanEnd(it)
 
@@ -130,11 +143,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         var start = originalStart
         var end = originalEnd
 
-        //if splitting block set a range that would be excluded from it
+        // if splitting block set a range that would be excluded from it
         val boundsOfSelectedText = if (ignoreLineBounds) {
             IntRange(start, end)
         } else {
-            getSelectedTextBounds(editableText, start, end)
+            getBoundsOfText(editableText, start, end)
         }
 
         var startOfBounds = boundsOfSelectedText.start
@@ -241,7 +254,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    //TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
+    // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
@@ -296,79 +309,87 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    fun getSelectedTextBounds(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
-        val startOfLine: Int
-        val endOfLine: Int
+    /**
+     * Returns paragraph bounds (\n) to the left and to the right of selection.
+     */
+    fun getBoundsOfText(editable: Editable, selectionStart: Int, selectionEnd: Int): IntRange {
+        val startOfBlock: Int
+        val endOfBlock: Int
+
+        val selectionStartIsOnTheNewLine = selectionStart != selectionEnd && selectionStart > 0
+                && selectionStart < editableText.length
+                && editable[selectionStart] == '\n'
+
+        val selectionStartIsBetweenNewlines = selectionStartIsOnTheNewLine
+                && selectionStart > 0
+                && selectionStart < editableText.length
+                && editable[selectionStart - 1] == '\n'
+
+        val isTrailingNewlineAtTheEndOfSelection = selectionStart != selectionEnd
+                && selectionEnd > 0
+                && editableText.length > selectionEnd
+                && editableText[selectionEnd] != Constants.END_OF_BUFFER_MARKER
+                && editableText[selectionEnd] != '\n'
+                && editableText[selectionEnd - 1] == '\n'
 
         val indexOfFirstLineBreak: Int
-        val indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
+        var indexOfLastLineBreak = editable.indexOf("\n", selectionEnd)
 
-        if (indexOfLastLineBreak > 0) {
-            val characterBeforeLastLineBreak = editable[indexOfLastLineBreak - 1]
-            if (characterBeforeLastLineBreak != '\n') {
-                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
-            } else {
-                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
+        if (selectionStartIsBetweenNewlines) {
+            indexOfFirstLineBreak = selectionStart
+        } else if (selectionStartIsOnTheNewLine) {
+            val isSingleCharacterLine = (selectionStart > 1 && editableText[selectionStart - 1] != '\n' && editableText[selectionStart - 2] == '\n') || selectionStart == 1
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - if (isSingleCharacterLine) 0 else 1) - if (isSingleCharacterLine) 1 else 0
+
+            if (isTrailingNewlineAtTheEndOfSelection) {
+                indexOfLastLineBreak = editable.indexOf("\n", selectionEnd - 1)
+            }
+        } else if (isTrailingNewlineAtTheEndOfSelection) {
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+            indexOfLastLineBreak = editable.indexOf("\n", selectionEnd - 1)
+        } else if (indexOfLastLineBreak > 0) {
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+        } else if (indexOfLastLineBreak == -1) {
+            indexOfFirstLineBreak = if (selectionStart == 0) 0 else {
+                editable.lastIndexOf("\n", selectionStart) + 1
             }
         } else {
-            if (indexOfLastLineBreak == -1) {
-                indexOfFirstLineBreak = if (selectionStart == 0) 0 else {
-                    editable.lastIndexOf("\n", selectionStart) + 1
-                }
-            } else {
-                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
-            }
+            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart)
         }
 
-        startOfLine = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-        endOfLine = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
+        startOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
+        endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
-        return IntRange(startOfLine, endOfLine)
+        return IntRange(startOfBlock, endOfBlock)
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-
         if (editableText.isEmpty()) {
             editableText.append("" + Constants.END_OF_BUFFER_MARKER)
         }
 
         if (start != end) {
-            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start)
+            val nestingLevelAtTheStartOfSelection = IAztecNestable.getNestingLevelAt(editableText, start)
+            val nestingLevelAtTheEndOfSelection = IAztecNestable.getNestingLevelAt(editableText, end)
 
-            if (IAztecNestable.getNestingLevelAt(editableText, end) != nestingLevel) {
-                // TODO: styling across multiple nesting levels not support yet
-                return
-            }
-
-            val indexOfFirstLineBreak = editableText.indexOf("\n", end)
-
-            val endOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else editableText.length
-            val startOfBlock = editableText.lastIndexOf("\n", start)
-
-            val selectedLines = editableText.subSequence(startOfBlock + 1..endOfBlock - 1) as Editable
-
-            var numberOfLinesWithSpanApplied = 0
-            var numberOfLines = 0
-
-            val lines = TextUtils.split(selectedLines.toString(), "\n")
-
-            for (i in lines.indices) {
-                numberOfLines++
-                if (containsList(blockElementType, i, selectedLines, nestingLevel)) {
-                    numberOfLinesWithSpanApplied++
+            // TODO: styling across multiple nesting levels not support yet
+            if (nestingLevelAtTheStartOfSelection != nestingLevelAtTheEndOfSelection) {
+                if (nestingLevelAtTheStartOfSelection == 0 && nestingLevelAtTheEndOfSelection == 1) {
+                    // 0/1 is ok!
+                } else {
+                    return
                 }
             }
 
-            if (numberOfLines == numberOfLinesWithSpanApplied) {
-                removeBlockStyle(blockElementType)
-            } else {
-                //if block starts with newline do not move index to the right
-                val startOfBlockModifier = if (startOfBlock >= 0 && editableText[startOfBlock] == '\n') 0 else 1
-                applyBlock(makeBlockSpan(blockElementType, nestingLevel), startOfBlock + startOfBlockModifier,
-                        (if (endOfBlock == editableText.length) endOfBlock else endOfBlock + 1))
-            }
+            val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
+
+            val startOfBlock = boundsOfSelectedText.start
+            val endOfBlock = boundsOfSelectedText.endInclusive
+
+            applyBlock(makeBlockSpan(blockElementType, nestingLevelAtTheStartOfSelection), startOfBlock,
+                    (if (endOfBlock == editableText.length) endOfBlock else endOfBlock))
         } else {
-            val boundsOfSelectedText = getSelectedTextBounds(editableText, start, end)
+            val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
 
             val startOfLine = boundsOfSelectedText.start
             val endOfLine = boundsOfSelectedText.endInclusive
@@ -434,12 +455,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
         BlockHandler.set(editableText, listSpan, start, end)
-        //special case for styling single empty lines
+        // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
-            //there is always something at the end (newline or EOB), so we shift end index to the left
-            //to avoid empty lines
+            // there is always something at the end (newline or EOB), so we shift end index to the left
+            // to avoid empty lines
             val listContent = editableText.substring(start, end - 1)
 
             val lines = TextUtils.split(listContent, "\n")
@@ -455,8 +476,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
             }
         }
-
-
     }
 
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
@@ -517,10 +536,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         if (list.isEmpty()) return false
 
-        return list.any { containsList(textFormat, it, editableText, nestingLevel) }
+        return list.any { containsBlockElement(textFormat, it, editableText, nestingLevel) }
     }
 
-    fun containsList(textFormat: ITextFormat, index: Int, text: Editable, nestingLevel: Int): Boolean {
+    fun containsBlockElement(textFormat: ITextFormat, index: Int, text: Editable, nestingLevel: Int): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
@@ -537,53 +556,26 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return spans.isNotEmpty()
     }
 
-    fun containQuote(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        val list = ArrayList<Int>()
+    fun containsQuote(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        if (selStart < 0 || selEnd < 0) return false
 
-        for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
-            val lineEnd = lineStart + lines[i].length
+        return editableText.getSpans(selStart, selEnd, AztecQuoteSpan::class.java)
+                .any {
+                    val spanStart = editableText.getSpanStart(it)
+                    val spanEnd = editableText.getSpanEnd(it)
 
-            if (lineStart >= lineEnd) {
-                continue
-            }
+                    if (selStart == selEnd) {
+                        if (editableText.length == selStart) {
+                            selStart in spanStart..spanEnd
+                        } else {
+                            (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        }
 
-            /**
-             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
-             *                                                  multiple lines (before and/or after), current entirely selected
-             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (after), current partially or entirely selected
-             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (before), current partially or entirely selected
-             */
-            if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
-                list.add(i)
-            }
-        }
-
-        if (list.isEmpty()) return false
-
-        return list.any { containQuote(it) }
-    }
-
-    fun containQuote(index: Int): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        if (index < 0 || index >= lines.size) {
-            return false
-        }
-
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
-        val end = start + lines[index].length
-
-        if (start >= end) {
-            return false
-        }
-
-        val spans = editableText.getSpans(start, end, AztecQuoteSpan::class.java)
-        return spans.isNotEmpty()
+                    } else {
+                        (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
+                                (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)
+                    }
+                }
     }
 
     fun containsHeading(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -654,7 +646,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         return false
     }
-
 
     fun containsOtherHeadings(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         arrayOf(AztecTextFormat.FORMAT_HEADING_1,

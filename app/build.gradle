@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
@@ -22,6 +22,7 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 
     lintOptions {
@@ -30,18 +31,24 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':aztec')
-    compile project(':glide-loader')
-    compile project(':picasso-loader')
-    compile project(':wordpress-comments')
-    compile project(':wordpress-shortcodes')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':aztec')
+    implementation project(':glide-loader')
+    implementation project(':picasso-loader')
+    implementation project(':wordpress-comments')
+    implementation project(':wordpress-shortcodes')
 
-    //noinspection GradleCompatible
-    compile "com.android.support:appcompat-v7:25.3.1"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.wordpress:utils:1.16.0"
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "org.wordpress:utils:$wordpressUtilsVersion"
+
+
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
+    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestCompile('com.xamarin.testcloud:espresso-support:1.3')
 }

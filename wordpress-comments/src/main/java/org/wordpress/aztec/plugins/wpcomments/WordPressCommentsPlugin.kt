@@ -25,7 +25,7 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
         html.append((span as WordPressCommentSpan).commentText)
     }
 
-    override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle){
+    override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle) {
         html.append("-->")
     }
 

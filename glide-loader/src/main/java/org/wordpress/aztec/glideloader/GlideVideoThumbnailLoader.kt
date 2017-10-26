@@ -95,7 +95,7 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
                     } else {
                         retriever.setDataSource(context, uri)
                     }
-                    
+
                     if (cancelled) return null
                     val picture = retriever.frameAtTime
                     if (cancelled) return null

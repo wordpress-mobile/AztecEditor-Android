@@ -27,8 +27,22 @@ proguard/
 # Log Files
 *.log
 
-# Other
-.idea/
+# IntelliJ/Android Studio project files
 *.iml
+*.ipr
+*.iws
+/.idea/*
 annotations/
+
+# IntelliJ/Android Studio exceptions
+!/.idea/vcs.xml
+!/.idea/fileTemplates/
+!/.idea/inspectionProfiles/
+!/.idea/scopes/
+!/.idea/codeStyleSettings.xml
+!/.idea/encodings.xml
+!/.idea/copyright/
+!/.idea/compiler.xml
+# Enforce plugins
+!/.idea/externalDependencies.xml
 

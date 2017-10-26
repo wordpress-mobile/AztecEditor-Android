@@ -9,7 +9,6 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 
 class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
-
     init {
         ensureEndOfTextMarker(text)
     }
@@ -48,8 +47,7 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
                     text.append(Constants.END_OF_BUFFER_MARKER)
                 }
                 return text
-            }
-            else if (text.length == 1 && text[0] == Constants.END_OF_BUFFER_MARKER && deletedText) {
+            } else if (text.length == 1 && text[0] == Constants.END_OF_BUFFER_MARKER && deletedText) {
                 // if text got deleted, the only character is the end-of-buffer marker and there is
                 // no block style applied, we can remove the marker and show the hint
                 if (text.getSpans(0, 1, IAztecBlockSpan::class.java).isEmpty()) {
@@ -89,7 +87,7 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
 
                         text.delete(lastEndOfTextMarkerIndex, lastEndOfTextMarkerIndex + 1)
                     } while (true)
-            }// by the way, the cursor will be adjusted "automatically" by RichTextEditText's onSelectionChanged to
+            } // by the way, the cursor will be adjusted "automatically" by RichTextEditText's onSelectionChanged to
             //  before the marker
 
             return text

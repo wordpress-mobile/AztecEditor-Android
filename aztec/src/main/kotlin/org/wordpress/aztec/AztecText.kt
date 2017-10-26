@@ -30,6 +30,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
+import android.text.InputFilter
 import android.text.InputType
 import android.text.Selection
 import android.text.Spannable
@@ -45,9 +46,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
-import android.view.inputmethod.InputConnectionWrapper
 import android.widget.EditText
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
@@ -137,6 +135,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
     private var previousCursorPosition = 0
+
+    private var isHandlingBackspaceEvent = false
 
     var isInCalypsoMode = true
 
@@ -292,6 +292,20 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
+
+        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+            if (selectionStart == 0 && selectionEnd == 0
+                    && end == 0 && start == 0
+                    && dstart == 0 && dend == 0
+                    &&!isHandlingBackspaceEvent) {
+                isHandlingBackspaceEvent = true
+                handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                isHandlingBackspaceEvent = false
+            }
+             source
+         }
+
+        filters = arrayOf(emptyEditTextBackspaceDetector)
 
         install()
 
@@ -1194,29 +1208,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         blockEditorDialog = builder.create()
         blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog!!.show()
-    }
-
-    //Custom input connection is used to detect the press of backspace when no characters are deleted
-    //(eg. at 0 index of EditText)
-    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        return AztecInputConnection(super.onCreateInputConnection(outAttrs), true)
-    }
-
-    private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
-
-        override fun sendKeyEvent(event: KeyEvent): Boolean {
-            handleBackspace(event)
-            return super.sendKeyEvent(event)
-        }
-
-        override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            //detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
-            if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
-                sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-                return true
-            }
-           return super.deleteSurroundingText(beforeLength, afterLength)
-        }
     }
 
     private fun deleteInlineStyleFromTheBeginning() {

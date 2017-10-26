@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -29,6 +30,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
+import android.text.InputType
 import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -286,6 +288,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             handleBackspace(event)
         }
 
+        //disable auto suggestions/correct for older devices
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
+
         install()
 
         // Needed to properly initialize the cursor position
@@ -325,7 +332,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
-        SuggestionWatcher.install(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SuggestionWatcher.install(this)
+        }
+
         InlineTextWatcher.install(inlineFormatter, this)
 
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
@@ -482,7 +492,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         companion object {
-            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)
                 }
@@ -576,7 +587,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         previousCursorPosition = selEnd
 
-
         //do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
@@ -587,7 +597,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         isLeadingStyleRemoved = false
     }
-
 
     override fun getSelectionStart(): Int {
         return Math.min(super.getSelectionStart(), super.getSelectionEnd())
@@ -948,7 +957,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         consumeSelectionChangedEvent = false
     }
 
-
     fun disableInlineTextHandling() {
         isInlineTextHandlerEnabled = false
     }
@@ -964,7 +972,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     fun isOnSelectionListenerDisabled(): Boolean {
         return consumeSelectionChangedEvent
     }
-
 
     fun refreshText() {
         disableTextChangedListener()
@@ -1206,8 +1213,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             //detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
             if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
                 sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                return true
             }
-            return super.deleteSurroundingText(beforeLength, afterLength)
+           return super.deleteSurroundingText(beforeLength, afterLength)
         }
     }
 

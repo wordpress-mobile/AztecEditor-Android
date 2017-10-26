@@ -36,7 +36,6 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
         if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false || text !is Spannable) {
             return
         }
-
         textChangedEventDetails = TextChangedEvent(text.toString())
 
         val selectionStart = aztecTextRef.get()?.selectionStart
@@ -121,10 +120,6 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             if (count - after <= 1) {
                 var spans = editableText.getSpans(start, start + after, IAztecInlineSpan::class.java)
 
-                //special case for pre 5.0.0 devices
-                if (spans.isEmpty() && editableText[start] == ' ') {
-                    spans = editableText.getSpans(start - 2, start + after, IAztecInlineSpan::class.java)
-                }
 
                 spans.forEach {
                     val spanStart = editableText.getSpanStart(it)
@@ -143,7 +138,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
                     val spanStart = editableText.getSpanStart(it)
                     val spanEnd = if (editableText.getSpanEnd(it) >= start + count && !replacingDoubleSpaceDot) editableText.getSpanEnd(it) - (count - after) else editableText.getSpanEnd(it)
-                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd - if (replacingDoubleSpaceDot) 1 else 0))
+                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
                 }
             }
         }
@@ -151,7 +146,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
     private fun reapplyCarriedOverInlineSpans(editableText: Spannable) {
         carryOverSpans.forEach {
-            if (it.start >= 0 && it.end < editableText.length && it.start < it.end) {
+            if (it.start >= 0 && it.end <= editableText.length && it.start < it.end) {
                 editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }

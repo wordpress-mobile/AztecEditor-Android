@@ -151,10 +151,9 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
     private fun reapplyCarriedOverInlineSpans(editableText: Spannable) {
         carryOverSpans.forEach {
-            if(it.start < 0 || it.end < editableText.length){
+            if (it.start >= 0 && it.end < editableText.length && it.start < it.end) {
                 editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-
         }
     }
 

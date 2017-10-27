@@ -305,13 +305,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
                     && dstart == 0 && dend == 0
-                    &&!isHandlingBackspaceEvent) {
+                    && !isHandlingBackspaceEvent) {
                 isHandlingBackspaceEvent = true
                 handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                 isHandlingBackspaceEvent = false
             }
-             source
-         }
+            source
+        }
 
         filters = arrayOf(emptyEditTextBackspaceDetector)
 
@@ -1060,18 +1060,18 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         // do not copy unnecessary block hierarchy, just the minimum required
         var deleteNext = false
         output.getSpans(0, output.length, IAztecBlockSpan::class.java)
-            .sortedBy { it.nestingLevel }
-            .reversed()
-            .forEach {
-                if (deleteNext) {
-                    output.removeSpan(it)
-                } else {
-                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
-                    if (deleteNext && it is AztecListItemSpan) {
-                        deleteNext = false
+                .sortedBy { it.nestingLevel }
+                .reversed()
+                .forEach {
+                    if (deleteNext) {
+                        output.removeSpan(it)
+                    } else {
+                        deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                        if (deleteNext && it is AztecListItemSpan) {
+                            deleteNext = false
+                        }
                     }
                 }
-            }
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 

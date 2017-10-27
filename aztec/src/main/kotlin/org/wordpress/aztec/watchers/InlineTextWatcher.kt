@@ -59,9 +59,9 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
             removeLeadingStyle(text, LeadingMarginSpan::class.java)
         }
 
-        if(aztecTextRef.get()?.isInlineTextHandlerEnabled() ?: true){
+        if (aztecTextRef.get()?.isInlineTextHandlerEnabled() ?: true) {
             inlineFormatter.handleInlineStyling(textChangedEventDetails)
-        }else{
+        } else {
             aztecTextRef.get()?.enableInlineTextHandling()
         }
 

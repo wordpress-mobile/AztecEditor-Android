@@ -120,7 +120,6 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             if (count - after <= 1) {
                 var spans = editableText.getSpans(start, start + after, IAztecInlineSpan::class.java)
 
-
                 spans.forEach {
                     val spanStart = editableText.getSpanStart(it)
                     var spanEnd = editableText.getSpanEnd(it)

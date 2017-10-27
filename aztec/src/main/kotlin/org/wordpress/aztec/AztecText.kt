@@ -309,7 +309,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
-    private fun setupZeroIndexBackspaceDetection(){
+    private fun setupZeroIndexBackspaceDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
             handleBackspace(event)

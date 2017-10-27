@@ -291,16 +291,31 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
-        setOnKeyListener { _, _, event ->
-            handleBackspace(event)
-        }
+        setupZeroIndexBackspaceDetection()
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
+        install()
+
+        // Needed to properly initialize the cursor position
+        setSelection(0)
+
+        enableTextChangedListener()
+
+        isViewInitialized = true
+    }
+
+    // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
+    private fun setupZeroIndexBackspaceDetection(){
+        //hardware keyboard
+        setOnKeyListener { _, _, event ->
+            handleBackspace(event)
+        }
+
+        //software keyboard
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -314,15 +329,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         filters = arrayOf(emptyEditTextBackspaceDetector)
-
-        install()
-
-        // Needed to properly initialize the cursor position
-        setSelection(0)
-
-        enableTextChangedListener()
-
-        isViewInitialized = true
     }
 
     private fun handleBackspace(event: KeyEvent): Boolean {

@@ -11,7 +11,7 @@ import java.util.ArrayList
 
 /**
  * Auto correct/suggestion in android often strip all the inline spans from the target words.
- *This watcher monitors detects this behavior and reapplies style to the target words.
+ * This watcher monitors detects this behavior and reapplies style to the target words.
  */
 class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
@@ -27,7 +27,6 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     private var previousInputWasSuggestion = false
     private var previousInputEventWasRegular = false
 
-    //cached values of beforeTextChanged event
     private var previousStart = -1
     private var previousCount = -1
     private var beforeAfter = -1
@@ -118,9 +117,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
             }
         } else if (charsAdded < 0 && count > 0) {
             if (count - after <= 1) {
-                var spans = editableText.getSpans(start, start + after, IAztecInlineSpan::class.java)
-
-                spans.forEach {
+                editableText.getSpans(start, start + after, IAztecInlineSpan::class.java).forEach {
                     val spanStart = editableText.getSpanStart(it)
                     var spanEnd = editableText.getSpanEnd(it)
 

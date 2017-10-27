@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        gradlePluginVersion = '3.0.0-rc1'
+        gradlePluginVersion = '3.0.0-rc2'
         kotlinVersion = '1.1.51'
         supportLibVersion = '26.0.1'
         tagSoupVersion = '1.2.1'
@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-rc2'
+        classpath "com.android.tools.build:gradle:$gradlePluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }

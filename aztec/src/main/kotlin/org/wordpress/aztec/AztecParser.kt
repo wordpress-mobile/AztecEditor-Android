@@ -57,7 +57,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(plugins), context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(context, plugins), context, plugins))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

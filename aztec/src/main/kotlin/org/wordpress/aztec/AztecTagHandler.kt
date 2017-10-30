@@ -49,8 +49,16 @@ import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
 
-class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
+class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
     private var order = 0
+
+    private val loadingDrawable: Drawable
+
+    init {
+        val styles = context.obtainStyledAttributes(R.styleable.AztecText)
+        loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
+        styles.recycle()
+    }
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable,
                            context: Context, attributes: Attributes,
@@ -90,15 +98,15 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, output, AztecImageSpan(context, getLoadingDrawable(context), AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
-                handleMediaElement(opening, output, AztecVideoSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             AUDIO -> {
-                handleMediaElement(opening, output, AztecAudioSpan(context, getLoadingDrawable(context), nestingLevel, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             PARAGRAPH -> {
@@ -129,7 +137,7 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
         return false
     }
 
-    private fun processTagHandlerPlugins(tag: String, opening: Boolean, output: Editable, attributes: Attributes, nestingLevel: Int) : Boolean {
+    private fun processTagHandlerPlugins(tag: String, opening: Boolean, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         plugins.filter { it is IHtmlTagHandler }
                 .map { it as IHtmlTagHandler }
                 .forEach({
@@ -141,13 +149,6 @@ class AztecTagHandler(val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagH
                     }
                 })
         return false
-    }
-
-    private fun getLoadingDrawable(context: Context): Drawable? {
-        val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        val loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))
-        styles.recycle()
-        return loadingDrawable
     }
 
     private fun handleMediaElement(opening: Boolean, output: Editable, mediaSpan: AztecMediaSpan) {

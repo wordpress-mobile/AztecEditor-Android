@@ -21,16 +21,6 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         textView = editor
     }
 
-    fun setDrawable(newDrawable: Drawable?) {
-        imageDrawable = newDrawable
-
-        originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
-
-        setInitBounds(newDrawable)
-
-        computeAspectRatio()
-    }
-
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
         if (overlays.lastIndex >= index) {
             overlays.removeAt(index)

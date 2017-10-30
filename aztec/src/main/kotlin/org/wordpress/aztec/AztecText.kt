@@ -820,6 +820,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
+        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
 
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
@@ -832,7 +833,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
 
                 override fun onImageLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: loadingDrawable)
                 }
 
                 private fun replaceImage(drawable: Drawable?) {
@@ -848,6 +849,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
+        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
@@ -859,7 +862,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: ContextCompat.getDrawable(context, drawableLoading))
+                    replaceImage(drawable ?: loadingDrawable)
                 }
 
                 private fun replaceImage(drawable: Drawable?) {

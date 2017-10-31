@@ -6,10 +6,6 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 
-/**
- * Created by matisseh on 9/6/17.
- */
-
 object Matchers {
     fun withRegex(regex: Regex): Matcher<View> {
 

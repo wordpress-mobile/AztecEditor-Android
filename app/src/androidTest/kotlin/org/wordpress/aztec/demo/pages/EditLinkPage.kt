@@ -11,10 +11,6 @@ import android.support.test.espresso.matcher.ViewMatchers.withText
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.R
 
-/**
- * Created by matisseh on 9/7/17.
- */
-
 class EditLinkPage : BasePage() {
 
     private var urlField: ViewInteraction

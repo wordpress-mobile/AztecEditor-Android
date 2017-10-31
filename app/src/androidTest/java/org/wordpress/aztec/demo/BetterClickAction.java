@@ -1,9 +1,5 @@
 package org.wordpress.aztec.demo;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
-import static org.hamcrest.Matchers.allOf;
-
-import android.support.test.espresso.core.deps.guava.base.Optional;
 import android.support.test.espresso.PerformException;
 import android.support.test.espresso.UiController;
 import android.support.test.espresso.ViewAction;
@@ -15,7 +11,11 @@ import android.support.test.espresso.util.HumanReadables;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.webkit.WebView;
+
 import org.hamcrest.Matcher;
+
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import static org.hamcrest.Matchers.allOf;
 
 /**
  * Enables clicking on views with 65% or greater displaying.
@@ -24,7 +24,7 @@ public final class BetterClickAction implements ViewAction {
     private final CoordinatesProvider coordinatesProvider;
     private final Tapper tapper;
     private final PrecisionDescriber precisionDescriber;
-    private final Optional<ViewAction> rollbackAction;
+    private final ViewAction rollbackAction;
     public BetterClickAction(Tapper tapper, CoordinatesProvider coordinatesProvider,
                               PrecisionDescriber precisionDescriber) {
         this(tapper, coordinatesProvider, precisionDescriber, null);
@@ -34,15 +34,15 @@ public final class BetterClickAction implements ViewAction {
         this.coordinatesProvider = coordinatesProvider;
         this.tapper = tapper;
         this.precisionDescriber = precisionDescriber;
-        this.rollbackAction = Optional.fromNullable(rollbackAction);
+        this.rollbackAction = rollbackAction;
     }
     @Override
     @SuppressWarnings("unchecked")
     public Matcher<View> getConstraints() {
         // Check that at least 65% of the element is displayed (instead of default 90%)
         Matcher<View> standardConstraint = isDisplayingAtLeast(65);
-        if (rollbackAction.isPresent()) {
-            return allOf(standardConstraint, rollbackAction.get().getConstraints());
+        if (rollbackAction != null) {
+            return allOf(standardConstraint, rollbackAction.getConstraints());
         } else {
             return standardConstraint;
         }
@@ -89,8 +89,8 @@ public final class BetterClickAction implements ViewAction {
                 uiController.loopMainThreadForAtLeast(duration);
             }
             if (status == Tapper.Status.WARNING) {
-                if (rollbackAction.isPresent()) {
-                    rollbackAction.get().perform(uiController, view);
+                if (rollbackAction != null) {
+                    rollbackAction.perform(uiController, view);
                 } else {
                     break;
                 }
@@ -105,7 +105,7 @@ public final class BetterClickAction implements ViewAction {
                                     + "click at: %s,%s precision: %s, %s . Tapper: %s coordinate provider: %s precision " +
                                     "describer: %s. Tried %s times. With Rollback? %s", coordinates[0], coordinates[1],
                             precision[0], precision[1], tapper, coordinatesProvider, precisionDescriber, loopCount,
-                            rollbackAction.isPresent())))
+                            rollbackAction != null)))
                     .build();
         }
         if (tapper == Tap.SINGLE && view instanceof WebView) {

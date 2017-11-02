@@ -19,6 +19,7 @@
 ## [1.0-beta.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.7) - 2017-08-15
 ### Changed
 - Toolbar button highlighted state to use a color with more contrast
+- Fixed conflicts of autocorrect/suggestions with editor styling
 
 ### Fixed
 - Image/video loading placeholder drawable usage

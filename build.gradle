@@ -10,7 +10,7 @@ buildscript {
         jUnitVersion = '4.12'
         jSoupVersion = '1.10.3'
         wordpressUtilsVersion = '1.17.0'
-        espressoVersion = '2.2.2'
+        espressoVersion = '3.0.1'
     }
 
     repositories {

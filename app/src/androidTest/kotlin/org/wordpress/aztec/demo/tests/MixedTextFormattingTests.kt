@@ -13,12 +13,14 @@ class MixedTextFormattingTests : BaseTest() {
     @JvmField
     var mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/476#issuecomment-327762497
     @Test
     fun testBoldAndItalicFormatting() {
         val text1 = "so"
         val text2 = "me "
         val text3 = "text "
-        val html = "<b>$text1</b><i>$text2</i><b><i>$text3</i></b>"
+        val regex = Regex("<b>$text1</b><i>$text2</i><[bi]><[bi]>$text3</[bi]></[bi]>")
 
         EditorPage()
                 .toggleBold()
@@ -29,7 +31,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleBold()
                 .insertText(text3)
                 .toggleHtml()
-                .verifyHTML(html)
+                .verifyHTML(regex)
     }
 
     @Test
@@ -106,5 +108,4 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml()
                 .verifyHTML(text)
     }
-
 }

@@ -8,10 +8,6 @@ import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditLinkPage
 import org.wordpress.aztec.demo.pages.EditorPage
 
-/**
- * Created by matisseh on 9/7/17.
- */
-
 class SimpleTextFormattingTests : BaseTest() {
 
     @Rule
@@ -310,4 +306,34 @@ class SimpleTextFormattingTests : BaseTest() {
                 .verifyHTML(expected2)
     }
 
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322404363
+    @Test
+    fun testInlineStyleAndDelete() {
+        val text1 = "some"
+        val html = "<i>som</i>"
+
+        EditorPage()
+                .toggleItalics()
+                .insertText(text1)
+                .delete(1)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322405856
+    @Test
+    fun testInlineStyleAndSpace() {
+        val text1 = "some"
+        val text2 = "text "
+        val html = "$text1<del>$text2</del>"
+
+        EditorPage()
+                .insertText(text1)
+                .toggleStrikethrough()
+                .insertText(text2)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
 }

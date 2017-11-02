@@ -18,10 +18,6 @@ import org.wordpress.aztec.demo.pages.EditorPage
 import java.io.File
 import java.io.FileOutputStream
 
-/**
- * Created by matisseh on 9/6/17.
- */
-
 class ImageTests : BaseTest() {
 
     @Rule

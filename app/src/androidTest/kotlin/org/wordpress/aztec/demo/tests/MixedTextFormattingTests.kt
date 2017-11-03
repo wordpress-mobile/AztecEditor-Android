@@ -67,19 +67,6 @@ class MixedTextFormattingTests : BaseTest() {
     }
 
     @Test
-    fun testRetainParagraphFormatting() {
-        val text = "some text"
-        val html = "<p>$text</p>"
-
-        EditorPage()
-                .toggleHtml()
-                .insertHTML(html)
-                .toggleHtml()
-                .toggleHtml()
-                .verifyHTML(html)
-    }
-
-    @Test
     fun testRetainHeadingFormatting() {
         val text = "some text"
         val html = "<h1>$text</h1>"

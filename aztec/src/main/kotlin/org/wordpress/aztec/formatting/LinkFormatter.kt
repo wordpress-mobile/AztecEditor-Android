@@ -35,7 +35,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             val spanEnd = editableText.getSpanEnd(urlSpan)
 
             if (selectionStart < spanStart || selectionEnd > spanEnd) {
-                //looks like some text that is not part of the url was included in selection
+                // looks like some text that is not part of the url was included in selection
                 anchor = editor.getSelectedText()
                 url = ""
             } else {
@@ -72,7 +72,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         val spanEnd = editableText.getSpanEnd(urlSpan)
 
         if (selectionStart < spanStart || selectionEnd > spanEnd) {
-            //looks like some text that is not part of the url was included in selection
+            // looks like some text that is not part of the url was included in selection
             return Pair(selectionStart, selectionEnd)
         }
         return Pair(spanStart, spanEnd)
@@ -87,10 +87,10 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         setLinkSpan(ssb, cleanLink, 0, actualAnchor.length)
 
         if (start == end) {
-            //insert anchor
+            // insert anchor
             editableText.insert(start, ssb)
         } else {
-            //apply span to text
+            // apply span to text
             if (editor.getSelectedText() != anchor) {
                 editableText.replace(start, end, ssb)
             } else {
@@ -107,7 +107,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             editableText.replace(start, end, cleanLink)
             newEnd = start + cleanLink.length
         } else {
-            //if the anchor was not changed do nothing to preserve original style of text
+            // if the anchor was not changed do nothing to preserve original style of text
             if (editor.getSelectedText() != anchor) {
                 editableText.replace(start, end, anchor)
             }

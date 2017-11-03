@@ -18,7 +18,6 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class AttributeTest {
-
     companion object {
         private val HEADING =
                 "<h1 a=\"A\">Heading 1</h1><br>" +
@@ -411,7 +410,7 @@ class AttributeTest {
 
     @Test
     @Throws(Exception::class)
-    fun  orderedListWithTrailingEmptyItemAndLinebreakAttribute() {
+    fun orderedListWithTrailingEmptyItemAndLinebreakAttribute() {
         val input = "<ol><li>Ordered item</li><li a=\"A\"></li></ol><br>1"
         editText.fromHtml(input)
         val output = editText.toHtml()
@@ -420,7 +419,7 @@ class AttributeTest {
 
     @Test
     @Throws(Exception::class)
-    fun  orderedListFollowedByLinebreakAttribute() {
+    fun orderedListFollowedByLinebreakAttribute() {
         val input = "<ol><li>Ordered item</li><li a=\"A\">b</li></ol><br>1"
         editText.fromHtml(input)
         val output = editText.toHtml()

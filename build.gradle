@@ -1,8 +1,8 @@
 buildscript {
     ext {
-        gradlePluginVersion = '3.0.0-beta6'
-        kotlinVersion = '1.1.50'
-        supportLibVersion = '26.0.1'
+        gradlePluginVersion = '3.0.0'
+        kotlinVersion = '1.1.51'
+        supportLibVersion = '26.1.0'
         tagSoupVersion = '1.2.1'
         glideVersion = '3.7.0'
         picassoVersion = '2.5.2'
@@ -10,7 +10,7 @@ buildscript {
         jUnitVersion = '4.12'
         jSoupVersion = '1.10.3'
         wordpressUtilsVersion = '1.17.0'
-        espressoVersion = '2.2.2'
+        espressoVersion = '3.0.1'
     }
 
     repositories {
@@ -33,4 +33,26 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+subprojects {
+    configurations {
+        ktlint
+    }
+
+    dependencies {
+        ktlint 'com.github.shyiko:ktlint:0.9.2'
+    }
+
+    task ktlint(type: JavaExec) {
+        main = "com.github.shyiko.ktlint.Main"
+        classpath = configurations.ktlint
+        args "src/**/*.kt"
+    }
+
+    task ktlintFormat(type: JavaExec) {
+        main = "com.github.shyiko.ktlint.Main"
+        classpath = configurations.ktlint
+        args "-F", "src/**/*.kt"
+    }
 }

@@ -153,8 +153,8 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         val selectionBefore = selectionStart
         super.setVisibility(visibility)
 
-        //There are some cases when changing visibility affects cursor position in EditText, so we making sure it's in
-        //a correct place
+        // There are some cases when changing visibility affects cursor position in EditText, so we making sure it's in
+        // a correct place
         if (visibility == View.VISIBLE) {
             requestFocus()
             if (selectionBefore != selectionStart) {
@@ -192,7 +192,7 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
             styledHtml.delete(cursorTagIndex, cursorTagIndex + 1)
         }
 
-        //if something went wrong make sure to remove cursor tag
+        // if something went wrong make sure to remove cursor tag
         styledHtml.replace(AztecCursorSpan.AZTEC_CURSOR_TAG.toRegex(), "")
 
         return cursorTagIndex

@@ -14,7 +14,6 @@ import org.wordpress.aztec.source.Format
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class ClipboardTest {
-
     private val HEADING =
             "<h1>Heading 1</h1>" +
                     "<h2>Heading 2</h2>" +

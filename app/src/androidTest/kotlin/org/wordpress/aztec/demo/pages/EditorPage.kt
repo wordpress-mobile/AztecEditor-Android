@@ -5,7 +5,10 @@ import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.ViewInteraction
 import android.support.test.espresso.action.ViewActions
-import android.support.test.espresso.action.ViewActions.*
+import android.support.test.espresso.action.ViewActions.click
+import android.support.test.espresso.action.ViewActions.pressKey
+import android.support.test.espresso.action.ViewActions.typeText
+import android.support.test.espresso.action.ViewActions.typeTextIntoFocusedView
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
@@ -19,13 +22,7 @@ import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
 
-
-/**
- * Created by matisseh on 9/6/17.
- */
-
 class EditorPage : BasePage() {
-
     private var editor: ViewInteraction
     private var htmlEditor: ViewInteraction
 
@@ -238,7 +235,7 @@ class EditorPage : BasePage() {
 
     fun toggleStrikethrough(): EditorPage {
         strikethroughButton.perform(betterScrollTo(), Actions.invokeClick())
-        label("Made strigkethrough")
+        label("Made strikethrough")
 
         return this
     }
@@ -272,7 +269,7 @@ class EditorPage : BasePage() {
     }
 
     fun toggleHtml(): EditorPage {
-        htmlButton.perform(betterScrollTo(), Actions.invokeClick());
+        htmlButton.perform(betterScrollTo(), Actions.invokeClick())
         label("Toggled HTML")
 
         return this

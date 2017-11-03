@@ -12,7 +12,6 @@ import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import org.wordpress.aztec.Html
 
-
 class GlideImageLoader(private val context: Context) : Html.ImageGetter {
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {

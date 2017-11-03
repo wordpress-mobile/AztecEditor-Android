@@ -11,15 +11,20 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.PopupMenu.OnMenuItemClickListener
+import android.widget.Toast
+import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
-import java.util.*
+import java.util.ArrayList
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
@@ -316,7 +321,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
-        //highlight toolbar buttons based on what styles are applied to the text beneath cursor
+        // highlight toolbar buttons based on what styles are applied to the text beneath cursor
         this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 highlightAppliedStyles(selStart, selEnd)
@@ -352,7 +357,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         buttonPlugin.inflateButton(pluginContainer)
 
         toolbarButtonPlugins.add(buttonPlugin)
-        
+
         val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
         button.setOnClickListener { _: View -> buttonPlugin.toggle() }
     }
@@ -405,7 +410,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun onToolbarAction(action: IToolbarAction) {
         if (!isEditorAttached()) return
 
-        //if nothing is selected just mark the style as active
+        // if nothing is selected just mark the style as active
         if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
             val actions = getSelectedActions()
             val textFormats = ArrayList<ITextFormat>()
@@ -424,13 +429,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             return editor!!.setSelectedStyles(textFormats)
         }
 
-        //if text is selected and action is styling - toggle the style
+        // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
             return editor!!.toggleFormatting(action.textFormat)
         }
 
-        //other toolbar action
+        // other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA -> {
                 aztecToolbarListener?.onToolbarMediaButtonClicked()
@@ -466,7 +471,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun toggleEditorMode() {
         // only allow toggling if sourceEditor is present
-        if (sourceEditor == null) return;
+        if (sourceEditor == null) return
 
         if (editor!!.visibility == View.VISIBLE) {
             sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))

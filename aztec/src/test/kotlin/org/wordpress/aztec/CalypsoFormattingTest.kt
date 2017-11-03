@@ -11,13 +11,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(23))
 class CalypsoFormattingTest : AndroidTestCase() {
-
     private var parser = AztecParser()
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
@@ -117,7 +117,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatNestedHtmlCalypso() {
         val input = HTML_NESTED
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_NESTED_CALYPSO, output)
     }
@@ -131,7 +131,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatLineBreaksCalypso() {
         val input = HTML_LINE_BREAKS
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_LINE_BREAKS_FORMATTED, output)
     }
@@ -145,7 +145,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatMixedHtmlCalypso() {
         val input = HTML_MIXED_WITH_NEWLINES
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_MIXED_WITH_NEWLINES_CALYPSO, output)
     }
@@ -159,11 +159,11 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun formatRegexSpecialCharactersCalypso() {
         val input = Format.removeSourceEditorFormatting(HTML_MIXED_REGEX, true)
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_MIXED_REGEX_CALYPSO, output)
     }
-  
+
     /**
      * Test the preservation of paragraphs with attributes (Calypso format)
      *

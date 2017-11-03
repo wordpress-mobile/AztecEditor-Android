@@ -5,16 +5,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.text.BoringLayout
-import android.text.Layout
 import android.text.style.DynamicDrawableSpan
-import android.view.View
 import org.wordpress.aztec.AztecText
 
 abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
-
     var textView: AztecText? = null
-    var originalBounds = Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     var aspectRatio: Double = 1.0
 
     private var measuring = false
@@ -97,16 +92,6 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             return Rect(0, 0, 1, 1)
         }
 
-        // get the TextView's target width
-        calculateWantedWidth(textView?.widthMeasureSpec ?: 0)
-                .minus(textView?.compoundPaddingLeft ?: 0)
-                .minus(textView?.compoundPaddingRight ?: 0)
-
-        // do a local pre-layout to measure the TextView's basic sizes and line margins
-        measuring = true
-
-        measuring = false
-
         val line = layout.getLineForOffset(start)
 
         val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
@@ -114,11 +99,9 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
 
-        var width = if (originalBounds.width() > 0) originalBounds.width()
-        else if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
+        var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
         else maxWidth
-        var height = if (originalBounds.height() > 0) originalBounds.height()
-        else if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
+        var height = if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
         else (width / aspectRatio).toInt()
 
         if (width > maxWidth) {
@@ -131,45 +114,16 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
     }
 
-    fun calculateWantedWidth(widthMeasureSpec: Int): Int {
-        val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
-        val widthSize = View.MeasureSpec.getSize(widthMeasureSpec)
-
-        var width: Int
-
-        val UNKNOWN_BORING = BoringLayout.Metrics()
-
-        var boring: BoringLayout.Metrics? = UNKNOWN_BORING
-
-        var des = -1
-
-        if (widthMode == View.MeasureSpec.EXACTLY) {
-            // Parent has told us how big to be. So be it.
-            width = widthSize
-        } else {
-            if (des < 0) {
-                boring = BoringLayout.isBoring("", textView?.paint)
-            }
-
-            if (boring == null || boring === UNKNOWN_BORING) {
-                if (des < 0) {
-                    des = Math.ceil(Layout.getDesiredWidth("", textView?.paint).toDouble()).toInt()
-                }
-                width = des
-            } else {
-                width = boring.width
-            }
-
-            if (widthMode == View.MeasureSpec.AT_MOST) {
-                width = Math.min(widthSize, width)
-            }
-        }
-
-        return width
-    }
-
     override fun getDrawable(): Drawable? {
         return imageDrawable
+    }
+
+    open fun setDrawable(newDrawable: Drawable?) {
+        imageDrawable = newDrawable
+
+        setInitBounds(newDrawable)
+
+        computeAspectRatio()
     }
 
     override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {

@@ -9,17 +9,13 @@ import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditorPage
 
-/**
- * Created by matisseh on 9/7/17.
- */
-
 class ToolbarHighlightingTests : BaseTest() {
 
     @Rule
     @JvmField
     val mActivityTestRule = ActivityTestRule(MainActivity::class.java)
 
-    //test behavior of highlighted style at 0 index of editor with 1 line of text (EOB marker at the 1 line)
+    // test behavior of highlighted style at 0 index of editor with 1 line of text (EOB marker at the 1 line)
     @Test
     fun testLeadingStyleHighlightInEmptyEditor() {
         val text = "some text"
@@ -38,7 +34,7 @@ class ToolbarHighlightingTests : BaseTest() {
                 .checkItalics(isNotChecked())
     }
 
-    //test behavior of highlighted style at 0 index of editor with > 1 lines of text (no EOB marker at the 1 line)
+    // test behavior of highlighted style at 0 index of editor with > 1 lines of text (no EOB marker at the 1 line)
     @Test
     fun testLeadingStyleHighlightInNotEmptyEditor() {
         val text = "some text"
@@ -59,7 +55,7 @@ class ToolbarHighlightingTests : BaseTest() {
                 .checkItalics(isNotChecked())
     }
 
-    //make sure that inline style is not sticking to end of buffer marker
+    // make sure that inline style is not sticking to end of buffer marker
     @Test
     fun testInlineIsDeselectedNearEndOfBufferMarker() {
         val text1 = "some"
@@ -77,8 +73,7 @@ class ToolbarHighlightingTests : BaseTest() {
                 .verifyHTML("<b>$text1</b>$text2")
     }
 
-
-    //make sure that selected toolbar style in empty editor remains when soft keyboard is displayed
+    // make sure that selected toolbar style in empty editor remains when soft keyboard is displayed
     @Test
     fun testStyleHighlightPersistenceInEmptyEditorOnWindowFocusChange() {
         val text = "some text"

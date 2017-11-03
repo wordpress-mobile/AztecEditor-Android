@@ -27,7 +27,7 @@ $ ./gradlew test
 Espresso [advises](https://google.github.io/android-testing-support-library/docs/espresso/setup/#setup-your-test-environment) disabling system animations on devices used for testing:
 
 > On your device, under Settings->Developer options disable the following 3 settings:
-> 
+>
 > - Window animation scale
 > - Transition animation scale
 > - Animator duration scale
@@ -55,6 +55,10 @@ compile ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAP
 ```
 
 When Aztec is ready, we'll publish the artifact in Maven.
+
+## Code formatting
+
+We use [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can run ktlint using `./gradlew ktlint`, and you can also run `./gradlew ktlintFormat` for auto-formatting. There is no IDEA plugin (like Checkstyle's) at this time.
 
 ## Reference
 

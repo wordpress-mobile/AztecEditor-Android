@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.3"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestCompile 'com.android.support.test.espresso:espresso-intents:2.2.2', {
+    androidTestCompile "com.android.support.test.espresso:espresso-intents:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
     androidTestCompile('com.xamarin.testcloud:espresso-support:1.3')

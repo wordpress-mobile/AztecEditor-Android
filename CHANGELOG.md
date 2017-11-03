@@ -1,6 +1,7 @@
 # Changelog
 
-## [Unreleased]
+
+## [1.0-beta.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.10) - 2017-10-06
 ### Fixed
 - Paragraphs with attributes being removed
 - crash when HTML tags contained special regex characters ('$' or '\\')

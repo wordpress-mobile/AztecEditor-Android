@@ -24,7 +24,11 @@ import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
-import android.view.*
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -32,7 +36,12 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
-import org.wordpress.aztec.*
+import org.wordpress.aztec.Aztec
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Html
+import org.wordpress.aztec.IHistoryListener
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -318,7 +327,6 @@ class MainActivity : AppCompatActivity(),
         val visualEditor = findViewById<AztecText>(R.id.aztec)
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
-
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
             .setImageGetter(GlideImageLoader(this))

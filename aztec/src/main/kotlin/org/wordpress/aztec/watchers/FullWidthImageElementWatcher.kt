@@ -10,7 +10,6 @@ import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import java.lang.ref.WeakReference
 
 class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
-
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
     private var deletedNewline: Boolean = false

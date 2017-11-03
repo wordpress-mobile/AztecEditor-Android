@@ -1,7 +1,7 @@
 package org.wordpress.aztec
 
 object Constants {
-    val MAGIC_CHAR = '\uFEFF' //'*'
+    val MAGIC_CHAR = '\uFEFF' // '*'
     val MAGIC_STRING = "" + MAGIC_CHAR
     val REPLACEMENT_MARKER_CHAR = '\u202F'
     val REPLACEMENT_MARKER_STRING = "" + REPLACEMENT_MARKER_CHAR

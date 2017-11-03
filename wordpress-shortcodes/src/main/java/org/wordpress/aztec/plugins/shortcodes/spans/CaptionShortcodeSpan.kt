@@ -3,7 +3,7 @@ package org.wordpress.aztec.plugins.shortcodes.spans
 import android.graphics.Typeface
 import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.IAztecBlockSpan
 
 class CaptionShortcodeSpan(override var attributes: AztecAttributes,
                            override val TAG: String, override var nestingLevel: Int)

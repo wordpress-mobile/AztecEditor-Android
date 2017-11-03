@@ -5,12 +5,15 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecParagraphStyle
+import org.wordpress.aztec.spans.ParagraphSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 internal object Format {
-
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
@@ -22,7 +25,7 @@ internal object Format {
 
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
         if (isCalypsoFormat) {
-            //remove empty span tags
+            // remove empty span tags
             doc.select("*")
                     .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
                     .forEach { it.remove() }
@@ -60,8 +63,8 @@ internal object Format {
         return m.replaceAll(replacement)
     }
 
-    //Takes HTML and formats it for Source editor and calypso back-end
-    //based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
+    // Takes HTML and formats it for Source editor and calypso back-end
+    // based on removep() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoSourceEditorFormat(htmlContent: String): String {
         var content = htmlContent
         if (TextUtils.isEmpty(content.trim { it <= ' ' })) {
@@ -174,7 +177,7 @@ internal object Format {
     // Converts visual newlines to <p> and <br> tags. This method produces html used for html2span parser
     // based on wpautop() from https://github.com/Automattic/wp-calypso/blob/master/client/lib/formatting/index.js
     fun toCalypsoHtml(formattedHtml: String): String {
-        //remove references to cursor when in calypso mode
+        // remove references to cursor when in calypso mode
         var html = formattedHtml.replace("<aztec_cursor></aztec_cursor>", "")
         if (TextUtils.isEmpty(html.trim { it <= ' ' })) {
             // Just whitespace, null, or undefined
@@ -250,7 +253,6 @@ internal object Format {
             html = sb.toString()
         }
 
-
         html = replaceAll(html, "(?i)<br ?/?>\\s*<br ?/?>", "\n\n")
         html = replaceAll(html, "(?i)(<(?:$blocklist)(?: [^>]*)?>)", "\n$1")
         html = replaceAll(html, "(?i)(</(?:$blocklist)>)", "$1\n\n")
@@ -303,8 +305,8 @@ internal object Format {
                 }
             }
 
-            //we don't need paragraph spans in calypso at this point
-            text.getSpans(0,text.length, ParagraphSpan::class.java)
+            // we don't need paragraph spans in calypso at this point
+            text.getSpans(0, text.length, ParagraphSpan::class.java)
                     .filter { it.attributes.isEmpty() }
                     .forEach {
                         text.removeSpan(it)
@@ -317,7 +319,7 @@ internal object Format {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { text.getSpanStart(it) }
 
-            //add additional newline to the end of every paragraph
+            // add additional newline to the end of every paragraph
             spans.forEach {
                 val spanStart = text.getSpanStart(it)
                 val spanEnd = text.getSpanEnd(it)
@@ -335,7 +337,7 @@ internal object Format {
                 }
             }
 
-            //we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
+            // we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
             text.getSpans(0, text.length, ParagraphSpan::class.java)
                     .filter { it.attributes.isEmpty() }
                     .forEach {

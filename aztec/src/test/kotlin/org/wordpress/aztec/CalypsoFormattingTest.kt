@@ -173,7 +173,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun paragraphsWithAttributes() {
         val input = HTML_PARAGRAPHS_WITH_ATTRIBUTES
-        val span = SpannableString(parser.fromHtml(input, context))
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_PARAGRAPHS_WITH_ATTRIBUTES, output)
     }
@@ -187,7 +187,8 @@ class CalypsoFormattingTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun mixedParagraphsWithAttributes() {
         val input = HTML_PARAGRAPHS_MIXED
-        val span = SpannableStringBuilder(parser.fromHtml(Format.removeSourceEditorFormatting(input, true), context))
+        val span = SpannableStringBuilder(parser.fromHtml(Format.removeSourceEditorFormatting(input, true),
+                RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_PARAGRAPHS_MIXED_CALPYSO, output)
     }

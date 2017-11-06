@@ -77,7 +77,6 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<div class=\"fourth\"><u>Under</u>line</div>\n" +
                     "<div class=\"fifth\"></div>\n</div>\n</div>"
 
-
     private val HTML_PARAGRAPHS_WITH_ATTRIBUTES =
             "a\n<p a=\"A\">b</p>\nc"
 

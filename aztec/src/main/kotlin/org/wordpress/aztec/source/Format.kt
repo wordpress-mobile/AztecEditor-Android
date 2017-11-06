@@ -337,9 +337,21 @@ internal object Format {
                 }
             }
 
-            // we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
+            // split up paragraphs that contain double newlines
             text.getSpans(0, text.length, ParagraphSpan::class.java)
-                    .filter { it.attributes.isEmpty() }
+                    .forEach {
+                        val start = text.getSpanStart(it)
+                        val end = text.getSpanEnd(it)
+                        val double = text.indexOf("\n\n", start)
+                        if (double != -1 && double < end) {
+                            text.setSpan(it, start, double + 1, text.getSpanFlags(it))
+                            text.setSpan(AztecVisualLinebreak(), double + 1, double + 2, text.getSpanFlags(it))
+                        }
+                    }
+
+            // we don't care about actual ParagraphSpan in calypso that don't have attributes or are empty (paragraphs are made from double newline)
+            text.getSpans(0, text.length, ParagraphSpan::class.java)
+                    .filter { it.attributes.isEmpty() || text.getSpanStart(it) == text.getSpanEnd(it) - 1}
                     .forEach {
                         text.removeSpan(it)
                     }

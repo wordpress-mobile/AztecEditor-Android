@@ -351,7 +351,7 @@ internal object Format {
 
             // we don't care about actual ParagraphSpan in calypso that don't have attributes or are empty (paragraphs are made from double newline)
             text.getSpans(0, text.length, ParagraphSpan::class.java)
-                    .filter { it.attributes.isEmpty() || text.getSpanStart(it) == text.getSpanEnd(it) - 1}
+                    .filter { it.attributes.isEmpty() || text.getSpanStart(it) == text.getSpanEnd(it) - 1 }
                     .forEach {
                         text.removeSpan(it)
                     }

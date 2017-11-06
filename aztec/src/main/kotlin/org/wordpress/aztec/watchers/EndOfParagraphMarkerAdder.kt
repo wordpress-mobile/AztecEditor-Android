@@ -9,6 +9,7 @@ import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.ParagraphSpan
 import java.lang.ref.WeakReference
 
 class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargin: Int) : TextWatcher {

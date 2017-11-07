@@ -46,7 +46,7 @@ Toolbar
 
 Inflate the views:
 ```kotlin
-val visualEditor = findViewById<AztecText>(R.id.aztec)
+val visualEditor = findViewById<AztecText>(R.id.visual)
 val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
 val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 ```

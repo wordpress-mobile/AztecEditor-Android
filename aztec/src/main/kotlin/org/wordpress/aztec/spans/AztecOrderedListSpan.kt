@@ -28,7 +28,7 @@ class AztecOrderedListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
-    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
+) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     override val TAG = "ol"
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -39,6 +39,7 @@ class AztecOrderedListSpan(
                                    top: Int, baseline: Int, bottom: Int,
                                    text: CharSequence, start: Int, end: Int,
                                    first: Boolean, l: Layout) {
+
         if (!first) return
 
         val spanStart = (text as Spanned).getSpanStart(this)
@@ -46,19 +47,30 @@ class AztecOrderedListSpan(
 
         if (start !in spanStart..spanEnd || end !in spanStart..spanEnd) return
 
-        val style = p.style
+        val oldStyle = p.style
         val oldColor = p.color
+        val oldTextSize = p.textSize
 
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
 
         val lineIndex = getIndexOfProcessedLine(text, end)
-        val textToDraw = if (lineIndex > -1) getIndexOfProcessedLine(text, end).toString() + "." else ""
+        val textToDraw = if (lineIndex > -1) lineIndex.toString() + "." else ""
 
-        val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, baseline.toFloat(), p)
+        var width = p.measureText(textToDraw)
+        var xStartDraw = (x + listStyle.indicatorMargin + listStyle.indicatorPadding + dir - width) * dir
+
+        // If we can't draw the item number in the available space, try with smaller text size until it fits the available space
+        while (xStartDraw < 0) {
+            p.textSize = p.textSize - 1
+            width = p.measureText(textToDraw)
+            xStartDraw = (listStyle.indicatorMargin + x + dir - width) * dir
+        }
+
+        c.drawText(textToDraw, xStartDraw, baseline.toFloat(), p)
 
         p.color = oldColor
-        p.style = style
+        p.style = oldStyle
+        p.textSize = oldTextSize
     }
 }

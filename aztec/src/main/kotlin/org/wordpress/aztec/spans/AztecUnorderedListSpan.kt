@@ -56,7 +56,7 @@ class AztecUnorderedListSpan(
         val textToDraw = if (lineIndex > -1) "\u2022" else ""
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, (baseline + (width - p.descent())), p)
+        c.drawText(textToDraw, (listStyle.indicatorMargin + + listStyle.indicatorPadding + x + dir - width) * dir, (baseline + (width - p.descent())), p)
 
         p.color = oldColor
         p.style = style

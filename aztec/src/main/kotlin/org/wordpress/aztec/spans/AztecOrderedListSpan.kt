@@ -31,8 +31,10 @@ class AztecOrderedListSpan(
     ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     override val TAG = "ol"
 
+    private var horizontalShift = 0
+
     override fun getLeadingMargin(first: Boolean): Int {
-        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
+        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding + horizontalShift
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -56,7 +58,15 @@ class AztecOrderedListSpan(
         val textToDraw = if (lineIndex > -1) getIndexOfProcessedLine(text, end).toString() + "." else ""
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, baseline.toFloat(), p)
+
+        var textStart = (listStyle.indicatorMargin + x + dir - width) * dir
+
+        if (textStart < 0) {
+            horizontalShift = -textStart.toInt()
+            textStart = 0f
+        }
+
+        c.drawText(textToDraw, textStart, baseline.toFloat(), p)
 
         p.color = oldColor
         p.style = style

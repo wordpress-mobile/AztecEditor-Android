@@ -91,7 +91,7 @@ On your device, under Settings -> Accessibility -> Touch & hold delay, set the d
 Run the instrumentation tests:
 
 ```shell
-$ adb shell am instrument -w -r -e package org.wordpress.aztec.demo -e debug false org.wordpress.aztec.test/android.support.test.runner.AndroidJUnitRunner
+$ ./gradlew cAT
 ```
 
 ## Integrating Aztec in your project

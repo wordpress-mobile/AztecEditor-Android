@@ -32,6 +32,7 @@ class AztecOrderedListSpan(
     override val TAG = "ol"
 
     private var horizontalShift = 0
+    private var maxWidth = 0f
 
     override fun getLeadingMargin(first: Boolean): Int {
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding + horizontalShift
@@ -58,12 +59,17 @@ class AztecOrderedListSpan(
         val textToDraw = if (lineIndex > -1) getIndexOfProcessedLine(text, end).toString() + "." else ""
 
         val width = p.measureText(textToDraw)
+        maxWidth = Math.max(maxWidth, width)
 
         var textStart = (listStyle.indicatorMargin + x + dir - width) * dir
 
         if (textStart < 0) {
             horizontalShift = -textStart.toInt()
             textStart = 0f
+        }
+
+        if (horizontalShift > 0 && width < maxWidth) {
+            textStart += horizontalShift
         }
 
         c.drawText(textToDraw, textStart, baseline.toFloat(), p)

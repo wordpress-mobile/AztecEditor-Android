@@ -9,10 +9,10 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 
-class CaptionShortcodeSpan(override var attributes: AztecAttributes,
+class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: AztecAttributes,
                            override val TAG: String,
                            override var nestingLevel: Int,
-                           private val aztecText: AztecText)
+                           private val aztecText: AztecText? = null)
     : StyleSpan(Typeface.ITALIC), IAztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
@@ -20,16 +20,22 @@ class CaptionShortcodeSpan(override var attributes: AztecAttributes,
 
     var caption: String
         get() {
-            val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-            return aztecText.text.subSequence(wrapper.start + 1, wrapper.end).toString()
+            aztecText?.let {
+                val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+                return aztecText.text.subSequence(wrapper.start + 1, wrapper.end).toString()
+            }
+            return ""
         }
         set(value) {
-            val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-            var end = wrapper.end
-            if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
-                end--
+            aztecText?.let {
+                val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+                var end = wrapper.end
+                if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
+                    end--
+                }
+                aztecText.text.replace(wrapper.start + 1, end, value)
+                aztecText.text.setSpan(wrapper.span, wrapper.start, wrapper.start + 1 + value.length,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-            aztecText.text.replace(wrapper.start + 1, end, value)
-            aztecText.text.setSpan(wrapper.span, wrapper.start, wrapper.start + 1 + value.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 }

@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            var bitmap: Bitmap? = null
+            var bitmap: Bitmap
 
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
@@ -348,6 +348,9 @@ class MainActivity : AppCompatActivity(),
         BlockElementWatcher(visualEditor)
                 .add(CaptionHandler())
                 .install(visualEditor)
+
+        aztec.visualEditor.setCalypsoMode(false)
+        aztec.sourceEditor?.setCalypsoMode(false)
 
         // initialize the text & HTML
         if (!isRunningTest) {
@@ -704,7 +707,7 @@ class MainActivity : AppCompatActivity(),
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
         } else {
-            aztec.toolbar?.toggleEditorMode()
+            aztec.toolbar.toggleEditorMode()
         }
     }
 

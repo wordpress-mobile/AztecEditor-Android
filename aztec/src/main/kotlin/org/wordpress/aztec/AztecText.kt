@@ -1192,7 +1192,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
             inlineFormatter.joinStyleSpans(0, text.length)
         })
 
-        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, _ ->
             dialogInterface.dismiss()
         })
 

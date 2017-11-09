@@ -32,6 +32,7 @@ object Actions {
         }
     }
 
+    @Suppress("DEPRECATION")
     fun relativeClick(xPercent: Float = 0.5f, yPercent: Float = 0.5f): ViewAction {
         return GeneralClickAction(
                 Tap.SINGLE,

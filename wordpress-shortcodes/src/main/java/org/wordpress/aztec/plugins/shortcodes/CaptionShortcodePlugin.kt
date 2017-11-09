@@ -3,6 +3,7 @@ package org.wordpress.aztec.plugins.shortcodes
 import android.text.Editable
 import android.text.Spannable
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
@@ -11,7 +12,7 @@ import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 
-class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
+class CaptionShortcodePlugin(private val aztecText: AztecText) : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
     companion object {
         val HTML_TAG = "wp-shortcode-caption-html-tag"
@@ -24,7 +25,7 @@ class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostproc
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
-            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), HTML_TAG, nestingLevel, output), output.length, output.length, Spannable.SPAN_MARK_MARK)
+            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), HTML_TAG, nestingLevel, aztecText), output.length, output.length, Spannable.SPAN_MARK_MARK)
         } else {
             val span = output.getLast<CaptionShortcodeSpan>()
             span?.let {

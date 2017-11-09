@@ -20,10 +20,9 @@ fun AztecText.getImageCaption(attributePredicate: AztecText.AttributePredicate):
 
 fun AztecImageSpan.getCaption(): String {
     textView?.text?.let {
-        SpanWrapper<AztecImageSpan>(textView!!.text, this).let { span ->
-            textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.first().let {
-                return it!!.caption
-            }
+        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        textView!!.text!!.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()?.let {
+            return it.caption
         }
     }
     return ""
@@ -39,13 +38,14 @@ fun AztecText.setImageCaption(attributePredicate: AztecText.AttributePredicate, 
 
 fun AztecImageSpan.setCaption(value: String) {
     textView?.text?.let {
-        SpanWrapper<AztecImageSpan>(textView!!.text, this).let { span ->
-            var captionSpan = textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
-            if (captionSpan == null) {
-                captionSpan = CaptionShortcodeSpan(AztecAttributes(), CaptionShortcodePlugin.HTML_TAG, IAztecNestable.getNestingLevelAt(textView!!.text, span.start), textView!!.text)
-                textView!!.text.setSpan(captionSpan, span.start, span.end, Spanned.SPAN_MARK_MARK)
-            }
-            captionSpan.caption = value
+        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+
+        var captionSpan = textView?.text?.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
+        if (captionSpan == null) {
+            captionSpan = CaptionShortcodeSpan(AztecAttributes(), CaptionShortcodePlugin.HTML_TAG, IAztecNestable.getNestingLevelAt(textView!!.text, wrapper.start), textView!!)
+            textView!!.text.setSpan(captionSpan, wrapper.start, wrapper.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
+        captionSpan.caption = value
     }
 }

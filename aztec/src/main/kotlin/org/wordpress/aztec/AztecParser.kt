@@ -114,7 +114,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         plugins.filter { it is IHtmlPostprocessor }
                 .map { it as IHtmlPostprocessor }
                 .forEach {
-                    html = it.processHtmlAfterSerialization(html)
+                    html = it.onHtmlProcessed(html)
                 }
         return html
     }

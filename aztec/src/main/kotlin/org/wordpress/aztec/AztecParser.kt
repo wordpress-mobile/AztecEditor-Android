@@ -118,28 +118,28 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
     private fun preprocessSpans(spannable: SpannableStringBuilder) {
         plugins.filter { it is ISpanPreprocessor }
-                .map { it as ISpanPreprocessor }
-                .forEach {
-                    it.beforeSpansProcessed(spannable)
-                }
+            .map { it as ISpanPreprocessor }
+            .forEach {
+                it.beforeSpansProcessed(spannable)
+            }
     }
 
     private fun postprocessHtml(source: String): String {
         var html = source
         plugins.filter { it is IHtmlPostprocessor }
-                .map { it as IHtmlPostprocessor }
-                .forEach {
-                    html = it.onHtmlProcessed(html)
-                }
+            .map { it as IHtmlPostprocessor }
+            .forEach {
+                html = it.onHtmlProcessed(html)
+            }
         return html
     }
 
     private fun postprocessSpans(spannable: SpannableStringBuilder) {
         plugins.filter { it is ISpanPostprocessor }
-                .map { it as ISpanPostprocessor }
-                .forEach {
-                   it.onSpansProcessed(spannable)
-                }
+            .map { it as ISpanPostprocessor }
+            .forEach {
+                it.onSpansProcessed(spannable)
+            }
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {

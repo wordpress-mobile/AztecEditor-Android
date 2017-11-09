@@ -1,8 +1,12 @@
 package org.wordpress.aztec.plugins.shortcodes.extensions
 
+import android.text.Spanned
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.SpanWrapper
 
 fun AztecText.getImageCaption(attributePredicate: AztecText.AttributePredicate): String {
@@ -15,9 +19,9 @@ fun AztecText.getImageCaption(attributePredicate: AztecText.AttributePredicate):
 }
 
 fun AztecImageSpan.getCaption(): String {
-    this.textView?.text?.let {
-        SpanWrapper<AztecImageSpan>(this.textView!!.text, this).let { span ->
-            this.textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.first().let {
+    textView?.text?.let {
+        SpanWrapper<AztecImageSpan>(textView!!.text, this).let { span ->
+            textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.first().let {
                 return it!!.caption
             }
         }
@@ -34,11 +38,14 @@ fun AztecText.setImageCaption(attributePredicate: AztecText.AttributePredicate, 
 }
 
 fun AztecImageSpan.setCaption(value: String) {
-    this.textView?.text?.let {
-        SpanWrapper<AztecImageSpan>(this.textView!!.text, this).let { span ->
-            this.textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.first().let {
-                it!!.caption = value
+    textView?.text?.let {
+        SpanWrapper<AztecImageSpan>(textView!!.text, this).let { span ->
+            var captionSpan = textView?.text?.getSpans(span.start, span.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
+            if (captionSpan == null) {
+                captionSpan = CaptionShortcodeSpan(AztecAttributes(), CaptionShortcodePlugin.HTML_TAG, IAztecNestable.getNestingLevelAt(textView!!.text, span.start), textView!!.text)
+                textView!!.text.setSpan(captionSpan, span.start, span.end, Spanned.SPAN_MARK_MARK)
             }
+            captionSpan.caption = value
         }
     }
 }

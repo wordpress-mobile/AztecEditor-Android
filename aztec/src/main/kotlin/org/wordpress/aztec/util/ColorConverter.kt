@@ -231,10 +231,15 @@ class ColorConverter {
                 //
                 // No CSS values found, parse using android Color class
                 return Color.parseColor(colorText)
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
                 //
-                // Unrecognized color
-                return COLOR_NOT_FOUND
+                // Unrecognized color or empty string
+                when (e) {
+                    is IllegalArgumentException, is StringIndexOutOfBoundsException -> {
+                        return COLOR_NOT_FOUND
+                    }
+                    else -> throw e
+                }
             }
         }
     }

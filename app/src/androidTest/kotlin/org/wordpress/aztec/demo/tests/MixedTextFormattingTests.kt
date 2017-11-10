@@ -108,4 +108,84 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml()
                 .verifyHTML(text)
     }
+
+    @Test
+    fun testTwoHeadings() {
+        val text = "some text"
+        val linebreak = "\n"
+        val html = "<h1>$text</h1>$linebreak<h2>$text</h2>"
+
+        EditorPage()
+                .makeHeader(EditorPage.HeadingStyle.ONE)
+                .insertText(text)
+                .insertText(linebreak)
+                .makeHeader(EditorPage.HeadingStyle.TWO)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testEndHeadingFormatting() {
+        val text = "some text"
+        val linebreak = "\n"
+        val html = "<h1>$text</h1>$linebreak$text"
+
+        EditorPage()
+                .makeHeader(EditorPage.HeadingStyle.ONE)
+                .insertText(text)
+                .insertText(linebreak)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testEndQuoteFormatting() {
+        val text = "some text"
+        val linebreak = "\n"
+        val html = "<blockquote>$text</blockquote>$linebreak$text"
+
+        EditorPage()
+                .toggleQuote()
+                .insertText(text)
+                .insertText(linebreak)
+                .insertText(linebreak)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testRemoveQuoteFormatting() {
+        val text = "some text"
+        val linebreak = "\n"
+        val html = "<blockquote>$text</blockquote>$linebreak$text"
+
+        EditorPage()
+                .toggleQuote()
+                .insertText(text)
+                .insertText(linebreak)
+                .insertText(text)
+                .toggleQuote()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testQuotedListFormatting() {
+        var text = "some text\n"
+        val regex = Regex("<blockquote>\\s+<ul>[\\S\\s]+</ul>\\s+</blockquote>")
+
+        for (i in 1..3) {
+            text += text
+        }
+
+        EditorPage()
+                .toggleQuote()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(regex)
+    }
 }

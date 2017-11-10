@@ -10,9 +10,9 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 
 class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: AztecAttributes,
-                           override val TAG: String,
-                           override var nestingLevel: Int,
-                           private val aztecText: AztecText? = null)
+                            override val TAG: String,
+                            override var nestingLevel: Int,
+                            private val aztecText: AztecText? = null)
     : StyleSpan(Typeface.ITALIC), IAztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
@@ -35,7 +35,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
                 }
                 aztecText.text.replace(wrapper.start + 1, end, value)
                 aztecText.text.setSpan(wrapper.span, wrapper.start, wrapper.start + 1 + value.length,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 }

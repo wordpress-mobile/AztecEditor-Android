@@ -12,7 +12,8 @@ import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 
-class CaptionShortcodePlugin(private val aztecText: AztecText) : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
+class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: AztecText? = null) :
+        IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
     companion object {
         val HTML_TAG = "wp-shortcode-caption-html-tag"

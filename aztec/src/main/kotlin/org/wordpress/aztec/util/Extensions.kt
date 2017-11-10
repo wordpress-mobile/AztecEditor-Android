@@ -6,8 +6,6 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.AztecParser
-import org.wordpress.aztec.formatting.InlineCssStyleFormatter
-import org.wordpress.aztec.spans.IAztecAttributedSpan
 
 fun Editable.getLast(kind: Class<*>): Any? {
     val spans = this.getSpans(0, this.length, kind)
@@ -57,16 +55,4 @@ fun ClipData.Item.coerceToHtmlText(parser: AztecParser): String {
     }
 
     return text.toString()
-}
-
-/**
- * Parses and applies the HTML 'style' attribute.
- * @param output An [Editable] containing an [IAztecAttributedSpan] for processing.
- * @param start The index where the [IAztecAttributedSpan] starts inside the [text]
- */
-inline fun IAztecAttributedSpan.applyInlineStyleAttributes(output: Editable, start: Int) {
-    val attr = this.attributes
-    if (attr.hasAttribute("style")) {
-        InlineCssStyleFormatter.applyInlineStyleAttributes(output, attr, start)
-    }
 }

@@ -33,7 +33,6 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.formatting.InlineCssStyleFormatter;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
@@ -521,10 +520,6 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         int where = text.getSpanStart(span);
         text.setSpan(span, where, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        //
-        // Process HTML style attribute
-        int startSpan = text.getSpanStart(span);
-        InlineCssStyleFormatter.Companion.applyInlineStyleAttributes(text, span.getAttributes(), startSpan);
     }
 
     private static void endFont(SpannableStringBuilder text) {

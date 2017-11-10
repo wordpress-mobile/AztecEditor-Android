@@ -22,7 +22,11 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         get() {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-                return aztecText.text.subSequence(wrapper.start + 1, wrapper.end).toString()
+                var end = wrapper.end
+                if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
+                    end--
+                }
+                return aztecText.text.subSequence(wrapper.start + 1, end).toString()
             }
             return ""
         }

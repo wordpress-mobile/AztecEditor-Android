@@ -1,4 +1,4 @@
-package org.wordpress.aztec.formatting
+package org.wordpress.aztec.source
 
 import android.text.Editable
 import android.text.Spannable

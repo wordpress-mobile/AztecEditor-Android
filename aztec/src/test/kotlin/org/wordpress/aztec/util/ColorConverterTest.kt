@@ -6,7 +6,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.BuildConfig
-import org.mockito.Mockito.`when` as whenever
 
 /**
  * Tests for translating various strings to colors using [ColorConverter].
@@ -20,7 +19,7 @@ class ColorConverterTest {
      * translated to a color int.
      */
     @Test
-    fun getColorFromValidResource_valid() {
+    fun getColorFromValidResourceValid() {
         val colorString = "@black"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertTrue(colorInt != ColorConverter.COLOR_NOT_FOUND)
@@ -32,7 +31,7 @@ class ColorConverterTest {
      * indicating the string could not be translated.
      */
     @Test
-    fun getColorFromResource_invalid() {
+    fun getColorFromResourceInvalid() {
         val colorString = "@blooper"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertEquals(colorInt, ColorConverter.COLOR_NOT_FOUND)
@@ -42,7 +41,7 @@ class ColorConverterTest {
      * Test a valid hexidecimal color string is properly translated to a color int.
      */
     @Test
-    fun getColorFromHex_valid() {
+    fun getColorFromHexValid() {
         val colorString = "#FF00FF00"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertTrue(colorInt != ColorConverter.COLOR_NOT_FOUND)
@@ -54,7 +53,7 @@ class ColorConverterTest {
      * indicating the string could not be translated.
      */
     @Test
-    fun getColorFromHex_invalid() {
+    fun getColorFromHexInvalid() {
         val colorString = "#Fdoo"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertEquals(colorInt, ColorConverter.COLOR_NOT_FOUND)
@@ -64,7 +63,7 @@ class ColorConverterTest {
      * Test a valid color name string is properly translated to a color int.
      */
     @Test
-    fun getColorFromName_valid() {
+    fun getColorFromNameValid() {
         val colorString = "blue"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertTrue(colorInt != ColorConverter.COLOR_NOT_FOUND)
@@ -76,7 +75,7 @@ class ColorConverterTest {
      * indicating the string could not be translated.
      */
     @Test
-    fun getColorFromName_invalid() {
+    fun getColorFromNameInvalid() {
         val colorString = "jattlyn"
         val colorInt = ColorConverter.getColorInt(colorString)
         Assert.assertEquals(colorInt, ColorConverter.COLOR_NOT_FOUND)

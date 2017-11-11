@@ -36,7 +36,7 @@ class InlineCssStyleFormatter {
          * @param [start] The index where the [IAztecAttributedSpan] starts inside the [text].
          */
         fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int) {
-            if (attributes != null && attributes.hasAttribute("style")) {
+            if (attributes.hasAttribute("style")) {
                 val len = text.length
 
                 if (start != len) {
@@ -46,7 +46,7 @@ class InlineCssStyleFormatter {
                     val m = foregroundColorPattern.matcher(style)
                     if (m.find()) {
                         val colorString = m.group(1)
-                        val colorInt  = ColorConverter.getColorInt(colorString)
+                        val colorInt = ColorConverter.getColorInt(colorString)
                         if (colorInt != -1) {
                             text.setSpan(ForegroundColorSpan(colorInt), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }

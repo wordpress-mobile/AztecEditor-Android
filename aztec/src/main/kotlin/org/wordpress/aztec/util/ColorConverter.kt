@@ -28,7 +28,7 @@ class ColorConverter {
          */
         //region Static Color Mappings
         private val colorMap = mapOf(
-            "aliceblue" to  0xFFF0F8FF.toInt(),
+            "aliceblue" to 0xFFF0F8FF.toInt(),
             "antiquewhite" to 0xFFFAEBD7.toInt(),
             "aqua" to 0xFF00FFFF.toInt(),
             "aquamarine" to 0xFF7FFFD4.toInt(),

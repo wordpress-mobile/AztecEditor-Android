@@ -36,6 +36,7 @@ class InlineCssStyleFormatter {
          * @param [start] The index where the [IAztecAttributedSpan] starts inside the [text].
          */
         fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int) {
+            if (attributes.hasAttribute("style")) {
                 val len = text.length
 
                 if (start != len) {

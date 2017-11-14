@@ -45,13 +45,8 @@ class InlineCssStyleFormatter {
                     val m = foregroundColorPattern.matcher(style)
                     if (m.find()) {
                         val colorString = m.group(1)
-<<<<<<< HEAD
                         val colorInt  = ColorConverter.getColorInt(colorString)
                         if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
-=======
-                        val colorInt = ColorConverter.getColorInt(colorString)
-                        if (colorInt != -1) {
->>>>>>> 0b4a5bd47c1acb61db5186b8aa330f1ef4b3bd03
                             text.setSpan(ForegroundColorSpan(colorInt), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }
                     }

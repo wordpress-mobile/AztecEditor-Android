@@ -522,12 +522,9 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
         int where = text.getSpanStart(span);
         text.setSpan(span, where, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        //
+
         // Process HTML style attribute
-        if (span instanceof IAztecAttributedSpan) {
-            int startSpan = text.getSpanStart(span);
-            InlineCssStyleFormatter.Companion.applyInlineStyleAttributes(text, span.getAttributes(), startSpan);
-        }
+        span.applyInlineStyleAttributes(text, where);
     }
 
     private static void endFont(SpannableStringBuilder text) {

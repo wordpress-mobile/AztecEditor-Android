@@ -46,7 +46,6 @@ import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.ParagraphSpan
-import org.wordpress.aztec.util.applyInlineStyleAttributes
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
@@ -199,7 +198,6 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             if (last is IAztecAttributedSpan) {
-                //
                 // Apply the 'style' attribute if present
                 last.applyInlineStyleAttributes(output, start)
             }

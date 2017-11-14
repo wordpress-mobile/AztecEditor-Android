@@ -21,7 +21,7 @@ class InlineCssStyleFormatter {
          */
         private val foregroundColorPattern by lazy {
             Pattern.compile(
-                    "(?:\\s+|\\A)color\\s*:\\s*(\\S*)\\b")
+                    "(?:;|\\A)color:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
         }
 
         /**
@@ -40,14 +40,13 @@ class InlineCssStyleFormatter {
                 val len = text.length
 
                 if (start != len) {
-                    val style = attributes.getValue("style")
-                    //
+                    val style = attributes.getValue("","style")
                     // Process the CSS 'color' property
                     val m = foregroundColorPattern.matcher(style)
                     if (m.find()) {
                         val colorString = m.group(1)
                         val colorInt  = ColorConverter.getColorInt(colorString)
-                        if (colorInt != -1) {
+                        if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
                             text.setSpan(ForegroundColorSpan(colorInt), start, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }
                     }

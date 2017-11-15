@@ -27,6 +27,16 @@ fun AztecText.removeImageCaption(attributePredicate: AztecText.AttributePredicat
         ?.removeCaption()
 }
 
+fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate): Boolean {
+    this.text.getSpans(0, this.text.length, AztecImageSpan::class.java)
+        .firstOrNull {
+            val wrapper = SpanWrapper<AztecImageSpan>(text, it)
+            return text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).isNotEmpty()
+        }
+
+    return false
+}
+
 fun AztecImageSpan.getCaption(): String {
     textView?.text?.let {
         val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)

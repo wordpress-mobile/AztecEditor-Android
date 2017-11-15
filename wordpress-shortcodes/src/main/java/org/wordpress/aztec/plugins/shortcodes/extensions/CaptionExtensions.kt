@@ -18,6 +18,15 @@ fun AztecText.getImageCaption(attributePredicate: AztecText.AttributePredicate):
             ?.getCaption() ?: ""
 }
 
+fun AztecText.removeImageCaption(attributePredicate: AztecText.AttributePredicate) {
+    this.text
+        .getSpans(0, this.text.length, AztecImageSpan::class.java)
+        .firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }
+        ?.removeCaption()
+}
+
 fun AztecImageSpan.getCaption(): String {
     textView?.text?.let {
         val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
@@ -26,6 +35,13 @@ fun AztecImageSpan.getCaption(): String {
         }
     }
     return ""
+}
+
+fun AztecImageSpan.removeCaption() {
+    textView?.text?.let {
+        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()?.remove()
+    }
 }
 
 fun AztecText.setImageCaption(attributePredicate: AztecText.AttributePredicate, value: String) {

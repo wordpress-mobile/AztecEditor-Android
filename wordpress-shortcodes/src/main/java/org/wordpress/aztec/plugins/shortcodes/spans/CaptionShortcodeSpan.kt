@@ -22,10 +22,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         get() {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-                var end = wrapper.end
-                if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
-                    end--
-                }
+                val end = getEnd(wrapper, aztecText)
                 return aztecText.text.subSequence(wrapper.start + 1, end).toString()
             }
             return ""
@@ -33,13 +30,27 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         set(value) {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-                var end = wrapper.end
-                if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
-                    end--
-                }
+                val end = getEnd(wrapper, aztecText)
                 aztecText.text.replace(wrapper.start + 1, end, value)
                 aztecText.text.setSpan(wrapper.span, wrapper.start, wrapper.start + 1 + value.length,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
+
+    fun remove() {
+        aztecText?.let {
+            val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+            val end = getEnd(wrapper, aztecText)
+            aztecText.text.delete(wrapper.start + 1, end)
+            aztecText.text.removeSpan(this)
+        }
+    }
+
+    private fun getEnd(wrapper: SpanWrapper<CaptionShortcodeSpan>, aztecText: AztecText): Int {
+        var end = wrapper.end
+        if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
+            end--
+        }
+        return end
+    }
 }

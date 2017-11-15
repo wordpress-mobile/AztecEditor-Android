@@ -112,13 +112,12 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testTwoHeadings() {
         val text = "some text"
-        val linebreak = "\n"
-        val html = "<h1>$text</h1>$linebreak<h2>$text</h2>"
+        val html = "<h1>$text</h1><h2>$text</h2>"
 
         EditorPage()
                 .makeHeader(EditorPage.HeadingStyle.ONE)
                 .insertText(text)
-                .insertText(linebreak)
+                .insertText("\n")
                 .makeHeader(EditorPage.HeadingStyle.TWO)
                 .insertText(text)
                 .toggleHtml()
@@ -128,13 +127,12 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testEndHeadingFormatting() {
         val text = "some text"
-        val linebreak = "\n"
-        val html = "<h1>$text</h1>$linebreak$text"
+        val html = "<h1>$text</h1>\n$text"
 
         EditorPage()
                 .makeHeader(EditorPage.HeadingStyle.ONE)
                 .insertText(text)
-                .insertText(linebreak)
+                .insertText("\n")
                 .insertText(text)
                 .toggleHtml()
                 .verifyHTML(html)
@@ -143,14 +141,12 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testEndQuoteFormatting() {
         val text = "some text"
-        val linebreak = "\n"
-        val html = "<blockquote>$text</blockquote>$linebreak$text"
+        val html = "<blockquote>$text</blockquote>\n$text"
 
         EditorPage()
                 .toggleQuote()
                 .insertText(text)
-                .insertText(linebreak)
-                .insertText(linebreak)
+                .insertText("\n\n")
                 .insertText(text)
                 .toggleHtml()
                 .verifyHTML(html)
@@ -159,13 +155,12 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testRemoveQuoteFormatting() {
         val text = "some text"
-        val linebreak = "\n"
-        val html = "<blockquote>$text</blockquote>$linebreak$text"
+        val html = "<blockquote>$text</blockquote>\n$text"
 
         EditorPage()
                 .toggleQuote()
                 .insertText(text)
-                .insertText(linebreak)
+                .insertText("\n")
                 .insertText(text)
                 .toggleQuote()
                 .toggleHtml()
@@ -174,18 +169,14 @@ class MixedTextFormattingTests : BaseTest() {
 
     @Test
     fun testQuotedListFormatting() {
-        var text = "some text\n"
-        val regex = Regex("<blockquote>\\s+<ul>[\\S\\s]+</ul>\\s+</blockquote>")
-
-        for (i in 1..3) {
-            text += text
-        }
+        var text = "some text\nsome text\nsome text"
+        val html = "<blockquote><ul><li>some text</li><li>some text</li><li>some text</li></ul></blockquote>"
 
         EditorPage()
                 .toggleQuote()
                 .makeList(EditorPage.ListStyle.UNORDERED)
                 .insertText(text)
                 .toggleHtml()
-                .verifyHTML(regex)
+                .verifyHTML(html)
     }
 }

@@ -88,7 +88,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testSimpleUnorderedListFormatting() {
         val text1 = "some\n"
         val text2 = "text"
-        val html = "$text1<ul>\n\t<li>$text2</li>\n</ul>"
+        val html = "$text1<ul><li>$text2</li></ul>"
 
         EditorPage()
                 .insertText(text1)
@@ -102,7 +102,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testSimpleOrderedListFormatting() {
         val text1 = "some\n"
         val text2 = "text"
-        val html = "$text1<ol>\n\t<li>$text2</li>\n</ol>"
+        val html = "$text1<ol><li>$text2</li></ol>"
 
         EditorPage()
                 .insertText(text1)

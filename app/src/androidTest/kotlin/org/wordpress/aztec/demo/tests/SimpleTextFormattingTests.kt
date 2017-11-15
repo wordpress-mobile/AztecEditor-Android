@@ -306,6 +306,29 @@ class SimpleTextFormattingTests : BaseTest() {
                 .verifyHTML(expected2)
     }
 
+    @Test
+    fun testRemoveListFormatting() {
+
+        val text = "some text\nsome text\nsome text"
+        val expected1 = "<ul><li>some text</li><li>some text</li><li>some text</li></ul>"
+        val expected2 = "<ul><li>some text</li><li>some text</li></ul>\nsome text"
+
+        EditorPage()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(expected1)
+                .toggleHtml()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .toggleHtml()
+                .verifyHTML(expected2)
+                .toggleHtml()
+                .selectAllText()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .toggleHtml()
+                .verifyHTML(text)
+    }
+
     // Test reproducing the issue described in
     // https://github.com/wordpress-mobile/AztecEditor-Android/pull/466#issuecomment-322404363
     @Test

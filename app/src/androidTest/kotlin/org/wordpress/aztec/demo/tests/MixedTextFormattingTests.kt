@@ -169,13 +169,42 @@ class MixedTextFormattingTests : BaseTest() {
 
     @Test
     fun testQuotedListFormatting() {
-        var text = "some text\nsome text\nsome text"
+        val text = "some text\nsome text\nsome text"
         val html = "<blockquote><ul><li>some text</li><li>some text</li><li>some text</li></ul></blockquote>"
 
         EditorPage()
                 .toggleQuote()
                 .makeList(EditorPage.ListStyle.UNORDERED)
                 .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testQuotedListRemoveListFormatting() {
+        val text = "some text\nsome text\nsome text"
+        val html = "<blockquote><ul><li>some text</li><li>some text</li></ul>\nsome text</blockquote>"
+
+        EditorPage()
+                .toggleQuote()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text)
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testListwithQuoteFormatting() {
+        val text1 = "some text\nsome text\nsome text\n"
+        val text2 = "some text"
+        val html = "<ul><li>some text</li><li>some text</li><li>some text</li><li><blockquote>some text</blockquote></li></ul>"
+
+        EditorPage()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text1)
+                .toggleQuote()
+                .insertText(text2)
                 .toggleHtml()
                 .verifyHTML(html)
     }

@@ -346,7 +346,7 @@ class MainActivity : AppCompatActivity(),
             .addPlugin(AudioShortcodePlugin())
 
         BlockElementWatcher(visualEditor)
-                .add(CaptionHandler())
+                .add(CaptionHandler(visualEditor))
                 .install(visualEditor)
 
         // initialize the text & HTML

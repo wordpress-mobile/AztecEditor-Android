@@ -7,7 +7,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ToggleButton
-import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton

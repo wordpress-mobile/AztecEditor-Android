@@ -1271,11 +1271,9 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     }
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
-        text.getSpans(0, text.length, IAztecAttributedSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .firstOrNull()?.attributes = attrs
+        text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.attributes = attrs
     }
 
     fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {

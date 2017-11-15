@@ -12,10 +12,10 @@ import org.wordpress.aztec.util.SpanWrapper
 fun AztecText.getImageCaption(attributePredicate: AztecText.AttributePredicate): String {
     return this.text
             .getSpans(0, this.text.length, AztecImageSpan::class.java)
-            .first {
+            .firstOrNull {
                 attributePredicate.matches(it.attributes)
             }
-            .getCaption()
+            ?.getCaption() ?: ""
 }
 
 fun AztecImageSpan.getCaption(): String {
@@ -30,10 +30,10 @@ fun AztecImageSpan.getCaption(): String {
 
 fun AztecText.setImageCaption(attributePredicate: AztecText.AttributePredicate, value: String) {
     this.text.getSpans(0, this.text.length, AztecImageSpan::class.java)
-        .first {
+        .firstOrNull {
             attributePredicate.matches(it.attributes)
         }
-        .setCaption(value)
+        ?.setCaption(value)
 }
 
 fun AztecImageSpan.setCaption(value: String) {

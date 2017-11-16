@@ -12,10 +12,10 @@ interface IAztecAttributedSpan {
      * @param output An [Editable] containing an [IAztecAttributedSpan] for processing.
      * @param start The index where the [IAztecAttributedSpan] starts inside the [text]
      */
-    fun applyInlineStyleAttributes(output: Editable, start: Int) {
+    fun applyInlineStyleAttributes(output: Editable, start: Int, end: Int) {
         val attr = this.attributes
         if (attr.hasAttribute("style")) {
-            InlineCssStyleFormatter.applyInlineStyleAttributes(output, attr, start)
+            InlineCssStyleFormatter.applyInlineStyleAttributes(output, attr, start, end)
         }
     }
 }

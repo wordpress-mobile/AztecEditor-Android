@@ -524,7 +524,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         text.setSpan(span, where, text.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         // Process HTML style attribute
-        span.applyInlineStyleAttributes(text, where);
+        span.applyInlineStyleAttributes(text, where, text.length());
     }
 
     private static void endFont(SpannableStringBuilder text) {

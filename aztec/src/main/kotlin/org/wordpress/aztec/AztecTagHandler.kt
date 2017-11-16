@@ -199,7 +199,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             if (last is IAztecAttributedSpan) {
                 // Apply the 'style' attribute if present
-                last.applyInlineStyleAttributes(output, start)
+                last.applyInlineStyleAttributes(output, start, end)
             }
         } else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
             // if block element is empty add a ZWJ to make it non empty and extend span

@@ -12,6 +12,7 @@ import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
@@ -53,5 +54,9 @@ class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
 
     override fun inflateButton(parent: ViewGroup) {
         LayoutInflater.from(context).inflate(R.layout.page_button, parent)
+    }
+
+    override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {
+        // no op
     }
 }

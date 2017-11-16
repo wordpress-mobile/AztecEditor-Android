@@ -99,7 +99,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             IMAGE -> {
-                handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, AztecAttributes(attributes)))
+                handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {

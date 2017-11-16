@@ -22,13 +22,16 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.support.v7.widget.AppCompatAutoCompleteTextView
+import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -41,9 +44,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
-import android.view.inputmethod.InputConnectionWrapper
 import android.widget.EditText
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
@@ -84,6 +84,7 @@ import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseRemover
+import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
 import org.xml.sax.Attributes
@@ -92,7 +93,7 @@ import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
+class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -123,6 +124,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var consumeSelectionChangedEvent: Boolean = false
+    private var isInlineTextHandlerEnabled: Boolean = true
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -134,6 +136,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
     private var previousCursorPosition = 0
+
+    private var isHandlingBackspaceEvent = false
 
     var isInCalypsoMode = true
 
@@ -287,9 +291,11 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        // detect the press of backspace from hardware keyboard when no characters are deleted (eg. at 0 index of EditText)
-        setOnKeyListener { _, _, event ->
-            handleBackspace(event)
+        setupZeroIndexBackspaceDetection()
+
+        //disable auto suggestions/correct for older devices
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
         install()
@@ -300,6 +306,29 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         enableTextChangedListener()
 
         isViewInitialized = true
+    }
+
+    // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
+    private fun setupZeroIndexBackspaceDetection() {
+        //hardware keyboard
+        setOnKeyListener { _, _, event ->
+            handleBackspace(event)
+        }
+
+        //software keyboard
+        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+            if (selectionStart == 0 && selectionEnd == 0
+                    && end == 0 && start == 0
+                    && dstart == 0 && dend == 0
+                    && !isHandlingBackspaceEvent) {
+                isHandlingBackspaceEvent = true
+                handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                isHandlingBackspaceEvent = false
+            }
+            source
+        }
+
+        filters = arrayOf(emptyEditTextBackspaceDetector)
     }
 
     private fun handleBackspace(event: KeyEvent): Boolean {
@@ -330,6 +359,10 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         ParagraphCollapseRemover.install(this)
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SuggestionWatcher.install(this)
+        }
 
         InlineTextWatcher.install(inlineFormatter, this)
 
@@ -484,7 +517,8 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         }
 
         companion object {
-            @JvmField val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(source: Parcel): SavedState {
                     return SavedState(source)
                 }
@@ -871,7 +905,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         parser.syncVisualNewlinesOfBlockElements(output)
 
-        Format.postProcessSpanedText(output, isInCalypsoMode)
+        Format.postProcessSpannedText(output, isInCalypsoMode)
 
         return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
     }
@@ -942,6 +976,18 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
     fun enableOnSelectionListener() {
         consumeSelectionChangedEvent = false
+    }
+
+    fun disableInlineTextHandling() {
+        isInlineTextHandlerEnabled = false
+    }
+
+    fun enableInlineTextHandling() {
+        isInlineTextHandlerEnabled = true
+    }
+
+    fun isInlineTextHandlerEnabled(): Boolean {
+        return isInlineTextHandlerEnabled
     }
 
     fun isOnSelectionListenerDisabled(): Boolean {
@@ -1018,23 +1064,23 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        Format.postProcessSpanedText(output, isInCalypsoMode)
+        Format.postProcessSpannedText(output, isInCalypsoMode)
 
         // do not copy unnecessary block hierarchy, just the minimum required
         var deleteNext = false
         output.getSpans(0, output.length, IAztecBlockSpan::class.java)
-            .sortedBy { it.nestingLevel }
-            .reversed()
-            .forEach {
-                if (deleteNext) {
-                    output.removeSpan(it)
-                } else {
-                    deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
-                    if (deleteNext && it is AztecListItemSpan) {
-                        deleteNext = false
+                .sortedBy { it.nestingLevel }
+                .reversed()
+                .forEach {
+                    if (deleteNext) {
+                        output.removeSpan(it)
+                    } else {
+                        deleteNext = output.getSpanStart(it) == 0 && output.getSpanEnd(it) == output.length
+                        if (deleteNext && it is AztecListItemSpan) {
+                            deleteNext = false
+                        }
                     }
                 }
-            }
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
 
@@ -1200,28 +1246,6 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
         blockEditorDialog = builder.create()
         blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog!!.show()
-    }
-
-    // Custom input connection is used to detect the press of backspace when no characters are deleted
-    // (eg. at 0 index of EditText)
-    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        return AztecInputConnection(super.onCreateInputConnection(outAttrs), true)
-    }
-
-    private inner class AztecInputConnection(target: InputConnection, mutable: Boolean) : InputConnectionWrapper(target, mutable) {
-
-        override fun sendKeyEvent(event: KeyEvent): Boolean {
-            handleBackspace(event)
-            return super.sendKeyEvent(event)
-        }
-
-        override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            // detect pressing of backspace with soft keyboard on 0 index, when no text is deleted
-            if (beforeLength == 1 && afterLength == 0 && selectionStart == 0 && selectionEnd == 0) {
-                sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
-            }
-            return super.deleteSurroundingText(beforeLength, afterLength)
-        }
     }
 
     private fun deleteInlineStyleFromTheBeginning() {

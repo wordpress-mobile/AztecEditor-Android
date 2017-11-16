@@ -56,7 +56,13 @@ class AztecUnorderedListSpan(
         val textToDraw = if (lineIndex > -1) "\u2022" else ""
 
         val width = p.measureText(textToDraw)
-        c.drawText(textToDraw, (listStyle.indicatorMargin + x + dir - width) * dir, (baseline + (width - p.descent())), p)
+
+        // Make sure the marker is correctly aligned on RTL languages
+        var markerStartPosition : Float = x + (listStyle.indicatorMargin * dir) * 1f
+        if (dir == 1)
+            markerStartPosition -= width
+
+        c.drawText(textToDraw, markerStartPosition , (baseline + (width - p.descent())), p)
 
         p.color = oldColor
         p.style = style

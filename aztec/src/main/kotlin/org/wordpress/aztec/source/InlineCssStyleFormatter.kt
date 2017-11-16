@@ -39,12 +39,12 @@ class InlineCssStyleFormatter {
             if (attributes.hasAttribute("style")) {
 
                 if (start != end) {
-                    val style = attributes.getValue("","style")
+                    val style = attributes.getValue("", "style")
                     // Process the CSS 'color' property
                     val m = foregroundColorPattern.matcher(style)
                     if (m.find()) {
                         val colorString = m.group(1)
-                        val colorInt  = ColorConverter.getColorInt(colorString)
+                        val colorInt = ColorConverter.getColorInt(colorString)
                         if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
                             text.setSpan(ForegroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                         }

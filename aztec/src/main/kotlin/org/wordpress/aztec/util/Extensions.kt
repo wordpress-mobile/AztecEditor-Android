@@ -6,8 +6,6 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.AztecParser
-import org.wordpress.aztec.source.InlineCssStyleFormatter
-import org.wordpress.aztec.spans.IAztecAttributedSpan
 
 fun Editable.getLast(kind: Class<*>): Any? {
     val spans = this.getSpans(0, this.length, kind)

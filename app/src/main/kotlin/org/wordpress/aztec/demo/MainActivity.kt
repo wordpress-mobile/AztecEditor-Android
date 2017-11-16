@@ -57,6 +57,7 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.xml.sax.Attributes
 import java.io.File
+import java.util.Random
 
 class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
@@ -252,8 +253,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
-        val id = (Math.random() * Int.MAX_VALUE).toString()
-
+        val id = Random().nextInt(Integer.MAX_VALUE).toString()
         val attrs = AztecAttributes()
         attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
         attrs.setValue("id", id)

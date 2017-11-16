@@ -59,7 +59,7 @@ import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random
 
-class MainActivity : AppCompatActivity(),
+open class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity(),
     private val REQUEST_MEDIA_PHOTO: Int = 2003
     private val REQUEST_MEDIA_VIDEO: Int = 2004
 
-    private lateinit var aztec: Aztec
+    protected lateinit var aztec: Aztec
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 

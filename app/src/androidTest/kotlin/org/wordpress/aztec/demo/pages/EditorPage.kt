@@ -26,6 +26,9 @@ class EditorPage : BasePage() {
     private var editor: ViewInteraction
     private var htmlEditor: ViewInteraction
 
+    private var undoButton: ViewInteraction
+    private var redoButton: ViewInteraction
+
     private var insertMediaButton: ViewInteraction
     private var headingButton: ViewInteraction
     private var listButton: ViewInteraction
@@ -49,6 +52,9 @@ class EditorPage : BasePage() {
     init {
         editor = onView(withId(R.id.aztec))
         htmlEditor = onView(withId(R.id.source))
+
+        undoButton = onView(withId(R.id.undo))
+        redoButton = onView(withId(R.id.redo))
 
         insertMediaButton = onView(withId(R.id.format_bar_button_media))
         headingButton = onView(withId(R.id.format_bar_button_heading))
@@ -143,6 +149,20 @@ class EditorPage : BasePage() {
         Thread.sleep(200)
         devicePhotosButton.perform(click())
         label("Chose device photos")
+    }
+
+    fun undoChange(): EditorPage {
+        undoButton.perform(Actions.invokeClick())
+        label("Performed undo")
+
+        return this
+    }
+
+    fun redoChange(): EditorPage {
+        redoButton.perform(Actions.invokeClick())
+        label("Performed redo")
+
+        return this
     }
 
     fun makeHeader(style: HeadingStyle): EditorPage {
@@ -276,7 +296,7 @@ class EditorPage : BasePage() {
     }
 
     fun verifyHTML(expected: String): EditorPage {
-        htmlEditor.check(matches(withText(expected)))
+        htmlEditor.check(matches(Matchers.withStrippedText(expected)))
         label("Verified expected editor contents")
 
         return this

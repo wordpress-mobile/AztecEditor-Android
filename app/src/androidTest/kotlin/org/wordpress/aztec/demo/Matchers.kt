@@ -7,16 +7,37 @@ import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
 
 object Matchers {
-    fun withRegex(regex: Regex): Matcher<View> {
+    fun withRegex(expected: Regex): Matcher<View> {
 
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
-                description.appendText("EditText matches $regex")
+                description.appendText("EditText matches $expected")
             }
 
             public override fun matchesSafely(view: View): Boolean {
                 if (view is EditText) {
-                    return view.text.toString().matches(regex)
+                    val regex = Regex(">\\s+<")
+                    val strippedText = view.text.toString().replace(regex, "><")
+                    return strippedText.matches(expected)
+                }
+
+                return false
+            }
+        }
+    }
+
+    fun withStrippedText(expected: String): Matcher<View> {
+
+        return object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("EditText matches $expected")
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                if (view is EditText) {
+                    val regex = Regex(">\\s+<")
+                    val strippedText = view.text.toString().replace(regex, "><")
+                    return strippedText.equals(expected)
                 }
 
                 return false

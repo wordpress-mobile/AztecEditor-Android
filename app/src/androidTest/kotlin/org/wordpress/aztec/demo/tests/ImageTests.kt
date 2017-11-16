@@ -50,7 +50,7 @@ class ImageTests : BaseTest() {
 
     @Test
     fun testAddTwoPhotos() {
-        val regex = Regex(".*<img src=.+>.*<img src=.+>.*")
+        val regex = Regex(".*<img src=.+>.*<img src=.+>.*", RegexOption.DOT_MATCHES_ALL)
 
         createImageIntentFilter()
         addPhotoWithHTML()

@@ -32,7 +32,9 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
@@ -45,6 +47,7 @@ import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
 import java.util.Arrays
+import java.util.Collections
 import java.util.Comparator
 import java.util.TreeMap
 
@@ -422,7 +425,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         while (i < end || start == end) {
             next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-            val spans = text.getSpans(i, next, CharacterStyle::class.java)
+            val spans = text.getSpans(i, next, CharacterStyle::class.java).toMutableList()
+            fixImageUrlsOrder(spans, text)
+
             for (j in spans.indices) {
                 val span = spans[j]
 
@@ -496,6 +501,26 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             out.append("<br>")
             consumeCursorIfInInput(out, text, end + z)
+        }
+    }
+
+    private fun fixImageUrlsOrder(spans: MutableList<CharacterStyle>, text: Spanned) {
+        val usualSuspects = spans.any { it is AztecMediaSpan } && spans.any { it is AztecURLSpan } && spans.any { it is AztecMediaClickableSpan }
+        if (usualSuspects) {
+            val urlSpan = spans.firstOrNull { it is AztecURLSpan }
+            val mediaSpan = spans.firstOrNull { it is AztecMediaSpan }
+
+            val urlSpanStart = text.getSpanStart(urlSpan)
+            val urlSpanEnd = text.getSpanEnd(urlSpan)
+
+            val allTheUsualSuspectsMatchTheProfile = spans.all {
+                it is AztecMediaSpan || it is AztecURLSpan || it is AztecMediaClickableSpan
+                        && text.getSpanStart(it) >= urlSpanStart && text.getSpanEnd(it) <= urlSpanEnd
+            }
+
+            if (allTheUsualSuspectsMatchTheProfile && spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)) {
+                Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
+            }
         }
     }
 

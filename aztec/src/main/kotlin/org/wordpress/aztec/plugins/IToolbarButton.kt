@@ -3,6 +3,7 @@ package org.wordpress.aztec.plugins
 import android.content.Context
 import android.view.KeyEvent
 import android.view.ViewGroup
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.toolbar.RippleToggleButton
 
@@ -40,4 +41,11 @@ interface IToolbarButton : IAztecPlugin {
      * @param parent view to be the parent of the generated hierarchy.
      */
     fun inflateButton(parent: ViewGroup)
+
+    /**
+     * Signals the ToolbarButton that the toolbar is about to change its enabled/disabled state
+     *
+     * This method is called when the toolbar buttons get "disabled/enabled"
+     */
+    fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean)
 }

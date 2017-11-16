@@ -131,7 +131,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             if (followingSpan != null) {
                 val spanEnd = editableText.getSpanEnd(followingSpan)
                 applySpan(followingSpan as IAztecInlineSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

@@ -108,11 +108,10 @@ internal object Format {
         }
 
         // Pretty it up for the source editor
-        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset"
-        val blocklist1 = blocklist + "|div|p"
+        val blocklist = "blockquote|ul|ol|li|table|thead|tbody|tfoot|tr|th|td|h[1-6]|fieldset|div|p"
 
-        content = replaceAll(content, "\\s*</($blocklist1)>\\s*", "</$1>\n")
-        content = replaceAll(content, "\\s*<((?:$blocklist1)(?: [^>]*)?)>", "\n<$1>")
+        content = replaceAll(content, "\\s*</($blocklist)>\\s*", "</$1>\n")
+        content = replaceAll(content, "\\s*<((?:$blocklist)(?: [^>]*)?)>", "\n<$1>")
 
         content = replaceAll(content, "\\s*<(!--.*?--|hr)>\\s*", "\n\n<$1>\n\n")
 
@@ -153,7 +152,7 @@ internal object Format {
         }
 
         // Unmark special paragraph closing tags
-        content = replaceAll(content, "</p#>", "</p>\n")
+        content = replaceAll(content, "</p#>", "</p>")
         content = replaceAll(content, "\\s*(<p [^>]+>[\\s\\S]*?</p>)", "\n$1")
 
         // Trim whitespace
@@ -307,13 +306,15 @@ internal object Format {
             }
 
             // we don't need paragraph spans in calypso at this point
-            text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
-                text.removeSpan(it)
-            }
+            text.getSpans(0, text.length, ParagraphSpan::class.java)
+                    .filter { it.attributes.isEmpty() }
+                    .forEach {
+                        text.removeSpan(it)
+                    }
         }
     }
 
-    fun postProcessSpanedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
+    fun postProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)
             spans.sortByDescending { text.getSpanStart(it) }
@@ -324,20 +325,36 @@ internal object Format {
                 val spanEnd = text.getSpanEnd(it)
 
                 if (text[spanStart] == '\n' && text.getSpans(spanEnd, spanEnd + 1, IAztecParagraphStyle::class.java)
-                        .filter { it !is ParagraphSpan && text.getSpanStart(it) == spanEnd }.isEmpty()) {
+                        .filter { (it !is ParagraphSpan || !it.attributes.isEmpty()) && text.getSpanStart(it) == spanEnd }.isEmpty()) {
                     text.insert(spanEnd, "\n")
                 }
 
                 if (text.getSpans(spanStart, spanEnd, AztecQuoteSpan::class.java)
-                        .filter { text.getSpanEnd(it) == spanEnd }.isEmpty()) {
+                        .filter { text.getSpanEnd(it) == spanEnd }.isEmpty() &&
+                    text.getSpans(spanStart, spanEnd, ParagraphSpan::class.java)
+                            .filter { !it.attributes.isEmpty() }.isEmpty()) {
                     text.getSpans(spanStart, spanEnd, AztecVisualLinebreak::class.java).forEach { text.removeSpan(it) }
                 }
             }
 
-            // we don't care about actual ParagraphSpan in calypso - paragraphs are made from double newline
-            text.getSpans(0, text.length, ParagraphSpan::class.java).forEach {
-                text.removeSpan(it)
-            }
+            // split up paragraphs that contain double newlines
+            text.getSpans(0, text.length, ParagraphSpan::class.java)
+                    .forEach {
+                        val start = text.getSpanStart(it)
+                        val end = text.getSpanEnd(it)
+                        val double = text.indexOf("\n\n", start)
+                        if (double != -1 && double < end) {
+                            text.setSpan(it, start, double + 1, text.getSpanFlags(it))
+                            text.setSpan(AztecVisualLinebreak(), double + 1, double + 2, text.getSpanFlags(it))
+                        }
+                    }
+
+            // we don't care about actual ParagraphSpan in calypso that don't have attributes or are empty (paragraphs are made from double newline)
+            text.getSpans(0, text.length, ParagraphSpan::class.java)
+                    .filter { it.attributes.isEmpty() || text.getSpanStart(it) == text.getSpanEnd(it) - 1 }
+                    .forEach {
+                        text.removeSpan(it)
+                    }
         }
     }
 

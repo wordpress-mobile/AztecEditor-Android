@@ -871,7 +871,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         parser.syncVisualNewlinesOfBlockElements(output)
 
-        Format.postProcessSpanedText(output, isInCalypsoMode)
+        Format.postProcessSpannedText(output, isInCalypsoMode)
 
         return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
     }
@@ -1018,7 +1018,7 @@ class AztecText : AppCompatAutoCompleteTextView, TextWatcher, UnknownHtmlSpan.On
 
         clearMetaSpans(output)
         parser.syncVisualNewlinesOfBlockElements(output)
-        Format.postProcessSpanedText(output, isInCalypsoMode)
+        Format.postProcessSpannedText(output, isInCalypsoMode)
 
         // do not copy unnecessary block hierarchy, just the minimum required
         var deleteNext = false

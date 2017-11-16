@@ -67,6 +67,21 @@ class MixedTextFormattingTests : BaseTest() {
     }
 
     @Test
+    fun testRetainParagraphFormatting() {
+        // Paragraph are only retained if they have at least one attribute
+        // https://github.com/wordpress-mobile/AztecEditor-Android/pull/483#discussion_r151377857
+        val text = "some text"
+        val html = "<p a=\"ok\">$text</p>"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(html)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
     fun testRetainHeadingFormatting() {
         val text = "some text"
         val html = "<h1>$text</h1>"

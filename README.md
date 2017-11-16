@@ -8,6 +8,58 @@ documents in Android.
 
 Supports Android 4.1+ (API 16 - Jelly Bean)
 
+## Getting started
+
+Declare the main components in your layout:
+
+Visual editor
+```XML
+<org.wordpress.aztec.AztecText
+    android:id="@+id/visual"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    android:imeOptions="flagNoExtractUi"
+    aztec:historyEnable="false" />
+```
+Source editor
+```XML
+<org.wordpress.aztec.source.SourceViewEditText
+    android:id="@+id/source"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:inputType="textNoSuggestions|textMultiLine"
+    android:scrollbars="vertical"
+    android:imeOptions="flagNoExtractUi"
+    aztec:codeBackgroundColor="@android:color/transparent"
+    aztec:codeTextColor="@android:color/white" />
+```
+
+Toolbar
+```XML
+<org.wordpress.aztec.toolbar.AztecToolbar
+    android:id="@+id/formatting_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/format_bar_height"
+    android:layout_alignParentBottom="true" />
+```
+
+Inflate the views:
+```kotlin
+val visualEditor = findViewById<AztecText>(R.id.visual)
+val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
+val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
+```
+
+Configure Aztec with a provided image & video loaders:
+```kotlin
+Aztec.with(visualEditor, sourceEditor, toolbar, context)
+    .setImageGetter(GlideImageLoader(context))
+    .setVideoThumbnailGetter(GlideVideoThumbnailLoader(context))
+```
+
+For more options, such as edit history, listeners and plugins please refer to the [demo app implementation](https://github.com/wordpress-mobile/AztecEditor-Android/blob/9fdc1958ca1e1ad5de6fba15dabe251bcf0fc7b6/app/src/main/kotlin/org/wordpress/aztec/demo/MainActivity.kt#L331-L346).
+
 ## Build and test
 
 Build the library, build the example project and run unit tests:
@@ -39,7 +91,7 @@ On your device, under Settings -> Accessibility -> Touch & hold delay, set the d
 Run the instrumentation tests:
 
 ```shell
-$ adb shell am instrument -w -r -e package org.wordpress.aztec.demo -e debug false org.wordpress.aztec.test/android.support.test.runner.AndroidJUnitRunner
+$ ./gradlew cAT
 ```
 
 ## Integrating Aztec in your project

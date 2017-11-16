@@ -5,6 +5,7 @@ package org.wordpress.aztec
 import android.test.AndroidTestCase
 import android.test.mock.MockContext
 import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
@@ -76,6 +77,15 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<div class=\"fourth\"><u>Under</u>line</div>\n" +
                     "<div class=\"fifth\"></div>\n</div>\n</div>"
 
+    private val HTML_PARAGRAPHS_WITH_ATTRIBUTES =
+            "a\n<p a=\"A\">b</p>\nc"
+
+    private val HTML_PARAGRAPHS_MIXED =
+            "a\n<p a=\"A\">b</p>\n<p a=\"A\">b</p>\nc\n\nd\n<p>e</p>"
+
+    private val HTML_PARAGRAPHS_MIXED_CALPYSO =
+            "a\n<p a=\"A\">b</p>\n<p a=\"A\">b</p>c\n\nd\n\ne"
+
     private val HTML_MIXED_REGEX =
             "\n\n<span><i>Italic</i></span>\n\n<b>Bold</b><br>" +
                     "\t<div class=\"\$\$\$first\">" +
@@ -126,7 +136,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
     }
 
     /**
-     * Test the conversion from HTML to visual mode with mixed HTML  (Calypso format)
+     * Test the conversion from HTML to visual mode with mixed HTML (Calypso format)
      *
      * @throws Exception
      */
@@ -151,5 +161,34 @@ class CalypsoFormattingTest : AndroidTestCase() {
         val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
         Assert.assertEquals(HTML_MIXED_REGEX_CALYPSO, output)
+    }
+
+    /**
+     * Test the preservation of paragraphs with attributes (Calypso format)
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun paragraphsWithAttributes() {
+        val input = HTML_PARAGRAPHS_WITH_ATTRIBUTES
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_PARAGRAPHS_WITH_ATTRIBUTES, output)
+    }
+
+    /**
+     * Test the preservation of paragraphs with attributes and removal of those without (Calypso format)
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun mixedParagraphsWithAttributes() {
+        val input = HTML_PARAGRAPHS_MIXED
+        val span = SpannableStringBuilder(parser.fromHtml(Format.removeSourceEditorFormatting(input, true),
+                RuntimeEnvironment.application.applicationContext))
+        val output = Format.addSourceEditorFormatting(parser.toHtml(span), true)
+        Assert.assertEquals(HTML_PARAGRAPHS_MIXED_CALPYSO, output)
     }
 }

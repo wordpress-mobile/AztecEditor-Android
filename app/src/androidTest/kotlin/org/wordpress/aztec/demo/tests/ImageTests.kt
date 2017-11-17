@@ -24,8 +24,28 @@ class ImageTests : BaseTest() {
     @JvmField
     val mActivityIntentsTestRule = IntentsTestRule<MainActivity>(MainActivity::class.java)
 
+    // Simple photo test, also tests the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/306
     @Test
     fun testAddPhoto() {
+        val regex = Regex("<img src=.+>")
+
+        createImageIntentFilter()
+
+        EditorPage()
+                .tapTop()
+                .insertMedia()
+
+        // Must wait for simulated upload
+        Thread.sleep(10000)
+
+        EditorPage()
+                .toggleHtml()
+                .verifyHTML(regex)
+    }
+
+    @Test
+    fun testAddPhotoAndText() {
         var sampleText = "sample text "
         val regex = Regex(".+<img src=.+>.+")
 
@@ -50,7 +70,7 @@ class ImageTests : BaseTest() {
 
     @Test
     fun testAddTwoPhotos() {
-        val regex = Regex(".*<img src=.+>.*<img src=.+>.*")
+        val regex = Regex(".*<img src=.+>.*<img src=.+>.*", RegexOption.DOT_MATCHES_ALL)
 
         createImageIntentFilter()
         addPhotoWithHTML()
@@ -65,6 +85,25 @@ class ImageTests : BaseTest() {
         EditorPage()
                 .toggleHtml()
                 .verifyHTML(regex)
+    }
+
+    // Tests the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/299
+    @Test
+    fun testUndoImageUpload() {
+        createImageIntentFilter()
+
+        EditorPage()
+                .tapTop()
+                .insertMedia()
+
+        // Must wait for simulated upload to start
+        Thread.sleep(1000)
+
+        EditorPage()
+                .undoChange()
+                .toggleHtml()
+                .verifyHTML("")
     }
 
     private fun addPhotoWithHTML() {

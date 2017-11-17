@@ -21,10 +21,7 @@ import java.util.ArrayList
 
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
 
-    data class CarryOverSpan(val span: IAztecInlineSpan, val start: Int, val end: Int)
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
-
-    val carryOverSpans = ArrayList<CarryOverSpan>()
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
@@ -32,30 +29,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         } else {
             removeInlineStyle(textFormat)
         }
-    }
-
-    fun carryOverInlineSpans(start: Int, count: Int, after: Int) {
-        carryOverSpans.clear()
-
-        val charsAdded = after - count
-        if (charsAdded > 0 && count > 0) {
-            editableText.getSpans(start, start + count, IAztecInlineSpan::class.java).forEach {
-                val spanStart = editableText.getSpanStart(it)
-                val spanEnd = editableText.getSpanEnd(it)
-
-                if ((spanStart == start || spanEnd == count + start) && (spanEnd - spanStart) < after) {
-                    editableText.removeSpan(it)
-                    carryOverSpans.add(CarryOverSpan(it, spanStart, spanEnd))
-                }
-            }
-        }
-    }
-
-    fun reapplyCarriedOverInlineSpans() {
-        carryOverSpans.forEach {
-            editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        carryOverSpans.clear()
     }
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
@@ -134,7 +107,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 if (spanEnd > start) {
                     return@applyInlineStyle // we are adding text inside span - no need to do anything special
                 } else {
-                    editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(precedingSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -150,7 +123,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
             if (followingSpan != null) {
                 val spanEnd = editableText.getSpanEnd(followingSpan)
-                editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 
@@ -168,9 +141,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             // if we already have same span within selection - reuse it by changing it's bounds
             if (existingSpanOfSameStyle != null) {
                 editableText.removeSpan(existingSpanOfSameStyle)
-                editableText.setSpan(existingSpanOfSameStyle, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                editableText.setSpan(existingSpanOfSameStyle, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             } else {
-                editableText.setSpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                editableText.setSpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 
@@ -241,13 +214,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             val spansBeforeSelection = editableText.getSpans(start - 1, start, IAztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
                 val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
-                if (inSelectionSpanEnd == -1) return@forEach
+                val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
+                if (inSelectionSpanEnd == -1 || inSelectionSpanStart == -1) return@forEach
                 spansBeforeSelection.forEach { outerSpan ->
                     val outerSpanStart = editableText.getSpanStart(outerSpan)
 
                     if (isSameInlineSpanType(innerSpan, outerSpan)) {
                         editableText.removeSpan(outerSpan)
-                        editableText.setSpan(innerSpan, outerSpanStart, inSelectionSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        editableText.setSpan(innerSpan, outerSpanStart, inSelectionSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
             }
@@ -258,14 +232,15 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             val spansInSelection = editableText.getSpans(start, end, IAztecInlineSpan::class.java)
             val spansAfterSelection = editableText.getSpans(end, end + 1, IAztecInlineSpan::class.java)
             spansInSelection.forEach { innerSpan ->
+                val inSelectionSpanEnd = editableText.getSpanEnd(innerSpan)
                 val inSelectionSpanStart = editableText.getSpanStart(innerSpan)
-                if (inSelectionSpanStart == -1) return@forEach
+                if (inSelectionSpanEnd == -1 || inSelectionSpanStart == -1) return@forEach
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
 
                     if (isSameInlineSpanType(innerSpan, outerSpan)) {
                         editableText.removeSpan(outerSpan)
-                        editableText.setSpan(innerSpan, inSelectionSpanStart, outerSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                        editableText.setSpan(innerSpan, inSelectionSpanStart, outerSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
             }
@@ -302,9 +277,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
                 // span we want to join is on the left
                 if (spanStart == neighbourSpanEnd) {
-                    editableText.setSpan(appliedSpan, neighbourSpanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(appliedSpan, neighbourSpanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else if (spanEnd == neighbourSpanStart) {
-                    editableText.setSpan(appliedSpan, spanStart, neighbourSpanEnd, Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    editableText.setSpan(appliedSpan, spanStart, neighbourSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
 
                 editableText.removeSpan(neighbourSpan)

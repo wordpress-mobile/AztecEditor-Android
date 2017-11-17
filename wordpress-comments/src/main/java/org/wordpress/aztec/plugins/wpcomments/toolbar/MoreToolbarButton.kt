@@ -6,17 +6,18 @@ import android.text.Spanned
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ToggleButton
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
-
     override val action: IToolbarAction = CommentsToolbarAction.MORE
     override val context = visualEditor.context!!
 
@@ -53,5 +54,9 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
 
     override fun inflateButton(parent: ViewGroup) {
         LayoutInflater.from(context).inflate(R.layout.more_button, parent)
+    }
+
+    override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {
+        toolbar.findViewById<ToggleButton>(R.id.format_bar_button_more).isEnabled = enable
     }
 }

@@ -1,13 +1,27 @@
 package org.wordpress.aztec.plugins.shortcodes.handlers
 
+import android.text.SpannableStringBuilder
+import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.handlers.BlockHandler
-import org.wordpress.aztec.handlers.GenericBlockHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.watchers.TextDeleter
+import java.lang.ref.WeakReference
 
-class CaptionHandler : BlockHandler<CaptionShortcodeSpan>(CaptionShortcodeSpan::class.java) {
+class CaptionHandler(aztecText: AztecText) : BlockHandler<CaptionShortcodeSpan>(CaptionShortcodeSpan::class.java) {
+
+    private val aztecTextRef = WeakReference(aztecText)
+
     override fun handleNewlineInBody() {
-        block.end = newlineIndex + 1
+        if (newlineIndex == block.start + 2 || newlineIndex == block.start + 1) {
+            TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
+
+            val span = text as SpannableStringBuilder
+            span.insert(block.end, Constants.NEWLINE_STRING)
+            aztecTextRef.get()?.setSelection(block.end)
+        } else {
+            block.end = newlineIndex + 1
+        }
     }
 
     override fun handleNewlineAtEmptyLineAtBlockEnd() {

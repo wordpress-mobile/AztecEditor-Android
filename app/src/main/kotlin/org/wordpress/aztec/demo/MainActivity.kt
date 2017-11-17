@@ -57,8 +57,9 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.xml.sax.Attributes
 import java.io.File
+import java.util.Random
 
-class MainActivity : AppCompatActivity(),
+open class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
         AztecText.OnImageTappedListener,
         AztecText.OnVideoTappedListener,
@@ -167,7 +168,7 @@ class MainActivity : AppCompatActivity(),
     private val REQUEST_MEDIA_PHOTO: Int = 2003
     private val REQUEST_MEDIA_VIDEO: Int = 2004
 
-    private lateinit var aztec: Aztec
+    protected lateinit var aztec: Aztec
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 
@@ -252,8 +253,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
-        val id = (Math.random() * Int.MAX_VALUE).toString()
-
+        val id = Random().nextInt(Integer.MAX_VALUE).toString()
         val attrs = AztecAttributes()
         attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
         attrs.setValue("id", id)
@@ -346,7 +346,7 @@ class MainActivity : AppCompatActivity(),
             .addPlugin(AudioShortcodePlugin())
 
         BlockElementWatcher(visualEditor)
-                .add(CaptionHandler())
+                .add(CaptionHandler(visualEditor))
                 .install(visualEditor)
 
         aztec.visualEditor.setCalypsoMode(false)

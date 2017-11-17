@@ -68,8 +68,10 @@ class MixedTextFormattingTests : BaseTest() {
 
     @Test
     fun testRetainParagraphFormatting() {
+        // Paragraph are only retained if they have at least one attribute
+        // https://github.com/wordpress-mobile/AztecEditor-Android/pull/483#discussion_r151377857
         val text = "some text"
-        val html = "<p>$text</p>"
+        val html = "<p a=\"ok\">$text</p>"
 
         EditorPage()
                 .toggleHtml()
@@ -107,5 +109,105 @@ class MixedTextFormattingTests : BaseTest() {
                 .makeHeader(EditorPage.HeadingStyle.DEFAULT)
                 .toggleHtml()
                 .verifyHTML(text)
+    }
+
+    @Test
+    fun testTwoHeadings() {
+        val text = "some text"
+        val html = "<h1>$text</h1><h2>$text</h2>"
+
+        EditorPage()
+                .makeHeader(EditorPage.HeadingStyle.ONE)
+                .insertText(text)
+                .insertText("\n")
+                .makeHeader(EditorPage.HeadingStyle.TWO)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testEndHeadingFormatting() {
+        val text = "some text"
+        val html = "<h1>$text</h1>\n$text"
+
+        EditorPage()
+                .makeHeader(EditorPage.HeadingStyle.ONE)
+                .insertText(text)
+                .insertText("\n")
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testEndQuoteFormatting() {
+        val text = "some text"
+        val html = "<blockquote>$text</blockquote>\n$text"
+
+        EditorPage()
+                .toggleQuote()
+                .insertText(text)
+                .insertText("\n\n")
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testRemoveQuoteFormatting() {
+        val text = "some text"
+        val html = "<blockquote>$text</blockquote>\n$text"
+
+        EditorPage()
+                .toggleQuote()
+                .insertText(text)
+                .insertText("\n")
+                .insertText(text)
+                .toggleQuote()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testQuotedListFormatting() {
+        val text = "some text\nsome text\nsome text"
+        val html = "<blockquote><ul><li>some text</li><li>some text</li><li>some text</li></ul></blockquote>"
+
+        EditorPage()
+                .toggleQuote()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testQuotedListRemoveListFormatting() {
+        val text = "some text\nsome text\nsome text"
+        val html = "<blockquote><ul><li>some text</li><li>some text</li></ul>\nsome text</blockquote>"
+
+        EditorPage()
+                .toggleQuote()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text)
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testListwithQuoteFormatting() {
+        val text1 = "some text\nsome text\nsome text\n"
+        val text2 = "some text"
+        val html = "<ul><li>some text</li><li>some text</li><li>some text</li><li><blockquote>some text</blockquote></li></ul>"
+
+        EditorPage()
+                .makeList(EditorPage.ListStyle.UNORDERED)
+                .insertText(text1)
+                .toggleQuote()
+                .insertText(text2)
+                .toggleHtml()
+                .verifyHTML(html)
     }
 }

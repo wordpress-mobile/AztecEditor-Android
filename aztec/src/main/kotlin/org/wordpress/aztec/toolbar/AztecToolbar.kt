@@ -766,6 +766,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 toggleButtonState(findViewById(action.buttonId), !isEnabled)
             }
         }
+        toolbarButtonPlugins.forEach { button -> button.toolbarStateAboutToChange(this, !isEnabled) }
     }
 
     private fun showDialogShortcuts() {

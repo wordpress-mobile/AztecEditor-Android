@@ -28,7 +28,7 @@ class AztecOrderedListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
-    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
+) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     override val TAG = "ol"
 
     private var horizontalShift = 0
@@ -56,12 +56,20 @@ class AztecOrderedListSpan(
         p.style = Paint.Style.FILL
 
         val lineIndex = getIndexOfProcessedLine(text, end)
-        val textToDraw = if (lineIndex > -1) getIndexOfProcessedLine(text, end).toString() + "." else ""
+        val textToDraw = if (lineIndex > -1) {
+            if (dir >= 0) lineIndex.toString() + "."
+            else "." + lineIndex.toString()
+        } else {
+            ""
+        }
 
         val width = p.measureText(textToDraw)
         maxWidth = Math.max(maxWidth, width)
 
-        var textStart = (listStyle.indicatorMargin + x + dir - width) * dir
+        // Make sure the marker is correctly aligned on RTL languages
+        var textStart: Float = x + (listStyle.indicatorMargin * dir) * 1f
+        if (dir == 1)
+            textStart -= width
 
         if (textStart < 0) {
             horizontalShift = -textStart.toInt()

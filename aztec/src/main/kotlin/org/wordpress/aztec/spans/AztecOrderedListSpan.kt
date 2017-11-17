@@ -66,7 +66,7 @@ class AztecOrderedListSpan(
         val width = p.measureText(textToDraw)
         maxWidth = Math.max(maxWidth, width)
 
-        // Make sure the marker is correctly aligned on RTL languages
+        // Make sure the item number is correctly aligned on RTL languages
         var textStart: Float = x + (listStyle.indicatorMargin * dir) * 1f
         if (dir == 1)
             textStart -= width

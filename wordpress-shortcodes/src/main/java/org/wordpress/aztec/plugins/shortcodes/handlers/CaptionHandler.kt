@@ -13,7 +13,9 @@ class CaptionHandler(aztecText: AztecText) : BlockHandler<CaptionShortcodeSpan>(
     private val aztecTextRef = WeakReference(aztecText)
 
     override fun handleNewlineInBody() {
-        if (newlineIndex == block.start + 2 || newlineIndex == block.start + 1) {
+        // if a newline is entered between the caption and an image, push it below the caption
+        val imgIndex = text.indexOf(Constants.IMG_CHAR, block.start)
+        if (newlineIndex == imgIndex + 2 || newlineIndex == imgIndex + 1) {
             TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
 
             val span = text as SpannableStringBuilder

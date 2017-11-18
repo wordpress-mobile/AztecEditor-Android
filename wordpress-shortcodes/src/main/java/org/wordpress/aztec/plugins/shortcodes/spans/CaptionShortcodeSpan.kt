@@ -22,17 +22,24 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         get() {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+                val start = getStart(wrapper)
                 val end = getEnd(wrapper, aztecText)
-                return aztecText.text.subSequence(wrapper.start + 1, end).toString()
+                return aztecText.text.subSequence(start, end).toString()
             }
             return ""
         }
         set(value) {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+                var start = getStart(wrapper)
                 val end = getEnd(wrapper, aztecText)
-                aztecText.text.replace(wrapper.start + 1, end, value)
-                aztecText.text.setSpan(wrapper.span, wrapper.start, wrapper.start + 1 + value.length,
+
+                // a possible condition if caption is empty
+                if (end < start)
+                    start = end
+
+                aztecText.text.replace(start, end, value)
+                aztecText.text.setSpan(wrapper.span, wrapper.start, start + value.length + 1,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
@@ -40,15 +47,26 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
     fun remove() {
         aztecText?.let {
             val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
+            var start = getStart(wrapper)
             val end = getEnd(wrapper, aztecText)
-            aztecText.text.delete(wrapper.start + 1, end)
+
+            if (start > 0 && aztecText.text[start - 1] == Constants.NEWLINE &&
+                    end < aztecText.text.length && aztecText.text[end] == Constants.NEWLINE) {
+                start--
+            }
+            aztecText.text.delete(start, end)
             aztecText.text.removeSpan(this)
         }
     }
 
+    // skip the image char and the newline
+    private fun getStart(wrapper: SpanWrapper<CaptionShortcodeSpan>): Int {
+        return wrapper.spannable.indexOf(Constants.IMG_CHAR, wrapper.start) + 2
+    }
+
     private fun getEnd(wrapper: SpanWrapper<CaptionShortcodeSpan>, aztecText: AztecText): Int {
         var end = wrapper.end
-        if (end - 1 >= 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
+        if (end > 0 && aztecText.text[end - 1] == Constants.NEWLINE) {
             end--
         }
         return end

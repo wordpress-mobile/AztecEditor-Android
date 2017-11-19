@@ -1,4 +1,4 @@
-package org.wordpress.aztec.util
+package org.wordpress.aztec.extensions
 
 import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes

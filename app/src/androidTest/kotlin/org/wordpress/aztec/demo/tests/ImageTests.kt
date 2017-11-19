@@ -91,7 +91,7 @@ class ImageTests : BaseTest() {
     // https://github.com/wordpress-mobile/AztecEditor-Android/issues/196
     // Currently it's only possible to reproduce this issue on real device or emulator, and not with Genymotion
     @Test
-    fun testParsingOfPhotoSurroundedByLink() {
+    fun testParsingOfImagesWithLink() {
         val imageHtml = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">" +
                 "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\">" +
                 "</a>"

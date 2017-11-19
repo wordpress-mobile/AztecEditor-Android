@@ -32,7 +32,6 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
@@ -513,17 +512,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val urlSpanStart = text.getSpanStart(urlSpan)
             val urlSpanEnd = text.getSpanEnd(urlSpan)
 
-            val isUrlSpanOutsideMediaSpan = spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)
+            val isUrlSpanFollowsMediaSpan = spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)
+            val isMediaSpanWithinUrlSpan = text.getSpanStart(mediaSpan) >= urlSpanStart && text.getSpanEnd(mediaSpan) <= urlSpanEnd
 
-            if (isUrlSpanOutsideMediaSpan) {
-                val isSpanMatch = spans.filter {
-                    it is AztecMediaSpan || it is AztecURLSpan || it is AztecMediaClickableSpan
-                            && text.getSpanStart(it) >= urlSpanStart && text.getSpanEnd(it) <= urlSpanEnd
-                }.size == 3
-
-                if (isSpanMatch) {
-                    Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
-                }
+            if (isUrlSpanFollowsMediaSpan && isMediaSpanWithinUrlSpan) {
+                Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
             }
         }
     }

@@ -1,6 +1,5 @@
 package org.wordpress.aztec.plugins.shortcodes.handlers
 
-import android.text.Spannable
 import android.text.SpannableStringBuilder
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants

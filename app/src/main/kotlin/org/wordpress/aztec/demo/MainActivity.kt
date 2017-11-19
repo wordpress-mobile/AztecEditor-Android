@@ -47,14 +47,12 @@ import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
-import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random

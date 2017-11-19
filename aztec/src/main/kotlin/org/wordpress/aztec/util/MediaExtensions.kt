@@ -1,5 +1,6 @@
 package org.wordpress.aztec.util
 
+import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecMediaSpan
@@ -44,16 +45,13 @@ fun AztecText.removeLinkFromMedia(attributePredicate: AztecText.AttributePredica
             }
 }
 
-fun AztecText.addLinkToMedia(attributePredicate: AztecText.AttributePredicate, link: String, linkAttributes: AztecAttributes) {
-    text.getSpans(0, text.length, AztecMediaSpan::class.java)
-            .filter {
-                attributePredicate.matches(it.attributes)
-            }
+fun AztecText.addLinkToMedia(attributePredicate: AztecText.AttributePredicate, link: String, linkAttributes: AztecAttributes = AztecAttributes()) {
+    text.getSpans(0, text.length, AztecMediaSpan::class.java).filter { attributePredicate.matches(it.attributes) }
             .forEach {
                 val start = text.getSpanStart(it)
                 val end = text.getSpanEnd(it)
 
                 removeLinkFromMedia(attributePredicate)
-                linkFormatter.setLinkSpan(text, link, start, end, linkAttributes)
+                text.setSpan(AztecURLSpan(link, linkAttributes), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
 }

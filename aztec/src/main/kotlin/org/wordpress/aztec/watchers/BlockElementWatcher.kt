@@ -10,7 +10,7 @@ import org.wordpress.aztec.spans.MarkForReplay
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
-class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
+open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     val handlers = ArrayList<TextChangeHandler>()
 
     interface TextChangeHandler {

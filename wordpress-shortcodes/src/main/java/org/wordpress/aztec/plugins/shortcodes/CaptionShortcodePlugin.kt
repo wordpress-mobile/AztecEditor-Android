@@ -6,7 +6,9 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
+import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
@@ -18,6 +20,14 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
     companion object {
         val HTML_TAG = "wp-shortcode-caption-html-tag"
         val SHORTCODE_TAG = "caption"
+    }
+
+    init {
+        aztecText?.let {
+            CaptionWatcher(aztecText)
+                    .add(CaptionHandler(aztecText))
+                    .install(aztecText)
+        }
     }
 
     override fun canHandleTag(tag: String): Boolean {

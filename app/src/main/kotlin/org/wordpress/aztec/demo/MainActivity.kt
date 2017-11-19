@@ -345,10 +345,6 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
 
-        BlockElementWatcher(visualEditor)
-                .add(CaptionHandler(visualEditor))
-                .install(visualEditor)
-
         aztec.visualEditor.setCalypsoMode(false)
         aztec.sourceEditor?.setCalypsoMode(false)
 

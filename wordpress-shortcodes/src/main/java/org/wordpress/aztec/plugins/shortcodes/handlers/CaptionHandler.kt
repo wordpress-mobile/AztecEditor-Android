@@ -1,5 +1,6 @@
 package org.wordpress.aztec.plugins.shortcodes.handlers
 
+import android.text.Spannable
 import android.text.SpannableStringBuilder
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
@@ -24,6 +25,11 @@ class CaptionHandler(aztecText: AztecText) : BlockHandler<CaptionShortcodeSpan>(
         } else {
             block.end = newlineIndex + 1
         }
+    }
+
+    override fun handleNewlineAtStartOfBlock() {
+        // we got a newline at the start of the block. Let's just push the block after the newline
+        block.start = newlineIndex + 1
     }
 
     override fun handleNewlineAtEmptyLineAtBlockEnd() {

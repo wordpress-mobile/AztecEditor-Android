@@ -426,7 +426,8 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
             val spans = text.getSpans(i, next, CharacterStyle::class.java).toMutableList()
-            fixImageUrlsOrder(spans, text)
+
+            fixOrderOfNestedMediaAndUrlSpans(spans, text)
 
             for (j in spans.indices) {
                 val span = spans[j]
@@ -504,22 +505,25 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         }
     }
 
-    private fun fixImageUrlsOrder(spans: MutableList<CharacterStyle>, text: Spanned) {
-        val usualSuspects = spans.any { it is AztecMediaSpan } && spans.any { it is AztecURLSpan } && spans.any { it is AztecMediaClickableSpan }
-        if (usualSuspects) {
-            val urlSpan = spans.firstOrNull { it is AztecURLSpan }
-            val mediaSpan = spans.firstOrNull { it is AztecMediaSpan }
+    private fun fixOrderOfNestedMediaAndUrlSpans(spans: MutableList<CharacterStyle>, text: Spanned) {
+        val urlSpan = spans.firstOrNull { it is AztecURLSpan }
+        val mediaSpan = spans.firstOrNull { it is AztecMediaSpan }
 
+        if (urlSpan != null && mediaSpan != null) {
             val urlSpanStart = text.getSpanStart(urlSpan)
             val urlSpanEnd = text.getSpanEnd(urlSpan)
 
-            val allTheUsualSuspectsMatchTheProfile = spans.all {
-                it is AztecMediaSpan || it is AztecURLSpan || it is AztecMediaClickableSpan
-                        && text.getSpanStart(it) >= urlSpanStart && text.getSpanEnd(it) <= urlSpanEnd
-            }
+            val isUrlSpanOutsideMediaSpan = spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)
 
-            if (allTheUsualSuspectsMatchTheProfile && spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)) {
-                Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
+            if (isUrlSpanOutsideMediaSpan) {
+                val isSpanMatch = spans.filter {
+                    it is AztecMediaSpan || it is AztecURLSpan || it is AztecMediaClickableSpan
+                            && text.getSpanStart(it) >= urlSpanStart && text.getSpanEnd(it) <= urlSpanEnd
+                }.size == 3
+
+                if (isSpanMatch) {
+                    Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
+                }
             }
         }
     }

@@ -19,7 +19,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         return !urlSpans.isEmpty()
     }
 
-    fun getSelectedUrlWithAnchor(): Pair<String, String> {
+    fun getSelectedUrlWithAnchor(start: Int = selectionStart, end: Int = selectionEnd): Pair<String, String> {
         val url: String
         var anchor: String
 
@@ -27,14 +27,14 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             val clipboardUrl = getUrlFromClipboard(editor.context)
 
             url = if (TextUtils.isEmpty(clipboardUrl)) "" else clipboardUrl
-            anchor = if (selectionStart == selectionEnd) "" else editor.getSelectedText()
+            anchor = if (start == end) "" else editor.getSelectedText()
         } else {
-            val urlSpan = editableText.getSpans(selectionStart, selectionEnd, AztecURLSpan::class.java).first()
+            val urlSpan = editableText.getSpans(start, end, AztecURLSpan::class.java).first()
 
             val spanStart = editableText.getSpanStart(urlSpan)
             val spanEnd = editableText.getSpanEnd(urlSpan)
 
-            if (selectionStart < spanStart || selectionEnd > spanEnd) {
+            if (start < spanStart || end > spanEnd) {
                 // looks like some text that is not part of the url was included in selection
                 anchor = editor.getSelectedText()
                 url = ""
@@ -78,13 +78,13 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         return Pair(spanStart, spanEnd)
     }
 
-    fun addLink(link: String, anchor: String, start: Int, end: Int) {
+    fun addLink(link: String, anchor: String, start: Int, end: Int, linkAttributes: AztecAttributes = AztecAttributes()) {
         val cleanLink = link.trim()
 
         val actualAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
         val ssb = SpannableStringBuilder(actualAnchor)
-        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length)
+        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length, linkAttributes)
 
         if (start == end) {
             // insert anchor
@@ -94,7 +94,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             if (editor.getSelectedText() != anchor) {
                 editableText.replace(start, end, ssb)
             } else {
-                setLinkSpan(editableText, cleanLink, start, end)
+                setLinkSpan(editableText, cleanLink, start, end, linkAttributes)
             }
         }
     }
@@ -138,12 +138,12 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             return
         }
 
-        linkInvalid(start, end)
+        removeLink(start, end)
         setLinkSpan(editableText, link, start, end, attributes)
         editor.onSelectionChanged(end, end)
     }
 
-    fun linkInvalid(start: Int, end: Int) {
+    fun removeLink(start: Int, end: Int) {
         if (start >= end) {
             return
         }

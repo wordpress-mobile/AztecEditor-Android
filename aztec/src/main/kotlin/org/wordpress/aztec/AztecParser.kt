@@ -33,6 +33,7 @@ import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
@@ -45,6 +46,7 @@ import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
 import java.util.Arrays
+import java.util.Collections
 import java.util.Comparator
 import java.util.TreeMap
 
@@ -422,7 +424,10 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         while (i < end || start == end) {
             next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
-            val spans = text.getSpans(i, next, CharacterStyle::class.java)
+            val spans = text.getSpans(i, next, CharacterStyle::class.java).toMutableList()
+
+            fixOrderOfNestedMediaAndUrlSpans(spans, text)
+
             for (j in spans.indices) {
                 val span = spans[j]
 
@@ -496,6 +501,23 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             out.append("<br>")
             consumeCursorIfInInput(out, text, end + z)
+        }
+    }
+
+    private fun fixOrderOfNestedMediaAndUrlSpans(spans: MutableList<CharacterStyle>, text: Spanned) {
+        val urlSpan = spans.firstOrNull { it is AztecURLSpan }
+        val mediaSpan = spans.firstOrNull { it is AztecMediaSpan }
+
+        if (urlSpan != null && mediaSpan != null) {
+            val urlSpanStart = text.getSpanStart(urlSpan)
+            val urlSpanEnd = text.getSpanEnd(urlSpan)
+
+            val isUrlSpanFollowsMediaSpan = spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)
+            val isMediaSpanWithinUrlSpan = text.getSpanStart(mediaSpan) >= urlSpanStart && text.getSpanEnd(mediaSpan) <= urlSpanEnd
+
+            if (isUrlSpanFollowsMediaSpan && isMediaSpanWithinUrlSpan) {
+                Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
+            }
         }
     }
 

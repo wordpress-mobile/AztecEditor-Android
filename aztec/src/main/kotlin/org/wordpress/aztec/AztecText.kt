@@ -1158,7 +1158,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     fun removeLink() {
         val urlSpanBounds = linkFormatter.getUrlSpanBounds()
 
-        linkFormatter.linkInvalid(urlSpanBounds.first, urlSpanBounds.second)
+        linkFormatter.removeLink(urlSpanBounds.first, urlSpanBounds.second)
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 

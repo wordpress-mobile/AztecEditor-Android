@@ -138,12 +138,12 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             return
         }
 
-        linkInvalid(start, end)
+        removeLink(start, end)
         setLinkSpan(editableText, link, start, end, attributes)
         editor.onSelectionChanged(end, end)
     }
 
-    fun linkInvalid(start: Int, end: Int) {
+    fun removeLink(start: Int, end: Int) {
         if (start >= end) {
             return
         }

@@ -1,8 +1,21 @@
 # Changelog
 
-## [Unreleased]
+## [1.0-beta.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.11) - 2017-11-20
 ### Fixed
 - Paragraphs with attributes being removed
+- Conflicts of autocorrect/suggestions with editor styling
+- Numbered list item display issues with multiple digits
+- Abnormally tall lines following images without line breaks
+- Incorrect click-handling around images not on separate lines
+
+### Changed
+- All images are made to be full-width & on separate lines
+
+### Added
+- Toolbar state notification interface for plugins
+- Ability to place cursor next to an image
+- Spellcheck suggestions
+- Improved image-related performance
 
 ## [1.0-beta.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.10) - 2017-10-06
 ### Fixed
@@ -22,7 +35,6 @@
 ## [1.0-beta.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.7) - 2017-08-15
 ### Changed
 - Toolbar button highlighted state to use a color with more contrast
-- Fixed conflicts of autocorrect/suggestions with editor styling
 
 ### Fixed
 - Image/video loading placeholder drawable usage

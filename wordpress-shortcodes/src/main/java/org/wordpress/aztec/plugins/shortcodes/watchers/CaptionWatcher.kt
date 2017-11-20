@@ -9,28 +9,32 @@ import org.wordpress.aztec.watchers.BlockElementWatcher
 
 class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(aztecText) {
 
-    var blocks = arrayListOf<SpanWrapper<CaptionShortcodeSpan>>()
-    override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        super.beforeTextChanged(text, start, count, after)
-
-        // prevent moving the start of the caption beyond an image when a backspace is entered right before the
-        // image by making it non-paragraph
-        if (count > 0 && start + count < text.length && aztecText.text[start + count] == Constants.IMG_CHAR) {
-            val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, start + count, start + count, CaptionShortcodeSpan::class.java)
-            spans.forEach { block ->
-                aztecText.text.setSpan(block.span, block.start, block.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                blocks.add(block)
-            }
-        }
-    }
-
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         super.onTextChanged(s, start, before, count)
 
-        // we can make it a paragraph again now that everything is done
-        blocks.forEach { block ->
-            aztecText.text.setSpan(block.span, block.start, block.end, Spanned.SPAN_PARAGRAPH)
+        if (start + count < s.length && s[start + count] == Constants.IMG_CHAR) {
+            val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, start + count, start + count,
+                    CaptionShortcodeSpan::class.java)
+            spans.forEach {
+
+                // if text is added right before an image, move it out of the caption
+                if (it.start < start + count && it.end > start + count) {
+                    aztecText.text.setSpan(it.span, start + count, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        } else if (count > 0) {
+            val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, start, start, CaptionShortcodeSpan::class.java)
+            spans.forEach {
+
+                // if text is added right after an image, move it below the caption
+                if (start > 0 && s[start - 1] == Constants.IMG_CHAR && s[start] != Constants.NEWLINE) {
+                    val newText = "" + s.subSequence(start, start + count)
+                    aztecText.text.insert(it.end, Constants.NEWLINE_STRING)
+                    aztecText.text.delete(start, start + count)
+                    aztecText.text.insert(it.end, newText)
+                    aztecText.setSelection(it.end + newText.length)
+                }
+            }
         }
-        blocks.clear()
     }
 }

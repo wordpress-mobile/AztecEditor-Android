@@ -43,7 +43,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
                     aztecText.text.insert(end, newValue)
 
                     val newEnd = Math.min(end + newValue.length + 1, aztecText.length())
-                    aztecText.text.setSpan(this, wrapper.start, newEnd, Spanned.SPAN_PARAGRAPH)
+                    aztecText.text.setSpan(this, wrapper.start, newEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else {
                     aztecText.text.replace(start, end, value)
                 }

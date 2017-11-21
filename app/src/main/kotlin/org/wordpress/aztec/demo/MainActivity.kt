@@ -47,14 +47,12 @@ import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
-import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random
@@ -185,7 +183,7 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            var bitmap: Bitmap? = null
+            var bitmap: Bitmap
 
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
@@ -341,13 +339,12 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
-            .addPlugin(CaptionShortcodePlugin())
+            .addPlugin(CaptionShortcodePlugin(visualEditor))
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
 
-        BlockElementWatcher(visualEditor)
-                .add(CaptionHandler(visualEditor))
-                .install(visualEditor)
+        aztec.visualEditor.setCalypsoMode(false)
+        aztec.sourceEditor?.setCalypsoMode(false)
 
         // initialize the text & HTML
         if (!isRunningTest) {
@@ -704,7 +701,7 @@ open class MainActivity : AppCompatActivity(),
         if (mediaPending) {
             ToastUtils.showToast(this, R.string.media_upload_dialog_message)
         } else {
-            aztec.toolbar?.toggleEditorMode()
+            aztec.toolbar.toggleEditorMode()
         }
     }
 

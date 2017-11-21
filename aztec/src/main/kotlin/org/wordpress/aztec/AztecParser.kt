@@ -26,8 +26,10 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
+import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -66,14 +68,19 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         cleanupZWJ(spanned)
         unbiasNestingLevel(spanned)
 
+        postprocessSpans(spanned)
+
         return spanned
     }
 
     fun toHtml(text: Spanned, withCursor: Boolean = false): String {
         val out = StringBuilder()
 
+        val spannable = SpannableStringBuilder(text)
+        preprocessSpans(spannable)
+
         // add a marker to the end of the text to aid nested group parsing
-        val data = SpannableStringBuilder(text).append(Constants.ZWJ_CHAR)
+        val data = spannable.append(Constants.ZWJ_CHAR)
 
         // if there is no list or hidden html span at the end of the text, then we don't need zwj
         if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
@@ -111,14 +118,30 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         return html
     }
 
+    private fun preprocessSpans(spannable: SpannableStringBuilder) {
+        plugins.filter { it is ISpanPreprocessor }
+            .map { it as ISpanPreprocessor }
+            .forEach {
+                it.beforeSpansProcessed(spannable)
+            }
+    }
+
     private fun postprocessHtml(source: String): String {
         var html = source
         plugins.filter { it is IHtmlPostprocessor }
-                .map { it as IHtmlPostprocessor }
-                .forEach {
-                    html = it.processHtmlAfterSerialization(html)
-                }
+            .map { it as IHtmlPostprocessor }
+            .forEach {
+                html = it.onHtmlProcessed(html)
+            }
         return html
+    }
+
+    private fun postprocessSpans(spannable: SpannableStringBuilder) {
+        plugins.filter { it is ISpanPostprocessor }
+            .map { it as ISpanPostprocessor }
+            .forEach {
+                it.onSpansProcessed(spannable)
+            }
     }
 
     private fun markBlockElementLineBreak(text: Spannable, startPos: Int) {

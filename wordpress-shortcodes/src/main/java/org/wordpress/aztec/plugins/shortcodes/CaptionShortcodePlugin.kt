@@ -3,26 +3,40 @@ package org.wordpress.aztec.plugins.shortcodes
 import android.text.Editable
 import android.text.Spannable
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
+import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
+import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 
-class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
+class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: AztecText? = null) :
+        IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
 
-    // "captio" is used as tag name on purpose because "caption" gets eaten up by the Jsoup parser.
-    private val TAG = "captio"
+    companion object {
+        val HTML_TAG = "wp-shortcode-caption-html-tag"
+        val SHORTCODE_TAG = "caption"
+    }
+
+    init {
+        aztecText?.let {
+            CaptionWatcher(aztecText)
+                    .add(CaptionHandler(aztecText))
+                    .install(aztecText)
+        }
+    }
 
     override fun canHandleTag(tag: String): Boolean {
-        return tag == TAG
+        return tag == HTML_TAG
     }
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
-            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), TAG, nestingLevel), output.length, output.length, Spannable.SPAN_MARK_MARK)
+            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), HTML_TAG, nestingLevel, aztecText), output.length, output.length, Spannable.SPAN_MARK_MARK)
         } else {
             val span = output.getLast<CaptionShortcodeSpan>()
             span?.let {
@@ -33,15 +47,15 @@ class CaptionShortcodePlugin : IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostproc
         return true
     }
 
-    override fun processHtmlBeforeParsing(source: String): String {
+    override fun beforeHtmlProcessed(source: String): String {
         return StringBuilder(source)
-                .replace(Regex("(?<!\\[)\\[${TAG}n([^\\]]*)\\]"), "<$TAG$1>")
-                .replace(Regex("\\[/${TAG}n\\](?!\\])"), "</$TAG>")
+                .replace(Regex("(?<!\\[)\\[$SHORTCODE_TAG([^\\]]*)\\]"), "<$HTML_TAG$1>")
+                .replace(Regex("\\[/$SHORTCODE_TAG\\](?!\\])"), "</$HTML_TAG>")
     }
 
-    override fun processHtmlAfterSerialization(source: String): String {
+    override fun onHtmlProcessed(source: String): String {
         return StringBuilder(source)
-                .replace(Regex("<$TAG([^>]*)>"), "[${TAG}n$1]")
-                .replace(Regex("</$TAG>"), "[/${TAG}n]")
+                .replace(Regex("<$HTML_TAG([^>]*)>"), "[$SHORTCODE_TAG$1]")
+                .replace(Regex("</$HTML_TAG>"), "[/$SHORTCODE_TAG]")
     }
 }

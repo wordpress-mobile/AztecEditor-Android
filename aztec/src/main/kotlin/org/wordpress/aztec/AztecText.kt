@@ -1238,7 +1238,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             inlineFormatter.joinStyleSpans(0, text.length)
         })
 
-        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, i ->
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, _ ->
             dialogInterface.dismiss()
         })
 
@@ -1295,11 +1295,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun updateElementAttributes(attributePredicate: AttributePredicate, attrs: AztecAttributes) {
-        text.getSpans(0, text.length, IAztecAttributedSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .firstOrNull()?.attributes = attrs
+        text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.attributes = attrs
     }
 
     fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {

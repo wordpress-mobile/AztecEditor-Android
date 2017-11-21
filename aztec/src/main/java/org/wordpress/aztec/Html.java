@@ -187,7 +187,7 @@ public class Html {
     private static String preprocessSource(String source, List<IAztecPlugin> plugins) {
         for (IAztecPlugin plugin : plugins) {
             if (plugin instanceof IHtmlPreprocessor) {
-                source = ((IHtmlPreprocessor)plugin).processHtmlBeforeParsing(source);
+                source = ((IHtmlPreprocessor)plugin).beforeHtmlProcessed(source);
             }
         }
         return source;

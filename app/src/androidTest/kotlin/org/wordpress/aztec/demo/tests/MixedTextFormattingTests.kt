@@ -34,6 +34,26 @@ class MixedTextFormattingTests : BaseTest() {
                 .verifyHTML(regex)
     }
 
+    // Test reproducing the issue described in
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/530
+    @Test
+    fun testBoldFormattingAndSpaceInsertion() {
+        val text1 = "a"
+        val text2 = "b"
+        val text3 = " "
+        val html = "a <b>b</b>"
+
+        EditorPage()
+                .insertText(text1)
+                .toggleBold()
+                .focusedInsertText(text2)
+                .moveCursorLeftAsManyTimes(1)
+                .focusedInsertText(text3)
+                .toggleHtml()
+                .verifyHTML(html)
+
+    }
+
     @Test
     fun testRemoveFormattingAndContinueTyping() {
         val text1 = "some"

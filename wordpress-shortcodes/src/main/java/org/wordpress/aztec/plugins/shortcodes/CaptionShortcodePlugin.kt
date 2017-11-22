@@ -2,7 +2,6 @@ package org.wordpress.aztec.plugins.shortcodes
 
 import android.text.Editable
 import android.text.Spannable
-import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
@@ -12,7 +11,6 @@ import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
-import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes

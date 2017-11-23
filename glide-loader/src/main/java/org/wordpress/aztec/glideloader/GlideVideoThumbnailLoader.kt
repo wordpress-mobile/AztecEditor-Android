@@ -18,6 +18,7 @@ import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import org.wordpress.aztec.Html
+import org.wordpress.aztec.glideloader.extensions.upscaleTo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -49,11 +50,7 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
                         //Upscaling bitmap only for demonstration purposes.
                         //This should probably be done somewhere more appropriate for Glide (?).
                         if (resource != null && resource.width < minWidth) {
-                            val ratio = resource.height / resource.width
-                            val height = (ratio * minWidth)
-
-                            val upscaledBitmap = Bitmap.createScaledBitmap(resource, minWidth, height, true)
-                            return callbacks.onThumbnailLoaded(BitmapDrawable(context.resources, upscaledBitmap))
+                            return callbacks.onThumbnailLoaded(BitmapDrawable(context.resources, resource.upscaleTo(minWidth)))
                         }
 
                         // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need

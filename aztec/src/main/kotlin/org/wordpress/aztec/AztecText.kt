@@ -843,7 +843,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.lineHeight)
         }
     }
 

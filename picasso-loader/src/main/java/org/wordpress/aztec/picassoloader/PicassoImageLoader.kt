@@ -52,6 +52,6 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
         // add a strong reference to the target until it's called or the view gets destroyed
         targets.put(source, target)
 
-        picasso.load(source).resize(maxWidth, maxWidth).centerInside().into(target)
+        picasso.load(source).resize(maxWidth, maxWidth).centerInside().onlyScaleDown().into(target)
     }
 }

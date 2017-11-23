@@ -45,6 +45,7 @@ class ImageCaptionTest {
 
         val html = IMG_HTML
         editText.fromHtml(html)
+        editText.setCalypsoMode(false)
 
         Assert.assertEquals(editText.text.toString(), IMG)
 
@@ -52,6 +53,26 @@ class ImageCaptionTest {
         editText.text.insert(0, "word")
 
         Assert.assertEquals("word\n" + IMG, editText.text.toString())
-        Assert.assertEquals("word<br>" + IMG_HTML, editText.toPlainHtml())
+        Assert.assertEquals("word" + IMG_HTML, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testTextInsertionAfterImage() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+        editText.setCalypsoMode(false)
+
+        editText.text.insert(editText.text.indexOf(Constants.IMG_CHAR) + 1, "word")
+
+        val newText = "${Constants.IMG_CHAR}\nCaption\nword\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
+                "Caption[/caption]word<br>test<br>test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
     }
 }

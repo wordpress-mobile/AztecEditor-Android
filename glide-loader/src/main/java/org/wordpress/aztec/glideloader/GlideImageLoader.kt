@@ -15,7 +15,11 @@ import org.wordpress.aztec.Html
 class GlideImageLoader(private val context: Context) : Html.ImageGetter {
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
-        Glide.with(context).load(source).asBitmap().fitCenter().into(object : Target<Bitmap> {
+        loadImage(source, callbacks, maxWidth, 0)
+    }
+
+    override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int, minWidth: Int) {
+        Glide.with(context).load(source).asBitmap().into(object : Target<Bitmap> {
             override fun onLoadStarted(placeholder: Drawable?) {
                 callbacks.onImageLoading(placeholder)
             }
@@ -25,6 +29,16 @@ class GlideImageLoader(private val context: Context) : Html.ImageGetter {
             }
 
             override fun onResourceReady(resource: Bitmap?, glideAnimation: GlideAnimation<in Bitmap>?) {
+                //Upscaling bitmap only for demonstration purposes.
+                //This should probably be done somewhere more appropriate for Glide (?).
+                if (resource != null && resource.width < minWidth) {
+                    val ratio = resource.height / resource.width
+                    val height = (ratio * minWidth)
+
+                    val upscaledBitmap = Bitmap.createScaledBitmap(resource, minWidth, height, true)
+                    return callbacks.onImageLoaded(BitmapDrawable(context.resources, upscaledBitmap))
+                }
+
                 // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
                 // to correctly set the input density to 160 ourselves.
                 resource?.density = DisplayMetrics.DENSITY_DEFAULT

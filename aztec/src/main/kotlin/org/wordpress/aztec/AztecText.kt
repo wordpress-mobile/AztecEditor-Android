@@ -874,7 +874,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth,this@AztecText.minImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
         }
     }
 

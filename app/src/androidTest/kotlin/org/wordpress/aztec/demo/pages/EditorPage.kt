@@ -124,6 +124,15 @@ class EditorPage : BasePage() {
         return this
     }
 
+    fun moveCursorLeftAsManyTimes(times: Int): EditorPage {
+        for (time in 1..times) {
+            editor.perform(pressKey(KeyEvent.KEYCODE_DPAD_LEFT))
+        }
+        label("Moved cursor left " + times + " times")
+
+        return this
+    }
+
     fun insertHTML(html: String): EditorPage {
         htmlEditor.perform(typeText(html), ViewActions.closeSoftKeyboard())
         label("Inserted HTML")

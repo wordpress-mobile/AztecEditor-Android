@@ -22,8 +22,8 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         get() {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-                val start = getStart(wrapper)
-                val end = getEnd(wrapper, aztecText)
+                val start = getCaptionStart(wrapper)
+                val end = getCaptionEnd(wrapper, aztecText)
                 return aztecText.text.subSequence(start, end).toString()
             }
             return ""
@@ -31,8 +31,8 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         set(value) {
             aztecText?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-                val start = getStart(wrapper)
-                val end = getEnd(wrapper, aztecText)
+                val start = getCaptionStart(wrapper)
+                val end = getCaptionEnd(wrapper, aztecText)
 
                 // a condition start == end is true if the caption is empty
                 if (start == end) {
@@ -53,8 +53,8 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
     fun remove() {
         aztecText?.let {
             val wrapper = SpanWrapper<CaptionShortcodeSpan>(aztecText.text, this)
-            val start = getStart(wrapper) - 1 // there is always a newline, we want to remove it
-            val end = getEnd(wrapper, aztecText)
+            val start = getCaptionStart(wrapper) - 1 // there is always a newline, we want to remove it
+            val end = getCaptionEnd(wrapper, aztecText)
 
             aztecText.text.delete(start, end)
             aztecText.text.removeSpan(this)
@@ -62,7 +62,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
     }
 
     // returns the start of the caption string without newlines
-    private fun getStart(wrapper: SpanWrapper<CaptionShortcodeSpan>): Int {
+    private fun getCaptionStart(wrapper: SpanWrapper<CaptionShortcodeSpan>): Int {
         // skip the image char and the newline
         val imgEnd = wrapper.spannable.indexOf(Constants.IMG_CHAR, wrapper.start) + 1
         var start = imgEnd
@@ -74,9 +74,9 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
     }
 
     // returns the end of the caption string without newlines
-    private fun getEnd(wrapper: SpanWrapper<CaptionShortcodeSpan>, aztecText: AztecText): Int {
+    private fun getCaptionEnd(wrapper: SpanWrapper<CaptionShortcodeSpan>, aztecText: AztecText): Int {
         // return the true end without the newline
-        val start = getStart(wrapper)
+        val start = getCaptionStart(wrapper)
         var end = Math.max(start, wrapper.end)
         if (end > start && aztecText.text[end - 1] == Constants.NEWLINE) {
             end--

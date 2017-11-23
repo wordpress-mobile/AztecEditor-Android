@@ -19,7 +19,8 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
 
                 // if text is added right before an image, move it out of the caption
                 if (it.start < start + count && it.end > start + count) {
-                    aztecText.text.setSpan(it.span, start + count, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    it.start = start + count
                 }
             }
         } else if (count > 0) {
@@ -40,11 +41,13 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
         val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, 0, aztecText.length(),
                 CaptionShortcodeSpan::class.java)
         spans.forEach {
+
             // if a caption's beginning is behind an image, align it with the image beginning
             if (it.start < aztecText.length() && aztecText.text[it.start] != Constants.IMG_CHAR) {
                 if (it.start > 1 && aztecText.text[it.start - 1] == Constants.NEWLINE &&
                         aztecText.text[it.start - 2] == Constants.IMG_CHAR) {
-                    aztecText.text.setSpan(it.span, it.start - 2, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    it.start -= 2
                 }
             }
 
@@ -56,7 +59,8 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
 
             if (firstNewline != -1 && it.end != correctEnding &&
                     it.start < aztecText.length() && aztecText.text[it.start] == Constants.IMG_CHAR) {
-                aztecText.text.setSpan(it.span, it.start, correctEnding, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                it.end = correctEnding
             }
         }
     }

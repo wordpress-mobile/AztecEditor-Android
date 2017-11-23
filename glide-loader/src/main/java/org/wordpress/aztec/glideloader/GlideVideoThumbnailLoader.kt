@@ -2,16 +2,17 @@ package org.wordpress.aztec.glideloader
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.util.DisplayMetrics
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.data.DataFetcher
 import com.bumptech.glide.load.model.GenericLoaderFactory
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.stream.StreamModelLoader
-import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.Request
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SizeReadyCallback
@@ -25,12 +26,17 @@ import java.io.InputStream
 class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbnailGetter {
 
     override fun loadVideoThumbnail(source: String, callbacks: Html.VideoThumbnailGetter.Callbacks, maxWidth: Int) {
+        loadVideoThumbnail(source, callbacks, maxWidth, 0)
+    }
+
+    override fun loadVideoThumbnail(source: String, callbacks: Html.VideoThumbnailGetter.Callbacks, maxWidth: Int, minWidth: Int) {
 
         Glide.with(context)
                 .using(ThumbnailLoader(context))
                 .load(source)
+                .asBitmap()
                 .fitCenter()
-                .into(object : Target<GlideDrawable> {
+                .into(object : Target<Bitmap> {
                     override fun onLoadStarted(placeholder: Drawable?) {
                         callbacks.onThumbnailLoading(placeholder)
                     }
@@ -39,8 +45,21 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
                         callbacks.onThumbnailFailed()
                     }
 
-                    override fun onResourceReady(resource: GlideDrawable?, glideAnimation: GlideAnimation<in GlideDrawable>?) {
-                        callbacks.onThumbnailLoaded(resource)
+                    override fun onResourceReady(resource: Bitmap?, glideAnimation: GlideAnimation<in Bitmap>?) {
+                        //Upscaling bitmap only for demonstration purposes.
+                        //This should probably be done somewhere more appropriate for Glide (?).
+                        if (resource != null && resource.width < minWidth) {
+                            val ratio = resource.height / resource.width
+                            val height = (ratio * minWidth)
+
+                            val upscaledBitmap = Bitmap.createScaledBitmap(resource, minWidth, height, true)
+                            return callbacks.onThumbnailLoaded(BitmapDrawable(context.resources, upscaledBitmap))
+                        }
+
+                        // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                        // to correctly set the input density to 160 ourselves.
+                        resource?.density = DisplayMetrics.DENSITY_DEFAULT
+                        callbacks.onThumbnailLoaded(BitmapDrawable(context.resources, resource))
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {}
@@ -80,7 +99,8 @@ class GlideVideoThumbnailLoader(private val context: Context) : Html.VideoThumbn
 
         class VideoThumbnailFetcher(val source: String, val context: Context) : DataFetcher<InputStream> {
             var stream: InputStream? = null
-            @Volatile var cancelled = false
+            @Volatile
+            var cancelled = false
 
             override fun getId(): String = source
 

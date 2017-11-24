@@ -1362,7 +1362,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         showBlockEditorDialog(unknownHtmlSpan)
     }
 
-    // workaround as per https://github.com/wordpress-mobile/AztecEditor-Android/issues/516#issuecomment-346672779
+    // This following method should be removed once the bug is not observed in the support library anymore:
+    // Workaround as per https://github.com/wordpress-mobile/AztecEditor-Android/issues/516#issuecomment-346672779
     // getting a reference to the Editable, handling its span and then re-setting the reference maybe makes
     // the Editable be re-calculated and thus this avoid the ArrayIndexOutOfBounds situation.
     // This is similar to doing the following, but in a more reusable way:

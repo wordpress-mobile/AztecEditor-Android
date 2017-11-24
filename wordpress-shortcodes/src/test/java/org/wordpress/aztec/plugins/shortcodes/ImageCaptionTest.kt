@@ -33,6 +33,8 @@ class ImageCaptionTest {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
 
         editText = AztecText(activity)
+        editText.setCalypsoMode(false)
+
         activity.setContentView(editText)
 
         editText.plugins.add(CaptionShortcodePlugin(editText))
@@ -45,7 +47,6 @@ class ImageCaptionTest {
 
         val html = IMG_HTML
         editText.fromHtml(html)
-        editText.setCalypsoMode(false)
 
         Assert.assertEquals(editText.text.toString(), IMG)
 
@@ -63,15 +64,93 @@ class ImageCaptionTest {
 
         val html = IMG_HTML
         editText.fromHtml(html)
-        editText.setCalypsoMode(false)
 
-        editText.text.insert(editText.text.indexOf(Constants.IMG_CHAR) + 1, "word")
+        val imagePosition = editText.text.indexOf(Constants.IMG_CHAR)
+        editText.text.insert( imagePosition + 1, "word")
 
         val newText = "${Constants.IMG_CHAR}\nCaption\nword\ntest\ntest2"
         Assert.assertEquals(newText, editText.text.toString())
 
         val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
                 "Caption[/caption]word<br>test<br>test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingCharactersAboveImage() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = "start" + IMG_HTML
+        editText.fromHtml(html)
+
+        val imagePosition = editText.text.indexOf(Constants.IMG_CHAR)
+
+        val text = "start\n${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(text, editText.text.toString())
+
+        editText.text.delete(imagePosition - 1, imagePosition)
+
+        val newText = "star\n${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        Assert.assertEquals(editText.selectionStart, 4)
+
+        val newHtml = "star[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
+                "Caption[/caption]test<br>test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingEmptyLineAboveImage() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = "<br>" + IMG_HTML
+        editText.fromHtml(html)
+
+        val imagePosition = editText.text.indexOf(Constants.IMG_CHAR)
+
+        val text = "\n${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(text, editText.text.toString())
+
+        editText.text.delete(imagePosition - 1, imagePosition)
+
+        val newText = "${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        Assert.assertEquals(editText.selectionStart, 0)
+
+        val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
+                "Caption[/caption]test<br>test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingLastCharacterAboveImage() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = "a" + IMG_HTML
+        editText.fromHtml(html)
+
+        val imagePosition = editText.text.indexOf(Constants.IMG_CHAR)
+
+        val text = "a\n${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(text, editText.text.toString())
+
+        editText.text.delete(imagePosition - 1, imagePosition)
+
+        val newText = "${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        Assert.assertEquals(editText.selectionStart, 0)
+
+        val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
+                "Caption[/caption]test<br>test2"
 
         Assert.assertEquals(newHtml, editText.toPlainHtml())
     }

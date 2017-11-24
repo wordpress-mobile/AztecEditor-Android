@@ -10,7 +10,6 @@ import org.wordpress.aztec.watchers.BlockElementWatcher
 
 class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(aztecText) {
 
-
     private fun moveTextOutOfCaption (editable: Editable, start: Int, count: Int) : Editable {
         val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(editable, start + count, start + count,
                 CaptionShortcodeSpan::class.java)
@@ -28,7 +27,7 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
         if (start + count < s.length && s[start + count] == Constants.IMG_CHAR) {
             // if text is added right before an image, move it out of the caption
             // use replaceTextEditable wrapper when manipulating spans
-            aztecText.replaceTextEditable({editable -> moveTextOutOfCaption(editable, start, count)})
+            aztecText.replaceTextEditable({ editable -> moveTextOutOfCaption(editable, start, count) })
         } else if (count > 0) {
             val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, start, start, CaptionShortcodeSpan::class.java)
             spans.forEach {

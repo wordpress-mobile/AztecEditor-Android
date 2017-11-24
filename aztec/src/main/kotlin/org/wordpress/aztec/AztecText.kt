@@ -135,7 +135,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
-    private var previousCursorPosition = 0
 
     private var isHandlingBackspaceEvent = false
 
@@ -609,8 +608,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 return
             }
         }
-
-        previousCursorPosition = selEnd
 
         // do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {

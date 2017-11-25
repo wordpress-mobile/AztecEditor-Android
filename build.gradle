@@ -6,7 +6,7 @@ buildscript {
         tagSoupVersion = '1.2.1'
         glideVersion = '3.7.0'
         picassoVersion = '2.5.2'
-        robolectricVersion = '3.4.2'
+        robolectricVersion = '3.5.1'
         jUnitVersion = '4.12'
         jSoupVersion = '1.10.3'
         wordpressUtilsVersion = '1.17.0'

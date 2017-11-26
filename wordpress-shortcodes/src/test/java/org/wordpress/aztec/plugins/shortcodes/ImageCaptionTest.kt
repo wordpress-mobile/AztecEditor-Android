@@ -12,7 +12,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.plugins.shortcodes.TestUtils.backspaceAt
 import org.wordpress.aztec.plugins.shortcodes.TestUtils.safeEmpty
 
 /**
@@ -323,6 +322,46 @@ class ImageCaptionTest {
 
         val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
                 "Captiontest[/caption]test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionSplitting() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        val startPosition = editText.text.indexOf("tion")
+        editText.text.insert(startPosition, "\n")
+
+        val newText = "${Constants.IMG_CHAR}\nCap\ntion\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />" +
+                "Cap[/caption]tion<br>test<br>test2"
+
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionDeletionWithTwoImages() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
+        editText.fromHtml(html + html)
+
+        val secondImagePosition = editText.text.indexOf(Constants.IMG_CHAR, 1)
+        editText.text.delete(secondImagePosition - 1, secondImagePosition)
+
+        val newText = "${Constants.IMG_CHAR}\nCaptio\n${Constants.IMG_CHAR}\nCaption"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        val newHtml = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Captio[/caption]" +
+                "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
 
         Assert.assertEquals(newHtml, editText.toPlainHtml())
     }

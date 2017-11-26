@@ -305,7 +305,6 @@ class ImageCaptionTest {
         Assert.assertEquals(newHtml, editText.toPlainHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun testMergeOfLineBelowCaption() {

@@ -296,7 +296,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
         install()

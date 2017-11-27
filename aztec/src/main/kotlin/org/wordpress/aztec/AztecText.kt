@@ -135,7 +135,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
-    private var previousCursorPosition = 0
 
     private var isHandlingBackspaceEvent = false
 
@@ -171,6 +170,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var verticalParagraphMargin: Int = 0
 
     var maxImagesWidth: Int = 0
+    var minImagesWidth: Int = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -281,6 +281,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
                 context.resources.displayMetrics.heightPixels)
         maxImagesWidth = Math.min(minScreenSize, DEFAULT_IMAGE_WIDTH)
+        minImagesWidth = lineHeight
 
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
@@ -610,8 +611,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             }
         }
 
-        previousCursorPosition = selEnd
-
         // do not update toolbar or selected styles when we removed the last character in editor
         if (!isLeadingStyleRemoved && length() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER) {
             return
@@ -843,7 +842,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
         }
     }
 
@@ -872,7 +871,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
         }
     }
 

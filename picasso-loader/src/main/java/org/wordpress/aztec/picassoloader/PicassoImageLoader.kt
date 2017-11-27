@@ -14,6 +14,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 
 class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.ImageGetter {
+
     private val targets: MutableMap<String, com.squareup.picasso.Target>
 
     init {
@@ -24,6 +25,10 @@ class PicassoImageLoader(private val context: Context, aztec: AztecText) : Html.
     }
 
     override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int) {
+        loadImage(source, callbacks, maxWidth, 0)
+    }
+
+    override fun loadImage(source: String, callbacks: Html.ImageGetter.Callbacks, maxWidth: Int, minWidth: Int) {
         val picasso = Picasso.with(context)
         picasso.isLoggingEnabled = true
 

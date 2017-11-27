@@ -10,9 +10,16 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.shortcodes.TestUtils.safeEmpty
+import org.wordpress.aztec.plugins.shortcodes.extensions.getImageCaption
+import org.wordpress.aztec.plugins.shortcodes.extensions.getImageCaptionAttributes
+import org.wordpress.aztec.plugins.shortcodes.extensions.hasImageCaption
+import org.wordpress.aztec.plugins.shortcodes.extensions.removeImageCaption
+import org.wordpress.aztec.plugins.shortcodes.extensions.setImageCaption
+import org.xml.sax.Attributes
 
 /**
  * Tests for the caption shortcode plugin
@@ -24,6 +31,12 @@ class ImageCaptionTest {
 
     private val IMG_HTML = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]test<br>test2"
     private val IMG = "${Constants.IMG_CHAR}\nCaption\ntest\ntest2"
+
+    private val predicate = object : AztecText.AttributePredicate {
+        override fun matches(attrs: Attributes): Boolean {
+            return attrs.getValue("src").startsWith("https://example")
+        }
+    }
 
     /**
      * Initialize variables.
@@ -363,5 +376,96 @@ class ImageCaptionTest {
                 "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
 
         Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionPresenceAndRemoval() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        Assert.assertTrue(editText.hasImageCaption(predicate))
+
+        editText.removeImageCaption(predicate)
+
+        Assert.assertFalse(editText.hasImageCaption(predicate))
+
+        val newText = "${Constants.IMG_CHAR}\ntest\ntest2"
+        Assert.assertEquals(newText, editText.text.toString())
+
+        val newHtml = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />test<br>test2"
+        Assert.assertEquals(newHtml, editText.toPlainHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionGettingAndChanging() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        val caption = editText.getImageCaption(predicate)
+        Assert.assertEquals("Caption", caption)
+
+        val newCaption = "new caption"
+        editText.setImageCaption(predicate, newCaption)
+
+        val changedCaption = editText.getImageCaption(predicate)
+        Assert.assertEquals(newCaption, changedCaption)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testGettingCaptionAttributes() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        val attrs = editText.getImageCaptionAttributes(predicate)
+
+        Assert.assertNotNull(attrs)
+        Assert.assertEquals("alignright", attrs.getValue("align"))
+        Assert.assertNull(attrs.getValue("aaa"))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testSettingCaptionWithAttributes() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        val attrs = editText.getImageCaptionAttributes(predicate)
+        attrs.setValue("width", "100")
+
+        val newCaption = "test caption"
+        editText.setImageCaption(predicate, newCaption, attrs)
+
+        val changedCaption = editText.getImageCaption(predicate)
+        Assert.assertEquals(newCaption, changedCaption)
+
+        val changedHtml = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />$newCaption[/caption]test<br>test2"
+        Assert.assertEquals(changedHtml, editText.toPlainHtml())
+
+        editText.removeImageCaption(predicate)
+        Assert.assertFalse(editText.hasImageCaption(predicate))
+
+        val removedAttrs = editText.getImageCaptionAttributes(predicate)
+        Assert.assertTrue(removedAttrs.isEmpty())
+
+        val differentAttrs = AztecAttributes()
+        differentAttrs.setValue("width", "99")
+        editText.setImageCaption(predicate, newCaption, differentAttrs)
+
+        val newAttrs = editText.getImageCaptionAttributes(predicate)
+        Assert.assertNotNull(newAttrs)
+        Assert.assertEquals("99", newAttrs.getValue("width"))
+        Assert.assertNull(newAttrs.getValue("align"))
+        Assert.assertNull(newAttrs.getValue("aaa"))
     }
 }

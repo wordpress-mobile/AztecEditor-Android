@@ -170,6 +170,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var verticalParagraphMargin: Int = 0
 
     var maxImagesWidth: Int = 0
+    var minImagesWidth: Int = 0
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -280,6 +281,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val minScreenSize = Math.min(context.resources.displayMetrics.widthPixels,
                 context.resources.displayMetrics.heightPixels)
         maxImagesWidth = Math.min(minScreenSize, DEFAULT_IMAGE_WIDTH)
+        minImagesWidth = lineHeight
 
         if (historyEnable && historySize <= 0) {
             throw IllegalArgumentException("historySize must > 0")
@@ -840,7 +842,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
         }
     }
 
@@ -869,7 +871,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
         }
     }
 

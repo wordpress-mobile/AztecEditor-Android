@@ -94,6 +94,8 @@ public class Html {
          */
         void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth);
 
+        void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth, int minWidth);
+
         interface Callbacks {
             void onImageFailed();
 
@@ -105,6 +107,8 @@ public class Html {
 
     public interface VideoThumbnailGetter {
         void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth);
+
+        void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth, int minWidth);
 
         interface Callbacks {
             void onThumbnailFailed();

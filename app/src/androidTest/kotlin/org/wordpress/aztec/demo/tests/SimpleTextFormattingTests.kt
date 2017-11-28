@@ -1,18 +1,31 @@
 package org.wordpress.aztec.demo.tests
 
 import android.support.test.rule.ActivityTestRule
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
+import org.wordpress.aztec.demo.R
 import org.wordpress.aztec.demo.pages.EditLinkPage
 import org.wordpress.aztec.demo.pages.EditorPage
+import org.wordpress.aztec.source.SourceViewEditText
 
 class SimpleTextFormattingTests : BaseTest() {
 
     @Rule
     @JvmField
     var mActivityTestRule = ActivityTestRule(MainActivity::class.java)
+
+    @Before
+    fun init() {
+        val aztecText = mActivityTestRule.activity.findViewById<AztecText>(R.id.aztec)
+        val sourceText = mActivityTestRule.activity.findViewById<SourceViewEditText>(R.id.source)
+
+        aztecText.setCalypsoMode(true)
+        sourceText.setCalypsoMode(true)
+    }
 
     @Test
     fun testSimpleBoldFormatting() {

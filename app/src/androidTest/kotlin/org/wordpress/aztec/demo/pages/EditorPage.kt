@@ -14,6 +14,7 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.view.KeyEvent
 import android.view.View
+import org.hamcrest.CoreMatchers
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
@@ -21,6 +22,7 @@ import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
+import org.wordpress.aztec.source.Format
 
 class EditorPage : BasePage() {
     private var editor: ViewInteraction
@@ -305,7 +307,7 @@ class EditorPage : BasePage() {
     }
 
     fun verifyHTML(expected: String): EditorPage {
-        htmlEditor.check(matches(Matchers.withStrippedText(expected)))
+        htmlEditor.check(matches(Matchers.withText(expected)))
         label("Verified expected editor contents")
 
         return this

@@ -305,7 +305,7 @@ class EditorPage : BasePage() {
     }
 
     fun verifyHTML(expected: String): EditorPage {
-        htmlEditor.check(matches(Matchers.withText(expected)))
+        htmlEditor.check(matches(Matchers.withStrippedText(expected)))
         label("Verified expected editor contents")
 
         return this

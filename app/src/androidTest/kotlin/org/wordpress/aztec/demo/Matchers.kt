@@ -27,7 +27,7 @@ object Matchers {
         }
     }
 
-    fun withText(expected: String): Matcher<View> {
+    fun withStrippedText(expected: String): Matcher<View> {
 
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {

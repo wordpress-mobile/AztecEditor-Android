@@ -27,25 +27,6 @@ object Matchers {
         }
     }
 
-    fun withStrippedText(expected: String): Matcher<View> {
-
-        return object : TypeSafeMatcher<View>() {
-            override fun describeTo(description: Description) {
-                description.appendText("EditText matches $expected")
-            }
-
-            public override fun matchesSafely(view: View): Boolean {
-                if (view is EditText) {
-                    val regex = Regex(">\\s+<")
-                    val strippedText = view.text.toString().replace(regex, "><")
-                    return strippedText == expected
-                }
-
-                return false
-            }
-        }
-    }
-
     fun withText(expected: String): Matcher<View> {
 
         return object : TypeSafeMatcher<View>() {

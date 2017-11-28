@@ -157,6 +157,12 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
 
             val spanStart = spanned.getSpanStart(it)
+            val spanEnd = spanned.getSpanEnd(it)
+
+            // no need for newline if empty span. This fix 'PARAGRAPH span must start at paragraph boundary'. See: #501.
+            if (spanStart == spanEnd) {
+                return@forEach
+            }
 
             // no need for newline if at text start, unless repelling needs to happen
             if (!repelling && spanStart < 1) {

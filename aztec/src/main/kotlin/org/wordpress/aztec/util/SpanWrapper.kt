@@ -3,6 +3,13 @@ package org.wordpress.aztec.util
 import android.text.Spannable
 
 class SpanWrapper<T>(var spannable: Spannable, var span: T) {
+
+    // Copied from SpannableStringBuilder
+    private val START_MASK = 0xF0
+    private val END_MASK = 0x0F
+    private val START_SHIFT = 4
+    private val PARAGRAPH = 3
+
     fun remove() {
         spannable.removeSpan(span)
     }
@@ -17,7 +24,19 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 
     var flags: Int
         get() { return spannable.getSpanFlags(span) }
-        set(flags) { spannable.setSpan(span, start, end, flags) }
+        set(flags) {
+            // Silently ignore invalid PARAGRAPH spans that don't start or end at paragraph boundary
+            // Copied from SpannableStringBuilder that throws an exception in this case.
+            val flagsStart = flags and START_MASK shr START_SHIFT
+            val flagsEnd = flags and END_MASK
+            if (!isInvalidParagraph(start, flagsStart) and !isInvalidParagraph(end, flagsEnd)) {
+                spannable.setSpan(span, start, end, flags)
+            }
+        }
+
+    private fun isInvalidParagraph(index: Int, flag: Int): Boolean {
+        return flag == PARAGRAPH && index != 0 && index != spannable.length && spannable.get(index - 1) != '\n'
+    }
 
     companion object {
         inline fun <reified T : Any> getSpans(spannable: Spannable, start: Int, end: Int): List<SpanWrapper<T>> {

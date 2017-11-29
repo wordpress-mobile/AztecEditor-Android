@@ -24,9 +24,7 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
         set(end) { spannable.setSpan(span, start, end, flags) }
 
     var flags: Int
-        get() {
-            return spannable.getSpanFlags(span)
-        }
+        get() { return spannable.getSpanFlags(span) }
         set(flags) {
             // Silently ignore invalid PARAGRAPH spans that don't start or end at paragraph boundary
             // Copied from SpannableStringBuilder that throws an exception in this case.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.wordpress.aztec.toolbar.RippleToggleButton
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/format_bar_button_photo"
+    style="@style/FormatBarButton"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:background="@drawable/media_bar_button_image_multiple_selector"
+    android:contentDescription="@string/format_bar_description_bold">
+</org.wordpress.aztec.toolbar.RippleToggleButton>
+

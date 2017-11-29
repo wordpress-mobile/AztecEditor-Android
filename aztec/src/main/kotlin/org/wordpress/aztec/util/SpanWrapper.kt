@@ -41,6 +41,7 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
                         + " (" + end + " follows " + spannable.get(end - 1) + ")")
                 return
             }
+            
             spannable.setSpan(span, start, end, flags)
         }
 

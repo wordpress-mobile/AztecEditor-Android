@@ -343,12 +343,12 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
 
-        aztec.visualEditor.setCalypsoMode(false)
-        aztec.sourceEditor?.setCalypsoMode(false)
-
         // initialize the text & HTML
         if (!isRunningTest) {
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+
+            aztec.visualEditor.setCalypsoMode(false)
+            aztec.sourceEditor?.setCalypsoMode(false)
         }
 
         if (savedInstanceState == null) {

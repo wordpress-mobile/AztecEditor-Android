@@ -14,7 +14,7 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
             return
         }
 
-        if (count > 0) {
+        if (count > 0 && count != after) {
             aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
                     ?.forEach {
                         it.onMediaDeleted()

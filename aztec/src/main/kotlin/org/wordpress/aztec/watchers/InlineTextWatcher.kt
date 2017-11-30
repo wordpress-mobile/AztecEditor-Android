@@ -64,7 +64,6 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
         } else {
             aztecTextRef.get()?.enableInlineTextHandling()
         }
-
     }
 
     fun removeLeadingStyle(text: Editable, spanClass: Class<*>) {

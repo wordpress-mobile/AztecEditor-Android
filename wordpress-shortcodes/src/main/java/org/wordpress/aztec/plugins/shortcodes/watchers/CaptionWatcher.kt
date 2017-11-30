@@ -12,14 +12,15 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         super.onTextChanged(s, start, before, count)
 
-        if (start + count < s.length && s[start + count] == Constants.IMG_CHAR) {
+        if (count > 0 && start + count < s.length && s[start + count] == Constants.IMG_CHAR) {
             val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, start + count, start + count,
                     CaptionShortcodeSpan::class.java)
             spans.forEach {
 
                 // if text is added right before an image, move it out of the caption
                 if (it.start < start + count && it.end > start + count) {
-                    aztecText.text.setSpan(it.span, start + count, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    it.start = start + count
                 }
             }
         } else if (count > 0) {
@@ -34,6 +35,32 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
                     aztecText.text.insert(it.end, newText)
                     aztecText.setSelection(it.end + newText.length)
                 }
+            }
+        }
+
+        val spans = SpanWrapper.getSpans<CaptionShortcodeSpan>(aztecText.text, 0, aztecText.length(),
+                CaptionShortcodeSpan::class.java)
+        spans.forEach {
+
+            // if a caption's beginning is behind an image, align it with the image beginning
+            if (it.start < aztecText.length() && aztecText.text[it.start] != Constants.IMG_CHAR) {
+                if (it.start > 1 && aztecText.text[it.start - 1] == Constants.NEWLINE &&
+                        aztecText.text[it.start - 2] == Constants.IMG_CHAR) {
+                    it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    it.start -= 2
+                }
+            }
+
+            // if a caption's ending doesn't align with an ending of a line immediately following an image, align them
+            // if the last line is the end of the text, make the caption end there
+            val firstNewline = aztecText.text.indexOf(Constants.NEWLINE, it.start)
+            val secondNewline = aztecText.text.indexOf(Constants.NEWLINE, firstNewline + 1)
+            val correctEnding = if (secondNewline != -1) secondNewline + 1 else aztecText.length()
+
+            if (firstNewline != -1 && it.end != correctEnding &&
+                    it.start < aztecText.length() && aztecText.text[it.start] == Constants.IMG_CHAR) {
+                it.flags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                it.end = correctEnding
             }
         }
     }

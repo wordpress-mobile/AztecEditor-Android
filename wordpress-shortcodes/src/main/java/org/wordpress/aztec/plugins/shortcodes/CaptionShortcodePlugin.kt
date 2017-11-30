@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.Spannable
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
@@ -41,6 +42,9 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
             val span = output.getLast<CaptionShortcodeSpan>()
             span?.let {
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
+                if (wrapper.start == output.length) {
+                    output.append(Constants.ZWJ_CHAR)
+                }
                 output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }

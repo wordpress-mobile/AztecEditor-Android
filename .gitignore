@@ -49,3 +49,5 @@ annotations/
 # OS generated
 /.DS_Store
 
+# Kotlin lint
+ktlint

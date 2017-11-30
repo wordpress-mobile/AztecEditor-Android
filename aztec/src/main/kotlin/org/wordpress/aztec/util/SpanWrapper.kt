@@ -25,11 +25,9 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 
     var flags: Int
         get() { return spannable.getSpanFlags(span) }
-        set(flags) {
-            setSpanOrLogError(span, start, end, flags)
-        }
+        set(flags) { setSpanOrLogError(span, start, end, flags) }
 
-    private fun setSpanOrLogError(span :T, start :Int, end :Int, flags :Int) {
+    private fun setSpanOrLogError(span: T, start: Int, end: Int, flags: Int) {
         // Silently ignore invalid PARAGRAPH spans that don't start or end at paragraph boundary
         // Copied from SpannableStringBuilder that throws an exception in this case.
         val flagsStart = flags and START_MASK shr START_SHIFT

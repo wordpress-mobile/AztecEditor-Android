@@ -43,6 +43,7 @@ import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
+import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.getLast
@@ -196,6 +197,10 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
         if (start != end) {
             output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            if (last is IAztecAttributedSpan) {
+                // Apply the 'style' attribute if present
+                last.applyInlineStyleAttributes(output, start, end)
+            }
         } else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
             // if block element is empty add a ZWJ to make it non empty and extend span
             output.append(Constants.ZWJ_CHAR)

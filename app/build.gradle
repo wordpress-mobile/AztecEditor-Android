@@ -43,7 +43,6 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
-
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     }

@@ -145,6 +145,46 @@ class FormattingHistoryTests : BaseHistoryTest() {
     }
 
     @Test
+    fun testCopyPasteBoldUndoRedo() {
+        val html = "<b>Bold</b> <i>Italic</i> <u>Underline</u> <s class=\"test\">Strikethrough</s>"
+        val verifyHtml = "<b>Bold</b> <b>Bold</b><i>Italic</i> <u>Underline</u> <s class=\"test\">Strikethrough</s>"
+        val editorPage = EditorPage()
+
+        // Insert html text snippet
+        editorPage
+                .toggleHtml()
+                .insertHTML(html)
+                .toggleHtml()
+
+        // Copy the bold text and paste to end of string
+        editorPage
+                .tapTop()
+                .copyRangeToClipboard(0, 4)
+                .tapTop()
+                .pasteRangeFromClipboard(5, 5)
+                .threadSleep(throttleTime)
+                .toggleHtml()
+                .verifyHTML(verifyHtml)
+                .toggleHtml()
+                .threadSleep(throttleTime)
+
+        // Undo paste and verify
+        editorPage
+                .undoChange()
+                .threadSleep(throttleTime)
+                .toggleHtml()
+                .verifyHTML(html)
+                .toggleHtml()
+
+        // Redo and verify
+        editorPage
+                .redoChange()
+                .threadSleep(throttleTime)
+                .toggleHtml()
+                .verifyHTML(verifyHtml)
+    }
+
+    @Test
     fun testAddItalicAndUnderlineUndoRedo() {
         val text = "There's no crying in baseball!"
         val htmlRegex = Regex("<i><u>$text</u></i>|<u><i>$text</i></u>")

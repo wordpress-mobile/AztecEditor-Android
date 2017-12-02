@@ -365,9 +365,23 @@ class EditorPage : BasePage() {
         return this
     }
 
+    fun copyRangeToClipboard(start: Int, end: Int): EditorPage {
+        editor.perform(Actions.copyRangeToClipboardAztec(start, end))
+        label("Copy text from index [$start] to [$end] to clipboard")
+
+        return this
+    }
+
     fun pasteFromClipboard(): EditorPage {
         editor.perform(Actions.pasteFromClipboardAztec())
         label("Paste from Aztec clipboard")
+
+        return this
+    }
+
+    fun pasteRangeFromClipboard(start: Int, end: Int): EditorPage {
+        editor.perform(Actions.pasteRangeFromClipboardAztec(start, end))
+        label("Past from Aztec clipboard from range [$start] to [$end]")
 
         return this
     }

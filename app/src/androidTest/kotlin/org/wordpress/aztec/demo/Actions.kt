@@ -85,6 +85,24 @@ object Actions {
         }
     }
 
+    fun copyRangeToClipboardAztec(start: Int, end: Int): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return allOf(isDisplayed(), isAssignableFrom(EditText::class.java))
+            }
+
+            override fun getDescription(): String {
+                return "Copy to Aztec clipboard"
+            }
+
+            override fun perform(uiController: UiController?, view: View?) {
+                if (view is AztecText) {
+                    view.copy(view.text, start, end)
+                }
+            }
+        }
+    }
+
     fun pasteFromClipboardAztec(): ViewAction {
         return object : ViewAction {
             override fun getConstraints(): Matcher<View> {
@@ -98,6 +116,24 @@ object Actions {
             override fun perform(uiController: UiController?, view: View?) {
                 if (view is AztecText) {
                     view.paste(view.text, view.selectionStart, view.selectionEnd)
+                }
+            }
+        }
+    }
+
+    fun pasteRangeFromClipboardAztec(start: Int, end: Int): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return allOf(isDisplayed(), isAssignableFrom(EditText::class.java))
+            }
+
+            override fun getDescription(): String {
+                return "Paste from Aztec clipboard from range [$start] to [$end]"
+            }
+
+            override fun perform(uiController: UiController?, view: View?) {
+                if (view is AztecText) {
+                    view.paste(view.text, start, end)
                 }
             }
         }

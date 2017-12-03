@@ -40,6 +40,8 @@ dependencies {
     implementation "com.android.support:support-v4:$supportLibVersion"
     implementation "com.android.support:design:$supportLibVersion"
 
+    implementation "org.wordpress:utils:$wordpressUtilsVersion"
+
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
 }

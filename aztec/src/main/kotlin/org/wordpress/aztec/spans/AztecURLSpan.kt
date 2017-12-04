@@ -36,7 +36,6 @@ class AztecURLSpan : URLSpan, IAztecInlineSpan {
         if (!this.attributes.hasAttribute("href")) {
             this.attributes.setValue("href", url)
         }
-
     }
 
     constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: AztecAttributes = AztecAttributes()) : this(url, attributes) {

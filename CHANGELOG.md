@@ -1,5 +1,8 @@
 # Changelog
 
+### Fixed
+- URL span not including href attribute when other attributes are present
+
 ## [1.0-beta.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.11) - 2017-11-20
 ### Fixed
 - Paragraphs with attributes being removed

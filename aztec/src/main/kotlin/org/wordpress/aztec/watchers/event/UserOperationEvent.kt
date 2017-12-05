@@ -2,9 +2,9 @@ package org.wordpress.aztec.watchers.event
 
 import org.wordpress.aztec.watchers.TextChangedEvent
 
-data class UserOperationEvent(val eventSequence: ArrayList<TextChangedEvent>) {
+data class UserOperationEvent(val eventSequence: EventSequence) {
 
-    var sequence: ArrayList<TextChangedEvent> = ArrayList<TextChangedEvent>()
+    var sequence: EventSequence = EventSequence()
 
     fun addSequenceStep(event: TextChangedEvent) {
         sequence.add(event)

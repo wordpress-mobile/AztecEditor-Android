@@ -461,7 +461,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "third item")
         editText.setSelection(0)
-        editText.text.delete(firstMark+1, secondMark)
+        editText.text.delete(firstMark + 1, secondMark)
 
         Assert.assertEquals("<$listTag><li>first item</li><li></li><li>third item</li></$listTag>", editText.toHtml())
 
@@ -564,7 +564,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.text.delete(mark, mark + "item2".length)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
 
-        editText.text.delete(mark -1, mark)
+        editText.text.delete(mark - 1, mark)
         Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
     }
 
@@ -852,7 +852,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "3\n")
         TestUtils.safeAppend(editText, "4\n")
         TestUtils.safeAppend(editText, "\n")
-        editText.setSelection(0, TestUtils.safeLength(editText)-1)
+        editText.setSelection(0, TestUtils.safeLength(editText) - 1)
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<$listTag><li>1</li><li>2</li><li></li><li>3</li><li>4</li><li></li></$listTag>", editText.toHtml())

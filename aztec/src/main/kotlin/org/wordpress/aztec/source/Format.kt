@@ -19,6 +19,7 @@ object Format {
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
+    @JvmStatic
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
         html = html.replace("<aztec_cursor>", "")
@@ -46,6 +47,7 @@ object Format {
         return html.trim()
     }
 
+    @JvmStatic
     fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
@@ -294,6 +296,7 @@ object Format {
         return html.replace("\n", "").trim()
     }
 
+    @JvmStatic
     fun preProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             text.getSpans(0, text.length, AztecVisualLinebreak::class.java).forEach {
@@ -314,6 +317,7 @@ object Format {
         }
     }
 
+    @JvmStatic
     fun postProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)

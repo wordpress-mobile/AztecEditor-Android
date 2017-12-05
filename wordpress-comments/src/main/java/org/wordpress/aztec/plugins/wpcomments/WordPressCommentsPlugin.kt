@@ -29,7 +29,7 @@ class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler,
         html.append("-->")
     }
 
-    override fun handleComment(text: String, output: Editable, nestingLevel: Int) : Boolean {
+    override fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
 
         val spanStart = output.length
 

@@ -124,6 +124,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var consumeSelectionChangedEvent: Boolean = false
+    private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
@@ -323,6 +324,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     && dstart == 0 && dend == 0
                     && !isHandlingBackspaceEvent) {
                 isHandlingBackspaceEvent = true
+
+                // Prevent the forced backspace from being added to the history stack
+                consumeHistoryEvent = true
+
                 handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                 isHandlingBackspaceEvent = false
             }
@@ -335,7 +340,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun handleBackspace(event: KeyEvent): Boolean {
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
-            history.beforeTextChanged(toFormattedHtml())
+            if (!consumeHistoryEvent) {
+                history.beforeTextChanged(toFormattedHtml())
+            }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
 
             if (selectionStart == 0 || selectionEnd == 0) {
@@ -349,7 +356,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 enableTextChangedListener()
             }
 
-            history.handleHistory(this@AztecText)
+            if (!consumeHistoryEvent) {
+                history.handleHistory(this@AztecText)
+            }
         }
         return wasStyleRemoved
     }
@@ -357,7 +366,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun install() {
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
-        ParagraphCollapseRemover.install(this)
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
@@ -386,6 +394,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         ZeroIndexContentWatcher.install(this)
 
         DeleteMediaElementWatcher.install(this)
+
+        // History related logging has to happen before the changes in [ParagraphCollapseRemover]
+        addTextChangedListener(this)
+        ParagraphCollapseRemover.install(this)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -397,11 +409,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             // on older android versions selection is lost when window loses focus, so we are making sure to keep it
             setSelection(selStart, selEnd)
         }
-    }
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        addTextChangedListener(this)
     }
 
     override fun onDetachedFromWindow() {
@@ -751,7 +758,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (!isTextChangedListenerDisabled()) {
+        if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
             history.beforeTextChanged(toFormattedHtml())
         }
     }
@@ -767,6 +774,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
 
+        if (consumeHistoryEvent) {
+            consumeHistoryEvent = false
+        }
         history.handleHistory(this)
     }
 
@@ -1145,6 +1155,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun link(url: String, anchor: String) {
+        history.beforeTextChanged(toFormattedHtml())
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {
@@ -1152,6 +1163,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         } else {
             linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
         }
+        history.handleHistory(this)
     }
 
     fun removeLink() {
@@ -1161,6 +1173,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
+    @SuppressLint("InflateParams")
     fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
@@ -1201,6 +1214,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         addLinkDialog!!.show()
     }
 
+    @SuppressLint("InflateParams")
     fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
         val builder = AlertDialog.Builder(context)
 
@@ -1341,6 +1355,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     it.clearOverlays()
 
                     invalidate()
+                    post {
+                        // Refresh last history item so undo/redo works properly
+                        // for media.
+                        history.refreshLastHistoryItem(this@AztecText)
+                    }
                 }
     }
 

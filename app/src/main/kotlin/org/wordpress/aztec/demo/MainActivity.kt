@@ -227,7 +227,6 @@ open class MainActivity : AppCompatActivity(),
 
                         override fun onThumbnailLoading(drawable: Drawable?) {
                         }
-
                     }, this.resources.displayMetrics.widthPixels)
                 }
             }
@@ -284,7 +283,7 @@ open class MainActivity : AppCompatActivity(),
         var progress = 0
 
         // simulate an upload delay
-        val runnable: Runnable = Runnable {
+        val runnable = Runnable {
             aztec.visualEditor.setOverlayLevel(predicate, 1, progress)
             aztec.visualEditor.updateElementAttributes(predicate, attrs)
             aztec.visualEditor.resetAttributedMediaSpan(predicate)
@@ -345,10 +344,10 @@ open class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
-
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
+
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
         }
 
         if (savedInstanceState == null) {

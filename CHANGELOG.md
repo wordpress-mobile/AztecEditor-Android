@@ -3,6 +3,7 @@
 ## Unreleased
 ### Fixed
 - The text handling following immediately after images
+- Undo/redo edit history
 - The demo app sample text
 
 ## [1.0-beta.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.11) - 2017-11-20

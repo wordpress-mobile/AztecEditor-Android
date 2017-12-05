@@ -58,7 +58,7 @@ class AztecUnorderedListSpan(
         val width = p.measureText(textToDraw)
 
         // Make sure the marker is correctly aligned on RTL languages
-        var markerStartPosition : Float = x + (listStyle.indicatorMargin * dir) * 1f
+        var markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         if (dir == 1)
             markerStartPosition -= width
 

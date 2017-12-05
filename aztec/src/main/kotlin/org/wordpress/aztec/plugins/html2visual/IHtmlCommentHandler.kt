@@ -17,7 +17,7 @@ interface IHtmlCommentHandler {
      *
      * @return true if this plugin handled the comment and no other handler should be called, false otherwise.
      */
-    fun handleComment(text: String, output: Editable, nestingLevel: Int) : Boolean {
+    fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
         return true
     }
 }

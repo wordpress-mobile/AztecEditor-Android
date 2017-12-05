@@ -25,9 +25,7 @@ interface IInlineSpanHandler : IAztecPlugin {
      *
      * @return true for compatible spans, false otherwise.
      */
-    fun canHandleSpan(span: CharacterStyle): Boolean {
-        return true
-    }
+    fun canHandleSpan(span: CharacterStyle): Boolean
 
     /**
      * A plugin handler used by [org.wordpress.aztec.AztecParser] during span-to-HTML parsing.

@@ -57,7 +57,7 @@ abstract class AztecListSpan(override var nestingLevel: Int, var verticalPadding
         return otherLinesAtSameNestingLevel + 1
     }
 
-    fun nestingDepth(text: Spanned, index: Int, nextIndex: Int) : Int {
+    fun nestingDepth(text: Spanned, index: Int, nextIndex: Int): Int {
         val finalNextIndex = if (nextIndex > text.length) index else nextIndex
         return IAztecNestable.getNestingLevelAt(text, index, finalNextIndex)
     }

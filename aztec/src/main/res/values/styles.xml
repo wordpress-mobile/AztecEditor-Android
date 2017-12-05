@@ -4,8 +4,8 @@
     <style name="FormatBarButton">
         <item name="android:minWidth">@dimen/format_bar_height</item>
         <item name="android:minHeight">@dimen/format_bar_height</item>
-        <item name="android:textOn">""</item>
-        <item name="android:textOff">""</item>
+        <item name="android:textOn">@null</item>
+        <item name="android:textOff">@null</item>
     </style>
 
     <style name="DividerHorizontal">

@@ -164,6 +164,7 @@ class SimpleTextFormattingTests : BaseTest() {
         EditorPage()
                 .insertText(text1)
                 .addMoreRule()
+                .setCursorPositionAtEnd()
                 .focusedInsertText(text2)
                 .toggleHtml()
                 .verifyHTML(html)

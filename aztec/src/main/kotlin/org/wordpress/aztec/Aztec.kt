@@ -49,77 +49,77 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     companion object Factory {
         @JvmStatic
         fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int,
-                 @IdRes toolbarId: Int, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
+                 @IdRes toolbarId: Int, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(activity, aztecTextId, sourceTextId, toolbarId, toolbarClickListener)
         }
 
         @JvmStatic
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
+                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : Aztec {
+        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
     }
 
-    fun setImageGetter(imageGetter: Html.ImageGetter) : Aztec {
+    fun setImageGetter(imageGetter: Html.ImageGetter): Aztec {
         this.imageGetter = imageGetter
         initImageGetter()
         return this
     }
 
-    fun setVideoThumbnailGetter(videoThumbnailGetter: Html.VideoThumbnailGetter) : Aztec {
+    fun setVideoThumbnailGetter(videoThumbnailGetter: Html.VideoThumbnailGetter): Aztec {
         this.videoThumbnailGetter = videoThumbnailGetter
         initVideoGetter()
         return this
     }
 
-    fun setOnImeBackListener(imeBackListener: AztecText.OnImeBackListener) : Aztec {
+    fun setOnImeBackListener(imeBackListener: AztecText.OnImeBackListener): Aztec {
         this.imeBackListener = imeBackListener
         initImeBackListener()
         return this
     }
 
-    fun setOnTouchListener(onTouchListener: View.OnTouchListener) : Aztec {
+    fun setOnTouchListener(onTouchListener: View.OnTouchListener): Aztec {
         this.onTouchListener = onTouchListener
         initTouchListener()
         return this
     }
 
-    fun setOnImageTappedListener(onImageTappedListener: AztecText.OnImageTappedListener) : Aztec {
+    fun setOnImageTappedListener(onImageTappedListener: AztecText.OnImageTappedListener): Aztec {
         this.onImageTappedListener = onImageTappedListener
         initImageTappedListener()
         return this
     }
 
-    fun setOnVideoTappedListener(onVideoTappedListener: AztecText.OnVideoTappedListener) : Aztec {
+    fun setOnVideoTappedListener(onVideoTappedListener: AztecText.OnVideoTappedListener): Aztec {
         this.onVideoTappedListener = onVideoTappedListener
         initVideoTappedListener()
         return this
     }
 
-    fun setOnAudioTappedListener(onAudioTappedListener: AztecText.OnAudioTappedListener) : Aztec {
+    fun setOnAudioTappedListener(onAudioTappedListener: AztecText.OnAudioTappedListener): Aztec {
         this.onAudioTappedListener = onAudioTappedListener
         initAudioTappedListener()
         return this
     }
 
-    fun setOnMediaDeletedListener(onMediaDeletedListener: AztecText.OnMediaDeletedListener) : Aztec {
+    fun setOnMediaDeletedListener(onMediaDeletedListener: AztecText.OnMediaDeletedListener): Aztec {
         this.onMediaDeletedListener = onMediaDeletedListener
         initMediaDeletedListener()
         return this
     }
 
-    fun setHistoryListener(historyListener: IHistoryListener) : Aztec {
+    fun setHistoryListener(historyListener: IHistoryListener): Aztec {
         this.historyListener = historyListener
         initHistoryListener()
         return this
     }
 
-    fun addPlugin(plugin: IAztecPlugin) : Aztec {
+    fun addPlugin(plugin: IAztecPlugin): Aztec {
         plugins.add(plugin)
 
         if (plugin is IToolbarButton) {

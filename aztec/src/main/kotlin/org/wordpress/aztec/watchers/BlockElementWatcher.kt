@@ -68,12 +68,12 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
 
     override fun afterTextChanged(text: Editable) {}
 
-    fun add(textChangeHandler: TextChangeHandler) : BlockElementWatcher {
+    fun add(textChangeHandler: TextChangeHandler): BlockElementWatcher {
         handlers.add(textChangeHandler)
         return this
     }
 
-    fun install(text: AztecText) : BlockElementWatcher {
+    fun install(text: AztecText): BlockElementWatcher {
         text.addTextChangedListener(this)
         return this
     }

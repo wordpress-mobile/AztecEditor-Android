@@ -95,10 +95,36 @@ class EditorPage : BasePage() {
         return this
     }
 
+    /**
+     * Using selectAllText() + delete() do not work as intended. This method
+     * will select all the text in the editor and then delete that text.
+     */
+    fun selectAllAndDelete(): EditorPage {
+        selectAllText()
+        editor.perform(pressKey(KeyEvent.KEYCODE_FORWARD_DEL))
+        label("Select all text and delete")
+
+        return this
+    }
+
     fun delete(characters: Int): EditorPage {
         for (i in 1..characters) {
             editor.perform(pressKey(KeyEvent.KEYCODE_DEL))
         }
+
+        return this
+    }
+
+    fun insertNewLine(): EditorPage {
+        editor.perform(pressKey(KeyEvent.KEYCODE_ENTER))
+        label("Insert new line")
+
+        return this
+    }
+
+    fun clearText(): EditorPage {
+        editor.perform(ViewActions.clearText())
+        label("Clear editor text")
 
         return this
     }
@@ -304,17 +330,71 @@ class EditorPage : BasePage() {
         return this
     }
 
+    fun verify(expected: String): EditorPage {
+        editor.check(matches(Matchers.withStrippedText(expected)))
+        label("Verified expected editor contents")
+
+        return this
+    }
+
     fun verifyHTML(expected: String): EditorPage {
         htmlEditor.check(matches(Matchers.withStrippedText(expected)))
-        label("Verified expected editor contents")
+        label("Verified expected HTML editor contents")
 
         return this
     }
 
     fun verifyHTML(expected: Regex): EditorPage {
         htmlEditor.check(matches(Matchers.withRegex(expected)))
-        label("Verified expected editor contents")
+        label("Verified expected HTML editor contents")
 
+        return this
+    }
+
+    fun verifyHTMLNoStripping(expected: String): EditorPage {
+        htmlEditor.check(matches(withText(expected)))
+        label("Verified expected HTML editor contents without stripping")
+
+        return this
+    }
+
+    fun copyToClipboard(): EditorPage {
+        editor.perform(Actions.copyToClipboardAztec())
+        label("Copy to Aztec clipboard")
+
+        return this
+    }
+
+    fun copyRangeToClipboard(start: Int, end: Int): EditorPage {
+        editor.perform(Actions.copyRangeToClipboardAztec(start, end))
+        label("Copy text from index [$start] to [$end] to clipboard")
+
+        return this
+    }
+
+    fun pasteFromClipboard(): EditorPage {
+        editor.perform(Actions.pasteFromClipboardAztec())
+        label("Paste from Aztec clipboard")
+
+        return this
+    }
+
+    fun pasteRangeFromClipboard(start: Int, end: Int): EditorPage {
+        editor.perform(Actions.pasteRangeFromClipboardAztec(start, end))
+        label("Past from Aztec clipboard from range [$start] to [$end]")
+
+        return this
+    }
+
+    fun setCursorPositionAtEnd(): EditorPage {
+        editor.perform(Actions.setAztecCursorPositionEnd())
+        label("Set Aztec cursor position at the end of text buffer")
+
+        return this
+    }
+
+    fun threadSleep(millis: Long): EditorPage {
+        Thread.sleep(millis)
         return this
     }
 

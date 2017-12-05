@@ -99,7 +99,7 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
             return sb.toString()
         }
 
-        fun <T: CharSequence> removeEndOfTextMarker(string: T): T {
+        fun <T : CharSequence> removeEndOfTextMarker(string: T): T {
             if (string.isNotEmpty() && string[string.length - 1] == Constants.END_OF_BUFFER_MARKER) {
                 string.substring(0, string.length - 2)
             }

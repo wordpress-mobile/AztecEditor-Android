@@ -139,4 +139,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
 
         textPaint.textSize *= heading.scale
     }
+
+    override fun toString() = "AztecHeadingSpan : $TAG"
 }

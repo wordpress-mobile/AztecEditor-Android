@@ -570,7 +570,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                         } else {
                             (spanEnd != selStart) && selStart in spanStart..spanEnd
                         }
-
                     } else {
                         (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
                                 (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)

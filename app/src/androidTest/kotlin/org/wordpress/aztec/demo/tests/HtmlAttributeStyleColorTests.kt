@@ -48,6 +48,10 @@ class HtmlAttributeStyleColorTests : BaseTest() {
                 .verifyHTML(htmlVerify)
     }
 
+    /**
+     * Tests placing a newline in the middle of styled text and verifying the HTML was split
+     * and assigned the appropriate style attribute.
+     */
     @Test
     fun testInsertNewlineInsideColoredItem() {
         val htmlStart = "<b style=\"color:blue\">Blue</b>"

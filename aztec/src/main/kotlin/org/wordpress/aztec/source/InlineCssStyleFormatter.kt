@@ -40,8 +40,8 @@ class InlineCssStyleFormatter {
 
                 if (start != end) {
                     val style = attributes.getValue("", "style")
-                    // Process the CSS 'color' property
-                    val m = foregroundColorPattern.matcher(style)
+                    // Process the CSS 'color' property, remove any whitespace or newline characters
+                    val m = foregroundColorPattern.matcher(style.replace("\\s".toRegex(), ""))
                     if (m.find()) {
                         val colorString = m.group(1)
                         val colorInt = ColorConverter.getColorInt(colorString)

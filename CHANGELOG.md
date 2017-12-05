@@ -2,6 +2,7 @@
 
 ## Unreleased
 ### Fixed
+- The text handling following immediately after images
 - Undo/redo edit history
 - The demo app sample text
 

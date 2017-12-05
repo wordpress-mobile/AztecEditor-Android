@@ -42,7 +42,8 @@ class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
             val end = start + count
             var lines = aztecText.text.getSpans(start, end, IAztecFullWidthImageSpan::class.java)
 
-            // necessary as spans starting at the `end` are not included in the list above
+            // necessary as spans starting at the `start` and ending at the `end` are not included in the list above
+            lines += aztecText.text.getSpans(start, start, IAztecFullWidthImageSpan::class.java)
             lines += aztecText.text.getSpans(end, end, IAztecFullWidthImageSpan::class.java)
 
             lines.distinct().forEach {

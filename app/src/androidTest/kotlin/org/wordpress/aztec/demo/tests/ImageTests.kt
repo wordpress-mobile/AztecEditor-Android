@@ -47,7 +47,7 @@ class ImageTests : BaseTest() {
     @Test
     fun testAddPhotoAndText() {
         var sampleText = "sample text "
-        val regex = Regex(".+<img src=.+>.+")
+        val regex = Regex(".+<img src=.+>.+", RegexOption.DOT_MATCHES_ALL)
 
         for (i in 1..5) {
             sampleText += sampleText

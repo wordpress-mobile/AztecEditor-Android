@@ -227,7 +227,6 @@ open class MainActivity : AppCompatActivity(),
 
                         override fun onThumbnailLoading(drawable: Drawable?) {
                         }
-
                     }, this.resources.displayMetrics.widthPixels)
                 }
             }
@@ -284,7 +283,7 @@ open class MainActivity : AppCompatActivity(),
         var progress = 0
 
         // simulate an upload delay
-        val runnable: Runnable = Runnable {
+        val runnable = Runnable {
             aztec.visualEditor.setOverlayLevel(predicate, 1, progress)
             aztec.visualEditor.updateElementAttributes(predicate, attrs)
             aztec.visualEditor.resetAttributedMediaSpan(predicate)

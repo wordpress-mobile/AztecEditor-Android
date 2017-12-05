@@ -51,7 +51,6 @@ class MixedTextFormattingTests : BaseTest() {
                 .focusedInsertText(text3)
                 .toggleHtml()
                 .verifyHTML(html)
-
     }
 
     @Test

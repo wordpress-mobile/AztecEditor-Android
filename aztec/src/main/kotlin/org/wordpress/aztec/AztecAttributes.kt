@@ -13,7 +13,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         }
     }
 
-    fun isEmpty() : Boolean {
+    fun isEmpty(): Boolean {
         return length == 0
     }
 
@@ -24,7 +24,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         }
     }
 
-    fun hasAttribute(key: String) : Boolean {
+    fun hasAttribute(key: String): Boolean {
         return getValue(key) != null
     }
 

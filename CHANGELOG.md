@@ -6,6 +6,7 @@
 - Undo/redo edit history
 - The demo app sample text
 - URL span not including href attribute when other attributes are present
+- Broken parsing of <audio> and <video> tags
 
 ## [1.0-beta.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.11) - 2017-11-20
 ### Fixed

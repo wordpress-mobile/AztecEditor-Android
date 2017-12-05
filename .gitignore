@@ -46,8 +46,8 @@ annotations/
 # Enforce plugins
 !/.idea/externalDependencies.xml
 
-# Ktlint
-ktlint
+# OS generated
+/.DS_Store
 
-# OS generated files
-.DS_Store
+# Kotlin lint
+ktlint

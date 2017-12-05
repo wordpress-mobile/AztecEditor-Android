@@ -66,8 +66,7 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
         }
     }
 
-    private fun getNewlinePositionType(text: Spannable, block: SpanWrapper<SpanType>, newlineIndex: Int)
-            : PositionType {
+    private fun getNewlinePositionType(text: Spannable, block: SpanWrapper<SpanType>, newlineIndex: Int): PositionType {
         val isEmptyBody = (block.end - block.start == 1)
                 || (block.end - block.start == 2 && text[block.end - 1] == Constants.END_OF_BUFFER_MARKER)
 

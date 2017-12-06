@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [1.0-beta.12](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.12) - 2017-12-06
 ### Fixed
 - Text handling following immediately after images
 - Undo/redo edit history

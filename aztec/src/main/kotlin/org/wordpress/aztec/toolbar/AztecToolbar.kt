@@ -22,6 +22,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
+import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.ArrayList
@@ -35,6 +36,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var dialogShortcuts: AlertDialog? = null
     private var isAdvanced: Boolean = false
     private var isExpanded: Boolean = false
+    private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
     private lateinit var buttonScroll: HorizontalScrollView
@@ -42,9 +44,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var buttonEllipsisExpand: RippleToggleButton
     private lateinit var layoutExpandedTranslateInRight: Animation
     private lateinit var layoutExpandedTranslateOutLeft: Animation
+
+    private lateinit var buttonMediaCollapse: RippleToggleButton
+    private lateinit var buttonMediaExpand: RippleToggleButton
+
+    private lateinit var layoutMediaTranslateInRight: Animation
+    private lateinit var layoutMediaTranslateOutLeft: Animation
+    private lateinit var layoutMediaTranslateOutRight: Animation
+    private lateinit var layoutMediaTranslateInLeft: Animation
+
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
+    private lateinit var mediaButtonSpinLeft: Animation
+    private lateinit var mediaButtonSpinRight: Animation
     private lateinit var layoutExpanded: LinearLayout
+    private lateinit var layoutMedia: LinearLayout
 
     var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
@@ -158,8 +172,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
-                    aztecToolbarListener?.onToolbarMediaButtonClicked()
-                    findViewById<ToggleButton>(ToolbarAction.ADD_MEDIA.buttonId).performClick()
+                    val mediaAction = if(isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
+                    aztecToolbarListener?.onToolbarMediaButtonClicked(findViewById(mediaAction.buttonId))
+                    findViewById<ToggleButton>(mediaAction.buttonId).performClick()
                     return true
                 }
             }
@@ -331,7 +346,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun initView(attrs: AttributeSet?) {
         val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
-        isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+//        isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+        isAdvanced = true
         styles.recycle()
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
@@ -353,7 +369,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun addButton(buttonPlugin: IToolbarButton) {
-        val pluginContainer = findViewById<LinearLayout>(R.id.plugin_buttons)
+        val pluginContainer = if (buttonPlugin is IMediaToolbarButton)
+            findViewById(R.id.media_toolbar) else findViewById<LinearLayout>(R.id.plugin_buttons)
+
         buttonPlugin.inflateButton(pluginContainer)
 
         toolbarButtonPlugins.add(buttonPlugin)
@@ -437,8 +455,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         // other toolbar action
         when (action) {
-            ToolbarAction.ADD_MEDIA -> {
-                aztecToolbarListener?.onToolbarMediaButtonClicked()
+            ToolbarAction.ADD_MEDIA_COLLAPSE , ToolbarAction.ADD_MEDIA_EXPAND -> {
+                aztecToolbarListener?.onToolbarMediaButtonClicked(findViewById(action.buttonId))
             }
             ToolbarAction.HEADING -> {
                 aztecToolbarListener?.onToolbarHeadingButtonClicked()
@@ -615,6 +633,78 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
         )
 
+        layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
+
+
+        layoutMediaTranslateOutRight= AnimationUtils.loadAnimation(context, R.anim.translate_out_right)
+
+        layoutMediaTranslateOutRight.setAnimationListener(
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                     findViewById<View>(R.id.text_toolbar).visibility = View.GONE
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
+
+                    override fun onAnimationStart(animation: Animation) {
+                    }
+                }
+        )
+        layoutMediaTranslateInLeft = AnimationUtils.loadAnimation(context, R.anim.translate_in_left)
+
+        layoutMediaTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
+        layoutMediaTranslateOutLeft.setAnimationListener(
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+//                        layoutExpanded.visibility = View.GONE
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
+
+                    override fun onAnimationStart(animation: Animation) {
+                    }
+                }
+        )
+
+        mediaButtonSpinRight = AnimationUtils.loadAnimation(context, R.anim.spin_right_45)
+        mediaButtonSpinRight.setAnimationListener(
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonMediaCollapse.visibility = View.GONE
+                        buttonMediaExpand.visibility = View.VISIBLE
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
+
+                    override fun onAnimationStart(animation: Animation) {
+//                        layoutExpanded.visibility = View.VISIBLE
+//                        layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                    }
+                }
+        )
+
+        mediaButtonSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_45)
+        mediaButtonSpinLeft.setAnimationListener(
+                object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation) {
+                        buttonMediaCollapse.visibility = View.VISIBLE
+                        buttonMediaExpand.visibility = View.GONE
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation) {
+                    }
+
+                    override fun onAnimationStart(animation: Animation) {
+//                        buttonScroll.smoothScrollTo(0, 0)
+//                        layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                    }
+                }
+        )
+
+
         ellipsisSpinLeft = AnimationUtils.loadAnimation(context, R.anim.spin_left_90)
         ellipsisSpinLeft.setAnimationListener(
                 object : Animation.AnimationListener {
@@ -654,9 +744,13 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setButtonViews() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
+        layoutMedia = findViewById(R.id.media_toolbar)
         buttonScroll = findViewById(R.id.format_bar_button_scroll)
         buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse)
         buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand)
+
+        buttonMediaCollapse = findViewById(R.id.format_bar_button_media_collapsed)
+        buttonMediaExpand = findViewById(R.id.format_bar_button_media_expanded)
     }
 
     private fun setHeadingMenu(view: View) {
@@ -759,8 +853,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun enableMediaMode(isEnabled: Boolean) {
         isMediaModeEnabled = isEnabled
+        val mediaAction = if(isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
         ToolbarAction.values().forEach { action ->
-            if (action == ToolbarAction.ADD_MEDIA) {
+            if (action == mediaAction) {
                 toggleButton(findViewById(action.buttonId), isEnabled)
             } else {
                 toggleButtonState(findViewById(action.buttonId), !isEnabled)
@@ -776,4 +871,39 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         dialogShortcuts = builder.create()
         dialogShortcuts!!.show()
     }
+
+    private fun hideMediaToolbar() {
+        layoutMedia.visibility = View.GONE
+        buttonMediaExpand.startAnimation(mediaButtonSpinLeft)
+
+        if (isAdvanced) {
+            findViewById<View>(R.id.text_toolbar).visibility = View.VISIBLE
+            findViewById<View>(R.id.text_toolbar).startAnimation(layoutMediaTranslateInLeft)
+
+            layoutMedia.startAnimation(layoutMediaTranslateOutLeft)
+        }
+    }
+
+    private fun showMediaToolbar() {
+        buttonMediaCollapse.startAnimation(mediaButtonSpinRight)
+        if (isAdvanced) {
+//            this.findViewById<View>(R.id.style_buttons_container).visibility = View.GONE
+            this.findViewById<View>(R.id.text_toolbar).startAnimation(layoutMediaTranslateOutRight)
+        }
+
+        layoutMedia.visibility = View.VISIBLE
+        layoutMedia.startAnimation(layoutMediaTranslateInRight)
+
+    }
+
+    fun toggleMediaToolbar() {
+        isMediaToolbarVisible = if (isMediaToolbarVisible) {
+            hideMediaToolbar()
+            false
+        } else {
+            showMediaToolbar()
+            true
+        }
+    }
+
 }

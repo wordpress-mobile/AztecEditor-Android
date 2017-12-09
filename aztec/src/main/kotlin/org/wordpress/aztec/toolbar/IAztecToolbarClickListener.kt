@@ -1,5 +1,6 @@
 package org.wordpress.aztec.toolbar
 
+import android.view.View
 import org.wordpress.aztec.ITextFormat
 
 interface IAztecToolbarClickListener {
@@ -9,5 +10,5 @@ interface IAztecToolbarClickListener {
     fun onToolbarHeadingButtonClicked()
     fun onToolbarHtmlButtonClicked()
     fun onToolbarListButtonClicked()
-    fun onToolbarMediaButtonClicked()
+    fun onToolbarMediaButtonClicked(button: View)
 }

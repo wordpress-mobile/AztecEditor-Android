@@ -44,6 +44,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
@@ -72,11 +73,11 @@ open class MainActivity : AppCompatActivity(),
     companion object {
         private val HEADING =
                 "<h1>Heading 1</h1>" +
-                "<h2>Heading 2</h2>" +
-                "<h3>Heading 3</h3>" +
-                "<h4>Heading 4</h4>" +
-                "<h5>Heading 5</h5>" +
-                "<h6>Heading 6</h6>"
+                        "<h2>Heading 2</h2>" +
+                        "<h3>Heading 3</h3>" +
+                        "<h4>Heading 4</h4>" +
+                        "<h5>Heading 5</h5>" +
+                        "<h6>Heading 6</h6>"
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i>Italic</i><br>"
         private val UNDERLINE = "<u>Underline</u><br>"
@@ -92,28 +93,28 @@ open class MainActivity : AppCompatActivity(),
         private val COMMENT_PAGE = "<!--nextpage--><br>"
         private val HIDDEN =
                 "<span></span>" +
-                "<div class=\"first\">" +
-                "    <div class=\"second\">" +
-                "        <div class=\"third\">" +
-                "            Div<br><span><b>Span</b></span><br>Hidden" +
-                "        </div>" +
-                "        <div class=\"fourth\"></div>" +
-                "        <div class=\"fifth\"></div>" +
-                "    </div>" +
-                "    <span class=\"second last\"></span>" +
-                "</div>" +
-                "<br>"
+                        "<div class=\"first\">" +
+                        "    <div class=\"second\">" +
+                        "        <div class=\"third\">" +
+                        "            Div<br><span><b>Span</b></span><br>Hidden" +
+                        "        </div>" +
+                        "        <div class=\"fourth\"></div>" +
+                        "        <div class=\"fifth\"></div>" +
+                        "    </div>" +
+                        "    <span class=\"second last\"></span>" +
+                        "</div>" +
+                        "<br>"
         private val PREFORMAT =
                 "<pre>" +
-                "when (person) {<br>" +
-                "    MOCTEZUMA -> {<br>" +
-                "        print (\"friend\")<br>" +
-                "    }<br>" +
-                "    CORTES -> {<br>" +
-                "        print (\"foe\")<br>" +
-                "    }<br>" +
-                "}" +
-                "</pre>"
+                        "when (person) {<br>" +
+                        "    MOCTEZUMA -> {<br>" +
+                        "        print (\"friend\")<br>" +
+                        "    }<br>" +
+                        "    CORTES -> {<br>" +
+                        "        print (\"foe\")<br>" +
+                        "    }<br>" +
+                        "}" +
+                        "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
         private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
@@ -124,28 +125,28 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 IMG +
-                HEADING +
-                BOLD +
-                ITALIC +
-                UNDERLINE +
-                STRIKETHROUGH +
-                ORDERED +
-                LINE +
-                UNORDERED +
-                QUOTE +
-                PREFORMAT +
-                LINK +
-                HIDDEN +
-                COMMENT +
-                COMMENT_MORE +
-                COMMENT_PAGE +
-                CODE +
-                UNKNOWN +
-                EMOJI +
-                NON_LATIN_TEXT +
-                LONG_TEXT +
-                VIDEO +
-                AUDIO
+                        HEADING +
+                        BOLD +
+                        ITALIC +
+                        UNDERLINE +
+                        STRIKETHROUGH +
+                        ORDERED +
+                        LINE +
+                        UNORDERED +
+                        QUOTE +
+                        PREFORMAT +
+                        LINK +
+                        HIDDEN +
+                        COMMENT +
+                        COMMENT_MORE +
+                        COMMENT_PAGE +
+                        CODE +
+                        UNKNOWN +
+                        EMOJI +
+                        NON_LATIN_TEXT +
+                        LONG_TEXT +
+                        VIDEO +
+                        AUDIO
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -326,22 +327,48 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
+        val photoButton = MediaPhotoToolbarButton(toolbar)
+        photoButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
+            override fun onClick(view: View) {
+                mediaMenu = PopupMenu(this@MainActivity, view)
+                mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
+                mediaMenu?.inflate(R.menu.media)
+                mediaMenu?.show()
+            }
+        })
+
+        val videoButton = MediaVideoToolbarButton(toolbar)
+        videoButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
+            override fun onClick(view: View) {
+                mediaMenu = PopupMenu(this@MainActivity, view)
+                mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
+                mediaMenu?.inflate(R.menu.media)
+                mediaMenu?.show()
+            }
+        })
+
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(GlideImageLoader(this))
-            .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
-            .setOnImeBackListener(this)
-            .setOnTouchListener(this)
-            .setHistoryListener(this)
-            .setOnImageTappedListener(this)
-            .setOnVideoTappedListener(this)
-            .setOnAudioTappedListener(this)
-            .setOnMediaDeletedListener(this)
-            .addPlugin(WordPressCommentsPlugin(visualEditor))
-            .addPlugin(MoreToolbarButton(visualEditor))
-            .addPlugin(PageToolbarButton(visualEditor))
-            .addPlugin(CaptionShortcodePlugin(visualEditor))
-            .addPlugin(VideoShortcodePlugin())
-            .addPlugin(AudioShortcodePlugin())
+                .setImageGetter(GlideImageLoader(this))
+                .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
+                .setOnImeBackListener(this)
+                .setOnTouchListener(this)
+                .setHistoryListener(this)
+                .setOnImageTappedListener(this)
+                .setOnVideoTappedListener(this)
+                .setOnAudioTappedListener(this)
+                .setOnMediaDeletedListener(this)
+                .addPlugin(WordPressCommentsPlugin(visualEditor))
+                .addPlugin(MoreToolbarButton(visualEditor))
+                .addPlugin(PageToolbarButton(visualEditor))
+                .addPlugin(CaptionShortcodePlugin(visualEditor))
+                .addPlugin(VideoShortcodePlugin())
+                .addPlugin(AudioShortcodePlugin())
+                .addPlugin(photoButton)
+                .addPlugin(videoButton)
+
+
+
+
 
         aztec.visualEditor.setCalypsoMode(false)
         aztec.sourceEditor?.setCalypsoMode(false)
@@ -708,11 +735,13 @@ open class MainActivity : AppCompatActivity(),
     override fun onToolbarListButtonClicked() {
     }
 
-    override fun onToolbarMediaButtonClicked() {
-        mediaMenu = PopupMenu(this, aztec.toolbar)
-        mediaMenu?.setOnMenuItemClickListener(this)
-        mediaMenu?.inflate(R.menu.media)
-        mediaMenu?.show()
+    override fun onToolbarMediaButtonClicked(button: View) {
+        aztec.toolbar.toggleMediaToolbar()
+
+//        mediaMenu = PopupMenu(this, button)
+//        mediaMenu?.setOnMenuItemClickListener(this)
+//        mediaMenu?.inflate(R.menu.media)
+//        mediaMenu?.show()
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {

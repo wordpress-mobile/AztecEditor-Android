@@ -3,201 +3,243 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/format_bar_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
     android:layout_gravity="bottom"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:orientation="vertical" >
+    android:background="@color/format_bar_background"
+    android:orientation="vertical">
 
     <View
         android:id="@+id/format_bar_horizontal_divider"
-        android:layout_height="@dimen/format_bar_horizontal_divider_height"
+        style="@style/DividerHorizontal"
         android:layout_width="fill_parent"
-        style="@style/DividerHorizontal" >
+        android:layout_height="@dimen/format_bar_horizontal_divider_height">
     </View>
 
     <HorizontalScrollView
         android:id="@+id/format_bar_button_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/format_bar_height"
+        android:layout_gravity="bottom"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:layout_gravity="bottom"
-        android:layout_height="@dimen/format_bar_height"
-        android:layout_width="match_parent"
         android:paddingRight="@dimen/format_bar_right_margin"
-        tools:ignore="RtlHardcoded,RtlSymmetry" >
+        tools:ignore="RtlHardcoded,RtlSymmetry">
 
-        <LinearLayout
-            android:layout_height="match_parent"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:orientation="horizontal" >
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/media_button_container"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:orientation="horizontal">
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_media_collapsed"
+                    style="@style/FormatBarButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="@drawable/format_bar_button_media_collapsed_selector"
+                    android:contentDescription="@string/format_bar_description_media">
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_media_expanded"
+                    style="@style/FormatBarButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="@drawable/format_bar_button_media_expanded_selector"
+                    android:contentDescription="@string/format_bar_description_media"
+                    android:visibility="gone">
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                <View
+                    android:id="@+id/format_bar_vertical_divider"
+                    style="@style/DividerVertical"
+                    android:layout_width="@dimen/format_bar_horizontal_divider_height"
+                    android:layout_height="fill_parent">
+                </View>
+
+            </LinearLayout>
 
             <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_width="wrap_content" >
+                android:layout_toRightOf="@+id/media_button_container">
 
                 <LinearLayout
-                    android:id="@+id/format_bar_button_layout_expanded"
-                    android:layout_height="match_parent"
-                    android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
+                    android:id="@+id/media_toolbar"
                     android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:orientation="horizontal"
-                    tools:visibility="gone" >
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_link"
-                        android:background="@drawable/format_bar_button_link_selector"
-                        android:contentDescription="@string/format_bar_description_link"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_underline"
-                        android:background="@drawable/format_bar_button_underline_selector"
-                        android:contentDescription="@string/format_bar_description_underline"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_strikethrough"
-                        android:background="@drawable/format_bar_button_strikethrough_selector"
-                        android:contentDescription="@string/format_bar_description_strike"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_horizontal_rule"
-                        android:background="@drawable/format_bar_button_horizontal_rule_selector"
-                        android:contentDescription="@string/format_bar_description_horizontal_rule"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <LinearLayout
-                        android:id="@+id/plugin_buttons"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:orientation="horizontal" />
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_html"
-                        android:background="@drawable/format_bar_button_html_selector"
-                        android:contentDescription="@string/format_bar_description_html"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
+                    android:visibility="gone">
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/format_bar_button_layout_collapsed"
-                    android:background="@color/format_bar_background"
-                    android:layout_height="match_parent"
+                    android:id="@+id/text_toolbar"
                     android:layout_width="wrap_content"
-                    android:orientation="horizontal" >
+                    android:layout_height="match_parent">
 
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_media"
-                        android:background="@drawable/format_bar_button_media_selector"
-                        android:contentDescription="@string/format_bar_description_media"
-                        android:layout_height="fill_parent"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
+                        android:layout_height="match_parent">
 
+                        <LinearLayout
+                            android:id="@+id/format_bar_button_layout_expanded"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
+                            android:orientation="horizontal"
+                            tools:visibility="gone">
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_link"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_link_selector"
+                                android:contentDescription="@string/format_bar_description_link">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_underline"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_underline_selector"
+                                android:contentDescription="@string/format_bar_description_underline">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_strikethrough"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_strikethrough_selector"
+                                android:contentDescription="@string/format_bar_description_strike">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_horizontal_rule"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_horizontal_rule_selector"
+                                android:contentDescription="@string/format_bar_description_horizontal_rule">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <LinearLayout
+                                android:id="@+id/plugin_buttons"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"/>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_html"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_html_selector"
+                                android:contentDescription="@string/format_bar_description_html">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/format_bar_button_layout_collapsed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="@color/format_bar_background"
+                            android:orientation="horizontal">
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_heading"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:layout_marginLeft="@dimen/format_bar_left_margin"
+                                android:background="@drawable/format_bar_button_heading_selector"
+                                android:contentDescription="@string/format_bar_description_heading">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_list"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_ul_selector"
+                                android:contentDescription="@string/format_bar_description_list">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_quote"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_quote_selector"
+                                android:contentDescription="@string/format_bar_description_quote">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_bold"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_bold_selector"
+                                android:contentDescription="@string/format_bar_description_bold">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_italic"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_italic_selector"
+                                android:contentDescription="@string/format_bar_description_italic">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                    <!-- Hidden view used to force ellipsis icons to layout right/end -->
                     <View
-                        android:id="@+id/format_bar_vertical_divider"
+                        android:layout_width="0dp"
                         android:layout_height="fill_parent"
-                        android:layout_width="@dimen/format_bar_horizontal_divider_height"
-                        style="@style/DividerVertical" >
+                        android:layout_weight="1"
+                        android:visibility="invisible">
                     </View>
 
                     <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_heading"
-                        android:background="@drawable/format_bar_button_heading_selector"
-                        android:contentDescription="@string/format_bar_description_heading"
-                        android:layout_height="fill_parent"
-                        android:layout_marginLeft="@dimen/format_bar_left_margin"
+                        android:id="@+id/format_bar_button_ellipsis_expand"
+                        style="@style/FormatBarButton"
                         android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/format_bar_button_ellipsis_horizontal_selector"
+                        android:contentDescription="@string/format_bar_description_ellipsis_expand">
                     </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                     <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_list"
-                        android:background="@drawable/format_bar_button_ul_selector"
-                        android:contentDescription="@string/format_bar_description_list"
-                        android:layout_height="fill_parent"
+                        android:id="@+id/format_bar_button_ellipsis_collapse"
+                        style="@style/FormatBarButton"
                         android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_quote"
-                        android:background="@drawable/format_bar_button_quote_selector"
-                        android:contentDescription="@string/format_bar_description_quote"
                         android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_bold"
-                        android:background="@drawable/format_bar_button_bold_selector"
-                        android:contentDescription="@string/format_bar_description_bold"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_italic"
-                        android:background="@drawable/format_bar_button_italic_selector"
-                        android:contentDescription="@string/format_bar_description_italic"
-                        android:layout_height="fill_parent"
-                        android:layout_width="wrap_content"
-                        style="@style/FormatBarButton" >
+                        android:background="@drawable/format_bar_button_ellipsis_vertical_selector"
+                        android:contentDescription="@string/format_bar_description_ellipsis_collapse"
+                        android:visibility="gone">
                     </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 </LinearLayout>
 
             </RelativeLayout>
 
-            <!-- Hidden view used to force ellipsis icons to layout right/end -->
-            <View
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:visibility="invisible" >
-            </View>
-
-            <org.wordpress.aztec.toolbar.RippleToggleButton
-                android:id="@+id/format_bar_button_ellipsis_expand"
-                android:background="@drawable/format_bar_button_ellipsis_horizontal_selector"
-                android:contentDescription="@string/format_bar_description_ellipsis_expand"
-                android:layout_height="fill_parent"
-                android:layout_width="wrap_content"
-                style="@style/FormatBarButton" >
-            </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-            <org.wordpress.aztec.toolbar.RippleToggleButton
-                android:id="@+id/format_bar_button_ellipsis_collapse"
-                android:background="@drawable/format_bar_button_ellipsis_vertical_selector"
-                android:contentDescription="@string/format_bar_description_ellipsis_collapse"
-                android:layout_height="fill_parent"
-                android:layout_width="wrap_content"
-                android:visibility="gone"
-                style="@style/FormatBarButton" >
-            </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-        </LinearLayout>
+        </RelativeLayout>
 
     </HorizontalScrollView>
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0-beta.12](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.12) - 2017-12-06
+### Fixed
+- Text handling following immediately after images
+- Undo/redo edit history
+- Demo app sample text
+- URL span not including href attribute when other attributes are present
+- Broken UI tests
+- All content appearing in one line on older API levels
+- Fixed image scaling
+- RTL support for lists
+- Text editing around images with captions
+- Images not staying inside links
+
+### Added
+- Check for correct paragraph bounds to prevent crashes + logging if it's incorrect
+- New link UI tests
+
 ## [1.0-beta.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.11) - 2017-11-20
 ### Fixed
 - Paragraphs with attributes being removed

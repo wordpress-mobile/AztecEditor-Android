@@ -7,6 +7,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.FullWidthImageProcessingMarker
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
+import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 
 class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
@@ -39,42 +40,55 @@ class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
                 aztecText.text.getSpans(0, 0, FullWidthImageProcessingMarker::class.java).isEmpty()) {
 
             val end = start + count
-            var lines = aztecText.text.getSpans(start, start, IAztecFullWidthImageSpan::class.java)
+            var lines = aztecText.text.getSpans(start, end, IAztecFullWidthImageSpan::class.java)
+
+            // necessary as spans starting at the `start` and ending at the `end` are not included in the list above
+            lines += aztecText.text.getSpans(start, start, IAztecFullWidthImageSpan::class.java)
             lines += aztecText.text.getSpans(end, end, IAztecFullWidthImageSpan::class.java)
 
             lines.distinct().forEach {
-                val changedLineBeginning = aztecText.text.getSpanStart(it) == end && end - 1 >= 0 &&
-                        aztecText.text[end - 1] != Constants.NEWLINE
-                val changedLineEnd = aztecText.text.getSpanEnd(it) == start && start < aztecText.length() &&
-                        aztecText.text[start] != Constants.NEWLINE
+                val wrapper = SpanWrapper<IAztecFullWidthImageSpan>(aztecText.text, it)
+
+                // do not process images that were removed
+                if (wrapper.start == -1) {
+                    return@forEach
+                }
+
+                val mustFixSpanStart = wrapper.start > 0 && aztecText.text[wrapper.start - 1] != Constants.NEWLINE
+                val mustFixSpanEnd = wrapper.end < aztecText.length() && aztecText.text[wrapper.end] != Constants.NEWLINE
 
                 val marker = FullWidthImageProcessingMarker()
                 aztecText.text.setSpan(marker, 0, 0, Spanned.SPAN_MARK_MARK)
 
-                if (changedLineBeginning) {
+                if (mustFixSpanStart) {
                     // if characters added, insert a newline before the line
+                    val spanStart = wrapper.start
                     if (count > 0) {
-                        insertVisualNewline(end)
-                        aztecText.setSelection(end)
+                        insertVisualNewline(spanStart)
+                        aztecText.setSelection(spanStart)
                     } else {
                         // if newline deleted, add it back and delete a character before it
                         if (deletedNewline) {
-                            aztecText.text.delete(end - 1, end)
-                            insertVisualNewline(end - 1)
-                            aztecText.setSelection(end - 1)
+                            aztecText.text.delete(spanStart - 1, spanStart)
+                            if (spanStart > 1 && aztecText.text[spanStart - 2] != Constants.NEWLINE) {
+                                insertVisualNewline(spanStart - 1)
+                            }
+                            aztecText.setSelection(spanStart - 1)
                         } else {
                             // just add a newline
-                            insertVisualNewline(end)
-                            aztecText.setSelection(end)
+                            insertVisualNewline(spanStart)
+                            aztecText.setSelection(spanStart)
                         }
                     }
-                } else if (changedLineEnd) {
+                }
+
+                if (mustFixSpanEnd) {
                     if (count > 0) {
                         // if text added right after a line, add a newline
-                        insertVisualNewline(start)
+                        insertVisualNewline(wrapper.end)
                     } else {
                         // if text deleted, remove the line
-                        aztecText.text.delete(aztecText.text.getSpanStart(it), start)
+                        aztecText.text.delete(wrapper.start, wrapper.end)
                     }
                 }
 

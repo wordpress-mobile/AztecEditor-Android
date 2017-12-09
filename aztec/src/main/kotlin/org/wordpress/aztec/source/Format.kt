@@ -13,12 +13,13 @@ import org.wordpress.aztec.spans.ParagraphSpan
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-internal object Format {
+object Format {
     // list of block elements
     private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
 
+    @JvmStatic
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
         html = html.replace("<aztec_cursor>", "")
@@ -46,6 +47,7 @@ internal object Format {
         return html.trim()
     }
 
+    @JvmStatic
     fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
@@ -294,6 +296,7 @@ internal object Format {
         return html.replace("\n", "").trim()
     }
 
+    @JvmStatic
     fun preProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             text.getSpans(0, text.length, AztecVisualLinebreak::class.java).forEach {
@@ -314,6 +317,7 @@ internal object Format {
         }
     }
 
+    @JvmStatic
     fun postProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             val spans = text.getSpans(0, text.length, EndOfParagraphMarker::class.java)

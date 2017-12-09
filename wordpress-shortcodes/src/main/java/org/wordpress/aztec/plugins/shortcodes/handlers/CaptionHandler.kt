@@ -57,5 +57,4 @@ class CaptionHandler(aztecText: AztecText) : BlockHandler<CaptionShortcodeSpan>(
         // delete the newline as it's purpose was served (to translate it as a command to close the block)
         TextDeleter.mark(text, newlineIndex, newlineIndex + 1)
     }
-
 }

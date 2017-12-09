@@ -77,7 +77,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     (newStart > end && editableText.length > end && editableText[end] == '\n')) {
                 removeInlineStyle(it, newStart, end)
             }
-
         }
     }
 

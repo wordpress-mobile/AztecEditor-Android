@@ -6,5 +6,5 @@ import org.wordpress.aztec.plugins.IAztecPlugin
 interface IHtmlTextHandler : IAztecPlugin {
     val pattern: String
 
-    fun onHtmlTextMatch(text: String, output: Editable, nestingLevel: Int) : Boolean
+    fun onHtmlTextMatch(text: String, output: Editable, nestingLevel: Int): Boolean
 }

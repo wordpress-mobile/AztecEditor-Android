@@ -926,7 +926,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     }
 
-    private fun toggleMediaToolbar() {
+    fun toggleMediaToolbar() {
         isMediaToolbarVisible = if (isMediaToolbarVisible) {
             hideMediaToolbar()
             false

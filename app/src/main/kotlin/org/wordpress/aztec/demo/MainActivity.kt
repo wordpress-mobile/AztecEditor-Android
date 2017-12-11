@@ -238,6 +238,7 @@ open class MainActivity : AppCompatActivity(),
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
         aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
+        aztec.toolbar.toggleMediaToolbar()
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
@@ -245,6 +246,7 @@ open class MainActivity : AppCompatActivity(),
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
         aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
         insertMediaAndSimulateUpload(id, attrs)
+        aztec.toolbar.toggleMediaToolbar()
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {

@@ -7,6 +7,6 @@ import org.wordpress.aztec.toolbar.ToolbarActionType
 
 enum class MediaToolbarAction constructor(override val buttonId: Int, override val actionType: ToolbarActionType,
                                           override val textFormat: ITextFormat) : IToolbarAction {
-    PHOTO(R.id.format_bar_button_photo, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
-    VIDEO(R.id.format_bar_button_video, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE)
+    GALLERY(R.id.media_bar_button_gallery, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    CAMERA(R.id.media_bar_button_camera, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE)
 }

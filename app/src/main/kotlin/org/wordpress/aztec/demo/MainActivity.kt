@@ -323,7 +323,7 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
-        val galleryButton = MediaPhotoToolbarButton(toolbar)
+        val galleryButton = MediaToolbarGalleryButton(toolbar)
         galleryButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
                 mediaMenu = PopupMenu(this@MainActivity, view)
@@ -333,7 +333,7 @@ open class MainActivity : AppCompatActivity(),
             }
         })
 
-        val cameraButton = MediaVideoToolbarButton(toolbar)
+        val cameraButton = MediaToolbarCameraButton(toolbar)
         cameraButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
                 mediaMenu = PopupMenu(this@MainActivity, view)

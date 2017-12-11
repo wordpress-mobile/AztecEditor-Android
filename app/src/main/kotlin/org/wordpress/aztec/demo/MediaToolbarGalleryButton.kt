@@ -8,11 +8,11 @@ import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 
-class MediaPhotoToolbarButton(val toolbar: AztecToolbar) : IMediaToolbarButton {
+class MediaToolbarGalleryButton(val toolbar: AztecToolbar) : IMediaToolbarButton {
 
-    var clickListener: IMediaToolbarButton.IMediaToolbarClickListener? = null
+    private var clickListener: IMediaToolbarButton.IMediaToolbarClickListener? = null
 
-    override val action: IToolbarAction = MediaToolbarAction.PHOTO
+    override val action: IToolbarAction = MediaToolbarAction.GALLERY
     override val context = toolbar.context!!
 
     override fun setMediaToolbarButtonClickListener(clickListener: IMediaToolbarButton.IMediaToolbarClickListener) {
@@ -20,9 +20,7 @@ class MediaPhotoToolbarButton(val toolbar: AztecToolbar) : IMediaToolbarButton {
     }
 
     override fun toggle() {
-        if (clickListener != null){
-            clickListener!!.onClick(toolbar.findViewById(action.buttonId))
-        }
+        clickListener?.onClick(toolbar.findViewById(action.buttonId))
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {

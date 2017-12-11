@@ -706,7 +706,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             buttonMediaCollapse.visibility = View.VISIBLE
             stylingToolbar.visibility = View.VISIBLE
             mediaToolbar.visibility = View.GONE
-
         }
 
         setupMediaToolbarAnimations()
@@ -714,19 +713,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setupMediaToolbarAnimations(){
         layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
-        layoutMediaTranslateInRight.setAnimationListener(
-                object : Animation.AnimationListener {
-                    override fun onAnimationEnd(animation: Animation) {
-                    }
-
-                    override fun onAnimationRepeat(animation: Animation) {
-                    }
-
-                    override fun onAnimationStart(animation: Animation) {
-
-                    }
-                }
-        )
 
         layoutMediaTranslateOutRight = AnimationUtils.loadAnimation(context, R.anim.translate_out_right)
         layoutMediaTranslateOutRight.setAnimationListener(

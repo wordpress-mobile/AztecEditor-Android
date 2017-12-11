@@ -28,7 +28,7 @@ class MediaToolbarGalleryButton(val toolbar: AztecToolbar) : IMediaToolbarButton
     }
 
     override fun inflateButton(parent: ViewGroup) {
-        LayoutInflater.from(context).inflate(R.layout.media_toobar_photo_button, parent)
+        LayoutInflater.from(context).inflate(R.layout.media_toobar_gallery_button, parent)
     }
 
     override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {

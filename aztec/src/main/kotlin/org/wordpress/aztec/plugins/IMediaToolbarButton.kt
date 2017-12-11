@@ -11,5 +11,3 @@ interface IMediaToolbarButton : IToolbarButton {
     }
 
 }
-
-

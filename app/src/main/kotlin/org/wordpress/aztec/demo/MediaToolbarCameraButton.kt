@@ -28,7 +28,7 @@ class MediaToolbarCameraButton(val toolbar: AztecToolbar) : IMediaToolbarButton 
     }
 
     override fun inflateButton(parent: ViewGroup) {
-        LayoutInflater.from(context).inflate(R.layout.media_toobar_video_button, parent)
+        LayoutInflater.from(context).inflate(R.layout.media_toobar_camera_button, parent)
     }
 
     override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {

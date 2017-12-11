@@ -1,6 +1,7 @@
 package org.wordpress.aztec.demo
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -30,8 +31,6 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
@@ -174,8 +173,6 @@ open class MainActivity : AppCompatActivity(),
     private lateinit var invalidateOptionsHandler: Handler
     private lateinit var invalidateOptionsRunnable: Runnable
 
-    private var addPhotoMediaDialog: AlertDialog? = null
-    private var addVideoMediaDialog: AlertDialog? = null
     private var mediaUploadDialog: AlertDialog? = null
     private var mediaMenu: PopupMenu? = null
 
@@ -236,7 +233,7 @@ open class MainActivity : AppCompatActivity(),
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+    private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
         val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
         aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
@@ -326,22 +323,22 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
-        val photoButton = MediaPhotoToolbarButton(toolbar)
-        photoButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
+        val galleryButton = MediaPhotoToolbarButton(toolbar)
+        galleryButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
                 mediaMenu = PopupMenu(this@MainActivity, view)
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
-                mediaMenu?.inflate(R.menu.media)
+                mediaMenu?.inflate(R.menu.menu_gallery)
                 mediaMenu?.show()
             }
         })
 
-        val videoButton = MediaVideoToolbarButton(toolbar)
-        videoButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
+        val cameraButton = MediaVideoToolbarButton(toolbar)
+        cameraButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
                 mediaMenu = PopupMenu(this@MainActivity, view)
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
-                mediaMenu?.inflate(R.menu.media)
+                mediaMenu?.inflate(R.menu.menu_camera)
                 mediaMenu?.show()
             }
         })
@@ -362,8 +359,8 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(CaptionShortcodePlugin(visualEditor))
                 .addPlugin(VideoShortcodePlugin())
                 .addPlugin(AudioShortcodePlugin())
-                .addPlugin(photoButton)
-                .addPlugin(videoButton)
+                .addPlugin(galleryButton)
+                .addPlugin(cameraButton)
 
         // initialize the text & HTML
         if (!isRunningTest) {
@@ -413,14 +410,6 @@ open class MainActivity : AppCompatActivity(),
         aztec.initSourceEditorHistory()
 
         savedInstanceState?.let {
-            if (savedInstanceState.getBoolean("isPhotoMediaDialogVisible")) {
-                showPhotoMediaDialog()
-            }
-
-            if (savedInstanceState.getBoolean("isVideoMediaDialogVisible")) {
-                showVideoMediaDialog()
-            }
-
             if (savedInstanceState.getBoolean("isMediaUploadDialogVisible")) {
                 showMediaUploadDialog()
             }
@@ -429,14 +418,6 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-
-        if (addPhotoMediaDialog != null && addPhotoMediaDialog!!.isShowing) {
-            outState?.putBoolean("isPhotoMediaDialogVisible", true)
-        }
-
-        if (addVideoMediaDialog != null && addVideoMediaDialog!!.isShowing) {
-            outState?.putBoolean("isVideoMediaDialogVisible", true)
-        }
 
         if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
             outState?.putBoolean("isMediaUploadDialogVisible", true)
@@ -478,6 +459,7 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_UP) {
             // If the WebView or EditText has received a touch event, the keyboard will be displayed and the action bar
@@ -545,7 +527,7 @@ open class MainActivity : AppCompatActivity(),
         invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
     }
 
-    fun onCameraPhotoMediaOptionSelected() {
+    private fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
@@ -561,7 +543,7 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    fun onCameraVideoMediaOptionSelected() {
+    private fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
 
@@ -571,22 +553,12 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    fun onGalleryMediaOptionSelected() {
-        Toast.makeText(this, "Launch gallery", Toast.LENGTH_SHORT).show()
-    }
-
-    fun onPhotoLibraryMediaOptionSelected() {
-        Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
-    }
-
-    fun onPhotosMediaOptionSelected() {
+    private fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Intent(Intent.ACTION_OPEN_DOCUMENT)
             } else {
-                intent = Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_photo))
+                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_photo))
             }
 
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -601,18 +573,12 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    fun onVideoLibraryMediaOptionSelected() {
-        Toast.makeText(this, "Open library", Toast.LENGTH_SHORT).show()
-    }
-
-    fun onVideosMediaOptionSelected() {
+    private fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Intent(Intent.ACTION_OPEN_DOCUMENT)
             } else {
-                intent = Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_video))
+                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_video))
             }
 
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -737,20 +703,24 @@ open class MainActivity : AppCompatActivity(),
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         item?.isChecked = (item?.isChecked == false)
 
-        when (item?.itemId) {
-            R.id.gallery -> {
-                onGalleryMediaOptionSelected()
-                return true
+        return when (item?.itemId) {
+            R.id.take_photo -> {
+                onCameraPhotoMediaOptionSelected()
+                true
             }
-            R.id.photo -> {
-                showPhotoMediaDialog()
-                return true
+            R.id.take_video -> {
+                onCameraVideoMediaOptionSelected()
+                true
             }
-            R.id.video -> {
-                showVideoMediaDialog()
-                return true
+            R.id.gallery_photo -> {
+                onPhotosMediaOptionSelected()
+                true
             }
-            else -> return false
+            R.id.gallery_video -> {
+                onVideosMediaOptionSelected()
+                true
+            }
+            else -> false
         }
     }
 
@@ -760,60 +730,6 @@ open class MainActivity : AppCompatActivity(),
         builder.setPositiveButton(getString(org.wordpress.aztec.R.string.media_upload_dialog_positive), null)
         mediaUploadDialog = builder.create()
         mediaUploadDialog!!.show()
-    }
-
-    private fun showPhotoMediaDialog() {
-        val dialog = layoutInflater.inflate(R.layout.dialog_photo_media, null)
-
-        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
-        camera.setOnClickListener({
-            onCameraPhotoMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val photos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_photos)
-        photos.setOnClickListener({
-            onPhotosMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
-        library.setOnClickListener({
-            onPhotoLibraryMediaOptionSelected()
-            addPhotoMediaDialog?.dismiss()
-        })
-
-        val builder = AlertDialog.Builder(this)
-        builder.setView(dialog)
-        addPhotoMediaDialog = builder.create()
-        addPhotoMediaDialog!!.show()
-    }
-
-    private fun showVideoMediaDialog() {
-        val dialog = layoutInflater.inflate(org.wordpress.aztec.R.layout.dialog_video_media, null)
-
-        val camera = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_camera)
-        camera.setOnClickListener({
-            onCameraVideoMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val videos = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_videos)
-        videos.setOnClickListener({
-            onVideosMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val library = dialog.findViewById<TextView>(org.wordpress.aztec.R.id.media_library)
-        library.setOnClickListener({
-            onVideoLibraryMediaOptionSelected()
-            addVideoMediaDialog?.dismiss()
-        })
-
-        val builder = AlertDialog.Builder(this)
-        builder.setView(dialog)
-        addVideoMediaDialog = builder.create()
-        addVideoMediaDialog!!.show()
     }
 
     override fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {

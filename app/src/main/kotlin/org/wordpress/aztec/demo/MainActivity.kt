@@ -365,10 +365,6 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(photoButton)
                 .addPlugin(videoButton)
 
-
-
-
-
         // initialize the text & HTML
         if (!isRunningTest) {
             aztec.visualEditor.setCalypsoMode(false)
@@ -734,13 +730,8 @@ open class MainActivity : AppCompatActivity(),
     override fun onToolbarListButtonClicked() {
     }
 
-    override fun onToolbarMediaButtonClicked(button: View) {
-        aztec.toolbar.toggleMediaToolbar()
-
-//        mediaMenu = PopupMenu(this, button)
-//        mediaMenu?.setOnMenuItemClickListener(this)
-//        mediaMenu?.inflate(R.menu.media)
-//        mediaMenu?.show()
+    override fun onToolbarMediaButtonClicked(): Boolean {
+        return false
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {

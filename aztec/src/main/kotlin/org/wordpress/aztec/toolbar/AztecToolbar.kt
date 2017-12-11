@@ -172,9 +172,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_M -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
-                    val mediaAction = if (isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
-                    aztecToolbarListener?.onToolbarMediaButtonClicked(findViewById(mediaAction.buttonId))
-                    findViewById<ToggleButton>(mediaAction.buttonId).performClick()
+                    if(aztecToolbarListener != null && aztecToolbarListener!!.onToolbarMediaButtonClicked()){
+                        //event is consumed by listener
+                    }else{
+                        val mediaAction = if (isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
+                        findViewById<ToggleButton>(mediaAction.buttonId).performClick()
+                    }
                     return true
                 }
             }
@@ -459,7 +462,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         // other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA_COLLAPSE, ToolbarAction.ADD_MEDIA_EXPAND -> {
-                aztecToolbarListener?.onToolbarMediaButtonClicked(findViewById(action.buttonId))
+                if (aztecToolbarListener != null && aztecToolbarListener!!.onToolbarMediaButtonClicked()) {
+                    //event is consumed by listener
+                } else {
+                    toggleMediaToolbar()
+                }
             }
             ToolbarAction.HEADING -> {
                 aztecToolbarListener?.onToolbarHeadingButtonClicked()

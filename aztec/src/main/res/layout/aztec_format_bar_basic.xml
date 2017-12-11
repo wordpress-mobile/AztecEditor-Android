@@ -83,7 +83,7 @@
                 </LinearLayout>
 
                 <RelativeLayout
-                    android:id="@+id/text_toolbar"
+                    android:id="@+id/styling_toolbar"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent">
 

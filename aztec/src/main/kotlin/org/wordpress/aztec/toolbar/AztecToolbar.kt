@@ -711,7 +711,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         setupMediaToolbarAnimations()
     }
 
-    private fun setupMediaToolbarAnimations(){
+    private fun setupMediaToolbarAnimations() {
         layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
 
         layoutMediaTranslateOutRight = AnimationUtils.loadAnimation(context, R.anim.translate_out_right)

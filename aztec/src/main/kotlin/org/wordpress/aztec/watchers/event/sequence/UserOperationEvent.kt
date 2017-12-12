@@ -11,5 +11,7 @@ abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> 
     fun equals(anotherSequence: UserOperationEvent) {
         return this.equals(anotherSequence)
     }
+
+    abstract fun isUserOperationObservedInSequence() : Boolean
 }
 

@@ -12,9 +12,8 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     private fun fromVidePressShortCodeToHTML(source: MatchResult): String {
         val match = source.groupValues.get(1)
         val splittedMatch = match.split(" ")
-        var attributesBuilder = StringBuilder()
+        val attributesBuilder = StringBuilder()
         attributesBuilder.append("<$TAG ")
-
 
         splittedMatch.forEach {
             if (!it.isBlank()) {
@@ -41,7 +40,7 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     private fun fromHTMLToShortcode(source: MatchResult): String {
         val match = source.groupValues.get(1)
         val splittedMatch = match.split(" ")
-        var attributesBuilder = StringBuilder()
+        val attributesBuilder = StringBuilder()
 
         var isVideoPress = false
         splittedMatch.forEach {
@@ -66,7 +65,7 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     }
 
     override fun onHtmlProcessed(source: String): String {
-        var newSource = StringBuilder(source)
+        val newSource = StringBuilder(source)
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
         return newSource

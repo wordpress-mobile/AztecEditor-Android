@@ -344,7 +344,7 @@ open class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            //aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)

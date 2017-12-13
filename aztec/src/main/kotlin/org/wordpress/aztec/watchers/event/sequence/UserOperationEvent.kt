@@ -8,10 +8,12 @@ abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> 
         sequence.add(event)
     }
 
-    fun equals(anotherSequence: UserOperationEvent) {
-        return this.equals(anotherSequence)
+    fun clear() {
+        sequence.clear()
     }
 
-    abstract fun isUserOperationObservedInSequence() : Boolean
+    abstract fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>) : Boolean
+    abstract fun isUserOperationPartiallyObservedInSequence(sequence: EventSequence<TextWatcherEvent>) : Boolean
+    abstract fun buildReplacementEventWithSequenceData(sequence: EventSequence<TextWatcherEvent>) : TextWatcherEvent
 }
 

@@ -28,6 +28,18 @@ public class TextWatcherEvent {
         afterEventData = afterEventDataToAdd;
     }
 
+    public BeforeTextChangedEventData getBeforeEventData() {
+        return beforeEventData;
+    }
+
+    public OnTextChangedEventData getOnEventData() {
+        return onEventData;
+    }
+
+    public AfterTextChangedEventData getAfterEventData() {
+        return afterEventData;
+    }
+
     public static class Builder {
         protected BeforeTextChangedEventData beforeEventData;
         protected OnTextChangedEventData onEventData;

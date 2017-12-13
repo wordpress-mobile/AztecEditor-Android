@@ -7,6 +7,9 @@ import java.util.ArrayList;
 /*
     extend from this class to construct a specific bucket
  */
-abstract class Bucket {
+public abstract class Bucket {
     protected ArrayList<UserOperationEvent> mUserOperations = new ArrayList<>();
+    public ArrayList<UserOperationEvent> getUserOperations() {
+        return mUserOperations;
+    }
 }

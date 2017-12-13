@@ -87,13 +87,20 @@ import org.wordpress.aztec.watchers.ParagraphCollapseRemover
 import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
+import org.wordpress.aztec.watchers.event.IEventInjector
+import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
+import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
+class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
+
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -175,6 +182,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var minImagesWidth: Int = 0
 
     var bufferedWatchers: ArrayList<TextWatcher> = ArrayList()
+    var observationQueue: ObservationQueue = ObservationQueue(this)
+    var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -800,29 +809,28 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        // TODO implement bufferedTExtWatchers controlling mechanism
-        for (watcher in bufferedWatchers) {
-            watcher.beforeTextChanged(text, start, count, after)
-        }
+        val data = BeforeTextChangedEventData(text, start, count, after)
+        textWatcherEventBuilder.setBeforeTextChangedEvent(data)
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
-        // TODO implement bufferedTExtWatchers controlling mechanism
-        for (watcher in bufferedWatchers) {
-            watcher.onTextChanged(text, start, before, count)
-        }
+
+        val data = OnTextChangedEventData(text, start, before, count)
+        textWatcherEventBuilder.setOnTextChangedEvent(data)
     }
 
     override fun afterTextChanged(text: Editable) {
+        //TODO check if this needs be uncommented
 //        if (isTextChangedListenerDisabled()) {
 //            return
 //        }
 
-        // TODO implement bufferedTExtWatchers controlling mechanism
-        for (watcher in bufferedWatchers) {
-            watcher.afterTextChanged(text)
-        }
+        val data = AfterTextChangedEventData(text)
+        textWatcherEventBuilder.setAfterTextChangedEvent(data)
+
+        // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
+        observationQueue.add(textWatcherEventBuilder.build())
     }
 
     fun redo() {
@@ -1423,5 +1431,20 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun onUnknownHtmlTapped(unknownHtmlSpan: UnknownHtmlSpan) {
         showBlockEditorDialog(unknownHtmlSpan)
+    }
+
+    override fun executeEvent(data: TextWatcherEvent): Boolean {
+        // here call all watchers and pass them the event: after, on, before. In that order.
+        val beforeData = data.beforeEventData
+        val onData = data.onEventData
+        val afterData = data.afterEventData
+
+        for (watcher in bufferedWatchers) {
+            watcher.beforeTextChanged(beforeData.textBefore, beforeData.start, beforeData.count, beforeData.after)
+            watcher.onTextChanged(onData.textOn, onData.start, onData.before, onData.count)
+            watcher.afterTextChanged(afterData.textAfter)
+        }
+
+        return true;
     }
 }

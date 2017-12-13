@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.widget.EditText
 import android.widget.TextView
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 
@@ -32,8 +33,8 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
     }
 
     companion object {
-        fun install(editText: EditText) {
-            editText.addTextChangedListener(EndOfBufferMarkerAdder(editText.text))
+        fun install(editText: AztecText) {
+            editText.addTextWatcherToBufferedWatchers(EndOfBufferMarkerAdder(editText.text))
         }
 
         fun ensureEndOfTextMarker(text: Editable, deletedText: Boolean = false): Editable {

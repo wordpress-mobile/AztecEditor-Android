@@ -150,7 +150,7 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextChangedListener(SuggestionWatcher(text))
+            text.addTextWatcherToBufferedWatchers(SuggestionWatcher(text))
         }
     }
 }

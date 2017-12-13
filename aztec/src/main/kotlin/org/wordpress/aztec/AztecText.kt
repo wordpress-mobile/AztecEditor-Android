@@ -139,6 +139,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isHandlingBackspaceEvent = false
 
+
     var isInCalypsoMode = true
 
     private var unknownBlockSpanStart = -1
@@ -172,6 +173,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
+
+    var bufferedWatchers: ArrayList<TextWatcher> = ArrayList()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -396,8 +399,43 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         DeleteMediaElementWatcher.install(this)
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
-        addTextChangedListener(this)
+        addHistoryLoggingWatcher()
+
         ParagraphCollapseRemover.install(this)
+
+        // finally add the TextChangedListener
+        addTextChangedListener(this)
+    }
+
+    private fun addHistoryLoggingWatcher() {
+        val historyLoggingWatcher = object : TextWatcher {
+            override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+                if (!isViewInitialized) return
+
+                if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
+                    history.beforeTextChanged(toFormattedHtml())
+                }
+            }
+
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                if (!isViewInitialized) return
+            }
+
+            override fun afterTextChanged(text: Editable) {
+                if (isTextChangedListenerDisabled()) {
+                    return
+                }
+
+                isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
+                if (consumeHistoryEvent) {
+                    consumeHistoryEvent = false
+                }
+                history.handleHistory(this@AztecText)
+            }
+        }
+
+        addTextWatcherToBufferedWatchers(historyLoggingWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -573,6 +611,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
         this.onMediaDeletedListener = listener
+    }
+
+    fun addTextWatcherToBufferedWatchers(listener: TextWatcher) {
+        this.bufferedWatchers.add(listener);
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -758,26 +800,29 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-            history.beforeTextChanged(toFormattedHtml())
+        // TODO implement bufferedTExtWatchers controlling mechanism
+        for (watcher in bufferedWatchers) {
+            watcher.beforeTextChanged(text, start, count, after)
         }
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
+        // TODO implement bufferedTExtWatchers controlling mechanism
+        for (watcher in bufferedWatchers) {
+            watcher.onTextChanged(text, start, before, count)
+        }
     }
 
     override fun afterTextChanged(text: Editable) {
-        if (isTextChangedListenerDisabled()) {
-            return
-        }
+//        if (isTextChangedListenerDisabled()) {
+//            return
+//        }
 
-        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
-
-        if (consumeHistoryEvent) {
-            consumeHistoryEvent = false
+        // TODO implement bufferedTExtWatchers controlling mechanism
+        for (watcher in bufferedWatchers) {
+            watcher.afterTextChanged(text)
         }
-        history.handleHistory(this)
     }
 
     fun redo() {

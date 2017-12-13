@@ -77,7 +77,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
 
     companion object {
         fun install(editText: AztecText, verticalParagraphMargin: Int) {
-            editText.addTextChangedListener(EndOfParagraphMarkerAdder(editText, verticalParagraphMargin))
+            editText.addTextWatcherToBufferedWatchers(EndOfParagraphMarkerAdder(editText, verticalParagraphMargin))
         }
     }
 }

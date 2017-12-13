@@ -8,6 +8,7 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -1181,6 +1182,7 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/434")
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlListInDiv_isEqual() {
@@ -1190,6 +1192,7 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/434")
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlBrBeforeAndAfterDiv_isEqual() {

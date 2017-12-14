@@ -869,6 +869,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val videoPressListenerRef = this.onVideoPressInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
@@ -892,6 +893,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
             }
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+
+            // Call the VideoPress and ask for more info about the current video. We need the real src.
+            if (it.attributes.hasAttribute("videopress_inner_id")) {
+                videoPressListenerRef?.onVideoPressInfoRequested(it.attributes.getValue("videopress_inner_id"))
+            }
         }
     }
 

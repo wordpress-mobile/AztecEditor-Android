@@ -122,8 +122,8 @@ open class MainActivity : AppCompatActivity(),
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
         private val VIDEO = "[video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"]"
         private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
-        private val VIDEOPRESS = "[wpvideo CAXoLjpu]"
-        private val VIDEOPRESS2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
+        private val VIDEOPRESS = "[wpvideo OcobLTqC]"
+        private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
 
         private val EXAMPLE =
                 IMG +
@@ -149,7 +149,7 @@ open class MainActivity : AppCompatActivity(),
                 LONG_TEXT +
                 VIDEO +
                 VIDEOPRESS +
-                VIDEOPRESS2 +
+                VIDEOPRESS_2 +
                 AUDIO
 
         private val isRunningTest: Boolean by lazy {
@@ -826,7 +826,7 @@ open class MainActivity : AppCompatActivity(),
     }
 
     override fun onVideoPressInfoRequested(videoID: String) {
-        // TODO
+        AppLog.d(AppLog.T.EDITOR, "VideoPress Info Requested for video ID " + videoID)
     }
 
     override fun onAudioTapped(attrs: AztecAttributes) {

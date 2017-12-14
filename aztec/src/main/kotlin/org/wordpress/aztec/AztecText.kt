@@ -45,6 +45,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -809,28 +810,57 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        val data = BeforeTextChangedEventData(text, start, count, after)
+        AppLog.d(AppLog.T.EDITOR, "beforeTextChanged: \"" + text + "\" start: " + start + " count: " + count + " after: " + after)
+
+        // we need to make a copy to preserve the contents as they were before the change
+        val textCopy = SpannableStringBuilder(text)
+        val data = BeforeTextChangedEventData(textCopy, start, count, after)
         textWatcherEventBuilder.setBeforeTextChangedEvent(data)
+
+        // TODO REMOVE TEST CODE
+//        for (watcher in bufferedWatchers) {
+//            watcher.beforeTextChanged(text, start, count, after)
+//        }
+
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
+        AppLog.d(AppLog.T.EDITOR, "onTextChanged: \"" + text + "\" start: " + start + "\" before: " + before + " count: " + count)
+
+//        val textCopy = SpannableStringBuilder(text)
         val data = OnTextChangedEventData(text, start, before, count)
         textWatcherEventBuilder.setOnTextChangedEvent(data)
+
+        // TODO REMOVE TEST CODE
+//        for (watcher in bufferedWatchers) {
+//            watcher.onTextChanged(text, start, before, count)
+//        }
+
     }
 
     override fun afterTextChanged(text: Editable) {
-        //TODO check if this needs be uncommented
+        AppLog.d(AppLog.T.EDITOR, "afterTextChanged: \"" + text + "\"")
+
+                //TODO check if this needs be uncommented
 //        if (isTextChangedListenerDisabled()) {
 //            return
 //        }
 
+        //val textCopy = Editable.Factory.getInstance().newEditable(text)
+        //val textCopy = SpannableStringBuilder(text)
         val data = AfterTextChangedEventData(text)
         textWatcherEventBuilder.setAfterTextChangedEvent(data)
 
         // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
         observationQueue.add(textWatcherEventBuilder.build())
+
+        // TODO REMOVE TEST CODE
+//        for (watcher in bufferedWatchers) {
+//            watcher.afterTextChanged(text)
+//        }
+
     }
 
     fun redo() {
@@ -1434,7 +1464,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     override fun executeEvent(data: TextWatcherEvent): Boolean {
-        // here call all watchers and pass them the event: after, on, before. In that order.
+        // here call all watchers and pass them the event: before, on, after. In that order.
         val beforeData = data.beforeEventData
         val onData = data.onEventData
         val afterData = data.afterEventData

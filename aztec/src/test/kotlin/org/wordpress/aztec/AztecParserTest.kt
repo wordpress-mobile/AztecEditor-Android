@@ -8,6 +8,7 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -1176,6 +1177,26 @@ class AztecParserTest : AndroidTestCase() {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlProperVisualNewlineSync_isEqual() {
         val input = "<blockquote>Hello</blockquote><u>Bye</u><blockquote>Hello</blockquote>End"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/434")
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlListInDiv_isEqual() {
+        val input = "<div>" + HTML_LIST_UNORDERED + "</div>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/434")
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBrBeforeAndAfterDiv_isEqual() {
+        val input = "<br><div><br></div>"
         val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

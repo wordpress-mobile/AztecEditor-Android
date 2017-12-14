@@ -134,6 +134,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
+    private var onVideoPressInfoRequestedListener: OnVideoPressInfoRequestedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -196,6 +197,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+    }
+
+    interface OnVideoPressInfoRequestedListener {
+        fun onVideoPressInfoRequested(videoId: String)
     }
 
     constructor(context: Context) : super(context) {
@@ -574,6 +579,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
         this.onMediaDeletedListener = listener
+    }
+
+    fun setOnVideoPressInfoRequestedListener(listener: OnVideoPressInfoRequestedListener) {
+        this.onVideoPressInfoRequestedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {

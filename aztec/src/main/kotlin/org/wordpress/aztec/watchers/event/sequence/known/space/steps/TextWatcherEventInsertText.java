@@ -10,13 +10,6 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
 public class TextWatcherEventInsertText extends TextWatcherEvent implements ITextWatcherEventComparator {
 
     private CharSequence beforeText;
-    private boolean beforeHasRun = false;
-    private boolean onHasRun = false;
-    private boolean afterHasRun = false;
-
-    private boolean beforeFits = false;
-    private boolean onFits = false;
-    private boolean afterFits = false;
 
     public TextWatcherEventInsertText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
                                       AfterTextChangedEventData afterEventData) {
@@ -28,33 +21,24 @@ public class TextWatcherEventInsertText extends TextWatcherEvent implements ITex
     @Override
     public boolean testBeforeTextChangedEventData(BeforeTextChangedEventData data) {
         beforeText = data.getTextBefore();
-        beforeHasRun = true;
-        beforeFits = (data.getCount() == 0 &&  data.getAfter() > 0);
-        return beforeFits;
+        return (data.getCount() == 0 &&  data.getAfter() > 0);
     }
 
     @Override
     public boolean testOnTextChangedEventData(OnTextChangedEventData data) {
-        onHasRun = true;
-        onFits = (data.getStart() >= 0 && data.getCount() > 0 && data.getTextOn().length() > 0);
-        return onFits;
+        return (data.getStart() >= 0 && data.getCount() > 0 && data.getTextOn().length() > 0);
     }
 
     @Override
     public boolean testAfterTextChangedEventData(AfterTextChangedEventData data) {
-        afterHasRun = true;
-        afterFits = beforeText.length() < data.getTextAfter().length();
-        return afterFits;
+        return beforeText.length() < data.getTextAfter().length();
     }
 
     @Override
     public boolean testFitsBeforeOnAndAfter() {
-        return allMomentsHaveRun() && beforeFits && onFits && afterFits;
-    }
-
-    @Override
-    public boolean allMomentsHaveRun() {
-        return beforeHasRun && onHasRun && afterHasRun;
+        return testBeforeTextChangedEventData(beforeEventData)
+                && testOnTextChangedEventData(onEventData)
+                && testAfterTextChangedEventData(afterEventData);
     }
 
     public static class Builder extends TextWatcherEvent.Builder {

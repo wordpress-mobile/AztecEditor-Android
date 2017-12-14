@@ -5,5 +5,4 @@ public interface ITextWatcherEventComparator {
     boolean testOnTextChangedEventData (OnTextChangedEventData data);
     boolean testAfterTextChangedEventData (AfterTextChangedEventData data);
     boolean testFitsBeforeOnAndAfter();
-    boolean allMomentsHaveRun();
 }

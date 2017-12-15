@@ -894,9 +894,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             }
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
 
-            // Call the VideoPress and ask for more info about the current video. We need the real src.
-            if (it.attributes.hasAttribute("videopress_inner_id")) {
-                videoPressListenerRef?.onVideoPressInfoRequested(it.attributes.getValue("videopress_inner_id"))
+            // Call the VideoPress listener and ask for more info about the current video. We need the real src.
+            if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID)) {
+                videoPressListenerRef?.onVideoPressInfoRequested(it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID))
             }
         }
     }

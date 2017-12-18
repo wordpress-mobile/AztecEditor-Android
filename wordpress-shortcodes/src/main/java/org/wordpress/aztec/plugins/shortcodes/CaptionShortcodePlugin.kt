@@ -44,6 +44,19 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                 val wrapper = SpanWrapper<CaptionShortcodeSpan>(output, span)
                 if (wrapper.start == output.length) {
                     output.append(Constants.ZWJ_CHAR)
+                } else {
+                    // remove all newlines from captions
+                    while (output[wrapper.start + 1] == '\n') {
+                        output.delete(wrapper.start + 1, wrapper.start + 2);
+                    }
+                    while (output[output.length - 1] == '\n') {
+                        output.delete(output.length - 1, output.length);
+                    }
+                    for (i in wrapper.start until output.length) {
+                        if (output[i] == '\n') {
+                            output.replace(i, i + 1, " ");
+                        }
+                    }
                 }
                 output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             }

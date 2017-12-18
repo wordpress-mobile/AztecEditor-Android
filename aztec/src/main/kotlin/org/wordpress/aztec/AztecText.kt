@@ -901,6 +901,33 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
     }
 
+    fun updateVideoPressThumb(thumbURL: String, videoPressID: String) {
+        val callbacks = object : Html.ImageGetter.Callbacks {
+            override fun onImageFailed() {
+            }
+
+            override fun onImageLoaded(drawable: Drawable?) {
+                val spans = text.getSpans(0, text.length, AztecVideoSpan::class.java)
+                spans.forEach {
+                    if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) &&
+                            it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoPressID) {
+
+                        // Set the hidden videopress source. Used when the video is tapped
+                        it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, thumbURL)
+                        it.drawable = drawable
+                    }
+                }
+                post {
+                    refreshText()
+                }
+            }
+
+            override fun onImageLoading(drawable: Drawable?) {
+            }
+        }
+        imageGetter?.loadImage(thumbURL, callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+    }
+
     // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
         val html = toPlainHtml(withCursorTag)

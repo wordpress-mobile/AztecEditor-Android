@@ -52,7 +52,6 @@ import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -835,38 +834,12 @@ open class MainActivity : AppCompatActivity(),
     override fun onVideoPressInfoRequested(videoID: String) {
         AppLog.d(AppLog.T.EDITOR, "VideoPress Info Requested for video ID " + videoID)
 
-        /* Here should go the Network request to retrieve additional info about the video.
-           The response has all info in it. We're skipping it here, and set the poster image directly
-         */
-
-        val originalURL = "https://videos.files.wordpress.com/OcobLTqC/img_5786.m4v"
-        val spans = aztec.visualEditor.text.getSpans(0, aztec.visualEditor.text.length, AztecVideoSpan::class.java)
-        spans.forEach {
-            if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) &&
-                    it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoID) {
-
-                // Set the hidden videopress source. Used when the video is tapped
-                it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, originalURL)
-
-                val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
-                    override fun onThumbnailFailed() {
-                    }
-
-                    override fun onThumbnailLoaded(drawable: Drawable?) {
-                        it.drawable = drawable
-                        aztec.visualEditor.post {
-                            aztec.visualEditor.refreshText()
-                        }
-                    }
-
-                    override fun onThumbnailLoading(drawable: Drawable?) {
-                    }
-                }
-                aztec.visualEditor.videoThumbnailGetter?.loadVideoThumbnail(
-                        originalURL,
-                        callbacks, aztec.visualEditor.maxImagesWidth, aztec.visualEditor.minImagesWidth)
-            }
-        }
+        /*
+        Here should go the Network request that retrieves additional info about the video.
+        See: https://developer.wordpress.com/docs/api/1.1/get/videos/%24guid/
+        The response has all info in it. We're skipping it here, and set the poster image directly
+        */
+        aztec.visualEditor.updateVideoPressThumb("https://videos.files.wordpress.com/OcobLTqC/img_5786_hd.original.jpg", videoID)
     }
 
     override fun onAudioTapped(attrs: AztecAttributes) {

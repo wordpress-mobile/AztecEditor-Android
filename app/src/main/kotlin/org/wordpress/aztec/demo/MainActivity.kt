@@ -39,6 +39,7 @@ import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
 import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
@@ -51,6 +52,7 @@ import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import org.xml.sax.Attributes
@@ -807,7 +809,12 @@ open class MainActivity : AppCompatActivity(),
     }
 
     override fun onVideoTapped(attrs: AztecAttributes) {
-        val url = attrs.getValue("src")
+        val url = if (attrs.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)) {
+            attrs.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)
+        } else {
+            attrs.getValue("src")
+        }
+
         url?.let {
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -827,6 +834,39 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onVideoPressInfoRequested(videoID: String) {
         AppLog.d(AppLog.T.EDITOR, "VideoPress Info Requested for video ID " + videoID)
+
+        /* Here should go the Network request to retrieve additional info about the video.
+           The response has all info in it. We're skipping it here, and set the poster image directly
+         */
+
+        val originalURL = "https://videos.files.wordpress.com/OcobLTqC/img_5786.m4v"
+        val spans = aztec.visualEditor.text.getSpans(0, aztec.visualEditor.text.length, AztecVideoSpan::class.java)
+        spans.forEach {
+            if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) &&
+                    it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoID) {
+
+                // Set the hidden videopress source. Used when the video is tapped
+                it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, originalURL)
+
+                val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
+                    override fun onThumbnailFailed() {
+                    }
+
+                    override fun onThumbnailLoaded(drawable: Drawable?) {
+                        it.drawable = drawable
+                        aztec.visualEditor.post {
+                            aztec.visualEditor.refreshText()
+                        }
+                    }
+
+                    override fun onThumbnailLoading(drawable: Drawable?) {
+                    }
+                }
+                aztec.visualEditor.videoThumbnailGetter?.loadVideoThumbnail(
+                        originalURL,
+                        callbacks, aztec.visualEditor.maxImagesWidth, aztec.visualEditor.minImagesWidth)
+            }
+        }
     }
 
     override fun onAudioTapped(attrs: AztecAttributes) {

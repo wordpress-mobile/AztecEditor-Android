@@ -74,8 +74,8 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
                         isVideoPress = true
                     }
                 } else if (it.contains(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)) {
-                    // nope do nothing. It's just used to keep a reference to the real src and use in it in
-                    // apps to play the video
+                    // nope - do nothing. It's just used to keep a reference to the real src of the video,
+                    // and use it to play the video in the apps
                 } else {
                     attributesBuilder.append(it)
                 }

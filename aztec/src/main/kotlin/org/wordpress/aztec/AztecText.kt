@@ -902,11 +902,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun updateVideoPressThumb(thumbURL: String, videoURL: String, videoPressID: String) {
+        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
         val callbacks = object : Html.ImageGetter.Callbacks {
-            override fun onImageFailed() {
-            }
-
-            override fun onImageLoaded(drawable: Drawable?) {
+            private fun replaceImage(drawable: Drawable?) {
                 val spans = text.getSpans(0, text.length, AztecVideoSpan::class.java)
                 spans.forEach {
                     if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) &&
@@ -922,7 +920,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
             }
 
+            override fun onImageFailed() {
+                replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+            }
+
+            override fun onImageLoaded(drawable: Drawable?) {
+                replaceImage(drawable)
+            }
+
             override fun onImageLoading(drawable: Drawable?) {
+                replaceImage(drawable ?: loadingDrawable)
             }
         }
         imageGetter?.loadImage(thumbURL, callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)

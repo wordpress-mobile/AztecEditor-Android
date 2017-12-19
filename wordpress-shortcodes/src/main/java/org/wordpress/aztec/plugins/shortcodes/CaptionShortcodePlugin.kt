@@ -46,15 +46,15 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                     output.append(Constants.ZWJ_CHAR)
                 } else {
                     // remove all newlines from captions
-                    while (output[wrapper.start + 1] == '\n') {
-                        output.delete(wrapper.start + 1, wrapper.start + 2);
+                    while (wrapper.start + 1 < output.length && output[wrapper.start + 1] == '\n') {
+                        output.delete(wrapper.start + 1, wrapper.start + 2)
                     }
-                    while (output[output.length - 1] == '\n') {
-                        output.delete(output.length - 1, output.length);
+                    while (output.isNotEmpty() && output[output.length - 1] == '\n') {
+                        output.delete(output.length - 1, output.length)
                     }
-                    for (i in wrapper.start until output.length) {
+                    for (i in wrapper.start + 1 until output.length) {
                         if (output[i] == '\n') {
-                            output.replace(i, i + 1, " ");
+                            output.replace(i, i + 1, " ")
                         }
                     }
                 }

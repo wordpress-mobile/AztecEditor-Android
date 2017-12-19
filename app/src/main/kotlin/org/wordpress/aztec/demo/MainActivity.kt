@@ -839,7 +839,10 @@ open class MainActivity : AppCompatActivity(),
         See: https://developer.wordpress.com/docs/api/1.1/get/videos/%24guid/
         The response has all info in it. We're skipping it here, and set the poster image directly
         */
-        aztec.visualEditor.updateVideoPressThumb("https://videos.files.wordpress.com/OcobLTqC/img_5786_hd.original.jpg", videoID)
+        aztec.visualEditor.updateVideoPressThumb(
+                "https://videos.files.wordpress.com/OcobLTqC/img_5786_hd.original.jpg",
+                "https://videos.files.wordpress.com/OcobLTqC/img_5786.m4v",
+                videoID)
     }
 
     override fun onAudioTapped(attrs: AztecAttributes) {

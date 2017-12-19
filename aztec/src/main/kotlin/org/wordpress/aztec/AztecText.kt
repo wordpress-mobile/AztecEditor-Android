@@ -901,7 +901,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
     }
 
-    fun updateVideoPressThumb(thumbURL: String, videoPressID: String) {
+    fun updateVideoPressThumb(thumbURL: String, videoURL: String, videoPressID: String) {
         val callbacks = object : Html.ImageGetter.Callbacks {
             override fun onImageFailed() {
             }
@@ -913,7 +913,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                             it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoPressID) {
 
                         // Set the hidden videopress source. Used when the video is tapped
-                        it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, thumbURL)
+                        it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, videoURL)
                         it.drawable = drawable
                     }
                 }

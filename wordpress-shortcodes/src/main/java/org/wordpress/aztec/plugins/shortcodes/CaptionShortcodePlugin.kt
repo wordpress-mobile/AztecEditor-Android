@@ -59,6 +59,10 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                     }
                 }
                 output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                if (wrapper.end - wrapper.start == 1) {
+                    wrapper.remove()
+                }
             }
         }
         return true

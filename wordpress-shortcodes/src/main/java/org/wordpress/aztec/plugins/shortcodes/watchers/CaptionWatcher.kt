@@ -51,11 +51,13 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
                 }
             }
 
+            // remove captions that are not attached to any image
             if (it.start < aztecText.length() && aztecText.text[it.start] != Constants.IMG_CHAR) {
                 it.remove()
                 return@forEach
             }
 
+            // remove captions that are blank
             if (count == 0 && it.span.caption.isBlank() && !aztecText.isTextChangedListenerDisabled()) {
                 it.remove()
                 return@forEach

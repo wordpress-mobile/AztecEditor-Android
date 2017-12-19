@@ -56,6 +56,11 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
                 return@forEach
             }
 
+            if (count == 0 && it.span.caption.isBlank() && !aztecText.isTextChangedListenerDisabled()) {
+                it.remove()
+                return@forEach
+            }
+
             // if a caption's ending doesn't align with an ending of a line immediately following an image, align them
             // if the last line is the end of the text, make the caption end there
             val firstNewline = aztecText.text.indexOf(Constants.NEWLINE, it.start)

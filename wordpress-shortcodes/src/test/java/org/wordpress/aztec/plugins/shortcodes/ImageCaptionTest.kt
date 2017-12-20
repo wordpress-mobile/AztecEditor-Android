@@ -468,4 +468,37 @@ class ImageCaptionTest {
         Assert.assertNull(newAttrs.getValue("align"))
         Assert.assertNull(newAttrs.getValue("aaa"))
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEmptyCaptionRemoval() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        editText.fromHtml(html)
+
+        editText.text.delete(2, 9)
+        Assert.assertEquals(editText.toPlainHtml(), "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" /><br>test<br>test2")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEmptyHtmlCaption() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML.replace("Caption", "")
+        editText.fromHtml(html)
+        Assert.assertEquals(editText.toPlainHtml(), "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />test<br>test2")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionWithLinebreaks() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" /><br>Cap<br>tion<br>[/caption]test<br>test2"
+        val expectedHtml = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Cap tion[/caption]test<br>test2"
+        editText.fromHtml(html)
+        Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
+    }
 }

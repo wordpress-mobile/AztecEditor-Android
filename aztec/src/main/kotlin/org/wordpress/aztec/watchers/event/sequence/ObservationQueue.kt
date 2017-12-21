@@ -38,20 +38,18 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
                     if (operation.isUserOperationObservedInSequence(this)) {
                         // replace user operation with ONE TextWatcherEvent and inject this one in the actual
                         // textwatchers
-                        val replacementEvent = operation.buildReplacementEventWithSequenceData(this);
+                        val replacementEvent = operation.buildReplacementEventWithSequenceData(this)
                         injector.executeEvent(replacementEvent)
                         clear()
-                    } else {
-                        // delay execution and wait for more events to come, or clean the queue
                     }
                 }
             }
         }
 
-        // we didn't find neither a partial match nor a total match, let's just process the event normally
+        // we didn't find neither a partial match nor a total match, let's just clear the queue
         if (size > 0 && !foundOnePartialMatch) {
             // immediately discard the queue
-            clear();
+            clear()
         }
     }
 

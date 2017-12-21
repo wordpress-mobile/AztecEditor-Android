@@ -33,7 +33,6 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.Spannable
-import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -148,7 +147,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
-
 
     var isInCalypsoMode = true
 
@@ -626,7 +624,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun addTextWatcherToBufferedWatchers(listener: TextWatcher) {
-        this.bufferedWatchers.add(listener);
+        this.bufferedWatchers.add(listener)
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1482,6 +1480,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         enableObservationQueue()
 
-        return true;
+        return true
     }
 }

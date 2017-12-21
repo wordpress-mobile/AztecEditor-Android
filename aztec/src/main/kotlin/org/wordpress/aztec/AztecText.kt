@@ -134,6 +134,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
+    private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -150,8 +151,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isNewStyleSelected = false
 
-    private var drawableFailed: Int = 0
-    private var drawableLoading: Int = 0
+    var drawableFailed: Int = 0
+    var drawableLoading: Int = 0
 
     var isMediaAdded = false
 
@@ -196,6 +197,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+    }
+
+    interface OnVideoInfoRequestedListener {
+        fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -576,6 +581,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         this.onMediaDeletedListener = listener
     }
 
+    fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
+        this.onVideoInfoRequestedListener = listener
+    }
+
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
@@ -860,6 +869,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val videoListenerRef = this.onVideoInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
@@ -883,6 +893,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
             }
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+
+            // Call the Video listener and ask for more info about the current video
+            videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
     }
 

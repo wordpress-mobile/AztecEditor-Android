@@ -47,6 +47,9 @@ import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
+import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
+import org.wordpress.aztec.plugins.shortcodes.extensions.updateVideoPressThumb
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -63,6 +66,7 @@ open class MainActivity : AppCompatActivity(),
         AztecText.OnVideoTappedListener,
         AztecText.OnAudioTappedListener,
         AztecText.OnMediaDeletedListener,
+        AztecText.OnVideoInfoRequestedListener,
         IAztecToolbarClickListener,
         IHistoryListener,
         OnRequestPermissionsResultCallback,
@@ -121,6 +125,8 @@ open class MainActivity : AppCompatActivity(),
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
         private val VIDEO = "[video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"]"
         private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
+        private val VIDEOPRESS = "[wpvideo OcobLTqC]"
+        private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
 
         private val EXAMPLE =
                 IMG +
@@ -145,6 +151,8 @@ open class MainActivity : AppCompatActivity(),
                 NON_LATIN_TEXT +
                 LONG_TEXT +
                 VIDEO +
+                VIDEOPRESS +
+                VIDEOPRESS_2 +
                 AUDIO
 
         private val isRunningTest: Boolean by lazy {
@@ -335,6 +343,7 @@ open class MainActivity : AppCompatActivity(),
             .setOnVideoTappedListener(this)
             .setOnAudioTappedListener(this)
             .setOnMediaDeletedListener(this)
+            .setOnVideoInfoRequestedListener(this)
             .addPlugin(WordPressCommentsPlugin(visualEditor))
             .addPlugin(MoreToolbarButton(visualEditor))
             .addPlugin(PageToolbarButton(visualEditor))
@@ -801,7 +810,12 @@ open class MainActivity : AppCompatActivity(),
     }
 
     override fun onVideoTapped(attrs: AztecAttributes) {
-        val url = attrs.getValue("src")
+        val url = if (attrs.hasAttribute(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)) {
+            attrs.getValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)
+        } else {
+            attrs.getValue("src")
+        }
+
         url?.let {
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -816,6 +830,23 @@ open class MainActivity : AppCompatActivity(),
                     ToastUtils.showToast(this, "Video tapped!")
                 }
             }
+        }
+    }
+
+    override fun onVideoInfoRequested(attrs: AztecAttributes) {
+        if (attrs.hasAttribute(ATTRIBUTE_VIDEOPRESS_HIDDEN_ID)) {
+            AppLog.d(AppLog.T.EDITOR, "Video Info Requested for shortcode " + attrs.getValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_ID))
+            /*
+            Here should go the Network request that retrieves additional info about the video.
+            See: https://developer.wordpress.com/docs/api/1.1/get/videos/%24guid/
+            The response has all info in it. We're skipping it here, and set the poster image directly
+            */
+            aztec.visualEditor.postDelayed({
+                aztec.visualEditor.updateVideoPressThumb(
+                        "https://videos.files.wordpress.com/OcobLTqC/img_5786_hd.original.jpg",
+                        "https://videos.files.wordpress.com/OcobLTqC/img_5786.m4v",
+                        attrs.getValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_ID))
+            }, 500)
         }
     }
 

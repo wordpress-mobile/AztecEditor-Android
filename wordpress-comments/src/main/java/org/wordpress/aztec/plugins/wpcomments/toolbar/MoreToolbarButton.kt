@@ -38,14 +38,11 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val ssb = SpannableStringBuilder(Constants.MAGIC_STRING)
         ssb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        visualEditor.editableText.replace(visualEditor.selectionStart, visualEditor.selectionEnd, ssb)
+        val start = visualEditor.selectionStart
+        visualEditor.editableText.replace(start, visualEditor.selectionEnd, ssb)
 
-        visualEditor.setSelection(
-                if (visualEditor.selectionEnd < EndOfBufferMarkerAdder.safeLength(visualEditor))
-                    visualEditor.selectionEnd + 1
-                else
-                    visualEditor.selectionEnd
-        )
+        val newSelectionPosition = visualEditor.editableText.indexOf(Constants.MAGIC_CHAR, start) + 1
+        visualEditor.setSelection(newSelectionPosition)
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {

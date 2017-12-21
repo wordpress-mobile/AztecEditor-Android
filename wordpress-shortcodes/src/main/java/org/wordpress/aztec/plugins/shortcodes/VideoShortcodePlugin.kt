@@ -1,7 +1,7 @@
 package org.wordpress.aztec.plugins.shortcodes
 
-import org.wordpress.aztec.Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
-import org.wordpress.aztec.Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
+import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
+import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 

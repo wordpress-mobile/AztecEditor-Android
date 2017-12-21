@@ -134,7 +134,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
-    private var onVideoPressInfoRequestedListener: OnVideoPressInfoRequestedListener? = null
+    private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -151,8 +151,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isNewStyleSelected = false
 
-    private var drawableFailed: Int = 0
-    private var drawableLoading: Int = 0
+    var drawableFailed: Int = 0
+    var drawableLoading: Int = 0
 
     var isMediaAdded = false
 
@@ -199,8 +199,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         fun onMediaDeleted(attrs: AztecAttributes)
     }
 
-    interface OnVideoPressInfoRequestedListener {
-        fun onVideoPressInfoRequested(videoId: String)
+    interface OnVideoInfoRequestedListener {
+        fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -581,8 +581,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         this.onMediaDeletedListener = listener
     }
 
-    fun setOnVideoPressInfoRequestedListener(listener: OnVideoPressInfoRequestedListener) {
-        this.onVideoPressInfoRequestedListener = listener
+    fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
+        this.onVideoInfoRequestedListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -869,7 +869,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
-        val videoPressListenerRef = this.onVideoPressInfoRequestedListener
+        val videoListenerRef = this.onVideoInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
@@ -894,45 +894,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             }
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
 
-            // Call the VideoPress listener and ask for more info about the current video. We need the real src.
-            if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID)) {
-                videoPressListenerRef?.onVideoPressInfoRequested(it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID))
-            }
+            // Call the Video listener and ask for more info about the current video
+            videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
-    }
-
-    fun updateVideoPressThumb(thumbURL: String, videoURL: String, videoPressID: String) {
-        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
-        val callbacks = object : Html.ImageGetter.Callbacks {
-            private fun replaceImage(drawable: Drawable?) {
-                val spans = text.getSpans(0, text.length, AztecVideoSpan::class.java)
-                spans.forEach {
-                    if (it.attributes.hasAttribute(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) &&
-                            it.attributes.getValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoPressID) {
-
-                        // Set the hidden videopress source. Used when the video is tapped
-                        it.attributes.setValue(Constants.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC, videoURL)
-                        it.drawable = drawable
-                    }
-                }
-                post {
-                    refreshText()
-                }
-            }
-
-            override fun onImageFailed() {
-                replaceImage(ContextCompat.getDrawable(context, drawableFailed))
-            }
-
-            override fun onImageLoaded(drawable: Drawable?) {
-                replaceImage(drawable)
-            }
-
-            override fun onImageLoading(drawable: Drawable?) {
-                replaceImage(drawable ?: loadingDrawable)
-            }
-        }
-        imageGetter?.loadImage(thumbURL, callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
     }
 
     // returns regular or "calypso" html depending on the mode

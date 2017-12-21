@@ -10,12 +10,34 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
 public class TextWatcherEventInsertText extends TextWatcherEvent implements ITextWatcherEventComparator {
 
     private CharSequence beforeText;
+    private int insertionStart;
+    private int insertionLength;
+
+    public TextWatcherEventInsertText() {
+
+    }
 
     public TextWatcherEventInsertText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
                                       AfterTextChangedEventData afterEventData) {
         this.beforeEventData = beforeEventData;
         this.onEventData = onEventData;
         this.afterEventData = afterEventData;
+    }
+
+    public void setInsertionStart(int insertionStart) {
+        this.insertionStart = insertionStart;
+    }
+
+    public int getInsertionStart() {
+        return insertionStart;
+    }
+
+    public int getInsertionLength() {
+        return insertionLength;
+    }
+
+    public void setInsertionLength(int insertionLength) {
+        this.insertionLength = insertionLength;
     }
 
     @Override

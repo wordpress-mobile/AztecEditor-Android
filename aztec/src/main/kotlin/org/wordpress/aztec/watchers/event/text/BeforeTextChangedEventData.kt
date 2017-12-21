@@ -1,6 +1,8 @@
 package org.wordpress.aztec.watchers.event.text
 
-data class BeforeTextChangedEventData(val textBefore: CharSequence = "", val start: Int = 0, val count: Int = 0, val after: Int = 0) {
+import android.text.SpannableStringBuilder
+
+data class BeforeTextChangedEventData(val textBefore: SpannableStringBuilder, val start: Int = 0, val count: Int = 0, val after: Int = 0) {
 
 }
 

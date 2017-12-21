@@ -33,6 +33,7 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.Spannable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -45,7 +46,6 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -90,6 +90,7 @@ import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
 import org.wordpress.aztec.watchers.event.IEventInjector
 import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
+import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
@@ -134,6 +135,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var consumeSelectionChangedEvent: Boolean = false
     private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
+    private var bypassObservationQueue: Boolean = false
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -810,56 +812,52 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        AppLog.d(AppLog.T.EDITOR, "beforeTextChanged: \"" + text + "\" start: " + start + " count: " + count + " after: " + after)
+        if (!bypassObservationQueue) {
+            // we need to make a copy to preserve the contents as they were before the change
+            val textCopy = SpannableStringBuilder(text)
+            val data = BeforeTextChangedEventData(textCopy, start, count, after)
+            textWatcherEventBuilder.setBeforeTextChangedEvent(data)
+        }
 
-        // we need to make a copy to preserve the contents as they were before the change
-        val textCopy = SpannableStringBuilder(text)
-        val data = BeforeTextChangedEventData(textCopy, start, count, after)
-        textWatcherEventBuilder.setBeforeTextChangedEvent(data)
-
-        // TODO REMOVE TEST CODE
-//        for (watcher in bufferedWatchers) {
-//            watcher.beforeTextChanged(text, start, count, after)
-//        }
+        for (watcher in bufferedWatchers) {
+            watcher.beforeTextChanged(text, start, count, after)
+        }
 
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
-        AppLog.d(AppLog.T.EDITOR, "onTextChanged: \"" + text + "\" start: " + start + "\" before: " + before + " count: " + count)
+        if (!bypassObservationQueue) {
+            val textCopy = SpannableStringBuilder(text)
+            val data = OnTextChangedEventData(textCopy, start, before, count)
+            textWatcherEventBuilder.setOnTextChangedEvent(data)
+        }
 
-//        val textCopy = SpannableStringBuilder(text)
-        val data = OnTextChangedEventData(text, start, before, count)
-        textWatcherEventBuilder.setOnTextChangedEvent(data)
-
-        // TODO REMOVE TEST CODE
-//        for (watcher in bufferedWatchers) {
-//            watcher.onTextChanged(text, start, before, count)
-//        }
+        for (watcher in bufferedWatchers) {
+            watcher.onTextChanged(text, start, before, count)
+        }
 
     }
 
     override fun afterTextChanged(text: Editable) {
-        AppLog.d(AppLog.T.EDITOR, "afterTextChanged: \"" + text + "\"")
+        if (isTextChangedListenerDisabled()) {
+            return
+        }
 
-                //TODO check if this needs be uncommented
-//        if (isTextChangedListenerDisabled()) {
-//            return
-//        }
+        if (!bypassObservationQueue) {
+            val textCopy = Editable.Factory.getInstance().newEditable(editableText)
+            val editableCopy = Editable.Factory.getInstance().newEditable(textCopy)
+            val data = AfterTextChangedEventData(editableCopy)
+            textWatcherEventBuilder.setAfterTextChangedEvent(data)
 
-        //val textCopy = Editable.Factory.getInstance().newEditable(text)
-        //val textCopy = SpannableStringBuilder(text)
-        val data = AfterTextChangedEventData(text)
-        textWatcherEventBuilder.setAfterTextChangedEvent(data)
+            // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
+            observationQueue.add(textWatcherEventBuilder.build())
+        }
 
-        // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
-        observationQueue.add(textWatcherEventBuilder.build())
-
-        // TODO REMOVE TEST CODE
-//        for (watcher in bufferedWatchers) {
-//            watcher.afterTextChanged(text)
-//        }
+        for (watcher in bufferedWatchers) {
+            watcher.afterTextChanged(text)
+        }
 
     }
 
@@ -1056,6 +1054,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun enableTextChangedListener() {
         consumeEditEvent = false
+    }
+
+    fun disableObservationQueue() {
+        bypassObservationQueue = true
+    }
+
+    fun enableObservationQueue() {
+        bypassObservationQueue = false
     }
 
     fun isTextChangedListenerDisabled(): Boolean {
@@ -1465,15 +1471,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun executeEvent(data: TextWatcherEvent): Boolean {
         // here call all watchers and pass them the event: before, on, after. In that order.
-        val beforeData = data.beforeEventData
-        val onData = data.onEventData
-        val afterData = data.afterEventData
+        disableObservationQueue()
 
-        for (watcher in bufferedWatchers) {
-            watcher.beforeTextChanged(beforeData.textBefore, beforeData.start, beforeData.count, beforeData.after)
-            watcher.onTextChanged(onData.textOn, onData.start, onData.before, onData.count)
-            watcher.afterTextChanged(afterData.textAfter)
+        if (data is TextWatcherEventInsertText) {
+            // here replace the inserted thing with a new "normal" insertion
+            val afterData = data.afterEventData
+            setText(afterData.textAfter)
+            setSelection(data.insertionStart+data.insertionLength)
         }
+
+        enableObservationQueue()
 
         return true;
     }

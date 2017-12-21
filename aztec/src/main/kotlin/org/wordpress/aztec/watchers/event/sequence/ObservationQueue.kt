@@ -5,8 +5,6 @@ import org.wordpress.aztec.watchers.event.IEventInjector
 import org.wordpress.aztec.watchers.event.buckets.API26Bucket
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.wordpress.aztec.watchers.event.buckets.Bucket
-import java.util.Timer
-import kotlin.concurrent.schedule
 
 class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
     val buckets = ArrayList<Bucket>()
@@ -16,34 +14,17 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
         init()
     }
 
-    @Synchronized override fun add(event: TextWatcherEvent): Boolean {
-        val added: Boolean = super.add(event)
-        if (added) {
-            processQueue(event)
-        }
-
-        // There trigger a timer if queue length is > 0, and within the timer process when timeout is triggered do this
-        // check: if it stays the same for more than 100 ms, execute and empty the queue
-        if (size > 0) {
-            val timer = Timer()
-            timer.schedule(50000) {
-                // if it stays the same for more than 100 ms, execute and empty the queue
-                emptyQueue()
+    override fun add(element: TextWatcherEvent): Boolean {
+        synchronized(this@ObservationQueue) {
+            val added: Boolean = super.add(element)
+            if (added) {
+                processQueue()
             }
-        }
-        return added
-    }
-
-    private fun emptyQueue() {
-        if (size > 0) {
-            for (queuedEvent in super.iterator()) {
-                injector.executeEvent(queuedEvent)
-                remove(queuedEvent)
-            }
+            return added
         }
     }
 
-    private fun processQueue(event: TextWatcherEvent) {
+    private fun processQueue() {
         // here let's check whether our current queue matches / fits any of the installed buckets
         var foundOnePartialMatch = false
         for (bucket in buckets) {
@@ -69,9 +50,8 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
 
         // we didn't find neither a partial match nor a total match, let's just process the event normally
         if (size > 0 && !foundOnePartialMatch) {
-            // immediately discard and execute the event
-            remove(event)
-            injector.executeEvent(event)
+            // immediately discard the queue
+            clear();
         }
     }
 

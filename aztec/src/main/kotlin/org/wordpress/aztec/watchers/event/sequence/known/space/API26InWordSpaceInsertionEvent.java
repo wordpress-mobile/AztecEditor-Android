@@ -1,13 +1,16 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space;
 
+import android.text.SpannableStringBuilder;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.wordpress.aztec.watchers.event.sequence.EventSequence;
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent;
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventDeleteText;
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText;
+import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData;
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData;
 import org.wordpress.aztec.watchers.event.text.ITextWatcherEventComparator;
-import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData;
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
 
 /*
@@ -31,8 +34,8 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
         text length is longer by 1, and the item that is now located at the first BEFORETEXTCHANGED is a SPACE character.
 
          */
-
         if (this.getSequence().size() == sequence.size()) {
+
             // populate data in our own sequence to be able to run the comparator checks
             if (!isUserOperationPartiallyObservedInSequence(sequence)) {
                 return false;
@@ -79,33 +82,21 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
     @NotNull
     @Override
     public TextWatcherEvent buildReplacementEventWithSequenceData(EventSequence<TextWatcherEvent> sequence) {
-        TextWatcherEvent replacementEvent = new TextWatcherEvent();
+        TextWatcherEventInsertText replacementEvent = new TextWatcherEventInsertText();
         // here make it all up as a unique event that does the insert as usual, as we'd get it on older APIs
         TextWatcherEvent firstEvent = sequence.get(0);
         TextWatcherEvent lastEvent = sequence.get(sequence.size()-1);
 
         BeforeTextChangedEventData beforeData = firstEvent.getBeforeEventData();
 
-        // prepare the OnTextChangedEventData
-        CharSequence oldString = beforeData.getTextBefore().toString();
-        String newString = oldString.subSequence(0, (beforeData.getStart()
-                + beforeData.getCount()))
-                + SPACE_STRING
-                + oldString.subSequence(beforeData.getStart() + beforeData.getCount(), oldString.length()-1);
+        int differenceIndex = StringUtils.indexOfDifference(beforeData.getTextBefore(), lastEvent.getAfterEventData().getTextAfter());
+        replacementEvent.setInsertionStart(differenceIndex);
+        replacementEvent.setInsertionLength(1);
 
-        OnTextChangedEventData onData = new OnTextChangedEventData(newString,
-                beforeData.getStart() + beforeData.getCount(), 0, 1);
+        SpannableStringBuilder oldText = beforeData.getTextBefore();
+        oldText.insert(differenceIndex, SPACE_STRING);
 
-
-        // set the replacement event before, on and after data.
-        replacementEvent.setBeforeTextChangedEvent(
-                new BeforeTextChangedEventData(beforeData.getTextBefore(),
-                        beforeData.getStart() + beforeData.getCount(),
-                        0,
-                        1
-                ));
-        replacementEvent.setOnTextChangedEvent(onData);
-        replacementEvent.setAfterTextChangedEvent(lastEvent.getAfterEventData());
+        replacementEvent.setAfterTextChangedEvent(new AfterTextChangedEventData(oldText));
 
         return replacementEvent;
     }

@@ -19,6 +19,7 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
 public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
     private static char SPACE = ' ';
     private static String SPACE_STRING = "" + SPACE;
+    private static final int MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 50;
 
     public API26InWordSpaceInsertionEvent() {
         init();
@@ -63,10 +64,25 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
     @Override
     public boolean isUserOperationPartiallyObservedInSequence(@NotNull EventSequence<TextWatcherEvent> sequence) {
         for (int i = 0; i < sequence.size(); i++) {
+
             TextWatcherEvent eventHolder = getSequence().get(i);
-            eventHolder.setBeforeTextChangedEvent(sequence.get(i).getBeforeEventData());
-            eventHolder.setOnTextChangedEvent(sequence.get(i).getOnEventData());
-            eventHolder.setAfterTextChangedEvent(sequence.get(i).getAfterEventData());
+            TextWatcherEvent observableEvent = sequence.get(i);
+
+            // if time distance between any of the events is longer than 50 millis, discard this as this pattern is
+            // likely not produced by the platform, but rather the user.
+            // WARNING! When debugging with breakpoints, you should disable this check as time can exceed the 50 MS limit and
+            // create undesired behavior.
+            if (i > 0) { // only try to compare when we have at least 2 events, so we can compare with the previous one
+                long timestampForPreviousevent = sequence.get(i-1).getTimestamp();
+                long timeDistance = observableEvent.getTimestamp() - timestampForPreviousevent;
+                if (timeDistance > MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS) {
+                    return false;
+                }
+            }
+
+            eventHolder.setBeforeTextChangedEvent(observableEvent.getBeforeEventData());
+            eventHolder.setOnTextChangedEvent(observableEvent.getOnEventData());
+            eventHolder.setAfterTextChangedEvent(observableEvent.getAfterEventData());
 
             // items in this.getSequence() should always be ITextWatcherEventComparator,
             // but we check to avoid any potential problems

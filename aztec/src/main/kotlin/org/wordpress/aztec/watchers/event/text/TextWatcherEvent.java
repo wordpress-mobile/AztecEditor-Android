@@ -4,6 +4,7 @@ public class TextWatcherEvent {
     protected BeforeTextChangedEventData beforeEventData;
     protected OnTextChangedEventData onEventData;
     protected AfterTextChangedEventData afterEventData;
+    private long timestamp;
 
     public TextWatcherEvent() {
 
@@ -14,6 +15,7 @@ public class TextWatcherEvent {
         this.beforeEventData = beforeEventData;
         this.onEventData = onEventData;
         this.afterEventData = afterEventData;
+        this.timestamp = System.currentTimeMillis();
     }
 
     public void setBeforeTextChangedEvent(BeforeTextChangedEventData beforeEventDataToAdd) {
@@ -38,6 +40,10 @@ public class TextWatcherEvent {
 
     public AfterTextChangedEventData getAfterEventData() {
         return afterEventData;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public static class Builder {

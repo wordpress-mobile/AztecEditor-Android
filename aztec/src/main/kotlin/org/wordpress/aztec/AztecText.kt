@@ -45,6 +45,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -101,7 +102,6 @@ import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
 class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
-
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -142,6 +142,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
+    private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -158,8 +159,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isNewStyleSelected = false
 
-    private var drawableFailed: Int = 0
-    private var drawableLoading: Int = 0
+    var drawableFailed: Int = 0
+    var drawableLoading: Int = 0
 
     var isMediaAdded = false
 
@@ -208,6 +209,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+    }
+
+    interface OnVideoInfoRequestedListener {
+        fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
     constructor(context: Context) : super(context) {
@@ -410,7 +415,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()
-
         ParagraphCollapseRemover.install(this)
 
         // finally add the TextChangedListener
@@ -421,16 +425,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val historyLoggingWatcher = object : TextWatcher {
             override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
                 if (!isViewInitialized) return
-
                 if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
                     history.beforeTextChanged(toFormattedHtml())
                 }
             }
-
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
                 if (!isViewInitialized) return
             }
-
             override fun afterTextChanged(text: Editable) {
                 if (isTextChangedListenerDisabled()) {
                     return
@@ -441,10 +442,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 if (consumeHistoryEvent) {
                     consumeHistoryEvent = false
                 }
+
                 history.handleHistory(this@AztecText)
             }
         }
-
         addTextWatcherToObservedWatchers(historyLoggingWatcher)
     }
 
@@ -621,6 +622,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
         this.onMediaDeletedListener = listener
+    }
+
+    fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
+        this.onVideoInfoRequestedListener = listener
     }
 
     fun addTextWatcherToObservedWatchers(listener: TextWatcher) {
@@ -820,7 +825,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         for (watcher in observedWatchers) {
             watcher.beforeTextChanged(text, start, count, after)
         }
-
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -835,7 +839,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         for (watcher in observedWatchers) {
             watcher.onTextChanged(text, start, before, count)
         }
-
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -856,7 +859,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         for (watcher in observedWatchers) {
             watcher.afterTextChanged(text)
         }
-
     }
 
     fun redo() {
@@ -938,6 +940,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
         val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val videoListenerRef = this.onVideoInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
@@ -961,6 +964,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
             }
             videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+
+            // Call the Video listener and ask for more info about the current video
+            videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
     }
 
@@ -980,7 +986,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser(plugins)
-        val output = SpannableStringBuilder(text)
+        var output: SpannableStringBuilder
+        try {
+            output = SpannableStringBuilder(text)
+        } catch (e: java.lang.ArrayIndexOutOfBoundsException) {
+            // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
+            AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 for details. " +
+                    "Following is the text that caused the issue " + text)
+            throw e
+        }
 
         clearMetaSpans(output)
 

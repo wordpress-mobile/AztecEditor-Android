@@ -31,10 +31,10 @@ class AztecURLSpan : URLSpan, IAztecInlineSpan {
     override var attributes: AztecAttributes = AztecAttributes()
 
     constructor(url: String, attributes: AztecAttributes = AztecAttributes()) : super(url) {
-        if (attributes.isEmpty()) {
+        this.attributes = attributes
+
+        if (!this.attributes.hasAttribute("href")) {
             this.attributes.setValue("href", url)
-        } else {
-            this.attributes = attributes
         }
     }
 

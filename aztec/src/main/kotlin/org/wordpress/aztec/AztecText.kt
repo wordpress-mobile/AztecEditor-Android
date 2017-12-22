@@ -1482,7 +1482,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     override fun executeEvent(data: TextWatcherEvent) {
-        // here call all watchers and pass them the event: before, on, after. In that order.
         disableObservationQueue()
 
         if (data is TextWatcherEventInsertText) {

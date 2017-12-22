@@ -47,7 +47,7 @@ class ParagraphCollapseAdjuster : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToBufferedWatchers(ParagraphCollapseAdjuster())
+            text.addTextWatcherToObservedWatchers(ParagraphCollapseAdjuster())
         }
     }
 }

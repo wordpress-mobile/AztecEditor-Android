@@ -98,7 +98,7 @@ class FullWidthImageElementWatcher(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToBufferedWatchers(FullWidthImageElementWatcher(text))
+            text.addTextWatcherToObservedWatchers(FullWidthImageElementWatcher(text))
         }
     }
 }

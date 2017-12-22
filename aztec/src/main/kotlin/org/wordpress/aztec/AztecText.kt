@@ -182,7 +182,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
 
-    var bufferedWatchers: ArrayList<TextWatcher> = ArrayList()
+    var observedWatchers: ArrayList<TextWatcher> = ArrayList()
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
@@ -445,7 +445,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             }
         }
 
-        addTextWatcherToBufferedWatchers(historyLoggingWatcher)
+        addTextWatcherToObservedWatchers(historyLoggingWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -623,8 +623,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         this.onMediaDeletedListener = listener
     }
 
-    fun addTextWatcherToBufferedWatchers(listener: TextWatcher) {
-        this.bufferedWatchers.add(listener)
+    fun addTextWatcherToObservedWatchers(listener: TextWatcher) {
+        this.observedWatchers.add(listener)
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -817,7 +817,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             textWatcherEventBuilder.setBeforeTextChangedEvent(data)
         }
 
-        for (watcher in bufferedWatchers) {
+        for (watcher in observedWatchers) {
             watcher.beforeTextChanged(text, start, count, after)
         }
 
@@ -832,7 +832,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             textWatcherEventBuilder.setOnTextChangedEvent(data)
         }
 
-        for (watcher in bufferedWatchers) {
+        for (watcher in observedWatchers) {
             watcher.onTextChanged(text, start, before, count)
         }
 
@@ -853,7 +853,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             observationQueue.add(textWatcherEventBuilder.build())
         }
 
-        for (watcher in bufferedWatchers) {
+        for (watcher in observedWatchers) {
             watcher.afterTextChanged(text)
         }
 

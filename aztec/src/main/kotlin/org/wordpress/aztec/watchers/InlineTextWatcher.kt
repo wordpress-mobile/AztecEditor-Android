@@ -78,7 +78,7 @@ class InlineTextWatcher(var inlineFormatter: InlineFormatter, aztecText: AztecTe
 
     companion object {
         fun install(inlineFormatter: InlineFormatter, text: AztecText) {
-            text.addTextWatcherToBufferedWatchers(InlineTextWatcher(inlineFormatter, text))
+            text.addTextWatcherToObservedWatchers(InlineTextWatcher(inlineFormatter, text))
         }
     }
 }

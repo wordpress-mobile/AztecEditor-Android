@@ -82,7 +82,7 @@ class ParagraphCollapseRemover private constructor(aztecText: AztecText) : TextW
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToBufferedWatchers(ParagraphCollapseRemover(text))
+            text.addTextWatcherToObservedWatchers(ParagraphCollapseRemover(text))
         }
     }
 }

@@ -74,7 +74,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     fun install(text: AztecText): BlockElementWatcher {
-        text.addTextWatcherToBufferedWatchers(this)
+        text.addTextWatcherToObservedWatchers(this)
         return this
     }
 

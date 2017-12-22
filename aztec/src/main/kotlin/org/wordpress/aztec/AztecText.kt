@@ -1467,7 +1467,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         showBlockEditorDialog(unknownHtmlSpan)
     }
 
-    override fun executeEvent(data: TextWatcherEvent): Boolean {
+    override fun executeEvent(data: TextWatcherEvent) {
         // here call all watchers and pass them the event: before, on, after. In that order.
         disableObservationQueue()
 
@@ -1479,7 +1479,5 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         enableObservationQueue()
-
-        return true
     }
 }

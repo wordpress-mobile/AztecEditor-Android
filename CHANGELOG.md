@@ -6,6 +6,7 @@
 - Undo/redo edit history
 - Demo app sample text
 - URL span not including href attribute when other attributes are present
+- Broken parsing of <audio> and <video> tags
 - Broken UI tests
 - All content appearing in one line on older API levels
 - Fixed image scaling

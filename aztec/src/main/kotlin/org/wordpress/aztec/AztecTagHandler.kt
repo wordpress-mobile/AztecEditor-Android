@@ -102,11 +102,17 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             VIDEO -> {
-                handleMediaElement(opening, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                if (opening) {
+                    handleMediaElement(true, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                    handleMediaElement(false, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                }
                 return true
             }
             AUDIO -> {
-                handleMediaElement(opening, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                if (opening) {
+                    handleMediaElement(true, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                    handleMediaElement(false, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                }
                 return true
             }
             PARAGRAPH -> {

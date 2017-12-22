@@ -5,12 +5,6 @@ import org.wordpress.android.util.AppLog
 
 class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 
-    // Copied from SpannableStringBuilder
-    private val START_MASK = 0xF0
-    private val END_MASK = 0x0F
-    private val START_SHIFT = 4
-    private val PARAGRAPH = 3
-
     fun remove() {
         spannable.removeSpan(span)
     }
@@ -29,29 +23,41 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 
     private fun setSpanOrLogError(span: T, start: Int, end: Int, flags: Int) {
         // Silently ignore invalid PARAGRAPH spans that don't start or end at paragraph boundary
-        // Copied from SpannableStringBuilder that throws an exception in this case.
-        val flagsStart = flags and START_MASK shr START_SHIFT
-        if (isInvalidParagraph(start, flagsStart)) {
-            AppLog.w(AppLog.T.EDITOR, "PARAGRAPH span must start at paragraph boundary"
-                    + " (" + start + " follows " + spannable.get(start - 1) + ")")
-            return
-        }
-
-        val flagsEnd = flags and END_MASK
-        if (isInvalidParagraph(end, flagsEnd)) {
-            AppLog.w(AppLog.T.EDITOR, "PARAGRAPH span must end at paragraph boundary"
-                    + " (" + end + " follows " + spannable.get(end - 1) + ")")
-            return
-        }
+        if (isInvalidParagraph(spannable, start, end, flags)) return
 
         spannable.setSpan(span, start, end, flags)
     }
 
-    private fun isInvalidParagraph(index: Int, flag: Int): Boolean {
-        return flag == PARAGRAPH && index != 0 && index != spannable.length && spannable.get(index - 1) != '\n'
-    }
-
     companion object {
+
+        // Copied from SpannableStringBuilder
+        private val START_MASK = 0xF0
+        private val END_MASK = 0x0F
+        private val START_SHIFT = 4
+        private val PARAGRAPH = 3
+
+        fun isInvalidParagraph(spannable: Spannable, start: Int, end: Int, flags: Int) : Boolean {
+            // Copied from SpannableStringBuilder that throws an exception in this case.
+            val flagsStart = flags and START_MASK shr START_SHIFT
+            if (isInvalidParagraph(spannable, start, flagsStart)) {
+                AppLog.w(AppLog.T.EDITOR, "PARAGRAPH span must start at paragraph boundary"
+                        + " (" + start + " follows " + spannable.get(start - 1) + ")")
+                return true
+            }
+
+            val flagsEnd = flags and END_MASK
+            if (isInvalidParagraph(spannable, end, flagsEnd)) {
+                AppLog.w(AppLog.T.EDITOR, "PARAGRAPH span must end at paragraph boundary"
+                        + " (" + end + " follows " + spannable.get(end - 1) + ")")
+                return true
+            }
+            return false
+        }
+
+        private fun isInvalidParagraph(spannable: Spannable, index: Int, flag: Int): Boolean {
+            return flag == PARAGRAPH && index != 0 && index != spannable.length && spannable.get(index - 1) != '\n'
+        }
+
         inline fun <reified T : Any> getSpans(spannable: Spannable, start: Int, end: Int): List<SpanWrapper<T>> {
             return getSpans(spannable, spannable.getSpans(start, end, T::class.java))
         }

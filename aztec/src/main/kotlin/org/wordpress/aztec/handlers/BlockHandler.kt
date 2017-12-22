@@ -108,12 +108,10 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
 
     companion object {
         fun set(text: Spannable, block: IAztecBlockSpan, start: Int, end: Int) {
-            // TODO remove try/catch when we will be sure the crash is not happening
-            try {
-                text.setSpan(block, start, end, Spanned.SPAN_PARAGRAPH)
-            } catch (e: RuntimeException) {
-                throw RuntimeException("### START: $start, END: $end\n---\n### TEXT:$text", e)
-            }
+            val flags = Spanned.SPAN_PARAGRAPH
+            if (SpanWrapper.isInvalidParagraph(text, start, end, flags)) return
+
+            text.setSpan(block, start, end, flags)
         }
     }
 }

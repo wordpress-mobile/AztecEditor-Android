@@ -14,7 +14,6 @@ import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
-import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 
 class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
 

@@ -892,15 +892,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun enableMediaMode(isEnabled: Boolean) {
         isMediaModeEnabled = isEnabled
-        val mediaAction = if (isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
-        ToolbarAction.values().forEach { action ->
-            if (action == mediaAction) {
-                toggleButton(findViewById(action.buttonId), isEnabled)
-            } else {
-                toggleButtonState(findViewById(action.buttonId), !isEnabled)
-            }
-        }
-        toolbarButtonPlugins.forEach { button -> button.toolbarStateAboutToChange(this, !isEnabled) }
+        toolbarButtonPlugins.forEach { button -> if(button !is IMediaToolbarButton) button.toolbarStateAboutToChange(this, !isEnabled) }
     }
 
     private fun showDialogShortcuts() {

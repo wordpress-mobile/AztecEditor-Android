@@ -46,6 +46,7 @@ import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
 import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.exceptions.SpannableStringBuilderExceptionsWrapper
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -920,9 +921,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             output = SpannableStringBuilder(text)
         } catch (e: java.lang.ArrayIndexOutOfBoundsException) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
-            AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 for details. " +
-                    "Following is the text that caused the issue " + text)
-            throw e
+            val message = "There was an error creating SpannableStringBuilder. See #452 for details. " +
+                    "Following is the text that caused the issue " + text
+            AppLog.e(AppLog.T.EDITOR, message)
+            throw SpannableStringBuilderExceptionsWrapper(message, e)
         }
 
         clearMetaSpans(output)

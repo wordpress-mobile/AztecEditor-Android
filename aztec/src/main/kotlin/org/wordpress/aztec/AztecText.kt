@@ -848,8 +848,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         if (!bypassObservationQueue) {
             val textCopy = Editable.Factory.getInstance().newEditable(editableText)
-            val editableCopy = Editable.Factory.getInstance().newEditable(textCopy)
-            val data = AfterTextChangedEventData(editableCopy)
+            val data = AfterTextChangedEventData(textCopy)
             textWatcherEventBuilder.setAfterTextChangedEvent(data)
 
             // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue

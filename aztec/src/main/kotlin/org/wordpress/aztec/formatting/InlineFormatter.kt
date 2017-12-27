@@ -218,7 +218,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 spansBeforeSelection.forEach { outerSpan ->
                     val outerSpanStart = editableText.getSpanStart(outerSpan)
 
-                    if (isSameInlineSpanType(innerSpan, outerSpan)) {
+                    if (isSameInlineSpanType(innerSpan, outerSpan) && inSelectionSpanEnd >= outerSpanStart) {
                         editableText.removeSpan(outerSpan)
                         editableText.setSpan(innerSpan, outerSpanStart, inSelectionSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
@@ -236,8 +236,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 if (inSelectionSpanEnd == -1 || inSelectionSpanStart == -1) return@forEach
                 spansAfterSelection.forEach { outerSpan ->
                     val outerSpanEnd = editableText.getSpanEnd(outerSpan)
-
-                    if (isSameInlineSpanType(innerSpan, outerSpan)) {
+                    if (isSameInlineSpanType(innerSpan, outerSpan) && outerSpanEnd >= inSelectionSpanStart) {
                         editableText.removeSpan(outerSpan)
                         editableText.setSpan(innerSpan, inSelectionSpanStart, outerSpanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }

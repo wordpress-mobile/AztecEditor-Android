@@ -11,7 +11,12 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
     val injector = injector
 
     init {
-        init()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            buckets.add(API26Bucket())
+        }
+        /*
+            remember to add here any other buckets and init logic as suitable, depending on the context
+         */
     }
 
     override fun add(element: TextWatcherEvent): Boolean {
@@ -54,15 +59,6 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
             // immediately discard the queue
             clear()
         }
-    }
-
-    private fun init() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            buckets.add(API26Bucket())
-        }
-        /*
-            remember to add here any other buckets and init logic as suitable, depending on the context
-         */
     }
 }
 

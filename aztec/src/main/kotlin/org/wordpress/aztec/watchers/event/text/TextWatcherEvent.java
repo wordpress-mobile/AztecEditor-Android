@@ -46,6 +46,12 @@ public class TextWatcherEvent {
         return timestamp;
     }
 
+    public boolean testFitsBeforeOnAndAfter() {
+        // always returns false, subclassess should make an assessment and properly return true/false depending
+        // on their specific data contents
+        return false;
+    }
+
     public static class Builder {
         protected BeforeTextChangedEventData beforeEventData;
         protected OnTextChangedEventData onEventData;

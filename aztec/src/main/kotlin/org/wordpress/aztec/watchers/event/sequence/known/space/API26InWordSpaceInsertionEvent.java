@@ -10,7 +10,6 @@ import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcher
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText;
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData;
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData;
-import org.wordpress.aztec.watchers.event.text.ITextWatcherEventComparator;
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
 
 /*
@@ -109,8 +108,7 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
 
             // items in this.getSequence() should always be ITextWatcherEventComparator,
             // but we check to avoid any potential problems
-            if (!(eventHolder instanceof ITextWatcherEventComparator
-                    && ((ITextWatcherEventComparator)eventHolder).testFitsBeforeOnAndAfter())) {
+            if (!eventHolder.testFitsBeforeOnAndAfter()) {
                 return false;
             }
         }

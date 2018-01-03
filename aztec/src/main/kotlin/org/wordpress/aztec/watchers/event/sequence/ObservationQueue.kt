@@ -17,6 +17,9 @@ class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEven
     override fun add(element: TextWatcherEvent): Boolean {
         synchronized(this@ObservationQueue) {
             val added: Boolean = super.add(element)
+            if (buckets.size == 0) {
+                return added
+            }
             if (added) {
                 processQueue()
             }

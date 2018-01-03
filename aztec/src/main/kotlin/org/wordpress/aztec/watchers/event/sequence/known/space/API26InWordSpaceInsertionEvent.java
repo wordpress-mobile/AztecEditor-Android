@@ -22,7 +22,30 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
     private static final int MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 50;
 
     public API26InWordSpaceInsertionEvent() {
-        init();
+        // here we populate our model of reference (which is the sequence of events we expect to find)
+        // note we don' populate the TextWatcherEvents with actual data, but rather we just want
+        // to instantiate them so we can populate them later and test whether data holds true to their
+        // validation.
+
+        // 2 generic deletes, followed by 2 generic inserts
+        TextWatcherEventDeleteText.Builder builder = new TextWatcherEventDeleteText.Builder();
+        TextWatcherEventDeleteText step1 = builder.build();
+
+        TextWatcherEventDeleteText.Builder builderStep2 = new TextWatcherEventDeleteText.Builder();
+        TextWatcherEventDeleteText step2 = builderStep2.build();
+
+        TextWatcherEventInsertText.Builder builderStep3 = new TextWatcherEventInsertText.Builder();
+        TextWatcherEventInsertText step3 = builderStep3.build();
+
+        TextWatcherEventInsertText.Builder builderStep4 = new TextWatcherEventInsertText.Builder();
+        TextWatcherEventInsertText step4 = builderStep4.build();
+
+        // add each of the steps that make up for the identified API26InWordSpaceInsertionEvent here
+        clear();
+        addSequenceStep(step1);
+        addSequenceStep(step2);
+        addSequenceStep(step3);
+        addSequenceStep(step4);
     }
 
     @Override
@@ -115,33 +138,6 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
         replacementEvent.setAfterTextChangedEvent(new AfterTextChangedEventData(oldText));
 
         return replacementEvent;
-    }
-
-    private void init() {
-        // here we populate our model of reference (which is the sequence of events we expect to find)
-        // note we don' populate the TextWatcherEvents with actual data, but rather we just want
-        // to instantiate them so we can populate them later and test whether data holds true to their
-        // validation.
-
-        // 2 generic deletes, followed by 2 generic inserts
-        TextWatcherEventDeleteText.Builder builder = new TextWatcherEventDeleteText.Builder();
-        TextWatcherEventDeleteText step1 = builder.build();
-
-        TextWatcherEventDeleteText.Builder builderStep2 = new TextWatcherEventDeleteText.Builder();
-        TextWatcherEventDeleteText step2 = builderStep2.build();
-
-        TextWatcherEventInsertText.Builder builderStep3 = new TextWatcherEventInsertText.Builder();
-        TextWatcherEventInsertText step3 = builderStep3.build();
-
-        TextWatcherEventInsertText.Builder builderStep4 = new TextWatcherEventInsertText.Builder();
-        TextWatcherEventInsertText step4 = builderStep4.build();
-
-        // add each of the steps that make up for the identified API26InWordSpaceInsertionEvent here
-        clear();
-        addSequenceStep(step1);
-        addSequenceStep(step2);
-        addSequenceStep(step3);
-        addSequenceStep(step4);
     }
 
 }

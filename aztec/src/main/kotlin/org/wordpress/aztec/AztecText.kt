@@ -69,12 +69,14 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
@@ -990,6 +992,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
         unknownHtmlSpans.forEach {
             it.onUnknownHtmlTappedListener = this
+        }
+
+        if (!commentsVisible) {
+            val commentSpans = editable.getSpans(start, end, CommentSpan::class.java)
+            commentSpans.forEach {
+                val wrapper = SpanWrapper(editable, it)
+                wrapper.span.isHidden = true
+                editable.replace(wrapper.start, wrapper.end, Constants.MAGIC_STRING)
+            }
         }
     }
 

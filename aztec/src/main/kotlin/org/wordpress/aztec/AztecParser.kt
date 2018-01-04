@@ -475,6 +475,10 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
                 if (span is CommentSpan) {
                     out.append("<!--")
+                    if (span.isHidden) {
+                        i = next
+                        out.append(span.text)
+                    }
                 }
 
                 plugins.filter { it is IInlineSpanHandler && it.canHandleSpan(span) }

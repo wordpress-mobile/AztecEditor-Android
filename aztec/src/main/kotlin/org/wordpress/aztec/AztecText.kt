@@ -1261,11 +1261,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             disableTextChangedListener()
 
             text.removeSpan(unknownHtmlSpan)
-            text.replace(spanStart, spanStart + 1, textBuilder)
-
             val unknownClickSpan = text.getSpans(spanStart, spanStart + 1, UnknownClickableSpan::class.java).firstOrNull()
             if (unknownClickSpan != null) {
                 text.removeSpan(unknownClickSpan)
+            }
+
+            text.replace(spanStart, spanStart + 1, textBuilder)
+
+            val newUnknownSpan = textBuilder.getSpans(0, textBuilder.length, UnknownHtmlSpan::class.java).firstOrNull()
+            if (newUnknownSpan != null) {
+                newUnknownSpan.onUnknownHtmlTappedListener = this
             }
 
             enableTextChangedListener()

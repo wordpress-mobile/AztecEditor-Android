@@ -32,7 +32,7 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToObservedWatchers(DeleteMediaElementWatcher(text))
+            text.addTextChangedListener(DeleteMediaElementWatcher(text))
         }
     }
 }

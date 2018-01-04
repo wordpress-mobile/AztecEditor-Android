@@ -33,7 +33,7 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
 
     companion object {
         fun install(editText: AztecText) {
-            editText.addTextWatcherToObservedWatchers(EndOfBufferMarkerAdder(editText.text))
+            editText.addTextChangedListener(EndOfBufferMarkerAdder(editText.text))
         }
 
         fun ensureEndOfTextMarker(text: Editable, deletedText: Boolean = false): Editable {

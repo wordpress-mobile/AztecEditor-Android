@@ -183,7 +183,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
 
-    var observedWatchers: ArrayList<TextWatcher> = ArrayList()
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
@@ -446,7 +445,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 history.handleHistory(this@AztecText)
             }
         }
-        addTextWatcherToObservedWatchers(historyLoggingWatcher)
+        addTextChangedListener(historyLoggingWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -626,10 +625,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
         this.onVideoInfoRequestedListener = listener
-    }
-
-    fun addTextWatcherToObservedWatchers(listener: TextWatcher) {
-        this.observedWatchers.add(listener)
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -821,10 +816,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             val data = BeforeTextChangedEventData(textCopy, start, count, after)
             textWatcherEventBuilder.setBeforeTextChangedEvent(data)
         }
-
-        for (watcher in observedWatchers) {
-            watcher.beforeTextChanged(text, start, count, after)
-        }
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -834,10 +825,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             val textCopy = SpannableStringBuilder(text)
             val data = OnTextChangedEventData(textCopy, start, before, count)
             textWatcherEventBuilder.setOnTextChangedEvent(data)
-        }
-
-        for (watcher in observedWatchers) {
-            watcher.onTextChanged(text, start, before, count)
         }
     }
 
@@ -853,10 +840,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
             // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
             observationQueue.add(textWatcherEventBuilder.build())
-        }
-
-        for (watcher in observedWatchers) {
-            watcher.afterTextChanged(text)
         }
     }
 

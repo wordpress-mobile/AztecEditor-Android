@@ -37,7 +37,7 @@ class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(editText: AztecText) {
-            editText.addTextWatcherToObservedWatchers(ZeroIndexContentWatcher(editText))
+            editText.addTextChangedListener(ZeroIndexContentWatcher(editText))
         }
     }
 }

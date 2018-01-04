@@ -71,7 +71,7 @@ class ParagraphBleedAdjuster private constructor(aztecText: AztecText) : TextWat
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToObservedWatchers(ParagraphBleedAdjuster(text))
+            text.addTextChangedListener(ParagraphBleedAdjuster(text))
         }
     }
 }

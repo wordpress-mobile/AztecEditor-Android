@@ -35,7 +35,7 @@ class TextDeleter private constructor(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextWatcherToObservedWatchers(TextDeleter(text))
+            text.addTextChangedListener(TextDeleter(text))
         }
 
         fun mark(spannable: Spannable, start: Int, end: Int) {

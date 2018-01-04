@@ -112,15 +112,11 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val builder = SpannableStringBuilder(Constants.MAGIC_STRING)
         builder.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        editableText.replace(selectionStart, selectionEnd, builder)
+        val start = selectionStart
+        editableText.replace(start, selectionEnd, builder)
 
-        editor.setSelection(
-                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) {
-                    selectionEnd + 1
-                } else {
-                    selectionEnd
-                }
-        )
+        val newSelectionPosition = editableText.indexOf(Constants.MAGIC_CHAR, start) + 1
+        editor.setSelection(newSelectionPosition)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes, onVideoTappedListener: OnVideoTappedListener?,

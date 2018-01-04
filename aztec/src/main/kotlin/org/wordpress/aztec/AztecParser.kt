@@ -25,6 +25,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
+import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
@@ -79,6 +80,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         val spannable = SpannableStringBuilder(text)
         preprocessSpans(spannable)
 
+        // remove any ForegroundColorSpans since they are not needed for parsing html.
+        clearForegroundColorSpans(spannable)
+
         // add a marker to the end of the text to aid nested group parsing
         val data = spannable.append(Constants.ZWJ_CHAR)
 
@@ -124,6 +128,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             .forEach {
                 it.beforeSpansProcessed(spannable)
             }
+    }
+
+    private fun clearForegroundColorSpans(spannable: SpannableStringBuilder) {
+        spannable.getSpans(0, spannable.length, ForegroundColorSpan::class.java)
+                .forEach { spannable.removeSpan(it) }
     }
 
     private fun postprocessHtml(source: String): String {

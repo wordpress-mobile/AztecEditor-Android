@@ -96,4 +96,3 @@ data class TextChangedEvent(val textBefore: CharSequence = "", val deletedFromBl
         return false
     }
 }
-

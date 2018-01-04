@@ -56,7 +56,10 @@ class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(azt
             // remove captions that are not attached to any image
             if (it.start < aztecText.length() && aztecText.text[it.start] != Constants.IMG_CHAR) {
                 val spanStart = it.start
-                val spanEnd = it.end - 1
+                var spanEnd = it.end
+                if (spanEnd < aztecText.length()) {
+                    spanEnd = it.end - 1
+                }
                 it.remove()
                 aztecText.text.delete(spanStart, spanEnd)
                 return@forEach

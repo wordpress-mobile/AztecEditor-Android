@@ -141,6 +141,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var isHandlingBackspaceEvent = false
 
+    var commentsVisible = resources.getBoolean(R.bool.comments_visible)
+
     var isInCalypsoMode = true
 
     private var unknownBlockSpanStart = -1
@@ -243,6 +245,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
+
+        commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
         verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
 

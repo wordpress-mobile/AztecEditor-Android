@@ -16,8 +16,8 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent;
  This case implements the behavior observed in https://github.com/wordpress-mobile/AztecEditor-Android/issues/555
  */
 public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
-    private static char SPACE = ' ';
-    private static String SPACE_STRING = "" + SPACE;
+    private static final char SPACE = ' ';
+    private static final String SPACE_STRING = "" + SPACE;
     private static final int MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 50;
 
     public API26InWordSpaceInsertionEvent() {
@@ -95,8 +95,8 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
             // WARNING! When debugging with breakpoints, you should disable this check as time can exceed the 50 MS limit and
             // create undesired behavior.
             if (i > 0) { // only try to compare when we have at least 2 events, so we can compare with the previous one
-                long timestampForPreviousevent = sequence.get(i-1).getTimestamp();
-                long timeDistance = observableEvent.getTimestamp() - timestampForPreviousevent;
+                long timestampForPreviousEvent = sequence.get(i-1).getTimestamp();
+                long timeDistance = observableEvent.getTimestamp() - timestampForPreviousEvent;
                 if (timeDistance > MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS) {
                     return false;
                 }

@@ -16,7 +16,7 @@ public class TextWatcherEventInsertText extends TextWatcherEvent {
 
     }
 
-    public TextWatcherEventInsertText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
+    private TextWatcherEventInsertText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
                                       AfterTextChangedEventData afterEventData) {
         this.beforeEventData = beforeEventData;
         this.onEventData = onEventData;

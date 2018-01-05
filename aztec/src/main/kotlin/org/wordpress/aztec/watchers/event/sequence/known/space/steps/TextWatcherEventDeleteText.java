@@ -10,7 +10,7 @@ public class TextWatcherEventDeleteText extends TextWatcherEvent {
 
     private CharSequence beforeText;
 
-    public TextWatcherEventDeleteText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
+    private TextWatcherEventDeleteText(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
                                       AfterTextChangedEventData afterEventData) {
         this.beforeEventData = beforeEventData;
         this.onEventData = onEventData;

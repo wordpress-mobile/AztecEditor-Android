@@ -6,11 +6,11 @@ public class TextWatcherEvent {
     protected AfterTextChangedEventData afterEventData;
     private long timestamp;
 
-    public TextWatcherEvent() {
+    protected TextWatcherEvent() {
 
     }
 
-    public TextWatcherEvent(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
+    private TextWatcherEvent(BeforeTextChangedEventData beforeEventData, OnTextChangedEventData onEventData,
                             AfterTextChangedEventData afterEventData) {
         this.beforeEventData = beforeEventData;
         this.onEventData = onEventData;
@@ -47,7 +47,7 @@ public class TextWatcherEvent {
     }
 
     public boolean testFitsBeforeOnAndAfter() {
-        // always returns false, subclassess should make an assessment and properly return true/false depending
+        // always returns false, subclasses should make an assessment and properly return true/false depending
         // on their specific data contents
         return false;
     }

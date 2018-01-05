@@ -50,6 +50,7 @@ import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
 import org.wordpress.aztec.plugins.shortcodes.extensions.updateVideoPressThumb
+import org.wordpress.aztec.plugins.wpcomments.HiddenGutenbergPlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -107,6 +108,9 @@ open class MainActivity : AppCompatActivity(),
                 "    <span class=\"second last\"></span>" +
                 "</div>" +
                 "<br>"
+        private val GUTENBERG_CODE_BLOCK = "<!-- wp:core/image {\"id\":316} -->\n" +
+                "<figure class=\"wp-block-image\"><img src=\"https://bia.is/hola-que-tal.jpg\" alt=\"\" /></figure>\n" +
+                "<!-- /wp:core/image -->"
         private val PREFORMAT =
                 "<pre>" +
                 "when (person) {<br>" +
@@ -153,7 +157,8 @@ open class MainActivity : AppCompatActivity(),
                 VIDEO +
                 VIDEOPRESS +
                 VIDEOPRESS_2 +
-                AUDIO
+                AUDIO +
+                GUTENBERG_CODE_BLOCK
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -350,6 +355,7 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(CaptionShortcodePlugin(visualEditor))
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
+            .addPlugin(HiddenGutenbergPlugin())
 
         // initialize the text & HTML
         if (!isRunningTest) {

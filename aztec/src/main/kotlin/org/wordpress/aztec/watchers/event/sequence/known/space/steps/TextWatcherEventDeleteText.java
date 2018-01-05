@@ -23,7 +23,6 @@ public class TextWatcherEventDeleteText extends TextWatcherEvent {
     }
 
     private boolean testOnTextChangedEventData(OnTextChangedEventData data) {
-        //return (data.getStart() >= 0 && data.getCount() == 0 && data.getTextOn().length() > 0);
         return (data.getStart() >= 0 && data.getCount() == 0 && data.getTextOn().length() < beforeText.length());
     }
 

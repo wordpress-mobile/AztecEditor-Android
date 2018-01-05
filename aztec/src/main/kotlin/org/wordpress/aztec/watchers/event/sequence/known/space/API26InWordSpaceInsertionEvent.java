@@ -106,8 +106,7 @@ public class API26InWordSpaceInsertionEvent extends UserOperationEvent {
             eventHolder.setOnTextChangedEvent(observableEvent.getOnEventData());
             eventHolder.setAfterTextChangedEvent(observableEvent.getAfterEventData());
 
-            // items in this.getSequence() should always be ITextWatcherEventComparator,
-            // but we check to avoid any potential problems
+            // return immediately as soon as we realize the pattern diverges
             if (!eventHolder.testFitsBeforeOnAndAfter()) {
                 return false;
             }

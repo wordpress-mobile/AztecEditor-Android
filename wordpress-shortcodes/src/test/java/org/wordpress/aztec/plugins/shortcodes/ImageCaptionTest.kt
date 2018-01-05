@@ -501,4 +501,40 @@ class ImageCaptionTest {
         editText.fromHtml(html)
         Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionRemovalWhenNewlineAfterImageGetsDeleted() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        val expectedHtml = "<br>test<br>test2"
+        editText.fromHtml(html)
+        editText.text.delete(1, 2)
+        Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionRemovalWhenImageGetsDeleted() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        val expectedHtml = "<br>test<br>test2"
+        editText.fromHtml(html)
+        editText.text.delete(0, 1)
+        Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCaptionRemovalWhenImageWithCaptionGetDeleted() {
+        Assert.assertTrue(safeEmpty(editText))
+
+        val html = IMG_HTML
+        val expectedHtml = "<br>test<br>test2"
+        editText.fromHtml(html)
+        editText.text.delete(0, 4)
+        Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
+    }
 }

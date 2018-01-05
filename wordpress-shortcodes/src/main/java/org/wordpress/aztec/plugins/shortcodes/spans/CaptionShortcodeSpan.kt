@@ -67,7 +67,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
         val imgEnd = wrapper.spannable.indexOf(Constants.IMG_CHAR, wrapper.start) + 1
         var start = imgEnd
         // unless the caption's empty, there the first character is always a newline
-        if (imgEnd != wrapper.end) {
+        if (imgEnd != wrapper.end && wrapper.spannable[imgEnd] == Constants.NEWLINE) {
             start++
         }
         return start

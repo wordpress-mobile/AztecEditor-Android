@@ -21,11 +21,17 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.annotation.DrawableRes
+import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
@@ -39,6 +45,7 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
+import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -46,6 +53,7 @@ import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -116,6 +124,24 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
+
+        private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
+            val drawable = ContextCompat.getDrawable(context, drawableId)
+            var bitmap: Bitmap
+            if (drawable is BitmapDrawable) {
+                bitmap = drawable.bitmap
+                bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
+            } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
+                bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+            } else {
+                throw IllegalArgumentException("Unsupported Drawable Type")
+            }
+            bitmap.density = DisplayMetrics.DENSITY_DEFAULT
+            return BitmapDrawable(context.resources, bitmap)
+        }
     }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -839,16 +865,18 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val loadingDrawable =  AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    replaceImage(
+                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                    )
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
-                    replaceImage(drawable)
+                    //replaceImage(drawable)
                 }
 
                 override fun onImageLoading(drawable: Drawable?) {
@@ -868,17 +896,17 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val loadingDrawable =  AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
-                    replaceImage(drawable)
+                    //replaceImage(drawable)
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {

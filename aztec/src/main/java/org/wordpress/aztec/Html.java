@@ -33,7 +33,7 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.source.InlineCssStyleFormatter;
+import org.wordpress.aztec.plugins.html2visual.IHtmlContentHandler;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
@@ -52,7 +52,6 @@ import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
-import org.wordpress.aztec.spans.IAztecAttributedSpan;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
@@ -215,7 +214,8 @@ public class Html {
 class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private int nestingLevel = 0;
 
-    private int unknownTagLevel = 0;
+    private int contentHandlerLevel = 0;
+    private IHtmlContentHandler contentHandlerPlugin;
     private Unknown unknown;
     private boolean insidePreTag = false;
     private boolean insideCodeTag = false;
@@ -280,14 +280,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private void handleStartTag(String tag, Attributes attributes, int nestingLevel) {
-        if (unknownTagLevel != 0) {
+        if (contentHandlerLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
                 handleCursor(spannableStringBuilder);
                 return;
             }
             // Swallow opening tag and attributes in current Unknown element
             unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
-            unknownTagLevel += 1;
+            contentHandlerLevel += 1;
             return;
         }
 
@@ -341,11 +341,22 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_CODE, attributes);
         } else if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
             // Initialize a new "Unknown" node
-            if (unknownTagLevel == 0) {
-                unknownTagLevel = 1;
+            if (contentHandlerLevel == 0) {
+                for (IAztecPlugin plugin : plugins) {
+                    if (plugin instanceof IHtmlContentHandler) {
+                        IHtmlContentHandler contentHandler = ((IHtmlContentHandler)plugin);
+                        if (contentHandler.canHandleTag(tag.toLowerCase())) {
+                            contentHandlerPlugin = contentHandler;
+                            break;
+                        }
+                    }
+                }
+
+                contentHandlerLevel = 1;
                 unknown = new Unknown();
                 unknown.rawHtml = new StringBuilder();
                 unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+
                 spannableStringBuilder.setSpan(unknown, spannableStringBuilder.length(),
                         spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
             }
@@ -353,22 +364,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private void handleEndTag(String tag, int nestingLevel) {
-        // Unknown tag previously detected
-        if (unknownTagLevel != 0) {
-            if (tag.equalsIgnoreCase("aztec_cursor")) {
-                return; // already handled at start tag
-            } else if (tag.equalsIgnoreCase("br")) {
-                unknownTagLevel -= 1;
-                return; // already handled at start tag
-            }
-            // Swallow closing tag in current Unknown element
-            unknown.rawHtml.append("</").append(tag).append(">");
-            unknownTagLevel -= 1;
-            if (unknownTagLevel == 0) {
-                // Time to wrap up our unknown tag in a Span
-                spannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(spannableStringBuilder, nestingLevel, unknown.rawHtml, context);
-            }
+        if (handleContent(tag, nestingLevel)) {
             return;
         }
 
@@ -417,6 +413,33 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             insideCodeTag = false;
             end(spannableStringBuilder, AztecTextFormat.FORMAT_CODE);
         }
+    }
+
+    private boolean handleContent(String tag, int nestingLevel) {
+        // Unknown tag previously detected
+        if (contentHandlerLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                return true;
+            } else if (tag.equalsIgnoreCase("br")) {
+                contentHandlerLevel -= 1;
+                return true;
+            }
+            contentHandlerLevel -= 1;
+
+            // Unknown/handled content, swallow closing tag in current Unknown element
+            unknown.rawHtml.append("</").append(tag).append(">");
+
+            if (contentHandlerPlugin == null && contentHandlerLevel == 0) {
+                // Time to wrap up our unknown tag in a Span
+                spannableStringBuilder.append("\uFFFC"); // placeholder character
+                endUnknown(spannableStringBuilder, nestingLevel, unknown, context);
+            } else if (contentHandlerLevel == 0) {
+                // Content is handled by a plugin
+                endPluginContentHandler(spannableStringBuilder, nestingLevel, unknown);
+            }
+            return true;
+        }
+        return false;
     }
 
     private static void handleCursor(SpannableStringBuilder text) {
@@ -576,16 +599,22 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private static void endUnknown(SpannableStringBuilder text, int nestingLevel, StringBuilder rawHtml, Context context) {
-        int len = text.length();
-        Object obj = getLast(text, Unknown.class);
-        int where = text.getSpanStart(obj);
+    private void endPluginContentHandler(SpannableStringBuilder text, int nestingLevel, Unknown unknown) {
+        text.removeSpan(unknown);
 
-        text.removeSpan(obj);
+        contentHandlerPlugin.handleContent(unknown.rawHtml.toString(), text, nestingLevel);
+        contentHandlerPlugin = null;
+    }
+
+    private void endUnknown(SpannableStringBuilder text, int nestingLevel, Unknown unknown, Context context) {
+        int len = text.length();
+        int where = text.getSpanStart(unknown);
+
+        text.removeSpan(unknown);
 
         if (where != len) {
             // TODO: Replace this dummy drawable with something else
-            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(nestingLevel, rawHtml, context, android.R.drawable.ic_menu_help);
+            UnknownHtmlSpan unknownHtmlSpan = new UnknownHtmlSpan(nestingLevel, unknown.rawHtml, context, android.R.drawable.ic_menu_help);
             text.setSpan(unknownHtmlSpan, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             UnknownClickableSpan unknownClickableSpan = new UnknownClickableSpan(unknownHtmlSpan);
@@ -623,7 +652,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     public void characters(char ch[], int start, int length) throws SAXException {
         // If unknown tag, then swallow everything
-        if (unknownTagLevel != 0) {
+        if (contentHandlerLevel != 0) {
             for (int i = 0; i < length; i++) {
                 unknown.rawHtml.append(ch[i + start]);
             }
@@ -724,7 +753,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
 
     @Override
     public void comment(char[] chars, int start, int length) throws SAXException {
-        if (unknownTagLevel != 0) {
+        if (contentHandlerLevel != 0) {
             unknown.rawHtml.append("<!--");
             for (int i = 0; i < length; i++) {
                 unknown.rawHtml.append(chars[i + start]);

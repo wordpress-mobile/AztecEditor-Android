@@ -814,7 +814,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             // we need to make a copy to preserve the contents as they were before the change
             val textCopy = SpannableStringBuilder(text)
             val data = BeforeTextChangedEventData(textCopy, start, count, after)
-            textWatcherEventBuilder.setBeforeTextChangedEvent(data)
+            textWatcherEventBuilder.beforeEventData = data
         }
     }
 
@@ -824,7 +824,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         if (!bypassObservationQueue) {
             val textCopy = SpannableStringBuilder(text)
             val data = OnTextChangedEventData(textCopy, start, before, count)
-            textWatcherEventBuilder.setOnTextChangedEvent(data)
+            textWatcherEventBuilder.onEventData = data
         }
     }
 
@@ -836,7 +836,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         if (!bypassObservationQueue) {
             val textCopy = Editable.Factory.getInstance().newEditable(editableText)
             val data = AfterTextChangedEventData(textCopy)
-            textWatcherEventBuilder.setAfterTextChangedEvent(data)
+            textWatcherEventBuilder.afterEventData = data
 
             // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
             observationQueue.add(textWatcherEventBuilder.build())

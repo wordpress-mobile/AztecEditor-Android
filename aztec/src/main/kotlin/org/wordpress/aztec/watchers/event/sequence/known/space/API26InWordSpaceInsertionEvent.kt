@@ -65,7 +65,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
             val lastEvent = sequence[sequence.size - 1]
 
             // if new text length is longer than original text by 1
-            if (firstEvent.beforeEventData.textBefore.length == lastEvent.afterEventData.textAfter!!.length - 1) {
+            if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length - 1) {
                 // now check that the inserted character is actually a space
                 //val (_, start, count) = firstEvent.beforeEventData
                 val data = firstEvent.beforeEventData
@@ -118,7 +118,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
         val (oldText) = firstEvent.beforeEventData
 
         val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
-        oldText.insert(differenceIndex, SPACE_STRING)
+        oldText?.insert(differenceIndex, SPACE_STRING)
 
         val replacementEvent = builder.buildGeneric()
         replacementEvent.afterEventData = AfterTextChangedEventData(oldText)

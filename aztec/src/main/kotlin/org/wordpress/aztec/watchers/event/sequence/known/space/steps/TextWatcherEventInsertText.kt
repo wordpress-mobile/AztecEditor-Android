@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space.steps
 
-import android.text.SpannableStringBuilder
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
@@ -18,7 +17,7 @@ class TextWatcherEventInsertText(beforeEventData: BeforeTextChangedEventData, on
     }
 
     private fun testOnTextChangedEventData(data: OnTextChangedEventData): Boolean {
-        return data.start >= 0 && data.count > 0 && data.textOn.length > 0
+        return data.start >= 0 && data.count > 0 && data.textOn!!.length > 0
     }
 
     private fun testAfterTextChangedEventData(data: AfterTextChangedEventData): Boolean {
@@ -37,8 +36,8 @@ class TextWatcherEventInsertText(beforeEventData: BeforeTextChangedEventData, on
         }
 
         fun buildGeneric(): TextWatcherEventInsertText {
-            beforeEventData = BeforeTextChangedEventData(SpannableStringBuilder())
-            onEventData = OnTextChangedEventData(SpannableStringBuilder())
+            beforeEventData = BeforeTextChangedEventData(null)
+            onEventData = OnTextChangedEventData(null)
             afterEventData = AfterTextChangedEventData(null)
             return TextWatcherEventInsertText(beforeEventData, onEventData, afterEventData)
         }

@@ -16,6 +16,20 @@ open class TextWatcherEvent (var beforeEventData: BeforeTextChangedEventData,
         lateinit var onEventData: OnTextChangedEventData
         lateinit var afterEventData: AfterTextChangedEventData
 
+        fun setGenericEventDataIfNotInit() {
+            if (!this::beforeEventData.isInitialized) {
+                beforeEventData = BeforeTextChangedEventData(null)
+            }
+
+            if (!this::onEventData.isInitialized) {
+                onEventData = OnTextChangedEventData(null)
+            }
+
+            if (!this::afterEventData.isInitialized) {
+                afterEventData = AfterTextChangedEventData(null)
+            }
+        }
+
         open fun build(): TextWatcherEvent {
             return TextWatcherEvent(beforeEventData, onEventData, afterEventData)
         }

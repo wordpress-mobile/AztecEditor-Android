@@ -32,13 +32,7 @@ class TextWatcherEventInsertText(beforeEventData: BeforeTextChangedEventData, on
 
     class Builder : TextWatcherEvent.Builder() {
         override fun build(): TextWatcherEventInsertText {
-            return TextWatcherEventInsertText(beforeEventData, onEventData, afterEventData)
-        }
-
-        fun buildGeneric(): TextWatcherEventInsertText {
-            beforeEventData = BeforeTextChangedEventData(null)
-            onEventData = OnTextChangedEventData(null)
-            afterEventData = AfterTextChangedEventData(null)
+            super.setGenericEventDataIfNotInit()
             return TextWatcherEventInsertText(beforeEventData, onEventData, afterEventData)
         }
     }

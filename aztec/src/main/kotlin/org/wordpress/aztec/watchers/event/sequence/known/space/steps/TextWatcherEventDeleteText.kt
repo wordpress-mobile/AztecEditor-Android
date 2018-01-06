@@ -30,13 +30,7 @@ class TextWatcherEventDeleteText(beforeEventData: BeforeTextChangedEventData, on
 
     class Builder : TextWatcherEvent.Builder() {
         override fun build(): TextWatcherEventDeleteText {
-            return TextWatcherEventDeleteText(beforeEventData, onEventData, afterEventData)
-        }
-
-        fun buildGeneric(): TextWatcherEventDeleteText {
-            beforeEventData = BeforeTextChangedEventData(null)
-            onEventData = OnTextChangedEventData(null)
-            afterEventData = AfterTextChangedEventData(null)
+            super.setGenericEventDataIfNotInit()
             return TextWatcherEventDeleteText(beforeEventData, onEventData, afterEventData)
         }
     }

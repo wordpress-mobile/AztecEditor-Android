@@ -24,16 +24,16 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
 
         // 2 generic deletes, followed by 2 generic inserts
         val builder = TextWatcherEventDeleteText.Builder()
-        val step1 = builder.buildGeneric()
+        val step1 = builder.build()
 
         val builderStep2 = TextWatcherEventDeleteText.Builder()
-        val step2 = builderStep2.buildGeneric()
+        val step2 = builderStep2.build()
 
         val builderStep3 = TextWatcherEventInsertText.Builder()
-        val step3 = builderStep3.buildGeneric()
+        val step3 = builderStep3.build()
 
         val builderStep4 = TextWatcherEventInsertText.Builder()
-        val step4 = builderStep4.buildGeneric()
+        val step4 = builderStep4.build()
 
         // add each of the steps that make up for the identified API26InWordSpaceInsertionEvent here
         clear()
@@ -120,8 +120,8 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
         val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
         oldText?.insert(differenceIndex, SPACE_STRING)
 
-        val replacementEvent = builder.buildGeneric()
-        replacementEvent.afterEventData = AfterTextChangedEventData(oldText)
+        builder.afterEventData = AfterTextChangedEventData(oldText)
+        val replacementEvent = builder.build()
         replacementEvent.insertionStart = differenceIndex
         replacementEvent.insertionLength = 1
 

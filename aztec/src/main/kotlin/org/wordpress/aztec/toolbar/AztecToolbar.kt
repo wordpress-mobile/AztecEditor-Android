@@ -904,6 +904,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun hideMediaToolbar() {
+        if(!isMediaToolbarVisible) return
+
         buttonMediaExpand.startAnimation(mediaButtonSpinLeft)
         stylingToolbar.startAnimation(layoutMediaTranslateInLeft)
         mediaToolbar.startAnimation(layoutMediaTranslateOutLeft)
@@ -911,6 +913,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun showMediaToolbar() {
+        if(isMediaToolbarVisible) return
+
         buttonMediaCollapse.startAnimation(mediaButtonSpinRight)
         stylingToolbar.startAnimation(layoutMediaTranslateOutRight)
 

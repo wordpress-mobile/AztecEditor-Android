@@ -867,6 +867,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
         val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
         val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
@@ -900,6 +902,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
         val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {

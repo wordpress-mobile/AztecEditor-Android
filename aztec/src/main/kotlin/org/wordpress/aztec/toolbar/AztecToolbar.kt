@@ -892,7 +892,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun enableMediaMode(isEnabled: Boolean) {
         isMediaModeEnabled = isEnabled
-        toolbarButtonPlugins.forEach { button -> if(button !is IMediaToolbarButton) button.toolbarStateAboutToChange(this, !isEnabled) }
+        toolbarButtonPlugins.forEach { button -> if (button !is IMediaToolbarButton) button.toolbarStateAboutToChange(this, !isEnabled) }
     }
 
     private fun showDialogShortcuts() {
@@ -903,28 +903,28 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         dialogShortcuts!!.show()
     }
 
-    private fun hideMediaToolbar() {
+    fun hideMediaToolbar() {
         buttonMediaExpand.startAnimation(mediaButtonSpinLeft)
         stylingToolbar.startAnimation(layoutMediaTranslateInLeft)
         mediaToolbar.startAnimation(layoutMediaTranslateOutLeft)
+        isMediaToolbarVisible = false
     }
 
-    private fun showMediaToolbar() {
+    fun showMediaToolbar() {
         buttonMediaCollapse.startAnimation(mediaButtonSpinRight)
         stylingToolbar.startAnimation(layoutMediaTranslateOutRight)
 
         mediaToolbar.visibility = View.VISIBLE
         mediaToolbar.startAnimation(layoutMediaTranslateInRight)
+        isMediaToolbarVisible = true
 
     }
 
     fun toggleMediaToolbar() {
-        isMediaToolbarVisible = if (isMediaToolbarVisible) {
+        if (isMediaToolbarVisible) {
             hideMediaToolbar()
-            false
         } else {
             showMediaToolbar()
-            true
         }
     }
 

@@ -906,7 +906,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
-                    //replaceImage(drawable)
+                    replaceImage(drawable)
                 }
 
                 override fun onThumbnailLoading(drawable: Drawable?) {

@@ -864,14 +864,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun loadImages() {
+        val maxDimension = maxImagesWidth
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxDimension)
 
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
                     replaceImage(
-                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                     )
                 }
 
@@ -890,19 +891,20 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, maxDimension, maxDimension)
         }
     }
 
     private fun loadVideos() {
+        val maxDimension = maxImagesWidth
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxDimension)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
@@ -920,7 +922,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, maxDimension, maxDimension)
 
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)

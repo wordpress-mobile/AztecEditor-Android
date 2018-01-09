@@ -6,9 +6,8 @@ import org.wordpress.aztec.watchers.event.buckets.API26Bucket
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.wordpress.aztec.watchers.event.buckets.Bucket
 
-class ObservationQueue(injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
+class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
     val buckets = ArrayList<Bucket>()
-    val injector = injector
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

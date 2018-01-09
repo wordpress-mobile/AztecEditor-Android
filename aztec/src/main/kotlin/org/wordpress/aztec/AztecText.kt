@@ -867,6 +867,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
         val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
+        val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
@@ -890,7 +893,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, maxDimension, minImagesWidth)
         }
     }
 
@@ -899,10 +902,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
+        val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
@@ -920,7 +926,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, maxImagesWidth, minImagesWidth)
 
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)

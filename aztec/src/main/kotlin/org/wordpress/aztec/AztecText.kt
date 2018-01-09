@@ -98,13 +98,20 @@ import org.wordpress.aztec.watchers.ParagraphCollapseRemover
 import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
+import org.wordpress.aztec.watchers.event.IEventInjector
+import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
+import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
+import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
+class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -155,6 +162,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var consumeSelectionChangedEvent: Boolean = false
     private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
+    private var bypassObservationQueue: Boolean = false
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -204,6 +212,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
+
+    var observationQueue: ObservationQueue = ObservationQueue(this)
+    var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -434,8 +445,39 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         DeleteMediaElementWatcher.install(this)
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
-        addTextChangedListener(this)
+        addHistoryLoggingWatcher()
         ParagraphCollapseRemover.install(this)
+
+        // finally add the TextChangedListener
+        addTextChangedListener(this)
+    }
+
+    private fun addHistoryLoggingWatcher() {
+        val historyLoggingWatcher = object : TextWatcher {
+            override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+                if (!isViewInitialized) return
+                if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
+                    history.beforeTextChanged(toFormattedHtml())
+                }
+            }
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                if (!isViewInitialized) return
+            }
+            override fun afterTextChanged(text: Editable) {
+                if (isTextChangedListenerDisabled()) {
+                    return
+                }
+
+                isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
+                if (consumeHistoryEvent) {
+                    consumeHistoryEvent = false
+                }
+
+                history.handleHistory(this@AztecText)
+            }
+        }
+        addTextChangedListener(historyLoggingWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -800,13 +842,22 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-            history.beforeTextChanged(toFormattedHtml())
+        if (!bypassObservationQueue) {
+            // we need to make a copy to preserve the contents as they were before the change
+            val textCopy = SpannableStringBuilder(text)
+            val data = BeforeTextChangedEventData(textCopy, start, count, after)
+            textWatcherEventBuilder.beforeEventData = data
         }
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
+
+        if (!bypassObservationQueue) {
+            val textCopy = SpannableStringBuilder(text)
+            val data = OnTextChangedEventData(textCopy, start, before, count)
+            textWatcherEventBuilder.onEventData = data
+        }
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -814,12 +865,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             return
         }
 
-        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+        if (!bypassObservationQueue) {
+            val textCopy = Editable.Factory.getInstance().newEditable(editableText)
+            val data = AfterTextChangedEventData(textCopy)
+            textWatcherEventBuilder.afterEventData = data
 
-        if (consumeHistoryEvent) {
-            consumeHistoryEvent = false
+            // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
+            observationQueue.add(textWatcherEventBuilder.build())
         }
-        history.handleHistory(this)
     }
 
     fun redo() {
@@ -1044,6 +1097,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun enableTextChangedListener() {
         consumeEditEvent = false
+    }
+
+    fun disableObservationQueue() {
+        bypassObservationQueue = true
+    }
+
+    fun enableObservationQueue() {
+        bypassObservationQueue = false
     }
 
     fun isTextChangedListenerDisabled(): Boolean {
@@ -1454,5 +1515,18 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun onUnknownHtmlTapped(unknownHtmlSpan: UnknownHtmlSpan) {
         showBlockEditorDialog(unknownHtmlSpan)
+    }
+
+    override fun executeEvent(data: TextWatcherEvent) {
+        disableObservationQueue()
+
+        if (data is TextWatcherEventInsertText) {
+            // here replace the inserted thing with a new "normal" insertion
+            val afterData = data.afterEventData
+            setText(afterData.textAfter)
+            setSelection(data.insertionStart+data.insertionLength)
+        }
+
+        enableObservationQueue()
     }
 }

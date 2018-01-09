@@ -3,7 +3,7 @@ package org.wordpress.aztec.watchers
 import android.text.Editable
 import android.text.Spannable
 import android.text.TextWatcher
-import android.widget.TextView
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.SpanWrapper
 
@@ -46,7 +46,7 @@ class ParagraphCollapseAdjuster : TextWatcher {
     override fun afterTextChanged(s: Editable) {}
 
     companion object {
-        fun install(text: TextView) {
+        fun install(text: AztecText) {
             text.addTextChangedListener(ParagraphCollapseAdjuster())
         }
     }

@@ -377,8 +377,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun addButton(buttonPlugin: IToolbarButton) {
-        val pluginContainer = if (buttonPlugin is IMediaToolbarButton)
-            findViewById(R.id.media_toolbar) else findViewById<LinearLayout>(R.id.plugin_buttons)
+        val pluginContainer = if (buttonPlugin is IMediaToolbarButton) {
+            findViewById(R.id.media_toolbar)
+        } else {
+            findViewById<LinearLayout>(R.id.plugin_buttons)
+        }
 
         buttonPlugin.inflateButton(pluginContainer)
 
@@ -909,6 +912,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         buttonMediaExpand.startAnimation(mediaButtonSpinLeft)
         stylingToolbar.startAnimation(layoutMediaTranslateInLeft)
         mediaToolbar.startAnimation(layoutMediaTranslateOutLeft)
+
         isMediaToolbarVisible = false
     }
 
@@ -920,8 +924,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         mediaToolbar.visibility = View.VISIBLE
         mediaToolbar.startAnimation(layoutMediaTranslateInRight)
-        isMediaToolbarVisible = true
 
+        isMediaToolbarVisible = true
     }
 
     fun toggleMediaToolbar() {

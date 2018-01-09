@@ -3,7 +3,9 @@ package org.wordpress.aztec.source
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Pattern
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -24,6 +26,11 @@ class InlineCssStyleFormatter {
                     "(?:;|\\A)color:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
         }
 
+        private val textDecorationPattern by lazy {
+            Pattern.compile(
+                    "(?:;|\\A)text-decoration:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
+        }
+
         /**
          * Check the provided [attributes] for the *style* attribute. If found, parse out the
          * supported CSS style properties and use the results to create a [ForegroundColorSpan],
@@ -39,16 +46,32 @@ class InlineCssStyleFormatter {
             if (attributes.hasAttribute("style")) {
 
                 if (start != end) {
-                    val style = attributes.getValue("", "style")
                     // Process the CSS 'color' property, remove any whitespace or newline characters
-                    val m = foregroundColorPattern.matcher(style.replace("\\s".toRegex(), ""))
-                    if (m.find()) {
-                        val colorString = m.group(1)
-                        val colorInt = ColorConverter.getColorInt(colorString)
-                        if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
-                            text.setSpan(ForegroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                        }
-                    }
+                    val style = attributes.getValue("", "style").replace("\\s".toRegex(), "")
+
+                    processColor(style, text, start, end)
+                    processTextDecoration(style, text, start, end, attributes)
+                }
+            }
+        }
+
+        private fun processColor(style: String, text: Editable, start: Int, end: Int) {
+            val m = foregroundColorPattern.matcher(style)
+            if (m.find()) {
+                val colorString = m.group(1)
+                val colorInt = ColorConverter.getColorInt(colorString)
+                if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
+                    text.setSpan(ForegroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+
+        private fun processTextDecoration(style: String, text: Editable, start: Int, end: Int, attrs: AztecAttributes) {
+            val m = textDecorationPattern.matcher(style)
+            if (m.find()) {
+                val decoration = m.group(1)
+                if (decoration == "underline") {
+                    text.setSpan(UnderlineSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }

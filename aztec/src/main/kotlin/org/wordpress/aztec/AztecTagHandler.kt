@@ -190,6 +190,9 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
             if (start != end) {
                 output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                // Apply the 'style' attribute if present
+                last.applyInlineStyleAttributes(output, start, end)
             } else {
                 output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
             }

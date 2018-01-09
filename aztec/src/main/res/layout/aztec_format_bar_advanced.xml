@@ -20,11 +20,11 @@
     <HorizontalScrollView
         android:id="@+id/format_bar_button_scroll"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/format_bar_height"
+        android:layout_height="@dimen/aztec_format_bar_height"
         android:layout_gravity="bottom"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingRight="@dimen/format_bar_right_margin"
+        android:paddingRight="@dimen/aztec_format_bar_right_margin"
         tools:ignore="RtlHardcoded,RtlSymmetry">
 
         <LinearLayout
@@ -162,7 +162,7 @@
                                 style="@style/FormatBarButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="fill_parent"
-                                android:layout_marginLeft="@dimen/format_bar_left_margin"
+                                android:layout_marginLeft="@dimen/aztec_format_bar_left_margin"
                                 android:background="@drawable/format_bar_button_heading_selector"
                                 android:contentDescription="@string/format_bar_description_heading">
                             </org.wordpress.aztec.toolbar.RippleToggleButton>

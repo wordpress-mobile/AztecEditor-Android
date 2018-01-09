@@ -77,12 +77,14 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
@@ -166,6 +168,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
+
+    var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
 
@@ -269,6 +273,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
+
+        commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
         verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
 
@@ -1020,6 +1026,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
         unknownHtmlSpans.forEach {
             it.onUnknownHtmlTappedListener = this
+        }
+
+        if (!commentsVisible) {
+            val commentSpans = editable.getSpans(start, end, CommentSpan::class.java)
+            commentSpans.forEach {
+                val wrapper = SpanWrapper(editable, it)
+                wrapper.span.isHidden = true
+                editable.replace(wrapper.start, wrapper.end, Constants.MAGIC_STRING)
+            }
         }
     }
 

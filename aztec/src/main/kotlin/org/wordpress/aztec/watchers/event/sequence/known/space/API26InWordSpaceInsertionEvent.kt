@@ -61,7 +61,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
 
             // ok all events are good individually and match the sequence we want to compare against.
             // now let's make sure the BEFORE / AFTER situation is what we are trying to identify
-            val firstEvent = sequence[0]
+            val firstEvent = sequence.first()
             val lastEvent = sequence[sequence.size - 1]
 
             // if new text length is longer than original text by 1
@@ -112,7 +112,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
     override fun buildReplacementEventWithSequenceData(sequence: EventSequence<TextWatcherEvent>): TextWatcherEvent {
         val builder = TextWatcherEventInsertText.Builder()
         // here make it all up as a unique event that does the insert as usual, as we'd get it on older APIs
-        val firstEvent = sequence[0]
+        val firstEvent = sequence.first()
         val lastEvent = sequence[sequence.size - 1]
 
         val (oldText) = firstEvent.beforeEventData

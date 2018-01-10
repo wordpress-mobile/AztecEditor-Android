@@ -579,7 +579,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             if (openMap.contains(nextSpanIndex)) {
                 val nextSpan = openMap[nextSpanIndex]!!
                 if (!nextSpan.isOpened && text.getSpanStart(nextSpan) == position) {
-                    out.append(nextSpan.startTag)
+                    out.append("<${nextSpan.startTag}>")
                     nextSpan.open()
                     hiddenIndex++
                 }
@@ -588,7 +588,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             if (closeMap.containsKey(nextSpanIndex)) {
                 val nextSpan = closeMap[nextSpanIndex]!!
                 if (!nextSpan.isParsed && text.getSpanEnd(nextSpan) == position) {
-                    out.append(nextSpan.endTag)
+                    out.append("</${nextSpan.endTag}>")
                     nextSpan.parse()
                     hiddenIndex++
                 }

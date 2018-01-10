@@ -149,7 +149,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         plugins.filter { it is ISpanPostprocessor }
             .map { it as ISpanPostprocessor }
             .forEach {
-                it.onSpansProcessed(spannable)
+                it.afterSpansProcessed(spannable)
             }
     }
 

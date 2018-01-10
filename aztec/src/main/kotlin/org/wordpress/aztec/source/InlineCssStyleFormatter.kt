@@ -3,9 +3,7 @@ package org.wordpress.aztec.source
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
-import android.text.style.UnderlineSpan
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Pattern
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -18,19 +16,6 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
 class InlineCssStyleFormatter {
 
     companion object {
-        /**
-         * Regex pattern for pulling the *color* property from the style string.
-         */
-        private val foregroundColorPattern by lazy {
-            Pattern.compile(
-                    "(?:;|\\A)color:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
-        }
-
-        private val textDecorationPattern by lazy {
-            Pattern.compile(
-                    "(?:;|\\A)text-decoration:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
-        }
-
         /**
          * Check the provided [attributes] for the *style* attribute. If found, parse out the
          * supported CSS style properties and use the results to create a [ForegroundColorSpan],
@@ -50,13 +35,17 @@ class InlineCssStyleFormatter {
                     val style = attributes.getValue("", "style").replace("\\s".toRegex(), "")
 
                     processColor(style, text, start, end)
-                    processTextDecoration(style, text, start, end, attributes)
                 }
             }
         }
 
+        private fun getPattern(styleAttr: String): Pattern {
+            return Pattern.compile(
+                    "(?:;|\\A)$styleAttr:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
+        }
+
         private fun processColor(style: String, text: Editable, start: Int, end: Int) {
-            val m = foregroundColorPattern.matcher(style)
+            val m = getPattern("color").matcher(style)
             if (m.find()) {
                 val colorString = m.group(1)
                 val colorInt = ColorConverter.getColorInt(colorString)
@@ -66,14 +55,33 @@ class InlineCssStyleFormatter {
             }
         }
 
-        private fun processTextDecoration(style: String, text: Editable, start: Int, end: Int, attrs: AztecAttributes) {
-            val m = textDecorationPattern.matcher(style)
-            if (m.find()) {
-                val decoration = m.group(1)
-                if (decoration == "underline") {
-                    text.setSpan(UnderlineSpan(), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
+        fun containsUnderlineDecorationStyle(attributes: AztecAttributes): Boolean {
+            if (attributes.hasAttribute("style")) {
+                val style = attributes.getValue("", "style").replace("\\s".toRegex(), "")
+                val m = getPattern("text-decoration").matcher(style)
+                return m.find()
             }
+            return false
+        }
+
+        fun removeStyle(attributes: AztecAttributes, styleAttributeName: String) {
+            if (attributes.hasAttribute("style")) {
+                val style = attributes.getValue("", "style").replace("\\s".toRegex(), "")
+                val m = getPattern(styleAttributeName).matcher(style)
+                attributes.setValue("style", m.replaceAll(""))
+            }
+        }
+
+        fun addStyle(attributes: AztecAttributes, styleAttribute: String) {
+            var style = attributes.getValue("style") ?: ""
+            style = style.trim()
+
+            if (!style.isEmpty() && !style.endsWith(";")) {
+                style += "; "
+            }
+
+            style += styleAttribute
+            attributes.setValue("style", style)
         }
     }
 }

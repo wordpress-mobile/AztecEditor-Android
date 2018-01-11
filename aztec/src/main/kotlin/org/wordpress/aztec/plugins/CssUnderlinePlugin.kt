@@ -3,7 +3,6 @@ package org.wordpress.aztec.plugins
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecTagHandler
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.source.InlineCssStyleFormatter

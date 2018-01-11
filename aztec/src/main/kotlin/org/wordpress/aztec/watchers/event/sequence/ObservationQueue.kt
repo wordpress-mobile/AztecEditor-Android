@@ -3,8 +3,8 @@ package org.wordpress.aztec.watchers.event.sequence
 import android.os.Build
 import org.wordpress.aztec.watchers.event.IEventInjector
 import org.wordpress.aztec.watchers.event.buckets.API26Bucket
-import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.wordpress.aztec.watchers.event.buckets.Bucket
+import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 
 class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
     val buckets = ArrayList<Bucket>()

@@ -4,9 +4,9 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Pattern
-import org.wordpress.aztec.spans.IAztecAttributedSpan
 
 /**
  * Utility for parsing and processing the HTML *style* attribute to create a styled [Spannable].

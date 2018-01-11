@@ -33,7 +33,6 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.source.InlineCssStyleFormatter;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
@@ -52,7 +51,6 @@ import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
-import org.wordpress.aztec.spans.IAztecAttributedSpan;
 import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;

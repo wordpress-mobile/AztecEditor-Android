@@ -66,6 +66,11 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         }
     }
 
+    fun enableCrashLogging(act: Activity) : Aztec {
+        AztecExceptionHandler(act, visualEditor)
+        return this
+    }
+
     fun setImageGetter(imageGetter: Html.ImageGetter): Aztec {
         this.imageGetter = imageGetter
         initImageGetter()

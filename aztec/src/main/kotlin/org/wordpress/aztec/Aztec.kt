@@ -23,8 +23,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
     private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
-    private var uncaughtExceptionHandler: AztecExceptionHandler? = null
-
     var sourceEditor: SourceViewEditText? = null
 
     init {
@@ -66,16 +64,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: A
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
-    }
-
-    fun enableCrashLogging(act: Activity) : Aztec {
-        this.uncaughtExceptionHandler = AztecExceptionHandler(act, visualEditor)
-        return this
-    }
-
-    fun disableCrashLogging(act: Activity) {
-        this.uncaughtExceptionHandler?.restoreDefault()
-        this.uncaughtExceptionHandler = null
     }
 
     fun setImageGetter(imageGetter: Html.ImageGetter): Aztec {

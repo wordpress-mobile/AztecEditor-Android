@@ -364,7 +364,6 @@ open class MainActivity : AppCompatActivity(),
                 .setOnAudioTappedListener(this)
                 .setOnMediaDeletedListener(this)
                 .setOnVideoInfoRequestedListener(this)
-                .enableCrashLogging(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))
                 .addPlugin(PageToolbarButton(visualEditor))
@@ -376,6 +375,7 @@ open class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
+            aztec.visualEditor.enableCrashLogging(this)
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 

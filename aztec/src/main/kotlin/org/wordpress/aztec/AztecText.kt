@@ -18,6 +18,7 @@
 package org.wordpress.aztec
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -215,6 +216,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
+
+    private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -1528,5 +1531,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         enableObservationQueue()
+    }
+
+    fun enableCrashLogging(act: Activity) {
+        this.uncaughtExceptionHandler = AztecExceptionHandler(act, this)
+    }
+
+    fun disableCrashLogging() {
+        this.uncaughtExceptionHandler?.restoreDefault()
+        this.uncaughtExceptionHandler = null
     }
 }

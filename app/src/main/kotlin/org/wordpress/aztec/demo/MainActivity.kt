@@ -44,6 +44,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
@@ -350,6 +351,7 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(CaptionShortcodePlugin(visualEditor))
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
+            .addPlugin(CssUnderlinePlugin())
 
         // initialize the text & HTML
         if (!isRunningTest) {

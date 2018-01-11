@@ -24,4 +24,8 @@ class AztecExceptionHandler(private val activity: Activity, private val visualEd
 
         rootHandler?.uncaughtException(thread, ex)
     }
+
+    fun restoreDefault() {
+        Thread.setDefaultUncaughtExceptionHandler(rootHandler)
+    }
 }

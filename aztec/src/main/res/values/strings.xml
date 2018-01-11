@@ -46,17 +46,17 @@
     <!-- MEDIA -->
     <string name="error_chooser_photo">No app was found to choose a photo</string>
     <string name="error_chooser_video">No app was found to choose a video</string>
-    <string name="media_dialog_camera">Device camera</string>
-    <string name="media_dialog_library">Media library</string>
-    <string name="media_dialog_photos">Device photos</string>
-    <string name="media_dialog_videos">Device videos</string>
     <string name="media_popup_gallery">Gallery</string>
-    <string name="media_popup_photo">Photo</string>
-    <string name="media_popup_video">Video</string>
     <string name="media_upload_dialog_message">Media must be uploaded before editing HTML.</string>
     <string name="media_upload_dialog_positive">OK</string>
     <string name="title_select_photo">Select Photo</string>
     <string name="title_select_video">Select Video</string>
+    <string name="media_popup_take_photo">Take Photo</string>
+    <string name="media_popup_take_video">Take Video</string>
+    <string name="media_popup_gallery_chose_photo">Chose photo from device</string>
+    <string name="media_popup_gallery_chose_video">Chose video from device</string>
+    <string name="media_bar_description_gallery">Pick a media from gallery</string>
+    <string name="media_bar_description_camera">Take Photo or Video with camera</string>
 
     <!-- SHORTCUTS -->
     <string name="header_edit">Edit</string>

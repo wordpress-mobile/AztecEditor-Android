@@ -27,7 +27,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
     override fun afterSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
             if (it.TAG == SPAN_TAG && InlineCssStyleFormatter.containsUnderlineDecorationStyle(it.attributes)) {
-                InlineCssStyleFormatter.removeStyle(it.attributes,InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
+                InlineCssStyleFormatter.removeStyle(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
                 spannable.setSpan(AztecUnderlineSpan(), spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 if (it.attributes.isEmpty()) {

@@ -18,7 +18,6 @@
 package org.wordpress.aztec
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -1533,8 +1532,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         enableObservationQueue()
     }
 
-    fun enableCrashLogging(act: Activity) {
-        this.uncaughtExceptionHandler = AztecExceptionHandler(act, this)
+    fun enableCrashLogging(helper: AztecExceptionHandler.ExceptionHandlerHelper) {
+        this.uncaughtExceptionHandler = AztecExceptionHandler(helper, this)
     }
 
     fun disableCrashLogging() {

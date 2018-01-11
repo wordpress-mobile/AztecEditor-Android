@@ -37,6 +37,7 @@ import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecExceptionHandler
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 import org.wordpress.aztec.IHistoryListener
@@ -375,7 +376,11 @@ open class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
-            aztec.visualEditor.enableCrashLogging(this)
+            aztec.visualEditor.enableCrashLogging(object : AztecExceptionHandler.ExceptionHandlerHelper {
+                override fun shouldLog(ex: Throwable): Boolean {
+                    return true
+                }
+            })
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 

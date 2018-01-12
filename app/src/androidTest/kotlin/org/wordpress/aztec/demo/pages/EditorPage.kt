@@ -29,7 +29,8 @@ class EditorPage : BasePage() {
     private var undoButton: ViewInteraction
     private var redoButton: ViewInteraction
 
-    private var insertMediaButton: ViewInteraction
+    private var openMediaToolbarButton: ViewInteraction
+    private var closeMediaToolbarButton: ViewInteraction
     private var headingButton: ViewInteraction
     private var listButton: ViewInteraction
     private var quoteButton: ViewInteraction
@@ -44,7 +45,7 @@ class EditorPage : BasePage() {
     private var htmlButton: ViewInteraction
 
     private var photoButton: ViewInteraction
-    private var devicePhotosButton: ViewInteraction
+    private var galleryButton: ViewInteraction
 
     override val trait: ViewInteraction
         get() = onView(withId(R.id.aztec))
@@ -56,7 +57,8 @@ class EditorPage : BasePage() {
         undoButton = onView(withId(R.id.undo))
         redoButton = onView(withId(R.id.redo))
 
-        insertMediaButton = onView(withId(R.id.format_bar_button_media))
+        openMediaToolbarButton = onView(withId(R.id.format_bar_button_media_collapsed))
+        closeMediaToolbarButton = onView(withId(R.id.format_bar_button_media_expanded))
         headingButton = onView(withId(R.id.format_bar_button_heading))
         listButton = onView(withId(R.id.format_bar_button_list))
         quoteButton = onView(withId(R.id.format_bar_button_quote))
@@ -70,8 +72,8 @@ class EditorPage : BasePage() {
         pageButton = onView(withId(R.id.format_bar_button_page))
         htmlButton = onView(withId(R.id.format_bar_button_html))
 
-        photoButton = onView(allOf(withId(android.R.id.title), withText("Photo")))
-        devicePhotosButton = onView(allOf(withId(R.id.media_photos), withText("Device photos")))
+        photoButton = onView(allOf(withId(android.R.id.title), withText("Photo from device")))
+        galleryButton = onView(withId(R.id.media_bar_button_gallery))
     }
 
     fun tapTop(): EditorPage {
@@ -174,16 +176,16 @@ class EditorPage : BasePage() {
     }
 
     fun insertMedia() {
-        insertMediaButton.perform(betterScrollTo(), Actions.invokeClick())
+        openMediaToolbarButton.perform(betterScrollTo(), Actions.invokeClick())
         label("Inserting media")
+
+        Thread.sleep(200)
+        galleryButton.perform(click())
+        label("Chose gallery")
 
         Thread.sleep(200)
         photoButton.perform(click())
         label("Chose photo")
-
-        Thread.sleep(200)
-        devicePhotosButton.perform(click())
-        label("Chose device photos")
     }
 
     fun undoChange(): EditorPage {

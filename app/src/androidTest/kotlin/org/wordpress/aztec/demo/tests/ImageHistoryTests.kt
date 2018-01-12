@@ -203,6 +203,8 @@ class ImageHistoryTests : BaseTest() {
                 .toggleHtml()
                 .verifyHTML(regex)
                 .toggleHtml()
+
+        Thread.sleep(1000)
     }
 
     private fun addPhotoWithHTML() {

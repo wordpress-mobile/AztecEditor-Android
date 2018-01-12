@@ -11,7 +11,8 @@ import java.util.ArrayList
 enum class ToolbarAction constructor(override val buttonId: Int, override val actionType: ToolbarActionType,
                                      override val textFormat: ITextFormat) : IToolbarAction {
 
-    ADD_MEDIA(R.id.format_bar_button_media, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    ADD_MEDIA_COLLAPSE(R.id.format_bar_button_media_collapsed, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    ADD_MEDIA_EXPAND(R.id.format_bar_button_media_expanded, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
     HEADING(R.id.format_bar_button_heading, ToolbarActionType.LINE_BLOCK, AztecTextFormat.FORMAT_NONE),
     LIST(R.id.format_bar_button_list, ToolbarActionType.BLOCK_STYLE, AztecTextFormat.FORMAT_NONE),
     BOLD(R.id.format_bar_button_bold, ToolbarActionType.INLINE_STYLE, AztecTextFormat.FORMAT_BOLD),

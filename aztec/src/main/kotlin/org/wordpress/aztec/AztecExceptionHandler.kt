@@ -3,7 +3,7 @@ package org.wordpress.aztec
 import org.wordpress.android.util.AppLog
 import java.lang.Thread.UncaughtExceptionHandler
 
-class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper, private val visualEditor: AztecText) : UncaughtExceptionHandler {
+class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, private val visualEditor: AztecText) : UncaughtExceptionHandler {
 
     interface ExceptionHandlerHelper {
         fun shouldLog(ex: Throwable) : Boolean
@@ -21,7 +21,7 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper, priva
         // Check if we should log the content or not
         var shouldLog = true
         try {
-            shouldLog = logHelper.shouldLog(ex)
+            shouldLog = logHelper?.shouldLog(ex) ?: true
         } catch (e: Throwable) {
             AppLog.w(AppLog.T.EDITOR, "There was an exception in the Logger Helper. Set the logging to true" )
         }
@@ -38,7 +38,7 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper, priva
         rootHandler?.uncaughtException(thread, ex)
     }
 
-    fun restoreDefault() {
+    fun restoreDefaultHandler() {
         Thread.setDefaultUncaughtExceptionHandler(rootHandler)
     }
 }

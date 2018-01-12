@@ -1537,7 +1537,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun disableCrashLogging() {
-        this.uncaughtExceptionHandler?.restoreDefault()
+        this.uncaughtExceptionHandler?.restoreDefaultHandler()
         this.uncaughtExceptionHandler = null
     }
 }

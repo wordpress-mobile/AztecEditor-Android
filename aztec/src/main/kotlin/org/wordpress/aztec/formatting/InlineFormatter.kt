@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecPart
 import org.wordpress.aztec.AztecText
@@ -159,7 +160,13 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         joinStyleSpans(start, end)
     }
 
-    fun applySpan(span: IAztecInlineSpan, start: Int, end: Int, type: Int) {
+    private fun applySpan(span: IAztecInlineSpan, start: Int, end: Int, type: Int) {
+        if (start > end) {
+            AppLog.w(AppLog.T.EDITOR, "InlineFormatter.applySpan - setSpan has end before start." +
+                    " Start:" + start + " End:" + end)
+            AppLog.w(AppLog.T.EDITOR, "Logging the whole content" + editor.toPlainHtml())
+            return
+        }
         editableText.setSpan(span, start, end, type)
         span.applyInlineStyleAttributes(editableText, start, end)
     }

@@ -45,7 +45,7 @@ class HeadingTest {
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
         toolbar.setEditor(editText, sourceText)
-        buttonQuote = toolbar.findViewById(R.id.format_bar_button_quote)
+        buttonQuote = toolbar.findViewById<ToggleButton>(R.id.format_bar_button_quote)
         menuHeading = toolbar.getHeadingMenu() as PopupMenu
         menuHeading1 = menuHeading.menu.getItem(1)
         menuHeading2 = menuHeading.menu.getItem(2)
@@ -575,5 +575,19 @@ class HeadingTest {
         Assert.assertEquals("\n\nheading", editText.text.toString())
 
         Assert.assertEquals("<br><br><h1>heading</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testAddingNewlinesBeforeHeading() {
+        editText.fromHtml("<h1>H</h1>")
+
+        Assert.assertEquals("H", editText.text.toString())
+
+        editText.text.insert(0, Constants.NEWLINE_STRING)
+
+        Assert.assertEquals("\nH", editText.text.toString())
+
+        Assert.assertEquals("<br><h1>H</h1>", editText.toHtml())
     }
 }

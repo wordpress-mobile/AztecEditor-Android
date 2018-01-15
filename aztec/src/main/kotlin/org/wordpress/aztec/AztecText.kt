@@ -216,6 +216,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
+    private var uncaughtExceptionHandler: AztecExceptionHandler? = null
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -1528,5 +1530,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         enableObservationQueue()
+    }
+
+    fun enableCrashLogging(helper: AztecExceptionHandler.ExceptionHandlerHelper) {
+        this.uncaughtExceptionHandler = AztecExceptionHandler(helper, this)
+    }
+
+    fun disableCrashLogging() {
+        this.uncaughtExceptionHandler?.restoreDefaultHandler()
+        this.uncaughtExceptionHandler = null
     }
 }

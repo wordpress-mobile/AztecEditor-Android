@@ -56,6 +56,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random
@@ -332,6 +333,15 @@ open class MainActivity : AppCompatActivity(),
         val visualEditor = findViewById<AztecText>(R.id.aztec)
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
+
+        visualEditor.externalLogger = object : AztecLog.ExternalLogger {
+            override fun log(message: String) {
+            }
+            override fun logException(tr: Throwable) {
+            }
+            override fun logException(tr: Throwable, message: String) {
+            }
+        }
 
         val galleryButton = MediaToolbarGalleryButton(toolbar)
         galleryButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {

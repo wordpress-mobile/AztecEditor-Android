@@ -55,7 +55,7 @@ class CommentsToolbarTest {
                     override fun onToolbarHeadingButtonClicked() {}
                     override fun onToolbarHtmlButtonClicked() {}
                     override fun onToolbarListButtonClicked() {}
-                    override fun onToolbarMediaButtonClicked() {}
+                    override fun onToolbarMediaButtonClicked() : Boolean { return false }
                 })
                 .addPlugin(WordPressCommentsPlugin(editText))
                 .addPlugin(MoreToolbarButton(editText))

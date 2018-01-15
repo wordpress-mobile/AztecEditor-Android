@@ -9,5 +9,12 @@ interface IAztecToolbarClickListener {
     fun onToolbarHeadingButtonClicked()
     fun onToolbarHtmlButtonClicked()
     fun onToolbarListButtonClicked()
-    fun onToolbarMediaButtonClicked()
+
+    /**
+     * Called when media button in toolbar is clicked. This allows listeners to
+     * get a chance to respond before the target view.
+     *
+     * @return True if the listener has consumed the event, false otherwise.
+     */
+    fun onToolbarMediaButtonClicked(): Boolean
 }

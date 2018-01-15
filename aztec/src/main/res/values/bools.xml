@@ -3,6 +3,7 @@
 <resources>
 
     <bool name="history_enable">true</bool>
+    <bool name="comments_visible">true</bool>
     <bool name="link_underline">true</bool>
 
 </resources>

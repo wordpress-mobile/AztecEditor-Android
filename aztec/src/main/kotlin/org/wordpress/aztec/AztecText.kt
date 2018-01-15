@@ -21,11 +21,17 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.annotation.DrawableRes
+import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
@@ -39,6 +45,7 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
+import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -46,6 +53,7 @@ import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -69,12 +77,14 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
@@ -88,13 +98,20 @@ import org.wordpress.aztec.watchers.ParagraphCollapseRemover
 import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
+import org.wordpress.aztec.watchers.event.IEventInjector
+import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
+import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
+import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
+import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener {
+class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -116,6 +133,24 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
+
+        private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
+            val drawable = ContextCompat.getDrawable(context, drawableId)
+            var bitmap: Bitmap
+            if (drawable is BitmapDrawable) {
+                bitmap = drawable.bitmap
+                bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
+            } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
+                bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+            } else {
+                throw IllegalArgumentException("Unsupported Drawable Type")
+            }
+            bitmap.density = DisplayMetrics.DENSITY_DEFAULT
+            return BitmapDrawable(context.resources, bitmap)
+        }
     }
 
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
@@ -127,6 +162,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var consumeSelectionChangedEvent: Boolean = false
     private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
+    private var bypassObservationQueue: Boolean = false
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -140,6 +176,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
+
+    var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
 
@@ -174,6 +212,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
+
+    var observationQueue: ObservationQueue = ObservationQueue(this)
+    var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -243,6 +284,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
+
+        commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
         verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
 
@@ -402,8 +445,39 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         DeleteMediaElementWatcher.install(this)
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
-        addTextChangedListener(this)
+        addHistoryLoggingWatcher()
         ParagraphCollapseRemover.install(this)
+
+        // finally add the TextChangedListener
+        addTextChangedListener(this)
+    }
+
+    private fun addHistoryLoggingWatcher() {
+        val historyLoggingWatcher = object : TextWatcher {
+            override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+                if (!isViewInitialized) return
+                if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
+                    history.beforeTextChanged(toFormattedHtml())
+                }
+            }
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+                if (!isViewInitialized) return
+            }
+            override fun afterTextChanged(text: Editable) {
+                if (isTextChangedListenerDisabled()) {
+                    return
+                }
+
+                isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+
+                if (consumeHistoryEvent) {
+                    consumeHistoryEvent = false
+                }
+
+                history.handleHistory(this@AztecText)
+            }
+        }
+        addTextChangedListener(historyLoggingWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -768,13 +842,22 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isViewInitialized) return
 
-        if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-            history.beforeTextChanged(toFormattedHtml())
+        if (!bypassObservationQueue) {
+            // we need to make a copy to preserve the contents as they were before the change
+            val textCopy = SpannableStringBuilder(text)
+            val data = BeforeTextChangedEventData(textCopy, start, count, after)
+            textWatcherEventBuilder.beforeEventData = data
         }
     }
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
+
+        if (!bypassObservationQueue) {
+            val textCopy = SpannableStringBuilder(text)
+            val data = OnTextChangedEventData(textCopy, start, before, count)
+            textWatcherEventBuilder.onEventData = data
+        }
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -782,12 +865,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             return
         }
 
-        isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
+        if (!bypassObservationQueue) {
+            val textCopy = Editable.Factory.getInstance().newEditable(editableText)
+            val data = AfterTextChangedEventData(textCopy)
+            textWatcherEventBuilder.afterEventData = data
 
-        if (consumeHistoryEvent) {
-            consumeHistoryEvent = false
+            // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
+            observationQueue.add(textWatcherEventBuilder.build())
         }
-        history.handleHistory(this)
     }
 
     fun redo() {
@@ -839,12 +924,17 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
+        val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    replaceImage(
+                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                    )
                 }
 
                 override fun onImageLoaded(drawable: Drawable?) {
@@ -862,19 +952,22 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            imageGetter?.loadImage(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            imageGetter?.loadImage(it.getSource(), callbacks, maxDimension, minImagesWidth)
         }
     }
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = ContextCompat.getDrawable(context, drawableLoading)
+        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
+        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
+        // the wrong value when used in 3rd party app
+        val maxDimension = maxImagesWidth
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
@@ -892,7 +985,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                     }
                 }
             }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, this@AztecText.maxImagesWidth, this@AztecText.minImagesWidth)
+            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, maxImagesWidth, minImagesWidth)
 
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)
@@ -987,6 +1080,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         unknownHtmlSpans.forEach {
             it.onUnknownHtmlTappedListener = this
         }
+
+        if (!commentsVisible) {
+            val commentSpans = editable.getSpans(start, end, CommentSpan::class.java)
+            commentSpans.forEach {
+                val wrapper = SpanWrapper(editable, it)
+                wrapper.span.isHidden = true
+                editable.replace(wrapper.start, wrapper.end, Constants.MAGIC_STRING)
+            }
+        }
     }
 
     fun disableTextChangedListener() {
@@ -995,6 +1097,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun enableTextChangedListener() {
         consumeEditEvent = false
+    }
+
+    fun disableObservationQueue() {
+        bypassObservationQueue = true
+    }
+
+    fun enableObservationQueue() {
+        bypassObservationQueue = false
     }
 
     fun isTextChangedListenerDisabled(): Boolean {
@@ -1261,11 +1371,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             disableTextChangedListener()
 
             text.removeSpan(unknownHtmlSpan)
-            text.replace(spanStart, spanStart + 1, textBuilder)
-
             val unknownClickSpan = text.getSpans(spanStart, spanStart + 1, UnknownClickableSpan::class.java).firstOrNull()
             if (unknownClickSpan != null) {
                 text.removeSpan(unknownClickSpan)
+            }
+
+            text.replace(spanStart, spanStart + 1, textBuilder)
+
+            val newUnknownSpan = textBuilder.getSpans(0, textBuilder.length, UnknownHtmlSpan::class.java).firstOrNull()
+            if (newUnknownSpan != null) {
+                newUnknownSpan.onUnknownHtmlTappedListener = this
             }
 
             enableTextChangedListener()
@@ -1400,5 +1515,18 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun onUnknownHtmlTapped(unknownHtmlSpan: UnknownHtmlSpan) {
         showBlockEditorDialog(unknownHtmlSpan)
+    }
+
+    override fun executeEvent(data: TextWatcherEvent) {
+        disableObservationQueue()
+
+        if (data is TextWatcherEventInsertText) {
+            // here replace the inserted thing with a new "normal" insertion
+            val afterData = data.afterEventData
+            setText(afterData.textAfter)
+            setSelection(data.insertionStart+data.insertionLength)
+        }
+
+        enableObservationQueue()
     }
 }

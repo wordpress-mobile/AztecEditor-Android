@@ -2,8 +2,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="FormatBarButton">
-        <item name="android:minWidth">@dimen/format_bar_height</item>
-        <item name="android:minHeight">@dimen/format_bar_height</item>
+        <item name="android:minWidth">@dimen/aztec_format_bar_height</item>
+        <item name="android:minHeight">@dimen/aztec_format_bar_height</item>
         <item name="android:textOn">@null</item>
         <item name="android:textOff">@null</item>
     </style>

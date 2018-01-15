@@ -770,7 +770,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         if (!wasCommentHandled) {
             spannableStringBuilder.append(comment);
             spannableStringBuilder.setSpan(
-                    new CommentSpan(),
+                    new CommentSpan(comment),
                     spanStart,
                     spannableStringBuilder.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

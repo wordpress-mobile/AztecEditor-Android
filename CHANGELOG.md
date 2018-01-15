@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.0](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0) - 2018-01-11
+### Fixed
+- Various problems when editing captions
+- Crash when copy/pasting certain text
+- Crash when applying <hr>
+- Cursor position after adding special comments or <hr>
+- Image/video placeholder dimensions
+- Problem when tapping an unknown element placeholder did not show the editor
+- Text styling error when inserting a space before a formatted text
+
+### Added
+- VideoPress shortcode support
+- Support for style attribute interpretation of CSS (text color)
+- Ability to hide HTML comments in visual mode
+- New media toolbar menu
+
+### Changed
+- Automatic caption deletion when it's empty
+- Deleting an image now removes the caption
+
 ## [1.0-beta.12](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0-beta.12) - 2017-12-06
 ### Fixed
 - Text handling following immediately after images

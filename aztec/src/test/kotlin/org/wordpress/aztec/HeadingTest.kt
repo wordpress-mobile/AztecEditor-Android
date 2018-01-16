@@ -590,4 +590,41 @@ class HeadingTest {
 
         Assert.assertEquals("<br><h1>H</h1>", editText.toHtml())
     }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingNewlineBeforeHeading() {
+        editText.fromHtml("<br><h1>H</h1>")
+
+        editText.text.delete(0, 1)
+
+        Assert.assertEquals("H", editText.text.toString())
+
+        Assert.assertEquals("<h1>H</h1>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingNewlineBeforeHeadingWithInlineElementAbove() {
+        editText.fromHtml("<b>bold</b><h1>H</h1>")
+
+        editText.text.delete(3, 5)
+
+        Assert.assertEquals("bolH", editText.text.toString())
+
+        Assert.assertEquals("<b>bol</b>H", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testDeletingNewlineBeforeHeadingWithInlineElementAndEmptyLineAbove() {
+        editText.fromHtml("<b>bold</b><br><br><h1>H</h1>")
+
+        editText.text.delete(5, 6)
+
+        Assert.assertEquals("bold\nH", editText.text.toString())
+
+        Assert.assertEquals("<b>bold</b><h1>H</h1>", editText.toHtml())
+    }
 }

@@ -162,6 +162,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     private fun applySpan(span: IAztecInlineSpan, start: Int, end: Int, type: Int) {
         if (start > end) {
+            // If an external logger is available log the error there.
+            val extLogger = editor.externalLogger
+            if (extLogger != null) {
+                extLogger.log("InlineFormatter.applySpan - setSpan has end before start." +
+                        " Start:" + start + " End:" + end)
+                extLogger.log("Logging the whole content" + editor.toPlainHtml())
+            }
+            // Now log in the default log
             AppLog.w(AppLog.T.EDITOR, "InlineFormatter.applySpan - setSpan has end before start." +
                     " Start:" + start + " End:" + end)
             AppLog.w(AppLog.T.EDITOR, "Logging the whole content" + editor.toPlainHtml())

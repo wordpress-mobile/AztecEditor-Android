@@ -84,6 +84,7 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
@@ -171,6 +172,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
+    var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false

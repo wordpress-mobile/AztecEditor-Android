@@ -160,7 +160,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var consumeSelectionChangedEvent: Boolean = false
-    private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
 
@@ -180,6 +179,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
+
+    var consumeHistoryEvent: Boolean = false
 
     private var unknownBlockSpanStart = -1
 

@@ -89,8 +89,10 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }
 
+        // prev newline needs to be at the same nesting level to account for "double-enter"
         if (text[newlineIndex - 1] == Constants.NEWLINE
-                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) == IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1) // prev newline needs to be at the same nesting level to account for "double-enter"
+                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) ==
+                    IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1)
                 && atEndOfBlock) {
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }

@@ -591,7 +591,6 @@ class HeadingTest {
         Assert.assertEquals("<br><h1>H</h1>", editText.toHtml())
     }
 
-
     @Test
     @Throws(Exception::class)
     fun testDeletingNewlineBeforeHeading() {

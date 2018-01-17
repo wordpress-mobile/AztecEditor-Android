@@ -12,13 +12,13 @@ import org.wordpress.aztec.spans.HiddenHtmlSpan
 class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
 
     private val SPAN_TAG = "span"
+    private val UNDERLINE_STYLE_VALUE = "underline"
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).forEach {
-            val attrs = AztecAttributes()
-            attrs.setValue(InlineCssStyleFormatter.STYLE_ATTRIBUTE, "${InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE}: underline")
+            InlineCssStyleFormatter.addStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
 
-            val calypsoUnderlineSpan = HiddenHtmlSpan(SPAN_TAG, attrs, 0)
+            val calypsoUnderlineSpan = HiddenHtmlSpan(SPAN_TAG, it.attributes, 0)
             spannable.setSpan(calypsoUnderlineSpan, spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spannable.removeSpan(it)
         }
@@ -26,8 +26,8 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
 
     override fun afterSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
-            if (it.TAG == SPAN_TAG && InlineCssStyleFormatter.containsUnderlineDecorationStyle(it.attributes)) {
-                InlineCssStyleFormatter.removeStyle(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
+            if (it.TAG == SPAN_TAG && InlineCssStyleFormatter.containsStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                InlineCssStyleFormatter.removeStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
                 spannable.setSpan(AztecUnderlineSpan(), spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 if (it.attributes.isEmpty()) {

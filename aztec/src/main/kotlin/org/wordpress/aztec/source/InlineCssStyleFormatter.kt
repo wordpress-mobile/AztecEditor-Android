@@ -6,6 +6,7 @@ import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.util.ColorConverter
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
@@ -33,14 +34,8 @@ class InlineCssStyleFormatter {
          * @param [start] The index where the [IAztecAttributedSpan] starts inside the [text].
          */
         fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int, end: Int) {
-            if (attributes.hasAttribute(STYLE_ATTRIBUTE)) {
-
-                if (start != end) {
-                    // Process the CSS 'color' property, remove any whitespace or newline characters
-                    val style = attributes.getValue("", STYLE_ATTRIBUTE).replace("\\s".toRegex(), "")
-
-                    processColor(style, text, start, end)
-                }
+            if (attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
+                processColor(attributes, text, start, end)
             }
         }
 
@@ -49,41 +44,51 @@ class InlineCssStyleFormatter {
                     "(?:;|\\A)$styleAttr:(.+?)(?:;|$)", Pattern.CASE_INSENSITIVE or Pattern.MULTILINE)
         }
 
-        private fun processColor(style: String, text: Editable, start: Int, end: Int) {
-            val m = getPattern(CSS_COLOR_ATTRIBUTE).matcher(style)
-            if (m.find()) {
-                val colorString = m.group(1)
-                val colorInt = ColorConverter.getColorInt(colorString)
+        private fun getMatcher(attributes: AztecAttributes, styleAttributeName: String): Matcher {
+            val style = (attributes.getValue(STYLE_ATTRIBUTE) ?: "").replace("\\s".toRegex(), "")
+            return getPattern(styleAttributeName).matcher(style)
+        }
+
+        private fun processColor(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
+            val colorAttrValue = getStyleAttribute(attributes, CSS_COLOR_ATTRIBUTE)
+            if (!colorAttrValue.isBlank()) {
+                val colorInt = ColorConverter.getColorInt(colorAttrValue)
                 if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
                     text.setSpan(ForegroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
 
-        fun containsUnderlineDecorationStyle(attributes: AztecAttributes): Boolean {
-            if (attributes.hasAttribute(STYLE_ATTRIBUTE)) {
-                val style = attributes.getValue(STYLE_ATTRIBUTE).replace("\\s".toRegex(), "")
-                val m = getPattern(CSS_TEXT_DECORATION_ATTRIBUTE).matcher(style)
-                return m.find()
-            }
-            return false
+        fun containsStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): Boolean {
+            return attributes.hasAttribute(STYLE_ATTRIBUTE) && getMatcher(attributes, styleAttributeName).find()
         }
 
-        fun removeStyle(attributes: AztecAttributes, styleAttributeName: String) {
+        fun removeStyleAttribute(attributes: AztecAttributes, styleAttributeName: String) {
             if (attributes.hasAttribute(STYLE_ATTRIBUTE)) {
-                val style = attributes.getValue(STYLE_ATTRIBUTE).replace("\\s".toRegex(), "")
-                val m = getPattern(styleAttributeName).matcher(style)
-                val newStyle = m.replaceAll("")
+                val m = getMatcher(attributes, styleAttributeName)
+                var newStyle = m.replaceAll("")
 
                 if (newStyle.isBlank()) {
                     attributes.removeAttribute(STYLE_ATTRIBUTE)
                 } else {
-                    attributes.setValue(STYLE_ATTRIBUTE, m.replaceAll(""))
+                    newStyle = newStyle.replace(";(.?)".toRegex(), "; ($1)")
+                    newStyle = newStyle.replace(":".toRegex(), ": ")
+                    attributes.setValue(STYLE_ATTRIBUTE, newStyle)
                 }
             }
         }
 
-        fun addStyle(attributes: AztecAttributes, styleAttribute: String) {
+        fun getStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): String {
+            val m = getMatcher(attributes, styleAttributeName)
+
+            var styleAttributeValue = ""
+            if (m.find()) {
+                styleAttributeValue = m.group(1)
+            }
+            return styleAttributeValue
+        }
+
+        fun addStyleAttribute(attributes: AztecAttributes, styleAttributeName: String, styleAttributeValue: String) {
             var style = attributes.getValue(STYLE_ATTRIBUTE) ?: ""
             style = style.trim()
 
@@ -91,7 +96,7 @@ class InlineCssStyleFormatter {
                 style += "; "
             }
 
-            style += styleAttribute
+            style += "$styleAttributeName: $styleAttributeValue"
             attributes.setValue(STYLE_ATTRIBUTE, style)
         }
     }

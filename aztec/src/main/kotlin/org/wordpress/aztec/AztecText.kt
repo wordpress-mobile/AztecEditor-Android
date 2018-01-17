@@ -869,6 +869,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             return
         }
 
+        //TODO REMOVE THIS
+        if (text.length == 1 && text[0] == 'h') {
+            throw Exception("test message exception")
+        }
+
         if (!bypassObservationQueue) {
             val textCopy = Editable.Factory.getInstance().newEditable(editableText)
             val data = AfterTextChangedEventData(textCopy)

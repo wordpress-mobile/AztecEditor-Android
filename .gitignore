@@ -47,7 +47,7 @@ annotations/
 !/.idea/externalDependencies.xml
 
 # OS generated
-/.DS_Store
+.DS_Store
 
 # Kotlin lint
 ktlint

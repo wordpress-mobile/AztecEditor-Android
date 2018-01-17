@@ -135,6 +135,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         val DEFAULT_IMAGE_WIDTH = 800
 
+        var watchersNestingLevel: Int = 0
+
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
             val drawable = ContextCompat.getDrawable(context, drawableId)
             var bitmap: Bitmap
@@ -843,10 +845,25 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         formatToolbar = toolbar
     }
 
+    private fun addWatcherNestingLevel() : Int {
+        watchersNestingLevel++
+        return watchersNestingLevel
+    }
+
+    private fun subWatcherNestingLevel() : Int {
+        watchersNestingLevel--
+        return watchersNestingLevel
+    }
+
+    private fun isEventObservableCandidate() : Boolean {
+        return (!bypassObservationQueue && (watchersNestingLevel == 1))
+    }
+
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+        addWatcherNestingLevel()
         if (!isViewInitialized) return
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             // we need to make a copy to preserve the contents as they were before the change
             val textCopy = SpannableStringBuilder(text)
             val data = BeforeTextChangedEventData(textCopy, start, count, after)
@@ -857,7 +874,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             val textCopy = SpannableStringBuilder(text)
             val data = OnTextChangedEventData(textCopy, start, before, count)
             textWatcherEventBuilder.onEventData = data
@@ -866,10 +883,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
+            subWatcherNestingLevel()
             return
         }
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             val textCopy = Editable.Factory.getInstance().newEditable(editableText)
             val data = AfterTextChangedEventData(textCopy)
             textWatcherEventBuilder.afterEventData = data
@@ -877,6 +895,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
             observationQueue.add(textWatcherEventBuilder.build())
         }
+        subWatcherNestingLevel()
     }
 
     fun redo() {

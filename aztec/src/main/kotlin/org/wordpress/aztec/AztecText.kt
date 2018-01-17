@@ -879,10 +879,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
                 // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
                 extLogger.logException(Exception("InlineFormatter.applySpan - setSpan has end before start." +
-                        " Start:" + 33 + " End:" + 0))
+                        " Start: " + 33 + " End: " + 0))
 
                 // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
-                extLogger.logException(Exception("InlineFormatter.applySpan - Logging the whole content" + toPlainHtml()))
+                extLogger.logException(Exception("InlineFormatter.applySpan - Logging the whole content: " + toPlainHtml()))
 
             }
         }

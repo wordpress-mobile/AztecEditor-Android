@@ -25,7 +25,6 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.support.v4.content.ContextCompat
 import android.text.Editable
-import android.text.Spannable
 import android.text.Spanned
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
@@ -44,7 +43,6 @@ import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
-import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.getLast

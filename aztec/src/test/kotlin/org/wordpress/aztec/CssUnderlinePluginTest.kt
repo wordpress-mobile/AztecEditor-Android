@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.widget.ToggleButton
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -11,9 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.source.InlineCssStyleFormatter
-import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.spans.AztecUnderlineSpan
-import org.wordpress.aztec.toolbar.AztecToolbar
 
 /**
  * Combined test for toolbar and inline styles.

@@ -44,20 +44,15 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecSpan
 import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
-import java.util.Arrays
 import java.util.Collections
 import java.util.Comparator
-import java.util.TreeMap
 
 class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
-    internal var hiddenIndex = 0
-    internal var closeMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
-    internal var openMap: TreeMap<Int, HiddenHtmlSpan> = TreeMap()
-    internal var hiddenSpans: IntArray = IntArray(0)
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
@@ -77,38 +72,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     fun toHtml(text: Spanned, withCursor: Boolean = false): String {
         val out = StringBuilder()
 
-        val spannable = SpannableStringBuilder(text)
-        preprocessSpans(spannable)
+        val data = SpannableStringBuilder(text)
+        preprocessSpans(data)
 
         // remove any ForegroundColorSpans since they are not needed for parsing html.
-        clearForegroundColorSpans(spannable)
-
-        // add a marker to the end of the text to aid nested group parsing
-        val data = spannable.append(Constants.ZWJ_CHAR)
-
-        // if there is no list or hidden html span at the end of the text, then we don't need zwj
-        if (data.getSpans(data.length - 1, data.length, HiddenHtmlSpan::class.java).isEmpty() &&
-                data.getSpans(data.length - 1, data.length, AztecListSpan::class.java).isEmpty()) {
-            data.delete(data.length - 1, data.length)
-        }
-
-        resetHiddenTagParser(data)
-
-        val hidden = data.getSpans(0, data.length, HiddenHtmlSpan::class.java)
-        hiddenSpans = IntArray(hidden.size * 2)
-        hidden.forEach {
-            hiddenSpans[hiddenIndex++] = it.startOrder
-            hiddenSpans[hiddenIndex++] = it.endOrder
-
-            // make sure every hidden span is attached to a character
-            val start = data.getSpanStart(it)
-            val end = data.getSpanEnd(it)
-            if (start == end && data[start] == '\n') {
-                data.insert(start, "" + Constants.MAGIC_CHAR)
-            }
-        }
-        hiddenIndex = 0
-        Arrays.sort(hiddenSpans)
+        clearForegroundColorSpans(data)
 
         if (!withCursor) {
             val cursorSpan = data.getSpans(0, data.length, AztecCursorSpan::class.java).firstOrNull()
@@ -332,18 +300,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         text.getSpans(0, text.length, IAztecNestable::class.java).forEach { it.nestingLevel -= 2 }
     }
 
-    private fun resetHiddenTagParser(text: Spanned) {
-        // keeps track of the next span to be closed
-        hiddenIndex = 0
-
-        // keeps the spans, which will be closed in the future, using the closing order index as key
-        closeMap.clear()
-        openMap.clear()
-
-        val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
-        spans.forEach(HiddenHtmlSpan::reset)
-    }
-
     private fun withinHtml(out: StringBuilder, text: Spanned) {
         withinHtml(out, text, 0, text.length, null, -1)
     }
@@ -355,11 +311,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         var parents: ArrayList<IAztecNestable>?
 
         do {
-            val paragraphs = text.getSpans(i, end, IAztecNestable::class.java)
+            val nestableElements = text.getSpans(i, end, IAztecNestable::class.java)
                     .filter { it !is IAztecFullWidthImageSpan }
                     .toTypedArray()
 
-            paragraphs.sortWith(Comparator { a, b ->
+            nestableElements.sortWith(Comparator { a, b ->
                 val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
                 if (startComparison == 0) {
                     val nestingComparison = a.nestingLevel.compareTo(b.nestingLevel)
@@ -374,27 +330,28 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                     return@Comparator startComparison
                 }
             })
-            var paragraph = paragraphs.firstOrNull { it.nestingLevel > nestingLevel }
+            var nestable = nestableElements.firstOrNull { it.nestingLevel > nestingLevel }
 
-            if (paragraph == null) {
-                // no paragraph found so, just consume all available chars
+            if (nestable == null) {
+                // no nestable found so, just consume all available chars
                 next = end
                 parents = grandParents
-            } else if (text.getSpanStart(paragraph) > i) {
-                // the start of the paragraph is further down so, we'll handle it at next iteration.
-                next = text.getSpanStart(paragraph)
-                paragraph = null
+            } else if (text.getSpanStart(nestable) > i) {
+                // the start of the nestable is further down so, we'll handle it at next iteration.
+                next = text.getSpanStart(nestable)
+                nestable = null
                 parents = grandParents
             } else {
-                // nice, we found the start of a paragraph so, prepare to go deeper to parse it
-                next = text.getSpanEnd(paragraph)
+                // nice, we found the start of a nestable so, prepare to go deeper to parse it
+                next = text.getSpanEnd(nestable)
                 parents = ArrayList<IAztecNestable>(grandParents ?: ArrayList())
-                parents.add(paragraph)
+                parents.add(nestable)
             }
 
-            when (paragraph) {
-                is IAztecBlockSpan -> withinBlock(out, text, i, next, paragraph, parents, paragraph.nestingLevel)
-                is UnknownHtmlSpan -> withinUnknown(out, text, i, next, paragraph)
+            when (nestable) {
+                is HiddenHtmlSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
+                is IAztecBlockSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
+                is UnknownHtmlSpan -> withinUnknown(out, text, i, next, nestable)
                 else -> withinContent(out, text, i, next, parents)
             }
 
@@ -410,16 +367,16 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         consumeCursorIfInInput(out, text, end)
     }
 
-    private fun withinBlock(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                            blockSpan: IAztecBlockSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
-        out.append("<${blockSpan.startTag}>")
+    private fun withinNestable(out: StringBuilder, text: Spanned, start: Int, end: Int,
+                               nestable: IAztecSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+        out.append("<${nestable.startTag}>")
         withinHtml(out, text, start, end, parents, nestingLevel)
-        out.append("</${blockSpan.endTag}>")
+        out.append("</${nestable.endTag}>")
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE
                 && text.getSpans(end - 1, end, AztecVisualLinebreak::class.java).isEmpty()
-                && !(parents?.any { it != blockSpan && text.getSpanEnd(it) == end } ?: false)) {
+                && !(parents?.any { it != nestable && text.getSpanEnd(it) == end } ?: false)) {
             out.append("<br>")
         }
     }
@@ -462,6 +419,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         while (i < end || start == end) {
             next = text.nextSpanTransition(i, end, CharacterStyle::class.java)
 
+            if (i == next)
+                break
+
             val spans = text.getSpans(i, next, CharacterStyle::class.java).toMutableList()
 
             fixOrderOfNestedMediaAndUrlSpans(spans, text)
@@ -499,10 +459,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                     out.append(span.getHtml())
                     i = next
                 }
-
-                if (span is HiddenHtmlSpan) {
-                    parseHiddenSpans(i, out, span, text)
-                }
             }
 
             withinStyle(out, text, i, next, nl)
@@ -523,10 +479,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                         .forEach {
                             it.handleSpanEnd(out, span)
                         }
-
-                if (span is HiddenHtmlSpan) {
-                    parseHiddenSpans(next, out, span, text)
-                }
             }
 
             if (start == end)
@@ -561,39 +513,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
             }
         }
-    }
-
-    private fun parseHiddenSpans(position: Int, out: StringBuilder, span: HiddenHtmlSpan, text: Spanned) {
-        closeMap.put(span.endOrder, span)
-        openMap.put(span.startOrder, span)
-
-        var last: Int
-        do {
-            last = hiddenIndex
-
-            if (hiddenIndex >= hiddenSpans.size)
-                break
-
-            val nextSpanIndex = hiddenSpans[hiddenIndex]
-
-            if (openMap.contains(nextSpanIndex)) {
-                val nextSpan = openMap[nextSpanIndex]!!
-                if (!nextSpan.isOpened && text.getSpanStart(nextSpan) == position) {
-                    out.append("<${nextSpan.startTag}>")
-                    nextSpan.open()
-                    hiddenIndex++
-                }
-            }
-
-            if (closeMap.containsKey(nextSpanIndex)) {
-                val nextSpan = closeMap[nextSpanIndex]!!
-                if (!nextSpan.isParsed && text.getSpanEnd(nextSpan) == position) {
-                    out.append("</${nextSpan.endTag}>")
-                    nextSpan.parse()
-                    hiddenIndex++
-                }
-            }
-        } while (last != hiddenIndex)
     }
 
     private fun withinStyle(out: StringBuilder, text: CharSequence, start: Int, end: Int, nl: Int) {

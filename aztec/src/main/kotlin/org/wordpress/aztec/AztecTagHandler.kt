@@ -45,6 +45,7 @@ import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
@@ -79,11 +80,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             DIV, SPAN -> {
-                if (opening) {
-                    start(output, HiddenHtmlSpan(tag, AztecAttributes(attributes), order++))
-                } else {
-                    endHidden(output, order++)
-                }
+                handleElement(output, opening, HiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel))
                 return true
             }
             LIST_UL -> {
@@ -181,24 +178,6 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
-    private fun endHidden(output: Editable, order: Int) {
-        val last = getLastOpenHidden(output)
-        if (last != null) {
-            last.close(order)
-            val start = output.getSpanStart(last)
-            val end = output.length
-
-            if (start != end) {
-                output.setSpan(last, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-                // Apply the 'style' attribute if present
-                last.applyInlineStyleAttributes(output, start, end)
-            } else {
-                output.setSpan(last, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-            }
-        }
-    }
-
     private fun end(output: Editable, kind: Class<*>) {
         val last = output.getLast(kind)
         val start = output.getSpanStart(last)
@@ -210,9 +189,13 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 // Apply the 'style' attribute if present
                 last.applyInlineStyleAttributes(output, start, end)
             }
-        } else if (start == end && IAztecBlockSpan::class.java.isAssignableFrom(kind)) {
+        } else if (start == end && IAztecNestable::class.java.isAssignableFrom(kind)) {
             // if block element is empty add a ZWJ to make it non empty and extend span
-            output.append(Constants.ZWJ_CHAR)
+            if (HiddenHtmlSpan::class.java.isAssignableFrom(kind)) {
+                output.append(Constants.MAGIC_CHAR)
+            } else {
+                output.append(Constants.ZWJ_CHAR)
+            }
             output.setSpan(last, start, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
@@ -233,16 +216,5 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val VIDEO = "video"
         private val AUDIO = "audio"
         private val LINE = "hr"
-
-        private fun getLastOpenHidden(text: Editable): HiddenHtmlSpan? {
-            val spans = text.getSpans(0, text.length, HiddenHtmlSpan::class.java)
-
-            if (spans.isEmpty()) {
-                return null
-            } else {
-                spans.sortByDescending { it.startOrder }
-                return spans.firstOrNull { text.getSpanFlags(it) == Spannable.SPAN_MARK_MARK && !(it as HiddenHtmlSpan).isClosed }
-            }
-        }
     }
 }

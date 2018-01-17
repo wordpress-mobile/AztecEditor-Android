@@ -871,7 +871,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         //TODO REMOVE THIS
         if (text.length == 1 && text[0] == 'h') {
-            throw Exception("test message exception")
+            val extLogger = externalLogger
+            if (extLogger != null) {
+                extLogger.log("this is a test log")
+                extLogger.logException(Exception("test message exception"))
+                extLogger.logException(Exception("test message exception2"), "with some more text")
+            }
         }
 
         if (!bypassObservationQueue) {

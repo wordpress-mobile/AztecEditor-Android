@@ -165,20 +165,11 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             // If an external logger is available log the error there.
             val extLogger = editor.externalLogger
             if (extLogger != null) {
-                try {
-                    // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
-                    throw Exception("InlineFormatter.applySpan - setSpan has end before start." +
-                            " Start:" + start + " End:" + end)
-                } catch (e: Exception) {
-                    extLogger.logException(e)
-                }
+                // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
+                extLogger.logException(Exception("InlineFormatter.applySpan - setSpan has end before start." +
+                        " Start:" + start + " End:" + end))
 
-                try {
-                    // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
-                    throw Exception("InlineFormatter.applySpan - Logging the whole content" + editor.toPlainHtml())
-                } catch (e: Exception) {
-                    extLogger.logException(e)
-                }
+                extLogger.logException(Exception("InlineFormatter.applySpan - Logging the whole content" + editor.toPlainHtml()))
             }
             // Now log in the default log
             AppLog.w(AppLog.T.EDITOR, "InlineFormatter.applySpan - setSpan has end before start." +

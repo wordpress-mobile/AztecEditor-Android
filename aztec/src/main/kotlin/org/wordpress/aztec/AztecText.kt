@@ -870,12 +870,20 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         //TODO REMOVE THIS
-        if (text.length == 1 && text[0] == 'h') {
+        if (text.length > 0 && text.startsWith("hello this is a test", ignoreCase = true)) {
             val extLogger = externalLogger
             if (extLogger != null) {
                 extLogger.log("this is a test log")
                 extLogger.logException(Exception("test message exception"))
                 extLogger.logException(Exception("test message exception2"), "with some more text")
+
+                // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
+                extLogger.logException(Exception("InlineFormatter.applySpan - setSpan has end before start." +
+                        " Start:" + 33 + " End:" + 0))
+
+                // logging all the data in 1 exception to reduce possibility of information not travelling to Crashlytics
+                extLogger.logException(Exception("InlineFormatter.applySpan - Logging the whole content" + toPlainHtml()))
+
             }
         }
 

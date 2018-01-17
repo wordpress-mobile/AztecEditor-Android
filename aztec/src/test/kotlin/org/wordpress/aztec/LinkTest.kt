@@ -234,6 +234,6 @@ class LinkTest {
         editText.selectAll()
         editText.link("http://link", editText.getSelectedText())
 
-        Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><a href=\"http://link\"><span>Span</span></a><br><a href=\"http://link\">Hidden</a></div>", editText.toHtml())
+        Assert.assertEquals("<div class=\"third\"><a href=\"http://link\">Div</a><br><span><a href=\"http://link\">Span</a></span><br><a href=\"http://link\">Hidden</a></div>", editText.toHtml())
     }
 }

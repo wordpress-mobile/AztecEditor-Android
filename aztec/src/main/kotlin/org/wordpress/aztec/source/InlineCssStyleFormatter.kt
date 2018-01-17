@@ -99,5 +99,15 @@ class InlineCssStyleFormatter {
             style += "$styleAttributeName: $styleAttributeValue"
             attributes.setValue(STYLE_ATTRIBUTE, style)
         }
+
+        fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {
+            var style = firstStyle.trim()
+
+            if (!style.isEmpty() && !style.endsWith(";")) {
+                style += "; "
+            }
+
+            return style + secondStyle
+        }
     }
 }

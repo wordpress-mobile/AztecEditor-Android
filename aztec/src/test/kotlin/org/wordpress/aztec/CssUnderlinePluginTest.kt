@@ -22,12 +22,10 @@ class CssUnderlinePluginTest {
 
     private val REGULAR_UNDERLINE_HTML = "<u>Underline</u>"
     private val REGULAR_UNDERLINE_WITH_STYLES_HTML = "<u style=\"color: green\">Underline</u>"
-    private val CSS_STYLE_UNDERLINE_HTML = "<span style=\"text-decoration: underline\">Underline</span>"
     private val CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML = "<span style=\"color: green; text-decoration: underline\">Underline</span>"
-    private val COMPLEX_HTML = "<span style=\"test: value\">$REGULAR_UNDERLINE_WITH_STYLES_HTML</span>"
-    private val COMPLEX_DIV_HTML = "<div style=\"test: value\">$REGULAR_UNDERLINE_WITH_STYLES_HTML</div>"
-    private val COMPLEX_DIV_HTML_CONVERTED = "<div style=\"test: value\">$CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML</div>"
-    private val CSS_STYLE_UNDERLINE_WITH_EVEN_MORE_STYLES_HTML = "<span style=\"test: value; color: green; text-decoration: underline\">Underline</span>"
+    private val COMPLEX_HTML = "<span style=\"test: value\">$CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML</span>"
+    private val COMPLEX_REGULAR_DIV_HTML = "<div style=\"test: value\">$REGULAR_UNDERLINE_WITH_STYLES_HTML</div>"
+    private val COMPLEX_CSS_DIV_HTML = "<div style=\"test: value\">$CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML</div>"
     private val CSS_STYLE_UNDERLINE_WITH_EVEN_MORE_STYLES_REORDERED_HTML = "<span style=\"color: green; test: value; text-decoration: underline\">Underline</span>"
     private val CSS_UNDERLINE_INSIDE_BOLD = "<b><span style=\"color: lime; text-decoration: underline\">Underline</span></b>"
     private val CSS_UNDERLINE_OUTSIDE_BOLD = "<span style=\"color: lime; text-decoration: underline\"><b>Underline</b></span>"
@@ -52,19 +50,13 @@ class CssUnderlinePluginTest {
     @Test
     fun testRegularUnderlineToCssConversion() {
         editText.fromHtml(REGULAR_UNDERLINE_HTML)
-        Assert.assertEquals(CSS_STYLE_UNDERLINE_HTML, editText.toPlainHtml())
+        Assert.assertEquals(REGULAR_UNDERLINE_HTML, editText.toPlainHtml())
     }
 
     @Test
     fun testCssToCssUnderlineConversion() {
         editText.fromHtml(REGULAR_UNDERLINE_WITH_STYLES_HTML)
-        Assert.assertEquals(CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML, editText.toPlainHtml())
-    }
-
-    @Test
-    fun testRegularUnderlineToComplexCssUnderlineConversion() {
-        editText.fromHtml(REGULAR_UNDERLINE_WITH_STYLES_HTML)
-        Assert.assertEquals(CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML, editText.toPlainHtml())
+        Assert.assertEquals(REGULAR_UNDERLINE_WITH_STYLES_HTML, editText.toPlainHtml())
     }
 
     @Test
@@ -86,12 +78,18 @@ class CssUnderlinePluginTest {
     @Test
     fun testConversionWhenUnderlineWithExtraStyleInsideSpan() {
         editText.fromHtml(COMPLEX_HTML)
-        Assert.assertEquals(CSS_STYLE_UNDERLINE_WITH_EVEN_MORE_STYLES_HTML, editText.toPlainHtml())
+        Assert.assertEquals(COMPLEX_HTML, editText.toPlainHtml())
     }
 
     @Test
-    fun testConversionWhenUnderlineWithExtraStyleInsideDiv() {
-        editText.fromHtml(COMPLEX_DIV_HTML)
-        Assert.assertEquals(COMPLEX_DIV_HTML_CONVERTED, editText.toPlainHtml())
+    fun testWhenRegularUnderlineWithExtraStyleInsideDiv() {
+        editText.fromHtml(COMPLEX_REGULAR_DIV_HTML)
+        Assert.assertEquals(COMPLEX_REGULAR_DIV_HTML, editText.toPlainHtml())
+    }
+
+    @Test
+    fun testWhenCssUnderlineWithExtraStyleInsideDiv() {
+        editText.fromHtml(COMPLEX_CSS_DIV_HTML)
+        Assert.assertEquals(COMPLEX_CSS_DIV_HTML, editText.toPlainHtml())
     }
 }

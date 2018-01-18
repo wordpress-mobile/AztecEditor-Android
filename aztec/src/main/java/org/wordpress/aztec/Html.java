@@ -279,15 +279,8 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     }
 
     private void handleStartTag(String tag, Attributes attributes, int nestingLevel) {
-        if (contentHandlerLevel != 0) {
-            if (tag.equalsIgnoreCase("aztec_cursor")) {
-                handleCursor(spannableStringBuilder);
-                return;
-            }
-            // Swallow opening tag and attributes in current Unknown element
-            content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
-            contentHandlerLevel += 1;
-            return;
+        if (handleContentStart(tag, attributes)) {
+            return; // content was handled
         }
 
         if (tagHandler != null) {
@@ -341,29 +334,49 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
             // Initialize a new "Unknown" node
             if (contentHandlerLevel == 0) {
-                for (IAztecPlugin plugin : plugins) {
-                    if (plugin instanceof IHtmlContentHandler) {
-                        IHtmlContentHandler contentHandler = ((IHtmlContentHandler)plugin);
-                        if (contentHandler.canHandleTag(tag.toLowerCase())) {
-                            contentHandlerPlugin = contentHandler;
-                            break;
-                        }
-                    }
-                }
-
-                contentHandlerLevel = 1;
-                content = new ContentHandler();
-                content.rawHtml = new StringBuilder();
-                content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
-
-                spannableStringBuilder.setSpan(content, spannableStringBuilder.length(),
-                        spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
+                startHandlingContent(tag, attributes);
             }
         }
     }
 
+    private boolean handleContentStart(String tag, Attributes attributes) {
+        if (contentHandlerLevel != 0) {
+            if (tag.equalsIgnoreCase("aztec_cursor")) {
+                handleCursor(spannableStringBuilder);
+                return true;
+            }
+
+            // Swallow opening tag and attributes in current Unknown element
+            content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+            contentHandlerLevel += 1;
+            return true;
+        } else {
+            for (IAztecPlugin plugin : plugins) {
+                if (plugin instanceof IHtmlContentHandler) {
+                    IHtmlContentHandler contentHandler = ((IHtmlContentHandler)plugin);
+                    if (contentHandler.canHandleTag(tag.toLowerCase())) {
+                        contentHandlerPlugin = contentHandler;
+                        startHandlingContent(tag, attributes);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void startHandlingContent(String tag, Attributes attributes) {
+        contentHandlerLevel = 1;
+        content = new ContentHandler();
+        content.rawHtml = new StringBuilder();
+        content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+
+        spannableStringBuilder.setSpan(content, spannableStringBuilder.length(),
+                spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
+    }
+
     private void handleEndTag(String tag, int nestingLevel) {
-        if (handleContent(tag, nestingLevel)) {
+        if (handleContentEnd(tag, nestingLevel)) {
             return;
         }
 
@@ -414,7 +427,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         }
     }
 
-    private boolean handleContent(String tag, int nestingLevel) {
+    private boolean handleContentEnd(String tag, int nestingLevel) {
         // Content handler tag previously detected
         if (contentHandlerLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {

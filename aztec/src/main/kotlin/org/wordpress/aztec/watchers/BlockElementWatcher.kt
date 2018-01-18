@@ -33,17 +33,19 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                     val spannable = text as Spannable
                     val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java).filter { it.start == deleteEnd }
 
-                    // save the text state before the funky business, then skip the history
-                    val aztecText = aztecTextRef.get()
-                    aztecText?.let {
-                        aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
-                        aztecText.consumeHistoryEvent = false
+                    if (spans.isNotEmpty()) {
+                        // save the text state before the funky business, then skip the history
+                        val aztecText = aztecTextRef.get()
+                        aztecText?.let {
+                            aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
+                            aztecText.consumeHistoryEvent = false
 
-                        spans.forEach {
-                            spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes, (it.span as AztecHeadingSpan).headerStyle), deleteEnd - 1, deleteEnd, it.flags)
+                            spans.forEach {
+                                spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes, (it.span as AztecHeadingSpan).headerStyle), deleteEnd - 1, deleteEnd, it.flags)
+                            }
+
+                            aztecText.consumeHistoryEvent = true
                         }
-
-                        aztecText.consumeHistoryEvent = true
                     }
                 }
             }

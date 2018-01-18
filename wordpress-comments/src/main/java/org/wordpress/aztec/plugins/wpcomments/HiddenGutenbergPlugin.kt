@@ -4,48 +4,42 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.plugins.html2visual.IHtmlContentHandler
-import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
+import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
-import org.wordpress.aztec.plugins.wpcomments.spans.GutenbergBlockSpan
+import org.wordpress.aztec.plugins.wpcomments.spans.GutenbergCommentSpan
 
-class HiddenGutenbergPlugin : IInlineSpanHandler, IHtmlContentHandler, IHtmlPreprocessor {
-    private val TAG = "wp-gutenberg-block"
+class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
 
-    override fun canHandleTag(tag: String): Boolean {
-        return tag == TAG
-    }
+    override fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
+        if (text.trimStart().startsWith("wp:", true) ||
+                text.trimStart().startsWith("/wp:", true)) {
+            val spanStart = output.length
+            output.append(Constants.MAGIC_CHAR)
 
-    override fun handleContent(content: String, output: Editable, nestingLevel: Int) {
-        val spanStart = output.length
-        output.append(Constants.ZERO_WIDTH_PLACEHOLDER_STRING)
-
-        output.setSpan(
-                GutenbergBlockSpan(content.replace(Regex("</?$TAG>"), "")),
-                spanStart,
-                output.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-    }
-
-    override fun beforeHtmlProcessed(source: String): String {
-        val firstChange = source.replace(Regex("(<!-- ?wp:)"), "<$TAG>$1")
-        return firstChange.replace(Regex("(<!-- ?/wp:[^>]*-->)"), "$1</$TAG>")
-    }
-
-    override fun canHandleSpan(span: CharacterStyle): Boolean {
-        return span is GutenbergBlockSpan
-    }
-
-    override fun shouldParseContent(): Boolean {
+            output.setSpan(
+                    GutenbergCommentSpan(text),
+                    spanStart,
+                    output.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            return true
+        }
         return false
     }
 
+    override fun canHandleSpan(span: CharacterStyle): Boolean {
+        return span is GutenbergCommentSpan
+    }
+
+    override fun shouldParseContent(): Boolean {
+        return true
+    }
+
     override fun handleSpanStart(html: StringBuilder, span: CharacterStyle) {
+        val gutenbergSpan = span as GutenbergCommentSpan
+        html.append("<!--${gutenbergSpan.content}-->")
     }
 
     override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle) {
-        val gutenbergSpan = span as GutenbergBlockSpan
-        html.append(gutenbergSpan.content)
     }
 }

@@ -15,8 +15,12 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
     private val SPAN_TAG = "span"
     private val UNDERLINE_STYLE_VALUE = "underline"
 
+    init {
+        AztecUnderlineSpan.isCssStyleByDefault = true
+    }
+
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
-        spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).forEach {
+        spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).filter{ it.isCssStyle }.forEach {
             if (!InlineCssStyleFormatter.containsStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
                 InlineCssStyleFormatter.addStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
             }

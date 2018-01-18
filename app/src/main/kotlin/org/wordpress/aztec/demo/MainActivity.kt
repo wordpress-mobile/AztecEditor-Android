@@ -37,6 +37,7 @@ import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecExceptionHandler
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 import org.wordpress.aztec.IHistoryListener
@@ -57,6 +58,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random
@@ -338,6 +340,15 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
+        visualEditor.externalLogger = object : AztecLog.ExternalLogger {
+            override fun log(message: String) {
+            }
+            override fun logException(tr: Throwable) {
+            }
+            override fun logException(tr: Throwable, message: String) {
+            }
+        }
+
         val galleryButton = MediaToolbarGalleryButton(toolbar)
         galleryButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
@@ -381,6 +392,11 @@ open class MainActivity : AppCompatActivity(),
 
         // initialize the text & HTML
         if (!isRunningTest) {
+            aztec.visualEditor.enableCrashLogging(object : AztecExceptionHandler.ExceptionHandlerHelper {
+                override fun shouldLog(ex: Throwable): Boolean {
+                    return true
+                }
+            })
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
@@ -405,6 +421,11 @@ open class MainActivity : AppCompatActivity(),
         super.onResume()
 
         showActionBarIfNeeded()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        aztec.visualEditor.disableCrashLogging()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

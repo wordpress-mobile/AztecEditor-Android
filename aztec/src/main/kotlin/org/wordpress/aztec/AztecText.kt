@@ -84,6 +84,7 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
@@ -171,6 +172,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
+    var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -215,6 +217,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
+
+    private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -1528,5 +1532,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
 
         enableObservationQueue()
+    }
+
+    fun enableCrashLogging(helper: AztecExceptionHandler.ExceptionHandlerHelper) {
+        this.uncaughtExceptionHandler = AztecExceptionHandler(helper, this)
+    }
+
+    fun disableCrashLogging() {
+        this.uncaughtExceptionHandler?.restoreDefaultHandler()
+        this.uncaughtExceptionHandler = null
     }
 }

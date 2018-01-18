@@ -78,7 +78,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 handleElement(output, opening, AztecStrikethroughSpan(tag, AztecAttributes(attributes)))
                 return true
             }
-            DIV, SPAN -> {
+            DIV, SPAN, FIGURE, FIGCAPTION, SECTION -> {
                 if (opening) {
                     start(output, HiddenHtmlSpan(tag, AztecAttributes(attributes), order++))
                 } else {
@@ -223,6 +223,9 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val STRIKETHROUGH_DEL = "del"
         private val DIV = "div"
         private val SPAN = "span"
+        private val FIGURE = "figure"
+        private val FIGCAPTION = "figcaption"
+        private val SECTION = "section"
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
         private val PREFORMAT = "pre"

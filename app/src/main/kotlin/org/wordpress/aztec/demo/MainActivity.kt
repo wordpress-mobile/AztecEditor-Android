@@ -371,16 +371,17 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(CaptionShortcodePlugin(visualEditor))
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
-            .addPlugin(CssUnderlinePlugin())
             .addPlugin(galleryButton)
             .addPlugin(cameraButton)
 
-        // initialize the text & HTML
+        // initialize the plugins, text & HTML
         if (!isRunningTest) {
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+
+            aztec.addPlugin(CssUnderlinePlugin())
         }
 
         if (savedInstanceState == null) {

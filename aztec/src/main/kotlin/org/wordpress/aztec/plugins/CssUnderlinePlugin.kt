@@ -17,7 +17,9 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).forEach {
-            InlineCssStyleFormatter.addStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
+            if (!InlineCssStyleFormatter.containsStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                InlineCssStyleFormatter.addStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
+            }
 
             val start = spannable.getSpanStart(it)
             val nesting = IAztecNestable.getNestingLevelAt(spannable, start) + 1

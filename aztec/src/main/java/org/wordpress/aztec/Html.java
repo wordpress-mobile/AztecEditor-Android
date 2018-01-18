@@ -57,7 +57,6 @@ import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -211,12 +210,12 @@ public class Html {
     }
 }
 
-class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
+class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandler {
     private int nestingLevel = 0;
 
     private int contentHandlerLevel = 0;
     private IHtmlContentHandler contentHandlerPlugin;
-    private Unknown unknown;
+    private ContentHandler content;
     private boolean insidePreTag = false;
     private boolean insideCodeTag = false;
 
@@ -286,7 +285,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 return;
             }
             // Swallow opening tag and attributes in current Unknown element
-            unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+            content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
             contentHandlerLevel += 1;
             return;
         }
@@ -353,11 +352,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
                 }
 
                 contentHandlerLevel = 1;
-                unknown = new Unknown();
-                unknown.rawHtml = new StringBuilder();
-                unknown.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
+                content = new ContentHandler();
+                content.rawHtml = new StringBuilder();
+                content.rawHtml.append('<').append(tag).append(Html.stringifyAttributes(attributes)).append('>');
 
-                spannableStringBuilder.setSpan(unknown, spannableStringBuilder.length(),
+                spannableStringBuilder.setSpan(content, spannableStringBuilder.length(),
                         spannableStringBuilder.length(), Spannable.SPAN_MARK_MARK);
             }
         }
@@ -416,7 +415,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     }
 
     private boolean handleContent(String tag, int nestingLevel) {
-        // Unknown tag previously detected
+        // Content handler tag previously detected
         if (contentHandlerLevel != 0) {
             if (tag.equalsIgnoreCase("aztec_cursor")) {
                 return true;
@@ -427,15 +426,15 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
             contentHandlerLevel -= 1;
 
             // Unknown/handled content, swallow closing tag in current Unknown element
-            unknown.rawHtml.append("</").append(tag).append(">");
+            content.rawHtml.append("</").append(tag).append(">");
 
             if (contentHandlerPlugin == null && contentHandlerLevel == 0) {
-                // Time to wrap up our unknown tag in a Span
-                spannableStringBuilder.append("\uFFFC"); // placeholder character
-                endUnknown(spannableStringBuilder, nestingLevel, unknown, context);
+                // Time to wrap up our content handler tag in a Span
+                spannableStringBuilder.append(Constants.INSTANCE.getIMG_CHAR()); // placeholder character
+                endContentHandler(spannableStringBuilder, nestingLevel, content, context);
             } else if (contentHandlerLevel == 0) {
                 // Content is handled by a plugin
-                endPluginContentHandler(spannableStringBuilder, nestingLevel, unknown);
+                endPluginContentHandler(spannableStringBuilder, nestingLevel, content);
             }
             return true;
         }
@@ -445,7 +444,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     private static void handleCursor(SpannableStringBuilder text) {
         int start = text.length();
 
-        Object[] unknownSpans = text.getSpans(start, start, Unknown.class);
+        Object[] unknownSpans = text.getSpans(start, start, ContentHandler.class);
 
         if (unknownSpans.length > 0) {
             start = text.getSpanStart(unknownSpans[0]);
@@ -599,14 +598,14 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         }
     }
 
-    private void endPluginContentHandler(SpannableStringBuilder text, int nestingLevel, Unknown unknown) {
+    private void endPluginContentHandler(SpannableStringBuilder text, int nestingLevel, ContentHandler unknown) {
         text.removeSpan(unknown);
 
         contentHandlerPlugin.handleContent(unknown.rawHtml.toString(), text, nestingLevel);
         contentHandlerPlugin = null;
     }
 
-    private void endUnknown(SpannableStringBuilder text, int nestingLevel, Unknown unknown, Context context) {
+    private void endContentHandler(SpannableStringBuilder text, int nestingLevel, ContentHandler unknown, Context context) {
         int len = text.length();
         int where = text.getSpanStart(unknown);
 
@@ -654,7 +653,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         // If unknown tag, then swallow everything
         if (contentHandlerLevel != 0) {
             for (int i = 0; i < length; i++) {
-                unknown.rawHtml.append(ch[i + start]);
+                content.rawHtml.append(ch[i + start]);
             }
             return;
         }
@@ -754,11 +753,11 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
     @Override
     public void comment(char[] chars, int start, int length) throws SAXException {
         if (contentHandlerLevel != 0) {
-            unknown.rawHtml.append("<!--");
+            content.rawHtml.append("<!--");
             for (int i = 0; i < length; i++) {
-                unknown.rawHtml.append(chars[i + start]);
+                content.rawHtml.append(chars[i + start]);
             }
-            unknown.rawHtml.append("-->");
+            content.rawHtml.append("-->");
             return;
         }
 
@@ -793,7 +792,7 @@ class HtmlToSpannedConverter implements ContentHandler, LexicalHandler {
         return wasCommentHandled;
     }
 
-    private static class Unknown {
+    private static class ContentHandler {
         public StringBuilder rawHtml;
     }
 }

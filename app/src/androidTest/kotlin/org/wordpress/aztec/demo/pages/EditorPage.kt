@@ -97,6 +97,13 @@ class EditorPage : BasePage() {
         return this
     }
 
+    fun selectText(start: Int, end: Int): EditorPage {
+        editor.perform(Actions.setSelection(start, end))
+        label("Selected text")
+
+        return this
+    }
+
     /**
      * Using selectAllText() + delete() do not work as intended. This method
      * will select all the text in the editor and then delete that text.

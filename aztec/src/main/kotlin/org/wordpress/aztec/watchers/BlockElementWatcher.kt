@@ -31,7 +31,8 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                 // if a newline is deleted right above a heading, we want to preserve it and move it up
                 if (text[deleteEnd - 1] == Constants.NEWLINE && (deleteEnd - 1 == 0 || text[deleteEnd - 2] == Constants.NEWLINE)) {
                     val spannable = text as Spannable
-                    val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java).filter { it.start == deleteEnd }
+                    val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java)
+                            .filter { it.start == deleteEnd }
 
                     if (spans.isNotEmpty()) {
                         // save the text state before the funky business, then skip the history
@@ -41,7 +42,8 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                             aztecText.consumeHistoryEvent = false
 
                             spans.forEach {
-                                spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes, (it.span as AztecHeadingSpan).headerStyle), deleteEnd - 1, deleteEnd, it.flags)
+                                spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes,
+                                        it.span.headerStyle), deleteEnd - 1, deleteEnd, it.flags)
                             }
 
                             aztecText.consumeHistoryEvent = true

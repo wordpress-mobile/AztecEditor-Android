@@ -47,6 +47,7 @@ class CssUnderlineFormattingTests : BaseTest() {
                 .toggleHtml()
                 .insertHTML(html)
                 .toggleHtml()
+                .toggleHtml()
                 .verifyHTML(html)
     }
 
@@ -63,8 +64,12 @@ class CssUnderlineFormattingTests : BaseTest() {
                 .toggleHtml()
                 .selectText(4, 8)
                 .toggleUnderline()
+                .toggleHtml()
                 .verifyHTML("$text1$text2")
+                .toggleHtml()
+                .selectText(4, 8)
                 .toggleUnderline()
+                .toggleHtml()
                 .verifyHTML(expectedHtml)
     }
 
@@ -73,7 +78,7 @@ class CssUnderlineFormattingTests : BaseTest() {
         val text1 = "some"
         val text2 = "text"
         val html = "$text1<u>$text2</u>"
-        val expectedHtml = "$text1<span style=\"text-decoration: underline\">te</span>\"<span style=\"text-decoration: underline\">xt</span>\""
+        val expectedHtml = "$text1<span style=\"text-decoration: underline\">te</span>\n\n<span style=\"text-decoration: underline\">xt</span>"
 
         EditorPage()
                 .toggleHtml()
@@ -82,6 +87,7 @@ class CssUnderlineFormattingTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .moveCursorLeftAsManyTimes(2)
                 .insertNewLine()
+                .toggleHtml()
                 .verifyHTML(expectedHtml)
     }
 }

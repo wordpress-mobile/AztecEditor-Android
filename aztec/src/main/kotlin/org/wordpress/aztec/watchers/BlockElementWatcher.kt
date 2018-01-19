@@ -26,28 +26,25 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
         if (count > 0) {
 
             val deleteEnd = start + count
+            // if a newline is deleted right above a heading, we want to preserve it and move it up
             if (text[deleteEnd - 1] == Constants.NEWLINE && (deleteEnd - 1 == 0 || text[deleteEnd - 2] == Constants.NEWLINE)) {
+                val spannable = text as Spannable
+                val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java)
+                        .filter { it.start == deleteEnd }
 
-                // if a newline is deleted right above a heading, we want to preserve it and move it up
-                if (text[deleteEnd - 1] == Constants.NEWLINE && (deleteEnd - 1 == 0 || text[deleteEnd - 2] == Constants.NEWLINE)) {
-                    val spannable = text as Spannable
-                    val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java)
-                            .filter { it.start == deleteEnd }
+                if (spans.isNotEmpty()) {
+                    // save the text state before the funky business, then skip the history
+                    val aztecText = aztecTextRef.get()
+                    aztecText?.let {
+                        aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
+                        aztecText.consumeHistoryEvent = false
 
-                    if (spans.isNotEmpty()) {
-                        // save the text state before the funky business, then skip the history
-                        val aztecText = aztecTextRef.get()
-                        aztecText?.let {
-                            aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
-                            aztecText.consumeHistoryEvent = false
-
-                            spans.forEach {
-                                spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes,
-                                        it.span.headerStyle), deleteEnd - 1, deleteEnd, it.flags)
-                            }
-
-                            aztecText.consumeHistoryEvent = true
+                        spans.forEach {
+                            spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes,
+                                    it.span.headerStyle), deleteEnd - 1, deleteEnd, it.flags)
                         }
+
+                        aztecText.consumeHistoryEvent = true
                     }
                 }
             }

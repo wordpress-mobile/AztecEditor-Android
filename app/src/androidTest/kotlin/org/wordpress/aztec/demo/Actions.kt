@@ -164,7 +164,7 @@ object Actions {
             }
 
             override fun getDescription(): String {
-                return "Set Aztec cursor at the end of current text buffer"
+                return "Set Aztec text selection to the specified range"
             }
 
             override fun perform(uiController: UiController?, view: View?) {

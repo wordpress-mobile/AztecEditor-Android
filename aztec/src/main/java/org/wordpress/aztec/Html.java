@@ -483,7 +483,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                 newSpan = new AztecStyleItalicSpan(attributes);
                 break;
             case FORMAT_UNDERLINE:
-                newSpan = new AztecUnderlineSpan(attributes);
+                newSpan = new AztecUnderlineSpan(false, attributes);
                 break;
             case FORMAT_LINK:
                 String url = attributes.hasAttribute("href") ? attributes.getValue("href") : "";

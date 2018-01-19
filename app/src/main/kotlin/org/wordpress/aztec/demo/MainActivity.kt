@@ -44,6 +44,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
@@ -136,30 +137,30 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 IMG +
-                        HEADING +
-                        BOLD +
-                        ITALIC +
-                        UNDERLINE +
-                        STRIKETHROUGH +
-                        ORDERED +
-                        LINE +
-                        UNORDERED +
-                        QUOTE +
-                        PREFORMAT +
-                        LINK +
-                        HIDDEN +
-                        COMMENT +
-                        COMMENT_MORE +
-                        COMMENT_PAGE +
-                        CODE +
-                        UNKNOWN +
-                        EMOJI +
-                        NON_LATIN_TEXT +
-                        LONG_TEXT +
-                        VIDEO +
-                        VIDEOPRESS +
-                        VIDEOPRESS_2 +
-                        AUDIO +
+                HEADING +
+                BOLD +
+                ITALIC +
+                UNDERLINE +
+                STRIKETHROUGH +
+                ORDERED +
+                LINE +
+                UNORDERED +
+                QUOTE +
+                PREFORMAT +
+                LINK +
+                HIDDEN +
+                COMMENT +
+                COMMENT_MORE +
+                COMMENT_PAGE +
+                CODE +
+                UNKNOWN +
+                EMOJI +
+                NON_LATIN_TEXT +
+                LONG_TEXT +
+                VIDEO +
+                VIDEOPRESS +
+                VIDEOPRESS_2 +
+                AUDIO +
                 GUTENBERG_CODE_BLOCK
 
         private val isRunningTest: Boolean by lazy {
@@ -390,7 +391,7 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(galleryButton)
             .addPlugin(cameraButton)
 
-        // initialize the text & HTML
+        // initialize the plugins, text & HTML
         if (!isRunningTest) {
             aztec.visualEditor.enableCrashLogging(object : AztecExceptionHandler.ExceptionHandlerHelper {
                 override fun shouldLog(ex: Throwable): Boolean {
@@ -401,6 +402,8 @@ open class MainActivity : AppCompatActivity(),
             aztec.sourceEditor?.setCalypsoMode(false)
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+
+            aztec.addPlugin(CssUnderlinePlugin())
         }
 
         if (savedInstanceState == null) {

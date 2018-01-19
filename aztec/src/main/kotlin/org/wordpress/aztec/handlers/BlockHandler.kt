@@ -74,19 +74,26 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
             return PositionType.EMPTY_LINE_AT_EMPTY_BODY
         }
 
-        val atEndOfblock = newlineIndex == block.end - 2 || newlineIndex == text.length - 1
+        // if the new newline is the second-last character of the block and the last one is a newline (which
+        // is a visual newline) or the end-of-buffer marker, or it's the last character of the text then it's the last
+        // actual character of the block
+        val atEndOfBlock = (newlineIndex == block.end - 2 &&
+                (text[block.end - 1] == Constants.NEWLINE || text[block.end - 1] == Constants.END_OF_BUFFER_MARKER)) ||
+                newlineIndex == text.length - 1
 
-        if (newlineIndex == block.start && !atEndOfblock) {
+        if (newlineIndex == block.start && !atEndOfBlock) {
             return PositionType.START_OF_BLOCK
         }
 
-        if (newlineIndex == block.start && atEndOfblock) {
+        if (newlineIndex == block.start && atEndOfBlock) {
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }
 
+        // prev newline needs to be at the same nesting level to account for "double-enter"
         if (text[newlineIndex - 1] == Constants.NEWLINE
-                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) == IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1) // prev newline needs to be at the same nesting level to account for "double-enter"
-                && atEndOfblock) {
+                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) ==
+                    IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1)
+                && atEndOfBlock) {
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }
 

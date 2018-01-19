@@ -3,7 +3,6 @@ package org.wordpress.aztec.watchers.event.sequence.known.space
 import org.apache.commons.lang3.StringUtils
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
-import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventDeleteText
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText

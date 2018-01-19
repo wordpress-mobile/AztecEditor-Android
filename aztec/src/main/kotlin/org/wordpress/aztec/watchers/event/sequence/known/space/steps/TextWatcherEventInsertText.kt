@@ -1,5 +1,6 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space.steps
 
+import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
@@ -21,7 +22,7 @@ class TextWatcherEventInsertText(beforeEventData: BeforeTextChangedEventData, on
     }
 
     private fun testAfterTextChangedEventData(data: AfterTextChangedEventData): Boolean {
-        return beforeText!!.length < data.textAfter!!.length
+        return EndOfBufferMarkerAdder.safeLength(beforeText!!) < EndOfBufferMarkerAdder.safeLength(data.textAfter!!)
     }
 
     override fun testFitsBeforeOnAndAfter(): Boolean {

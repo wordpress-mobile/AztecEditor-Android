@@ -9,6 +9,7 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
     val buckets = ArrayList<Bucket>()
 
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buckets.add(API26Bucket())
@@ -34,6 +35,8 @@ class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcher
     private fun processQueue() {
         // here let's check whether our current queue matches / fits any of the installed buckets
         var foundOnePartialMatch = false
+
+        // now let's continue processing
         for (bucket in buckets) {
             for (operation in bucket.userOperations) {
                 if (size < operation.sequence.size) {
@@ -58,6 +61,10 @@ class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcher
             // immediately discard the queue
             clear()
         }
+    }
+
+    companion object {
+        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
     }
 }
 

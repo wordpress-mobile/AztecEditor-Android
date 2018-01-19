@@ -4,5 +4,5 @@ import android.text.SpannableStringBuilder
 import org.wordpress.aztec.plugins.IAztecPlugin
 
 interface ISpanPostprocessor : IAztecPlugin {
-    fun onSpansProcessed(spannable: SpannableStringBuilder)
+    fun afterSpansProcessed(spannable: SpannableStringBuilder)
 }

@@ -798,15 +798,15 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6,
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
-            AztecTextFormat.FORMAT_BOLD -> inlineFormatter.toggle(AztecTextFormat.FORMAT_BOLD)
-            AztecTextFormat.FORMAT_ITALIC -> inlineFormatter.toggle(AztecTextFormat.FORMAT_ITALIC)
-            AztecTextFormat.FORMAT_UNDERLINE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_UNDERLINE)
-            AztecTextFormat.FORMAT_STRIKETHROUGH -> inlineFormatter.toggle(AztecTextFormat.FORMAT_STRIKETHROUGH)
+            AztecTextFormat.FORMAT_BOLD,
+            AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_UNDERLINE,
+            AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-            AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(AztecTextFormat.FORMAT_CODE)
             else -> {
                 plugins.filter { it is IToolbarButton && textFormat == it.action.textFormat }
                         .map { it as IToolbarButton }
@@ -825,16 +825,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
-            AztecTextFormat.FORMAT_BOLD -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_BOLD, selStart, selEnd)
-            AztecTextFormat.FORMAT_ITALIC -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_ITALIC, selStart, selEnd)
-            AztecTextFormat.FORMAT_UNDERLINE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, selStart, selEnd)
-            AztecTextFormat.FORMAT_STRIKETHROUGH -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, selStart, selEnd)
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, selStart, selEnd)
-            AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(AztecTextFormat.FORMAT_ORDERED_LIST, selStart, selEnd)
+            AztecTextFormat.FORMAT_BOLD,
+            AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_UNDERLINE,
+            AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
+            AztecTextFormat.FORMAT_UNORDERED_LIST,
+            AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(format, selStart, selEnd)
             AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containsQuote(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
-            AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE, selStart, selEnd)
             else -> return false
         }
     }

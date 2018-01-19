@@ -44,6 +44,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
@@ -365,26 +366,26 @@ open class MainActivity : AppCompatActivity(),
         })
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-                .setImageGetter(GlideImageLoader(this))
-                .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
-                .setOnImeBackListener(this)
-                .setOnTouchListener(this)
-                .setHistoryListener(this)
-                .setOnImageTappedListener(this)
-                .setOnVideoTappedListener(this)
-                .setOnAudioTappedListener(this)
-                .setOnMediaDeletedListener(this)
-                .setOnVideoInfoRequestedListener(this)
-                .addPlugin(WordPressCommentsPlugin(visualEditor))
-                .addPlugin(MoreToolbarButton(visualEditor))
-                .addPlugin(PageToolbarButton(visualEditor))
-                .addPlugin(CaptionShortcodePlugin(visualEditor))
-                .addPlugin(VideoShortcodePlugin())
-                .addPlugin(AudioShortcodePlugin())
-                .addPlugin(galleryButton)
-                .addPlugin(cameraButton)
+            .setImageGetter(GlideImageLoader(this))
+            .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
+            .setOnImeBackListener(this)
+            .setOnTouchListener(this)
+            .setHistoryListener(this)
+            .setOnImageTappedListener(this)
+            .setOnVideoTappedListener(this)
+            .setOnAudioTappedListener(this)
+            .setOnMediaDeletedListener(this)
+            .setOnVideoInfoRequestedListener(this)
+            .addPlugin(WordPressCommentsPlugin(visualEditor))
+            .addPlugin(MoreToolbarButton(visualEditor))
+            .addPlugin(PageToolbarButton(visualEditor))
+            .addPlugin(CaptionShortcodePlugin(visualEditor))
+            .addPlugin(VideoShortcodePlugin())
+            .addPlugin(AudioShortcodePlugin())
+            .addPlugin(galleryButton)
+            .addPlugin(cameraButton)
 
-        // initialize the text & HTML
+        // initialize the plugins, text & HTML
         if (!isRunningTest) {
             aztec.visualEditor.enableCrashLogging(object : AztecExceptionHandler.ExceptionHandlerHelper {
                 override fun shouldLog(ex: Throwable): Boolean {
@@ -395,6 +396,8 @@ open class MainActivity : AppCompatActivity(),
             aztec.sourceEditor?.setCalypsoMode(false)
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+
+            aztec.addPlugin(CssUnderlinePlugin())
         }
 
         if (savedInstanceState == null) {

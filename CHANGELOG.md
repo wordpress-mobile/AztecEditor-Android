@@ -1,4 +1,7 @@
 # Changelog
+## Unreleased
+### Added
+- Plugin that adds support for CSS-style underline formatting
 
 ## [1.0](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0) - 2018-01-11
 ### Fixed

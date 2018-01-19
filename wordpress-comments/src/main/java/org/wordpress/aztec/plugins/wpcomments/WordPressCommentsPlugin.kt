@@ -10,7 +10,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 
-class WordPressCommentsPlugin(val visualEditor: AztecText) : IInlineSpanHandler, IHtmlCommentHandler {
+class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpanHandler, IHtmlCommentHandler {
 
     override fun canHandleSpan(span: CharacterStyle): Boolean {
         return span is WordPressCommentSpan

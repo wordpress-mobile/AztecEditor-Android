@@ -52,6 +52,7 @@ import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
 import org.wordpress.aztec.plugins.shortcodes.extensions.updateVideoPressThumb
+import org.wordpress.aztec.plugins.wpcomments.HiddenGutenbergPlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -110,6 +111,9 @@ open class MainActivity : AppCompatActivity(),
                         "    <span class=\"second last\"></span>" +
                         "</div>" +
                         "<br>"
+        private val GUTENBERG_CODE_BLOCK = "<!-- wp:core/image {\"id\":316} -->\n" +
+                "<figure class=\"wp-block-image\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/1200px-WordPress_blue_logo.svg.png\" alt=\"\" /></figure>\n" +
+                "<!-- /wp:core/image -->"
         private val PREFORMAT =
                 "<pre>" +
                         "when (person) {<br>" +
@@ -133,30 +137,31 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 IMG +
-                        HEADING +
-                        BOLD +
-                        ITALIC +
-                        UNDERLINE +
-                        STRIKETHROUGH +
-                        ORDERED +
-                        LINE +
-                        UNORDERED +
-                        QUOTE +
-                        PREFORMAT +
-                        LINK +
-                        HIDDEN +
-                        COMMENT +
-                        COMMENT_MORE +
-                        COMMENT_PAGE +
-                        CODE +
-                        UNKNOWN +
-                        EMOJI +
-                        NON_LATIN_TEXT +
-                        LONG_TEXT +
-                        VIDEO +
-                        VIDEOPRESS +
-                        VIDEOPRESS_2 +
-                        AUDIO
+                HEADING +
+                BOLD +
+                ITALIC +
+                UNDERLINE +
+                STRIKETHROUGH +
+                ORDERED +
+                LINE +
+                UNORDERED +
+                QUOTE +
+                PREFORMAT +
+                LINK +
+                HIDDEN +
+                COMMENT +
+                COMMENT_MORE +
+                COMMENT_PAGE +
+                CODE +
+                UNKNOWN +
+                EMOJI +
+                NON_LATIN_TEXT +
+                LONG_TEXT +
+                VIDEO +
+                VIDEOPRESS +
+                VIDEOPRESS_2 +
+                AUDIO +
+                GUTENBERG_CODE_BLOCK
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -382,6 +387,7 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(CaptionShortcodePlugin(visualEditor))
             .addPlugin(VideoShortcodePlugin())
             .addPlugin(AudioShortcodePlugin())
+            .addPlugin(HiddenGutenbergPlugin())
             .addPlugin(galleryButton)
             .addPlugin(cameraButton)
 

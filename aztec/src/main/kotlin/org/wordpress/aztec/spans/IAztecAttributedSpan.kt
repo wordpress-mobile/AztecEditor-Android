@@ -14,7 +14,7 @@ interface IAztecAttributedSpan {
      */
     fun applyInlineStyleAttributes(output: Editable, start: Int, end: Int) {
         val attr = this.attributes
-        if (attr.hasAttribute("style")) {
+        if (attr.hasAttribute(InlineCssStyleFormatter.STYLE_ATTRIBUTE)) {
             InlineCssStyleFormatter.applyInlineStyleAttributes(output, attr, start, end)
         }
     }

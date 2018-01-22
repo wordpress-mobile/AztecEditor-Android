@@ -71,9 +71,9 @@ class InlineCssStyleFormatter {
                 if (newStyle.isBlank()) {
                     attributes.removeAttribute(STYLE_ATTRIBUTE)
                 } else {
-                    newStyle = newStyle.replace(";(.?)".toRegex(), "; ($1)")
+                    newStyle = newStyle.replace(";".toRegex(), "; ")
                     newStyle = newStyle.replace(":".toRegex(), ": ")
-                    attributes.setValue(STYLE_ATTRIBUTE, newStyle)
+                    attributes.setValue(STYLE_ATTRIBUTE, newStyle.trim())
                 }
             }
         }
@@ -93,11 +93,11 @@ class InlineCssStyleFormatter {
             style = style.trim()
 
             if (!style.isEmpty() && !style.endsWith(";")) {
-                style += "; "
+                style += ";"
             }
 
-            style += "$styleAttributeName: $styleAttributeValue"
-            attributes.setValue(STYLE_ATTRIBUTE, style)
+            style += " $styleAttributeName: $styleAttributeValue;"
+            attributes.setValue(STYLE_ATTRIBUTE, style.trim())
         }
 
         fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {

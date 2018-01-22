@@ -20,8 +20,8 @@ import org.wordpress.aztec.spans.AztecStyleBoldSpan
 class CssStyleAttributeTest : AndroidTestCase() {
 
     private val EMPTY_STYLE_HTML = "<b>bold</b>"
-    private val HTML = "<b style=\"name: value\">bold</b>"
-    private val COMPLEX_HTML = "<b style=\"a: b; name: value\">bold</b>"
+    private val HTML = "<b style=\"name: value;\">bold</b>"
+    private val COMPLEX_HTML = "<b style=\"a: b; name: value;\">bold</b>"
 
     private lateinit var parser: AztecParser
 

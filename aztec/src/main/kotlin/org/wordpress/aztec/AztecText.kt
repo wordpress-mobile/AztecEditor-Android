@@ -910,12 +910,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = Math.min(selectionStart, length())
+        var cursorPosition = Math.min(selectionStart, text.length)
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
             text.removeSpan(it)
         }
+
+        // Make sure the cursor position is a valid one
+        cursorPosition = Math.min(cursorPosition, text.length)
+        cursorPosition = Math.max(0, cursorPosition)
 
         return cursorPosition
     }
@@ -936,10 +940,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             it.textView = this
         }
 
+        val cursorPosition = consumeCursorPosition(builder)
+        setSelection(0)
+
         setTextKeepState(builder)
         enableTextChangedListener()
 
-        val cursorPosition = consumeCursorPosition(builder)
         setSelection(cursorPosition)
 
         loadImages()

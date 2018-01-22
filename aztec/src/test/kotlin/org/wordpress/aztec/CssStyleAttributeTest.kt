@@ -42,7 +42,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"), "")
+        Assert.assertEquals("", InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"))
     }
 
     @Test
@@ -56,7 +56,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"), "")
+        Assert.assertEquals("", InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"))
     }
 
     @Test
@@ -68,7 +68,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "name"), "value")
+        Assert.assertEquals("value", InlineCssStyleFormatter.getStyleAttribute(span.attributes, "name"))
     }
 
     @Test
@@ -80,7 +80,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         InlineCssStyleFormatter.addStyleAttribute(span.attributes, "name", "value")
 
-        Assert.assertEquals(parser.toHtml(text), HTML)
+        Assert.assertEquals(HTML, parser.toHtml(text))
 
         Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
@@ -88,7 +88,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "a"), "b")
+        Assert.assertEquals("b", InlineCssStyleFormatter.getStyleAttribute(span.attributes, "a"))
     }
 
     @Test
@@ -106,10 +106,10 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
 
-        Assert.assertEquals(parser.toHtml(text), HTML)
+        Assert.assertEquals(HTML, parser.toHtml(text))
 
         InlineCssStyleFormatter.removeStyleAttribute(span.attributes, "name")
 
-        Assert.assertEquals(parser.toHtml(text), EMPTY_STYLE_HTML)
+        Assert.assertEquals(EMPTY_STYLE_HTML, parser.toHtml(text))
     }
 }

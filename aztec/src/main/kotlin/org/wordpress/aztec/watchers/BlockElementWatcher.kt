@@ -5,8 +5,11 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Constants
+import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.MarkForReplay
+import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
@@ -19,7 +22,34 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
-    override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) { }
+    override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+        if (count > 0) {
+
+            val deleteEnd = start + count
+            // if a newline is deleted right above a heading, we want to preserve it and move it up
+            if (text[deleteEnd - 1] == Constants.NEWLINE && (deleteEnd - 1 == 0 || text[deleteEnd - 2] == Constants.NEWLINE)) {
+                val spannable = text as Spannable
+                val spans = SpanWrapper.getSpans(spannable, deleteEnd, deleteEnd, AztecHeadingSpan::class.java)
+                        .filter { it.start == deleteEnd }
+
+                if (spans.isNotEmpty()) {
+                    // save the text state before the funky business, then skip the history
+                    val aztecText = aztecTextRef.get()
+                    aztecText?.let {
+                        aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
+                        aztecText.consumeHistoryEvent = false
+
+                        spans.forEach {
+                            spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes,
+                                    it.span.headerStyle), deleteEnd - 1, deleteEnd, it.flags)
+                        }
+
+                        aztecText.consumeHistoryEvent = true
+                    }
+                }
+            }
+        }
+    }
 
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {

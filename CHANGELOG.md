@@ -1,7 +1,12 @@
 # Changelog
 ## Unreleased
 ### Added
+- Plugin that detects and hides Gutenberg editor blocks in the visual editor
 - Plugin that adds support for CSS-style underline formatting
+
+## [1.0.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.1) - 2018-01-22
+### Fixed
+- Crash when pasting certain text
 
 ## [1.0](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0) - 2018-01-11
 ### Fixed

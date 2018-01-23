@@ -135,6 +135,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
         val DEFAULT_IMAGE_WIDTH = 800
 
+        var watchersNestingLevel: Int = 0
+
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
             val drawable = ContextCompat.getDrawable(context, drawableId)
             var bitmap: Bitmap
@@ -161,7 +163,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     private var blockEditorDialog: AlertDialog? = null
     private var consumeEditEvent: Boolean = false
     private var consumeSelectionChangedEvent: Boolean = false
-    private var consumeHistoryEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
 
@@ -182,6 +183,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
+
+    var consumeHistoryEvent: Boolean = false
 
     private var unknownBlockSpanStart = -1
 
@@ -843,10 +846,25 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         formatToolbar = toolbar
     }
 
+    private fun addWatcherNestingLevel() : Int {
+        watchersNestingLevel++
+        return watchersNestingLevel
+    }
+
+    private fun subWatcherNestingLevel() : Int {
+        watchersNestingLevel--
+        return watchersNestingLevel
+    }
+
+    private fun isEventObservableCandidate() : Boolean {
+        return (!bypassObservationQueue && (watchersNestingLevel == 1))
+    }
+
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+        addWatcherNestingLevel()
         if (!isViewInitialized) return
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             // we need to make a copy to preserve the contents as they were before the change
             val textCopy = SpannableStringBuilder(text)
             val data = BeforeTextChangedEventData(textCopy, start, count, after)
@@ -857,7 +875,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         if (!isViewInitialized) return
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             val textCopy = SpannableStringBuilder(text)
             val data = OnTextChangedEventData(textCopy, start, before, count)
             textWatcherEventBuilder.onEventData = data
@@ -866,10 +884,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
+            subWatcherNestingLevel()
             return
         }
 
-        if (!bypassObservationQueue) {
+        if (isEventObservableCandidate()) {
             val textCopy = Editable.Factory.getInstance().newEditable(editableText)
             val data = AfterTextChangedEventData(textCopy)
             textWatcherEventBuilder.afterEventData = data
@@ -877,6 +896,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             // now that we have a full event cycle (before, on, and after) we can add the event to the observation queue
             observationQueue.add(textWatcherEventBuilder.build())
         }
+        subWatcherNestingLevel()
     }
 
     fun redo() {
@@ -890,12 +910,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = Math.min(selectionStart, length())
+        var cursorPosition = Math.min(selectionStart, text.length)
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
             text.removeSpan(it)
         }
+
+        // Make sure the cursor position is a valid one
+        cursorPosition = Math.min(cursorPosition, text.length)
+        cursorPosition = Math.max(0, cursorPosition)
 
         return cursorPosition
     }
@@ -916,10 +940,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             it.textView = this
         }
 
+        val cursorPosition = consumeCursorPosition(builder)
+        setSelection(0)
+
         setTextKeepState(builder)
         enableTextChangedListener()
 
-        val cursorPosition = consumeCursorPosition(builder)
         setSelection(cursorPosition)
 
         loadImages()

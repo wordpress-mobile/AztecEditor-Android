@@ -1,10 +1,14 @@
 package org.wordpress.aztec.source
 
 import android.text.Editable
+import android.text.Layout
 import android.text.Spannable
+import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.TextAlignmentSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -20,6 +24,7 @@ class InlineCssStyleFormatter {
 
         val STYLE_ATTRIBUTE = "style"
         val CSS_TEXT_DECORATION_ATTRIBUTE = "text-decoration"
+        val CSS_TEXT_ALIGN_ATTRIBUTE = "text-align"
         val CSS_COLOR_ATTRIBUTE = "color"
 
         /**
@@ -36,6 +41,23 @@ class InlineCssStyleFormatter {
         fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int, end: Int) {
             if (attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
                 processColor(attributes, text, start, end)
+                processAlignment(attributes, text, start, end)
+            }
+        }
+
+        private fun processAlignment(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
+            val alignment = getStyleAttribute(attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
+            if (!alignment.isBlank()) {
+                val align = when (alignment) {
+                    "right" -> Layout.Alignment.ALIGN_OPPOSITE
+                    "center" -> Layout.Alignment.ALIGN_CENTER
+                    else -> Layout.Alignment.ALIGN_NORMAL
+                }
+
+                if (align != Layout.Alignment.ALIGN_NORMAL) {
+                    val nesting = IAztecNestable.getNestingLevelAt(text, start)
+                    text.setSpan(TextAlignmentSpan(align), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
         }
 

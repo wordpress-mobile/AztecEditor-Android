@@ -857,7 +857,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun isEventObservableCandidate() : Boolean {
-        return (!bypassObservationQueue && (watchersNestingLevel == 1))
+        return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {

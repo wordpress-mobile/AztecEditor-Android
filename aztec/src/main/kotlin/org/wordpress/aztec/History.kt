@@ -196,8 +196,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
      * Only updates the history stack after a present of milliseconds has passed.
      */
     inner class HistoryRunnable(val history: History) : Runnable {
-        var editText: EditText? =  null
-
+        var editText: EditText? = null
         override fun run() {
             if (editText == null) {
                 return

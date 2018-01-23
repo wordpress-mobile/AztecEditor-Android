@@ -38,13 +38,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             mainHandler.removeCallbacks(historyRunnable)
             if (!textChangedPending) {
                 textChangedPending = true
-                val text =
-                        when (editText) {
-                            is AztecText -> editText.toFormattedHtml()
-                            is SourceViewEditText -> editText.text.toString()
-                            else -> ""
-                        }
-                historyRunnable?.text = text
+                historyRunnable?.editText = editText
             }
             mainHandler.postDelayed(historyRunnable, historyThrottleTime)
         }
@@ -202,9 +196,20 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
      * Only updates the history stack after a present of milliseconds has passed.
      */
     inner class HistoryRunnable(val history: History) : Runnable {
-        var text: String = ""
+        var editText: EditText? =  null
 
         override fun run() {
+            if (editText == null) {
+                return
+            }
+            val myEditText = editText
+            val text =
+                    when (myEditText) {
+                        is AztecText -> myEditText.toFormattedHtml()
+                        is SourceViewEditText -> myEditText.text.toString()
+                        else -> ""
+                    }
+
             history.doHandleHistory(text)
         }
     }

@@ -44,6 +44,7 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.IAztecSpan
 import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
 import org.wordpress.aztec.spans.UnknownHtmlSpan
@@ -182,7 +183,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             if (spanned[spanEnd] == '\n'
                     && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
-                if (it is IAztecBlockSpan) {
+                if (it is IAztecParagraphStyle) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
 
@@ -193,7 +194,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             spanned.insert(spanEnd, "\n")
 
             // expand the span to include the new newline for block spans, because they are paragraphs
-            if (it is IAztecBlockSpan) {
+            if (it is IAztecParagraphStyle) {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
             }
 

@@ -1,12 +1,11 @@
 package org.wordpress.aztec.spans
 
-import android.text.style.ParagraphStyle
 import org.wordpress.aztec.AztecAttributes
 
 class ParagraphSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes()
-    ) : ParagraphStyle, IAztecBlockSpan {
+    ) : IAztecBlockSpan {
 
     override var TAG: String = "p"
 

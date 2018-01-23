@@ -37,4 +37,4 @@ script:
   - tar xf google-cloud-sdk-185.0.0-linux-x86_64.tar.gz
   - ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file .firebase.secrets.json
   # Run connected tests
-  - ./google-cloud-sdk/bin/gcloud firebase test android run --type instrumentation --app app/build/outputs/apk/debug/app-debug.apk --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=Nexus5X,version=26,locale=en,orientation=portrait --project api-project-108380595987 --timeout 20m
+  - ./google-cloud-sdk/bin/gcloud firebase test android run --type instrumentation --app app/build/outputs/apk/debug/app-debug.apk --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=Nexus5X,version=26,locale=en,orientation=portrait --project api-project-108380595987 --timeout 10m --verbosity info

@@ -397,7 +397,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             if (!consumeHistoryEvent) {
-                history.beforeTextChanged(toFormattedHtml())
+                if (historyEnable) {
+                    history.beforeTextChanged(this@AztecText)
+                }
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
 
@@ -464,7 +466,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
                 if (!isViewInitialized) return
                 if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-                    history.beforeTextChanged(toFormattedHtml())
+                    if (historyEnable) {
+                        history.beforeTextChanged(this@AztecText)
+                    }
                 }
             }
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -790,7 +794,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun toggleFormatting(textFormat: ITextFormat) {
-        history.beforeTextChanged(toFormattedHtml())
+        if (historyEnable) {
+            history.beforeTextChanged(this@AztecText)
+        }
 
         when (textFormat) {
             AztecTextFormat.FORMAT_PARAGRAPH,
@@ -1259,7 +1265,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val clip = clipboard.primaryClip
 
         if (clip != null) {
-            history.beforeTextChanged(toFormattedHtml())
+            if (historyEnable) {
+                history.beforeTextChanged(this@AztecText)
+            }
 
             disableTextChangedListener()
 
@@ -1311,7 +1319,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun link(url: String, anchor: String) {
-        history.beforeTextChanged(toFormattedHtml())
+        history.beforeTextChanged(this@AztecText)
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {

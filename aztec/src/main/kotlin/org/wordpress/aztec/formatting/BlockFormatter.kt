@@ -1,6 +1,7 @@
 package org.wordpress.aztec.formatting
 
 import android.text.Editable
+import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecAttributes
@@ -21,6 +22,7 @@ import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
 import java.util.Arrays
 
@@ -101,6 +103,23 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             else -> {
             }
         }
+    }
+
+    fun toggleTextAlign(textFormat: ITextFormat) {
+        when (textFormat) {
+            AztecTextFormat.FORMAT_ALIGN_LEFT,
+            AztecTextFormat.FORMAT_ALIGN_CENTER,
+            AztecTextFormat.FORMAT_ALIGN_RIGHT ->
+                if (containsAlignment(textFormat)) {
+                    removeTextAlignment(textFormat)
+                } else {
+                    applyTextAlignment(textFormat)
+                }
+        }
+    }
+
+    fun removeTextAlignment(textFormat: ITextFormat) {
+        getAlignedSpans(textFormat).forEach { changeAlignment(it, null) }
     }
 
     fun tryRemoveBlockStyleFromFirstLine(): Boolean {
@@ -271,6 +290,15 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
+    fun getAlignment(textFormat: ITextFormat?) : Layout.Alignment? {
+        return when (textFormat) {
+            AztecTextFormat.FORMAT_ALIGN_LEFT -> Layout.Alignment.ALIGN_NORMAL
+            AztecTextFormat.FORMAT_ALIGN_CENTER -> Layout.Alignment.ALIGN_CENTER
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> Layout.Alignment.ALIGN_OPPOSITE
+            else -> null
+        }
+    }
+
     fun makeBlockSpan(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
         return when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, textFormat, nestingLevel, attrs)
@@ -361,6 +389,30 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
         return IntRange(startOfBlock, endOfBlock)
+    }
+
+    fun applyTextAlignment(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+        if (editableText.isEmpty()) {
+            editableText.append("" + Constants.END_OF_BUFFER_MARKER)
+        }
+
+        val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
+        val spans = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
+        if (spans.isNotEmpty()) {
+            spans.forEach {
+                changeAlignment(it, blockElementType)
+            }
+        } else {
+            val paragraph = ParagraphSpan(0, AztecAttributes(), getAlignment(blockElementType))
+            editableText.setSpan(paragraph, boundsOfSelectedText.start,
+                    boundsOfSelectedText.endInclusive, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+    }
+
+    private fun changeAlignment(it: IAztecBlockSpan, blockElementType: ITextFormat?) {
+        it.align = getAlignment(blockElementType)
+        val wrapper = SpanWrapper<IAztecBlockSpan>(editableText, it)
+        editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -676,6 +728,34 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 .filter { it != textFormat }
 
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
+    }
+
+    fun containsAlignment(blockType: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        return getAlignedSpans(blockType, selStart, selEnd).isNotEmpty()
+    }
+
+    private fun getAlignedSpans(blockType: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecBlockSpan> {
+        if (selStart < 0 || selEnd < 0) return emptyList()
+
+        val align = getAlignment(blockType)
+
+        return editableText.getSpans(selStart, selEnd, IAztecBlockSpan::class.java)
+                .filter { it.align == align }
+                .filter {
+                    val spanStart = editableText.getSpanStart(it)
+                    val spanEnd = editableText.getSpanEnd(it)
+
+                    if (selStart == selEnd) {
+                        if (editableText.length == selStart) {
+                            selStart in spanStart..spanEnd
+                        } else {
+                            (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        }
+                    } else {
+                        (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
+                                (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)
+                    }
+                }
     }
 
     fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {

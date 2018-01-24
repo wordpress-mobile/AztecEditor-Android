@@ -434,6 +434,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
         selectHeadingMenuItem(appliedStyles)
         selectListMenuItem(appliedStyles)
+        highlightAlignButtons(appliedStyles)
+    }
+
+    private fun highlightAlignButtons(appliedStyles: ArrayList<ITextFormat>) {
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_LEFT)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_LEFT.buttonId), false)
+        }
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_CENTER)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_CENTER.buttonId), false)
+        }
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_RIGHT)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_RIGHT.buttonId), false)
+        }
     }
 
     private fun onToolbarAction(action: IToolbarAction) {
@@ -461,6 +474,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
+
+            highlightAlignButtons(arrayListOf(action.textFormat))
+
             return editor!!.toggleFormatting(action.textFormat)
         }
 

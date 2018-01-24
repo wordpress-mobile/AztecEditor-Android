@@ -17,6 +17,9 @@
     <string name="format_bar_description_italic">Italic</string>
     <string name="format_bar_description_underline">Underline</string>
     <string name="format_bar_description_strike">Strikethrough</string>
+    <string name="format_bar_description_align_left">Align Left</string>
+    <string name="format_bar_description_align_right">Align Right</string>
+    <string name="format_bar_description_align_center">Align Center</string>
     <string name="format_bar_description_quote">Block quote</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>

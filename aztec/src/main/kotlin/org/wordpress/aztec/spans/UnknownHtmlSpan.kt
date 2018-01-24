@@ -1,6 +1,7 @@
 package org.wordpress.aztec.spans
 
 import android.content.Context
+import android.text.Layout
 import android.text.style.ImageSpan
 
 class UnknownHtmlSpan @JvmOverloads constructor(
@@ -8,7 +9,8 @@ class UnknownHtmlSpan @JvmOverloads constructor(
         var rawHtml: StringBuilder,
         context: Context,
         drawable: Int,
-        var onUnknownHtmlTappedListener: OnUnknownHtmlTappedListener? = null
+        var onUnknownHtmlTappedListener: OnUnknownHtmlTappedListener? = null,
+        override var align: Layout.Alignment? = null
     ) : ImageSpan(context, drawable), IAztecParagraphStyle, IAztecNestable {
 
     fun onClick() {

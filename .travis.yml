@@ -20,10 +20,21 @@ env:
     - ANDROID_TARGET=android-16
 
 before_install:
-  # TODO: Remove the following line when Travis' platform-tools are updated to v24+
-  - echo yes | android update sdk -a --filter platform-tools --no-ui --force
+  # Decrypt secret.json (firebase access)
+  - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
 
 script:
-  - ./gradlew build
+  # Build
+  - ./gradlew assemble assembleAndroidTest
+  # Run unit tests
+  - ./gradlew test
+  # Android lint
   - ./gradlew lint
+  # Kotlin lint and checkstyle
   - ./gradlew ktlint
+  # Download and setup gcloud
+  - wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-185.0.0-linux-x86_64.tar.gz
+  - tar xf google-cloud-sdk-185.0.0-linux-x86_64.tar.gz
+  - ./google-cloud-sdk/bin/gcloud auth activate-service-account --key-file .firebase.secrets.json
+  # Run connected tests
+  - ./google-cloud-sdk/bin/gcloud firebase test android run --type instrumentation --app app/build/outputs/apk/debug/app-debug.apk --test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --device model=Nexus5X,version=26,locale=en,orientation=portrait --project api-project-108380595987 --timeout 10m --verbosity info & while kill -0 $! 2> /dev/null; do echo -n .; sleep 10; done

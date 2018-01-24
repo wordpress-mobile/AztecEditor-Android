@@ -1,8 +1,28 @@
 package org.wordpress.aztec.watchers.event.sequence
 
+import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecPreformatSpan
+import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 
 abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> = EventSequence()) {
+
+    enum class ObservedOperationResultType {
+        SEQUENCE_FOUND,
+        SEQUENCE_NOT_FOUND,
+        SEQUENCE_FOUND_CLEAR_QUEUE
+    }
+
+    fun isFound(resultType: ObservedOperationResultType) : Boolean {
+        return resultType == ObservedOperationResultType.SEQUENCE_FOUND
+    }
+
+    fun needsClear(resultType: ObservedOperationResultType) : Boolean {
+        return resultType == ObservedOperationResultType.SEQUENCE_FOUND_CLEAR_QUEUE
+    }
 
     fun addSequenceStep(event: TextWatcherEvent) {
         sequence.add(event)
@@ -43,7 +63,28 @@ abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> 
         return true
     }
 
-    abstract fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>) : Boolean
+    fun isEventFoundWithinABlock(data: BeforeTextChangedEventData) : Boolean {
+        // ok finally let's make sure  we are not within a Block element
+        val inputStart = data.start + data.count
+        val inputEnd = data.start + data.count + 1
+
+        val text = data.textBefore!!
+        val isInsideList = text.getSpans(inputStart, inputEnd, AztecListItemSpan::class.java).isNotEmpty()
+        val isInsidePre = text.getSpans(inputStart, inputEnd, AztecPreformatSpan::class.java).isNotEmpty()
+        val isInsideCode = text.getSpans(inputStart, inputEnd, AztecCodeSpan::class.java).isNotEmpty()
+        var insideHeading = text.getSpans(inputStart, inputEnd, AztecHeadingSpan::class.java).isNotEmpty()
+
+        if (insideHeading && (text.length > inputEnd && text[inputEnd] == '\n')) {
+            insideHeading = false
+        }
+
+        AppLog.d(AppLog.T.EDITOR, "SEQUENCE OBSERVED COMPLETELY, IS IT WITHIN BLOCK?: " +
+                (isInsideList || insideHeading || isInsidePre || isInsideCode))
+
+        return isInsideList || insideHeading || isInsidePre || isInsideCode
+    }
+
+    abstract fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>) : ObservedOperationResultType
     abstract fun buildReplacementEventWithSequenceData(sequence: EventSequence<TextWatcherEvent>) : TextWatcherEvent
 }
 

@@ -42,7 +42,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
         addSequenceStep(step4)
     }
 
-    override fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>): Boolean {
+    override fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>): ObservedOperationResultType {
         /* here check:
 
         If we have 2 deletes followed by 2 inserts AND:
@@ -55,7 +55,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
 
             // populate data in our own sequence to be able to run the comparator checks
             if (!isUserOperationPartiallyObservedInSequence(sequence)) {
-                return false
+                return ObservedOperationResultType.SEQUENCE_NOT_FOUND
             }
 
             // ok all events are good individually and match the sequence we want to compare against.
@@ -68,12 +68,19 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
                 // now check that the inserted character is actually a space
                 val data = firstEvent.beforeEventData
                 if (lastEvent.afterEventData.textAfter!![data.start + data.count] == SPACE) {
-                    return true
+                    // okay sequence has been observed completely, let's make sure we are not within a Block
+                    if (!isEventFoundWithinABlock(data)) {
+                        return ObservedOperationResultType.SEQUENCE_FOUND
+                    } else {
+                        // we're within a Block, things are going to be handled by the BlockHandler so let's just request
+                        // a queue clear only
+                        return ObservedOperationResultType.SEQUENCE_FOUND_CLEAR_QUEUE
+                    }
                 }
             }
         }
 
-        return false
+        return ObservedOperationResultType.SEQUENCE_NOT_FOUND
     }
 
     override fun buildReplacementEventWithSequenceData(sequence: EventSequence<TextWatcherEvent>): TextWatcherEvent {

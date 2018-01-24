@@ -1,18 +1,20 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space
 
-import org.apache.commons.lang3.StringUtils
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventDeleteText
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
+import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertTextDelAfter
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 
 /*
  This case implements the behavior observed in https://github.com/wordpress-mobile/AztecEditor-Android/issues/610
+ special case for block formated text like HEADING, LIST, etc.
  */
-class API26PrependNewLineOnStyledTextEvent : UserOperationEvent() {
+class API26PrependNewLineOnStyledSpecialTextEvent : UserOperationEvent() {
 
     init {
         // here we populate our model of reference (which is the sequence of events we expect to find)
@@ -20,11 +22,11 @@ class API26PrependNewLineOnStyledTextEvent : UserOperationEvent() {
         // to instantiate them so we can populate them later and test whether data holds true to their
         // validation.
 
-        // 1 generic delete, followed by 2 generic inserts
+        // 1 generic delete, followed by 1 special insert, then 1 generic insert
         val builder = TextWatcherEventDeleteText.Builder()
         val step1 = builder.build()
 
-        val builderStep2 = TextWatcherEventInsertText.Builder()
+        val builderStep2 = TextWatcherEventInsertTextDelAfter.Builder()
         val step2 = builderStep2.build()
 
         val builderStep3 = TextWatcherEventInsertText.Builder()
@@ -48,23 +50,26 @@ class API26PrependNewLineOnStyledTextEvent : UserOperationEvent() {
          */
         if (this.sequence.size == sequence.size) {
 
+            AppLog.d(AppLog.T.EDITOR, "aca estamos")
             // populate data in our own sequence to be able to run the comparator checks
             if (!isUserOperationPartiallyObservedInSequence(sequence)) {
                 return ObservedOperationResultType.SEQUENCE_NOT_FOUND
             }
 
+            AppLog.d(AppLog.T.EDITOR, "aca estamos 2")
+
             // ok all events are good individually and match the sequence we want to compare against.
             // now let's make sure the BEFORE / AFTER situation is what we are trying to identify
             val firstEvent = sequence.first()
             val lastEvent = sequence.last()
+            val midEvent = sequence[1]
 
-            // if new text length is longer than original text by 1
-            if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length - 1) {
-                // now check that the inserted character is actually a NEWLINE
-                val data = firstEvent.beforeEventData
-                if (lastEvent.afterEventData.textAfter!![data.start] == Constants.NEWLINE) {
+            // if new text length is equal as original text length
+            if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length) {
+                //but, middle event has a new line at the start index of change
+                if (midEvent.onEventData.textOn!![midEvent.onEventData.start] == Constants.NEWLINE) {
                     // okay sequence has been observed completely, let's make sure we are not within a Block
-                    if (!isEventFoundWithinABlock(data)) {
+                    if (!isEventFoundWithinABlock(firstEvent.beforeEventData)) {
                         return ObservedOperationResultType.SEQUENCE_FOUND
                     } else {
                         // we're within a Block, things are going to be handled by the BlockHandler so let's just request
@@ -82,16 +87,15 @@ class API26PrependNewLineOnStyledTextEvent : UserOperationEvent() {
         val builder = TextWatcherEventInsertText.Builder()
         // here make it all up as a unique event that does the insert as usual, as we'd get it on older APIs
         val firstEvent = sequence.first()
-        val lastEvent = sequence[sequence.size - 1]
 
         val (oldText) = firstEvent.beforeEventData
 
-        val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
-        oldText?.insert(differenceIndex, Constants.NEWLINE_STRING)
+        val indexWhereToInsertNewLine = firstEvent.beforeEventData.start
+        oldText?.insert(indexWhereToInsertNewLine, Constants.NEWLINE_STRING)
 
         builder.afterEventData = AfterTextChangedEventData(oldText)
         val replacementEvent = builder.build()
-        replacementEvent.insertionStart = differenceIndex
+        replacementEvent.insertionStart = indexWhereToInsertNewLine
         replacementEvent.insertionLength = 1
 
         return replacementEvent

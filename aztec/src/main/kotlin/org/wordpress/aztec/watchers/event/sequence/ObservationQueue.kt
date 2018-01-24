@@ -55,11 +55,17 @@ class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcher
                     }
                 } else {
                     // does this particular event look like a part of any of the user operations as defined in this bucket?
-                    if (operation.isUserOperationObservedInSequence(this)) {
+                    val result = operation.isUserOperationObservedInSequence(this)
+                    if (operation.isFound(result)) {
                         // replace user operation with ONE TextWatcherEvent and inject this one in the actual
                         // textwatchers
                         val replacementEvent = operation.buildReplacementEventWithSequenceData(this)
                         injector.executeEvent(replacementEvent)
+                        clear()
+                    }
+
+                    // regardless of the operation being found, let's check if it needs the queue to be cleared
+                    if (operation.needsClear(result)) {
                         clear()
                     }
                 }

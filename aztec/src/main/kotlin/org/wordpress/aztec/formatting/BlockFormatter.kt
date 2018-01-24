@@ -821,16 +821,22 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun switchHeaderType(headerTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val existingHeaderSpan = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
-        if (existingHeaderSpan != null) {
-            val spanStart = editableText.getSpanStart(existingHeaderSpan)
-            val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
-            val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
+        var spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-            existingHeaderSpan.textFormat = headerTypeToSwitchTo
+        spans.forEach { existingHeaderSpan ->
+            if (existingHeaderSpan != null) {
+                val spanStart = editableText.getSpanStart(existingHeaderSpan)
+                val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
+                val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
 
-            editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                existingHeaderSpan.textFormat = headerTypeToSwitchTo
+
+                editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 

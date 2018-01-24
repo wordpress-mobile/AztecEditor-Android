@@ -139,8 +139,6 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
             enableTextChangedListener()
             return
         }
-
-        history?.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 

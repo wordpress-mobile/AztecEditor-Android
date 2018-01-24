@@ -411,10 +411,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 setText("")
                 enableTextChangedListener()
             }
-
-            if (!consumeHistoryEvent) {
-                history.handleHistory(this@AztecText)
-            }
         }
         return wasStyleRemoved
     }
@@ -480,8 +476,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 if (consumeHistoryEvent) {
                     consumeHistoryEvent = false
                 }
-
-                history.handleHistory(this@AztecText)
             }
         }
         addTextChangedListener(historyLoggingWatcher)
@@ -816,8 +810,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                         .forEach { it.toggle() }
             }
         }
-
-        history.handleHistory(this)
     }
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -1296,8 +1288,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml)
-                history.handleHistory(this@AztecText)
-
                 inlineFormatter.joinStyleSpans(0, length())
             }
         }
@@ -1325,7 +1315,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         } else {
             linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
         }
-        history.handleHistory(this)
     }
 
     fun removeLink() {

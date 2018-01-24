@@ -476,16 +476,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             }
 
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
-            return editor!!.setSelectedStyles(textFormats)
+            val returnValue =  editor!!.setSelectedStyles(textFormats)
+
+            highlighAppliedStyles()
+
+            return returnValue
         }
 
         // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
+            val returnValue = editor!!.toggleFormatting(action.textFormat)
 
-            highlightAlignButtons(arrayListOf(action.textFormat))
+            highlighAppliedStyles()
 
-            return editor!!.toggleFormatting(action.textFormat)
+            return returnValue
         }
 
         // other toolbar action
@@ -523,6 +528,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        highlighAppliedStyles()
+    }
+
+    private fun highlighAppliedStyles() {
+        editor?.let {
+            highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
         }
     }
 

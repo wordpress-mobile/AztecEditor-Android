@@ -228,7 +228,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val endModifier = if (hasLingeringEmptyListItem) 1 else 0
 
             val spans = editableText.getSpans(start, end + endModifier, spanType)
-            spans.forEach { span ->
+            spans.forEach innerForEach@{ span ->
 
                 val spanStart = editableText.getSpanStart(span)
                 val spanEnd = editableText.getSpanEnd(span)
@@ -252,6 +252,13 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
+                    if (span is AztecListItemSpan) {
+                        val parent = IAztecNestable.getParent(editableText, SpanWrapper<AztecListItemSpan>(editableText, span))
+                        if (textFormat == AztecTextFormat.FORMAT_UNORDERED_LIST && parent?.span is AztecOrderedListSpan ||
+                            textFormat == AztecTextFormat.FORMAT_ORDERED_LIST && parent?.span is AztecUnorderedListSpan) {
+                            return@innerForEach
+                        }
+                    }
                     editableText.removeSpan(span)
                 }
             }
@@ -397,7 +404,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-        val spans = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
+        var spans = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
+
         if (spans.isNotEmpty()) {
             spans.forEach {
                 changeAlignment(it, blockElementType)
@@ -555,8 +566,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     private fun liftListBlock(listSpan: Class<out AztecListSpan>, start: Int, end: Int) {
-        editableText.getSpans(start, end, listSpan).forEach { editableText.removeSpan(it) }
-        editableText.getSpans(start, end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+        editableText.getSpans(start, end, listSpan).forEach {
+            val wrapper = SpanWrapper(editableText, it)
+            editableText.getSpans(wrapper.start, wrapper.end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+            wrapper.remove()
+        }
     }
 
     fun containsList(textFormat: ITextFormat, nestingLevel: Int, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -808,15 +822,21 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
-        if (existingListSpan != null) {
-            val spanStart = editableText.getSpanStart(existingListSpan)
-            val spanEnd = editableText.getSpanEnd(existingListSpan)
-            val spanFlags = editableText.getSpanFlags(existingListSpan)
-            editableText.removeSpan(existingListSpan)
+        var spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+        spans.forEach { existingListSpan ->
+            if (existingListSpan != null) {
+                val spanStart = editableText.getSpanStart(existingListSpan)
+                val spanEnd = editableText.getSpanEnd(existingListSpan)
+                val spanFlags = editableText.getSpanFlags(existingListSpan)
+                editableText.removeSpan(existingListSpan)
+
+                editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 
@@ -841,32 +861,42 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun switchHeadingToPreformat(start: Int = selectionStart, end: Int = selectionEnd) {
-        val heading = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
+        var spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-        if (heading != null) {
-            val spanStart = editableText.getSpanStart(heading)
-            val spanEnd = editableText.getSpanEnd(heading)
-            val spanFlags = editableText.getSpanFlags(heading)
-            val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+        spans.forEach { heading ->
+            if (heading != null) {
+                val spanStart = editableText.getSpanStart(heading)
+                val spanEnd = editableText.getSpanEnd(heading)
+                val spanFlags = editableText.getSpanFlags(heading)
+                val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
-            editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
+                editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 
     fun switchPreformatToHeading(headingTextFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val preformat = editableText.getSpans(start, end, AztecPreformatSpan::class.java).firstOrNull()
+        var spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-        if (preformat != null) {
-            val spanStart = editableText.getSpanStart(preformat)
-            val spanEnd = editableText.getSpanEnd(preformat)
-            val spanFlags = editableText.getSpanFlags(preformat)
-            val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
+        spans.forEach { preformat ->
+            if (preformat != null) {
+                val spanStart = editableText.getSpanStart(preformat)
+                val spanEnd = editableText.getSpanEnd(preformat)
+                val spanFlags = editableText.getSpanFlags(preformat)
+                val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
-            editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
+                editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 }

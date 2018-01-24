@@ -300,12 +300,20 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
+
+                editor?.let {
+                    highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
+                }
                 return true
             }
             R.id.list_unordered -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
+
+                editor?.let {
+                    highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
+                }
                 return true
             }
             else -> return false

@@ -6,8 +6,8 @@ import android.text.Spannable
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.spans.TextAlignmentSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
@@ -28,25 +28,27 @@ class InlineCssStyleFormatter {
         val CSS_COLOR_ATTRIBUTE = "color"
 
         /**
-         * Check the provided [attributes] for the *style* attribute. If found, parse out the
+         * Check the provided [attributedSpan] for the *style* attribute. If found, parse out the
          * supported CSS style properties and use the results to create a [ForegroundColorSpan],
          * then add it to the provided [text].
          *
          * Must be called immediately after the base [IAztecAttributedSpan] has been processed.
          *
          * @param [text] An [Editable] containing an [IAztecAttributedSpan] for processing.
-         * @param [attributes] The attributes of the Html tag used to search for the *style* attributes.
+         * @param [attributedSpan] The attributed span of the Html tag used to search for the *style* attributes.
          * @param [start] The index where the [IAztecAttributedSpan] starts inside the [text].
          */
-        fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int, end: Int) {
-            if (attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
-                processColor(attributes, text, start, end)
-                processAlignment(attributes, text, start, end)
+        fun applyInlineStyleAttributes(text: Editable, attributedSpan: IAztecAttributedSpan, start: Int, end: Int) {
+            if (attributedSpan.attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
+                processColor(attributedSpan.attributes, text, start, end)
+                if (attributedSpan is IAztecBlockSpan) {
+                    processAlignment(attributedSpan, text, start, end)
+                }
             }
         }
 
-        private fun processAlignment(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
-            val alignment = getStyleAttribute(attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
+        private fun processAlignment(blockSpan: IAztecBlockSpan, text: Editable, start: Int, end: Int) {
+            val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
             if (!alignment.isBlank()) {
                 val align = when (alignment) {
                     "right" -> Layout.Alignment.ALIGN_OPPOSITE
@@ -54,10 +56,7 @@ class InlineCssStyleFormatter {
                     else -> Layout.Alignment.ALIGN_NORMAL
                 }
 
-                if (align != Layout.Alignment.ALIGN_NORMAL) {
-                    val nesting = IAztecNestable.getNestingLevelAt(text, start)
-                    text.setSpan(TextAlignmentSpan(align), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
+                blockSpan.align = align
             }
         }
 

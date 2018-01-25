@@ -9,7 +9,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
-import org.wordpress.aztec.source.InlineCssStyleFormatter
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 
 /**
@@ -70,7 +70,7 @@ class CssUnderlinePluginTest {
         editText.fromHtml(CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML)
 
         val span = editText.text.getSpans(0, editText.length(), AztecUnderlineSpan::class.java).first()
-        InlineCssStyleFormatter.addStyleAttribute(span.attributes, "test", "value")
+        CssStyleFormatter.addStyleAttribute(span.attributes, "test", "value")
 
         Assert.assertEquals(CSS_STYLE_UNDERLINE_WITH_EVEN_MORE_STYLES_REORDERED_HTML, editText.toPlainHtml())
     }

@@ -2,7 +2,7 @@ package org.wordpress.aztec.spans
 
 import android.text.Editable
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.source.InlineCssStyleFormatter
+import org.wordpress.aztec.source.CssStyleFormatter
 
 interface IAztecAttributedSpan {
     var attributes: AztecAttributes
@@ -14,8 +14,8 @@ interface IAztecAttributedSpan {
      */
     fun applyInlineStyleAttributes(output: Editable, start: Int, end: Int) {
         val attr = this.attributes
-        if (attr.hasAttribute(InlineCssStyleFormatter.STYLE_ATTRIBUTE)) {
-            InlineCssStyleFormatter.applyInlineStyleAttributes(output, this, start, end)
+        if (attr.hasAttribute(CssStyleFormatter.STYLE_ATTRIBUTE)) {
+            CssStyleFormatter.applyInlineStyleAttributes(output, this, start, end)
         }
     }
 }

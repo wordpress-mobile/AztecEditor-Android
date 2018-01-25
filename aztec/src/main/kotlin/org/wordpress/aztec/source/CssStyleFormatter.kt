@@ -3,12 +3,10 @@ package org.wordpress.aztec.source
 import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
-import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
-import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -18,7 +16,7 @@ import java.util.regex.Pattern
  * The CSS style properties current supported are:
  * + *color*<br/>Example: style="color:blue"
  */
-class InlineCssStyleFormatter {
+class CssStyleFormatter {
 
     companion object {
 

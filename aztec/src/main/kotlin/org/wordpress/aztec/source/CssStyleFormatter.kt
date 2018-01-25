@@ -6,9 +6,7 @@ import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAttributedSpan
-import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecParagraphStyle
-import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
 import java.util.regex.Pattern

@@ -41,13 +41,11 @@ import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.IAztecParagraphStyle
-import org.wordpress.aztec.spans.IAztecSpan
 import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper

@@ -64,14 +64,7 @@ class API26PrependNewLineOnStyledSpecialTextEvent : UserOperationEvent() {
             if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length) {
                 //but, middle event has a new line at the start index of change
                 if (midEvent.onEventData.textOn!![midEvent.onEventData.start] == Constants.NEWLINE) {
-                    // okay sequence has been observed completely, let's make sure we are not within a Block
-                    if (!isEventFoundWithinABlock(firstEvent.beforeEventData)) {
-                        return ObservedOperationResultType.SEQUENCE_FOUND
-                    } else {
-                        // we're within a Block, things are going to be handled by the BlockHandler so let's just request
-                        // a queue clear only
-                        return ObservedOperationResultType.SEQUENCE_FOUND_CLEAR_QUEUE
-                    }
+                    return ObservedOperationResultType.SEQUENCE_FOUND
                 }
             }
         }

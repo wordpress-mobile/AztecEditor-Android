@@ -9,7 +9,6 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcherEvent>() {
     val buckets = ArrayList<Bucket>()
 
-
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buckets.add(API26Bucket())

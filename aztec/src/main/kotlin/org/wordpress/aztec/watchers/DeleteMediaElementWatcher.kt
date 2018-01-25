@@ -19,6 +19,9 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
 
         if (count > 0) {
             deleted = true
+
+            // we need to save the spans for later reference, as these spans are going to not exist anymore by the time
+            // the afterTextChanged event arrives. So, adding them to a local deletedSpans array.
             aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
                     ?.forEach {
                         deletedSpans.add(it)

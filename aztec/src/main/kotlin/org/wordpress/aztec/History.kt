@@ -22,7 +22,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     private var textChangedPending = false
 
     // Time in ms to wait before applying change history to the stack
-    var historyThrottleTime = 900L
+    var historyThrottleTime = 500L
 
     init {
         if (historyEnabled) {

@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space
 
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
@@ -50,13 +49,10 @@ class API26PrependNewLineOnStyledSpecialTextEvent : UserOperationEvent() {
          */
         if (this.sequence.size == sequence.size) {
 
-            AppLog.d(AppLog.T.EDITOR, "aca estamos")
             // populate data in our own sequence to be able to run the comparator checks
             if (!isUserOperationPartiallyObservedInSequence(sequence)) {
                 return ObservedOperationResultType.SEQUENCE_NOT_FOUND
             }
-
-            AppLog.d(AppLog.T.EDITOR, "aca estamos 2")
 
             // ok all events are good individually and match the sequence we want to compare against.
             // now let's make sure the BEFORE / AFTER situation is what we are trying to identify

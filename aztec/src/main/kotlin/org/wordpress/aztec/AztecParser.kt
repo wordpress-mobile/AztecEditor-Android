@@ -26,11 +26,13 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
+import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -370,6 +372,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
     private fun withinNestable(out: StringBuilder, text: Spanned, start: Int, end: Int,
                                nestable: IAztecSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+        if (nestable is IAztecBlockSpan && nestable.align != null) {
+            CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
+            CssStyleFormatter.addStyleAttribute(nestable.attributes,
+                    CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString())
+        }
         out.append("<${nestable.startTag}>")
         withinHtml(out, text, start, end, parents, nestingLevel)
         out.append("</${nestable.endTag}>")

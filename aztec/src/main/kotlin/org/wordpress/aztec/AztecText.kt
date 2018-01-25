@@ -854,7 +854,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     fun isObservationQueueBeingPopulated() : Boolean {
         // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
-        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 50
+        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
         return !observationQueue.isEmpty() &&
                 ((System.currentTimeMillis() - observationQueue.last().timestamp) < MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS)
     }

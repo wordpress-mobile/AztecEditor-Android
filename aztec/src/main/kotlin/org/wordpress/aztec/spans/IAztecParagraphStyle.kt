@@ -8,7 +8,7 @@ import android.text.style.AlignmentSpan
  * Created in order to distinguish between spans that implement ParagraphStyle for various reasons, but have separate
  * parsing logic, like  {@link org.wordpress.aztec.spans.AztecHeadingSpan}
  **/
-interface IAztecParagraphStyle : AlignmentSpan {
+interface IAztecParagraphStyle : AlignmentSpan, IAztecSpan, IAztecNestable {
 
     var align: Layout.Alignment?
 

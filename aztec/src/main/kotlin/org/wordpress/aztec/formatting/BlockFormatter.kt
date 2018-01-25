@@ -21,6 +21,7 @@ import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
@@ -404,8 +405,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-        var spans = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-        if (start == end && spans.size > 1) {
+        var spans = editableText.getSpans(selectionStart, selectionEnd, IAztecParagraphStyle::class.java)
+        if (start == boundsOfSelectedText.start && start == end && spans.size > 1) {
             spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
         }
 
@@ -414,15 +415,16 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 changeAlignment(it, blockElementType)
             }
         } else {
-            val paragraph = ParagraphSpan(0, AztecAttributes(), getAlignment(blockElementType))
+            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
+            val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), getAlignment(blockElementType))
             editableText.setSpan(paragraph, boundsOfSelectedText.start,
                     boundsOfSelectedText.endInclusive, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
-    private fun changeAlignment(it: IAztecBlockSpan, blockElementType: ITextFormat?) {
+    private fun changeAlignment(it: IAztecParagraphStyle, blockElementType: ITextFormat?) {
         it.align = getAlignment(blockElementType)
-        val wrapper = SpanWrapper<IAztecBlockSpan>(editableText, it)
+        val wrapper = SpanWrapper<IAztecParagraphStyle>(editableText, it)
         editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
     }
 

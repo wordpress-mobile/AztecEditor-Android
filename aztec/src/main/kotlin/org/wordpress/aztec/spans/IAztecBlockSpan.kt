@@ -1,3 +1,3 @@
 package org.wordpress.aztec.spans
 
-interface IAztecBlockSpan : IAztecParagraphStyle, IAztecSurroundedWithNewlines, IAztecSpan, IParagraphFlagged
+interface IAztecBlockSpan : IAztecParagraphStyle, IAztecSurroundedWithNewlines, IParagraphFlagged

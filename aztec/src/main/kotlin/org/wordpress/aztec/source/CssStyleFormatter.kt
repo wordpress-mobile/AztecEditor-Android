@@ -7,6 +7,8 @@ import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecParagraphStyle
+import org.wordpress.aztec.spans.IParagraphFlagged
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -39,13 +41,13 @@ class CssStyleFormatter {
         fun applyInlineStyleAttributes(text: Editable, attributedSpan: IAztecAttributedSpan, start: Int, end: Int) {
             if (attributedSpan.attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
                 processColor(attributedSpan.attributes, text, start, end)
-                if (attributedSpan is IAztecBlockSpan) {
+                if (attributedSpan is IAztecParagraphStyle) {
                     processAlignment(attributedSpan, text, start, end)
                 }
             }
         }
 
-        private fun processAlignment(blockSpan: IAztecBlockSpan, text: Editable, start: Int, end: Int) {
+        private fun processAlignment(blockSpan: IAztecParagraphStyle, text: Editable, start: Int, end: Int) {
             val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
             if (!alignment.isBlank()) {
                 val align = when (alignment) {

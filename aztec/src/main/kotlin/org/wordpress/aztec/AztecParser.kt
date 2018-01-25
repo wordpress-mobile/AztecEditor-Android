@@ -352,8 +352,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             }
 
             when (nestable) {
-                is HiddenHtmlSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
-                is IAztecBlockSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
+                is IAztecParagraphStyle -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
                 is UnknownHtmlSpan -> withinUnknown(out, text, i, next, nestable)
                 else -> withinContent(out, text, i, next, parents)
             }
@@ -371,12 +370,14 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     }
 
     private fun withinNestable(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                               nestable: IAztecSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
-        if (nestable is IAztecBlockSpan && nestable.align != null) {
+                               nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+
+        nestable.align?.let {
             CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
             CssStyleFormatter.addStyleAttribute(nestable.attributes,
                     CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString())
         }
+
         out.append("<${nestable.startTag}>")
         withinHtml(out, text, start, end, parents, nestingLevel)
         out.append("</${nestable.endTag}>")

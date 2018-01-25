@@ -411,9 +411,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         if (spans.isNotEmpty()) {
-            spans.forEach {
-                changeAlignment(it, blockElementType)
-            }
+            spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, blockElementType) }
         } else {
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
             val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), getAlignment(blockElementType))

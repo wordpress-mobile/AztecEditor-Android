@@ -8,6 +8,9 @@ import java.lang.ref.WeakReference
 
 class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
+    private var deleted = false
+    private var queueHasBeenPopulatedInThisTimeframe = false
+    private var deletedSpans = ArrayList<AztecMediaSpan>()
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
@@ -15,10 +18,25 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
         }
 
         if (count > 0) {
+            deleted = true
             aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
                     ?.forEach {
-                        it.onMediaDeleted()
+                        deletedSpans.add(it)
                     }
+
+            // only call the onMediaDeleted callback if we are sure the ObservationQueue has not been filled with
+            // platform-only events in a short time. These platform-originated events shall not be confused with
+            // real user deletions.
+            aztecTextRef.get()?.postDelayed( object : Runnable {
+                override fun run() {
+                    if (!queueHasBeenPopulatedInThisTimeframe) {
+                        deletedSpans.forEach { it.onMediaDeleted() }
+                    }
+                    // reset flag
+                    deletedSpans.clear()
+                    queueHasBeenPopulatedInThisTimeframe = false
+                }
+            }, 500)
         }
     }
 
@@ -27,7 +45,9 @@ class DeleteMediaElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     override fun afterTextChanged(text: Editable) {
-        // no op
+        if (deleted && aztecTextRef.get()?.isObservationQueueBeingPopulated() ?: true) {
+            queueHasBeenPopulatedInThisTimeframe = true
+        }
     }
 
     companion object {

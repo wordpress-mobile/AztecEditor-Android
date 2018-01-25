@@ -852,6 +852,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
     }
 
+    fun isObservationQueueBeingPopulated() : Boolean {
+        // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
+        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 50
+        return !observationQueue.isEmpty() &&
+                ((System.currentTimeMillis() - observationQueue.last().timestamp) < MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS)
+    }
+
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         addWatcherNestingLevel()
         if (!isViewInitialized) return

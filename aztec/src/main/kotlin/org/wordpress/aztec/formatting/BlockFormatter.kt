@@ -405,12 +405,19 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-        var spans = editableText.getSpans(selectionStart, selectionEnd, IAztecParagraphStyle::class.java)
-        if (start == boundsOfSelectedText.start && start == end && spans.size > 1) {
-            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        var spans = getAlignedSpans(null, start, end)
+        if (start == end && start == boundsOfSelectedText.start && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }
+        } else if (start == end && start == boundsOfSelectedText.endInclusive && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanEnd(it) == start ||
+                    editableText[start] == Constants.NEWLINE && editableText.getSpanEnd(it) - 1 == start }
         }
 
         if (spans.isNotEmpty()) {
+            if (start == end) {
+                val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start)
+                spans = spans.filter { it.nestingLevel == nestingLevel }
+            }
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, blockElementType) }
         } else {
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
@@ -748,23 +755,19 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return getAlignedSpans(blockType, selStart, selEnd).isNotEmpty()
     }
 
-    private fun getAlignedSpans(blockType: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecBlockSpan> {
+    private fun getAlignedSpans(blockType: ITextFormat?, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecParagraphStyle> {
         if (selStart < 0 || selEnd < 0) return emptyList()
 
         val align = getAlignment(blockType)
 
-        return editableText.getSpans(selStart, selEnd, IAztecBlockSpan::class.java)
-                .filter { it.align == align }
+        return editableText.getSpans(selStart, selEnd, IAztecParagraphStyle::class.java)
+                .filter { align == null || it.align == align }
                 .filter {
                     val spanStart = editableText.getSpanStart(it)
                     val spanEnd = editableText.getSpanEnd(it)
 
                     if (selStart == selEnd) {
-                        if (editableText.length == selStart) {
-                            selStart in spanStart..spanEnd
-                        } else {
-                            (spanEnd != selStart) && selStart in spanStart..spanEnd
-                        }
+                        selStart in spanStart..spanEnd
                     } else {
                         (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
                                 (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)

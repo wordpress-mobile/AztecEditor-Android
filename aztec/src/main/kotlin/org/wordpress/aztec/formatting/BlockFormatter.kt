@@ -394,7 +394,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         startOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-        endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
+        endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak) else editable.length
 
         return IntRange(startOfBlock, endOfBlock)
     }
@@ -405,19 +405,19 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-        var spans = getAlignedSpans(null, start, end)
-        if (start == end && start == boundsOfSelectedText.start && spans.size > 1) {
-            spans = spans.filter { editableText.getSpanStart(it) == start }
-        } else if (start == end && start == boundsOfSelectedText.endInclusive && spans.size > 1) {
-            spans = spans.filter { editableText.getSpanEnd(it) == start ||
-                    editableText[start] == Constants.NEWLINE && editableText.getSpanEnd(it) - 1 == start }
+        var spans = getAlignedSpans(null, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+                .filter { editableText.getSpanStart(it) >= boundsOfSelectedText.start ||
+                        editableText.getSpanEnd(it) <= boundsOfSelectedText.endInclusive }
+
+        if (start == end) {
+            if (start == boundsOfSelectedText.start && spans.size > 1) {
+                spans = spans.filter { editableText.getSpanEnd(it) != start }
+            } else if (start == boundsOfSelectedText.endInclusive && spans.size > 1) {
+                spans = spans.filter { editableText.getSpanStart(it) != start }
+            }
         }
 
         if (spans.isNotEmpty()) {
-            if (start == end) {
-                val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start)
-                spans = spans.filter { it.nestingLevel == nestingLevel }
-            }
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, blockElementType) }
         } else {
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
@@ -767,7 +767,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     val spanEnd = editableText.getSpanEnd(it)
 
                     if (selStart == selEnd) {
-                        selStart in spanStart..spanEnd
+                        if (editableText.length == selStart) {
+                            selStart in spanStart..spanEnd
+                        } else {
+                            (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        }
                     } else {
                         (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
                                 (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)

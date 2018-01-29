@@ -88,7 +88,8 @@ import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI26AndHigher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI26
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
@@ -445,7 +446,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
 
-        DeleteMediaElementWatcher.install(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            DeleteMediaElementWatcherAPI26AndHigher.install(this)
+        } else {
+            DeleteMediaElementWatcherPreAPI26.install(this)
+        }
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()

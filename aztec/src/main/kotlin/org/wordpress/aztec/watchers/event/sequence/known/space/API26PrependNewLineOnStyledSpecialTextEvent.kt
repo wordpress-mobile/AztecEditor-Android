@@ -1,19 +1,19 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space
 
-import org.apache.commons.lang3.StringUtils
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventDeleteText
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
+import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertTextDelAfter
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 
 /*
- This case implements the behavior observed in https://github.com/wordpress-mobile/AztecEditor-Android/issues/555
+ This case implements the behavior observed in https://github.com/wordpress-mobile/AztecEditor-Android/issues/610
+ special case for block formated text like HEADING, LIST, etc.
  */
-class API25InWordSpaceInsertionEvent : UserOperationEvent() {
-    private val SPACE = ' '
-    private val SPACE_STRING = "" + SPACE
+class API26PrependNewLineOnStyledSpecialTextEvent : UserOperationEvent() {
 
     init {
         // here we populate our model of reference (which is the sequence of events we expect to find)
@@ -21,34 +21,30 @@ class API25InWordSpaceInsertionEvent : UserOperationEvent() {
         // to instantiate them so we can populate them later and test whether data holds true to their
         // validation.
 
-        // 2 generic deletes, followed by 2 generic inserts
+        // 1 generic delete, followed by 1 special insert, then 1 generic insert
         val builder = TextWatcherEventDeleteText.Builder()
         val step1 = builder.build()
 
-        val builderStep2 = TextWatcherEventDeleteText.Builder()
+        val builderStep2 = TextWatcherEventInsertTextDelAfter.Builder()
         val step2 = builderStep2.build()
 
         val builderStep3 = TextWatcherEventInsertText.Builder()
         val step3 = builderStep3.build()
 
-        val builderStep4 = TextWatcherEventInsertText.Builder()
-        val step4 = builderStep4.build()
-
-        // add each of the steps that make up for the identified API25InWordSpaceInsertionEvent here
+        // add each of the steps that make up for the identified API26InWordSpaceInsertionEvent here
         clear()
         addSequenceStep(step1)
         addSequenceStep(step2)
         addSequenceStep(step3)
-        addSequenceStep(step4)
     }
 
     override fun isUserOperationObservedInSequence(sequence: EventSequence<TextWatcherEvent>): ObservedOperationResultType {
         /* here check:
 
-        If we have 2 deletes followed by 2 inserts AND:
+        If we have 1 delete followed by 2 inserts AND:
         1) checking the first BEFORETEXTCHANGED and
         2) checking the LAST AFTERTEXTCHANGED
-        text length is longer by 1, and the item that is now located at the first BEFORETEXTCHANGED is a SPACE character.
+        text length is longer by 1, and the item that is now located start of AFTERTEXTCHANGED is a NEWLINE character.
 
          */
         if (this.sequence.size == sequence.size) {
@@ -62,20 +58,13 @@ class API25InWordSpaceInsertionEvent : UserOperationEvent() {
             // now let's make sure the BEFORE / AFTER situation is what we are trying to identify
             val firstEvent = sequence.first()
             val lastEvent = sequence.last()
+            val midEvent = sequence[1]
 
-            // if new text length is longer than original text by 1
-            if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length - 1) {
-                // now check that the inserted character is actually a space
-                val data = firstEvent.beforeEventData
-                if (lastEvent.afterEventData.textAfter!![data.start + data.count] == SPACE) {
-                    // okay sequence has been observed completely, let's make sure we are not within a Block
-                    if (!isEventFoundWithinABlock(data)) {
-                        return ObservedOperationResultType.SEQUENCE_FOUND
-                    } else {
-                        // we're within a Block, things are going to be handled by the BlockHandler so let's just request
-                        // a queue clear only
-                        return ObservedOperationResultType.SEQUENCE_FOUND_CLEAR_QUEUE
-                    }
+            // if new text length is equal as original text length
+            if (firstEvent.beforeEventData.textBefore?.length == lastEvent.afterEventData.textAfter!!.length) {
+                //but, middle event has a new line at the start index of change
+                if (midEvent.onEventData.textOn!![midEvent.onEventData.start] == Constants.NEWLINE) {
+                    return ObservedOperationResultType.SEQUENCE_FOUND
                 }
             }
         }
@@ -87,16 +76,15 @@ class API25InWordSpaceInsertionEvent : UserOperationEvent() {
         val builder = TextWatcherEventInsertText.Builder()
         // here make it all up as a unique event that does the insert as usual, as we'd get it on older APIs
         val firstEvent = sequence.first()
-        val lastEvent = sequence[sequence.size - 1]
 
         val (oldText) = firstEvent.beforeEventData
 
-        val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
-        oldText?.insert(differenceIndex, SPACE_STRING)
+        val indexWhereToInsertNewLine = firstEvent.beforeEventData.start
+        oldText?.insert(indexWhereToInsertNewLine, Constants.NEWLINE_STRING)
 
         builder.afterEventData = AfterTextChangedEventData(oldText)
         val replacementEvent = builder.build()
-        replacementEvent.insertionStart = differenceIndex
+        replacementEvent.insertionStart = indexWhereToInsertNewLine
         replacementEvent.insertionLength = 1
 
         return replacementEvent

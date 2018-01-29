@@ -11,7 +11,7 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 /*
  This case implements the behavior observed in https://github.com/wordpress-mobile/AztecEditor-Android/issues/555
  */
-class API26InWordSpaceInsertionEvent : UserOperationEvent() {
+class API25InWordSpaceInsertionEvent : UserOperationEvent() {
     private val SPACE = ' '
     private val SPACE_STRING = "" + SPACE
 
@@ -34,7 +34,7 @@ class API26InWordSpaceInsertionEvent : UserOperationEvent() {
         val builderStep4 = TextWatcherEventInsertText.Builder()
         val step4 = builderStep4.build()
 
-        // add each of the steps that make up for the identified API26InWordSpaceInsertionEvent here
+        // add each of the steps that make up for the identified API25InWordSpaceInsertionEvent here
         clear()
         addSequenceStep(step1)
         addSequenceStep(step2)

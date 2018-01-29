@@ -1,8 +1,14 @@
 # Changelog
-## Unreleased
+## [1.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.1) - 2018-01-29
 ### Added
 - Plugin that detects and hides Gutenberg editor blocks in the visual editor
 - Plugin that adds support for CSS-style underline formatting
+
+### Fixed
+- Bug on API 26+ when onMediaDeleted called even when no image was deleted
+- Slow edit history performance
+- Lost formatting on API 25 when inserting space before styled text
+- Lost formatting on API 26+ when inserting a newline before styled text
 
 ## [1.0.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.0.1) - 2018-01-22
 ### Fixed

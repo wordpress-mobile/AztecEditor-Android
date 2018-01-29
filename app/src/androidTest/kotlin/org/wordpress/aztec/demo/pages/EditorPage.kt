@@ -180,7 +180,7 @@ class EditorPage : BasePage() {
         label("Inserting media")
 
         Thread.sleep(200)
-        galleryButton.perform(click())
+        galleryButton.perform(Actions.invokeClick())
         label("Chose gallery")
 
         Thread.sleep(200)

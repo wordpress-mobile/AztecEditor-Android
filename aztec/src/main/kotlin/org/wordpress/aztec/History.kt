@@ -19,7 +19,6 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val historyRunnable: HistoryRunnable?
-    private var inputLastTmp = ""
     private var textChangedPending = false
 
     // Time in ms to wait before applying change history to the stack
@@ -33,21 +32,30 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         }
     }
 
-    fun beforeTextChanged(text: String) {
+    fun beforeTextChanged(editText: EditText) {
         if (historyEnabled && !historyWorking) {
             mainHandler.removeCallbacks(historyRunnable)
             if (!textChangedPending) {
                 textChangedPending = true
-                historyRunnable?.text = text
+                historyRunnable?.text =
+                    when (editText) {
+                        is AztecText -> editText.toFormattedHtml()
+                        is SourceViewEditText -> editText.text.toString()
+                        else -> ""
+                    }
+                historyRunnable?.editText = editText
             }
             mainHandler.postDelayed(historyRunnable, historyThrottleTime)
         }
     }
 
-    protected fun doHandleHistory(inputBeforeTmp: String) {
+    protected fun doHandleHistory(inputBefore: String, editText: EditText?) {
         textChangedPending = false
-        inputBefore = inputBeforeTmp
-        inputLast = inputLastTmp
+        inputLast = when (editText) {
+            is AztecText -> editText.toFormattedHtml()
+            is SourceViewEditText -> editText.text.toString()
+            else -> ""
+        }
 
         if (inputLast == inputBefore) {
             return
@@ -68,18 +76,6 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         updateActions()
     }
 
-    fun handleHistory(editText: EditText) {
-        if (!historyEnabled || historyWorking) {
-            return
-        }
-
-        if (editText is AztecText) {
-            inputLastTmp = editText.toFormattedHtml()
-        } else if (editText is SourceViewEditText) {
-            inputLastTmp = editText.text.toString()
-        }
-    }
-
     /**
      * Useful for replacing the last history item after background
      * processing has completed. Example: uploading media.
@@ -89,11 +85,10 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return
         }
         if (editText is AztecText) {
-            inputLastTmp = editText.toFormattedHtml()
+            inputLast = editText.toFormattedHtml()
         } else if (editText is SourceViewEditText) {
-            inputLastTmp = editText.text.toString()
+            inputLast = editText.text.toString()
         }
-        inputLast = inputLastTmp
     }
 
     fun redo(editText: EditText) {
@@ -197,9 +192,9 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
      */
     inner class HistoryRunnable(val history: History) : Runnable {
         var text: String = ""
-
+        var editText: EditText? = null
         override fun run() {
-            history.doHandleHistory(text)
+            history.doHandleHistory(text, editText)
         }
     }
 }

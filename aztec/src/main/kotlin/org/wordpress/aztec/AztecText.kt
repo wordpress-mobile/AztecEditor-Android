@@ -397,7 +397,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             if (!consumeHistoryEvent) {
-                history.beforeTextChanged(toFormattedHtml())
+                history.beforeTextChanged(this@AztecText)
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
 
@@ -410,10 +410,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 disableTextChangedListener()
                 setText("")
                 enableTextChangedListener()
-            }
-
-            if (!consumeHistoryEvent) {
-                history.handleHistory(this@AztecText)
             }
         }
         return wasStyleRemoved
@@ -464,7 +460,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
                 if (!isViewInitialized) return
                 if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-                    history.beforeTextChanged(toFormattedHtml())
+                    history.beforeTextChanged(this@AztecText)
                 }
             }
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -480,8 +476,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 if (consumeHistoryEvent) {
                     consumeHistoryEvent = false
                 }
-
-                history.handleHistory(this@AztecText)
             }
         }
         addTextChangedListener(historyLoggingWatcher)
@@ -790,7 +784,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun toggleFormatting(textFormat: ITextFormat) {
-        history.beforeTextChanged(toFormattedHtml())
+        history.beforeTextChanged(this@AztecText)
 
         when (textFormat) {
             AztecTextFormat.FORMAT_PARAGRAPH,
@@ -816,8 +810,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                         .forEach { it.toggle() }
             }
         }
-
-        history.handleHistory(this)
     }
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -857,7 +849,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun isEventObservableCandidate() : Boolean {
-        return (!bypassObservationQueue && (watchersNestingLevel == 1))
+        return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
@@ -910,12 +902,16 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     // Helper ======================================================================================
 
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
-        var cursorPosition = Math.min(selectionStart, length())
+        var cursorPosition = Math.min(selectionStart, text.length)
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {
             cursorPosition = text.getSpanStart(it)
             text.removeSpan(it)
         }
+
+        // Make sure the cursor position is a valid one
+        cursorPosition = Math.min(cursorPosition, text.length)
+        cursorPosition = Math.max(0, cursorPosition)
 
         return cursorPosition
     }
@@ -936,10 +932,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             it.textView = this
         }
 
+        val cursorPosition = consumeCursorPosition(builder)
+        setSelection(0)
+
         setTextKeepState(builder)
         enableTextChangedListener()
 
-        val cursorPosition = consumeCursorPosition(builder)
         setSelection(cursorPosition)
 
         loadImages()
@@ -1259,7 +1257,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val clip = clipboard.primaryClip
 
         if (clip != null) {
-            history.beforeTextChanged(toFormattedHtml())
+            history.beforeTextChanged(this@AztecText)
 
             disableTextChangedListener()
 
@@ -1290,8 +1288,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml)
-                history.handleHistory(this@AztecText)
-
                 inlineFormatter.joinStyleSpans(0, length())
             }
         }
@@ -1311,7 +1307,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun link(url: String, anchor: String) {
-        history.beforeTextChanged(toFormattedHtml())
+        history.beforeTextChanged(this@AztecText)
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {
@@ -1319,7 +1315,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         } else {
             linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
         }
-        history.handleHistory(this)
     }
 
     fun removeLink() {

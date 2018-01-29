@@ -18,6 +18,10 @@ class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcher
          */
     }
 
+    fun hasActiveBuckets() : Boolean {
+        return buckets.size > 0
+    }
+
     override fun add(element: TextWatcherEvent): Boolean {
         synchronized(this@ObservationQueue) {
             val added: Boolean = super.add(element)

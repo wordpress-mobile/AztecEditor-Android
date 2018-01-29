@@ -1,26 +1,42 @@
 package org.wordpress.aztec.plugins.shortcodes
 
 import android.text.Editable
+import android.text.Layout
 import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecParser
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
+import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
+import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
+import org.wordpress.aztec.source.CssStyleFormatter
+import org.wordpress.aztec.spans.AztecVisualLinebreak
+import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
+import java.util.ArrayList
 
 class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: AztecText? = null) :
-        IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor {
+        IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor, ISpanPreprocessor {
 
     companion object {
         val HTML_TAG = "wp-shortcode-caption-html-tag"
         val SHORTCODE_TAG = "caption"
+        val ALIGN_ATTRIBUTE = "align"
+        val ALIGN_LEFT_ATTRIBUTE_VALUE = "alignleft"
+        val ALIGN_RIGHT_ATTRIBUTE_VALUE = "alignright"
+        val ALIGN_CENTER_ATTRIBUTE_VALUE = "aligncenter"
     }
 
     init {
@@ -60,12 +76,36 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                 }
                 output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+                if (span.attributes.hasAttribute(ALIGN_ATTRIBUTE)) {
+                    when (span.attributes.getValue(ALIGN_ATTRIBUTE)) {
+                        ALIGN_RIGHT_ATTRIBUTE_VALUE -> span.align = Layout.Alignment.ALIGN_OPPOSITE
+                        ALIGN_CENTER_ATTRIBUTE_VALUE -> span.align = Layout.Alignment.ALIGN_CENTER
+                        ALIGN_LEFT_ATTRIBUTE_VALUE -> span.align = Layout.Alignment.ALIGN_NORMAL
+                    }
+                }
+
+                span.attributes.removeAttribute(CssStyleFormatter.STYLE_ATTRIBUTE)
+
                 if (wrapper.end - wrapper.start == 1) {
                     wrapper.remove()
                 }
             }
         }
         return true
+    }
+
+    override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
+        spannable.getSpans(0, spannable.length, CaptionShortcodeSpan::class.java).forEach {
+            it.attributes.removeAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)
+            if (it.align != null) {
+                it.attributes.setValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE,
+                        when (it.align) {
+                            Layout.Alignment.ALIGN_NORMAL -> CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE
+                            Layout.Alignment.ALIGN_CENTER -> CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE
+                            else -> CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE
+                        })
+            }
+        }
     }
 
     override fun beforeHtmlProcessed(source: String): String {

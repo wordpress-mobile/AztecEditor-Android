@@ -406,8 +406,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
         var spans = getAlignedSpans(null, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
-                .filter { editableText.getSpanStart(it) >= boundsOfSelectedText.start ||
-                        editableText.getSpanEnd(it) <= boundsOfSelectedText.endInclusive }
 
         if (start == end) {
             if (start == boundsOfSelectedText.start && spans.size > 1) {

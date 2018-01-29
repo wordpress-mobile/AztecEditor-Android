@@ -15,4 +15,8 @@ interface IAztecParagraphStyle : AlignmentSpan, IAztecSpan, IAztecNestable {
     override fun getAlignment(): Layout.Alignment {
         return align ?: Layout.Alignment.ALIGN_NORMAL
     }
+
+    fun shouldParseAlignmentToHtml(): Boolean {
+        return true
+    }
 }

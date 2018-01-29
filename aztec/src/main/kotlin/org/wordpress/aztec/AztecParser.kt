@@ -371,9 +371,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                                nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
 
         CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
-        nestable.align?.let {
-            CssStyleFormatter.addStyleAttribute(nestable.attributes,
-                    CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString())
+        if (nestable.shouldParseAlignmentToHtml()) {
+            nestable.align?.let {
+                CssStyleFormatter.addStyleAttribute(nestable.attributes,
+                        CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString())
+            }
         }
 
         out.append("<${nestable.startTag}>")

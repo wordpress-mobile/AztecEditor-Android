@@ -6,7 +6,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecMediaSpan
 import java.lang.ref.WeakReference
 
-class DeleteMediaElementWatcherPreAPI26(aztecText: AztecText) : TextWatcher {
+class DeleteMediaElementWatcherPreAPI25(aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
@@ -32,7 +32,7 @@ class DeleteMediaElementWatcherPreAPI26(aztecText: AztecText) : TextWatcher {
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextChangedListener(DeleteMediaElementWatcherPreAPI26(text))
+            text.addTextChangedListener(DeleteMediaElementWatcherPreAPI25(text))
         }
     }
 }

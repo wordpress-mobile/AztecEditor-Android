@@ -6,7 +6,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecMediaSpan
 import java.lang.ref.WeakReference
 
-class DeleteMediaElementWatcherAPI26AndHigher(aztecText: AztecText) : TextWatcher {
+class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatcher {
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
     private var deleted = false
     private var queueHasBeenPopulatedInThisTimeframe = false
@@ -55,7 +55,7 @@ class DeleteMediaElementWatcherAPI26AndHigher(aztecText: AztecText) : TextWatche
 
     companion object {
         fun install(text: AztecText) {
-            text.addTextChangedListener(DeleteMediaElementWatcherAPI26AndHigher(text))
+            text.addTextChangedListener(DeleteMediaElementWatcherAPI25AndHigher(text))
         }
     }
 }

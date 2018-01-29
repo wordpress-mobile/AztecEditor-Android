@@ -88,7 +88,8 @@ import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
@@ -445,7 +446,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
 
-        DeleteMediaElementWatcher.install(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            DeleteMediaElementWatcherAPI25AndHigher.install(this)
+        } else {
+            DeleteMediaElementWatcherPreAPI25.install(this)
+        }
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()
@@ -850,6 +855,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun isEventObservableCandidate() : Boolean {
         return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
+    }
+
+    fun isObservationQueueBeingPopulated() : Boolean {
+        // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
+        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
+        return !observationQueue.isEmpty() &&
+                ((System.currentTimeMillis() - observationQueue.last().timestamp) < MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS)
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {

@@ -2,6 +2,7 @@ package org.wordpress.aztec.watchers.event.sequence
 
 import android.os.Build
 import org.wordpress.aztec.watchers.event.IEventInjector
+import org.wordpress.aztec.watchers.event.buckets.API25Bucket
 import org.wordpress.aztec.watchers.event.buckets.API26Bucket
 import org.wordpress.aztec.watchers.event.buckets.Bucket
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
@@ -12,6 +13,8 @@ class ObservationQueue(val injector: IEventInjector) : EventSequence<TextWatcher
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buckets.add(API26Bucket())
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N_MR1) {
+            buckets.add(API25Bucket())
         }
         /*
             remember to add here any other buckets and init logic as suitable, depending on the context

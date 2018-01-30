@@ -1048,7 +1048,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         } catch (e: java.lang.ArrayIndexOutOfBoundsException) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
             AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 for details.")
-            // No need to log the exception here. There is the ExceptionHandler that does this for us.
+            // No need to log the exception here. The ExceptionHandler does this for us.
             throw e
         }
 

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.formatting
 
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
@@ -298,11 +299,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    fun getAlignment(textFormat: ITextFormat?) : Layout.Alignment? {
+    fun getAlignment(textFormat: ITextFormat?, text: CharSequence) : Layout.Alignment? {
+        val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+        val isRtl = direction.isRtl(text, 0, text.length)
+
         return when (textFormat) {
-            AztecTextFormat.FORMAT_ALIGN_LEFT -> Layout.Alignment.ALIGN_NORMAL
+            AztecTextFormat.FORMAT_ALIGN_LEFT -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
             AztecTextFormat.FORMAT_ALIGN_CENTER -> Layout.Alignment.ALIGN_CENTER
-            AztecTextFormat.FORMAT_ALIGN_RIGHT -> Layout.Alignment.ALIGN_OPPOSITE
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
             else -> null
         }
     }
@@ -419,15 +423,19 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, textFormat) }
         } else {
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
-            val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), getAlignment(textFormat))
+            val alignment = getAlignment(textFormat,
+                    editableText.substring(boundsOfSelectedText.start..boundsOfSelectedText.endInclusive))
+            val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), alignment)
+
             editableText.setSpan(paragraph, boundsOfSelectedText.start,
                     boundsOfSelectedText.endInclusive, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 
     private fun changeAlignment(it: IAztecParagraphStyle, blockElementType: ITextFormat?) {
-        it.align = getAlignment(blockElementType)
         val wrapper = SpanWrapper<IAztecParagraphStyle>(editableText, it)
+        it.align = getAlignment(blockElementType, editableText.substring(wrapper.start..wrapper.end))
+
         editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
     }
 
@@ -756,10 +764,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     private fun getAlignedSpans(textFormat: ITextFormat?, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecParagraphStyle> {
         if (selStart < 0 || selEnd < 0) return emptyList()
 
-        val align = getAlignment(textFormat)
-
         return editableText.getSpans(selStart, selEnd, IAztecParagraphStyle::class.java)
-                .filter { align == null || it.align == align }
+                .filter {
+                    textFormat == null || it.align == getAlignment(textFormat,
+                        editableText.substring(editableText.getSpanStart(it)..editableText.getSpanEnd(it)))
+                }
                 .filter {
                     val spanStart = editableText.getSpanStart(it)
                     val spanEnd = editableText.getSpanEnd(it)

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.source
 
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
@@ -48,10 +49,13 @@ class CssStyleFormatter {
         private fun processAlignment(blockSpan: IAztecParagraphStyle, text: Editable, start: Int, end: Int) {
             val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
             if (!alignment.isBlank()) {
+                val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                val isRtl = direction.isRtl(text, start, end - start)
+
                 val align = when (alignment) {
-                    "right" -> Layout.Alignment.ALIGN_OPPOSITE
+                    "right" -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
                     "center" -> Layout.Alignment.ALIGN_CENTER
-                    else -> Layout.Alignment.ALIGN_NORMAL
+                    else -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
                 }
 
                 blockSpan.align = align

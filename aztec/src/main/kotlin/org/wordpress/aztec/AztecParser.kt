@@ -19,6 +19,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -373,8 +374,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
         if (nestable.shouldParseAlignmentToHtml()) {
             nestable.align?.let {
+                val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                val isRtl = direction.isRtl(text, start, end - start)
+
                 CssStyleFormatter.addStyleAttribute(nestable.attributes,
-                        CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString())
+                        CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString(isRtl))
             }
         }
 

@@ -424,7 +424,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         } else {
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
             val alignment = getAlignment(textFormat,
-                    editableText.substring(boundsOfSelectedText.start..boundsOfSelectedText.endInclusive))
+                    editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
             val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), alignment)
 
             editableText.setSpan(paragraph, boundsOfSelectedText.start,
@@ -434,7 +434,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     private fun changeAlignment(it: IAztecParagraphStyle, blockElementType: ITextFormat?) {
         val wrapper = SpanWrapper<IAztecParagraphStyle>(editableText, it)
-        it.align = getAlignment(blockElementType, editableText.substring(wrapper.start..wrapper.end))
+        it.align = getAlignment(blockElementType, editableText.substring(wrapper.start until wrapper.end))
 
         editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
     }
@@ -537,7 +537,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         } else {
             // there is always something at the end (newline or EOB), so we shift end index to the left
             // to avoid empty lines
-            val listContent = editableText.substring(start, end - 1)
+            val listContent = editableText.substring(start until end)
 
             val lines = TextUtils.split(listContent, "\n")
             for (i in lines.indices) {
@@ -767,7 +767,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return editableText.getSpans(selStart, selEnd, IAztecParagraphStyle::class.java)
                 .filter {
                     textFormat == null || it.align == getAlignment(textFormat,
-                        editableText.substring(editableText.getSpanStart(it)..editableText.getSpanEnd(it)))
+                        editableText.substring(editableText.getSpanStart(it) until editableText.getSpanEnd(it)))
                 }
                 .filter {
                     val spanStart = editableText.getSpanStart(it)

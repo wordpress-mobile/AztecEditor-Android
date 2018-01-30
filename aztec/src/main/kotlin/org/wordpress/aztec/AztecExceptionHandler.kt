@@ -1,6 +1,7 @@
 package org.wordpress.aztec
 
 import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.util.AztecLog
 import java.lang.Thread.UncaughtExceptionHandler
 
 class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, private val visualEditor: AztecText) : UncaughtExceptionHandler {
@@ -31,7 +32,8 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
             try {
                 AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash " + visualEditor.toPlainHtml(false))
             } catch (e: Throwable) {
-                AppLog.e(AppLog.T.EDITOR, "Visual Content of Aztec Editor before the crash " + visualEditor.text)
+                AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash is unavailable, log the details instead")
+                AztecLog.logEditorContentDetails(visualEditor)
             }
         }
 

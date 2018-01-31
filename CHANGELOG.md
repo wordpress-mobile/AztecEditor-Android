@@ -1,4 +1,8 @@
 # Changelog
+## Unreleased
+### Added
+- Text alignment support
+
 ## [1.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.1) - 2018-01-29
 ### Added
 - Plugin that detects and hides Gutenberg editor blocks in the visual editor

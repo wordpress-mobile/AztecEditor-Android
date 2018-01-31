@@ -107,7 +107,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    fun toggleTextAlign(textFormat: ITextFormat) {
+    fun toggleTextAlignment(textFormat: ITextFormat) {
         when (textFormat) {
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,

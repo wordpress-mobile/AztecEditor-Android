@@ -810,7 +810,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
-            AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlign(textFormat)
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             else -> {

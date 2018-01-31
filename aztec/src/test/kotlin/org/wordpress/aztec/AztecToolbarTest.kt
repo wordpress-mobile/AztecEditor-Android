@@ -1040,4 +1040,32 @@ class AztecToolbarTest {
                 "<span style=\"text-align: center;\">c</span><br>d</div></div>",
                 editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun rtlTextAlignment() {
+        editText.fromHtml("latin<br>بعبثخز")
+
+        editText.setSelection(0)
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>بعبثخز",
+                editText.toHtml())
+
+        editText.setSelection(editText.length())
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
+                "<p style=\"text-align: left;\">بعبثخز</p>",
+                editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
+                "<p style=\"text-align: right;\">بعبثخز</p>",
+                editText.toHtml())
+
+        editText.setSelection(0)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">latin</p>" +
+                "<p style=\"text-align: right;\">بعبثخز</p>",
+                editText.toHtml())
+    }
 }

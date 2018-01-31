@@ -819,7 +819,6 @@ class AztecToolbarTest {
         Assert.assertEquals("<p style=\"text-align: left;\">Hello, this is some unformatted text.</p>",
                 editText.toHtml())
 
-
         alignCenterButton.performClick()
         Assert.assertEquals("<p style=\"text-align: center;\">Hello, this is some unformatted text.</p>",
                 editText.toHtml())
@@ -842,7 +841,6 @@ class AztecToolbarTest {
                 "Another line<p style=\"text-align: center;\">Third line</p>",
                 editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)
@@ -957,7 +955,6 @@ class AztecToolbarTest {
         Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align: center;\">item 2</li><li style=\"text-align: center;\">item 3</li></ul>",
                 editText.toHtml())
     }
-
 
     @Test
     @Throws(Exception::class)

@@ -4,13 +4,9 @@ import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
 import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecParser
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
@@ -19,13 +15,9 @@ import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.source.CssStyleFormatter
-import org.wordpress.aztec.spans.AztecVisualLinebreak
-import org.wordpress.aztec.spans.IAztecNestable
-import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
-import java.util.ArrayList
 
 class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: AztecText? = null) :
         IHtmlTagHandler, IHtmlPreprocessor, IHtmlPostprocessor, ISpanPreprocessor {

@@ -7,7 +7,6 @@ import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
-import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 

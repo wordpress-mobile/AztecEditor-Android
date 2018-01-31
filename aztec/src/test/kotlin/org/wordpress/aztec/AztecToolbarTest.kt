@@ -29,6 +29,9 @@ class AztecToolbarTest {
     lateinit var quoteButton: ToggleButton
     lateinit var linkButton: ToggleButton
     lateinit var htmlButton: ToggleButton
+    lateinit var alignLeftButton: ToggleButton
+    lateinit var alignCenterButton: ToggleButton
+    lateinit var alignRightButton: ToggleButton
 
     /**
      * Initialize variables.
@@ -51,6 +54,10 @@ class AztecToolbarTest {
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote)
         linkButton = toolbar.findViewById(R.id.format_bar_button_link)
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html)
+        alignLeftButton = toolbar.findViewById(R.id.format_bar_button_align_left)
+        alignCenterButton = toolbar.findViewById(R.id.format_bar_button_align_center)
+        alignRightButton = toolbar.findViewById(R.id.format_bar_button_align_right)
+
     }
 
     /**
@@ -68,6 +75,9 @@ class AztecToolbarTest {
         Assert.assertFalse(quoteButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
+        Assert.assertFalse(alignLeftButton.isChecked)
+        Assert.assertFalse(alignCenterButton.isChecked)
+        Assert.assertFalse(alignRightButton.isChecked)
 
         Assert.assertTrue(TestUtils.safeEmpty(editText))
     }
@@ -790,5 +800,61 @@ class AztecToolbarTest {
         // selected \n4
         editText.setSelection(5, 7)
         Assert.assertTrue(quoteButton.isChecked)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun unformattedTextAlignment() {
+        editText.fromHtml("Hello, this is some unformatted text.")
+
+        editText.setSelection(3)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<p>Hello, this is some unformatted text.</p>", editText.toHtml())
+
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+
+
+        alignCenterButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: center;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+    }
+
+
+    @Test
+    @Throws(Exception::class)
+    fun inlineStyleAlignment() {
+        editText.fromHtml("<b>bold</b><br><i>italic</i><br><u>underline</u>")
+
+        editText.setSelection(editText.text.indexOf("bold"))
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p><i>italic</i><br><u>underline</u>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("italic"))
+        alignCenterButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p><p style=\"text-align: center;\"><i>italic</i></p><u>underline</u>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("underline"))
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p><p style=\"text-align: center;\"><i>italic</i></p><p style=\"text-align: left;\"><u>underline</u></p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun multiselectInlineStyleAlignment() {
+        editText.fromHtml("<b>bold</b><br><i>italic</i><br><u>underline</u>")
+
+        editText.setSelection(2, editText.length() - 2)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b><br><i>italic</i><br><u>underline</u></p>",
+                editText.toHtml())
     }
 }

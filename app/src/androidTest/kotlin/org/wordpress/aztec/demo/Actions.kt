@@ -156,4 +156,22 @@ object Actions {
             }
         }
     }
+
+    fun setSelection(start: Int, end: Int): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return allOf(isDisplayed(), isAssignableFrom(EditText::class.java))
+            }
+
+            override fun getDescription(): String {
+                return "Set Aztec text selection to the specified range"
+            }
+
+            override fun perform(uiController: UiController?, view: View?) {
+                if (view is AztecText) {
+                    view.setSelection(start, end)
+                }
+            }
+        }
+    }
 }

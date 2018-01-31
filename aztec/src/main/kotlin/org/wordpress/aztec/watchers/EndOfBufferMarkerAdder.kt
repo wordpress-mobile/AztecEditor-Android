@@ -118,6 +118,16 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
             }
         }
 
+        fun safeLength(charSequence: CharSequence): Int {
+            if (charSequence.length == 0) {
+                return 0
+            } else if (charSequence[charSequence.length - 1] == Constants.END_OF_BUFFER_MARKER) {
+                return charSequence.length - 1
+            } else {
+                return charSequence.length
+            }
+        }
+
         fun strip(string: String): String {
             if (string.isEmpty()) {
                 return string

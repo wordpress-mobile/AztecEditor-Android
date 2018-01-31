@@ -88,7 +88,8 @@ import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
+import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
@@ -397,7 +398,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             if (!consumeHistoryEvent) {
-                history.beforeTextChanged(toFormattedHtml())
+                history.beforeTextChanged(this@AztecText)
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
 
@@ -410,10 +411,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 disableTextChangedListener()
                 setText("")
                 enableTextChangedListener()
-            }
-
-            if (!consumeHistoryEvent) {
-                history.handleHistory(this@AztecText)
             }
         }
         return wasStyleRemoved
@@ -449,7 +446,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
 
-        DeleteMediaElementWatcher.install(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            DeleteMediaElementWatcherAPI25AndHigher.install(this)
+        } else {
+            DeleteMediaElementWatcherPreAPI25.install(this)
+        }
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()
@@ -464,7 +465,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
                 if (!isViewInitialized) return
                 if (!isTextChangedListenerDisabled() && !consumeHistoryEvent) {
-                    history.beforeTextChanged(toFormattedHtml())
+                    history.beforeTextChanged(this@AztecText)
                 }
             }
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
@@ -480,8 +481,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 if (consumeHistoryEvent) {
                     consumeHistoryEvent = false
                 }
-
-                history.handleHistory(this@AztecText)
             }
         }
         addTextChangedListener(historyLoggingWatcher)
@@ -790,7 +789,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun toggleFormatting(textFormat: ITextFormat) {
-        history.beforeTextChanged(toFormattedHtml())
+        history.beforeTextChanged(this@AztecText)
 
         when (textFormat) {
             AztecTextFormat.FORMAT_PARAGRAPH,
@@ -819,8 +818,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                         .forEach { it.toggle() }
             }
         }
-
-        history.handleHistory(this)
     }
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -863,7 +860,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun isEventObservableCandidate() : Boolean {
-        return (!bypassObservationQueue && (watchersNestingLevel == 1))
+        return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
+    }
+
+    fun isObservationQueueBeingPopulated() : Boolean {
+        // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
+        val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
+        return !observationQueue.isEmpty() &&
+                ((System.currentTimeMillis() - observationQueue.last().timestamp) < MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS)
     }
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
@@ -1271,7 +1275,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val clip = clipboard.primaryClip
 
         if (clip != null) {
-            history.beforeTextChanged(toFormattedHtml())
+            history.beforeTextChanged(this@AztecText)
 
             disableTextChangedListener()
 
@@ -1302,8 +1306,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml)
-                history.handleHistory(this@AztecText)
-
                 inlineFormatter.joinStyleSpans(0, length())
             }
         }
@@ -1323,7 +1325,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     fun link(url: String, anchor: String) {
-        history.beforeTextChanged(toFormattedHtml())
+        history.beforeTextChanged(this@AztecText)
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {
@@ -1331,7 +1333,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         } else {
             linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
         }
-        history.handleHistory(this)
     }
 
     fun removeLink() {

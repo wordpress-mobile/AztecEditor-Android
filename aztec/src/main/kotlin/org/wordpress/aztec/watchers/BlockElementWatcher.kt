@@ -36,7 +36,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                     // save the text state before the funky business, then skip the history
                     val aztecText = aztecTextRef.get()
                     aztecText?.let {
-                        aztecText.history.beforeTextChanged(aztecText.toFormattedHtml())
+                        aztecText.history.beforeTextChanged(it)
                         aztecText.consumeHistoryEvent = false
 
                         spans.forEach {

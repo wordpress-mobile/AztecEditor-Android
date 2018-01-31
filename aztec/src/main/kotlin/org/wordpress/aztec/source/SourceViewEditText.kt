@@ -124,7 +124,7 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (!isTextChangedListenerDisabled()) {
-            history?.beforeTextChanged(text.toString())
+            history?.beforeTextChanged(this)
         }
 
         styleTextWatcher?.beforeTextChanged(text, start, count, after)
@@ -139,8 +139,6 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
             enableTextChangedListener()
             return
         }
-
-        history?.handleHistory(this)
         styleTextWatcher?.afterTextChanged(text)
     }
 

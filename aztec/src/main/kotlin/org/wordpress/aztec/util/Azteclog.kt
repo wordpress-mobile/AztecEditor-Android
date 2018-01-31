@@ -5,7 +5,6 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.spans.IAztecAttributedSpan
 
 class AztecLog {
     interface ExternalLogger {
@@ -21,7 +20,7 @@ class AztecLog {
                 logContentJSON.put("content", aztecText.text.toString())
                 logContentJSON.put("length", aztecText.text.length)
                 val spansJSON = JSONArray()
-                val spans = aztecText.text.getSpans(0, aztecText.text.length, IAztecAttributedSpan::class.java)
+                val spans = aztecText.text.getSpans(0, aztecText.text.length, Any::class.java)
                 spans.forEach {
                     val currenSpanJSON = JSONObject()
                     currenSpanJSON.put("clasz", it.javaClass.name)

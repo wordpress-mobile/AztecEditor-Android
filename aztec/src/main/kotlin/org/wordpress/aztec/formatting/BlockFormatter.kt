@@ -422,13 +422,13 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (spans.isNotEmpty()) {
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, textFormat) }
         } else {
-            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
-            val alignment = getAlignment(textFormat,
-                    editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
-            val paragraph = ParagraphSpan(nestingLevel, AztecAttributes(), alignment)
+            val paragraphStart = boundsOfSelectedText.start
+            val paragraphEnd = if (boundsOfSelectedText.endInclusive < editableText.length) boundsOfSelectedText.endInclusive + 1 else editableText.length
+            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, paragraphStart)
 
-            editableText.setSpan(paragraph, boundsOfSelectedText.start,
-                    boundsOfSelectedText.endInclusive, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val alignment = getAlignment(textFormat, editableText.subSequence(paragraphStart until paragraphEnd))
+            editableText.setSpan(ParagraphSpan(nestingLevel, AztecAttributes(), alignment),
+                    paragraphStart, paragraphEnd, Spanned.SPAN_PARAGRAPH)
         }
     }
 

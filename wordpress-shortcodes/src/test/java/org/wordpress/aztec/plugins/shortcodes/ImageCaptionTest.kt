@@ -449,7 +449,7 @@ class ImageCaptionTest {
         val changedCaption = editText.getImageCaption(predicate)
         Assert.assertEquals(newCaption, changedCaption)
 
-        val changedHtml = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />$newCaption[/caption]test<br>test2"
+        val changedHtml = "[caption width=\"100\" align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />$newCaption[/caption]test<br>test2"
         Assert.assertEquals(changedHtml, editText.toPlainHtml())
 
         editText.removeImageCaption(predicate)
@@ -497,7 +497,7 @@ class ImageCaptionTest {
         Assert.assertTrue(safeEmpty(editText))
 
         val html = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" /><br>Cap<br>tion<br>[/caption]test<br>test2"
-        val expectedHtml = "[caption align=\"alignright\" width=\"100\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Cap tion[/caption]test<br>test2"
+        val expectedHtml = "[caption width=\"100\" align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Cap tion[/caption]test<br>test2"
         editText.fromHtml(html)
         Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
     }

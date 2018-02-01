@@ -398,7 +398,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
 
         startOfBlock = if (indexOfFirstLineBreak != -1) indexOfFirstLineBreak else 0
-        endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak) else editable.length
+        endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
         return IntRange(startOfBlock, endOfBlock)
     }
@@ -422,13 +422,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (spans.isNotEmpty()) {
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, textFormat) }
         } else {
-            val paragraphStart = boundsOfSelectedText.start
-            val paragraphEnd = if (boundsOfSelectedText.endInclusive < editableText.length) boundsOfSelectedText.endInclusive + 1 else editableText.length
-            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, paragraphStart)
+            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
 
-            val alignment = getAlignment(textFormat, editableText.subSequence(paragraphStart until paragraphEnd))
+            val alignment = getAlignment(textFormat,
+                    editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
             editableText.setSpan(ParagraphSpan(nestingLevel, AztecAttributes(), alignment),
-                    paragraphStart, paragraphEnd, Spanned.SPAN_PARAGRAPH)
+                    boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, Spanned.SPAN_PARAGRAPH)
         }
     }
 
@@ -537,7 +536,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         } else {
             // there is always something at the end (newline or EOB), so we shift end index to the left
             // to avoid empty lines
-            val listContent = editableText.substring(start until end)
+            val listContent = editableText.substring(start, end - 1)
 
             val lines = TextUtils.split(listContent, "\n")
             for (i in lines.indices) {

@@ -895,7 +895,6 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertFalse(menuListUnordered.isChecked)
     }
 
-
     @Test
     @Throws(Exception::class)
     fun otherListTypeChangeWithDifferentListsSelected() {

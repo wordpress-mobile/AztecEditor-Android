@@ -238,7 +238,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val endModifier = if (hasLingeringEmptyListItem) 1 else 0
 
             val spans = editableText.getSpans(start, end + endModifier, spanType)
-            spans.forEach innerForEach@ { span ->
+            spans.forEach { span ->
 
                 val spanStart = editableText.getSpanStart(span)
                 val spanEnd = editableText.getSpanEnd(span)

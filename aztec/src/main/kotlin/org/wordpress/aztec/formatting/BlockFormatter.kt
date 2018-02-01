@@ -42,7 +42,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
+            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
+            } else {
+                removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
+            }
         }
     }
 
@@ -54,7 +58,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            } else {
+                removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            }
         }
     }
 
@@ -254,13 +262,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
-                    if (span is AztecListItemSpan) {
-                        val parent = IAztecNestable.getParent(editableText, SpanWrapper<AztecListItemSpan>(editableText, span))
-                        if (textFormat == AztecTextFormat.FORMAT_UNORDERED_LIST && parent?.span is AztecOrderedListSpan ||
-                            textFormat == AztecTextFormat.FORMAT_ORDERED_LIST && parent?.span is AztecUnorderedListSpan) {
-                            return@innerForEach
-                        }
-                    }
                     editableText.removeSpan(span)
                 }
             }

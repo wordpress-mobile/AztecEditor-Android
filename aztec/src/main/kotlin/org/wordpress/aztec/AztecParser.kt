@@ -19,6 +19,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -26,11 +27,13 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
+import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -39,12 +42,11 @@ import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
-import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.IAztecNestable
-import org.wordpress.aztec.spans.IAztecSpan
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
@@ -182,7 +184,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             if (spanned[spanEnd] == '\n'
                     && spanned.getSpans(spanEnd, spanEnd, AztecVisualLinebreak::class.java).isNotEmpty()) {
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
-                if (it is IAztecBlockSpan) {
+                if (it is IAztecParagraphStyle) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
                 }
 
@@ -193,7 +195,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             spanned.insert(spanEnd, "\n")
 
             // expand the span to include the new newline for block spans, because they are paragraphs
-            if (it is IAztecBlockSpan) {
+            if (it is IAztecParagraphStyle) {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
             }
 
@@ -349,8 +351,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             }
 
             when (nestable) {
-                is HiddenHtmlSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
-                is IAztecBlockSpan -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
+                is IAztecParagraphStyle -> withinNestable(out, text, i, next, nestable, parents, nestable.nestingLevel)
                 is UnknownHtmlSpan -> withinUnknown(out, text, i, next, nestable)
                 else -> withinContent(out, text, i, next, parents)
             }
@@ -368,7 +369,20 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
     }
 
     private fun withinNestable(out: StringBuilder, text: Spanned, start: Int, end: Int,
-                               nestable: IAztecSpan, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+                               nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
+
+        if (nestable.shouldParseAlignmentToHtml()) {
+            CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
+
+            nestable.align?.let {
+                val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                val isRtl = direction.isRtl(text, start, end - start)
+
+                CssStyleFormatter.addStyleAttribute(nestable.attributes,
+                        CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString(isRtl))
+            }
+        }
+
         out.append("<${nestable.startTag}>")
         withinHtml(out, text, start, end, parents, nestingLevel)
         out.append("</${nestable.endTag}>")

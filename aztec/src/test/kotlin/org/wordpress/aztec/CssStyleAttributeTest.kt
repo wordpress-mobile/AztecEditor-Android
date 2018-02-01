@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.source.InlineCssStyleFormatter
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 
 @RunWith(RobolectricTestRunner::class)
@@ -20,8 +20,8 @@ import org.wordpress.aztec.spans.AztecStyleBoldSpan
 class CssStyleAttributeTest : AndroidTestCase() {
 
     private val EMPTY_STYLE_HTML = "<b>bold</b>"
-    private val HTML = "<b style=\"name: value\">bold</b>"
-    private val COMPLEX_HTML = "<b style=\"a: b; name: value\">bold</b>"
+    private val HTML = "<b style=\"name: value;\">bold</b>"
+    private val COMPLEX_HTML = "<b style=\"a: b; name: value;\">bold</b>"
 
     private lateinit var parser: AztecParser
 
@@ -40,9 +40,9 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertTrue(span.attributes.isEmpty())
 
-        Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
+        Assert.assertFalse(CssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"), "")
+        Assert.assertEquals("", CssStyleFormatter.getStyleAttribute(span.attributes, "test"))
     }
 
     @Test
@@ -54,9 +54,9 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         Assert.assertFalse(span.attributes.isEmpty())
 
-        Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
+        Assert.assertFalse(CssStyleFormatter.containsStyleAttribute(span.attributes, "test"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "test"), "")
+        Assert.assertEquals("", CssStyleFormatter.getStyleAttribute(span.attributes, "test"))
     }
 
     @Test
@@ -66,9 +66,9 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         val span = text.getSpans(0, text.length, AztecStyleBoldSpan::class.java).first()
 
-        Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
+        Assert.assertTrue(CssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "name"), "value")
+        Assert.assertEquals("value", CssStyleFormatter.getStyleAttribute(span.attributes, "name"))
     }
 
     @Test
@@ -78,17 +78,17 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         val span = text.getSpans(0, text.length, AztecStyleBoldSpan::class.java).first()
 
-        InlineCssStyleFormatter.addStyleAttribute(span.attributes, "name", "value")
+        CssStyleFormatter.addStyleAttribute(span.attributes, "name", "value")
 
-        Assert.assertEquals(parser.toHtml(text), HTML)
+        Assert.assertEquals(HTML, parser.toHtml(text))
 
-        Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
+        Assert.assertFalse(CssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
-        InlineCssStyleFormatter.addStyleAttribute(span.attributes, "a", "b")
+        CssStyleFormatter.addStyleAttribute(span.attributes, "a", "b")
 
-        Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
+        Assert.assertTrue(CssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
-        Assert.assertEquals(InlineCssStyleFormatter.getStyleAttribute(span.attributes, "a"), "b")
+        Assert.assertEquals("b", CssStyleFormatter.getStyleAttribute(span.attributes, "a"))
     }
 
     @Test
@@ -98,18 +98,18 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
         val span = text.getSpans(0, text.length, AztecStyleBoldSpan::class.java).first()
 
-        Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
+        Assert.assertTrue(CssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
-        InlineCssStyleFormatter.removeStyleAttribute(span.attributes, "a")
+        CssStyleFormatter.removeStyleAttribute(span.attributes, "a")
 
-        Assert.assertFalse(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
+        Assert.assertFalse(CssStyleFormatter.containsStyleAttribute(span.attributes, "a"))
 
-        Assert.assertTrue(InlineCssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
+        Assert.assertTrue(CssStyleFormatter.containsStyleAttribute(span.attributes, "name"))
 
-        Assert.assertEquals(parser.toHtml(text), HTML)
+        Assert.assertEquals(HTML, parser.toHtml(text))
 
-        InlineCssStyleFormatter.removeStyleAttribute(span.attributes, "name")
+        CssStyleFormatter.removeStyleAttribute(span.attributes, "name")
 
-        Assert.assertEquals(parser.toHtml(text), EMPTY_STYLE_HTML)
+        Assert.assertEquals(EMPTY_STYLE_HTML, parser.toHtml(text))
     }
 }

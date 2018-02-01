@@ -166,6 +166,33 @@
                         </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                         <org.wordpress.aztec.toolbar.RippleToggleButton
+                            android:id="@+id/format_bar_button_align_left"
+                            style="@style/FormatBarButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:background="@drawable/format_bar_button_align_left_selector"
+                            android:contentDescription="@string/format_bar_description_align_left">
+                        </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        <org.wordpress.aztec.toolbar.RippleToggleButton
+                            android:id="@+id/format_bar_button_align_center"
+                            style="@style/FormatBarButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:background="@drawable/format_bar_button_align_center_selector"
+                            android:contentDescription="@string/format_bar_description_align_center">
+                        </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        <org.wordpress.aztec.toolbar.RippleToggleButton
+                            android:id="@+id/format_bar_button_align_right"
+                            style="@style/FormatBarButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:background="@drawable/format_bar_button_align_right_selector"
+                            android:contentDescription="@string/format_bar_description_align_right">
+                        </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        <org.wordpress.aztec.toolbar.RippleToggleButton
                             android:id="@+id/format_bar_button_horizontal_rule"
                             style="@style/FormatBarButton"
                             android:layout_width="wrap_content"

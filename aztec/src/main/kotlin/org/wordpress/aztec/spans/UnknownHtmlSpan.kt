@@ -2,6 +2,7 @@ package org.wordpress.aztec.spans
 
 import android.content.Context
 import android.text.style.ImageSpan
+import android.text.style.ParagraphStyle
 
 class UnknownHtmlSpan @JvmOverloads constructor(
         override var nestingLevel: Int,
@@ -9,7 +10,7 @@ class UnknownHtmlSpan @JvmOverloads constructor(
         context: Context,
         drawable: Int,
         var onUnknownHtmlTappedListener: OnUnknownHtmlTappedListener? = null
-    ) : ImageSpan(context, drawable), IAztecParagraphStyle, IAztecNestable {
+    ) : ImageSpan(context, drawable), ParagraphStyle, IAztecNestable {
 
     fun onClick() {
         onUnknownHtmlTappedListener?.onUnknownHtmlTapped(this)

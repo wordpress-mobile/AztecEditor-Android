@@ -1,6 +1,7 @@
 package org.wordpress.aztec.spans
 
 import android.graphics.Paint
+import android.text.Layout
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.LineHeightSpan
@@ -15,7 +16,8 @@ class AztecHeadingSpan @JvmOverloads constructor(
         override var nestingLevel: Int,
         textFormat: ITextFormat,
         override var attributes: AztecAttributes,
-        var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
+        var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0),
+        override var align: Layout.Alignment? = null
     ) : MetricAffectingSpan(), IAztecBlockSpan, LineHeightSpan, UpdateLayout {
     override val TAG: String
         get() = heading.tag

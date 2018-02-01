@@ -4,7 +4,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
-import org.wordpress.aztec.source.InlineCssStyleFormatter
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecNestable
@@ -21,8 +21,8 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).filter { it.isCssStyle }.forEach {
-            if (!InlineCssStyleFormatter.containsStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                InlineCssStyleFormatter.addStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
+            if (!CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
             }
 
             val start = spannable.getSpanStart(it)
@@ -38,9 +38,9 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
                 if (it.span is HiddenHtmlSpan) {
                     val hiddenSpan = it.span as HiddenHtmlSpan
                     if (hiddenSpan.TAG == SPAN_TAG) {
-                        val parentStyle = hiddenSpan.attributes.getValue(InlineCssStyleFormatter.STYLE_ATTRIBUTE)
-                        val childStyle = calypsoUnderlineSpan.attributes.getValue(InlineCssStyleFormatter.STYLE_ATTRIBUTE)
-                        hiddenSpan.attributes.setValue(InlineCssStyleFormatter.STYLE_ATTRIBUTE, InlineCssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
+                        val parentStyle = hiddenSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
+                        val childStyle = calypsoUnderlineSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
+                        hiddenSpan.attributes.setValue(CssStyleFormatter.STYLE_ATTRIBUTE, CssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
 
                         // remove the extra child span
                         spannable.removeSpan(calypsoUnderlineSpan)
@@ -52,8 +52,8 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
 
     override fun afterSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
-            if (it.TAG == SPAN_TAG && InlineCssStyleFormatter.containsStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                InlineCssStyleFormatter.removeStyleAttribute(it.attributes, InlineCssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
+            if (it.TAG == SPAN_TAG && CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
                 spannable.setSpan(AztecUnderlineSpan(), spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 if (it.attributes.isEmpty()) {

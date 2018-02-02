@@ -158,7 +158,7 @@ class QuoteTest {
         editText.setSelection(14)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
+        Assert.assertEquals("first item<br>second item<br>third item", editText.toHtml())
     }
 
     @Test
@@ -220,7 +220,7 @@ class QuoteTest {
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<br>third item<$quoteTag>fourth item</$quoteTag>not in quote", editText.toHtml())
+        Assert.assertEquals("first item<br>second item<br>third item<br>fourth item<br>not in quote", editText.toHtml())
     }
 
     @Test
@@ -742,5 +742,92 @@ class QuoteTest {
         editText.toggleFormatting(formattingType)
 
         Assert.assertEquals("<blockquote>1</blockquote><blockquote>2</blockquote>3", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteToEntireList() {
+        editText.fromHtml("<ul><li>a</li><li>b</li><li>c</li></ul>")
+
+        editText.setSelection(0, editText.length())
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ul><li>a</li><li>b</li><li>c</li></ul></blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteAtTheEndOfList() {
+        editText.fromHtml("<ol><li>a</li><li>b</li><li>c</li></ol>")
+
+        editText.setSelection(editText.text.indexOf("c") + 1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol></blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteAtTheStartOfList() {
+        editText.fromHtml("<ol><li>a</li><li>b</li><li>c</li></ol>")
+
+        editText.setSelection(editText.text.indexOf("a"))
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol></blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteAfterList() {
+        editText.fromHtml("<ol><li>a</li><li>b</li><li>c</li></ol>d")
+
+        editText.setSelection(editText.text.indexOf("d"))
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<ol><li>a</li><li>b</li><li>c</li></ol><blockquote>d</blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteAtTheEndOfEditor() {
+        editText.fromHtml("<ol><li>a</li><li>b</li><li>c</li></ol>d")
+
+        editText.setSelection(editText.text.length)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<ol><li>a</li><li>b</li><li>c</li></ol><blockquote>d</blockquote>", editText.toHtml())
+    }
+
+    @Throws(Exception::class)
+    fun testApplyQuoteToListWithLineBelow() {
+        editText.fromHtml("<ol><li>a</li><li>b</li><li>c</li></ol>d")
+
+        editText.setSelection(editText.text.indexOf("c") + 1)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol></blockquote>d", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteBelowListWithinQuote() {
+        editText.fromHtml("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol></blockquote>d")
+
+        editText.setSelection(editText.text.indexOf("d"))
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol>d</blockquote>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testApplyQuoteBelowListWithinQuoteAtTheEndOfEditor() {
+        editText.fromHtml("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol></blockquote>d")
+
+        editText.setSelection(editText.text.length)
+        editText.toggleFormatting(formattingType)
+
+        Assert.assertEquals("<blockquote><ol><li>a</li><li>b</li><li>c</li></ol>d</blockquote>", editText.toHtml())
     }
 }

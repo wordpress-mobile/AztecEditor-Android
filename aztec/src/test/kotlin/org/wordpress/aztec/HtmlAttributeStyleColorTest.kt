@@ -32,14 +32,14 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
 @Config(constants = BuildConfig::class, sdk = intArrayOf(16, 21, 25))
 class HtmlAttributeStyleColorTest : AndroidTestCase() {
 
-    private val HTML_BOLD_STYLE_COLOR = "<b style=\"color:blue\">Blue</b>"
-    private val HTML_BOLD_STYLE_INVALID = "<b style=\"color:@java\">Blue</b>"
+    private val HTML_BOLD_STYLE_COLOR = "<b style=\"color:blue;\">Blue</b>"
+    private val HTML_BOLD_STYLE_INVALID = "<b style=\"color:@java;\">Blue</b>"
 
-    private val HTML_STRIKE_STYLE_COLOR = "<s style=\"color:red\">Red</s>"
+    private val HTML_STRIKE_STYLE_COLOR = "<s style=\"color:red;\">Red</s>"
     private val HTML_STRIKE_STYLE_INVALID = "<s style=\"color:\">Red</s>"
 
-    private val HTML_UL_ITEM_ONLY_COLOR = "<ul><li>No Color</li><li style=\"color:@black\">Black</li></ul>"
-    private val HTML_OL_WHOLE_LIST_COLOR = "<ol style=\"color:#FF00FF00\"><li>Green</li><li>Still green</li></ol>"
+    private val HTML_UL_ITEM_ONLY_COLOR = "<ul><li>No Color</li><li style=\"color:@black;\">Black</li></ul>"
+    private val HTML_OL_WHOLE_LIST_COLOR = "<ol style=\"color:#FF00FF00;\"><li>Green</li><li>Still green</li></ol>"
 
     private lateinit var parser: AztecParser
 

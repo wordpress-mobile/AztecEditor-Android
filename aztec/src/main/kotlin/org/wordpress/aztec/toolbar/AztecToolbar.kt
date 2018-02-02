@@ -300,12 +300,20 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
+
+                editor?.let {
+                    highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
+                }
                 return true
             }
             R.id.list_unordered -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
                 toggleListMenuSelection(item.itemId, checked)
+
+                editor?.let {
+                    highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
+                }
                 return true
             }
             else -> return false
@@ -434,6 +442,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         highlightActionButtons(ToolbarAction.getToolbarActionsForStyles(appliedStyles))
         selectHeadingMenuItem(appliedStyles)
         selectListMenuItem(appliedStyles)
+        highlightAlignButtons(appliedStyles)
+    }
+
+    private fun highlightAlignButtons(appliedStyles: ArrayList<ITextFormat>) {
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_LEFT)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_LEFT.buttonId), false)
+        }
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_CENTER)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_CENTER.buttonId), false)
+        }
+        if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_RIGHT)) {
+            toggleButton(findViewById(ToolbarAction.ALIGN_RIGHT.buttonId), false)
+        }
     }
 
     private fun onToolbarAction(action: IToolbarAction) {
@@ -444,7 +465,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             val actions = getSelectedActions()
             val textFormats = ArrayList<ITextFormat>()
 
-            actions.forEach { if (it.isStylingAction()) textFormats.add(it.textFormat) }
+            actions.filter { it.isStylingAction() }
+                    .forEach { textFormats.add(it.textFormat) }
 
             if (getSelectedHeadingMenuItem() != null) {
                 textFormats.add(getSelectedHeadingMenuItem()!!)
@@ -461,7 +483,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
-            return editor!!.toggleFormatting(action.textFormat)
+            val returnValue = editor!!.toggleFormatting(action.textFormat)
+
+            highlightAppliedStyles()
+
+            return returnValue
         }
 
         // other toolbar action
@@ -499,6 +525,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun highlightAppliedStyles() {
+        editor?.let {
+            highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
         }
     }
 

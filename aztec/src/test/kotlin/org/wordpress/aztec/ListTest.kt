@@ -25,6 +25,11 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
     val listType = listTextFormat
     val listTag = listHtmlTag
+
+    val otherListType = if (listTextFormat == AztecTextFormat.FORMAT_ORDERED_LIST) AztecTextFormat.FORMAT_UNORDERED_LIST
+                        else AztecTextFormat.FORMAT_ORDERED_LIST
+    val otherListTag = if (listTag == "ol") "ul" else "ol"
+
     lateinit var editText: AztecText
     lateinit var menuList: PopupMenu
     lateinit var menuListOrdered: MenuItem
@@ -867,5 +872,46 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("1<$listTag><li></li></$listTag>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun listTypeChangeWithDifferentListsSelected() {
+        editText.fromHtml("<$listTag><li>1</li></$listTag><br><$otherListTag><li>2</li></$otherListTag>")
+
+        editText.setSelection(0, editText.length())
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>1</li></$listTag><br><$listTag><li>2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals(menuListOrdered.isChecked, listTag == "ol")
+        Assert.assertEquals(menuListUnordered.isChecked, listTag == "ul")
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("1<br><br>2", editText.toHtml())
+        editText.setSelection(0)
+        editText.setSelection(0, editText.length())
+        Assert.assertFalse(menuListOrdered.isChecked)
+        Assert.assertFalse(menuListUnordered.isChecked)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun otherListTypeChangeWithDifferentListsSelected() {
+        editText.fromHtml("<$listTag><li>1</li></$listTag><br><$otherListTag><li>2</li></$otherListTag>")
+
+        editText.setSelection(0, editText.length())
+        editText.toggleFormatting(otherListType)
+
+        Assert.assertEquals("<$otherListTag><li>1</li></$otherListTag><br><$otherListTag><li>2</li></$otherListTag>",
+                editText.toHtml())
+        Assert.assertEquals(menuListOrdered.isChecked, listTag != "ol")
+        Assert.assertEquals(menuListUnordered.isChecked, listTag != "ul")
+
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>1</li></$listTag><br><$listTag><li>2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals(menuListOrdered.isChecked, listTag == "ol")
+        Assert.assertEquals(menuListUnordered.isChecked, listTag == "ul")
     }
 }

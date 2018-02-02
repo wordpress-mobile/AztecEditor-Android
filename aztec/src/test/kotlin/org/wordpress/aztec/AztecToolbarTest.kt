@@ -29,6 +29,9 @@ class AztecToolbarTest {
     lateinit var quoteButton: ToggleButton
     lateinit var linkButton: ToggleButton
     lateinit var htmlButton: ToggleButton
+    lateinit var alignLeftButton: ToggleButton
+    lateinit var alignCenterButton: ToggleButton
+    lateinit var alignRightButton: ToggleButton
 
     /**
      * Initialize variables.
@@ -51,6 +54,10 @@ class AztecToolbarTest {
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote)
         linkButton = toolbar.findViewById(R.id.format_bar_button_link)
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html)
+        alignLeftButton = toolbar.findViewById(R.id.format_bar_button_align_left)
+        alignCenterButton = toolbar.findViewById(R.id.format_bar_button_align_center)
+        alignRightButton = toolbar.findViewById(R.id.format_bar_button_align_right)
+
     }
 
     /**
@@ -68,6 +75,9 @@ class AztecToolbarTest {
         Assert.assertFalse(quoteButton.isChecked)
         Assert.assertFalse(linkButton.isChecked)
         Assert.assertFalse(htmlButton.isChecked)
+        Assert.assertFalse(alignLeftButton.isChecked)
+        Assert.assertFalse(alignCenterButton.isChecked)
+        Assert.assertFalse(alignRightButton.isChecked)
 
         Assert.assertTrue(TestUtils.safeEmpty(editText))
     }
@@ -790,5 +800,272 @@ class AztecToolbarTest {
         // selected \n4
         editText.setSelection(5, 7)
         Assert.assertTrue(quoteButton.isChecked)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun unformattedTextAlignment() {
+        editText.fromHtml("Hello, this is some unformatted text.")
+
+        editText.setSelection(3)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<p>Hello, this is some unformatted text.</p>", editText.toHtml())
+
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+
+        alignCenterButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: center;\">Hello, this is some unformatted text.</p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun unformattedSeparateLineAlignment() {
+        editText.fromHtml("Hello, this is some unformatted text.<br>Another line<br>Third line")
+
+        editText.setSelection(3)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>" +
+                "Another line<br>Third line",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("Third"))
+        alignCenterButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>" +
+                "Another line<p style=\"text-align: center;\">Third line</p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun inlineStyleAlignment() {
+        editText.fromHtml("<b>bold</b><br><i>italic</i><br><u>underline</u>")
+
+        editText.setSelection(editText.text.indexOf("bold"))
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p><i>italic</i><br><u>underline</u>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("italic"))
+        alignCenterButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p>" +
+                "<p style=\"text-align: center;\"><i>italic</i></p><u>underline</u>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("underline"))
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p>" +
+                "<p style=\"text-align: center;\"><i>italic</i></p>" +
+                "<p style=\"text-align: left;\"><u>underline</u></p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun multiselectInlineStyleAlignment() {
+        editText.fromHtml("<b>bold</b><br><i>italic</i><br><u>underline</u>")
+
+        editText.setSelection(2, editText.length() - 2)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b><br><i>italic</i><br><u>underline</u></p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun beginningOfHeadingAlignment() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>")
+
+        editText.setSelection(editText.text.indexOf("Heading 2"))
+        alignRightButton.performClick()
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: right;\">Heading 2</h2><h3>Heading 3</h3>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun endOfHeadingAlignment() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>")
+
+        editText.setSelection(editText.text.indexOf("2") + 1)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: center;\">Heading 2</h2><h3>Heading 3</h3>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun multiselectHeadingAlignment() {
+        editText.fromHtml("<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3>")
+
+        editText.setSelection(editText.text.indexOf("2"), editText.text.length)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: center;\">Heading 2</h2>" +
+                "<h3 style=\"text-align: center;\">Heading 3</h3>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun onlyListItemsAlignment() {
+        editText.fromHtml("<ul><li>item 1</li><li>item 2</li><li>item 3</li></ul>")
+
+        editText.setSelection(0, editText.length())
+        alignLeftButton.performClick()
+        Assert.assertEquals("<ul><li style=\"text-align: left;\">item 1</li>" +
+                "<li style=\"text-align: left;\">item 2</li>" +
+                "<li style=\"text-align: left;\">item 3</li></ul>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun unorderedListAlignment() {
+        editText.fromHtml("<ul><li>item 1</li><li>item 2</li><li>item 3</li></ul>")
+
+        editText.setSelection(editText.text.indexOf("1"))
+        alignLeftButton.performClick()
+        Assert.assertEquals("<ul><li style=\"text-align: left;\">item 1</li>" +
+                "<li>item 2</li><li>item 3</li></ul>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("1") + 1)
+        alignRightButton.performClick()
+        Assert.assertEquals("<ul><li style=\"text-align: right;\">item 1</li>" +
+                "<li>item 2</li><li>item 3</li></ul>",
+                editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<ul><li>item 1</li><li>item 2</li><li>item 3</li></ul>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("1") + 2)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align: center;\">item 2</li><li>item 3</li></ul>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.length)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align: center;\">item 2</li><li style=\"text-align: center;\">item 3</li></ul>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun orderedListMultiselectAlignment() {
+        editText.fromHtml("<ol><li>item 1</li><li style=\"text-align: center;\">item 2</li></ol>" +
+                "<hr><ol><li>item 3</li><li>item 4</li></ol>")
+
+        editText.setSelection(editText.text.indexOf("2"), editText.text.indexOf("3"))
+        alignRightButton.performClick()
+        Assert.assertEquals("<ol><li>item 1</li><li style=\"text-align: right;\">item 2</li></ol><hr>" +
+                "<ol><li style=\"text-align: right;\">item 3</li><li>item 4</li></ol>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun blockquoteAlignment() {
+        editText.fromHtml("<blockquote>Quote<br>newline</blockquote>")
+
+        editText.setSelection(1)
+        alignRightButton.performClick()
+        Assert.assertEquals("<blockquote style=\"text-align: right;\">Quote<br>newline</blockquote>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun preBlockAlignment() {
+        editText.fromHtml("<pre>test<br>newline</pre>")
+
+        editText.setSelection(1)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<pre style=\"text-align: center;\">test<br>newline</pre>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun codeBlockAlignment() {
+        editText.fromHtml("<code>Code<br>newline</code>")
+
+        editText.setSelection(7)
+        alignLeftButton.performClick()
+        Assert.assertEquals("<code>Code</code>" +
+                "<p style=\"text-align: left;\"><code>newline</code></p>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun commentAlignment() {
+        editText.fromHtml("<!-- Comment -->")
+
+        editText.setSelection(3)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\"><!-- Comment --></p>", editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<p><!-- Comment --></p>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun hiddenElementAlignment() {
+        editText.fromHtml("<div>a<br><div>b<br><span>c</span><br>d</div></div>")
+
+        editText.setSelection(editText.text.indexOf("a"))
+        alignRightButton.performClick()
+        Assert.assertEquals("<div style=\"text-align: right;\">a<br><div>b<br><span>c</span><br>d</div></div>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("c") + 1)
+        alignCenterButton.performClick()
+        Assert.assertEquals("<div style=\"text-align: center;\">a<br>" +
+                "<div style=\"text-align: center;\">b<br>" +
+                "<span style=\"text-align: center;\">c</span><br>d</div></div>",
+                editText.toHtml())
+
+        editText.setSelection(editText.text.indexOf("d"))
+        alignLeftButton.performClick()
+        Assert.assertEquals("<div style=\"text-align: left;\">a<br>" +
+                "<div style=\"text-align: left;\">b<br>" +
+                "<span style=\"text-align: center;\">c</span><br>d</div></div>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun rtlTextAlignment() {
+        editText.fromHtml("latin<br>بعبثخز")
+
+        editText.setSelection(0)
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>بعبثخز",
+                editText.toHtml())
+
+        editText.setSelection(editText.length())
+        alignLeftButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
+                "<p style=\"text-align: left;\">بعبثخز</p>",
+                editText.toHtml())
+
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
+                "<p style=\"text-align: right;\">بعبثخز</p>",
+                editText.toHtml())
+
+        editText.setSelection(0)
+        alignRightButton.performClick()
+        Assert.assertEquals("<p style=\"text-align: right;\">latin</p>" +
+                "<p style=\"text-align: right;\">بعبثخز</p>",
+                editText.toHtml())
     }
 }

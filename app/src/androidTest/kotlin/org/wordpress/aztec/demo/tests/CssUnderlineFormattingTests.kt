@@ -27,7 +27,7 @@ class CssUnderlineFormattingTests : BaseTest() {
     fun testSimpleCssUnderlineFormatting() {
         val text1 = "some"
         val text2 = "text"
-        val html = "$text1<span style=\"text-decoration: underline\">$text2</span>"
+        val html = "$text1<span style=\"text-decoration: underline;\">$text2</span>"
 
         EditorPage()
                 .insertText(text1)
@@ -56,7 +56,7 @@ class CssUnderlineFormattingTests : BaseTest() {
         val text1 = "some"
         val text2 = "text"
         val html = "$text1<u>$text2</u>"
-        val expectedHtml = "$text1<span style=\"text-decoration: underline\">$text2</span>"
+        val expectedHtml = "$text1<span style=\"text-decoration: underline;\">$text2</span>"
 
         EditorPage()
                 .toggleHtml()
@@ -78,8 +78,8 @@ class CssUnderlineFormattingTests : BaseTest() {
         val text1 = "some"
         val text2 = "text"
         val html = "$text1<u>$text2</u>"
-        val expectedHtml = "$text1<span style=\"text-decoration: underline\">te</span>\n\n" +
-                "<span style=\"text-decoration: underline\">xt</span>"
+        val expectedHtml = "$text1<span style=\"text-decoration: underline;\">te</span>\n\n" +
+                "<span style=\"text-decoration: underline;\">xt</span>"
 
         EditorPage()
                 .toggleHtml()

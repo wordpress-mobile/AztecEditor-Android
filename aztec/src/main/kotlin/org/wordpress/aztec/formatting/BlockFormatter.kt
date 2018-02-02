@@ -1,6 +1,8 @@
 package org.wordpress.aztec.formatting
 
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
+import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.aztec.AztecAttributes
@@ -20,7 +22,9 @@ import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
 import java.util.Arrays
 
@@ -38,7 +42,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
+            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
+            } else {
+                removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
+            }
         }
     }
 
@@ -50,7 +58,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 applyBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            } else {
+                removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            }
         }
     }
 
@@ -101,6 +113,23 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             else -> {
             }
         }
+    }
+
+    fun toggleTextAlignment(textFormat: ITextFormat) {
+        when (textFormat) {
+            AztecTextFormat.FORMAT_ALIGN_LEFT,
+            AztecTextFormat.FORMAT_ALIGN_CENTER,
+            AztecTextFormat.FORMAT_ALIGN_RIGHT ->
+                if (containsAlignment(textFormat)) {
+                    removeTextAlignment(textFormat)
+                } else {
+                    applyTextAlignment(textFormat)
+                }
+        }
+    }
+
+    fun removeTextAlignment(textFormat: ITextFormat) {
+        getAlignedSpans(textFormat).forEach { changeAlignment(it, null) }
     }
 
     fun tryRemoveBlockStyleFromFirstLine(): Boolean {
@@ -271,6 +300,18 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
+    fun getAlignment(textFormat: ITextFormat?, text: CharSequence) : Layout.Alignment? {
+        val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+        val isRtl = direction.isRtl(text, 0, text.length)
+
+        return when (textFormat) {
+            AztecTextFormat.FORMAT_ALIGN_LEFT -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+            AztecTextFormat.FORMAT_ALIGN_CENTER -> Layout.Alignment.ALIGN_CENTER
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+            else -> null
+        }
+    }
+
     fun makeBlockSpan(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
         return when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, textFormat, nestingLevel, attrs)
@@ -361,6 +402,41 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         endOfBlock = if (indexOfLastLineBreak != -1) (indexOfLastLineBreak + 1) else editable.length
 
         return IntRange(startOfBlock, endOfBlock)
+    }
+
+    fun applyTextAlignment(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+        if (editableText.isEmpty()) {
+            editableText.append("" + Constants.END_OF_BUFFER_MARKER)
+        }
+
+        val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
+        var spans = getAlignedSpans(null, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+
+        if (start == end) {
+            if (start == boundsOfSelectedText.start && spans.size > 1) {
+                spans = spans.filter { editableText.getSpanEnd(it) != start }
+            } else if (start == boundsOfSelectedText.endInclusive && spans.size > 1) {
+                spans = spans.filter { editableText.getSpanStart(it) != start }
+            }
+        }
+
+        if (spans.isNotEmpty()) {
+            spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, textFormat) }
+        } else {
+            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
+
+            val alignment = getAlignment(textFormat,
+                    editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
+            editableText.setSpan(ParagraphSpan(nestingLevel, AztecAttributes(), alignment),
+                    boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, Spanned.SPAN_PARAGRAPH)
+        }
+    }
+
+    private fun changeAlignment(it: IAztecParagraphStyle, blockElementType: ITextFormat?) {
+        val wrapper = SpanWrapper<IAztecParagraphStyle>(editableText, it)
+        it.align = getAlignment(blockElementType, editableText.substring(wrapper.start until wrapper.end))
+
+        editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
     }
 
     fun applyBlockStyle(blockElementType: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -503,8 +579,11 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     private fun liftListBlock(listSpan: Class<out AztecListSpan>, start: Int, end: Int) {
-        editableText.getSpans(start, end, listSpan).forEach { editableText.removeSpan(it) }
-        editableText.getSpans(start, end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+        editableText.getSpans(start, end, listSpan).forEach {
+            val wrapper = SpanWrapper(editableText, it)
+            editableText.getSpans(wrapper.start, wrapper.end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+            wrapper.remove()
+        }
     }
 
     fun containsList(textFormat: ITextFormat, nestingLevel: Int, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -678,6 +757,35 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return containsHeading(textFormat, selStart, selEnd) && otherHeadings.none { containsHeading(it, selStart, selEnd) }
     }
 
+    fun containsAlignment(textFormat: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        return getAlignedSpans(textFormat, selStart, selEnd).isNotEmpty()
+    }
+
+    private fun getAlignedSpans(textFormat: ITextFormat?, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecParagraphStyle> {
+        if (selStart < 0 || selEnd < 0) return emptyList()
+
+        return editableText.getSpans(selStart, selEnd, IAztecParagraphStyle::class.java)
+                .filter {
+                    textFormat == null || it.align == getAlignment(textFormat,
+                        editableText.substring(editableText.getSpanStart(it) until editableText.getSpanEnd(it)))
+                }
+                .filter {
+                    val spanStart = editableText.getSpanStart(it)
+                    val spanEnd = editableText.getSpanEnd(it)
+
+                    if (selStart == selEnd) {
+                        if (editableText.length == selStart) {
+                            selStart in spanStart..spanEnd
+                        } else {
+                            (spanEnd != selStart) && selStart in spanStart..spanEnd
+                        }
+                    } else {
+                        (selStart in spanStart..spanEnd || selEnd in spanStart..spanEnd) ||
+                                (spanStart in selStart..selEnd || spanEnd in spanStart..spanEnd)
+                    }
+                }
+    }
+
     fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
@@ -728,59 +836,81 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val existingListSpan = editableText.getSpans(start, end, AztecListSpan::class.java).firstOrNull()
-        if (existingListSpan != null) {
-            val spanStart = editableText.getSpanStart(existingListSpan)
-            val spanEnd = editableText.getSpanEnd(existingListSpan)
-            val spanFlags = editableText.getSpanFlags(existingListSpan)
-            editableText.removeSpan(existingListSpan)
+        var spans = editableText.getSpans(start, end, AztecListSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-            editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+        spans.forEach { existingListSpan ->
+            if (existingListSpan != null) {
+                val spanStart = editableText.getSpanStart(existingListSpan)
+                val spanEnd = editableText.getSpanEnd(existingListSpan)
+                val spanFlags = editableText.getSpanFlags(existingListSpan)
+                editableText.removeSpan(existingListSpan)
+
+                editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 
     fun switchHeaderType(headerTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val existingHeaderSpan = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
-        if (existingHeaderSpan != null) {
-            val spanStart = editableText.getSpanStart(existingHeaderSpan)
-            val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
-            val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
+        var spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-            existingHeaderSpan.textFormat = headerTypeToSwitchTo
+        spans.forEach { existingHeaderSpan ->
+            if (existingHeaderSpan != null) {
+                val spanStart = editableText.getSpanStart(existingHeaderSpan)
+                val spanEnd = editableText.getSpanEnd(existingHeaderSpan)
+                val spanFlags = editableText.getSpanFlags(existingHeaderSpan)
 
-            editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                existingHeaderSpan.textFormat = headerTypeToSwitchTo
+
+                editableText.setSpan(existingHeaderSpan, spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 
     fun switchHeadingToPreformat(start: Int = selectionStart, end: Int = selectionEnd) {
-        val heading = editableText.getSpans(start, end, AztecHeadingSpan::class.java).firstOrNull()
+        var spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-        if (heading != null) {
-            val spanStart = editableText.getSpanStart(heading)
-            val spanEnd = editableText.getSpanEnd(heading)
-            val spanFlags = editableText.getSpanFlags(heading)
-            val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+        spans.forEach { heading ->
+            if (heading != null) {
+                val spanStart = editableText.getSpanStart(heading)
+                val spanEnd = editableText.getSpanEnd(heading)
+                val spanFlags = editableText.getSpanFlags(heading)
+                val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
-            editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
+                editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 
     fun switchPreformatToHeading(headingTextFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
-        val preformat = editableText.getSpans(start, end, AztecPreformatSpan::class.java).firstOrNull()
+        var spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        if (start == end && spans.size > 1) {
+            spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
+        }
 
-        if (preformat != null) {
-            val spanStart = editableText.getSpanStart(preformat)
-            val spanEnd = editableText.getSpanEnd(preformat)
-            val spanFlags = editableText.getSpanFlags(preformat)
-            val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
+        spans.forEach { preformat ->
+            if (preformat != null) {
+                val spanStart = editableText.getSpanStart(preformat)
+                val spanEnd = editableText.getSpanEnd(preformat)
+                val spanFlags = editableText.getSpanFlags(preformat)
+                val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
 
-            removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
-            editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
-            editor.onSelectionChanged(start, end)
+                removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
+                editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
+                editor.onSelectionChanged(start, end)
+            }
         }
     }
 }

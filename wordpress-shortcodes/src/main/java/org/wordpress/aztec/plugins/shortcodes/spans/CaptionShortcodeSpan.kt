@@ -1,6 +1,7 @@
 package org.wordpress.aztec.plugins.shortcodes.spans
 
 import android.graphics.Typeface
+import android.text.Layout
 import android.text.Spanned
 import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecAttributes
@@ -10,9 +11,10 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 
 class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: AztecAttributes,
-                            override val TAG: String,
-                            override var nestingLevel: Int,
-                            private val aztecText: AztecText? = null)
+                                                     override val TAG: String,
+                                                     override var nestingLevel: Int,
+                                                     private val aztecText: AztecText? = null,
+                                                     override var align: Layout.Alignment? = null)
     : StyleSpan(Typeface.ITALIC), IAztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
@@ -82,5 +84,9 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
             end--
         }
         return end
+    }
+
+    override fun shouldParseAlignmentToHtml(): Boolean {
+        return false
     }
 }

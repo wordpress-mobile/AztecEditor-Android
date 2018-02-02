@@ -807,6 +807,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
+            AztecTextFormat.FORMAT_ALIGN_LEFT,
+            AztecTextFormat.FORMAT_ALIGN_CENTER,
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             else -> {
@@ -832,6 +835,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(format, selStart, selEnd)
+            AztecTextFormat.FORMAT_ALIGN_LEFT,
+            AztecTextFormat.FORMAT_ALIGN_CENTER,
+            AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.containsAlignment(format, selStart, selEnd)
             AztecTextFormat.FORMAT_QUOTE -> return blockFormatter.containsQuote(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_PREFORMAT -> return blockFormatter.containsPreformat(selectionStart, selectionEnd)
             AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)

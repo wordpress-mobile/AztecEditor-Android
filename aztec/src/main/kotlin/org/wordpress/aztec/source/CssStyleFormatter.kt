@@ -1,10 +1,13 @@
 package org.wordpress.aztec.source
 
+import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
+import android.text.Layout
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAttributedSpan
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.util.ColorConverter
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -14,28 +17,48 @@ import java.util.regex.Pattern
  * The CSS style properties current supported are:
  * + *color*<br/>Example: style="color:blue"
  */
-class InlineCssStyleFormatter {
+class CssStyleFormatter {
 
     companion object {
 
         val STYLE_ATTRIBUTE = "style"
         val CSS_TEXT_DECORATION_ATTRIBUTE = "text-decoration"
+        val CSS_TEXT_ALIGN_ATTRIBUTE = "text-align"
         val CSS_COLOR_ATTRIBUTE = "color"
 
         /**
-         * Check the provided [attributes] for the *style* attribute. If found, parse out the
+         * Check the provided [attributedSpan] for the *style* attribute. If found, parse out the
          * supported CSS style properties and use the results to create a [ForegroundColorSpan],
          * then add it to the provided [text].
          *
          * Must be called immediately after the base [IAztecAttributedSpan] has been processed.
          *
          * @param [text] An [Editable] containing an [IAztecAttributedSpan] for processing.
-         * @param [attributes] The attributes of the Html tag used to search for the *style* attributes.
+         * @param [attributedSpan] The attributed span of the Html tag used to search for the *style* attributes.
          * @param [start] The index where the [IAztecAttributedSpan] starts inside the [text].
          */
-        fun applyInlineStyleAttributes(text: Editable, attributes: AztecAttributes, start: Int, end: Int) {
-            if (attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
-                processColor(attributes, text, start, end)
+        fun applyInlineStyleAttributes(text: Editable, attributedSpan: IAztecAttributedSpan, start: Int, end: Int) {
+            if (attributedSpan.attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
+                processColor(attributedSpan.attributes, text, start, end)
+                if (attributedSpan is IAztecParagraphStyle) {
+                    processAlignment(attributedSpan, text, start, end)
+                }
+            }
+        }
+
+        private fun processAlignment(blockSpan: IAztecParagraphStyle, text: Editable, start: Int, end: Int) {
+            val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
+            if (!alignment.isBlank()) {
+                val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                val isRtl = direction.isRtl(text, start, end - start)
+
+                val align = when (alignment) {
+                    "right" -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+                    "center" -> Layout.Alignment.ALIGN_CENTER
+                    else -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+                }
+
+                blockSpan.align = align
             }
         }
 
@@ -71,9 +94,9 @@ class InlineCssStyleFormatter {
                 if (newStyle.isBlank()) {
                     attributes.removeAttribute(STYLE_ATTRIBUTE)
                 } else {
-                    newStyle = newStyle.replace(";(.?)".toRegex(), "; ($1)")
+                    newStyle = newStyle.replace(";".toRegex(), "; ")
                     newStyle = newStyle.replace(":".toRegex(), ": ")
-                    attributes.setValue(STYLE_ATTRIBUTE, newStyle)
+                    attributes.setValue(STYLE_ATTRIBUTE, newStyle.trim())
                 }
             }
         }
@@ -93,11 +116,11 @@ class InlineCssStyleFormatter {
             style = style.trim()
 
             if (!style.isEmpty() && !style.endsWith(";")) {
-                style += "; "
+                style += ";"
             }
 
-            style += "$styleAttributeName: $styleAttributeValue"
-            attributes.setValue(STYLE_ATTRIBUTE, style)
+            style += " $styleAttributeName: $styleAttributeValue;"
+            attributes.setValue(STYLE_ATTRIBUTE, style.trim())
         }
 
         fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {

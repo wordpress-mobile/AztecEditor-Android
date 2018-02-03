@@ -70,7 +70,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (!containsQuote()) {
             applyBlockStyle(AztecTextFormat.FORMAT_QUOTE)
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_QUOTE)
+            removeEntireBlock(AztecQuoteSpan::class.java)
         }
     }
 
@@ -164,6 +164,16 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun removeBlockStyle(textFormat: ITextFormat) {
         removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
+    }
+
+    fun <T : IAztecBlockSpan> removeEntireBlock(type: Class<T>) {
+        val bounds = getBoundsOfText(editableText, selectionStart, selectionEnd)
+        editableText.getSpans(bounds.start, bounds.endInclusive, type).forEach {
+            val wrap = SpanWrapper(editableText, it)
+            if (wrap.end != bounds.start && wrap.start != bounds.endInclusive) {
+                wrap.remove()
+            }
+        }
     }
 
     fun removeBlockStyle(textFormat: ITextFormat, originalStart: Int, originalEnd: Int,

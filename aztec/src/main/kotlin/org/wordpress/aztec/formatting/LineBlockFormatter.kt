@@ -172,10 +172,17 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
+        // We need to be sure the cursor is placed correctly after media insertion
+        // Note that media has '\n' around them when needed
+        val isLastItem = if (selectionEnd == EndOfBufferMarkerAdder.safeLength(editor)) { true } else false
         editableText.replace(selectionStart, selectionEnd, ssb)
 
-        editor.setSelection(
-                if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd)
+        val newSelection = if (isLastItem) {
+            EndOfBufferMarkerAdder.safeLength(editor)
+        } else {
+            if (selectionEnd < EndOfBufferMarkerAdder.safeLength(editor)) selectionEnd + 1 else selectionEnd
+        }
+        editor.setSelection(newSelection)
         editor.isMediaAdded = true
     }
 }

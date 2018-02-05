@@ -176,7 +176,7 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testRemoveQuoteFormatting() {
         val text = "some text"
-        val html = "<blockquote>$text</blockquote>\n$text"
+        val html = "$text\n<br>\n$text"
 
         EditorPage()
                 .toggleQuote()

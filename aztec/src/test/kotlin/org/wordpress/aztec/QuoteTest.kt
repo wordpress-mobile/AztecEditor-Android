@@ -719,7 +719,7 @@ class QuoteTest {
         editText.setSelection(3)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<blockquote>1</blockquote>2", editText.toHtml())
+        Assert.assertEquals("1<br>2", editText.toHtml())
     }
 
     @Test
@@ -730,7 +730,7 @@ class QuoteTest {
         editText.setSelection(3)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<blockquote>1</blockquote>2<br>3", editText.toHtml())
+        Assert.assertEquals("1<br>2<br>3", editText.toHtml())
     }
 
     @Test

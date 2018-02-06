@@ -35,7 +35,7 @@
                 android:paddingTop="16dp"
                 android:scrollbars="vertical"
                 android:imeOptions="flagNoExtractUi"
-                aztec:historyEnable="true"
+                aztec:historyEnable="false"
                 aztec:historySize="10"/>
 
             <org.wordpress.aztec.source.SourceViewEditText

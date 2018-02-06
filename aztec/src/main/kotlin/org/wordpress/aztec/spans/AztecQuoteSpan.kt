@@ -50,6 +50,7 @@ class AztecQuoteSpan(
             fm.ascent -= (quoteStyle.verticalPadding + topDelta)
             fm.top -= (quoteStyle.verticalPadding + topDelta)
         }
+
         val bottomDelta = getBottomMarginDelta(text, end)
         if (bottomDelta != 0) {
             fm.descent += (quoteStyle.verticalPadding + bottomDelta)
@@ -85,7 +86,7 @@ class AztecQuoteSpan(
         if (text == null) return 0
         val spanned = text as Spanned
         val spanEnd = spanned.getSpanEnd(this)
-        if (end == spanEnd || spanEnd-1 == end  || spanEnd < end) {
+        if (end == spanEnd || spanEnd - 1 == end || spanEnd < end) {
             return 10
         }
         return 0

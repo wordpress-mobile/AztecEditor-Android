@@ -20,14 +20,37 @@ abstract class AztecListSpan(override var nestingLevel: Int,
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
+        // Edge lines are made longer during the drawing phase
+        val topDelta = getTopMarginDelta(text, start)
         if (start == spanStart || start < spanStart) {
-            fm.ascent -= verticalPadding
-            fm.top -= verticalPadding
+            fm.ascent -= (verticalPadding + topDelta)
+            fm.top -= (verticalPadding + topDelta)
         }
+        val bottomDelta = getBottomMarginDelta(text, end)
         if (end == spanEnd || spanEnd < end) {
-            fm.descent += verticalPadding
-            fm.bottom += verticalPadding
+            fm.descent += (verticalPadding + bottomDelta)
+            fm.bottom += (verticalPadding + bottomDelta)
         }
+    }
+
+    private fun getTopMarginDelta(text: CharSequence?, start: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        if (start == spanStart || start < spanStart) {
+            return 20
+        }
+        return 0
+    }
+
+    private fun getBottomMarginDelta(text: CharSequence?, end: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanEnd = spanned.getSpanEnd(this)
+        if (end == spanEnd || spanEnd < end) {
+            return 20
+        }
+        return 0
     }
 
     fun getIndexOfProcessedLine(text: CharSequence, end: Int): Int {

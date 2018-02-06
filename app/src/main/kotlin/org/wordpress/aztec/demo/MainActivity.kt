@@ -135,7 +135,7 @@ open class MainActivity : AppCompatActivity(),
         private val VIDEOPRESS = "[wpvideo OcobLTqC]"
         private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
 
-        private val EXAMPLE =
+        /*private val EXAMPLE =
                 IMG +
                 HEADING +
                 BOLD +
@@ -161,7 +161,8 @@ open class MainActivity : AppCompatActivity(),
                 VIDEOPRESS +
                 VIDEOPRESS_2 +
                 AUDIO +
-                GUTENBERG_CODE_BLOCK
+                GUTENBERG_CODE_BLOCK*/
+        private val EXAMPLE = PREFORMAT + "Hello" + ORDERED + ORDERED + QUOTE + ORDERED + QUOTE + UNORDERED + QUOTE
 
         private val isRunningTest: Boolean by lazy {
             try {

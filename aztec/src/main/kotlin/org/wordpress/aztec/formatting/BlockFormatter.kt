@@ -167,8 +167,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun <T : IAztecBlockSpan> removeEntireBlock(type: Class<T>) {
-        val bounds = getBoundsOfText(editableText, selectionStart, selectionEnd)
-        editableText.getSpans(bounds.start, bounds.endInclusive, type).forEach {
+        editableText.getSpans(selectionStart, selectionEnd, type).forEach {
             editableText.removeSpan(it)
         }
     }

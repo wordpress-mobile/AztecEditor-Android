@@ -37,12 +37,9 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        if (nestingDepth(listText, end - spanStart, end - spanStart + 1) != nestingLevel + 1) {
-            val listItems = listText.getSpans(end - 1, end, AztecListItemSpan::class.java)
-            if (listItems.none { it.nestingLevel == nestingLevel + 1 }) {
-                // this line has nesting deeper than our own (item) nesting level so, don't display bullet/number
-                return -1
-            }
+        val currentNesting = nestingDepth(listText, end - spanStart, end - spanStart + 1)
+        if (currentNesting != nestingLevel + 1 && currentNesting != nestingLevel + 2) {
+            return -1
         }
 
         val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned

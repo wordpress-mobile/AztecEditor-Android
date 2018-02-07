@@ -21,6 +21,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LineBackgroundSpan
@@ -40,6 +41,8 @@ class AztecQuoteSpan(
     override var startBeforeCollapse: Int = -1
 
     val rect = Rect()
+    var margin: Int = 0
+    var offset: Int = 0
 
     override val TAG: String = "blockquote"
 
@@ -59,7 +62,7 @@ class AztecQuoteSpan(
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding
+        return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding - offset
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -71,8 +74,18 @@ class AztecQuoteSpan(
 
         p.style = Paint.Style.FILL
         p.color = quoteStyle.quoteColor
-        c.drawRect(x.toFloat() + quoteStyle.quoteMargin, top.toFloat(),
-                (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat(), bottom.toFloat(), p)
+
+        val editable = text as Editable
+        val isWithinListItem = editable.getSpans(start, end, AztecListItemSpan::class.java).isEmpty()
+        if (isWithinListItem) {
+            margin = x + quoteStyle.quoteMargin
+        } else {
+            margin = x
+            offset = quoteStyle.quoteMargin
+        }
+
+        c.drawRect(margin.toFloat(), top.toFloat(),
+                (margin + dir * quoteStyle.quoteWidth).toFloat(), bottom.toFloat(), p)
 
         p.style = style
         p.color = color
@@ -90,7 +103,7 @@ class AztecQuoteSpan(
                 Color.red(quoteStyle.quoteBackground),
                 Color.green(quoteStyle.quoteBackground),
                 Color.blue(quoteStyle.quoteBackground))
-        rect.set(left + quoteStyle.quoteMargin, top, right, bottom)
+        rect.set(margin, top, right, bottom)
 
         c.drawRect(rect, p)
         p.color = paintColor

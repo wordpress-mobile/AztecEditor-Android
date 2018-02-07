@@ -478,7 +478,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val endOfLine = boundsOfSelectedText.endInclusive
 
             val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start) + 1
-            val isWithinList = editableText.getSpans(start, start + 1, AztecListSpan::class.java).isNotEmpty()
+            val isWithinList = editableText.getSpans(boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, AztecListSpan::class.java).isNotEmpty()
 
             val spanToApply = makeBlockSpan(blockElementType, nestingLevel)
 

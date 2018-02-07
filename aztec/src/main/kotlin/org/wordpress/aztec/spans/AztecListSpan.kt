@@ -6,6 +6,7 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
+import org.wordpress.aztec.Constants
 import java.util.ArrayList
 
 abstract class AztecListSpan(override var nestingLevel: Int,
@@ -37,22 +38,29 @@ abstract class AztecListSpan(override var nestingLevel: Int,
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
         if (nestingDepth(listText, end - spanStart, end - spanStart + 1) != nestingLevel + 1) {
-            // this line has nesting deeper than our own (item) nesting level so, don't display bullet/number
-            return -1
+            val listItems = listText.getSpans(end - 1, end, AztecListItemSpan::class.java)
+            if (listItems.none { it.nestingLevel == nestingLevel + 1 }) {
+                // this line has nesting deeper than our own (item) nesting level so, don't display bullet/number
+                return -1
+            }
         }
 
         val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned
 
         // gather the nesting depth for each line
         val nestingDepth = ArrayList<Int>()
-        textBeforeBeforeEnd.forEachIndexed {
-            i, c -> if (c == '\n') nestingDepth.add(nestingDepth(textBeforeBeforeEnd, i, i + 1))
+        textBeforeBeforeEnd.forEachIndexed { i, c ->
+            if (c == Constants.NEWLINE) {
+                nestingDepth.add(nestingDepth(textBeforeBeforeEnd, i, i + 1))
+            }
         }
 
         // count the lines that have the same nesting depth as us
         var otherLinesAtSameNestingLevel = 0
         for (maxNestingLevel in nestingDepth) {
-            if (maxNestingLevel - 1 == nestingLevel) { // the -1 is because the list is one level up than the listitem
+            // the -1 is because the list is one level up than the list item
+            // if the item contains one block element, we still want to display number/bullet
+            if (maxNestingLevel - 1 == nestingLevel || maxNestingLevel - 2 == nestingLevel) {
                 otherLinesAtSameNestingLevel++
             }
         }

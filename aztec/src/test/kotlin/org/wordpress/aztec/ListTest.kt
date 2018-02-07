@@ -914,4 +914,32 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals(menuListOrdered.isChecked, listTag == "ol")
         Assert.assertEquals(menuListUnordered.isChecked, listTag == "ul")
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun addQuoteToListItem() {
+        editText.fromHtml("<$listTag><li>1</li><li>2</li></$listTag>")
+
+        editText.setSelection(0)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li>2</li></$listTag>",
+                editText.toHtml())
+
+        editText.setSelection(3)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></$listTag>",
+                editText.toHtml())
+
+        editText.setSelection(1)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li>1</li><li><blockquote>2</blockquote></li></$listTag>",
+                editText.toHtml())
+
+
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li>1</li><li>2</li></$listTag>",
+                editText.toHtml())
+    }
 }

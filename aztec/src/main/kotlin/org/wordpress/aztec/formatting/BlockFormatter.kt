@@ -456,7 +456,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             // TODO: styling across multiple nesting levels not support yet
             if (nestingLevelAtTheStartOfSelection != nestingLevelAtTheEndOfSelection) {
-                if (nestingLevelAtTheStartOfSelection == 0 && nestingLevelAtTheEndOfSelection == 1) {
+                if (Math.abs(nestingLevelAtTheStartOfSelection - nestingLevelAtTheEndOfSelection) == 1) {
                     // 0/1 is ok!
                 } else {
                     return

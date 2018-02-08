@@ -80,10 +80,10 @@ class AztecQuoteSpan(
                 .none { it.nestingLevel < nestingLevel }
         
         if (isWithinListItem) {
-            margin = x + quoteStyle.quoteMargin
-        } else {
             margin = x
             offset = quoteStyle.quoteMargin
+        } else {
+            margin = x + quoteStyle.quoteMargin
         }
 
         c.drawRect(margin.toFloat(), top.toFloat(),

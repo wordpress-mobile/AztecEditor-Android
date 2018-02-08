@@ -27,8 +27,8 @@ class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.ja
     }
 
     override fun handleNewlineAtTextEnd() {
-         block.end = newlineIndex + 1
-     }
+        block.end = newlineIndex + 1
+    }
 
     override fun handleNewlineInBody() {
         // newline added at some position inside the block. Let's split the block into two

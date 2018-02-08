@@ -31,14 +31,7 @@ class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.ja
     //  for the end-of-text marker event in order to attach the new list item to it when that happens.
 
     override fun handleNewlineInBody() {
-        if (newlineIndex == block.end - 2) {
-            // newline added at the end of the block (right before its visual newline) so, just end the block and
-            //  not add a new block after it
-        } else {
-            // newline added at some position inside the block. Let's split the block into two
-            cloneHeading(text, block.span, newlineIndex + 1, block.end)
-        }
-
+        cloneHeading(text, block.span, newlineIndex + 1, block.end)
         block.end = newlineIndex + 1
     }
 

@@ -2,6 +2,7 @@ package org.wordpress.aztec.spans
 
 import android.text.Spannable
 import android.text.Spanned
+import org.wordpress.aztec.Constants
 import org.wordpress.aztec.util.SpanWrapper
 
 interface IAztecNestable {
@@ -9,7 +10,9 @@ interface IAztecNestable {
 
     companion object {
         fun getNestingLevelAt(spanned: Spanned, index: Int, nextIndex: Int = index): Int {
-            return spanned.getSpans(index, nextIndex, IAztecNestable::class.java).maxBy { it.nestingLevel }?.nestingLevel ?: 0
+            return spanned.getSpans(index, nextIndex, IAztecNestable::class.java)
+                    .filter { spanned.getSpanEnd(it) != index || index == 0 || spanned[index - 1] != Constants.NEWLINE }
+                    .maxBy { it.nestingLevel }?.nestingLevel ?: 0
         }
 
         fun getParent(spannable: Spannable, child: SpanWrapper<out IAztecNestable>): SpanWrapper<out IAztecNestable>? {

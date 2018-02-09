@@ -386,8 +386,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             indexOfFirstLineBreak = selectionStart
         } else if (selectionStartIsOnTheNewLine) {
             val isSingleCharacterLine = (selectionStart > 1 && editableText[selectionStart - 1] != '\n' && editableText[selectionStart - 2] == '\n') || selectionStart == 1
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - if (isSingleCharacterLine) 0 else 1) - if (isSingleCharacterLine) 1 else 0
 
+            if (isSingleCharacterLine) {
+                indexOfFirstLineBreak = selectionStart - 1
+            } else {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+            }
             if (isTrailingNewlineAtTheEndOfSelection) {
                 indexOfLastLineBreak = editable.indexOf("\n", selectionEnd - 1)
             }

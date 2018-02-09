@@ -103,10 +103,6 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
             return PositionType.BUFFER_END
         }
 
-        if (atEndOfBlock) {
-            return PositionType.BUFFER_END
-        }
-
         // no special case applied so, newline is in the "body" of the block
         return PositionType.BODY
     }

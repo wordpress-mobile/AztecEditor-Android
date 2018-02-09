@@ -1,7 +1,11 @@
 # Changelog
-## Unreleased
+## [1.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.2) - 2018-02-09
 ### Added
-- Text alignment support
+- Text & image caption alignment support
+
+### Fixed
+- Crash when editing a heading
+- Order of inserted images
 
 ## [1.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.1) - 2018-01-29
 ### Added

@@ -37,6 +37,7 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
+        // TODO: incorrectly doesn't draw line marker if there are 2 blocks inside the item (e.g. heading + quote)
         val currentNesting = nestingDepth(listText, end - spanStart, end - spanStart + 1)
         if (currentNesting != nestingLevel + 1 && currentNesting != nestingLevel + 2) {
             return -1

@@ -77,7 +77,7 @@ class AztecQuoteSpan(
 
         val editable = text as Editable
         val isWithinListItem = editable.getSpans(start, end, AztecListItemSpan::class.java)
-                .none { it.nestingLevel < nestingLevel }
+                .any { it.nestingLevel == nestingLevel - 1 }
         
         if (isWithinListItem) {
             margin = x

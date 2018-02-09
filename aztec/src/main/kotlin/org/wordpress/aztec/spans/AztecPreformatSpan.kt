@@ -33,15 +33,38 @@ class AztecPreformatSpan(
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
+        // Edge lines are made longer during the drawing phase
+        val topDelta = getTopMarginDelta(text, start)
         if (start == spanStart || start < spanStart) {
-            fm.ascent -= preformatStyle.verticalPadding
-            fm.top -= preformatStyle.verticalPadding
+            fm.ascent -= (preformatStyle.verticalPadding + topDelta)
+            fm.top -= (preformatStyle.verticalPadding + topDelta)
         }
 
+        val bottomDelta = getBottomMarginDelta(text, end)
         if (end == spanEnd || spanEnd < end) {
-            fm.descent += preformatStyle.verticalPadding
-            fm.bottom += preformatStyle.verticalPadding
+            fm.descent += (preformatStyle.verticalPadding + bottomDelta)
+            fm.bottom += (preformatStyle.verticalPadding + bottomDelta)
         }
+    }
+
+    private fun getTopMarginDelta(text: CharSequence?, start: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        if (start == spanStart || start < spanStart) {
+            return 10
+        }
+        return 0
+    }
+
+    private fun getBottomMarginDelta(text: CharSequence?, end: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanEnd = spanned.getSpanEnd(this)
+        if (end == spanEnd || spanEnd < end) {
+            return 10
+        }
+        return 0
     }
 
     override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
@@ -53,7 +76,7 @@ class AztecPreformatSpan(
                 Color.green(preformatStyle.preformatBackground),
                 Color.blue(preformatStyle.preformatBackground)
         )
-        rect.set(left, top, right, bottom)
+        rect.set(left, top + getTopMarginDelta(text, start), right, bottom - getBottomMarginDelta(text, end))
         canvas.drawRect(rect, paint)
         paint.color = color
     }
@@ -65,7 +88,8 @@ class AztecPreformatSpan(
         paint.style = Paint.Style.FILL
         paint.color = preformatStyle.preformatColor
 
-        canvas.drawRect(x.toFloat() + MARGIN, top.toFloat(), (x + MARGIN).toFloat(), bottom.toFloat(), paint)
+        canvas.drawRect(x.toFloat() + MARGIN, top.toFloat() + + getTopMarginDelta(text, start),
+                (x + MARGIN).toFloat(), bottom.toFloat() - getBottomMarginDelta(text, end), paint)
 
         paint.style = style
         paint.color = color

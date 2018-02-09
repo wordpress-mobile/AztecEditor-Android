@@ -44,22 +44,52 @@ class AztecQuoteSpan(
     override val TAG: String = "blockquote"
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
-        val spanned = text as Spanned
-        val spanStart = spanned.getSpanStart(this)
-        val spanEnd = spanned.getSpanEnd(this)
-
-        if (start == spanStart || start < spanStart) {
-            fm.ascent -= quoteStyle.verticalPadding
-            fm.top -= quoteStyle.verticalPadding
+        // Edge lines are made longer during the drawing phase
+        val topDelta = getTopMarginDelta(text, start)
+        if (topDelta != 0) {
+            fm.ascent -= (quoteStyle.verticalPadding + topDelta)
+            fm.top -= (quoteStyle.verticalPadding + topDelta)
         }
-        if (end == spanEnd || spanEnd < end) {
-            fm.descent += quoteStyle.verticalPadding
-            fm.bottom += quoteStyle.verticalPadding
+
+        val bottomDelta = getBottomMarginDelta(text, end)
+        if (bottomDelta != 0) {
+            fm.descent += (quoteStyle.verticalPadding + bottomDelta)
+            fm.bottom += (quoteStyle.verticalPadding + bottomDelta)
         }
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
         return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding
+    }
+
+    private fun getTopMarginDelta(text: CharSequence?, start: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
+        if (start == spanStart || start < spanStart) {
+            return 10
+        }
+        return 0
+    }
+
+    private fun getBottomMarginDelta(text: CharSequence?, end: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanEnd = spanned.getSpanEnd(this)
+        if (end == spanEnd || spanEnd < end) {
+            return 10
+        }
+        return 0
+    }
+
+    private fun getBottomMarginDeltaForMargin(text: CharSequence?, end: Int) : Int {
+        if (text == null) return 0
+        val spanned = text as Spanned
+        val spanEnd = spanned.getSpanEnd(this)
+        if (end == spanEnd || spanEnd - 1 == end || spanEnd < end) {
+            return 10
+        }
+        return 0
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -71,8 +101,10 @@ class AztecQuoteSpan(
 
         p.style = Paint.Style.FILL
         p.color = quoteStyle.quoteColor
-        c.drawRect(x.toFloat() + quoteStyle.quoteMargin, top.toFloat(),
-                (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat(), bottom.toFloat(), p)
+        c.drawRect(x.toFloat() + quoteStyle.quoteMargin,
+                top.toFloat() + getTopMarginDelta(text, start),
+                (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat(),
+                bottom.toFloat() - getBottomMarginDeltaForMargin(text, end), p)
 
         p.style = style
         p.color = color
@@ -90,7 +122,8 @@ class AztecQuoteSpan(
                 Color.red(quoteStyle.quoteBackground),
                 Color.green(quoteStyle.quoteBackground),
                 Color.blue(quoteStyle.quoteBackground))
-        rect.set(left + quoteStyle.quoteMargin, top, right, bottom)
+        rect.set(left + quoteStyle.quoteMargin, top + getTopMarginDelta(text, start),
+                right, bottom - getBottomMarginDelta(text, end))
 
         c.drawRect(rect, p)
         p.color = paintColor

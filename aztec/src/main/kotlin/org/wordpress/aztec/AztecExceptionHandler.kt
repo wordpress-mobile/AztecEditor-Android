@@ -33,7 +33,7 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
                 AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash " + visualEditor.toPlainHtml(false))
             } catch (e: Throwable) {
                 AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash is unavailable, log the details instead")
-                AztecLog.logEditorContentDetails(visualEditor)
+                AztecLog.logContentDetails(visualEditor)
             }
         }
 

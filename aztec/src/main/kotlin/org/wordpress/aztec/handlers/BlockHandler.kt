@@ -2,9 +2,11 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import android.text.Spanned
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.watchers.BlockElementWatcher.TextChangeHandler
 
@@ -115,6 +117,13 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
 
     companion object {
         fun set(text: Spannable, block: IAztecBlockSpan, start: Int, end: Int) {
+            if (start > end) {
+                AppLog.w(AppLog.T.EDITOR, "BlockHandler.set static method called with start > end. Start: " + start + " End: " + end)
+                AppLog.w(AppLog.T.EDITOR, "Invoked with block type of " + block.javaClass.canonicalName)
+                AztecLog.logContentDetails(text)
+                return
+            }
+
             val flags = Spanned.SPAN_PARAGRAPH
             if (SpanWrapper.isInvalidParagraph(text, start, end, flags)) return
 

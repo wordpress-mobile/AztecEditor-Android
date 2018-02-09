@@ -5,8 +5,22 @@ import org.wordpress.android.util.AppLog
 
 class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 
+    private var frozenStart: Int = -1
+    private var frozenEnd: Int = -1
+    private var frozenFlags: Int = -1
+
     fun remove() {
+        frozenStart = start
+        frozenEnd = end
+        frozenFlags = flags
+
         spannable.removeSpan(span)
+    }
+
+    fun reapply() {
+        if (frozenFlags != -1 && frozenEnd != -1 && frozenStart != -1) {
+            setSpanOrLogError(span, frozenStart, frozenEnd, frozenFlags)
+        }
     }
 
     var start: Int

@@ -12,7 +12,7 @@ import java.util.ArrayList
 abstract class AztecListSpan(override var nestingLevel: Int,
                              var verticalPadding: Int = 0,
                              override var align: Layout.Alignment? = null) : LeadingMarginSpan.Standard(0),
-        IAztecBlockSpan, LineHeightSpan, UpdateLayout {
+        LineHeightSpan, UpdateLayout, IAztecBlockSpan {
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 

@@ -43,8 +43,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var isMediaModeEnabled: Boolean = false
 
     private lateinit var buttonScroll: HorizontalScrollView
-    private lateinit var buttonEllipsisCollapse: RippleToggleButton
-    private lateinit var buttonEllipsisExpand: RippleToggleButton
+    private lateinit var buttonEllipsisCollapsed: RippleToggleButton
+    private lateinit var buttonEllipsisExpanded: RippleToggleButton
     private lateinit var layoutExpandedTranslateInRight: Animation
     private lateinit var layoutExpandedTranslateOutLeft: Animation
 
@@ -589,12 +589,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun animateToolbarCollapse() {
-        buttonEllipsisCollapse.startAnimation(ellipsisSpinLeft)
+        buttonEllipsisCollapsed.startAnimation(ellipsisSpinLeft)
         isExpanded = false
     }
 
     private fun animateToolbarExpand() {
-        buttonEllipsisExpand.startAnimation(ellipsisSpinRight)
+        buttonEllipsisExpanded.startAnimation(ellipsisSpinRight)
         isExpanded = true
     }
 
@@ -687,8 +687,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ellipsisSpinLeft.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
-                        buttonEllipsisCollapse.visibility = View.GONE
-                        buttonEllipsisExpand.visibility = View.VISIBLE
+                        buttonEllipsisCollapsed.visibility = View.GONE
+                        buttonEllipsisExpanded.visibility = View.VISIBLE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -705,8 +705,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         ellipsisSpinRight.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
-                        buttonEllipsisCollapse.visibility = View.VISIBLE
-                        buttonEllipsisExpand.visibility = View.GONE
+                        buttonEllipsisCollapsed.visibility = View.VISIBLE
+                        buttonEllipsisExpanded.visibility = View.GONE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -723,8 +723,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setButtonViews() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
-        buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse)
-        buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand)
+        buttonEllipsisCollapsed = findViewById(R.id.format_bar_button_ellipsis_collapsed)
+        buttonEllipsisExpanded = findViewById(R.id.format_bar_button_ellipsis_expanded)
     }
 
     private fun setupMediaToolbar() {
@@ -879,14 +879,14 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun showCollapsedToolbar() {
         layoutExpanded.visibility = View.GONE
-        buttonEllipsisCollapse.visibility = View.GONE
-        buttonEllipsisExpand.visibility = View.VISIBLE
+        buttonEllipsisCollapsed.visibility = View.GONE
+        buttonEllipsisExpanded.visibility = View.VISIBLE
     }
 
     private fun showExpandedToolbar() {
         layoutExpanded.visibility = View.VISIBLE
-        buttonEllipsisCollapse.visibility = View.VISIBLE
-        buttonEllipsisExpand.visibility = View.GONE
+        buttonEllipsisCollapsed.visibility = View.VISIBLE
+        buttonEllipsisExpanded.visibility = View.GONE
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {

@@ -247,7 +247,7 @@
                 android:gravity="end">
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_ellipsis_expand"
+                    android:id="@+id/format_bar_button_ellipsis_expanded"
                     style="@style/FormatBarButton"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
@@ -256,7 +256,7 @@
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
-                    android:id="@+id/format_bar_button_ellipsis_collapse"
+                    android:id="@+id/format_bar_button_ellipsis_collapsed"
                     style="@style/FormatBarButton"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"

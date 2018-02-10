@@ -3,6 +3,8 @@ package org.wordpress.aztec.toolbar
 import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
+import android.support.v4.text.TextUtilsCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -26,6 +28,7 @@ import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import java.util.ArrayList
+import java.util.Locale
 
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
@@ -45,8 +48,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var layoutExpandedTranslateInRight: Animation
     private lateinit var layoutExpandedTranslateOutLeft: Animation
 
-    private lateinit var buttonMediaCollapse: RippleToggleButton
-    private lateinit var buttonMediaExpand: RippleToggleButton
+    private lateinit var buttonMediaCollapsed: RippleToggleButton
+    private lateinit var buttonMediaExpanded: RippleToggleButton
 
     private lateinit var layoutMediaTranslateInRight: Animation
     private lateinit var layoutMediaTranslateOutLeft: Animation
@@ -663,9 +666,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setAnimations() {
-        layoutExpandedTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
+        layoutExpandedTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
-        layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
+        layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
         layoutExpandedTranslateOutLeft.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
@@ -692,7 +695,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     }
 
                     override fun onAnimationStart(animation: Animation) {
-                        buttonScroll.smoothScrollTo(0, 0)
+                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                         layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
                     }
                 }
@@ -711,6 +714,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     override fun onAnimationStart(animation: Animation) {
                         layoutExpanded.visibility = View.VISIBLE
+                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                         layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
                     }
                 }
@@ -719,7 +723,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     private fun setButtonViews() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
-        buttonScroll = findViewById(R.id.format_bar_button_scroll)
         buttonEllipsisCollapse = findViewById(R.id.format_bar_button_ellipsis_collapse)
         buttonEllipsisExpand = findViewById(R.id.format_bar_button_ellipsis_expand)
     }
@@ -727,18 +730,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun setupMediaToolbar() {
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)
+        buttonScroll = findViewById(R.id.format_bar_button_scroll)
 
-        buttonMediaCollapse = findViewById(R.id.format_bar_button_media_collapsed)
-        buttonMediaExpand = findViewById(R.id.format_bar_button_media_expanded)
+        buttonMediaCollapsed = findViewById(R.id.format_bar_button_media_collapsed)
+        buttonMediaExpanded = findViewById(R.id.format_bar_button_media_expanded)
 
         if (isMediaToolbarVisible) {
-            buttonMediaExpand.visibility = View.VISIBLE
-            buttonMediaCollapse.visibility = View.GONE
+            buttonMediaExpanded.visibility = View.VISIBLE
+            buttonMediaCollapsed.visibility = View.GONE
             stylingToolbar.visibility = View.GONE
             mediaToolbar.visibility = View.VISIBLE
         } else {
-            buttonMediaExpand.visibility = View.GONE
-            buttonMediaCollapse.visibility = View.VISIBLE
+            buttonMediaExpanded.visibility = View.GONE
+            buttonMediaCollapsed.visibility = View.VISIBLE
             stylingToolbar.visibility = View.VISIBLE
             mediaToolbar.visibility = View.GONE
         }
@@ -747,9 +751,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbarAnimations() {
-        layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_right)
+        layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
-        layoutMediaTranslateOutRight = AnimationUtils.loadAnimation(context, R.anim.translate_out_right)
+        layoutMediaTranslateOutRight = AnimationUtils.loadAnimation(context, R.anim.translate_out_end)
         layoutMediaTranslateOutRight.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
@@ -764,10 +768,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
         )
 
-        layoutMediaTranslateInLeft = AnimationUtils.loadAnimation(context, R.anim.translate_in_left)
+        layoutMediaTranslateInLeft = AnimationUtils.loadAnimation(context, R.anim.translate_in_start)
         layoutMediaTranslateInLeft.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
+
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -775,11 +780,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     override fun onAnimationStart(animation: Animation) {
                         stylingToolbar.visibility = View.VISIBLE
+                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                     }
                 }
         )
 
-        layoutMediaTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_left)
+        layoutMediaTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
         layoutMediaTranslateOutLeft.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
@@ -798,14 +804,19 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         mediaButtonSpinRight.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
-                        buttonMediaCollapse.visibility = View.GONE
-                        buttonMediaExpand.visibility = View.VISIBLE
+                        buttonMediaCollapsed.visibility = View.GONE
+                        buttonMediaExpanded.visibility = View.VISIBLE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
                     }
 
                     override fun onAnimationStart(animation: Animation) {
+                        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                            buttonScroll.fullScroll(View.FOCUS_LEFT)
+                        } else {
+                            buttonScroll.fullScroll(View.FOCUS_RIGHT)
+                        }
                     }
                 }
         )
@@ -814,8 +825,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         mediaButtonSpinLeft.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
-                        buttonMediaCollapse.visibility = View.VISIBLE
-                        buttonMediaExpand.visibility = View.GONE
+                        buttonMediaCollapsed.visibility = View.VISIBLE
+                        buttonMediaExpanded.visibility = View.GONE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -941,7 +952,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     fun hideMediaToolbar() {
         if (!isMediaToolbarVisible) return
 
-        buttonMediaExpand.startAnimation(mediaButtonSpinLeft)
+        buttonMediaExpanded.startAnimation(mediaButtonSpinLeft)
         stylingToolbar.startAnimation(layoutMediaTranslateInLeft)
         mediaToolbar.startAnimation(layoutMediaTranslateOutLeft)
 
@@ -951,7 +962,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     fun showMediaToolbar() {
         if (isMediaToolbarVisible) return
 
-        buttonMediaCollapse.startAnimation(mediaButtonSpinRight)
+        buttonMediaCollapsed.startAnimation(mediaButtonSpinRight)
         stylingToolbar.startAnimation(layoutMediaTranslateOutRight)
 
         mediaToolbar.visibility = View.VISIBLE

@@ -695,7 +695,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     }
 
                     override fun onAnimationStart(animation: Animation) {
-                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
+                        scrollToBeginingOfToolbar()
                         layoutExpanded.startAnimation(layoutExpandedTranslateOutStart)
                     }
                 }
@@ -714,11 +714,21 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     override fun onAnimationStart(animation: Animation) {
                         layoutExpanded.visibility = View.VISIBLE
-                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
+                        //in rtl mode the scrollview will scroll to "end" when layoutExpanded becomes visible
+                        //keep hard focus on media button to avoid it
+                        buttonScroll.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                         layoutExpanded.startAnimation(layoutExpandedTranslateInEnd)
                     }
                 }
         )
+    }
+
+    fun scrollToBeginingOfToolbar() {
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
+            buttonScroll.fullScroll(View.FOCUS_LEFT)
+        } else {
+            buttonScroll.fullScroll(View.FOCUS_RIGHT)
+        }
     }
 
     private fun setButtonViews() {
@@ -780,7 +790,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     override fun onAnimationStart(animation: Animation) {
                         stylingToolbar.visibility = View.VISIBLE
-                        buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
+                        //in rtl mode the scrollview will scroll to "end" when stylingToolbar becomes visible
+                        //keep hard focus on media button to avoid it
+                        buttonScroll.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                     }
                 }
         )
@@ -812,11 +824,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     }
 
                     override fun onAnimationStart(animation: Animation) {
-                        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
-                            buttonScroll.fullScroll(View.FOCUS_LEFT)
-                        } else {
-                            buttonScroll.fullScroll(View.FOCUS_RIGHT)
-                        }
+                        scrollToBeginingOfToolbar()
                     }
                 }
         )

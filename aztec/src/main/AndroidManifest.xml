@@ -5,7 +5,6 @@
           package="org.wordpress.aztec">
 
     <application
-        android:supportsRtl="@bool/is_api_18_plus"
-        tools:replace="android:supportsRtl"/>
+        android:supportsRtl="true"/>
 
 </manifest>

@@ -18,6 +18,7 @@
     </View>
 
     <HorizontalScrollView
+        style="@style/ToolbarLayoutDirection"
         android:id="@+id/format_bar_button_scroll"
         android:layout_width="match_parent"
         android:layout_height="@dimen/aztec_format_bar_height"

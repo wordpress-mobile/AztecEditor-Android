@@ -2,7 +2,6 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
@@ -18,6 +17,7 @@
     </View>
 
     <HorizontalScrollView
+        style="@style/ToolbarLayoutDirection"
         android:id="@+id/format_bar_button_scroll"
         android:layout_width="match_parent"
         android:layout_height="@dimen/aztec_format_bar_height"

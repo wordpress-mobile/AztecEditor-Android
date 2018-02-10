@@ -1,6 +1,7 @@
 package org.wordpress.aztec.toolbar
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.text.TextUtilsCompat
@@ -725,7 +726,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
     fun scrollToBeginingOfToolbar() {
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
-                || !resources.getBoolean(R.bool.is_api_18_plus)) {
+                || Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
             buttonScroll.fullScroll(View.FOCUS_LEFT)
         } else {
             buttonScroll.fullScroll(View.FOCUS_RIGHT)

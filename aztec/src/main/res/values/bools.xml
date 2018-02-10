@@ -5,6 +5,5 @@
     <bool name="history_enable">true</bool>
     <bool name="comments_visible">true</bool>
     <bool name="link_underline">true</bool>
-    <bool name="is_api_18_plus">false</bool>
 
 </resources>

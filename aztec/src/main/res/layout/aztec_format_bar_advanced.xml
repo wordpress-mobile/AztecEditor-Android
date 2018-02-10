@@ -13,7 +13,7 @@
     <View
         android:id="@+id/format_bar_horizontal_divider"
         style="@style/DividerHorizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/format_bar_horizontal_divider_height">
     </View>
 
@@ -24,10 +24,13 @@
         android:layout_gravity="bottom"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:paddingRight="@dimen/aztec_format_bar_right_margin"
-        tools:ignore="RtlHardcoded,RtlSymmetry">
+        android:paddingEnd="@dimen/aztec_format_bar_end_margin"
+        android:paddingLeft="0dp"
+        android:paddingRight="@dimen/aztec_format_bar_end_margin"
+        android:paddingStart="0dp">
 
         <LinearLayout
+            android:baselineAligned="false"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal">
@@ -36,15 +39,13 @@
                 android:id="@+id/media_button_container"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
                 android:orientation="horizontal">
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_media_collapsed"
                     style="@style/FormatBarButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
+                    android:layout_height="match_parent"
                     android:background="@drawable/format_bar_button_media_collapsed_selector"
                     android:contentDescription="@string/format_bar_description_media">
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
@@ -53,7 +54,7 @@
                     android:id="@+id/format_bar_button_media_expanded"
                     style="@style/FormatBarButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
+                    android:layout_height="match_parent"
                     android:background="@drawable/format_bar_button_media_expanded_selector"
                     android:contentDescription="@string/format_bar_description_media"
                     android:visibility="gone">
@@ -76,23 +77,25 @@
                     android:id="@+id/media_toolbar"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:orientation="horizontal"
                     android:visibility="gone">
                 </LinearLayout>
 
-                <LinearLayout
+                <RelativeLayout
                     android:id="@+id/styling_toolbar"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent">
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal">
 
                         <LinearLayout
                             android:id="@+id/format_bar_button_layout_expanded"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
+                            android:layout_toEndOf="@+id/format_bar_button_layout_collapsed"
                             android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
                             android:orientation="horizontal"
                             tools:visibility="gone">
@@ -189,7 +192,8 @@
                                 style="@style/FormatBarButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="fill_parent"
-                                android:layout_marginLeft="@dimen/aztec_format_bar_left_margin"
+                                android:layout_marginLeft="@dimen/aztec_format_bar_start_margin"
+                                android:layout_marginStart="@dimen/aztec_format_bar_start_margin"
                                 android:background="@drawable/format_bar_button_heading_selector"
                                 android:contentDescription="@string/format_bar_description_heading">
                             </org.wordpress.aztec.toolbar.RippleToggleButton>
@@ -232,36 +236,34 @@
 
                         </LinearLayout>
 
-                    </RelativeLayout>
+                </RelativeLayout>
 
-                    <!-- Hidden view used to force ellipsis icons to layout right/end -->
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="fill_parent"
-                        android:layout_weight="1"
-                        android:visibility="invisible">
-                    </View>
+            </RelativeLayout>
 
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_ellipsis_expand"
-                        style="@style/FormatBarButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
-                        android:background="@drawable/format_bar_button_ellipsis_horizontal_selector"
-                        android:contentDescription="@string/format_bar_description_ellipsis_expand">
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end">
 
-                    <org.wordpress.aztec.toolbar.RippleToggleButton
-                        android:id="@+id/format_bar_button_ellipsis_collapse"
-                        style="@style/FormatBarButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
-                        android:background="@drawable/format_bar_button_ellipsis_vertical_selector"
-                        android:contentDescription="@string/format_bar_description_ellipsis_collapse"
-                        android:visibility="gone">
-                    </org.wordpress.aztec.toolbar.RippleToggleButton>
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_ellipsis_expand"
+                    style="@style/FormatBarButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="@drawable/format_bar_button_ellipsis_horizontal_selector"
+                    android:contentDescription="@string/format_bar_description_ellipsis_expand">
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
 
-                </LinearLayout>
+                <org.wordpress.aztec.toolbar.RippleToggleButton
+                    android:id="@+id/format_bar_button_ellipsis_collapse"
+                    style="@style/FormatBarButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:background="@drawable/format_bar_button_ellipsis_vertical_selector"
+                    android:contentDescription="@string/format_bar_description_ellipsis_collapse"
+                    android:visibility="gone">
+                </org.wordpress.aztec.toolbar.RippleToggleButton>
 
             </RelativeLayout>
 

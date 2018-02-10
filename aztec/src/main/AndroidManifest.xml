@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<manifest package="org.wordpress.aztec">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          package="org.wordpress.aztec">
+
+    <application
+        android:supportsRtl="@bool/is_api_18_plus"
+        tools:replace="android:supportsRtl"/>
 
 </manifest>

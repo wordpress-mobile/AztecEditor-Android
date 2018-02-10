@@ -724,7 +724,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     fun scrollToBeginingOfToolbar() {
-        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
+                || !resources.getBoolean(R.bool.is_api_18_plus)) {
             buttonScroll.fullScroll(View.FOCUS_LEFT)
         } else {
             buttonScroll.fullScroll(View.FOCUS_RIGHT)

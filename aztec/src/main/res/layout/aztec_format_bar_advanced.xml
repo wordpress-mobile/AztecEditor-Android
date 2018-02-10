@@ -245,7 +245,6 @@
                         android:layout_weight="1"/>
 
                     <RelativeLayout
-                        android:id="@+id/format_bar_button_ellipsis_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 

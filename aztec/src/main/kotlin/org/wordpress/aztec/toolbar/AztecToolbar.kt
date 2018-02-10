@@ -45,16 +45,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private lateinit var buttonScroll: HorizontalScrollView
     private lateinit var buttonEllipsisCollapsed: RippleToggleButton
     private lateinit var buttonEllipsisExpanded: RippleToggleButton
-    private lateinit var layoutExpandedTranslateInRight: Animation
-    private lateinit var layoutExpandedTranslateOutLeft: Animation
+    private lateinit var layoutExpandedTranslateInEnd: Animation
+    private lateinit var layoutExpandedTranslateOutStart: Animation
 
     private lateinit var buttonMediaCollapsed: RippleToggleButton
     private lateinit var buttonMediaExpanded: RippleToggleButton
 
-    private lateinit var layoutMediaTranslateInRight: Animation
-    private lateinit var layoutMediaTranslateOutLeft: Animation
-    private lateinit var layoutMediaTranslateOutRight: Animation
-    private lateinit var layoutMediaTranslateInLeft: Animation
+    private lateinit var layoutMediaTranslateInEnd: Animation
+    private lateinit var layoutMediaTranslateOutStart: Animation
+    private lateinit var layoutMediaTranslateOutEnd: Animation
+    private lateinit var layoutMediaTranslateInStart: Animation
 
     private lateinit var ellipsisSpinLeft: Animation
     private lateinit var ellipsisSpinRight: Animation
@@ -666,10 +666,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setAnimations() {
-        layoutExpandedTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
+        layoutExpandedTranslateInEnd = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
-        layoutExpandedTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
-        layoutExpandedTranslateOutLeft.setAnimationListener(
+        layoutExpandedTranslateOutStart = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
+        layoutExpandedTranslateOutStart.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
                         layoutExpanded.visibility = View.GONE
@@ -696,7 +696,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
                     override fun onAnimationStart(animation: Animation) {
                         buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
-                        layoutExpanded.startAnimation(layoutExpandedTranslateOutLeft)
+                        layoutExpanded.startAnimation(layoutExpandedTranslateOutStart)
                     }
                 }
         )
@@ -715,7 +715,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     override fun onAnimationStart(animation: Animation) {
                         layoutExpanded.visibility = View.VISIBLE
                         buttonMediaCollapsed.parent.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
-                        layoutExpanded.startAnimation(layoutExpandedTranslateInRight)
+                        layoutExpanded.startAnimation(layoutExpandedTranslateInEnd)
                     }
                 }
         )
@@ -751,10 +751,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbarAnimations() {
-        layoutMediaTranslateInRight = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
+        layoutMediaTranslateInEnd = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
-        layoutMediaTranslateOutRight = AnimationUtils.loadAnimation(context, R.anim.translate_out_end)
-        layoutMediaTranslateOutRight.setAnimationListener(
+        layoutMediaTranslateOutEnd = AnimationUtils.loadAnimation(context, R.anim.translate_out_end)
+        layoutMediaTranslateOutEnd.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
                         stylingToolbar.visibility = View.GONE
@@ -768,8 +768,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
         )
 
-        layoutMediaTranslateInLeft = AnimationUtils.loadAnimation(context, R.anim.translate_in_start)
-        layoutMediaTranslateInLeft.setAnimationListener(
+        layoutMediaTranslateInStart = AnimationUtils.loadAnimation(context, R.anim.translate_in_start)
+        layoutMediaTranslateInStart.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
 
@@ -785,8 +785,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
         )
 
-        layoutMediaTranslateOutLeft = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
-        layoutMediaTranslateOutLeft.setAnimationListener(
+        layoutMediaTranslateOutStart = AnimationUtils.loadAnimation(context, R.anim.translate_out_start)
+        layoutMediaTranslateOutStart.setAnimationListener(
                 object : Animation.AnimationListener {
                     override fun onAnimationEnd(animation: Animation) {
                         mediaToolbar.visibility = View.GONE
@@ -953,8 +953,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         if (!isMediaToolbarVisible) return
 
         buttonMediaExpanded.startAnimation(mediaButtonSpinLeft)
-        stylingToolbar.startAnimation(layoutMediaTranslateInLeft)
-        mediaToolbar.startAnimation(layoutMediaTranslateOutLeft)
+        stylingToolbar.startAnimation(layoutMediaTranslateInStart)
+        mediaToolbar.startAnimation(layoutMediaTranslateOutStart)
 
         isMediaToolbarVisible = false
     }
@@ -963,10 +963,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         if (isMediaToolbarVisible) return
 
         buttonMediaCollapsed.startAnimation(mediaButtonSpinRight)
-        stylingToolbar.startAnimation(layoutMediaTranslateOutRight)
+        stylingToolbar.startAnimation(layoutMediaTranslateOutEnd)
 
         mediaToolbar.visibility = View.VISIBLE
-        mediaToolbar.startAnimation(layoutMediaTranslateInRight)
+        mediaToolbar.startAnimation(layoutMediaTranslateInEnd)
 
         isMediaToolbarVisible = true
     }

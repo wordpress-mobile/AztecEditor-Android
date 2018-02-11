@@ -134,6 +134,7 @@ open class MainActivity : AppCompatActivity(),
         private val AUDIO = "[audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
         private val VIDEOPRESS = "[wpvideo OcobLTqC]"
         private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
+        private val QUOTE_RTL = "<blockquote>לְצַטֵט</blockquote>"
 
         private val EXAMPLE =
                 IMG +
@@ -161,7 +162,8 @@ open class MainActivity : AppCompatActivity(),
                 VIDEOPRESS +
                 VIDEOPRESS_2 +
                 AUDIO +
-                GUTENBERG_CODE_BLOCK
+                GUTENBERG_CODE_BLOCK +
+                QUOTE_RTL
 
         private val isRunningTest: Boolean by lazy {
             try {

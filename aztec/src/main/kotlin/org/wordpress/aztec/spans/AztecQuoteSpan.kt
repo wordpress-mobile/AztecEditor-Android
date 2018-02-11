@@ -79,7 +79,7 @@ class AztecQuoteSpan(
 
         if (TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR.isRtl(text, start, end - start)) {
             marginStart = (x - quoteStyle.quoteMargin).toFloat()
-            marginEnd = (x - quoteStyle.quoteMargin - dir * quoteStyle.quoteWidth).toFloat()
+            marginEnd = (x - quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
         } else {
             marginStart = (x + quoteStyle.quoteMargin).toFloat()
             marginEnd = (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()

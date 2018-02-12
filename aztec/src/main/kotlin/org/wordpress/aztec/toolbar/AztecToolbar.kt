@@ -43,7 +43,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
-    private lateinit var buttonScroll: HorizontalScrollView
+    private lateinit var toolbarScrolView: HorizontalScrollView
     private lateinit var buttonEllipsisCollapsed: RippleToggleButton
     private lateinit var buttonEllipsisExpanded: RippleToggleButton
     private lateinit var layoutExpandedTranslateInEnd: Animation
@@ -371,6 +371,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
         View.inflate(context, layout, this)
+
+        toolbarScrolView = findViewById(R.id.format_bar_button_scroll)
+
         setAdvancedState()
         setupMediaToolbar()
 
@@ -717,7 +720,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         layoutExpanded.visibility = View.VISIBLE
                         //in rtl mode the scrollview will scroll to "end" when layoutExpanded becomes visible
                         //keep hard focus on media button to avoid it
-                        buttonScroll.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
+                        toolbarScrolView.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                         layoutExpanded.startAnimation(layoutExpandedTranslateInEnd)
                     }
                 }
@@ -727,9 +730,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     fun scrollToBeginingOfToolbar() {
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
                 || Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            buttonScroll.fullScroll(View.FOCUS_LEFT)
+            toolbarScrolView.fullScroll(View.FOCUS_LEFT)
         } else {
-            buttonScroll.fullScroll(View.FOCUS_RIGHT)
+            toolbarScrolView.fullScroll(View.FOCUS_RIGHT)
         }
     }
 
@@ -742,7 +745,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun setupMediaToolbar() {
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)
-        buttonScroll = findViewById(R.id.format_bar_button_scroll)
 
         buttonMediaCollapsed = findViewById(R.id.format_bar_button_media_collapsed)
         buttonMediaExpanded = findViewById(R.id.format_bar_button_media_expanded)
@@ -794,7 +796,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         stylingToolbar.visibility = View.VISIBLE
                         //in rtl mode the scrollview will scroll to "end" when stylingToolbar becomes visible
                         //keep hard focus on media button to avoid it
-                        buttonScroll.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
+                        toolbarScrolView.requestChildFocus(buttonMediaCollapsed, buttonMediaCollapsed)
                     }
                 }
         )

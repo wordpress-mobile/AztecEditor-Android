@@ -24,13 +24,13 @@
         android:layout_height="@dimen/aztec_format_bar_height"
         android:layout_gravity="bottom"
         android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingEnd="@dimen/aztec_format_bar_end_margin"
-        android:paddingLeft="0dp"
-        android:paddingRight="@dimen/aztec_format_bar_end_margin"
-        android:paddingStart="0dp">
+        android:fillViewport="true">
 
         <LinearLayout
+            android:paddingEnd="@dimen/aztec_format_bar_end_margin"
+            android:paddingLeft="0dp"
+            android:paddingRight="@dimen/aztec_format_bar_end_margin"
+            android:paddingStart="0dp"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:baselineAligned="false"

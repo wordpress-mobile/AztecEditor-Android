@@ -17,22 +17,22 @@
     </View>
 
     <HorizontalScrollView
-        style="@style/ToolbarLayoutDirection"
         android:id="@+id/format_bar_button_scroll"
+        style="@style/ToolbarLayoutDirection"
         android:layout_width="match_parent"
         android:layout_height="@dimen/aztec_format_bar_height"
         android:layout_gravity="bottom"
         android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingLeft="0dp"
-        android:paddingStart="0dp"
-        android:paddingEnd="@dimen/aztec_format_bar_end_margin"
-        android:paddingRight="@dimen/aztec_format_bar_end_margin">
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingEnd="@dimen/aztec_format_bar_end_margin"
+            android:paddingLeft="0dp"
+            android:paddingRight="@dimen/aztec_format_bar_end_margin"
+            android:paddingStart="0dp">
 
             <LinearLayout
                 android:id="@+id/media_button_container"
@@ -96,8 +96,8 @@
                             style="@style/FormatBarButton"
                             android:layout_width="wrap_content"
                             android:layout_height="fill_parent"
-                            android:layout_marginStart="@dimen/aztec_format_bar_start_margin"
                             android:layout_marginLeft="@dimen/aztec_format_bar_start_margin"
+                            android:layout_marginStart="@dimen/aztec_format_bar_start_margin"
                             android:background="@drawable/format_bar_button_heading_selector"
                             android:contentDescription="@string/format_bar_description_heading">
                         </org.wordpress.aztec.toolbar.RippleToggleButton>

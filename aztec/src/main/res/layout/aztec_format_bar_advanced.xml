@@ -89,12 +89,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <FrameLayout
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:orientation="horizontal">
 
                         <LinearLayout
+                            android:layout_toEndOf="@+id/format_bar_button_layout_collapsed"
+                            android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
                             android:id="@+id/format_bar_button_layout_expanded"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
@@ -237,8 +239,7 @@
 
                         </LinearLayout>
 
-                    </FrameLayout>
-
+                    </RelativeLayout>
 
                     <android.support.v4.widget.Space
                         android:layout_width="0dp"

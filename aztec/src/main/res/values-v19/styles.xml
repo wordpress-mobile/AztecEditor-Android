@@ -2,7 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="ToolbarLayoutDirection">
-        <item name="android:layoutDirection" tools:targetApi="jelly_bean_mr1">rtl</item>
+        <item name="android:layoutDirection" tools:targetApi="jelly_bean_mr1">locale</item>
     </style>
 
 </resources>

@@ -22,14 +22,18 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.support.v4.text.TextDirectionHeuristicsCompat
+import android.support.v4.text.TextUtilsCompat
+import android.support.v4.view.ViewCompat
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
+import java.util.Locale
 
 class AztecQuoteSpan(
         override var nestingLevel: Int,
@@ -77,9 +81,9 @@ class AztecQuoteSpan(
         val marginStart: Float
         val marginEnd: Float
 
-        if (TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR.isRtl(text, start, end - start)) {
-            marginStart = (x - quoteStyle.quoteMargin).toFloat()
-            marginEnd = (x - quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
+        if (isRtlQuote(text, start, end)) {
+            marginStart = (x - quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
+            marginEnd = (x - quoteStyle.quoteMargin).toFloat()
         } else {
             marginStart = (x + quoteStyle.quoteMargin).toFloat()
             marginEnd = (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
@@ -93,7 +97,7 @@ class AztecQuoteSpan(
 
     override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int,
                                 top: Int, baseline: Int, bottom: Int,
-                                text: CharSequence?, start: Int, end: Int,
+                                text: CharSequence, start: Int, end: Int,
                                 lnum: Int) {
         val alpha: Int = (quoteStyle.quoteBackgroundAlpha * 255).toInt()
 
@@ -107,7 +111,7 @@ class AztecQuoteSpan(
         val quoteBackgroundStart: Int
         val quoteBackgroundEnd: Int
 
-        if (TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR.isRtl(text, start, end - start)) {
+        if (isRtlQuote(text, start, end)) {
             quoteBackgroundStart = left
             quoteBackgroundEnd = right - quoteStyle.quoteMargin
         } else {
@@ -120,4 +124,13 @@ class AztecQuoteSpan(
         c.drawRect(rect, p)
         p.color = paintColor
     }
+
+    private fun isRtlQuote(text: CharSequence, start: Int, end: Int): Boolean {
+        return if (start == end || TextUtils.isEmpty(text) || text.substring(start, end) == "\n") {
+            TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_RTL
+        } else {
+            TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR.isRtl(text, start, end - start)
+        }
+    }
+
 }

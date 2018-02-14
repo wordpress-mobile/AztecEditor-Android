@@ -21,6 +21,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.support.v4.text.TextDirectionHeuristicCompat
+import android.support.v4.text.TextDirectionHeuristicsCompat
+import android.support.v4.text.TextUtilsCompat
+import android.support.v4.view.ViewCompat
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LineBackgroundSpan
@@ -29,17 +33,19 @@ import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
+import java.util.Locale
 
 class AztecQuoteSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0),
-        override var align: Layout.Alignment? = null
-    ) : QuoteSpan(), LineBackgroundSpan, IAztecBlockSpan, LineHeightSpan, UpdateLayout {
+        override var align: Layout.Alignment? = null)
+    : QuoteSpan(), LineBackgroundSpan, IAztecBlockSpan, LineHeightSpan, UpdateLayout {
+
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
-    val rect = Rect()
+    private val rect = Rect()
 
     override val TAG: String = "blockquote"
 
@@ -71,8 +77,19 @@ class AztecQuoteSpan(
 
         p.style = Paint.Style.FILL
         p.color = quoteStyle.quoteColor
-        c.drawRect(x.toFloat() + quoteStyle.quoteMargin, top.toFloat(),
-                (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat(), bottom.toFloat(), p)
+
+        val marginStart: Float
+        val marginEnd: Float
+
+        if (isRtlQuote(text, start, end)) {
+            marginStart = (x - quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
+            marginEnd = (x - quoteStyle.quoteMargin).toFloat()
+        } else {
+            marginStart = (x + quoteStyle.quoteMargin).toFloat()
+            marginEnd = (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
+        }
+
+        c.drawRect(marginStart, top.toFloat(), marginEnd, bottom.toFloat(), p)
 
         p.style = style
         p.color = color
@@ -80,7 +97,7 @@ class AztecQuoteSpan(
 
     override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int,
                                 top: Int, baseline: Int, bottom: Int,
-                                text: CharSequence?, start: Int, end: Int,
+                                text: CharSequence, start: Int, end: Int,
                                 lnum: Int) {
         val alpha: Int = (quoteStyle.quoteBackgroundAlpha * 255).toInt()
 
@@ -90,9 +107,32 @@ class AztecQuoteSpan(
                 Color.red(quoteStyle.quoteBackground),
                 Color.green(quoteStyle.quoteBackground),
                 Color.blue(quoteStyle.quoteBackground))
-        rect.set(left + quoteStyle.quoteMargin, top, right, bottom)
+
+        val quoteBackgroundStart: Int
+        val quoteBackgroundEnd: Int
+
+        if (isRtlQuote(text, start, end)) {
+            quoteBackgroundStart = left
+            quoteBackgroundEnd = right - quoteStyle.quoteMargin
+        } else {
+            quoteBackgroundStart = left + quoteStyle.quoteMargin
+            quoteBackgroundEnd = right
+        }
+
+        rect.set(quoteBackgroundStart, top, quoteBackgroundEnd, bottom)
 
         c.drawRect(rect, p)
         p.color = paintColor
     }
+
+    private fun isRtlQuote(text: CharSequence, start: Int, end: Int): Boolean {
+        val textDirectionHeuristic: TextDirectionHeuristicCompat =
+                if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                    TextDirectionHeuristicsCompat.FIRSTSTRONG_RTL
+                } else {
+                    TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                }
+        return textDirectionHeuristic.isRtl(text, start, end - start)
+    }
+
 }

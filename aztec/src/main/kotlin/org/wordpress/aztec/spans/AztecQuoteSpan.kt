@@ -21,12 +21,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.support.v4.text.TextDirectionHeuristicCompat
 import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.support.v4.text.TextUtilsCompat
 import android.support.v4.view.ViewCompat
 import android.text.Layout
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
@@ -126,11 +126,13 @@ class AztecQuoteSpan(
     }
 
     private fun isRtlQuote(text: CharSequence, start: Int, end: Int): Boolean {
-        return if (start == end || TextUtils.isEmpty(text) || text.substring(start, end) == "\n") {
-            TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_RTL
-        } else {
-            TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR.isRtl(text, start, end - start)
-        }
+        val textDirectionHeuristic: TextDirectionHeuristicCompat =
+                if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                    TextDirectionHeuristicsCompat.FIRSTSTRONG_RTL
+                } else {
+                    TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                }
+        return textDirectionHeuristic.isRtl(text, start, end - start)
     }
 
 }

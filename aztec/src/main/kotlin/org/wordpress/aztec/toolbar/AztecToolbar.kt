@@ -31,6 +31,11 @@ import org.wordpress.aztec.source.SourceViewEditText
 import java.util.ArrayList
 import java.util.Locale
 
+/**
+ * Aztec toolbar container.
+ * Contains both Styling and Media toolbars.
+ * Supports RTL layout direction on API 19+
+ */
 class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
@@ -727,6 +732,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         )
     }
 
+    //HorizontalScrollView does not support RTL layout direction on API <= 18, so we will always scroll to the left
     fun scrollToBeginingOfToolbar() {
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
                 || Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {

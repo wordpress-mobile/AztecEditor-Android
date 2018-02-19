@@ -26,8 +26,8 @@ enum class ToolbarAction constructor(override val buttonId: Int, override val ac
     LINK(R.id.format_bar_button_link, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_LINK),
     HORIZONTAL_RULE(R.id.format_bar_button_horizontal_rule, ToolbarActionType.LINE_BLOCK, AztecTextFormat.FORMAT_HORIZONTAL_RULE),
     HTML(R.id.format_bar_button_html, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
-    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapse, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
-    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expand, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE);
+    ELLIPSIS_COLLAPSE(R.id.format_bar_button_ellipsis_collapsed, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
+    ELLIPSIS_EXPAND(R.id.format_bar_button_ellipsis_expanded, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE);
 
     companion object {
         fun getToolbarActionForStyle(style: ITextFormat): IToolbarAction? {

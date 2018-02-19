@@ -1,5 +1,6 @@
 package org.wordpress.aztec.util
 
+import android.text.Spannable
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -14,23 +15,27 @@ class AztecLog {
     }
 
     companion object {
-        fun logEditorContentDetails(aztecText: AztecText) {
+        fun logContentDetails(aztecText: AztecText) {
+            AppLog.d(AppLog.T.EDITOR, "Below are the details of the content in the editor:")
+            logContentDetails(aztecText.text)
+        }
+
+        fun logContentDetails(text: Spannable) {
             try {
                 val logContentJSON = JSONObject()
-                logContentJSON.put("content", aztecText.text.toString())
-                logContentJSON.put("length", aztecText.text.length)
+                logContentJSON.put("content", text.toString())
+                logContentJSON.put("length", text.length)
                 val spansJSON = JSONArray()
-                val spans = aztecText.text.getSpans(0, aztecText.text.length, Any::class.java)
+                val spans = text.getSpans(0, text.length, Any::class.java)
                 spans.forEach {
                     val currenSpanJSON = JSONObject()
-                    currenSpanJSON.put("clasz", it.javaClass.name)
-                    currenSpanJSON.put("start", aztecText.text.getSpanStart(it))
-                    currenSpanJSON.put("end", aztecText.text.getSpanEnd(it))
-                    currenSpanJSON.put("flags", aztecText.text.getSpanFlags(it))
+                    currenSpanJSON.put("clazz", it.javaClass.name)
+                    currenSpanJSON.put("start", text.getSpanStart(it))
+                    currenSpanJSON.put("end", text.getSpanEnd(it))
+                    currenSpanJSON.put("flags", text.getSpanFlags(it))
                     spansJSON.put(currenSpanJSON)
                 }
                 logContentJSON.put("spans", spansJSON)
-                AppLog.d(AppLog.T.EDITOR, "Below are the details of the content in the editor:")
                 AppLog.d(AppLog.T.EDITOR, logContentJSON.toString())
             } catch (e: JSONException) {
                 AppLog.e(AppLog.T.EDITOR, "Uhh ohh! There was an error logging the content of the Editor. This should" +

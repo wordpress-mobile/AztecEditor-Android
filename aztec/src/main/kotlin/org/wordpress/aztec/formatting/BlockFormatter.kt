@@ -515,7 +515,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     private fun pushNewBlock(start: Int, end: Int, blockElementType: ITextFormat) {
-        var nesting = IAztecNestable.getMinNestingLevelAt(editableText, start, end)
+        var nesting = IAztecNestable.getMinNestingLevelAt(editableText, start, end) + 1
 
         // we can't add blocks around partial block elements (i.e. list items), everything must go inside
         val isListItem = editableText.getSpans(start, end, IAztecPartialBlockSpan::class.java)

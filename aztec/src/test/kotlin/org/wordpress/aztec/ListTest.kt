@@ -829,6 +829,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li></li></$listTag>", editText.toHtml())
 
+        editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<br><br><br>", editText.toHtml())

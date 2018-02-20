@@ -943,4 +943,15 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>1</li><li>2</li></$listTag>",
                 editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyListToLastLine() {
+        editText.setText("a")
+
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>a</li></$listTag>", editText.toHtml())
+    }
 }

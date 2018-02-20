@@ -603,8 +603,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
-            val listContent = editableText.substring(start, end)
-            val lines = TextUtils.split(listContent, "\n").filter { it.isNotEmpty() }
+            val listEnd = if (end == editableText.length) end else end - 1
+            val listContent = editableText.substring(start, listEnd)
+            val lines = TextUtils.split(listContent, "\n")
 
             for (i in lines.indices) {
                 val lineLength = lines[i].length

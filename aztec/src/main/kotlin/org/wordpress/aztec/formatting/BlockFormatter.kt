@@ -362,12 +362,20 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (start == end) {
             return listOf(start)
         }
+
+        val delimiters = arrayListOf<Int>(start, end)
+
+        val startNesting = IAztecNestable.getMinNestingLevelAt(editableText, start)
+        val endNesting = IAztecNestable.getMinNestingLevelAt(editableText, end)
+        if (startNesting == endNesting && startNesting == 0) {
+            return delimiters.distinct().sorted()
+        }
+
         val blockSpans = editableText.getSpans(start, end, IAztecBlockSpan::class.java)
                 .filter { editableText.getSpanStart(it) != end && editableText.getSpanEnd(it) != start }
                 .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
 
         val nesting = blockSpans.map { it.nestingLevel }.min()
-        val delimiters = arrayListOf<Int>(start, end)
         var lastEnd = start
 
         blockSpans.filter { it.nestingLevel == nesting }.sortedBy { editableText.getSpanStart(it) }.forEach {
@@ -519,6 +527,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         // we can't add blocks around partial block elements (i.e. list items), everything must go inside
         val isListItem = editableText.getSpans(start, end, IAztecPartialBlockSpan::class.java)
+                .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
                 .any { it.nestingLevel == nesting }
 
         if (isListItem) {

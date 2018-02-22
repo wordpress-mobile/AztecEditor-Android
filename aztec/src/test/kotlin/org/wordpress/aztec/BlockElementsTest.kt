@@ -173,10 +173,10 @@ class BlockElementsTest {
                 "<b>c</b>" +
                 "<h1>d</h1>")
         val expectedHtml = "a" +
-                "<blockquote><ol>" +
+                "<ol>" +
                 "<li>a</li>" +
-                "<li>b</li>" +
-                "</ol></blockquote>" +
+                "<li><blockquote>b</blockquote></li>" +
+                "</ol>" +
                 "<blockquote><b>c</b>" +
                 "<h1>d</h1></blockquote>"
 

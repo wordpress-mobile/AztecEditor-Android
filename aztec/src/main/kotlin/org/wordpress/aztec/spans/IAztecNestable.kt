@@ -18,7 +18,9 @@ interface IAztecNestable {
         fun getMinNestingLevelAt(spanned: Spanned, index: Int, nextIndex: Int = index): Int {
             return spanned.getSpans(index, nextIndex, IAztecNestable::class.java)
                     .filter { spanned.getSpanEnd(it) != index || index == 0 || spanned[index - 1] != Constants.NEWLINE }
-                    .filter { spanned.getSpanStart(it) >= index && spanned.getSpanEnd(it) <= nextIndex }
+                    .filter { spanned.getSpanStart(it) <= index && spanned.getSpanEnd(it) >= nextIndex &&
+                            (spanned.getSpanStart(it) != index || spanned.getSpanEnd(it) != nextIndex) }
+                    .filter { index != nextIndex || spanned.getSpanStart(it) != index && spanned.getSpanEnd(it) != index }
                     .minBy { it.nestingLevel }?.nestingLevel ?: 0
         }
 

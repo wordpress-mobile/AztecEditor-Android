@@ -165,12 +165,12 @@ class BlockElementsTest {
     @Test
     @Throws(Exception::class)
     fun testPartiallySurroundedStylingOfListByQuote() {
-        editText.fromHtml("a\n" +
-                "<ol>\n" +
-                "<li>a</li>\n" +
-                "<li>b</li>\n" +
-                "</ol>\n" +
-                "<b>c</b>\n" +
+        editText.fromHtml("a" +
+                "<ol>" +
+                "<li>a</li>" +
+                "<li>b</li>" +
+                "</ol>" +
+                "<b>c</b>" +
                 "<h1>d</h1>")
         val expectedHtml = "a" +
                 "<blockquote><ol>" +
@@ -273,10 +273,10 @@ class BlockElementsTest {
     @Test
     @Throws(Exception::class)
     fun testMultipleLineStylingInsideListWithQuote() {
-        editText.fromHtml("<ul>\n" +
-                "<li>a</li>\n" +
-                "<li>b</li>\n" +
-                "<li>c</li>\n" +
+        editText.fromHtml("<ul>" +
+                "<li>a</li>" +
+                "<li>b</li>" +
+                "<li>c</li>" +
                 "</ul>")
         val expectedHtml = "<ul>" +
                 "<li>a</li>" +
@@ -285,7 +285,7 @@ class BlockElementsTest {
                 "</ul>"
 
         val index = editText.text.indexOf("b")
-        editText.setSelection(index + 1, index + 2)
+        editText.setSelection(index + 1, index + 3)
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
 
         Assert.assertEquals(expectedHtml, editText.toHtml())

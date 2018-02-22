@@ -24,10 +24,9 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.IAztecParagraphStyle
-import org.wordpress.aztec.spans.IAztecPartialBlockSpan
+import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
-import java.util.ArrayList
 import java.util.Arrays
 
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
@@ -506,7 +505,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             // we can't add blocks around partial block elements (i.e. list items), everything must go inside
             val isWithinPartialBlock = editableText.getSpans(boundsOfSelectedText.start,
-                    boundsOfSelectedText.endInclusive, IAztecPartialBlockSpan::class.java)
+                    boundsOfSelectedText.endInclusive, IAztecCompositeBlockSpan::class.java)
                     .any { it.nestingLevel == nestingLevel - 1 }
 
             val startOfBlock = mergeWithBlockAbove(startOfLine, endOfLine, spanToApply, nestingLevel, isWithinPartialBlock, blockElementType)
@@ -525,8 +524,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     private fun pushNewBlock(start: Int, end: Int, blockElementType: ITextFormat) {
         var nesting = IAztecNestable.getMinNestingLevelAt(editableText, start, end) + 1
 
-        // we can't add blocks around partial block elements (i.e. list items), everything must go inside
-        val isListItem = editableText.getSpans(start, end, IAztecPartialBlockSpan::class.java)
+        // we can't add blocks around composite block elements (i.e. list items), everything must go inside
+        val isListItem = editableText.getSpans(start, end, IAztecCompositeBlockSpan::class.java)
                 .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
                 .any { it.nestingLevel == nesting }
 

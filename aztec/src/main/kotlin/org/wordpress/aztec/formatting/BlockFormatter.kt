@@ -358,31 +358,70 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
     }
 
     fun getTopBlockDelimiters(start: Int, end: Int): List<Int> {
-        if (start == end) {
-            return listOf(start)
-        }
+        val delimiters = arrayListOf(start, end)
 
-        val delimiters = arrayListOf<Int>(start, end)
-
+        val bounds = hashMapOf<Int, Int>()
         val startNesting = IAztecNestable.getMinNestingLevelAt(editableText, start)
+        bounds[start] = startNesting
+
         val endNesting = IAztecNestable.getMinNestingLevelAt(editableText, end)
-        if (startNesting == endNesting && startNesting == 0) {
-            return delimiters.distinct().sorted()
-        }
+        bounds[end] = endNesting
 
         val blockSpans = editableText.getSpans(start, end, IAztecBlockSpan::class.java)
-                .filter { editableText.getSpanStart(it) != end && editableText.getSpanEnd(it) != start }
                 .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
+                .sortedBy { editableText.getSpanStart(it) }
 
-        val nesting = blockSpans.map { it.nestingLevel }.min()
-        var lastEnd = start
+        blockSpans.forEach {
+            var spanIndex = editableText.getSpanStart(it)
+            var nesting = IAztecNestable.getMinNestingLevelAt(editableText, spanIndex)
+            bounds[spanIndex] = nesting
 
-        blockSpans.filter { it.nestingLevel == nesting }.sortedBy { editableText.getSpanStart(it) }.forEach {
-            val spanStart = editableText.getSpanStart(it)
-            delimiters.addAll(getTopBlockDelimiters(lastEnd, spanStart))
-            lastEnd = editableText.getSpanEnd(it)
+            spanIndex = editableText.getSpanEnd(it)
+            nesting = IAztecNestable.getMinNestingLevelAt(editableText, spanIndex)
+            bounds[spanIndex] = nesting
+
+            if (it is IAztecCompositeBlockSpan) {
+                val wrapper = SpanWrapper(editableText, it)
+                val parent = IAztecNestable.getParent(editableText, wrapper)
+                parent?.let {
+                    if (parent.start < start || parent.end > end) {
+                        delimiters.add(wrapper.start)
+                        delimiters.add(wrapper.end)
+                    }
+                }
+            }
         }
+
+        if (bounds.isNotEmpty()) {
+            var lastIndex: Int = bounds.keys.first()
+
+            bounds.keys.forEach { key ->
+                val last = checkBound(bounds, key, delimiters, lastIndex)
+                if (last > -1) {
+                    lastIndex = last
+                }
+            }
+
+            lastIndex = bounds.keys.last()
+            bounds.keys.reversed().forEach { key ->
+                val last = checkBound(bounds, key, delimiters, lastIndex)
+                if (last > -1) {
+                    lastIndex = last
+                }
+            }
+        }
+
         return delimiters.distinct().sorted()
+    }
+
+    private fun checkBound(bounds: HashMap<Int, Int>, key: Int, delimiters: ArrayList<Int>, lastIndex: Int) : Int {
+        if (bounds[key]!! != bounds[lastIndex]!!) {
+            if (bounds[key]!! < bounds[lastIndex]!!) {
+                delimiters.add(key)
+                return key
+            }
+        }
+        return -1
     }
 
     /**

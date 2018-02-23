@@ -710,15 +710,15 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun nestListWithSimilarNeighboringList_issue288() {
-        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag><blockquote>"
-        val aftQuote = "</blockquote><$listTag><li>Unordered2</li><li></li></$listTag>"
-        editText.fromHtml(preQuote + "Quote" + aftQuote)
+        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag>"
+        val aftQuote = "<$listTag><li>Unordered2</li><li></li></$listTag>"
+        editText.fromHtml(preQuote + "<blockquote>Quote</blockquote>" + aftQuote)
 
         editText.setSelection(editText.text.indexOf("Quote"))
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("$preQuote<$listTag><li>Quote</li></$listTag>$aftQuote", editText.toHtml())
+        Assert.assertEquals("$preQuote<$listTag><li><blockquote>Quote</blockquote></li></$listTag>$aftQuote", editText.toHtml())
     }
 
     @Test

@@ -24,13 +24,13 @@ interface IAztecNestable {
                     .minBy { it.nestingLevel }?.nestingLevel ?: 0
         }
 
-        fun pushDeeper(spannable: Spannable, start: Int, end: Int, fromLevel: Int = 0): List<SpanWrapper<IAztecNestable>> {
+        fun pushDeeper(spannable: Spannable, start: Int, end: Int, fromLevel: Int = 0, pushBy: Int = 1): List<SpanWrapper<IAztecNestable>> {
             val spans = SpanWrapper.getSpans(spannable, start, end, IAztecNestable::class.java)
                     .filter { spannable.getSpanStart(it.span) >= start && spannable.getSpanEnd(it.span) <= end }
                     .filter { it.span.nestingLevel >= fromLevel }
 
             spans.forEach {
-                it.span.nestingLevel++
+                it.span.nestingLevel += pushBy
             }
 
             return spans

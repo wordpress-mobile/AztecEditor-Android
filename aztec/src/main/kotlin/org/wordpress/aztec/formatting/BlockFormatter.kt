@@ -572,12 +572,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             nesting++
         }
 
-        val spans = IAztecNestable.pushDeeper(editableText, start, end, nesting)
+        val newBlock = makeBlockSpan(blockElementType, nesting)
+        val pushBy = if (newBlock is AztecListSpan) 2 else 1
+
+        val spans = IAztecNestable.pushDeeper(editableText, start, end, nesting, pushBy)
         spans.forEach {
             it.remove()
         }
 
-        val newBlock = makeBlockSpan(blockElementType, nesting)
         applyBlock(newBlock, start, end)
 
         spans.forEach {

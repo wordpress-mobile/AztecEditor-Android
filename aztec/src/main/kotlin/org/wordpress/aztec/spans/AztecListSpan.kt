@@ -37,10 +37,12 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        // TODO: incorrectly doesn't draw line marker if there are 2 blocks inside the item (e.g. heading + quote)
-        val currentNesting = nestingDepth(listText, end - spanStart, end - spanStart + 1)
-        if (currentNesting != nestingLevel + 1 && currentNesting != nestingLevel + 2) {
-            return -1
+        if (end - spanStart - 1 >= 0 && end - spanStart <= listText.length) {
+            val hasSublist = listText.getSpans(end - spanStart - 1, end - spanStart, AztecListSpan::class.java)
+                    .any { it.nestingLevel > nestingLevel }
+            if (hasSublist) {
+                return -1
+            }
         }
 
         val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned

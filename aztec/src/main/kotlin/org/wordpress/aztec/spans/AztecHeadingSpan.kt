@@ -26,7 +26,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
     override var startBeforeCollapse: Int = -1
 
     var textFormat: ITextFormat = AztecTextFormat.FORMAT_HEADING_1
-        get() = field
         set(value) {
             field = value
             heading = textFormatToHeading(value)

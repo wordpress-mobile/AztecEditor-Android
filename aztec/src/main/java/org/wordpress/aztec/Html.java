@@ -52,7 +52,6 @@ import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
-import org.wordpress.aztec.spans.IAztecBlockSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.IAztecParagraphStyle;
 import org.wordpress.aztec.spans.UnknownClickableSpan;

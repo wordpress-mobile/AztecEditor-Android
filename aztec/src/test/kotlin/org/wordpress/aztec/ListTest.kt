@@ -937,7 +937,6 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>1</li><li><blockquote>2</blockquote></li></$listTag>",
                 editText.toHtml())
 
-
         editText.setSelection(editText.length())
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
         Assert.assertEquals("<$listTag><li>1</li><li>2</li></$listTag>",

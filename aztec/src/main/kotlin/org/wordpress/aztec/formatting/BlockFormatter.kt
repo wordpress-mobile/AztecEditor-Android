@@ -21,10 +21,10 @@ import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.IAztecParagraphStyle
-import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays

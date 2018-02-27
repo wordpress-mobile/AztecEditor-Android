@@ -21,11 +21,11 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.text.Editable
 import android.support.v4.text.TextDirectionHeuristicCompat
 import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.support.v4.text.TextUtilsCompat
 import android.support.v4.view.ViewCompat
+import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LineBackgroundSpan

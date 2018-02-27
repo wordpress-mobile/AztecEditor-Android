@@ -33,9 +33,9 @@ import android.text.style.TypefaceSpan;
 
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
-import org.wordpress.aztec.plugins.html2visual.IHtmlContentHandler;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
+import org.wordpress.aztec.plugins.html2visual.IHtmlContentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
 import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler;
 import org.wordpress.aztec.spans.AztecCodeSpan;

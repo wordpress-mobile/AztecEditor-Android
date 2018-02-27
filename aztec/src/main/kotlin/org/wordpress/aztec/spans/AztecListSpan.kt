@@ -7,7 +7,6 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
 import org.wordpress.aztec.Constants
-import java.util.ArrayList
 
 abstract class AztecListSpan(override var nestingLevel: Int,
                              var verticalPadding: Int = 0,

@@ -311,4 +311,25 @@ class BlockElementsTest {
 
         Assert.assertEquals(expectedHtml, editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testAddingQuoteToMultilineListItem() {
+        editText.fromHtml("<ul>" +
+                "<li>a</li>" +
+                "<li><h2>b</h2>d</li>" +
+                "<li>c</li>" +
+                "</ul>")
+        val expectedHtml = "<ul>" +
+                "<li>a</li>" +
+                "<li><h2>b</h2><blockquote>d</blockquote></li>" +
+                "<li>c</li>" +
+                "</ul>"
+
+        val index = editText.text.indexOf("d")
+        editText.setSelection(index)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
 }

@@ -18,8 +18,8 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
 
     override fun onHtmlProcessed(source: String): String {
         return StringBuilder(source)
-                .replace(Regex("<${TAG}([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
-                .replace(Regex("<${TAG}([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
+                .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
+                .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
     }
 
     /**

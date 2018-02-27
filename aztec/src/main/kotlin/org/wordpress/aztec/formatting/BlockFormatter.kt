@@ -565,7 +565,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
         // we can't add blocks around composite block elements (i.e. list items), everything must go inside
         val isListItem = editableText.getSpans(start, end, IAztecCompositeBlockSpan::class.java)
-                .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
                 .any { it.nestingLevel == nesting }
 
         if (isListItem) {

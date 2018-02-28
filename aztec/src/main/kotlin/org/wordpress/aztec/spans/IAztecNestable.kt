@@ -36,6 +36,18 @@ interface IAztecNestable {
             return spans
         }
 
+        fun pullUp(spannable: Spannable, start: Int, end: Int, fromLevel: Int, pullBy: Int = 1): List<SpanWrapper<IAztecNestable>> {
+            val spans = SpanWrapper.getSpans(spannable, start, end, IAztecNestable::class.java)
+                    .filter { spannable.getSpanStart(it.span) >= start && spannable.getSpanEnd(it.span) <= end }
+                    .filter { it.span.nestingLevel >= fromLevel }
+
+            spans.forEach {
+                it.span.nestingLevel -= pullBy
+            }
+
+            return spans
+        }
+
         fun getParent(spannable: Spannable, child: SpanWrapper<out IAztecNestable>): SpanWrapper<out IAztecNestable>? {
             return SpanWrapper.getSpans<IAztecNestable>(spannable, child.start, child.start + 1)
                     .sortedBy { it.span.nestingLevel }

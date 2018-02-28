@@ -169,6 +169,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun <T : IAztecBlockSpan> removeEntireBlock(type: Class<T>) {
         editableText.getSpans(selectionStart, selectionEnd, type).forEach {
+            IAztecNestable.pullUp(editableText, selectionStart, selectionEnd, it.nestingLevel)
             editableText.removeSpan(it)
         }
     }
@@ -269,6 +270,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
+
+                    IAztecNestable.pullUp(editableText, editableText.getSpanStart(span), editableText.getSpanEnd(span), span.nestingLevel)
+
                     editableText.removeSpan(span)
                 }
             }
@@ -705,8 +709,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> liftListBlock(AztecOrderedListSpan::class.java, start, end)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> liftListBlock(AztecUnorderedListSpan::class.java, start, end)
-            AztecTextFormat.FORMAT_QUOTE -> editableText.getSpans(start, end, AztecQuoteSpan::class.java).forEach { editableText.removeSpan(it) }
-            else -> editableText.getSpans(start, end, ParagraphSpan::class.java).forEach { editableText.removeSpan(it) }
+            AztecTextFormat.FORMAT_QUOTE -> editableText.getSpans(start, end, AztecQuoteSpan::class.java).forEach {
+                IAztecNestable.pullUp(editableText, start, end, it.nestingLevel)
+                editableText.removeSpan(it)
+            }
+            else -> editableText.getSpans(start, end, ParagraphSpan::class.java).forEach {
+                IAztecNestable.pullUp(editableText, start, end, it.nestingLevel)
+                editableText.removeSpan(it)
+            }
         }
     }
 
@@ -714,6 +724,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         editableText.getSpans(start, end, listSpan).forEach {
             val wrapper = SpanWrapper(editableText, it)
             editableText.getSpans(wrapper.start, wrapper.end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+
+            IAztecNestable.pullUp(editableText, start, end, wrapper.span.nestingLevel)
             wrapper.remove()
         }
     }

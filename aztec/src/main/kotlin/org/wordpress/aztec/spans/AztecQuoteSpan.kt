@@ -24,6 +24,7 @@ import android.graphics.Rect
 import android.support.v4.text.TextDirectionHeuristicCompat
 import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.support.v4.text.TextUtilsCompat
+import android.support.v4.util.ArrayMap
 import android.support.v4.view.ViewCompat
 import android.text.Editable
 import android.text.Layout
@@ -47,8 +48,8 @@ class AztecQuoteSpan(
     override var startBeforeCollapse: Int = -1
 
     private val rect = Rect()
-    var margin: Int = 0
-    var offset: Int = 0
+    private var offset: Int = 0
+    private val quoteStart = ArrayMap<Int, Float>()
 
     override val TAG: String = "blockquote"
 
@@ -82,10 +83,10 @@ class AztecQuoteSpan(
         p.color = quoteStyle.quoteColor
 
         val editable = text as Editable
-        val isWithinListItem = editable.getSpans(start, end, AztecListItemSpan::class.java)
-                .any { it.nestingLevel == nestingLevel - 1 }
+        val isWithinListItem = isWithinListItem(editable, start, end)
         val isRtl = isRtlQuote(text, start, end)
 
+        val margin: Int
         if (isWithinListItem) {
             margin = x
             offset = quoteStyle.quoteMargin
@@ -95,6 +96,7 @@ class AztecQuoteSpan(
             } else {
                 x + quoteStyle.quoteMargin
             }
+            offset = 0
         }
 
         val marginStart: Float
@@ -103,15 +105,24 @@ class AztecQuoteSpan(
         if (isRtl) {
             marginStart = (margin + dir * quoteStyle.quoteWidth).toFloat()
             marginEnd = margin.toFloat()
+
+            quoteStart[start] = marginStart
         } else {
             marginStart = margin.toFloat()
             marginEnd = (margin + dir * quoteStyle.quoteWidth).toFloat()
+
+            quoteStart[start] = marginEnd
         }
 
         c.drawRect(marginStart, top.toFloat(), marginEnd, bottom.toFloat(), p)
 
         p.style = style
         p.color = color
+    }
+
+    private fun isWithinListItem(editable: Editable, start: Int, end: Int): Boolean {
+        return editable.getSpans(start, end, AztecListItemSpan::class.java)
+                .any { it.nestingLevel == nestingLevel - 1 }
     }
 
     override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int,
@@ -130,11 +141,13 @@ class AztecQuoteSpan(
         val quoteBackgroundStart: Int
         val quoteBackgroundEnd: Int
 
-        if (isRtlQuote(text, start, end)) {
+        val isRtl = isRtlQuote(text, start, end)
+
+        if (isRtl) {
             quoteBackgroundStart = left
-            quoteBackgroundEnd = margin
+            quoteBackgroundEnd = quoteStart[start]?.toInt() ?: 0
         } else {
-            quoteBackgroundStart = margin
+            quoteBackgroundStart = quoteStart[start]?.toInt() ?: 0
             quoteBackgroundEnd = right
         }
 

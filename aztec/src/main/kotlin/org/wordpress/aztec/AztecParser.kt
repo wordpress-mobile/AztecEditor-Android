@@ -133,7 +133,11 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             val parent = IAztecNestable.getParent(spanned, SpanWrapper(spanned, it))
 
             // a list item "repels" a child list so the list will appear in the next line
-            val repelling = it is AztecListSpan && parent?.span is AztecListItemSpan
+            val parentListItem = spanned.getSpans(spanned.getSpanStart(it), spanned.getSpanEnd(it), AztecListItemSpan::class.java)
+                    .filter { item -> item.nestingLevel < it.nestingLevel }
+                    .sortedBy { item -> item.nestingLevel }
+                    .firstOrNull()
+            val repelling = it is AztecListSpan && parentListItem != null
 
             val spanStart = spanned.getSpanStart(it)
             val spanEnd = spanned.getSpanEnd(it)
@@ -157,6 +161,10 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
 
             // no need for newline if there's already one, unless repelling needs to happen
             if (!repelling && spanned[spanStart - 1] == '\n') {
+                return@forEach
+            }
+
+            if (repelling && spanStart > 0 && spanned[spanStart - 1] == '\n' && spanStart - 1 >= spanned.getSpanStart(parentListItem)) {
                 return@forEach
             }
 

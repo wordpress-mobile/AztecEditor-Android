@@ -1,4 +1,19 @@
 # Changelog
+## [1.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3) - 2018-03-02
+### Added
+- RTL layout support for style toolbar and undo/redo action bar
+- RTL text support for quote and list rendering
+- Ability to apply block formatting across multiple nesting levels of elements
+
+### Fixed
+- Block element closing with a newline in nested elements
+- List formatting when applied to the last line
+- Applying block formatting over list items
+- Line indicator rendering for items containing other block elements
+
+### Changed
+- Quote toggling, which removes the entire block now instead of a single line
+
 ## [1.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.2) - 2018-02-09
 ### Added
 - Text & image caption alignment support

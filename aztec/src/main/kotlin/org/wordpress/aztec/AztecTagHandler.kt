@@ -50,8 +50,6 @@ import org.xml.sax.Attributes
 import java.util.ArrayList
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
-    private var order = 0
-
     private val loadingDrawable: Drawable
 
     init {

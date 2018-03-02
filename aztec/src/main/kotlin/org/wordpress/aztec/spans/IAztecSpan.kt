@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 interface IAztecSpan : IAztecAttributedSpan {
 
     val TAG: String
-        get
 
     val startTag: String
         get() {

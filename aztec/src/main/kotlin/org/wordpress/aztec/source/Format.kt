@@ -52,8 +52,7 @@ object Format {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
             val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
-            val modified = doc.body().html()
-            return modified
+            return doc.body().html()
         } else {
             return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
         }

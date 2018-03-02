@@ -6,12 +6,12 @@ import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
-import java.util.ArrayList
+import org.wordpress.aztec.Constants
 
 abstract class AztecListSpan(override var nestingLevel: Int,
                              var verticalPadding: Int = 0,
                              override var align: Layout.Alignment? = null) : LeadingMarginSpan.Standard(0),
-        IAztecBlockSpan, LineHeightSpan, UpdateLayout {
+        LineHeightSpan, UpdateLayout, IAztecBlockSpan {
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
@@ -36,28 +36,29 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        if (nestingDepth(listText, end - spanStart, end - spanStart + 1) != nestingLevel + 1) {
-            // this line has nesting deeper than our own (item) nesting level so, don't display bullet/number
-            return -1
-        }
-
-        val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned
-
-        // gather the nesting depth for each line
-        val nestingDepth = ArrayList<Int>()
-        textBeforeBeforeEnd.forEachIndexed {
-            i, c -> if (c == '\n') nestingDepth.add(nestingDepth(textBeforeBeforeEnd, i, i + 1))
-        }
-
-        // count the lines that have the same nesting depth as us
-        var otherLinesAtSameNestingLevel = 0
-        for (maxNestingLevel in nestingDepth) {
-            if (maxNestingLevel - 1 == nestingLevel) { // the -1 is because the list is one level up than the listitem
-                otherLinesAtSameNestingLevel++
+        if (end - spanStart - 1 >= 0 && end - spanStart <= listText.length) {
+            val hasSublist = listText.getSpans(end - spanStart - 1, end - spanStart, AztecListSpan::class.java)
+                    .any { it.nestingLevel > nestingLevel }
+            if (hasSublist) {
+                return -1
             }
         }
 
-        return otherLinesAtSameNestingLevel + 1
+        // only display a line indicator when it's the first line of a list item
+        val textBeforeBeforeEnd = listText.subSequence(0, end - spanStart) as Spanned
+        val startOfLine = textBeforeBeforeEnd.lastIndexOf(Constants.NEWLINE) + 1
+        val isValidListItem = listText.getSpans(0, listText.length, AztecListItemSpan::class.java)
+                .any { it.nestingLevel == nestingLevel + 1 && listText.getSpanStart(it) == startOfLine }
+
+        if (!isValidListItem) {
+            return -1
+        }
+
+        // count the list item spans up to the current line with the expected nesting level => item number
+        val checkEnd = Math.min(textBeforeBeforeEnd.length + 1, listText.length)
+        return listText.getSpans(0, checkEnd, AztecListItemSpan::class.java)
+                .filter { it.nestingLevel == nestingLevel + 1 }
+                .size
     }
 
     fun nestingDepth(text: Spanned, index: Int, nextIndex: Int): Int {

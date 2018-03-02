@@ -710,15 +710,15 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun nestListWithSimilarNeighboringList_issue288() {
-        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag><blockquote>"
-        val aftQuote = "</blockquote><$listTag><li>Unordered2</li><li></li></$listTag>"
-        editText.fromHtml(preQuote + "Quote" + aftQuote)
+        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag>"
+        val aftQuote = "<$listTag><li>Unordered2</li><li></li></$listTag>"
+        editText.fromHtml(preQuote + "<blockquote>Quote</blockquote>" + aftQuote)
 
         editText.setSelection(editText.text.indexOf("Quote"))
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("$preQuote<$listTag><li>Quote</li></$listTag>$aftQuote", editText.toHtml())
+        Assert.assertEquals("$preQuote<$listTag><li><blockquote>Quote</blockquote></li></$listTag>$aftQuote", editText.toHtml())
     }
 
     @Test
@@ -829,6 +829,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         Assert.assertEquals("<$listTag><li></li><li></li><li></li><li></li></$listTag>", editText.toHtml())
 
+        editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
         Assert.assertEquals("<br><br><br>", editText.toHtml())
@@ -913,5 +914,43 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$listTag><li>1</li></$listTag><br><$listTag><li>2</li></$listTag>", editText.toHtml())
         Assert.assertEquals(menuListOrdered.isChecked, listTag == "ol")
         Assert.assertEquals(menuListUnordered.isChecked, listTag == "ul")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addQuoteToListItem() {
+        editText.fromHtml("<$listTag><li>1</li><li>2</li></$listTag>")
+
+        editText.setSelection(0)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li>2</li></$listTag>",
+                editText.toHtml())
+
+        editText.setSelection(3)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></$listTag>",
+                editText.toHtml())
+
+        editText.setSelection(1)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li>1</li><li><blockquote>2</blockquote></li></$listTag>",
+                editText.toHtml())
+
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+        Assert.assertEquals("<$listTag><li>1</li><li>2</li></$listTag>",
+                editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun applyListToLastLine() {
+        editText.setText("a")
+
+        editText.setSelection(editText.length())
+        editText.toggleFormatting(listType)
+
+        Assert.assertEquals("<$listTag><li>a</li></$listTag>", editText.toHtml())
     }
 }

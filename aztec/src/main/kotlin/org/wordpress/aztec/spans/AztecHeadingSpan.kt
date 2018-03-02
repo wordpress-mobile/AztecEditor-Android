@@ -18,7 +18,7 @@ class AztecHeadingSpan @JvmOverloads constructor(
         override var attributes: AztecAttributes,
         var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0),
         override var align: Layout.Alignment? = null
-    ) : MetricAffectingSpan(), IAztecBlockSpan, LineHeightSpan, UpdateLayout {
+    ) : MetricAffectingSpan(), IAztecLineBlockSpan, LineHeightSpan, UpdateLayout {
     override val TAG: String
         get() = heading.tag
 
@@ -26,7 +26,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
     override var startBeforeCollapse: Int = -1
 
     var textFormat: ITextFormat = AztecTextFormat.FORMAT_HEADING_1
-        get() = field
         set(value) {
             field = value
             heading = textFormatToHeading(value)

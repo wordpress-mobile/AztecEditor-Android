@@ -17,7 +17,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     val handlers = ArrayList<TextChangeHandler>()
 
     interface TextChangeHandler {
-        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int)
+        fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int, isReplay: Boolean)
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
@@ -64,6 +64,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
         var startIndex = start
         var charCount = count
 
+        var hasReplay = false
         do {
             val nestingLevelToProcess = IAztecNestable.getNestingLevelAt(s as Spanned, startIndex, startIndex + charCount)
 
@@ -73,11 +74,12 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                         s as Spannable,
                         startIndex,
                         charCount,
-                        nestingLevelToProcess)
+                        nestingLevelToProcess,
+                        hasReplay)
             }
 
             // check for a replay marker and use its bounds
-            val hasReplay = aztecTextRef.get()?.text?.let text@ { text ->
+            hasReplay = aztecTextRef.get()?.text?.let text@ { text ->
                 text.getSpans(0, s.length, MarkForReplay::class.java).firstOrNull { mark ->
                     if (mark != null) {
                         startIndex = text.getSpanStart(mark)

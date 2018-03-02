@@ -24,7 +24,9 @@ import android.graphics.Rect
 import android.support.v4.text.TextDirectionHeuristicCompat
 import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.support.v4.text.TextUtilsCompat
+import android.support.v4.util.ArrayMap
 import android.support.v4.view.ViewCompat
+import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LineBackgroundSpan
@@ -46,6 +48,8 @@ class AztecQuoteSpan(
     override var startBeforeCollapse: Int = -1
 
     private val rect = Rect()
+    private var offset: Int = 0
+    private val quoteStart = ArrayMap<Int, Float>()
 
     override val TAG: String = "blockquote"
 
@@ -65,7 +69,7 @@ class AztecQuoteSpan(
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding
+        return quoteStyle.quoteMargin + quoteStyle.quoteWidth + quoteStyle.quotePadding - offset
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -78,21 +82,47 @@ class AztecQuoteSpan(
         p.style = Paint.Style.FILL
         p.color = quoteStyle.quoteColor
 
+        val editable = text as Editable
+        val isWithinListItem = isWithinListItem(editable, start, end)
+        val isRtl = isRtlQuote(text, start, end)
+
+        val margin: Int
+        if (isWithinListItem) {
+            margin = x
+            offset = quoteStyle.quoteMargin
+        } else {
+            margin = if (isRtl) {
+                x - quoteStyle.quoteMargin
+            } else {
+                x + quoteStyle.quoteMargin
+            }
+            offset = 0
+        }
+
         val marginStart: Float
         val marginEnd: Float
 
-        if (isRtlQuote(text, start, end)) {
-            marginStart = (x - quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
-            marginEnd = (x - quoteStyle.quoteMargin).toFloat()
+        if (isRtl) {
+            marginStart = (margin + dir * quoteStyle.quoteWidth).toFloat()
+            marginEnd = margin.toFloat()
+
+            quoteStart[start] = marginStart
         } else {
-            marginStart = (x + quoteStyle.quoteMargin).toFloat()
-            marginEnd = (x + quoteStyle.quoteMargin + dir * quoteStyle.quoteWidth).toFloat()
+            marginStart = margin.toFloat()
+            marginEnd = (margin + dir * quoteStyle.quoteWidth).toFloat()
+
+            quoteStart[start] = marginEnd
         }
 
         c.drawRect(marginStart, top.toFloat(), marginEnd, bottom.toFloat(), p)
 
         p.style = style
         p.color = color
+    }
+
+    private fun isWithinListItem(editable: Editable, start: Int, end: Int): Boolean {
+        return editable.getSpans(start, end, AztecListItemSpan::class.java)
+                .any { it.nestingLevel == nestingLevel - 1 }
     }
 
     override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int,
@@ -111,11 +141,13 @@ class AztecQuoteSpan(
         val quoteBackgroundStart: Int
         val quoteBackgroundEnd: Int
 
-        if (isRtlQuote(text, start, end)) {
+        val isRtl = isRtlQuote(text, start, end)
+
+        if (isRtl) {
             quoteBackgroundStart = left
-            quoteBackgroundEnd = right - quoteStyle.quoteMargin
+            quoteBackgroundEnd = quoteStart[start]?.toInt() ?: 0
         } else {
-            quoteBackgroundStart = left + quoteStyle.quoteMargin
+            quoteBackgroundStart = quoteStart[start]?.toInt() ?: 0
             quoteBackgroundEnd = right
         }
 

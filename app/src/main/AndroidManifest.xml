@@ -27,12 +27,6 @@
 
         </activity>
 
-        <activity
-            android:name=".NonCalypsoActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/MainActivityTheme" >
-        </activity>
-
         <!-- Provider for exposing file URIs on Android 7+ -->
         <provider
             android:name="android.support.v4.content.FileProvider"

@@ -17,10 +17,9 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     }
 
     override fun onHtmlProcessed(source: String): String {
-        val newSource = StringBuilder(source)
+        return StringBuilder(source)
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
-        return newSource
     }
 
     /**

@@ -317,7 +317,7 @@ class HeadingTest {
     fun applyQuoteToHeading() {
         editText.fromHtml("<h1 foo=\"bar\">Quote</h1>")
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<h1 foo=\"bar\"><blockquote>Quote</blockquote></h1>", editText.toHtml())
+        Assert.assertEquals("<blockquote><h1 foo=\"bar\">Quote</h1></blockquote>", editText.toHtml())
     }
 
     @Test
@@ -325,7 +325,7 @@ class HeadingTest {
     fun applyQuoteToPreformat() {
         editText.fromHtml("<pre>Quote</pre>")
         buttonQuote.performClick()
-        Assert.assertEquals("<pre><blockquote>Quote</blockquote></pre>", editText.toHtml())
+        Assert.assertEquals("<blockquote><pre>Quote</pre></blockquote>", editText.toHtml())
     }
 
     @Test

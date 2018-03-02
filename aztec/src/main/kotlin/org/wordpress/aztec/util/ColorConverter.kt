@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Build
 import android.support.annotation.ColorInt
 import android.text.TextUtils
+import org.wordpress.aztec.util.ColorConverter.Companion.COLOR_NOT_FOUND
 
 /**
  * Converts color strings into color integers used by android. This translation process will attempt to

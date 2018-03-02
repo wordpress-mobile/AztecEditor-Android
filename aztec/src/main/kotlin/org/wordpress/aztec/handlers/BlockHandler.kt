@@ -24,10 +24,11 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
     var newlineIndex: Int = -1
     var nestingLevel = 0
     var markerIndex: Int = -1
+    var isReplay = false
 
-    override fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int) {
+    override fun handleTextChanged(text: Spannable, inputStart: Int, count: Int, nestingLevel: Int, isReplay: Boolean) {
         this.text = text
-
+        this.isReplay = isReplay
         this.nestingLevel = nestingLevel
 
         // use charsNew to get the spans at the input point. It appears to be more reliable vs the whole Editable.
@@ -92,9 +93,10 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
         }
 
         // prev newline needs to be at the same nesting level to account for "double-enter"
+        val prevNewlineNesting = IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex)
+        val currentNewlineNesting = IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1)
         if (text[newlineIndex - 1] == Constants.NEWLINE
-                && IAztecNestable.getNestingLevelAt(text, newlineIndex - 1, newlineIndex) ==
-                    IAztecNestable.getNestingLevelAt(text, newlineIndex, newlineIndex + 1)
+                && (prevNewlineNesting == currentNewlineNesting || prevNewlineNesting > currentNewlineNesting && !isReplay)
                 && atEndOfBlock) {
             return PositionType.EMPTY_LINE_AT_BLOCK_END
         }

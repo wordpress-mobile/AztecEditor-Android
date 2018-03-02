@@ -5,7 +5,7 @@ import org.wordpress.aztec.AztecAttributes
 
 class AztecListItemSpan(override var nestingLevel: Int,
                         override var attributes: AztecAttributes = AztecAttributes(),
-                        override var align: Layout.Alignment? = null) : IAztecBlockSpan {
+                        override var align: Layout.Alignment? = null) : IAztecCompositeBlockSpan {
     override val TAG = "li"
 
     override var endBeforeBleed: Int = -1

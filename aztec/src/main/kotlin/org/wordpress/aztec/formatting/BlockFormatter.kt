@@ -21,11 +21,12 @@ import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
+import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
+import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
-import java.util.ArrayList
 import java.util.Arrays
 
 class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
@@ -70,7 +71,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (!containsQuote()) {
             applyBlockStyle(AztecTextFormat.FORMAT_QUOTE)
         } else {
-            removeBlockStyle(AztecTextFormat.FORMAT_QUOTE)
+            removeEntireBlock(AztecQuoteSpan::class.java)
         }
     }
 
@@ -164,6 +165,13 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun removeBlockStyle(textFormat: ITextFormat) {
         removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
+    }
+
+    fun <T : IAztecBlockSpan> removeEntireBlock(type: Class<T>) {
+        editableText.getSpans(selectionStart, selectionEnd, type).forEach {
+            IAztecNestable.pullUp(editableText, selectionStart, selectionEnd, it.nestingLevel)
+            editableText.removeSpan(it)
+        }
     }
 
     fun removeBlockStyle(textFormat: ITextFormat, originalStart: Int, originalEnd: Int,
@@ -262,6 +270,9 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
+
+                    IAztecNestable.pullUp(editableText, editableText.getSpanStart(span), editableText.getSpanEnd(span), span.nestingLevel)
+
                     editableText.removeSpan(span)
                 }
             }
@@ -350,6 +361,73 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
+    fun getTopBlockDelimiters(start: Int, end: Int): List<Int> {
+        val delimiters = arrayListOf(start, end)
+
+        val bounds = hashMapOf<Int, Int>()
+        val startNesting = IAztecNestable.getMinNestingLevelAt(editableText, start)
+        bounds[start] = startNesting
+
+        val endNesting = IAztecNestable.getMinNestingLevelAt(editableText, end)
+        bounds[end] = endNesting
+
+        val blockSpans = editableText.getSpans(start, end, IAztecBlockSpan::class.java)
+                .filter { editableText.getSpanStart(it) >= start && editableText.getSpanEnd(it) <= end }
+                .sortedBy { editableText.getSpanStart(it) }
+
+        blockSpans.forEach {
+            var spanIndex = editableText.getSpanStart(it)
+            var nesting = IAztecNestable.getMinNestingLevelAt(editableText, spanIndex)
+            bounds[spanIndex] = nesting
+
+            spanIndex = editableText.getSpanEnd(it)
+            nesting = IAztecNestable.getMinNestingLevelAt(editableText, spanIndex)
+            bounds[spanIndex] = nesting
+
+            if (it is IAztecCompositeBlockSpan) {
+                val wrapper = SpanWrapper(editableText, it)
+                val parent = IAztecNestable.getParent(editableText, wrapper)
+                parent?.let {
+                    if (parent.start < start || parent.end > end) {
+                        delimiters.add(wrapper.start)
+                        delimiters.add(wrapper.end)
+                    }
+                }
+            }
+        }
+
+        if (bounds.isNotEmpty()) {
+            var lastIndex: Int = bounds.keys.first()
+
+            bounds.keys.forEach { key ->
+                val last = checkBound(bounds, key, delimiters, lastIndex)
+                if (last > -1) {
+                    lastIndex = last
+                }
+            }
+
+            lastIndex = bounds.keys.last()
+            bounds.keys.reversed().forEach { key ->
+                val last = checkBound(bounds, key, delimiters, lastIndex)
+                if (last > -1) {
+                    lastIndex = last
+                }
+            }
+        }
+
+        return delimiters.distinct().sorted()
+    }
+
+    private fun checkBound(bounds: HashMap<Int, Int>, key: Int, delimiters: ArrayList<Int>, lastIndex: Int) : Int {
+        if (bounds[key]!! != bounds[lastIndex]!!) {
+            if (bounds[key]!! < bounds[lastIndex]!!) {
+                delimiters.add(key)
+                return key
+            }
+        }
+        return -1
+    }
+
     /**
      * Returns paragraph bounds (\n) to the left and to the right of selection.
      */
@@ -380,8 +458,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             indexOfFirstLineBreak = selectionStart
         } else if (selectionStartIsOnTheNewLine) {
             val isSingleCharacterLine = (selectionStart > 1 && editableText[selectionStart - 1] != '\n' && editableText[selectionStart - 2] == '\n') || selectionStart == 1
-            indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - if (isSingleCharacterLine) 0 else 1) - if (isSingleCharacterLine) 1 else 0
 
+            if (isSingleCharacterLine) {
+                indexOfFirstLineBreak = selectionStart - 1
+            } else {
+                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+            }
             if (isTrailingNewlineAtTheEndOfSelection) {
                 indexOfLastLineBreak = editable.indexOf("\n", selectionEnd - 1)
             }
@@ -444,89 +526,127 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             editableText.append("" + Constants.END_OF_BUFFER_MARKER)
         }
 
-        if (start != end) {
-            val nestingLevelAtTheStartOfSelection = IAztecNestable.getNestingLevelAt(editableText, start)
-            val nestingLevelAtTheEndOfSelection = IAztecNestable.getNestingLevelAt(editableText, end)
+        val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start) + 1
+        val spanToApply = makeBlockSpan(blockElementType, nestingLevel)
 
-            // TODO: styling across multiple nesting levels not support yet
-            if (nestingLevelAtTheStartOfSelection != nestingLevelAtTheEndOfSelection) {
-                if (nestingLevelAtTheStartOfSelection == 0 && nestingLevelAtTheEndOfSelection == 1) {
-                    // 0/1 is ok!
-                } else {
-                    return
+        if (start != end) {
+            // we want to push line blocks as deep as possible, because they can't contain other block elements (e.g. headings)
+            if (spanToApply is IAztecLineBlockSpan) {
+                applyLineBlock(blockElementType, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+            } else {
+                val delimiters = getTopBlockDelimiters(boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+                for (i in 0 until delimiters.size - 1) {
+                    pushNewBlock(delimiters[i], delimiters[i + 1], blockElementType)
                 }
             }
 
-            val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-
-            val startOfBlock = boundsOfSelectedText.start
-            val endOfBlock = boundsOfSelectedText.endInclusive
-
-            applyBlock(makeBlockSpan(blockElementType, nestingLevelAtTheStartOfSelection), startOfBlock,
-                    (if (endOfBlock == editableText.length) endOfBlock else endOfBlock))
+            editor.setSelection(editor.selectionStart)
         } else {
-            val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-
             val startOfLine = boundsOfSelectedText.start
             val endOfLine = boundsOfSelectedText.endInclusive
 
-            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start) + 1
+            // we can't add blocks around partial block elements (i.e. list items), everything must go inside
+            val isWithinPartialBlock = editableText.getSpans(boundsOfSelectedText.start,
+                    boundsOfSelectedText.endInclusive, IAztecCompositeBlockSpan::class.java)
+                    .any { it.nestingLevel == nestingLevel - 1 }
 
-            val spanToApply = makeBlockSpan(blockElementType, nestingLevel)
+            val startOfBlock = mergeWithBlockAbove(startOfLine, endOfLine, spanToApply, nestingLevel, isWithinPartialBlock, blockElementType)
+            val endOfBlock = mergeWithBlockBelow(endOfLine, startOfBlock, spanToApply, nestingLevel, isWithinPartialBlock, blockElementType)
 
-            var startOfBlock: Int = startOfLine
-            var endOfBlock: Int = endOfLine
-
-            if (startOfLine != 0) {
-                val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
-                        .firstOrNull()
-
-                if (spansOnPreviousLine == null) {
-                    // no similar blocks before us so, don't expand
-                } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
-                    // other block is at a different nesting level so, don't expand
-                } else if (spansOnPreviousLine is AztecHeadingSpan
-                        && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
-                    // Heading span is of different style so, don't expand
-                } else {
-                    // expand the start
-                    startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
-                    liftBlock(blockElementType, startOfBlock, endOfBlock)
-                }
+            if (spanToApply is IAztecLineBlockSpan) {
+                applyBlock(spanToApply, startOfBlock, endOfBlock)
+            } else {
+                pushNewBlock(startOfBlock, endOfBlock, blockElementType)
             }
-
-            if (endOfLine != editableText.length) {
-                val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
-                        .firstOrNull()
-
-                if (spanOnNextLine == null) {
-                    // no similar blocks after us so, don't expand
-                } else if (spanOnNextLine.nestingLevel != nestingLevel) {
-                    // other block is at a different nesting level so, don't expand
-                } else if (spanOnNextLine is AztecHeadingSpan
-                        && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
-                    // Heading span is of different style so, don't expand
-                } else {
-                    // expand the end
-                    endOfBlock = editableText.getSpanEnd(spanOnNextLine)
-                    liftBlock(blockElementType, startOfBlock, endOfBlock)
-                }
-            }
-
-            applyBlock(spanToApply, startOfBlock, endOfBlock)
-            editor.onSelectionChanged(editor.selectionStart, editor.selectionEnd)
         }
+
+        editor.setSelection(editor.selectionStart, editor.selectionEnd)
+    }
+
+    private fun pushNewBlock(start: Int, end: Int, blockElementType: ITextFormat) {
+        var nesting = IAztecNestable.getMinNestingLevelAt(editableText, start, end) + 1
+
+        // we can't add blocks around composite block elements (i.e. list items), everything must go inside
+        val isListItem = editableText.getSpans(start, end, IAztecCompositeBlockSpan::class.java)
+                .any { it.nestingLevel == nesting }
+
+        if (isListItem) {
+            nesting++
+        }
+
+        val newBlock = makeBlockSpan(blockElementType, nesting)
+        val pushBy = if (newBlock is AztecListSpan) 2 else 1
+
+        val spans = IAztecNestable.pushDeeper(editableText, start, end, nesting, pushBy)
+        spans.forEach {
+            it.remove()
+        }
+
+        applyBlock(newBlock, start, end)
+
+        spans.forEach {
+            it.reapply()
+        }
+    }
+
+    private fun mergeWithBlockAbove(startOfLine: Int, endOfLine: Int, spanToApply: IAztecBlockSpan, nestingLevel: Int, isWithinList: Boolean, blockElementType: ITextFormat): Int {
+        var startOfBlock = startOfLine
+        if (startOfLine != 0) {
+            val spansOnPreviousLine = editableText.getSpans(startOfLine - 1, startOfLine - 1, spanToApply.javaClass)
+                    .firstOrNull()
+
+            if (spansOnPreviousLine == null) {
+                // no similar blocks before us so, don't expand
+            } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
+                // other block is at a different nesting level so, don't expand
+            } else if (spansOnPreviousLine is AztecHeadingSpan
+                    && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+                // Heading span is of different style so, don't expand
+            } else if (!isWithinList) {
+                // expand the start
+                startOfBlock = editableText.getSpanStart(spansOnPreviousLine)
+                liftBlock(blockElementType, startOfBlock, endOfLine)
+            }
+        }
+        return startOfBlock
+    }
+
+    private fun mergeWithBlockBelow(endOfLine: Int, startOfBlock: Int, spanToApply: IAztecBlockSpan, nestingLevel: Int, isWithinList: Boolean, blockElementType: ITextFormat): Int {
+        var endOfBlock = endOfLine
+        if (endOfLine != editableText.length) {
+            val spanOnNextLine = editableText.getSpans(endOfLine + 1, endOfLine + 1, spanToApply.javaClass)
+                    .firstOrNull()
+
+            if (spanOnNextLine == null) {
+                // no similar blocks after us so, don't expand
+            } else if (spanOnNextLine.nestingLevel != nestingLevel) {
+                // other block is at a different nesting level so, don't expand
+            } else if (spanOnNextLine is AztecHeadingSpan
+                    && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+                // Heading span is of different style so, don't expand
+            } else if (!isWithinList) {
+                // expand the end
+                endOfBlock = editableText.getSpanEnd(spanOnNextLine)
+                liftBlock(blockElementType, startOfBlock, endOfBlock)
+            }
+        }
+        return endOfBlock
     }
 
     private fun applyBlock(blockSpan: IAztecBlockSpan, start: Int, end: Int) {
         when (blockSpan) {
             is AztecOrderedListSpan -> applyListBlock(blockSpan, start, end)
             is AztecUnorderedListSpan -> applyListBlock(blockSpan, start, end)
-            is AztecQuoteSpan -> BlockHandler.set(editableText, blockSpan, start, end)
+            is AztecQuoteSpan -> applyQuote(blockSpan, start, end)
             is AztecHeadingSpan -> applyHeadingBlock(blockSpan, start, end)
             is AztecPreformatSpan -> BlockHandler.set(editableText, blockSpan, start, end)
             else -> editableText.setSpan(blockSpan, start, end, Spanned.SPAN_PARAGRAPH)
         }
+    }
+
+    private fun applyQuote(blockSpan: AztecQuoteSpan, start: Int, end: Int) {
+        BlockHandler.set(editableText, blockSpan, start, end)
     }
 
     private fun applyListBlock(listSpan: AztecListSpan, start: Int, end: Int) {
@@ -535,11 +655,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
             ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
         } else {
-            // there is always something at the end (newline or EOB), so we shift end index to the left
-            // to avoid empty lines
-            val listContent = editableText.substring(start, end - 1)
-
+            val listEnd = if (end == editableText.length) end else end - 1
+            val listContent = editableText.substring(start, listEnd)
             val lines = TextUtils.split(listContent, "\n")
+
             for (i in lines.indices) {
                 val lineLength = lines[i].length
 
@@ -554,12 +673,29 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
+    private fun applyLineBlock(format: ITextFormat, start: Int, end: Int) {
+        val lines = TextUtils.split(editableText.substring(start, end), "\n")
+        for (i in lines.indices) {
+            val splitLength = lines[i].length
+
+            val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
+            val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
+
+            val lineLength = lineEnd - lineStart
+            if (lineLength == 0) continue
+
+            val nesting = IAztecNestable.getNestingLevelAt(editableText, lineStart) + 1
+            val block = makeBlockSpan(format, nesting)
+            applyBlock(block, lineStart, lineEnd)
+        }
+    }
+
     private fun applyHeadingBlock(headingSpan: AztecHeadingSpan, start: Int, end: Int) {
         val lines = TextUtils.split(editableText.substring(start, end), "\n")
         for (i in lines.indices) {
             val splitLength = lines[i].length
 
-            val lineStart = start + (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
             val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
 
             val lineLength = lineEnd - lineStart
@@ -573,8 +709,14 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> liftListBlock(AztecOrderedListSpan::class.java, start, end)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> liftListBlock(AztecUnorderedListSpan::class.java, start, end)
-            AztecTextFormat.FORMAT_QUOTE -> editableText.getSpans(start, end, AztecQuoteSpan::class.java).forEach { editableText.removeSpan(it) }
-            else -> editableText.getSpans(start, end, ParagraphSpan::class.java).forEach { editableText.removeSpan(it) }
+            AztecTextFormat.FORMAT_QUOTE -> editableText.getSpans(start, end, AztecQuoteSpan::class.java).forEach {
+                IAztecNestable.pullUp(editableText, start, end, it.nestingLevel)
+                editableText.removeSpan(it)
+            }
+            else -> editableText.getSpans(start, end, ParagraphSpan::class.java).forEach {
+                IAztecNestable.pullUp(editableText, start, end, it.nestingLevel)
+                editableText.removeSpan(it)
+            }
         }
     }
 
@@ -582,6 +724,8 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         editableText.getSpans(start, end, listSpan).forEach {
             val wrapper = SpanWrapper(editableText, it)
             editableText.getSpans(wrapper.start, wrapper.end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
+
+            IAztecNestable.pullUp(editableText, start, end, wrapper.span.nestingLevel)
             wrapper.remove()
         }
     }

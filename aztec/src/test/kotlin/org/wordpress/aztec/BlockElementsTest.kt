@@ -113,4 +113,223 @@ class BlockElementsTest {
 
         Assert.assertEquals("<br>", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCompletelySurroundedStylingOfMultipleNestedBlocksByQuote() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                " <li>a</li>\n" +
+                " <li>b</li>\n" +
+                "</ol>\n" +
+                "<b>c</b>\n" +
+                "<h1>d</h1>")
+        val expectedHtml = "<blockquote>a" +
+                "<ol>" +
+                "<li>a</li>" +
+                "<li>b</li>" +
+                "</ol>" +
+                "<b>c</b>" +
+                "<h1>d</h1></blockquote>"
+
+        editText.setSelection(0, editText.length())
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testPartiallySurroundedStylingOfMultipleNestedBlocksByQuote() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                " <li>a</li>\n" +
+                " <li>b</li>\n" +
+                "</ol>\n" +
+                "<b>c</b>\n" +
+                "<h1>d</h1>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li>a</li>" +
+                "<li><blockquote>b</blockquote></li>" +
+                "</ol>" +
+                "<blockquote><b>c</b>" +
+                "<h1>d</h1></blockquote>"
+
+        editText.setSelection(4, editText.length())
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testPartiallySurroundedStylingOfListByQuote() {
+        editText.fromHtml("a" +
+                "<ol>" +
+                "<li>a</li>" +
+                "<li>b</li>" +
+                "</ol>" +
+                "<b>c</b>" +
+                "<h1>d</h1>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li>a</li>" +
+                "<li><blockquote>b</blockquote></li>" +
+                "</ol>" +
+                "<blockquote><b>c</b>" +
+                "<h1>d</h1></blockquote>"
+
+        editText.setSelection(4, editText.length())
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testEntirelySelectedListItemByQuote() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                "<li>1</li>\n" +
+                "<li>b</li>\n" +
+                "</ol>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li><blockquote>1</blockquote></li>" +
+                "<li>b</li>" +
+                "</ol>"
+
+        val index = editText.text.indexOf("1")
+        editText.setSelection(index, index + 1)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun tesListItemSurroundedByQuoteWithCursorAtTheEnd() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                "<li>1</li>\n" +
+                "<li>b</li>\n" +
+                "</ol>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li><blockquote>1</blockquote></li>" +
+                "<li>b</li>" +
+                "</ol>"
+
+        val index = editText.text.indexOf("1")
+        editText.setSelection(index + 1)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun tesListItemSurroundedByQuoteWithCursorAtTheBeginning() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                "<li>1</li>\n" +
+                "<li>b</li>\n" +
+                "</ol>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li><blockquote>1</blockquote></li>" +
+                "<li>b</li>" +
+                "</ol>"
+
+        val index = editText.text.indexOf("1")
+        editText.setSelection(index)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun tesListItemWithHeading() {
+        editText.fromHtml("a\n" +
+                "<ol>\n" +
+                "<li>1</li>\n" +
+                "<li>b</li>\n" +
+                "</ol>")
+        val expectedHtml = "a" +
+                "<ol>" +
+                "<li><h1>1</h1></li>" +
+                "<li>b</li>" +
+                "</ol>"
+
+        val index = editText.text.indexOf("1")
+        editText.setSelection(index)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_HEADING_1)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultipleLineStylingInsideListWithQuote() {
+        editText.fromHtml("<ul>" +
+                "<li>a</li>" +
+                "<li>b</li>" +
+                "<li>c</li>" +
+                "</ul>")
+        val expectedHtml = "<ul>" +
+                "<li>a</li>" +
+                "<li><blockquote>b</blockquote></li>" +
+                "<li><blockquote>c</blockquote></li>" +
+                "</ul>"
+
+        val index = editText.text.indexOf("b")
+        editText.setSelection(index + 1, index + 3)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testMultipleLineStylingInsideListWithHeading() {
+        editText.fromHtml("<ul>\n" +
+                "<li>a</li>\n" +
+                "<li>b</li>\n" +
+                "<li>c</li>\n" +
+                "</ul>")
+        val expectedHtml = "<ul>" +
+                "<li>a</li>" +
+                "<li><h2>b</h2></li>" +
+                "<li><h2>c</h2></li>" +
+                "</ul>"
+
+        val index = editText.text.indexOf("b")
+        editText.setSelection(index + 1, index + 3)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_HEADING_2)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testAddingQuoteToMultilineListItem() {
+        editText.fromHtml("<ul>" +
+                "<li>a</li>" +
+                "<li><h2>b</h2>d</li>" +
+                "<li>c</li>" +
+                "</ul>")
+        val expectedHtml = "<ul>" +
+                "<li>a</li>" +
+                "<li><h2>b</h2><blockquote>d</blockquote></li>" +
+                "<li>c</li>" +
+                "</ul>"
+
+        val index = editText.text.indexOf("d")
+        editText.setSelection(index)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
+
+        Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
 }

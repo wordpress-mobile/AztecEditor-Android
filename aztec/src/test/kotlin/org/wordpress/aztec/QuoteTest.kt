@@ -158,7 +158,7 @@ class QuoteTest {
         editText.setSelection(14)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<$quoteTag>third item</$quoteTag>", editText.toHtml())
+        Assert.assertEquals("first item<br>second item<br>third item", editText.toHtml())
     }
 
     @Test
@@ -220,7 +220,7 @@ class QuoteTest {
         editText.setSelection(firstMark, secondMark)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<$quoteTag>first item</$quoteTag>second item<br>third item<$quoteTag>fourth item</$quoteTag>not in quote", editText.toHtml())
+        Assert.assertEquals("first item<br>second item<br>third item<br>fourth item<br>not in quote", editText.toHtml())
     }
 
     @Test
@@ -719,7 +719,7 @@ class QuoteTest {
         editText.setSelection(3)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<blockquote>1</blockquote>2", editText.toHtml())
+        Assert.assertEquals("1<br>2", editText.toHtml())
     }
 
     @Test
@@ -730,7 +730,7 @@ class QuoteTest {
         editText.setSelection(3)
         editText.toggleFormatting(formattingType)
 
-        Assert.assertEquals("<blockquote>1</blockquote>2<br>3", editText.toHtml())
+        Assert.assertEquals("1<br>2<br>3", editText.toHtml())
     }
 
     @Test

@@ -108,6 +108,11 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
@@ -515,17 +520,17 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
-        val array = ArrayList(customState.getStringArrayList(HISTORY_LIST_KEY))
+        val array = readAndPurgeTempInstance<ArrayList<String>>(HISTORY_LIST_KEY, ArrayList<String>())
         val list = LinkedList<String>()
 
         list += array
 
         history.historyList = list
         history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
-        history.inputLast = customState.getString(INPUT_LAST_KEY)
+        history.inputLast = readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "")
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        val retainedHtml = customState.getString(RETAINED_HTML_KEY)
+        val retainedHtml = readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "")
         fromHtml(retainedHtml)
 
         val retainedSelectionStart = customState.getInt(SELECTION_START_KEY)
@@ -549,7 +554,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             if (retainedBlockHtmlIndex != -1) {
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
-                    val retainedBlockHtml = customState.getString(BLOCK_EDITOR_HTML_KEY)
+                    val retainedBlockHtml = readAndPurgeTempInstance<String>(BLOCK_EDITOR_HTML_KEY, "")
                     showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
             }
@@ -564,11 +569,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
-        bundle.putStringArrayList(HISTORY_LIST_KEY, ArrayList<String>(history.historyList))
+        writeTempInstance(HISTORY_LIST_KEY, ArrayList<String>(history.historyList))
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
-        bundle.putString(INPUT_LAST_KEY, history.inputLast)
+        writeTempInstance(INPUT_LAST_KEY, history.inputLast)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        bundle.putString(RETAINED_HTML_KEY, toHtml(false))
+        writeTempInstance(RETAINED_HTML_KEY, toHtml(false))
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
@@ -587,13 +592,51 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
             bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
             bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
-            bundle.putString(BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false))
+            writeTempInstance(BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false))
         }
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
         savedState.state = bundle
         return savedState
+    }
+
+    private fun writeTempInstance(filename: String, obj: Any?) {
+        with(File.createTempFile(filename, ".inst", context.getCacheDir())) {
+            deleteOnExit() // just make sure the file gets deleted if we don't do it ourselves
+            with(File(context.getCacheDir(), "$filename.inst")) {
+                if (this.exists()) {
+                    this.createNewFile()
+                }
+
+                with(FileOutputStream(this)) {
+                    with(ObjectOutputStream(this)) {
+                        writeObject(obj)
+                        close()
+                    }
+                    close()
+                }
+            }
+        }
+    }
+
+    private fun <T> readAndPurgeTempInstance(filename: String, defaultValue: T): T {
+        var obj: T = defaultValue
+
+        with(File(context.getCacheDir(), "$filename.inst")) {
+            with(FileInputStream(this)) {
+                with(ObjectInputStream(this)) {
+                    val r: Any? = readObject()
+
+                    @Suppress("UNCHECKED_CAST")
+                    obj = (r ?: defaultValue) as T
+                    close()
+                }
+            }
+            delete() // delete the file, no longer needed
+        }
+
+        return obj
     }
 
     internal class SavedState : BaseSavedState {

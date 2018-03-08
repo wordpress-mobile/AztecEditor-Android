@@ -60,6 +60,7 @@
     <string name="media_popup_gallery_chose_video">Video from device</string>
     <string name="media_bar_description_gallery">Pick a media from gallery</string>
     <string name="media_bar_description_camera">Take Photo or Video with camera</string>
+    <string name="media_bar_description_more">More options</string>
 
     <!-- SHORTCUTS -->
     <string name="header_edit">Edit</string>

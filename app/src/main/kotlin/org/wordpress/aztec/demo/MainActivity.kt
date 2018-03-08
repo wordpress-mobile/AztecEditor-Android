@@ -372,6 +372,13 @@ open class MainActivity : AppCompatActivity(),
             }
         })
 
+        val moreButton = MediaToolbarMoreButton(toolbar)
+        moreButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
+            override fun onClick(view: View) {
+                // TODO ?
+            }
+        })
+
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
             .setImageGetter(GlideImageLoader(this))
             .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
@@ -392,6 +399,7 @@ open class MainActivity : AppCompatActivity(),
             .addPlugin(HiddenGutenbergPlugin())
             .addPlugin(galleryButton)
             .addPlugin(cameraButton)
+            .addPlugin(moreButton)
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {

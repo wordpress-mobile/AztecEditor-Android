@@ -603,7 +603,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun writeTempInstance(filename: String, obj: Any?) {
         with(File(context.getCacheDir(), "$filename.inst")) {
-            with(FileOutputStream(this)) {
+            with(FileOutputStream(this, false)) {
                 with(ObjectOutputStream(this)) {
                     writeObject(obj)
                     close()

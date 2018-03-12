@@ -631,12 +631,22 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun <T> readAndPurgeTempInstance(varName: String, defaultValue: T, bundle: Bundle): T {
-        var obj: T = defaultValue
-
         // the full path is kept in the bundle so, get it from there
         val filename = bundle.getString(cacheFilenameKey(varName))
 
-        with(File(filename)) {
+        if (TextUtils.isEmpty(filename)) {
+            return defaultValue;
+        }
+
+        val file = File(filename)
+
+        if (!file.exists()) {
+            return defaultValue
+        }
+
+        var obj: T = defaultValue
+
+        with(file) {
             FileInputStream(this).use { input ->
                 ObjectInputStream(input).use { objectInput ->
                     val r: Any? = objectInput.readObject()

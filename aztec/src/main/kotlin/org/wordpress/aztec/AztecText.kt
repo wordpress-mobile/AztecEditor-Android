@@ -605,10 +605,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         with(File.createTempFile(filename, ".inst", context.getCacheDir())) {
             deleteOnExit() // just make sure the file gets deleted if we don't do it ourselves
             with(File(context.getCacheDir(), "$filename.inst")) {
-                if (this.exists()) {
-                    this.createNewFile()
-                }
-
                 with(FileOutputStream(this)) {
                     with(ObjectOutputStream(this)) {
                         writeObject(obj)

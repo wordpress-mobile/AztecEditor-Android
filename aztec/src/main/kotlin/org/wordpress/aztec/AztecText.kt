@@ -602,16 +602,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     private fun writeTempInstance(filename: String, obj: Any?) {
-        with(File.createTempFile(filename, ".inst", context.getCacheDir())) {
-            deleteOnExit() // just make sure the file gets deleted if we don't do it ourselves
-            with(File(context.getCacheDir(), "$filename.inst")) {
-                with(FileOutputStream(this)) {
-                    with(ObjectOutputStream(this)) {
-                        writeObject(obj)
-                        close()
-                    }
+        with(File(context.getCacheDir(), "$filename.inst")) {
+            with(FileOutputStream(this)) {
+                with(ObjectOutputStream(this)) {
+                    writeObject(obj)
                     close()
                 }
+                close()
             }
         }
     }

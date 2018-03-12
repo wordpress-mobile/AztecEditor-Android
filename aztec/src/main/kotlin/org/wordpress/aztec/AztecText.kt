@@ -635,7 +635,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val filename = bundle.getString(cacheFilenameKey(varName))
 
         if (TextUtils.isEmpty(filename)) {
-            return defaultValue;
+            return defaultValue
         }
 
         val file = File(filename)

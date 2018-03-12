@@ -110,7 +110,9 @@ import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.ArrayList
@@ -603,12 +605,20 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private fun writeTempInstance(filename: String, obj: Any?) {
         with(File(context.getCacheDir(), "$filename.inst")) {
-            with(FileOutputStream(this, false)) {
-                with(ObjectOutputStream(this)) {
-                    writeObject(obj)
+            try {
+                with(FileOutputStream(this, false)) {
+                    with(ObjectOutputStream(this)) {
+                        writeObject(obj)
+                        close()
+                    }
                     close()
                 }
-                close()
+            } catch (e: IOException) {
+                AppLog.w(AppLog.T.EDITOR, "Error trying to write cache file $filename. Exception: ${e.message}" )
+            } catch (e: SecurityException) {
+                AppLog.w(AppLog.T.EDITOR, "Error trying to write cache file $filename. Exception: ${e.message}" )
+            } catch (e: NullPointerException) {
+                AppLog.w(AppLog.T.EDITOR, "Error trying to write cache file $filename. Exception: ${e.message}" )
             }
         }
     }

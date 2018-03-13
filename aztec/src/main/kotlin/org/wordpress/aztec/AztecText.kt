@@ -607,6 +607,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         return "CACHEFILENAMEKEY_$varName"
     }
 
+    private fun logCacheWriteException(varName:String, e: Exception) {
+        AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
+        externalLogger?.logException(e, "Error trying to write cache for $varName.")
+    }
+
     private fun writeTempInstance(varName: String, obj: Any?, bundle: Bundle) {
         try {
             with(File.createTempFile(varName, ".inst", context.getCacheDir())) {
@@ -622,11 +627,11 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 }
             }
         } catch (e: IOException) {
-            AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
+            logCacheWriteException(varName, e)
         } catch (e: SecurityException) {
-            AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
+            logCacheWriteException(varName, e)
         } catch (e: NullPointerException) {
-            AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
+            logCacheWriteException(varName, e)
         }
     }
 

@@ -607,7 +607,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         return "CACHEFILENAMEKEY_$varName"
     }
 
-    private fun logCacheWriteException(varName:String, e: Exception) {
+    private fun logCacheWriteException(varName: String, e: Exception) {
         AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
         externalLogger?.logException(e, "Error trying to write cache for $varName.")
     }

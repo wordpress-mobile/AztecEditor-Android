@@ -1,4 +1,8 @@
 # Changelog
+## [1.3.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.1) - 2018-03-15
+### Fixed
+- Fix a crash with big post content (+400Kb)
+
 ## [1.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3) - 2018-03-02
 ### Added
 - RTL layout support for style toolbar and undo/redo action bar

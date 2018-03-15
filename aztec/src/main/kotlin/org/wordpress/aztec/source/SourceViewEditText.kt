@@ -17,9 +17,13 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
+import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
 class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+    companion object {
+        val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
+    }
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)
         internal set
@@ -84,12 +88,16 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
         visibility = customState.getInt("visibility")
+        val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
+        setText(retainedContent)
     }
 
     override fun onSaveInstanceState(): Parcelable {
+        val bundle = Bundle()
+        InstanceStateUtils.writeTempInstance(context, null, RETAINED_CONTENT_KEY, text.toString(), bundle)
+        setText("")
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
-        val bundle = Bundle()
         bundle.putInt("visibility", visibility)
         savedState.state = bundle
         return savedState

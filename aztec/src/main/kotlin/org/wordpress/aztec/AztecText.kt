@@ -135,8 +135,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
 
-        var retainedBundle = Bundle()
-
         val DEFAULT_IMAGE_WIDTH = 800
 
         var watchersNestingLevel: Int = 0
@@ -518,34 +516,18 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
-        restoreFromBundle(customState)
+        val array = InstanceStateUtils.readAndPurgeTempInstance<ArrayList<String>>(HISTORY_LIST_KEY, ArrayList<String>(), savedState.state)
+        val list = LinkedList<String>()
 
-        enableTextChangedListener()
-    }
+        list += array
 
-    private fun restoreFromBundle(customState: Bundle) {
-        if (customState.isEmpty) {
-            return
-        }
-        disableTextChangedListener()
-        val array = InstanceStateUtils.readAndPurgeTempInstance<ArrayList<String>>(HISTORY_LIST_KEY, ArrayList<String>(), customState)
-        if (array.size > 0) {
-            val list = LinkedList<String>()
-            list += array
-            history.historyList = list
-        }
-
+        history.historyList = list
         history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
-        val lastInput = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", customState)
-        if (!TextUtils.isEmpty(lastInput)) {
-            history.inputLast = lastInput
-        }
+        history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", customState)
-        if (!TextUtils.isEmpty(retainedHtml)) {
-            fromHtml(retainedHtml)
-        }
+        val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
+        fromHtml(retainedHtml)
 
         val retainedSelectionStart = customState.getInt(SELECTION_START_KEY)
         val retainedSelectionEnd = customState.getInt(SELECTION_END_KEY)
@@ -569,22 +551,14 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
                     val retainedBlockHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(BLOCK_EDITOR_HTML_KEY, "",
-                            customState)
-                    if (!TextUtils.isEmpty(retainedBlockHtml)) {
-                        showBlockEditorDialog(unknownSpan, retainedBlockHtml)
-                    }
+                            savedState.state)
+                    showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
             }
         }
 
         isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
-    }
 
-    // When the activity is resumed we need to make sure we've a fresh copy of the content
-    // since we've cleared it `onSaveInstance`.
-    fun onActivityResumed () {
-        disableTextChangedListener()
-        restoreFromBundle(retainedBundle)
         enableTextChangedListener()
     }
 
@@ -597,12 +571,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
-        retainedBundle.putAll(bundle)
-
         // disable text listeners and clear the content, otherwise TTL Exception may occur again
         disableTextChangedListener()
         setText("")
-        enableTextChangedListener()
 
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)

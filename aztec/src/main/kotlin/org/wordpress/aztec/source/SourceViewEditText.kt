@@ -92,10 +92,17 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         setText(retainedContent)
     }
 
+    // Do not include the content of the editor when saving state to bundle.
+    // EditText has it `true` by default, and then the content was saved in bundle making the app crashing
+    // due to the TransactionTooLargeException Exception.
+    // The content is saved in tmp files in `onSaveInstanceState`. See: https://github.com/wordpress-mobile/AztecEditor-Android/pull/641
+    override fun getFreezesText(): Boolean {
+        return false
+    }
+
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
         InstanceStateUtils.writeTempInstance(context, null, RETAINED_CONTENT_KEY, text.toString(), bundle)
-        setText("")
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         bundle.putInt("visibility", visibility)

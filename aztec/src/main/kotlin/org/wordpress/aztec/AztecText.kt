@@ -562,6 +562,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         enableTextChangedListener()
     }
 
+    // Do not include the content of the editor when saving state to bundle.
+    // EditText has it `true` by default, and then the content was saved in bundle making the app crashing
+    // due to the TransactionTooLargeException Exception.
+    // The content is saved in tmp files in `onSaveInstanceState`. See: https://github.com/wordpress-mobile/AztecEditor-Android/pull/641
     override fun getFreezesText(): Boolean {
         return false
     }

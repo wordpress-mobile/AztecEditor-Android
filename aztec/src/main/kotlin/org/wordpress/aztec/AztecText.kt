@@ -562,7 +562,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         enableTextChangedListener()
     }
 
+    override fun getFreezesText(): Boolean {
+        return false;
+    }
+
     override fun onSaveInstanceState(): Parcelable {
+        val superState = super.onSaveInstanceState()
+        val savedState = SavedState(superState)
         val bundle = Bundle()
         InstanceStateUtils.writeTempInstance(context, externalLogger, HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
@@ -571,12 +577,6 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
-        // disable text listeners and clear the content, otherwise TTL Exception may occur again
-        disableTextChangedListener()
-        setText("")
-
-        val superState = super.onSaveInstanceState()
-        val savedState = SavedState(superState)
 
         if (addLinkDialog != null && addLinkDialog!!.isShowing) {
             bundle.putBoolean(LINK_DIALOG_VISIBLE_KEY, true)

@@ -563,7 +563,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     }
 
     override fun getFreezesText(): Boolean {
-        return false;
+        return false
     }
 
     override fun onSaveInstanceState(): Parcelable {

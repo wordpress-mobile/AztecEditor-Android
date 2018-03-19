@@ -85,6 +85,7 @@ import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.util.AztecLog
+import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
@@ -108,12 +109,6 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
@@ -521,17 +516,17 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
-        val array = readAndPurgeTempInstance<ArrayList<String>>(HISTORY_LIST_KEY, ArrayList<String>(), savedState.state)
+        val array = InstanceStateUtils.readAndPurgeTempInstance<ArrayList<String>>(HISTORY_LIST_KEY, ArrayList<String>(), savedState.state)
         val list = LinkedList<String>()
 
         list += array
 
         history.historyList = list
         history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
-        history.inputLast = readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
+        history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        val retainedHtml = readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
+        val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
         val retainedSelectionStart = customState.getInt(SELECTION_START_KEY)
@@ -555,7 +550,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
             if (retainedBlockHtmlIndex != -1) {
                 val unknownSpan = text.getSpans(retainedBlockHtmlIndex, retainedBlockHtmlIndex + 1, UnknownHtmlSpan::class.java).firstOrNull()
                 if (unknownSpan != null) {
-                    val retainedBlockHtml = readAndPurgeTempInstance<String>(BLOCK_EDITOR_HTML_KEY, "",
+                    val retainedBlockHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(BLOCK_EDITOR_HTML_KEY, "",
                             savedState.state)
                     showBlockEditorDialog(unknownSpan, retainedBlockHtml)
                 }
@@ -567,15 +562,23 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         enableTextChangedListener()
     }
 
+    // Do not include the content of the editor when saving state to bundle.
+    // EditText has it `true` by default, and then the content was saved in bundle making the app crashing
+    // due to the TransactionTooLargeException Exception.
+    // The content is saved in tmp files in `onSaveInstanceState`. See: https://github.com/wordpress-mobile/AztecEditor-Android/pull/641
+    override fun getFreezesText(): Boolean {
+        return false
+    }
+
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         val bundle = Bundle()
-        writeTempInstance(HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
-        writeTempInstance(INPUT_LAST_KEY, history.inputLast, bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        writeTempInstance(RETAINED_HTML_KEY, toHtml(false), bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
@@ -594,76 +597,13 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
             bundle.putBoolean(BLOCK_DIALOG_VISIBLE_KEY, true)
             bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
-            writeTempInstance(BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false), bundle)
+            InstanceStateUtils.writeTempInstance(context, externalLogger, BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false), bundle)
         }
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
         savedState.state = bundle
         return savedState
-    }
-
-    private fun cacheFilenameKey(varName: String): String {
-        return "CACHEFILENAMEKEY_$varName"
-    }
-
-    private fun logCacheWriteException(varName: String, e: Exception) {
-        AppLog.w(AppLog.T.EDITOR, "Error trying to write cache for $varName. Exception: ${e.message}")
-        externalLogger?.logException(e, "Error trying to write cache for $varName.")
-    }
-
-    private fun writeTempInstance(varName: String, obj: Any?, bundle: Bundle) {
-        try {
-            with(File.createTempFile(varName, ".inst", context.getCacheDir())) {
-                deleteOnExit() // just make sure if we miss deleting this cache file the VM will eventually do it
-
-                FileOutputStream(this).use { output ->
-                    ObjectOutputStream(output).use { objectOutput ->
-                        objectOutput.writeObject(obj)
-
-                        // keep the filename in the bundle to use it to read the object back
-                        bundle.putString(cacheFilenameKey(varName), this.path)
-                    }
-                }
-            }
-        } catch (e: IOException) {
-            logCacheWriteException(varName, e)
-        } catch (e: SecurityException) {
-            logCacheWriteException(varName, e)
-        } catch (e: NullPointerException) {
-            logCacheWriteException(varName, e)
-        }
-    }
-
-    private fun <T> readAndPurgeTempInstance(varName: String, defaultValue: T, bundle: Bundle): T {
-        // the full path is kept in the bundle so, get it from there
-        val filename = bundle.getString(cacheFilenameKey(varName))
-
-        if (TextUtils.isEmpty(filename)) {
-            return defaultValue
-        }
-
-        val file = File(filename)
-
-        if (!file.exists()) {
-            return defaultValue
-        }
-
-        var obj: T = defaultValue
-
-        with(file) {
-            FileInputStream(this).use { input ->
-                ObjectInputStream(input).use { objectInput ->
-                    val r: Any? = objectInput.readObject()
-
-                    @Suppress("UNCHECKED_CAST")
-                    obj = (r ?: defaultValue) as T
-                }
-            }
-            delete() // eagerly delete the cache file. If any is missed the VM will delete it on reboot.
-        }
-
-        return obj
     }
 
     internal class SavedState : BaseSavedState {

@@ -60,7 +60,7 @@ Aztec.with(visualEditor, sourceEditor, toolbar, context)
     .setVideoThumbnailGetter(GlideVideoThumbnailLoader(context))
 ```
 
-For more options, such as edit history, listeners and plugins please refer to the [demo app implementation](https://github.com/wordpress-mobile/AztecEditor-Android/blob/9fdc1958ca1e1ad5de6fba15dabe251bcf0fc7b6/app/src/main/kotlin/org/wordpress/aztec/demo/MainActivity.kt#L331-L346).
+For more options, such as edit history, listeners and plugins please refer to the [demo app implementation](https://github.com/wordpress-mobile/AztecEditor-Android/blob/develop/app/src/main/kotlin/org/wordpress/aztec/demo/MainActivity.kt).
 
 ## Build and test
 
@@ -98,17 +98,26 @@ $ ./gradlew cAT
 
 ## Integrating Aztec in your project
 
-The library is not ready for prime time yet, so it's not published on Maven
-Central. Currently the library is distributed as an [alpha build](https://github.com/wordpress-mobile/AztecEditor-Android/releases).
-
-Brave developers can either use the project as a source distribution
-or have fun with JitPack at their own risk:
-
+You can import Aztec into your project using Jitpack:
 ```gradle
-compile ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAPSHOT')
+repositories {
+    maven { url "https://jitpack.io" }
+}
+```
+```gradle
+dependencies {
+    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.3.1')
+}
 ```
 
-When Aztec is ready, we'll publish the artifact in Maven.
+Brave developers can either use the project as a source distribution
+or have fun with the latest snapshot at their own risk:
+
+```gradle
+dependencies {
+    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:develop-SNAPSHOT')
+}
+```
 
 ## Code formatting
 

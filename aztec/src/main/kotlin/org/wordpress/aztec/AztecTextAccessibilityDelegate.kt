@@ -68,8 +68,8 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
 
     private fun updateContentDescription(parentForAccessibility: View, lineOffset: Int) {
         // we can't use announceForAccessibility(..) as the announcement doesn't get interrupted as we move to another element
-        parentForAccessibility.contentDescription = getTextAtLine(lineOffset)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP || !aztecText.isAccessibilityFocused) {
+        parentForAccessibility.contentDescription = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
+        if (!aztecText.isFocused ||  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             aztecText.requestFocus()
         } else {
@@ -88,7 +88,9 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
         if (charPos != -1) {
             lineOffset = aztecText.layout.getLineForOffset(charPos)
             // skip empty lines
-            if (isLineBlank(lineOffset)) lineOffset = ACCESSIBILITY_INVALID_LINE_ID
+            if (isLineBlank(lineOffset)) {
+                lineOffset = ACCESSIBILITY_INVALID_LINE_ID
+            }
         }
         return lineOffset
     }
@@ -97,7 +99,6 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
         val lineStartOffset = aztecText.layout.getLineStart(lineOffset)
         val lineEndOffset = aztecText.layout.getLineEnd(lineOffset)
         return aztecText.text.substring(lineStartOffset, lineEndOffset)
-                .replace(Constants.IMG_STRING, mediaItemContentDescription)
     }
 
     private fun isLineBlank(lineOffset: Int): Boolean {

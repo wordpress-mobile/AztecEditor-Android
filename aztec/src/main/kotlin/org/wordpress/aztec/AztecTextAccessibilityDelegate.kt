@@ -1,11 +1,13 @@
 package org.wordpress.aztec
 
+import android.content.Context
 import android.os.Build
 import android.support.v4.view.accessibility.AccessibilityEventCompat
 import android.text.Selection
 import android.view.MotionEvent
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.widget.EditText
 import org.apache.commons.lang3.StringUtils
 
@@ -17,6 +19,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
 
     private val mediaItemContentDescription = aztecText.getContext().getString(R.string.media_item_content_description)
     private val cursorMovedText = aztecText.getContext().getString(R.string.cursor_moved)
+    private val accessibilityManager = aztecText.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
     /**
      * Offset of most recently announced line.
@@ -24,6 +27,9 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     private var lastLineAnnouncedForAccessibilityOffset = ACCESSIBILITY_INVALID_LINE_ID
 
     fun onHoverEvent(event: MotionEvent): Boolean {
+        if (!accessibilityManager.isEnabled() || !accessibilityManager.isTouchExplorationEnabled) {
+            return false
+        }
         if (event.action == MotionEvent.ACTION_HOVER_ENTER) {
             resetLastLineAnnouncedForAccessibilityOffset()
         }
@@ -73,7 +79,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     }
 
     private fun restoreContentDescription(parentForAccessibility: View) {
-            parentForAccessibility.contentDescription = aztecText.text
+        parentForAccessibility.contentDescription = aztecText.text
     }
 
     private fun getLineOffset(x: Float, y: Float): Int {

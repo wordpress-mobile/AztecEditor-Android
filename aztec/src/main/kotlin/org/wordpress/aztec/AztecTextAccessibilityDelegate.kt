@@ -69,7 +69,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     private fun updateContentDescription(parentForAccessibility: View, lineOffset: Int) {
         // we can't use announceForAccessibility(..) as the announcement doesn't get interrupted as we move to another element
         parentForAccessibility.contentDescription = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
-        if (!aztecText.isFocused ||  (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
+        if (!aztecText.isFocused || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             aztecText.requestFocus()
         } else {

@@ -2,10 +2,8 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.os.Build
-import android.support.v4.view.accessibility.AccessibilityEventCompat
 import android.text.Selection
 import android.view.MotionEvent
-import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.widget.EditText
@@ -36,7 +34,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
         if (event.action == MotionEvent.ACTION_HOVER_EXIT) {
             moveCursor(event.x, event.y)
         }
-        return announceLineForAccessibility(event)
+        return announceForAccessibility(event)
     }
 
     private fun resetLastLineAnnouncedForAccessibilityOffset() {
@@ -50,10 +48,10 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
         Selection.setSelection(aztecText.text, aztecText.getOffsetForPosition(x, y))
     }
 
-    private fun announceLineForAccessibility(event: MotionEvent): Boolean {
+    private fun announceForAccessibility(event: MotionEvent): Boolean {
         val lineOffset = getLineOffset(event.x, event.y)
         if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID && lastLineAnnouncedForAccessibilityOffset != lineOffset) {
-            updateContentDescription(lineOffset)
+            announceLine(lineOffset)
         }
         if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID) {
             return true
@@ -61,7 +59,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
         return false
     }
 
-    private fun updateContentDescription(lineOffset: Int) {
+    private fun announceLine(lineOffset: Int) {
         if (!aztecText.isFocused || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             aztecText.requestFocus()

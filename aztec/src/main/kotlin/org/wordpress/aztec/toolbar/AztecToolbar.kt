@@ -647,8 +647,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 }
 
                 updateHeadingMenuItem(it, headingButton)
-
-                return
             }
         }
     }

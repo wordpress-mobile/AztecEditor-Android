@@ -51,35 +51,26 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     }
 
     private fun announceLineForAccessibility(event: MotionEvent): Boolean {
-        (aztecText.parentForAccessibility as? View)?.let {
-            val lineOffset = getLineOffset(event.x, event.y)
-            if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID && lastLineAnnouncedForAccessibilityOffset != lineOffset) {
-                updateContentDescription(it, lineOffset)
-            }
-            if (event.action == MotionEvent.ACTION_HOVER_EXIT) {
-                restoreContentDescription(it)
-            }
-            if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID) {
-                return true
-            }
+        val lineOffset = getLineOffset(event.x, event.y)
+        if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID && lastLineAnnouncedForAccessibilityOffset != lineOffset) {
+            updateContentDescription(lineOffset)
+        }
+        if (lineOffset != ACCESSIBILITY_INVALID_LINE_ID) {
+            return true
         }
         return false
     }
 
-    private fun updateContentDescription(parentForAccessibility: View, lineOffset: Int) {
-        // we can't use announceForAccessibility(..) as the announcement doesn't get interrupted as we move to another element
-        parentForAccessibility.contentDescription = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
+    private fun updateContentDescription(lineOffset: Int) {
         if (!aztecText.isFocused || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             aztecText.requestFocus()
         } else {
-            parentForAccessibility.sendAccessibilityEvent(AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION)
+            val announcement = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
+            accessibilityManager.interrupt()
+            aztecText.announceForAccessibility(announcement)
         }
         lastLineAnnouncedForAccessibilityOffset = lineOffset
-    }
-
-    private fun restoreContentDescription(parentForAccessibility: View) {
-        parentForAccessibility.contentDescription = aztecText.text
     }
 
     private fun getLineOffset(x: Float, y: Float): Int {

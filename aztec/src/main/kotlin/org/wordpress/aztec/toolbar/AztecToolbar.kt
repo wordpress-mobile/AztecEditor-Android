@@ -1,5 +1,6 @@
 package org.wordpress.aztec.toolbar
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -253,49 +254,50 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         val checked = (item?.isChecked == false)
         item?.isChecked = checked
+        val headingButton = findViewById<ToggleButton>(R.id.format_bar_button_heading)
 
         when (item?.itemId) {
         // Heading Menu
             R.id.paragraph -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PARAGRAPH, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_PARAGRAPH)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_PARAGRAPH)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
                 return true
             }
             R.id.heading_1 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_1, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_1)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_1)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_1, headingButton)
                 return true
             }
             R.id.heading_2 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_2, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_2)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_2)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_2, headingButton)
                 return true
             }
             R.id.heading_3 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_3, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_3)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_3)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_3, headingButton)
                 return true
             }
             R.id.heading_4 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_4, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_4)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_4)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_4, headingButton)
                 return true
             }
             R.id.heading_5 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_5, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_5)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_5)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_5, headingButton)
                 return true
             }
             R.id.heading_6 -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_6, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_6)
-                setHeadingMenuSelector(AztecTextFormat.FORMAT_HEADING_6)
+                updateHeadingMenuItem(AztecTextFormat.FORMAT_HEADING_6, headingButton)
                 return true
             }
 //            TODO: Uncomment when Preformat is to be added back as a feature
@@ -621,11 +623,12 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<ITextFormat>) {
+        val headingButton = findViewById<ToggleButton>(R.id.format_bar_button_heading)
+        // Use unnumbered heading selector by default.
+        updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
         if (textFormats.size == 0) {
             // Select paragraph by default.
             headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
-            // Use unnumbered heading selector by default.
-            setHeadingMenuSelector(AztecTextFormat.FORMAT_PARAGRAPH)
         } else {
             textFormats.forEach {
                 when (it) {
@@ -643,7 +646,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     }
                 }
 
-                setHeadingMenuSelector(it)
+                updateHeadingMenuItem(it, headingButton)
 
                 return
             }
@@ -879,20 +882,47 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    private fun setHeadingMenuSelector(textFormat: ITextFormat) {
+    private fun updateHeadingMenuItem(textFormat: ITextFormat, headingButton: ToggleButton) {
+        var backgroundRes = R.drawable.format_bar_button_heading_selector
+        var contentDescriptionRes = R.string.format_bar_description_heading
+        var check = true
         when (textFormat) {
-            AztecTextFormat.FORMAT_HEADING_1 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_1_selector)
-            AztecTextFormat.FORMAT_HEADING_2 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_2_selector)
-            AztecTextFormat.FORMAT_HEADING_3 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_3_selector)
-            AztecTextFormat.FORMAT_HEADING_4 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_4_selector)
-            AztecTextFormat.FORMAT_HEADING_5 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_5_selector)
-            AztecTextFormat.FORMAT_HEADING_6 -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_6_selector)
-            AztecTextFormat.FORMAT_PARAGRAPH -> findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+            AztecTextFormat.FORMAT_HEADING_1 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_1_selector
+                contentDescriptionRes = R.string.heading_1
+            }
+            AztecTextFormat.FORMAT_HEADING_2 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_2_selector
+                contentDescriptionRes = R.string.heading_2
+            }
+            AztecTextFormat.FORMAT_HEADING_3 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_3_selector
+                contentDescriptionRes = R.string.heading_3
+            }
+            AztecTextFormat.FORMAT_HEADING_4 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_4_selector
+                contentDescriptionRes = R.string.heading_4
+            }
+            AztecTextFormat.FORMAT_HEADING_5 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_5_selector
+                contentDescriptionRes = R.string.heading_5
+            }
+            AztecTextFormat.FORMAT_HEADING_6 -> {
+                backgroundRes = R.drawable.format_bar_button_heading_6_selector
+                contentDescriptionRes = R.string.heading_6
+            }
+            AztecTextFormat.FORMAT_PARAGRAPH -> {
+                // keep default background and contentDescription
+                check = false
+            }
             else -> {
-                // Use unnumbered heading selector by default.
-                findViewById<ToggleButton>(R.id.format_bar_button_heading).setBackgroundResource(R.drawable.format_bar_button_heading_selector)
+                // ignore for unknown textFormats
+                return
             }
         }
+        headingButton.setBackgroundResource(backgroundRes)
+        headingButton.contentDescription = context.getString(contentDescriptionRes)
+        headingButton.isChecked = check
     }
 
     private fun showCollapsedToolbar() {
@@ -959,6 +989,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         toolbarButtonPlugins.forEach { button -> if (button !is IMediaToolbarButton) button.toolbarStateAboutToChange(this, !isEnabled) }
     }
 
+    @SuppressLint("InflateParams")
     private fun showDialogShortcuts() {
         val layout = LayoutInflater.from(context).inflate(R.layout.dialog_shortcuts, null)
         val builder = AlertDialog.Builder(context)

@@ -629,7 +629,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
         headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
         if (textFormats.size != 0) {
-            textFormats.forEach {
+            foreach@ for (it in textFormats) {
                 when (it) {
                     AztecTextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
                     AztecTextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
@@ -637,8 +637,9 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     AztecTextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
                     AztecTextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
                     AztecTextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
-//                    TODO: Uncomment when Preformat is to be added back as a feature
-//                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
+    //                    TODO: Uncomment when Preformat is to be added back as a feature
+    //                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
+                    else -> continue@foreach
                 }
 
                 updateHeadingMenuItem(it, headingButton)
@@ -651,10 +652,11 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
         listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
         if (textFormats.size != 0) {
-            textFormats.forEach {
+            foreach@ for (it in textFormats) {
                 when (it) {
                     AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
                     AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
+                    else -> continue@foreach
                 }
                 updateListMenuItem(it, listButton)
             }
@@ -873,7 +875,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 // keep default background and content description
             }
             else -> {
-                // ignore for unknown formats
+                AppLog.w(AppLog.T.EDITOR, "Unknown list menu item - text format")
                 return
             }
         }
@@ -916,7 +918,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                 check = false
             }
             else -> {
-                // ignore for unknown textFormats
+                AppLog.w(AppLog.T.EDITOR, "Unknown heading menu item - text format")
                 return
             }
         }

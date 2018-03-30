@@ -22,6 +22,7 @@ import android.widget.PopupMenu
 import android.widget.PopupMenu.OnMenuItemClickListener
 import android.widget.Toast
 import android.widget.ToggleButton
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
@@ -626,10 +627,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         val headingButton = findViewById<ToggleButton>(R.id.format_bar_button_heading)
         // Use unnumbered heading selector by default.
         updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
-        if (textFormats.size == 0) {
-            // Select paragraph by default.
-            headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
-        } else {
+        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
+        if (textFormats.size != 0) {
             textFormats.forEach {
                 when (it) {
                     AztecTextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
@@ -640,10 +639,6 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     AztecTextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
 //                    TODO: Uncomment when Preformat is to be added back as a feature
 //                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
-                    else -> {
-                        // Select paragraph by default.
-                        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
-                    }
                 }
 
                 updateHeadingMenuItem(it, headingButton)
@@ -652,25 +647,16 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun selectListMenuItem(textFormats: ArrayList<ITextFormat>) {
-        if (textFormats.size == 0) {
-            // Select no list by default.
-            listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
-            // Use unordered list selector by default.
-            setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
-        } else {
+        val listButton = findViewById<ToggleButton>(R.id.format_bar_button_list)
+        updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
+        listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
+        if (textFormats.size != 0) {
             textFormats.forEach {
                 when (it) {
                     AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
                     AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
-                    else -> {
-                        // Select no list by default.
-                        listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
-                    }
                 }
-
-                setListMenuSelector(it)
-
-                return
+                updateListMenuItem(it, listButton)
             }
         }
     }
@@ -869,15 +855,31 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         listMenu?.inflate(R.menu.list)
     }
 
-    private fun setListMenuSelector(textFormat: ITextFormat) {
+    private fun updateListMenuItem(textFormat: ITextFormat, listButton: ToggleButton) {
+        var backgroundRes = R.drawable.format_bar_button_ul_selector
+        var contentDescriptionRes = R.string.format_bar_description_list
+        var check = true
         when (textFormat) {
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
-            AztecTextFormat.FORMAT_ORDERED_LIST -> findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ol_selector)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> {
+                backgroundRes = R.drawable.format_bar_button_ol_selector
+                contentDescriptionRes = R.string.item_format_list_ordered
+            }
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> {
+                contentDescriptionRes = R.string.item_format_list_unordered
+                // keep default background
+            }
+            AztecTextFormat.FORMAT_NONE -> {
+                check = false
+                // keep default background and content description
+            }
             else -> {
-                // Use unordered list selector by default.
-                findViewById<ToggleButton>(R.id.format_bar_button_list).setBackgroundResource(R.drawable.format_bar_button_ul_selector)
+                // ignore for unknown formats
+                return
             }
         }
+        listButton.setBackgroundResource(backgroundRes)
+        listButton.contentDescription = context.getString(contentDescriptionRes)
+        listButton.isChecked = check
     }
 
     private fun updateHeadingMenuItem(textFormat: ITextFormat, headingButton: ToggleButton) {
@@ -950,19 +952,22 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
+        val listButton = findViewById<ToggleButton>(R.id.format_bar_button_list)
         if (isChecked) {
             listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
 
             when (listMenuItemId) {
-                R.id.list_ordered -> setListMenuSelector(AztecTextFormat.FORMAT_ORDERED_LIST)
-                R.id.list_unordered -> setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
-                else -> setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST) // Use unordered list selector by default.
+                R.id.list_ordered -> updateListMenuItem(AztecTextFormat.FORMAT_ORDERED_LIST, listButton)
+                R.id.list_unordered -> updateListMenuItem(AztecTextFormat.FORMAT_UNORDERED_LIST, listButton)
+                else -> {
+                    AppLog.w(AppLog.T.EDITOR, "Unknown list menu item")
+                    updateListMenuItem(AztecTextFormat.FORMAT_UNORDERED_LIST, listButton) // Use unordered list selector by default.
+                }
             }
         } else {
             listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
 
-            // Use unordered list selector by default.
-            setListMenuSelector(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
         }
     }
 

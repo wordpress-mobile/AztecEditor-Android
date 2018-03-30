@@ -48,6 +48,7 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
@@ -222,6 +223,8 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
+
+    private var accessibilityDelegate = AztecTextAccessibilityDelegate(this)
 
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
@@ -746,6 +749,10 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     fun getAppliedStyles(selectionStart: Int, selectionEnd: Int): ArrayList<ITextFormat> {
         val styles = ArrayList<ITextFormat>()
 
+        if (selectionStart < 0 || selectionEnd < 0) {
+            // view is focused, but there is no cursor
+            return styles
+        }
         var newSelStart = if (selectionStart > selectionEnd) selectionEnd else selectionStart
         var newSelEnd = selectionEnd
 
@@ -1058,7 +1065,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         val parser = AztecParser(plugins)
-        var output: SpannableStringBuilder
+        val output: SpannableStringBuilder
         try {
             output = SpannableStringBuilder(text)
         } catch (e: java.lang.ArrayIndexOutOfBoundsException) {
@@ -1584,5 +1591,9 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
     fun disableCrashLogging() {
         this.uncaughtExceptionHandler?.restoreDefaultHandler()
         this.uncaughtExceptionHandler = null
+    }
+
+    override fun dispatchHoverEvent(event: MotionEvent): Boolean {
+        return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
 }

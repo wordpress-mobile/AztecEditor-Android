@@ -1,5 +1,8 @@
 <resources>
 
+    <!-- GENERAL -->
+    <string name="cursor_moved">Cursor moved</string>
+
     <!-- LINK DIALOG -->
     <string name="link_dialog_title">Insert link</string>
     <string name="link_dialog_button_remove_link">Remove Link</string>
@@ -60,6 +63,7 @@
     <string name="media_popup_gallery_chose_video">Video from device</string>
     <string name="media_bar_description_gallery">Pick a media from gallery</string>
     <string name="media_bar_description_camera">Take Photo or Video with camera</string>
+    <string name="media_item_content_description">Media</string>
 
     <!-- SHORTCUTS -->
     <string name="header_edit">Edit</string>

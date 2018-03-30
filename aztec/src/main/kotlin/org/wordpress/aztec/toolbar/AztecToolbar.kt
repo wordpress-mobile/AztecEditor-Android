@@ -13,6 +13,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.accessibility.AccessibilityEvent
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
@@ -817,6 +818,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     override fun onAnimationEnd(animation: Animation) {
                         buttonMediaCollapsed.visibility = View.GONE
                         buttonMediaExpanded.visibility = View.VISIBLE
+                        buttonMediaExpanded.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -834,6 +836,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                     override fun onAnimationEnd(animation: Animation) {
                         buttonMediaCollapsed.visibility = View.VISIBLE
                         buttonMediaExpanded.visibility = View.GONE
+                        buttonMediaCollapsed.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {

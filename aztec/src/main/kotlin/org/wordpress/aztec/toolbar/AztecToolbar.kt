@@ -36,7 +36,7 @@ import java.util.Locale
  * Contains both Styling and Media toolbars.
  * Supports RTL layout direction on API 19+
  */
-class AztecToolbar : FrameLayout, OnMenuItemClickListener {
+class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
@@ -85,7 +85,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    fun setToolbarListener(listener: IAztecToolbarClickListener) {
+    override fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
     }
 
@@ -357,7 +357,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
+    override fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
@@ -396,7 +396,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun addButton(buttonPlugin: IToolbarButton) {
+    override fun addButton(buttonPlugin: IToolbarButton) {
         val pluginContainer = if (buttonPlugin is IMediaToolbarButton) {
             findViewById(R.id.media_toolbar)
         } else {
@@ -546,7 +546,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun toggleEditorMode() {
+    override fun toggleEditorMode() {
         // only allow toggling if sourceEditor is present
         if (sourceEditor == null) return
 
@@ -989,7 +989,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         isMediaToolbarVisible = true
     }
 
-    fun toggleMediaToolbar() {
+    override fun toggleMediaToolbar() {
         if (isMediaToolbarVisible) {
             hideMediaToolbar()
         } else {

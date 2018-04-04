@@ -7,10 +7,11 @@ import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import java.util.ArrayList
 
-open class Aztec private constructor(val visualEditor: AztecText, val toolbar: AztecToolbar,
+open class Aztec private constructor(val visualEditor: AztecText, val toolbar: IAztecToolbar,
                                      private val toolbarClickListener: IAztecToolbarClickListener) {
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null

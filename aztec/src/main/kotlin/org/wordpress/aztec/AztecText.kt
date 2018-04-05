@@ -866,6 +866,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         formatToolbar = toolbar
     }
 
+    fun getToolbar() : IAztecToolbar? {
+        return formatToolbar
+    }
+
     private fun addWatcherNestingLevel() : Int {
         watchersNestingLevel++
         return watchersNestingLevel

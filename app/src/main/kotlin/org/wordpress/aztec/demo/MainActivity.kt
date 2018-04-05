@@ -31,6 +31,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupMenu
+import android.widget.ToggleButton
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
@@ -59,7 +60,6 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import org.wordpress.aztec.toolbar.RippleToggleButton
 import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
@@ -139,32 +139,32 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 IMG +
-                HEADING +
-                BOLD +
-                ITALIC +
-                UNDERLINE +
-                STRIKETHROUGH +
-                ORDERED +
-                LINE +
-                UNORDERED +
-                QUOTE +
-                PREFORMAT +
-                LINK +
-                HIDDEN +
-                COMMENT +
-                COMMENT_MORE +
-                COMMENT_PAGE +
-                CODE +
-                UNKNOWN +
-                EMOJI +
-                NON_LATIN_TEXT +
-                LONG_TEXT +
-                VIDEO +
-                VIDEOPRESS +
-                VIDEOPRESS_2 +
-                AUDIO +
-                GUTENBERG_CODE_BLOCK +
-                QUOTE_RTL
+                        HEADING +
+                        BOLD +
+                        ITALIC +
+                        UNDERLINE +
+                        STRIKETHROUGH +
+                        ORDERED +
+                        LINE +
+                        UNORDERED +
+                        QUOTE +
+                        PREFORMAT +
+                        LINK +
+                        HIDDEN +
+                        COMMENT +
+                        COMMENT_MORE +
+                        COMMENT_PAGE +
+                        CODE +
+                        UNKNOWN +
+                        EMOJI +
+                        NON_LATIN_TEXT +
+                        LONG_TEXT +
+                        VIDEO +
+                        VIDEOPRESS +
+                        VIDEOPRESS_2 +
+                        AUDIO +
+                        GUTENBERG_CODE_BLOCK +
+                        QUOTE_RTL
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -347,8 +347,10 @@ open class MainActivity : AppCompatActivity(),
         visualEditor.externalLogger = object : AztecLog.ExternalLogger {
             override fun log(message: String) {
             }
+
             override fun logException(tr: Throwable) {
             }
+
             override fun logException(tr: Throwable, message: String) {
             }
         }
@@ -360,7 +362,7 @@ open class MainActivity : AppCompatActivity(),
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
                 mediaMenu?.inflate(R.menu.menu_gallery)
                 mediaMenu?.show()
-                if(view is RippleToggleButton){
+                if (view is ToggleButton) {
                     view.isChecked = false
                 }
             }
@@ -373,32 +375,32 @@ open class MainActivity : AppCompatActivity(),
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
                 mediaMenu?.inflate(R.menu.menu_camera)
                 mediaMenu?.show()
-                if(view is RippleToggleButton){
+                if (view is ToggleButton) {
                     view.isChecked = false
                 }
             }
         })
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
-            .setImageGetter(GlideImageLoader(this))
-            .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
-            .setOnImeBackListener(this)
-            .setOnTouchListener(this)
-            .setHistoryListener(this)
-            .setOnImageTappedListener(this)
-            .setOnVideoTappedListener(this)
-            .setOnAudioTappedListener(this)
-            .setOnMediaDeletedListener(this)
-            .setOnVideoInfoRequestedListener(this)
-            .addPlugin(WordPressCommentsPlugin(visualEditor))
-            .addPlugin(MoreToolbarButton(visualEditor))
-            .addPlugin(PageToolbarButton(visualEditor))
-            .addPlugin(CaptionShortcodePlugin(visualEditor))
-            .addPlugin(VideoShortcodePlugin())
-            .addPlugin(AudioShortcodePlugin())
-            .addPlugin(HiddenGutenbergPlugin())
-            .addPlugin(galleryButton)
-            .addPlugin(cameraButton)
+                .setImageGetter(GlideImageLoader(this))
+                .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
+                .setOnImeBackListener(this)
+                .setOnTouchListener(this)
+                .setHistoryListener(this)
+                .setOnImageTappedListener(this)
+                .setOnVideoTappedListener(this)
+                .setOnAudioTappedListener(this)
+                .setOnMediaDeletedListener(this)
+                .setOnVideoInfoRequestedListener(this)
+                .addPlugin(WordPressCommentsPlugin(visualEditor))
+                .addPlugin(MoreToolbarButton(visualEditor))
+                .addPlugin(PageToolbarButton(visualEditor))
+                .addPlugin(CaptionShortcodePlugin(visualEditor))
+                .addPlugin(VideoShortcodePlugin())
+                .addPlugin(AudioShortcodePlugin())
+                .addPlugin(HiddenGutenbergPlugin())
+                .addPlugin(galleryButton)
+                .addPlugin(cameraButton)
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {

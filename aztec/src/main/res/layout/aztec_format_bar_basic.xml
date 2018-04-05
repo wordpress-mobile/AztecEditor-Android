@@ -46,7 +46,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@drawable/format_bar_button_media_collapsed_selector"
-                    android:contentDescription="@string/format_bar_description_media">
+                    android:contentDescription="@string/format_bar_description_media_normal">
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@drawable/format_bar_button_media_expanded_selector"
-                    android:contentDescription="@string/format_bar_description_media"
+                    android:contentDescription="@string/format_bar_description_media_expanded"
                     android:visibility="gone">
                 </org.wordpress.aztec.toolbar.RippleToggleButton>
 

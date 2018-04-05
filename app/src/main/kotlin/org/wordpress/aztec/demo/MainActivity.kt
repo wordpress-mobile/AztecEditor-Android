@@ -59,6 +59,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.toolbar.RippleToggleButton
 import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
@@ -359,6 +360,9 @@ open class MainActivity : AppCompatActivity(),
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
                 mediaMenu?.inflate(R.menu.menu_gallery)
                 mediaMenu?.show()
+                if(view is RippleToggleButton){
+                    view.isChecked = false
+                }
             }
         })
 
@@ -369,6 +373,9 @@ open class MainActivity : AppCompatActivity(),
                 mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
                 mediaMenu?.inflate(R.menu.menu_camera)
                 mediaMenu?.show()
+                if(view is RippleToggleButton){
+                    view.isChecked = false
+                }
             }
         })
 

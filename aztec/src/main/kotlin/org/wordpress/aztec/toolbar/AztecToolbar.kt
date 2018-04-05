@@ -816,6 +816,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         buttonMediaCollapsed.visibility = View.GONE
                         buttonMediaExpanded.visibility = View.VISIBLE
                         buttonMediaExpanded.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                        buttonMediaExpanded.isChecked = true
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -834,6 +835,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
                         buttonMediaCollapsed.visibility = View.VISIBLE
                         buttonMediaExpanded.visibility = View.GONE
                         buttonMediaCollapsed.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                        buttonMediaCollapsed.isChecked = false
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {

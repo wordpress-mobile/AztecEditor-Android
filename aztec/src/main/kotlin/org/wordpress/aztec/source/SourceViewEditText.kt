@@ -12,8 +12,10 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
@@ -39,6 +41,8 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
     var history: History? = null
 
     private var consumeEditEvent: Boolean = true
+
+    private var accessibilityDelegate = AztecTextAccessibilityDelegate(this)
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -279,5 +283,9 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
             onImeBackListener?.onImeBack()
         }
         return super.onKeyPreIme(keyCode, event)
+    }
+
+    override fun dispatchHoverEvent(event: MotionEvent): Boolean {
+        return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
 }

@@ -46,6 +46,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
     private var isAdvanced: Boolean = false
+    private var isMediaToolbarAvailable: Boolean = false
     private var isExpanded: Boolean = false
     private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
@@ -375,6 +376,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private fun initView(attrs: AttributeSet?) {
         val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
         isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+        isMediaToolbarAvailable = styles.getBoolean(R.styleable.AztecToolbar_mediaToolbarAvailable, true)
         styles.recycle()
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
@@ -738,6 +740,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbar() {
+        val mediaToolbarContainer : LinearLayout = findViewById(R.id.media_button_container)
+        mediaToolbarContainer.visibility = if (isMediaToolbarAvailable) View.VISIBLE else View.GONE
+        if (!isMediaToolbarAvailable) return
+
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)
 
@@ -760,6 +766,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbarAnimations() {
+        if (!isMediaToolbarAvailable) return
         layoutMediaTranslateInEnd = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
         layoutMediaTranslateOutEnd = AnimationUtils.loadAnimation(context, R.anim.translate_out_end)

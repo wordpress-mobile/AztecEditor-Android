@@ -38,7 +38,7 @@ import java.util.Locale
  * Contains both Styling and Media toolbars.
  * Supports RTL layout direction on API 19+
  */
-class AztecToolbar : FrameLayout, OnMenuItemClickListener {
+class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
@@ -46,6 +46,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
     private var isAdvanced: Boolean = false
+    private var isMediaToolbarAvailable: Boolean = false
     private var isExpanded: Boolean = false
     private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
@@ -87,7 +88,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    fun setToolbarListener(listener: IAztecToolbarClickListener) {
+    override fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
     }
 
@@ -360,7 +361,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
+    override fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
@@ -375,6 +376,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     private fun initView(attrs: AttributeSet?) {
         val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
         isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
+        isMediaToolbarAvailable = styles.getBoolean(R.styleable.AztecToolbar_mediaToolbarAvailable, true)
         styles.recycle()
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
@@ -399,7 +401,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun addButton(buttonPlugin: IToolbarButton) {
+    override fun addButton(buttonPlugin: IToolbarButton) {
         val pluginContainer = if (buttonPlugin is IMediaToolbarButton) {
             findViewById(R.id.media_toolbar)
         } else {
@@ -549,7 +551,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         }
     }
 
-    fun toggleEditorMode() {
+    override fun toggleEditorMode() {
         // only allow toggling if sourceEditor is present
         if (sourceEditor == null) return
 
@@ -738,6 +740,10 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbar() {
+        val mediaToolbarContainer : LinearLayout = findViewById(R.id.media_button_container)
+        mediaToolbarContainer.visibility = if (isMediaToolbarAvailable) View.VISIBLE else View.GONE
+        if (!isMediaToolbarAvailable) return
+
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)
 
@@ -760,6 +766,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbarAnimations() {
+        if (!isMediaToolbarAvailable) return
         layoutMediaTranslateInEnd = AnimationUtils.loadAnimation(context, R.anim.translate_in_end)
 
         layoutMediaTranslateOutEnd = AnimationUtils.loadAnimation(context, R.anim.translate_out_end)
@@ -1025,7 +1032,7 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         isMediaToolbarVisible = true
     }
 
-    fun toggleMediaToolbar() {
+    override fun toggleMediaToolbar() {
         if (isMediaToolbarVisible) {
             hideMediaToolbar()
         } else {

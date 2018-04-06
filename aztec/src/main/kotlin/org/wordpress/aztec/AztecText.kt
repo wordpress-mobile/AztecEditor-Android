@@ -84,7 +84,7 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
-import org.wordpress.aztec.toolbar.AztecToolbar
+import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
@@ -115,7 +115,7 @@ import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
+open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -191,7 +191,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
 
     private var unknownBlockSpanStart = -1
 
-    private var formatToolbar: AztecToolbar? = null
+    private var formatToolbar: IAztecToolbar? = null
 
     val selectedStyles = ArrayList<ITextFormat>()
 
@@ -862,8 +862,12 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         }
     }
 
-    fun setToolbar(toolbar: AztecToolbar) {
+    fun setToolbar(toolbar: IAztecToolbar) {
         formatToolbar = toolbar
+    }
+
+    fun getToolbar() : IAztecToolbar? {
+        return formatToolbar
     }
 
     private fun addWatcherNestingLevel() : Int {
@@ -1192,7 +1196,7 @@ class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlT
         return consumeSelectionChangedEvent
     }
 
-    fun refreshText() {
+    open fun refreshText() {
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd

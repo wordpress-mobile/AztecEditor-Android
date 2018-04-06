@@ -36,6 +36,7 @@
 
     <declare-styleable name="AztecToolbar">
         <attr name="advanced" format="reference|boolean" />
+        <attr name="mediaToolbarAvailable" format="reference|boolean" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">

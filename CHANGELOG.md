@@ -1,4 +1,12 @@
 # Changelog
+## [1.3.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.2) - 2018-04-12
+### Fixed
+- Fix a crash with the "Paste As Plain Text" feature from Android O.
+
+### Changed
+- Accessibility: Add content description for heading and list menu items.
+- Accessibility: Add support for touch exploration.
+
 ## [1.3.1](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.1) - 2018-03-15
 ### Fixed
 - Fix a crash with big post content (+400Kb)

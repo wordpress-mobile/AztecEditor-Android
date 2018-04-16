@@ -26,7 +26,8 @@
     <string name="format_bar_description_quote">Block quote</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>
-    <string name="format_bar_description_media">Media</string>
+    <string name="format_bar_description_media_normal">Show Media Options</string>
+    <string name="format_bar_description_media_expanded">Hide Media Options</string>
     <string name="format_bar_description_list">List</string>
     <string name="format_bar_description_html">HTML</string>
     <string name="format_bar_description_ellipsis_collapse">Collapse Toolbar</string>

@@ -13,6 +13,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.accessibility.AccessibilityEvent
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.FrameLayout
@@ -256,7 +257,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         val checked = (item?.isChecked == false)
         item?.isChecked = checked
-        val headingButton = findViewById<ToggleButton>(R.id.format_bar_button_heading)
+        val headingButton = findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId)
 
         when (item?.itemId) {
         // Heading Menu
@@ -626,42 +627,39 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<ITextFormat>) {
-        val headingButton = findViewById<ToggleButton>(R.id.format_bar_button_heading)
+        val headingButton = findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId)
         // Use unnumbered heading selector by default.
         updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
         headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
-        if (textFormats.size != 0) {
-            foreach@ for (it in textFormats) {
-                when (it) {
-                    AztecTextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
-                    AztecTextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
-                    AztecTextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
-                    AztecTextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
-                    AztecTextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
-                    AztecTextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
-    //                    TODO: Uncomment when Preformat is to be added back as a feature
-    //                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
-                    else -> continue@foreach
-                }
-
-                updateHeadingMenuItem(it, headingButton)
+        foreach@ for (it in textFormats) {
+            when (it) {
+                AztecTextFormat.FORMAT_HEADING_1 -> headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked = true
+                AztecTextFormat.FORMAT_HEADING_2 -> headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked = true
+                AztecTextFormat.FORMAT_HEADING_3 -> headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked = true
+                AztecTextFormat.FORMAT_HEADING_4 -> headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked = true
+                AztecTextFormat.FORMAT_HEADING_5 -> headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked = true
+                AztecTextFormat.FORMAT_HEADING_6 -> headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked = true
+            //                    TODO: Uncomment when Preformat is to be added back as a feature
+            //                    AztecTextFormat.FORMAT_PREFORMAT -> headingMenu?.menu?.findItem(R.id.preformat)?.isChecked = true
+                else -> continue@foreach
             }
+
+            updateHeadingMenuItem(it, headingButton)
         }
     }
 
     private fun selectListMenuItem(textFormats: ArrayList<ITextFormat>) {
-        val listButton = findViewById<ToggleButton>(R.id.format_bar_button_list)
+        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId)
         updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
         listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
-        if (textFormats.size != 0) {
-            foreach@ for (it in textFormats) {
-                when (it) {
-                    AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
-                    AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
-                    else -> continue@foreach
-                }
-                updateListMenuItem(it, listButton)
+        foreach@ for (it in textFormats) {
+            when (it) {
+                AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
+                AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
+                else -> continue@foreach
             }
+            updateListMenuItem(it, listButton)
+
         }
     }
 
@@ -824,6 +822,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                     override fun onAnimationEnd(animation: Animation) {
                         buttonMediaCollapsed.visibility = View.GONE
                         buttonMediaExpanded.visibility = View.VISIBLE
+                        buttonMediaExpanded.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                        buttonMediaExpanded.isChecked = true
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -841,6 +841,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                     override fun onAnimationEnd(animation: Animation) {
                         buttonMediaCollapsed.visibility = View.VISIBLE
                         buttonMediaExpanded.visibility = View.GONE
+                        buttonMediaCollapsed.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                        buttonMediaCollapsed.isChecked = false
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {
@@ -856,12 +858,26 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         headingMenu = PopupMenu(context, view)
         headingMenu?.setOnMenuItemClickListener(this)
         headingMenu?.inflate(R.menu.heading)
+        headingMenu?.setOnDismissListener({
+            if (getSelectedHeadingMenuItem() == null || getSelectedHeadingMenuItem() == AztecTextFormat.FORMAT_PARAGRAPH) {
+                findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = false
+            } else {
+                findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = true
+            }
+        })
     }
 
     private fun setListMenu(view: View) {
         listMenu = PopupMenu(context, view)
         listMenu?.setOnMenuItemClickListener(this)
         listMenu?.inflate(R.menu.list)
+        listMenu?.setOnDismissListener({
+            if (getSelectedListMenuItem() == null) {
+                findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = false
+            } else {
+                findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = true
+            }
+        })
     }
 
     private fun updateListMenuItem(textFormat: ITextFormat, listButton: ToggleButton) {
@@ -961,7 +977,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
-        val listButton = findViewById<ToggleButton>(R.id.format_bar_button_list)
+        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId)
         if (isChecked) {
             listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
 

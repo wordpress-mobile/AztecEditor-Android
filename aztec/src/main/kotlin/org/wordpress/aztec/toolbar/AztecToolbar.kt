@@ -854,6 +854,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         headingMenu?.setOnDismissListener({
             if (getSelectedHeadingMenuItem() == null || getSelectedHeadingMenuItem() == AztecTextFormat.FORMAT_PARAGRAPH) {
                 findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = false
+            } else {
+                findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = true
             }
         })
     }
@@ -865,6 +867,8 @@ class AztecToolbar : FrameLayout, OnMenuItemClickListener {
         listMenu?.setOnDismissListener({
             if (getSelectedListMenuItem() == null) {
                 findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = false
+            } else {
+                findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = true
             }
         })
     }

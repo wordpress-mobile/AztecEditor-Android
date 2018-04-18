@@ -22,7 +22,7 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
     }

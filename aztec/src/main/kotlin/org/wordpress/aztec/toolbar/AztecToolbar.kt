@@ -58,6 +58,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private lateinit var layoutExpandedTranslateInEnd: Animation
     private lateinit var layoutExpandedTranslateOutStart: Animation
 
+    private lateinit var htmlButton: RippleToggleButton
     private lateinit var buttonMediaCollapsed: RippleToggleButton
     private lateinit var buttonMediaExpanded: RippleToggleButton
 
@@ -372,6 +373,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
+
+        if (sourceEditor == null) {
+            htmlButton.visibility = View.GONE
+        }
     }
 
     private fun initView(attrs: AttributeSet?) {
@@ -384,6 +389,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         View.inflate(context, layout, this)
 
         toolbarScrolView = findViewById(R.id.format_bar_button_scroll)
+        htmlButton = findViewById(R.id.format_bar_button_html)
 
         setAdvancedState()
         setupMediaToolbar()

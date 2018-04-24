@@ -103,24 +103,6 @@
                         </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                         <org.wordpress.aztec.toolbar.RippleToggleButton
-                            android:id="@+id/format_bar_button_list"
-                            style="@style/FormatBarButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="fill_parent"
-                            android:background="@drawable/format_bar_button_ul_selector"
-                            android:contentDescription="@string/format_bar_description_list">
-                        </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                        <org.wordpress.aztec.toolbar.RippleToggleButton
-                            android:id="@+id/format_bar_button_quote"
-                            style="@style/FormatBarButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="fill_parent"
-                            android:background="@drawable/format_bar_button_quote_selector"
-                            android:contentDescription="@string/format_bar_description_quote">
-                        </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                        <org.wordpress.aztec.toolbar.RippleToggleButton
                             android:id="@+id/format_bar_button_bold"
                             style="@style/FormatBarButton"
                             android:layout_width="wrap_content"
@@ -136,6 +118,24 @@
                             android:layout_height="fill_parent"
                             android:background="@drawable/format_bar_button_italic_selector"
                             android:contentDescription="@string/format_bar_description_italic">
+                        </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        <org.wordpress.aztec.toolbar.RippleToggleButton
+                            android:id="@+id/format_bar_button_list"
+                            style="@style/FormatBarButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:background="@drawable/format_bar_button_ul_selector"
+                            android:contentDescription="@string/format_bar_description_list">
+                        </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                        <org.wordpress.aztec.toolbar.RippleToggleButton
+                            android:id="@+id/format_bar_button_quote"
+                            style="@style/FormatBarButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:background="@drawable/format_bar_button_quote_selector"
+                            android:contentDescription="@string/format_bar_description_quote">
                         </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                         <org.wordpress.aztec.toolbar.RippleToggleButton

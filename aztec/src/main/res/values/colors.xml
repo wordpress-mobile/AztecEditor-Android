@@ -60,5 +60,6 @@
     <color name="grey_lighten_10">#ffa8bece</color>
     <color name="grey_lighten_20">#ffc8d7e1</color>
     <color name="grey_lighten_30">#ffe9eff3</color>
+    <color name="charcoal">#3c414f</color>
 
 </resources>

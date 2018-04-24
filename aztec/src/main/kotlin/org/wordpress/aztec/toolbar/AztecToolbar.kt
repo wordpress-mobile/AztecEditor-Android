@@ -1008,6 +1008,21 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
     }
 
+    fun disableExtraFormatButtons(isEnabled: Boolean) {
+        val buttons = setOf(ToolbarAction.ALIGN_CENTER, ToolbarAction.ALIGN_LEFT, ToolbarAction.ALIGN_RIGHT,
+                ToolbarAction.HTML, ToolbarAction.HORIZONTAL_RULE, ToolbarAction.UNDERLINE,
+                ToolbarAction.LINK, ToolbarAction.LIST, ToolbarAction.STRIKETHROUGH, ToolbarAction.QUOTE)
+        ToolbarAction.values().forEach { action ->
+            if (action in buttons) {
+                toggleButtonState(findViewById(action.buttonId), isEnabled)
+            }
+        }
+
+        toolbarButtonPlugins.forEach {
+            toggleButtonState(findViewById(it.action.buttonId), isEnabled)
+        }
+    }
+
     fun isMediaModeEnabled(): Boolean {
         return isMediaModeEnabled
     }

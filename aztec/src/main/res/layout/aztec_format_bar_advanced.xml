@@ -18,8 +18,8 @@
     </View>
 
     <HorizontalScrollView
-        style="@style/ToolbarLayoutDirection"
         android:id="@+id/format_bar_button_scroll"
+        style="@style/ToolbarLayoutDirection"
         android:layout_width="match_parent"
         android:layout_height="@dimen/aztec_format_bar_height"
         android:layout_gravity="bottom"
@@ -27,14 +27,14 @@
         android:fillViewport="true">
 
         <LinearLayout
-            android:paddingEnd="@dimen/aztec_format_bar_end_margin"
-            android:paddingLeft="0dp"
-            android:paddingRight="@dimen/aztec_format_bar_end_margin"
-            android:paddingStart="0dp"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingEnd="@dimen/aztec_format_bar_end_margin"
+            android:paddingLeft="0dp"
+            android:paddingRight="@dimen/aztec_format_bar_end_margin"
+            android:paddingStart="0dp">
 
             <LinearLayout
                 android:id="@+id/media_button_container"
@@ -95,11 +95,11 @@
                         android:orientation="horizontal">
 
                         <LinearLayout
-                            android:layout_toEndOf="@+id/format_bar_button_layout_collapsed"
-                            android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
                             android:id="@+id/format_bar_button_layout_expanded"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
+                            android:layout_toEndOf="@+id/format_bar_button_layout_collapsed"
+                            android:layout_toRightOf="@+id/format_bar_button_layout_collapsed"
                             android:orientation="horizontal"
                             tools:visibility="gone">
 
@@ -202,24 +202,6 @@
                             </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                             <org.wordpress.aztec.toolbar.RippleToggleButton
-                                android:id="@+id/format_bar_button_list"
-                                style="@style/FormatBarButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="fill_parent"
-                                android:background="@drawable/format_bar_button_ul_selector"
-                                android:contentDescription="@string/format_bar_description_list">
-                            </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                            <org.wordpress.aztec.toolbar.RippleToggleButton
-                                android:id="@+id/format_bar_button_quote"
-                                style="@style/FormatBarButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="fill_parent"
-                                android:background="@drawable/format_bar_button_quote_selector"
-                                android:contentDescription="@string/format_bar_description_quote">
-                            </org.wordpress.aztec.toolbar.RippleToggleButton>
-
-                            <org.wordpress.aztec.toolbar.RippleToggleButton
                                 android:id="@+id/format_bar_button_bold"
                                 style="@style/FormatBarButton"
                                 android:layout_width="wrap_content"
@@ -235,6 +217,24 @@
                                 android:layout_height="fill_parent"
                                 android:background="@drawable/format_bar_button_italic_selector"
                                 android:contentDescription="@string/format_bar_description_italic">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_list"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_ul_selector"
+                                android:contentDescription="@string/format_bar_description_list">
+                            </org.wordpress.aztec.toolbar.RippleToggleButton>
+
+                            <org.wordpress.aztec.toolbar.RippleToggleButton
+                                android:id="@+id/format_bar_button_quote"
+                                style="@style/FormatBarButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="fill_parent"
+                                android:background="@drawable/format_bar_button_quote_selector"
+                                android:contentDescription="@string/format_bar_description_quote">
                             </org.wordpress.aztec.toolbar.RippleToggleButton>
 
                         </LinearLayout>

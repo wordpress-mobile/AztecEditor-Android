@@ -376,6 +376,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         if (sourceEditor == null) {
             htmlButton.visibility = View.GONE
+        } else {
+            htmlButton.visibility = View.VISIBLE
         }
     }
 

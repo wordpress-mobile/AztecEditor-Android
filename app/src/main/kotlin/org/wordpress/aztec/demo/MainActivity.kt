@@ -91,7 +91,7 @@ open class MainActivity : AppCompatActivity(),
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
-        private val LINE = "<hr>"
+        private val LINE = "<hr/>"
         private val UNORDERED = "<ul><li style=\"color:darkred\">Unordered</li><li>Should not have color</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"

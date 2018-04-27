@@ -24,7 +24,7 @@ class HistoryMixedTests : BaseHistoryTest() {
             "\t<li></li>\n" +
             "</ol>\n" +
             "\n" +
-            "<hr>\n" +
+            "<hr/>\n" +
             "\n" +
             "<ul>\n" +
             "\t<li>Unordered</li>\n" +

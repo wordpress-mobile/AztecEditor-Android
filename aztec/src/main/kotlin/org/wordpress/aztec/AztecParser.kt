@@ -473,7 +473,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                         }
 
                 if (span is AztecHorizontalRuleSpan) {
-                    out.append("<${span.startTag}>")
+                    out.append("<${span.startTag}/>")
                     i = next
                 }
 

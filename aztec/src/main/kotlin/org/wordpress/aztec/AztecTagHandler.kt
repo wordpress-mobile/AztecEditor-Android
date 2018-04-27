@@ -116,7 +116,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr), nestingLevel))
+                    start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr),
+                            nestingLevel, AztecAttributes(attributes)))
                     output.append(Constants.MAGIC_CHAR)
                 } else {
                     end(output, AztecHorizontalRuleSpan::class.java)

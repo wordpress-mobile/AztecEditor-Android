@@ -960,11 +960,11 @@ class AztecToolbarTest {
     @Throws(Exception::class)
     fun orderedListMultiselectAlignment() {
         editText.fromHtml("<ol><li>item 1</li><li style=\"text-align: center;\">item 2</li></ol>" +
-                "<hr><ol><li>item 3</li><li>item 4</li></ol>")
+                "<hr /><ol><li>item 3</li><li>item 4</li></ol>")
 
         editText.setSelection(editText.text.indexOf("2"), editText.text.indexOf("3"))
         alignRightButton.performClick()
-        Assert.assertEquals("<ol><li>item 1</li><li style=\"text-align: right;\">item 2</li></ol><hr>" +
+        Assert.assertEquals("<ol><li>item 1</li><li style=\"text-align: right;\">item 2</li></ol><hr />" +
                 "<ol><li style=\"text-align: right;\">item 3</li><li>item 4</li></ol>",
                 editText.toHtml())
     }

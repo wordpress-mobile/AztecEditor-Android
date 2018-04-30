@@ -106,6 +106,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                 editor.context,
                 ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
                 nestingLevel,
+                AztecAttributes(),
                 editor
         )
 

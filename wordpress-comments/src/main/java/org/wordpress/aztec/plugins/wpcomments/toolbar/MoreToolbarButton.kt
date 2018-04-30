@@ -45,7 +45,11 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
-        return keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
+        return !isChromebook() && keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
+    }
+
+    fun isChromebook(): Boolean {
+        return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
     }
 
     override fun inflateButton(parent: ViewGroup) {

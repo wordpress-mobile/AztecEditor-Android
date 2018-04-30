@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ToggleButton
+import org.wordpress.android.util.DeviceUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
@@ -45,11 +46,7 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
-        return !isChromebook() && keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
-    }
-
-    fun isChromebook(): Boolean {
-        return context.packageManager.hasSystemFeature("org.chromium.arc.device_management")
+        return DeviceUtils.getInstance().isAppRuntimeForChrome(context) && keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
     }
 
     override fun inflateButton(parent: ViewGroup) {

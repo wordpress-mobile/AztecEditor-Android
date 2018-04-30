@@ -52,7 +52,7 @@ class AttributeTest {
         private val BIG = "<big b=\"B\">Big</big>"
         private val SMALL = "<small s=\"S\">Small</small>"
         private val P = "<p p=\"P\">Paragraph</p>"
-        private val LINE = "<hr h=\"H\"/>"
+        private val LINE = "<hr h=\"H\" />"
         private val MIXED = HEADING + BOLD + ITALIC + UNDERLINE + STRIKETHROUGH + ORDERED +
                 UNORDERED + QUOTE + LINK + COMMENT + COMMENT_MORE + COMMENT_PAGE +
                 UNKNOWN + LIST + SUB + SUP + FONT + TT + BIG + SMALL + P

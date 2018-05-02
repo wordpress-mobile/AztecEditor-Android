@@ -1242,7 +1242,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             android.R.id.pasteAsPlainText -> paste(text, min, max)
             android.R.id.copy -> {
                 copy(text, min, max)
-                clearFocus() // hide text action menu
+                setSelection(max)
             }
             android.R.id.cut -> {
                 copy(text, min, max)

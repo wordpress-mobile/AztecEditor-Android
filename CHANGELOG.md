@@ -1,4 +1,12 @@
 # Changelog
+## [1.3.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.3) - 2018-05-02
+### Fixed
+- Fix an issue that removed attributes from HR tags.
+- Fix a focusing issue when copying text in an AztecText.
+
+### Changed
+- Hide the HTML button if the source editor is not set.
+
 ## [1.3.2](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.2) - 2018-04-12
 ### Fixed
 - Fix a crash with the "Paste As Plain Text" feature from Android O.

@@ -17,6 +17,9 @@ class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
     private val REGEX_CODE_BLOCK_ENDING =
             "<\\/pre>((?:(?!<\\/pre>|<!-- \\/wp:code -->).)*?)<!-- \\/wp:code -->"
 
+    private val patternPreformattedBlock = Pattern.compile(REGEX_PREFORMATTED_BLOCK_ENDING)
+    private val patternCodeBlock = Pattern.compile(REGEX_CODE_BLOCK_ENDING)
+
     override fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
         if (text.trimStart().startsWith("wp:", true) ||
                 text.trimStart().startsWith("/wp:", true)) {
@@ -76,8 +79,8 @@ class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
             // as handleSpanStart() gets called
 
             when (gutenbergSpan.content) {
-                " /wp:preformatted " -> handleGutenbergBlockEnclosingTags(html, span, REGEX_PREFORMATTED_BLOCK_ENDING)
-                " /wp:code " -> handleGutenbergBlockEnclosingTags(html, span, REGEX_CODE_BLOCK_ENDING)
+                " /wp:preformatted " -> handleGutenbergBlockEnclosingTags(html, span, patternPreformattedBlock)
+                " /wp:code " -> handleGutenbergBlockEnclosingTags(html, span, patternCodeBlock)
             }
         }
     }
@@ -85,8 +88,7 @@ class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
     override fun handleSpanEnd(html: StringBuilder, span: CharacterStyle) {
     }
 
-    fun handleGutenbergBlockEnclosingTags(html: StringBuilder, gutenbergSpan: GutenbergCommentSpan, regex: String) {
-        val pattern : Pattern = Pattern.compile(regex)
+    fun handleGutenbergBlockEnclosingTags(html: StringBuilder, gutenbergSpan: GutenbergCommentSpan, pattern: Pattern) {
         val matcher : Matcher = pattern.matcher(html)
         var tmpFoundGroup : String
         while (matcher.find()) {

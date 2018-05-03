@@ -12,6 +12,11 @@ import java.util.regex.Pattern
 
 class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
 
+    private val REGEX_PREFORMATTED_BLOCK_ENDING =
+            "<\\/pre>((?:(?!<\\/pre>|<!-- \\/wp:preformatted -->).)*?)<!-- \\/wp:preformatted -->"
+    private val REGEX_CODE_BLOCK_ENDING =
+            "<\\/pre>((?:(?!<\\/pre>|<!-- \\/wp:code -->).)*?)<!-- \\/wp:code -->"
+
     override fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
         if (text.trimStart().startsWith("wp:", true) ||
                 text.trimStart().startsWith("/wp:", true)) {
@@ -71,12 +76,8 @@ class HiddenGutenbergPlugin : IHtmlCommentHandler, IInlineSpanHandler {
             // as handleSpanStart() gets called
 
             when (gutenbergSpan.content) {
-                " /wp:preformatted " ->
-                    handleGutenbergBlockEnclosingTags(html, span,
-                            "<\\/pre>((?:(?!<\\/pre>|<!-- \\/wp:preformatted -->).)*?)<!-- \\/wp:preformatted -->")
-                " /wp:code " ->
-                    handleGutenbergBlockEnclosingTags(html, span,
-                            "<\\/pre>((?:(?!<\\/pre>|<!-- \\/wp:code -->).)*?)<!-- \\/wp:code -->")
+                " /wp:preformatted " -> handleGutenbergBlockEnclosingTags(html, span, REGEX_PREFORMATTED_BLOCK_ENDING)
+                " /wp:code " -> handleGutenbergBlockEnclosingTags(html, span, REGEX_CODE_BLOCK_ENDING)
             }
         }
     }

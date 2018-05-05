@@ -1,23 +1,14 @@
 package org.wordpress.aztec.plugins.visual2html
 
 import android.annotation.SuppressLint
-import android.text.style.CharacterStyle
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.spans.IAztecParagraphStyle
 
 /**
- * An interface for processing inline spans during visual-to-HTML.
+ * An interface for processing block spans during visual-to-HTML.
  */
 @SuppressLint("NewApi")
-interface IInlineSpanHandler : IAztecPlugin {
-    /**
-     * Determines, whether the content of a span (text, if any) should be parsed/rendered by [org.wordpress.aztec.AztecParser]
-     *
-     * @return true if content should be parsed, false otherwise.
-     */
-    fun shouldParseContent(): Boolean {
-        return true
-    }
-
+interface IBlockSpanHandler : IAztecPlugin {
     /**
      * Determines, whether the plugin can handle a particular [span] type.
      *
@@ -25,7 +16,7 @@ interface IInlineSpanHandler : IAztecPlugin {
      *
      * @return true for compatible spans, false otherwise.
      */
-    fun canHandleSpan(span: CharacterStyle): Boolean
+    fun canHandleSpan(span: IAztecParagraphStyle): Boolean
 
     /**
      * A plugin handler used by [org.wordpress.aztec.AztecParser] during span-to-HTML parsing.
@@ -35,7 +26,7 @@ interface IInlineSpanHandler : IAztecPlugin {
      * @param html the resulting HTML string output.
      * @param span the encountered span.
      */
-    fun handleSpanStart(html: StringBuilder, span: CharacterStyle)
+    fun handleSpanStart(html: StringBuilder, span: IAztecParagraphStyle)
 
     /**
      * A plugin handler used by [org.wordpress.aztec.AztecParser] during span-to-HTML parsing.
@@ -45,5 +36,5 @@ interface IInlineSpanHandler : IAztecPlugin {
      * @param html the resulting HTML string output.
      * @param span the encountered span.
      */
-    fun handleSpanEnd(html: StringBuilder, span: CharacterStyle)
+    fun handleSpanEnd(html: StringBuilder, span: IAztecParagraphStyle)
 }

@@ -30,6 +30,7 @@ import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
+import org.wordpress.aztec.plugins.visual2html.IBlockSpanHandler
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
@@ -391,9 +392,23 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             }
         }
 
-        out.append("<${nestable.startTag}>")
+        val blockHandlers = plugins.filter { it is IBlockSpanHandler && it.canHandleSpan(nestable) }
+
+        if (blockHandlers.isNotEmpty()) {
+            blockHandlers.map { it as IBlockSpanHandler }
+                    .forEach { it.handleSpanStart(out, nestable) }
+        } else {
+            out.append("<${nestable.startTag}>")
+        }
+
         withinHtml(out, text, start, end, parents, nestingLevel)
-        out.append("</${nestable.endTag}>")
+
+        if (blockHandlers.isNotEmpty()) {
+            blockHandlers.map { it as IBlockSpanHandler }
+                    .forEach { it.handleSpanEnd(out, nestable) }
+        } else {
+            out.append("</${nestable.endTag}>")
+        }
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE

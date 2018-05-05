@@ -398,7 +398,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(CaptionShortcodePlugin(visualEditor))
                 .addPlugin(VideoShortcodePlugin())
                 .addPlugin(AudioShortcodePlugin())
-                .addPlugin(HiddenGutenbergPlugin())
+                .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
 

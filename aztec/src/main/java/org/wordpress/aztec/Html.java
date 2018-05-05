@@ -807,7 +807,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
                 if (plugin instanceof IHtmlCommentHandler) {
-                    wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder, nestingLevel);
+                    wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder,
+                            nestingLevel, new Function1<Integer, Unit>() {
+                        @Override
+                        public Unit invoke(Integer newNesting) {
+                            nestingLevel = newNesting;
+                            return Unit.INSTANCE;
+                        }
+                    });
                     if (wasCommentHandled) {
                         break;
                     }

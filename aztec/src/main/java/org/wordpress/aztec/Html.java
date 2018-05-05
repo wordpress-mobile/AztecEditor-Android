@@ -69,6 +69,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+
 import static org.wordpress.aztec.util.ExtensionsKt.getLast;
 
 // This class was imported from AOSP and was modified to fit our needs, it's probably a good idea to keep it as a
@@ -143,8 +146,11 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, Context context, List<IAztecPlugin> plugins) {
-        return fromHtml(source, null, context, plugins);
+    public static Spanned fromHtml(String source,
+                                   Context context,
+                                   List<IAztecPlugin> plugins,
+                                   List<String> ignoredTags) {
+        return fromHtml(source, null, context, plugins, ignoredTags);
     }
 
     /**
@@ -166,7 +172,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
-                                   Context context, List<IAztecPlugin> plugins) {
+                                   Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
 
         Parser parser = new Parser();
         try {
@@ -183,7 +189,7 @@ public class Html {
         source = preprocessSource(source, plugins);
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins);
+                new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins, ignoredTags);
 
         return converter.convert();
     }
@@ -225,17 +231,19 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
+    private List<String> ignoredTags;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
             Parser parser,
-            Context context, List<IAztecPlugin> plugins) {
+            Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
         this.source = source;
         this.plugins = plugins;
         this.spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         this.reader = parser;
         this.context = context;
+        this.ignoredTags = ignoredTags;
     }
 
     public Spanned convert() {
@@ -651,15 +659,19 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
 
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        nestingLevel++;
+        if (!ignoredTags.contains(localName)) {
+            nestingLevel++;
 
-        handleStartTag(localName, attributes, nestingLevel);
+            handleStartTag(localName, attributes, nestingLevel);
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        handleEndTag(localName, nestingLevel);
+        if (!ignoredTags.contains(localName)) {
+            handleEndTag(localName, nestingLevel);
 
-        nestingLevel--;
+            nestingLevel--;
+        }
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {

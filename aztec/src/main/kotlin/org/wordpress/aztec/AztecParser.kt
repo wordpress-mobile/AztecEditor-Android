@@ -55,17 +55,17 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Comparator
 
-class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
+class AztecParser(val plugins: List<IAztecPlugin> = listOf(), private val ignoredTags: List<String> = listOf("body", "html")) {
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(context, plugins), context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
+                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
         cleanupZWJ(spanned)
-        unbiasNestingLevel(spanned)
 
         postprocessSpans(spanned)
 
@@ -304,11 +304,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 text.delete(lastIndex, lastIndex + 1)
             }
         } while (lastIndex > -1)
-    }
-
-    private fun unbiasNestingLevel(text: Spanned) {
-        // while parsing html, the converter wraps the markup in a <html><body> pair so, nesting starts from 2
-        text.getSpans(0, text.length, IAztecNestable::class.java).forEach { it.nestingLevel -= 2 }
     }
 
     private fun withinHtml(out: StringBuilder, text: Spanned) {

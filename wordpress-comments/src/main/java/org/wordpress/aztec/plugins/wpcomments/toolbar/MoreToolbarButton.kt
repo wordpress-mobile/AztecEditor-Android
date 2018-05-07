@@ -46,7 +46,11 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
-        return DeviceUtils.getInstance().isAppRuntimeForChrome(context) && keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
+        if (DeviceUtils.getInstance().isChromebook(context)) {
+            return false // This opens the terminal in Chromebooks
+        }
+
+        return keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
     }
 
     override fun inflateButton(parent: ViewGroup) {

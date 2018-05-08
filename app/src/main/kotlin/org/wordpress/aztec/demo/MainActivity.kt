@@ -49,11 +49,11 @@ import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
+import org.wordpress.aztec.plugins.shortcodes.GutenFreePlugin
 import org.wordpress.aztec.plugins.shortcodes.VideoShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
 import org.wordpress.aztec.plugins.shortcodes.extensions.updateVideoPressThumb
-import org.wordpress.aztec.plugins.wpcomments.HiddenGutenbergPlugin
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
 import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
@@ -397,8 +397,8 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(PageToolbarButton(visualEditor))
                 .addPlugin(CaptionShortcodePlugin(visualEditor))
                 .addPlugin(VideoShortcodePlugin())
+                .addPlugin(GutenFreePlugin())
                 .addPlugin(AudioShortcodePlugin())
-                .addPlugin(HiddenGutenbergPlugin())
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
 

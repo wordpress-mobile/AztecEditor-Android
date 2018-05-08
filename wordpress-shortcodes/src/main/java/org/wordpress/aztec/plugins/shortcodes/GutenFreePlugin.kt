@@ -8,7 +8,7 @@ class GutenFreePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
 
     private val HIDDEN_GB_ATTRIBUTE_USED_IN_TAGS = "gb_hidden_comment"
     private val REGEX_GB_ENDING_COMMENT = "<!-- /wp:.*? -->"
-    private val REGEX_GB_START_COMMENT = "<!-- wp:(.*?) -->.*?\\<([^\\s]+)"
+    private val REGEX_GB_START_COMMENT = "<!-- wp:(.*?) -->.*?<([^\\s>]+)"
     private val HTML_TAG_MATCH = "<([\\w]+)[^>]*>(.*?)<\\/\\1>" // Need to recheck this!
 
     override fun beforeHtmlProcessed(source: String): String {

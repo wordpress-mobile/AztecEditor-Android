@@ -6,12 +6,12 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 
 class AztecImageSpan(context: Context, drawable: Drawable?,
-                     override var nestingLevel: Int,
+                     nestingLevel: Int,
                      attributes: AztecAttributes = AztecAttributes(),
                      var onImageTappedListener: AztecText.OnImageTappedListener? = null,
                      onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
                      editor: AztecText? = null) : IAztecFullWidthImageSpan,
-        AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor) {
+        AztecMediaSpan(context, drawable, nestingLevel, attributes, onMediaDeletedListener, editor) {
     override val TAG: String = "img"
 
     override fun onClick() {

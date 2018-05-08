@@ -139,7 +139,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     private fun insertMedia(span: AztecMediaSpan) {
         val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
-                    selectionStart == editableText.getSpanEnd(it)
+                    (selectionStart == editableText.getSpanEnd(it)) && (selectionStart != editableText.length)
                 }
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)

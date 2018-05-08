@@ -363,7 +363,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = listOf(), private val ignore
             i = next
         } while (i < end)
 
-        consumeCursorIfInInput(out, text, text.length)
+        consumeCursorIfInInput(out, text, i)
     }
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {

@@ -37,8 +37,10 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
-    fun testRetainGutenbergComments() {
-        val html = "<!-- wp:paragraph -->" + "<p>This is a paragraph</p>" + "<!-- /wp:paragraph -->"
+    fun testRetainGutenbergPostContent() {
+        val html = "<!-- wp:paragraph --><p>Blue is not a color</p><!-- /wp:paragraph -->" +
+                "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->" +
+                "<!-- wp:heading --><h2>H2</h2><!-- /wp:heading -->"
 
         EditorPage().toggleHtml()
                 .insertHTML(html)
@@ -99,6 +101,30 @@ class GutenbergCompatTests : BaseTest() {
         EditorPage()
                 .toggleHtml()
                 .verifyHTML(regex)
+    }
+
+    @Test
+    fun testSimpleAddItemToOrderedList() {
+        val htmlStart = "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->"
+        val newItem = "item3"
+        val html = "<!-- wp:list --><ul><li>item 1</li><li>item2</li><li>$newItem</li></ul><!-- /wp:list -->"
+
+        val editorPage = EditorPage()
+
+        // insert starter text
+        editorPage
+                .toggleHtml()
+                .insertHTML(htmlStart)
+                .toggleHtml()
+
+        // insert new item
+        editorPage
+                .setCursorPositionAtEnd()
+                .insertText("\n" + newItem)
+
+        EditorPage()
+                .toggleHtml()
+                .verifyHTML(html)
     }
 
     private fun createImageIntentFilter() {

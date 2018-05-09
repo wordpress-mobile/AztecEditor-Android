@@ -139,25 +139,15 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     private fun insertMedia(span: AztecMediaSpan) {
         // check whether there are any spans before media, and make sure we only process those at the same
         // nesting level
-        var spanBeforeMedia : IAztecBlockSpan? = null
-        val spansBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-        for (it in spansBeforeMedia) {
-            if (it.nestingLevel == span.nestingLevel) {
-                selectionStart == editableText.getSpanEnd(it)
-                spanBeforeMedia = it
-                break
-            }
-        }
+        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
+                .firstOrNull {
+                    (selectionStart == editableText.getSpanEnd(it)) && (it.nestingLevel == span.nestingLevel)
+                }
 
-        var spanAfterMedia : IAztecBlockSpan? = null
-        val spansAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-        for (it in spansAfterMedia) {
-            if (it.nestingLevel == span.nestingLevel) {
-                selectionStart == editableText.getSpanStart(it)
-                spanAfterMedia = it
-                break
-            }
-        }
+        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
+                .firstOrNull {
+                    (selectionStart == editableText.getSpanStart(it)) && (it.nestingLevel == span.nestingLevel)
+                }
 
         if (spanAfterMedia != null) {
             editableText.setSpan(spanAfterMedia, selectionStart, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)

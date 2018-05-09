@@ -1,10 +1,12 @@
 package org.wordpress.aztec.plugins.html2visual
 
+import android.annotation.SuppressLint
 import android.text.Editable
 
 /**
  * An interface for HTML comment processing plugins.
  */
+@SuppressLint("NewApi")
 interface IHtmlCommentHandler {
     /**
      * A plugin handler used by [org.wordpress.aztec.Html] parser during HTML-to-span parsing.
@@ -17,7 +19,7 @@ interface IHtmlCommentHandler {
      *
      * @return true if this plugin handled the comment and no other handler should be called, false otherwise.
      */
-    fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
+    fun handleComment(text: String, output: Editable, nestingLevel: Int, updateNesting: (Int) -> Unit): Boolean {
         return true
     }
 }

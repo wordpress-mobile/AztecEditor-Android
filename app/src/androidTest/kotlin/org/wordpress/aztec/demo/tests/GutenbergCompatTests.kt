@@ -95,13 +95,13 @@ class GutenbergCompatTests : BaseTest() {
         editorPage
                 .moveCursorLeftAsManyTimes(contentBeforeImageInsertion.length)
         createImageIntentFilter()
-        EditorPage()
+        editorPage
                 .insertMedia()
 
         // Must wait for simulated upload
         Thread.sleep(10000)
 
-        EditorPage()
+        editorPage
                 .toggleHtml()
                 .verifyHTML(regex)
     }
@@ -127,13 +127,13 @@ class GutenbergCompatTests : BaseTest() {
         editorPage
                 .setCursorPositionAtEnd()
         createImageIntentFilter()
-        EditorPage()
+        editorPage
                 .insertMedia()
 
         // Must wait for simulated upload
         Thread.sleep(10000)
 
-        EditorPage()
+        editorPage
                 .toggleHtml()
                 .verifyHTML(regex)
     }
@@ -162,13 +162,13 @@ class GutenbergCompatTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .moveCursorLeftAsManyTimes(secondParagraphContent.length + 1)
         createImageIntentFilter()
-        EditorPage()
+        editorPage
                 .insertMedia()
 
         // Must wait for simulated upload
         Thread.sleep(10000)
 
-        EditorPage()
+        editorPage
                 .toggleHtml()
                 .verifyHTML(regex)
     }
@@ -197,13 +197,12 @@ class GutenbergCompatTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .moveCursorLeftAsManyTimes(secondParagraphContent.length)
         createImageIntentFilter()
-        EditorPage()
-                .insertMedia()
+        editorPage.insertMedia()
 
         // Must wait for simulated upload
         Thread.sleep(10000)
 
-        EditorPage()
+        editorPage
                 .toggleHtml()
                 .verifyHTML(regex)
     }
@@ -227,9 +226,23 @@ class GutenbergCompatTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .insertText("\n" + newItem)
 
-        EditorPage()
+        editorPage
                 .toggleHtml()
                 .verifyHTML(html)
+    }
+
+    @Test
+    fun testDeleteAllItemsFromList() {
+        val html = "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(html)
+                .toggleHtml()
+                .setCursorPositionAtEnd()
+                .delete(html.length-1)
+                .toggleHtml()
+                .verifyHTML("")
     }
 
     private fun createImageIntentFilter() {

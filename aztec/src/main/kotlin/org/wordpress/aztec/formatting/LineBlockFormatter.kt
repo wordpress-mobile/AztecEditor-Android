@@ -137,24 +137,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun insertMedia(span: AztecMediaSpan) {
-        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-                .firstOrNull {
-                    (selectionStart == editableText.getSpanEnd(it)) && (selectionStart != editableText.length)
-                }
-
-        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-                .firstOrNull {
-                    (selectionStart == editableText.getSpanStart(it)) && (selectionStart != 0)
-                }
-
-        if (spanAfterMedia != null) {
-            editableText.setSpan(spanAfterMedia, selectionStart, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        if (spanBeforeMedia != null) {
-            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), selectionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
 
         val ssb = SpannableStringBuilder(Constants.IMG_STRING)

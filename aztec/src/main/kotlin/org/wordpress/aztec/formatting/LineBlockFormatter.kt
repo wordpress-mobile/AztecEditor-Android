@@ -144,7 +144,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
                 .firstOrNull {
-                    selectionStart == editableText.getSpanStart(it)
+                    (selectionStart == editableText.getSpanStart(it)) && (selectionStart != 0)
                 }
 
         if (spanAfterMedia != null) {

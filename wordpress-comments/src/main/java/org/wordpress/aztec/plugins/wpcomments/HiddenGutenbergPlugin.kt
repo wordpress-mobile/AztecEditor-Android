@@ -12,7 +12,7 @@ import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.util.getLast
 import org.wordpress.aztec.watchers.BlockElementWatcher
 
-class HiddenGutenbergPlugin @JvmOverloads constructor(private val aztecText: AztecText? = null)  :
+class HiddenGutenbergPlugin @JvmOverloads constructor(private val aztecText: AztecText? = null) :
         IAztecPlugin, IHtmlCommentHandler, IBlockSpanHandler {
 
     init {

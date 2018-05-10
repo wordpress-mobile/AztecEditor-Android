@@ -1,9 +1,23 @@
 package org.wordpress.aztec.plugins.wpcomments.spans
 
-import android.text.TextPaint
-import android.text.style.CharacterStyle
+import android.text.Layout
+import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.IAztecBlockSpan
 
-class GutenbergCommentSpan(var content: String) : CharacterStyle() {
-    override fun updateDrawState(tp: TextPaint) {
-    }
+class GutenbergCommentSpan(
+        override val startTag: String,
+        override var nestingLevel: Int,
+        override var attributes: AztecAttributes = AztecAttributes()
+) : IAztecBlockSpan {
+    override val TAG: String = "wp:"
+    override var align: Layout.Alignment? = null
+    override var startBeforeCollapse: Int = -1
+    override var endBeforeBleed: Int = -1
+
+    private var _endTag: String = super.endTag
+    override var endTag: String
+        get() = _endTag
+        set(value) {
+            _endTag = value
+        }
 }

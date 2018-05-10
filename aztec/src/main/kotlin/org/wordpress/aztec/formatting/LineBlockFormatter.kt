@@ -19,7 +19,6 @@ import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
-import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
@@ -137,24 +136,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun insertMedia(span: AztecMediaSpan) {
-        val spanBeforeMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-                .firstOrNull {
-                    selectionStart == editableText.getSpanEnd(it)
-                }
-
-        val spanAfterMedia = editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java)
-                .firstOrNull {
-                    selectionStart == editableText.getSpanStart(it)
-                }
-
-        if (spanAfterMedia != null) {
-            editableText.setSpan(spanAfterMedia, selectionStart, editableText.getSpanEnd(spanAfterMedia), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        if (spanBeforeMedia != null) {
-            editableText.setSpan(spanBeforeMedia, editableText.getSpanStart(spanBeforeMedia), selectionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
 
         val ssb = SpannableStringBuilder(Constants.IMG_STRING)

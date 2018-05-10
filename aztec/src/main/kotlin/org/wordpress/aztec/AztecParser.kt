@@ -55,7 +55,8 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Comparator
 
-class AztecParser(val plugins: List<IAztecPlugin> = listOf(), private val ignoredTags: List<String> = listOf("body", "html")) {
+class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = listOf(),
+                                            private val ignoredTags: List<String> = listOf("body", "html")) {
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)

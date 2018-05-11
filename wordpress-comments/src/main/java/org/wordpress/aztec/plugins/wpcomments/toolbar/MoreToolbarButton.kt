@@ -30,7 +30,7 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.MORE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)!!,
                 nestingLevel,
                 visualEditor
         )

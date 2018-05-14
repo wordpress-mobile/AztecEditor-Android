@@ -76,7 +76,7 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
-    fun testAddPhotoAtBeginningOfGutenberParagraph() {
+    fun testAddPhotoAtBeginningOfGutenbergParagraph() {
         val htmlStart = "<!-- wp:paragraph --><p>"
         val htmlEnd = "Blue is not a color</p><!-- /wp:paragraph -->"
         val imagePlaceholder = "<img src=.+>"
@@ -108,7 +108,7 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
-    fun testAddPhotoAtEndOfGutenberParagraph() {
+    fun testAddPhotoAtEndOfGutenbergParagraph() {
         val htmlStart = "<!-- wp:paragraph --><p>Blue is not"
         val htmlEnd = "</p><!-- /wp:paragraph -->"
         val imagePlaceholder = "<img src=.+>"
@@ -140,7 +140,7 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
-    fun testAddPhotoAtEndOfGutenberFirstParagraph() {
+    fun testAddPhotoAtEndOfGutenbergFirstParagraph() {
         val htmlStart = "<!-- wp:paragraph --><p>Blue is not a color"
         val htmlEnd = "</p><!-- /wp:paragraph -->"
         val imagePlaceholder = "<img src=.+>"
@@ -175,7 +175,7 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
-    fun testAddPhotoAtStartOfGutenberSecondParagraph() {
+    fun testAddPhotoAtStartOfGutenbergSecondParagraph() {
         val firstParagraphHTML = "<!-- wp:paragraph --><p>Blue is not a color</p><!-- /wp:paragraph -->"
         val secondParagraphContent = "Red is a color"
         val htmlStart = "<!-- wp:paragraph --><p>"

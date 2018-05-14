@@ -10,6 +10,7 @@ import android.support.test.espresso.intent.Intents
 import android.support.test.espresso.intent.matcher.IntentMatchers
 import android.support.test.espresso.intent.rule.IntentsTestRule
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.wordpress.aztec.AztecText
@@ -232,6 +233,22 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
+    fun testRetainTwoLists() {
+        val itemOnListTwo = "item 1 on list 2"
+        val itemOnListOne = "item on list One"
+        val htmlSecondList = "<!-- wp:list {list two} --><ul><li>$itemOnListTwo</li></ul><!-- /wp:list -->"
+        val htmlFirstList = "<!-- wp:list --><ul><li>$itemOnListOne</li><li>$itemOnListOne</li></ul><!-- /wp:list -->"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(htmlFirstList + htmlSecondList)
+                .toggleHtml()
+                .setCursorPositionAtEnd()
+                .toggleHtml()
+                .verifyHTML(htmlFirstList + htmlSecondList)
+    }
+
+    @Test
     fun testDeleteAllItemsFromList() {
         val html = "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->"
 
@@ -240,9 +257,50 @@ class GutenbergCompatTests : BaseTest() {
                 .insertHTML(html)
                 .toggleHtml()
                 .setCursorPositionAtEnd()
-                .delete(html.length-1)
+                .delete(html.length - 1)
                 .toggleHtml()
                 .verifyHTML("")
+    }
+
+    @Test
+    fun testDeleteAllItemsFromFirstList() {
+        val itemOnListTwo = "item 1 on list 2"
+        val itemOnListOne = "item on list One"
+        val htmlSecondList = "<!-- wp:list {list two} --><ul><li>$itemOnListTwo</li></ul><!-- /wp:list -->"
+        val htmlFirstList = "<!-- wp:list --><ul><li>$itemOnListOne</li><li>$itemOnListOne</li></ul><!-- /wp:list -->"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(htmlFirstList + htmlSecondList)
+                .toggleHtml()
+                .setCursorPositionAtEnd()
+                .moveCursorLeftAsManyTimes(itemOnListTwo.length + 1)
+                .delete((itemOnListOne.length + 1) * 2)
+                .toggleHtml()
+                .verifyHTML("<br>$htmlSecondList")
+        // FIXME: The BR tag added here, at the beginning of the 'check string', is necessary due to a bug in Aztec reported
+        // here: https://github.com/wordpress-mobile/AztecEditor-Android/issues/671
+        // There is no way to delete the first empty line in visual mode without breaking the list.
+    }
+
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/136")
+    @Test
+    @Throws(Exception::class)
+    fun testRetainPictureWithCaption() {
+        val pictureHTML =
+                "<!-- wp:image {\"id\":262,\"align\":\"center\",\"width\":512,\"height\":384,\"className\":\"classe-addizionale-css\"} -->" +
+                        "<figure class=\"wp-block-image aligncenter classe-addizionale-css\">" +
+                        "<img src=\"http://www.eritreo.it/wp37/wp-content/uploads/2017/05/IMG_20161203_120039-1024x768.jpg\" " +
+                        "alt=\"this is the alt text\" class=\"wp-image-262\" width=\"512\" height=\"384\" />" +
+                        "<figcaption>This is the caption set on the picture</figcaption>" +
+                        "</figure>" +
+                        "<!-- /wp:image -->"
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(pictureHTML)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(pictureHTML)
     }
 
     private fun createImageIntentFilter() {

@@ -1201,4 +1201,14 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlMixedBolndAndItalic_isNotEqual() {
+        val input = "<b>bold <i>italic</i> bold</b>"
+        val inputAfterParser = "<b>bold </b><b><i>italic</i></b><b> bold</b>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(output, inputAfterParser)
+    }
 }

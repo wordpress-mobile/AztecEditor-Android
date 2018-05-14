@@ -229,4 +229,40 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml()
                 .verifyHTML(html)
     }
+
+    /**
+     * Currently, this html <b>bold <i>italic</i> bold</b> after being parsed to span and back to html will become
+     * <b>bold </b><b><i>italic</i></b><b> bold</b>. This is not a bug, this is how Google originally implemented the parsing inside Html.java.
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/136
+     *
+     * In this test we check the new `hasChanges` method to check if the post content has been edited by the user
+     */
+    @Test
+    fun testHasNoChangesWithMixedBoldAndItalicFormatting() {
+        val input = "<b>bold <i>italic</i> bold</b>"
+        val inputAfterParser = "<b>bold </b><b><i>italic</i></b><b> bold</b>"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(inputAfterParser) // Verify that the input has changed by the HTML parser
+                .hasChanges(false) // Verify that the user had not changed the input
+    }
+
+    @Test
+    fun testHasChangesWithMixedBoldAndItalicFormatting() {
+        val input = "<b>bold <i>italic</i> bold</b>"
+        val insertedText = "text added"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .setCursorPositionAtEnd()
+                .insertText(insertedText)
+                .toggleHtml()
+                .hasChanges(true)
+    }
 }

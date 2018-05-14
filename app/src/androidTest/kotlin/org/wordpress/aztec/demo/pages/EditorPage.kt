@@ -14,9 +14,12 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.view.KeyEvent
 import android.view.View
+import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
+import org.hamcrest.TypeSafeMatcher
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
@@ -364,6 +367,25 @@ class EditorPage : BasePage() {
         htmlEditor.check(matches(withText(expected)))
         label("Verified expected HTML editor contents without stripping")
 
+        return this
+    }
+
+    fun hasChanges(shouldHaveChanges : Boolean): EditorPage {
+        val hasNoChangesMatcher = object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("Aztec has no changes")
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                if (view is AztecText) {
+                    return view.hasChanges() == shouldHaveChanges
+                }
+
+                return false
+            }
+        }
+
+        editor.check(matches(hasNoChangesMatcher))
         return this
     }
 

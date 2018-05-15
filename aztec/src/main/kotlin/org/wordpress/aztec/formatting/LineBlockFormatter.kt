@@ -103,7 +103,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         val span = AztecHorizontalRuleSpan(
                 editor.context,
-                ContextCompat.getDrawable(editor.context, R.drawable.img_hr),
+                ContextCompat.getDrawable(editor.context, R.drawable.img_hr)!!,
                 nestingLevel,
                 AztecAttributes(),
                 editor

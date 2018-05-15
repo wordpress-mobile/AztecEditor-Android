@@ -135,7 +135,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
-        val RETAINED_INITIAL_HTML_KEY = "RETAINED_INITIAL_HTML_KEY"
+        val RETAINED_INITIAL_HTML_SHA256_KEY = "RETAINED_INITIAL_HTML_SHA256_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
 
@@ -169,7 +169,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var initialEditorContent: String = ""
+    private var initialEditorContentSHA2556: ByteArray = "".toByteArray()
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -532,7 +532,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         visibility = customState.getInt(VISIBILITY_KEY)
 
         // write this value before setting the editor content with `fromHtml` call
-        initialEditorContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_INITIAL_HTML_KEY, "", savedState.state)
+        initialEditorContentSHA2556 = customState.getByteArray(RETAINED_INITIAL_HTML_SHA256_KEY)
 
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
@@ -586,7 +586,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_INITIAL_HTML_KEY, initialEditorContent, bundle)
+        bundle.putByteArray(RETAINED_INITIAL_HTML_SHA256_KEY, initialEditorContentSHA2556)
+
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -985,26 +986,27 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        storeInitialHTML()
+        calculateInitialHTMLSHA()
 
         loadImages()
         loadVideos()
     }
 
-    private fun storeInitialHTML() {
-        if (TextUtils.isEmpty(initialEditorContent)) {
-            try {
-                initialEditorContent = toPlainHtml(false)
-            } catch (e: Throwable) {
-                // Do nothing here.
-            }
-        }
+    private fun calculateSHA256(s: String) : ByteArray {
+        val digest = java.security.MessageDigest
+                .getInstance("SHA-256")
+        digest.update(s.toByteArray())
+        return digest.digest()
+    }
+
+    private fun calculateInitialHTMLSHA() {
+        initialEditorContentSHA2556 = calculateSHA256(toPlainHtml(false))
     }
 
     open fun hasChanges() : Boolean {
-        if (!TextUtils.isEmpty(initialEditorContent)) {
+        if (!initialEditorContentSHA2556.isEmpty()) {
             try {
-                return initialEditorContent != toPlainHtml(false)
+                return !Arrays.equals(initialEditorContentSHA2556,calculateSHA256(toPlainHtml(false)))
             } catch (e: Throwable) {
                 // Do nothing here.
             }

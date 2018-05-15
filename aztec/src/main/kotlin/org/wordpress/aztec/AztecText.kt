@@ -136,6 +136,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
         val RETAINED_INITIAL_HTML_KEY = "RETAINED_INITIAL_HTML_KEY"
+        val RETAINED_INITIAL_HTML_PARSED_KEY = "RETAINED_INITIAL_HTML_PARSED_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
 
@@ -174,6 +175,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
     private var initialEditorContent: String = ""
+    private var initialEditorContentParsed: String = ""
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -537,6 +539,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // write this value before setting the editor content with `fromHtml` call
         initialEditorContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_INITIAL_HTML_KEY, "", savedState.state)
+        initialEditorContentParsed = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_INITIAL_HTML_PARSED_KEY, "", savedState.state)
 
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
@@ -591,6 +594,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_INITIAL_HTML_KEY, initialEditorContent, bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_INITIAL_HTML_PARSED_KEY, initialEditorContentParsed, bundle)
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -989,7 +993,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        storeInitialParsedHTML()
+        storeInitialHTML(source)
 
         loadImages()
         loadVideos()
@@ -1065,10 +1069,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    private fun storeInitialParsedHTML() {
+    private fun storeInitialHTML(source: String) {
         if (TextUtils.isEmpty(initialEditorContent)) {
             try {
-                initialEditorContent = toPlainHtml(false)
+                initialEditorContentParsed = toPlainHtml(false)
+                initialEditorContent = source
             } catch (e: Throwable) {
                 // Do nothing here.
             }
@@ -1076,9 +1081,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun hasChanges() : EditorHasChanges {
-        if (!TextUtils.isEmpty(initialEditorContent)) {
+        if (!TextUtils.isEmpty(initialEditorContentParsed)) {
             try {
-                if (initialEditorContent != toPlainHtml(false)) {
+                if (initialEditorContentParsed != toPlainHtml(false)) {
                     return EditorHasChanges.CHANGES
                 }
                 return EditorHasChanges.NO_CHANGES
@@ -1092,7 +1097,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
         if (EditorHasChanges.NO_CHANGES == hasChanges()) {
-            return initialEditorContent
+            return initialEditorContent // Return the original content. Not the parsed version of it.
         }
 
         val html = toPlainHtml(withCursorTag)

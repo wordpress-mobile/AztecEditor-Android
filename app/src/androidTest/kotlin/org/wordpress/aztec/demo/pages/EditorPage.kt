@@ -370,6 +370,45 @@ class EditorPage : BasePage() {
         return this
     }
 
+    fun setAztecInitialHTMLContent(source: String): EditorPage {
+        val setInitialContentMatcher = object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("Set the initial HTML content of the Visual editor")
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                if (view is AztecText) {
+                    view.fromHtml(source)
+                    return true
+                }
+
+                return false
+            }
+        }
+
+        editor.check(matches(setInitialContentMatcher))
+        return this
+    }
+
+    fun verifyAztecToHTML(source: String): EditorPage {
+        val verifyAztecContentMatcher = object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("Check if changes were made to the post")
+            }
+
+            public override fun matchesSafely(view: View): Boolean {
+                if (view is AztecText) {
+                    return view.toHtml(false) == source
+                }
+
+                return false
+            }
+        }
+
+        editor.check(matches(verifyAztecContentMatcher))
+        return this
+    }
+
     fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
         val hasNoChangesMatcher = object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {

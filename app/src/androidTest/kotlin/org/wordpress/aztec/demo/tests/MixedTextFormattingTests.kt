@@ -241,29 +241,28 @@ class MixedTextFormattingTests : BaseTest() {
     @Test
     fun testHasNoChangesWithMixedBoldAndItalicFormatting() {
         val input = "<b>bold <i>italic</i> bold</b>"
-        val inputAfterParser = "<b>bold </b><b><i>italic</i></b><b> bold</b>"
 
         EditorPage()
+                .setAztecInitialHTMLContent(input)
                 .toggleHtml()
-                .insertHTML(input)
-                .toggleHtml()
-                .toggleHtml()
-                .verifyHTML(inputAfterParser) // Verify that the input has changed by the HTML parser
                 .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
+                .verifyAztecToHTML(input) // Verify that the input has NOT changed by the HTML parser
     }
 
     @Test
     fun testHasChangesWithMixedBoldAndItalicFormatting() {
         val input = "<b>bold <i>italic</i> bold</b>"
-        val insertedText = "text added"
+        val insertedText = " text added"
+        val afterParser = "<b>bold </b><b><i>italic</i></b><b> bold$insertedText</b>"
 
         EditorPage()
+                .setAztecInitialHTMLContent(input)
                 .toggleHtml()
-                .insertHTML(input)
                 .toggleHtml()
                 .setCursorPositionAtEnd()
                 .insertText(insertedText)
                 .toggleHtml()
                 .hasChanges(AztecText.EditorHasChanges.CHANGES)
+                .verifyAztecToHTML(afterParser) // Verify that the input has changed by the HTML parser
     }
 }

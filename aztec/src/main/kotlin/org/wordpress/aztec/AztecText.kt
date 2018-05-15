@@ -160,6 +160,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    enum class EditorHasChanges {
+        CHANGES, NO_CHANGES, UNKNOWN
+    }
+
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
@@ -985,31 +989,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        storeInitialHTML()
+        storeInitialParsedHTML()
 
         loadImages()
         loadVideos()
-    }
-
-    private fun storeInitialHTML() {
-        if (TextUtils.isEmpty(initialEditorContent)) {
-            try {
-                initialEditorContent = toPlainHtml(false)
-            } catch (e: Throwable) {
-                // Do nothing here.
-            }
-        }
-    }
-
-    open fun hasChanges() : Boolean {
-        if (!TextUtils.isEmpty(initialEditorContent)) {
-            try {
-                return initialEditorContent != toPlainHtml(false)
-            } catch (e: Throwable) {
-                // Do nothing here.
-            }
-        }
-        return false
     }
 
     private fun loadImages() {
@@ -1082,8 +1065,36 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    private fun storeInitialParsedHTML() {
+        if (TextUtils.isEmpty(initialEditorContent)) {
+            try {
+                initialEditorContent = toPlainHtml(false)
+            } catch (e: Throwable) {
+                // Do nothing here.
+            }
+        }
+    }
+
+    open fun hasChanges() : EditorHasChanges {
+        if (!TextUtils.isEmpty(initialEditorContent)) {
+            try {
+                if (initialEditorContent != toPlainHtml(false)) {
+                    return EditorHasChanges.CHANGES
+                }
+                return EditorHasChanges.NO_CHANGES
+            } catch (e: Throwable) {
+                // Do nothing here.
+            }
+        }
+        return EditorHasChanges.UNKNOWN
+    }
+
     // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
+        if (EditorHasChanges.NO_CHANGES == hasChanges()) {
+            return initialEditorContent
+        }
+
         val html = toPlainHtml(withCursorTag)
 
         if (isInCalypsoMode) {

@@ -370,7 +370,7 @@ class EditorPage : BasePage() {
         return this
     }
 
-    fun hasChanges(shouldHaveChanges : Boolean): EditorPage {
+    fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
         val hasNoChangesMatcher = object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
                 description.appendText("User has been made changes to the post: $shouldHaveChanges")

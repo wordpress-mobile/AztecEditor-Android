@@ -3,6 +3,7 @@ package org.wordpress.aztec.demo.tests
 import android.support.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditorPage
@@ -248,7 +249,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml()
                 .toggleHtml()
                 .verifyHTML(inputAfterParser) // Verify that the input has changed by the HTML parser
-                .hasChanges(false) // Verify that the user had not changed the input
+                .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
     }
 
     @Test
@@ -263,6 +264,6 @@ class MixedTextFormattingTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .insertText(insertedText)
                 .toggleHtml()
-                .hasChanges(true)
+                .hasChanges(AztecText.EditorHasChanges.CHANGES)
     }
 }

@@ -135,8 +135,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
-        val RETAINED_INITIAL_HTML_KEY = "RETAINED_INITIAL_HTML_KEY"
-        val RETAINED_INITIAL_HTML_PARSED_KEY = "RETAINED_INITIAL_HTML_PARSED_KEY"
+        val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
 
@@ -174,8 +173,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var initialEditorContent: String = ""
-    private var initialEditorContentParsed: String = ""
+    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -480,9 +478,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     history.beforeTextChanged(this@AztecText)
                 }
             }
+
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
                 if (!isViewInitialized) return
             }
+
             override fun afterTextChanged(text: Editable) {
                 if (isTextChangedListenerDisabled()) {
                     return
@@ -537,10 +537,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        // write this value before setting the editor content with `fromHtml` call
-        initialEditorContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_INITIAL_HTML_KEY, "", savedState.state)
-        initialEditorContentParsed = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_INITIAL_HTML_PARSED_KEY, "", savedState.state)
-
+        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -593,8 +590,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_INITIAL_HTML_KEY, initialEditorContent, bundle)
-        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_INITIAL_HTML_PARSED_KEY, initialEditorContentParsed, bundle)
+        bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -880,25 +876,25 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         formatToolbar = toolbar
     }
 
-    fun getToolbar() : IAztecToolbar? {
+    fun getToolbar(): IAztecToolbar? {
         return formatToolbar
     }
 
-    private fun addWatcherNestingLevel() : Int {
+    private fun addWatcherNestingLevel(): Int {
         watchersNestingLevel++
         return watchersNestingLevel
     }
 
-    private fun subWatcherNestingLevel() : Int {
+    private fun subWatcherNestingLevel(): Int {
         watchersNestingLevel--
         return watchersNestingLevel
     }
 
-    private fun isEventObservableCandidate() : Boolean {
+    private fun isEventObservableCandidate(): Boolean {
         return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
     }
 
-    fun isObservationQueueBeingPopulated() : Boolean {
+    fun isObservationQueueBeingPopulated(): Boolean {
         // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
         val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
         return !observationQueue.isEmpty() &&
@@ -993,7 +989,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        storeInitialHTML(source)
+        calculateInitialHTMLSHA()
 
         loadImages()
         loadVideos()
@@ -1069,24 +1065,32 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    private fun storeInitialHTML(source: String) {
-        if (TextUtils.isEmpty(initialEditorContent)) {
-            try {
-                initialEditorContentParsed = toPlainHtml(false)
-                initialEditorContent = source
-            } catch (e: Throwable) {
-                // Do nothing here.
-            }
+    private fun calculateInitialHTMLSHA() {
+        // Do not recalculate the hash if it's not the first call to `fromHTML`.
+        if (!initialEditorContentParsedSHA256.isEmpty() && !Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
+            return
+        }
+        try {
+            val initialHTMLParsed = toPlainHtml(false)
+            initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
+        } catch (e: Throwable) {
+            // Do nothing here.
         }
     }
 
-    open fun hasChanges() : EditorHasChanges {
-        if (!TextUtils.isEmpty(initialEditorContentParsed)) {
+    private fun calculateSHA256(s: String): ByteArray {
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        digest.update(s.toByteArray())
+        return digest.digest()
+    }
+
+    open fun hasChanges(): EditorHasChanges {
+        if (!initialEditorContentParsedSHA256.isEmpty()) {
             try {
-                if (initialEditorContentParsed != toPlainHtml(false)) {
-                    return EditorHasChanges.CHANGES
+                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(toPlainHtml(false)))) {
+                    return EditorHasChanges.NO_CHANGES
                 }
-                return EditorHasChanges.NO_CHANGES
+                return EditorHasChanges.CHANGES
             } catch (e: Throwable) {
                 // Do nothing here.
             }
@@ -1096,10 +1100,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     // returns regular or "calypso" html depending on the mode
     fun toHtml(withCursorTag: Boolean = false): String {
-        if (EditorHasChanges.NO_CHANGES == hasChanges()) {
-            return initialEditorContent // Return the original content. Not the parsed version of it.
-        }
-
         val html = toPlainHtml(withCursorTag)
 
         if (isInCalypsoMode) {
@@ -1628,7 +1628,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // here replace the inserted thing with a new "normal" insertion
             val afterData = data.afterEventData
             setText(afterData.textAfter)
-            setSelection(data.insertionStart+data.insertionLength)
+            setSelection(data.insertionStart + data.insertionLength)
         }
 
         enableObservationQueue()

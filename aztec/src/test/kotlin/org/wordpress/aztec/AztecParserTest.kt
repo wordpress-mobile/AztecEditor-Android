@@ -1202,9 +1202,17 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
+    /**
+     * Currently, this html <b>bold <i>italic</i> bold</b> after being parsed to span and back to html will become
+     * <b>bold </b><b><i>italic</i></b><b> bold</b>.
+     * This is not a bug, this is how Google originally implemented the parsing inside Html.java.
+     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/136
+     *
+     * This test just checks that the underlying parser is working as expected.
+     */
     @Test
     @Throws(Exception::class)
-    fun parseHtmlToSpanToHtmlMixedBolndAndItalic_isNotEqual() {
+    fun parseHtmlToSpanToHtmlMixedBoldAndItalic_isNotEqual() {
         val input = "<b>bold <i>italic</i> bold</b>"
         val inputAfterParser = "<b>bold </b><b><i>italic</i></b><b> bold</b>"
         val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))

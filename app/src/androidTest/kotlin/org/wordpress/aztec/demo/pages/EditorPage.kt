@@ -393,7 +393,7 @@ class EditorPage : BasePage() {
     fun verifyAztecToHTML(source: String): EditorPage {
         val verifyAztecContentMatcher = object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
-                description.appendText("Check if changes were made to the post")
+                description.appendText("Check if changes were made to the post by calling toHTML of Aztec")
             }
 
             public override fun matchesSafely(view: View): Boolean {

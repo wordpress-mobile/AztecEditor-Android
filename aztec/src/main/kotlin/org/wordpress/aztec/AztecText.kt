@@ -110,6 +110,7 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
 import java.util.Arrays
@@ -1080,7 +1081,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     @Throws(NoSuchAlgorithmException::class)
     private fun calculateSHA256(s: String): ByteArray {
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        val digest = MessageDigest.getInstance("SHA-256")
         digest.update(s.toByteArray())
         return digest.digest()
     }

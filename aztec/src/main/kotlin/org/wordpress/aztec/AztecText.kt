@@ -110,6 +110,8 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
@@ -135,6 +137,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
+        val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
 
         val DEFAULT_IMAGE_WIDTH = 800
 
@@ -159,6 +162,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    enum class EditorHasChanges {
+        CHANGES, NO_CHANGES, UNKNOWN
+    }
+
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
@@ -168,6 +175,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
+    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -472,9 +480,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     history.beforeTextChanged(this@AztecText)
                 }
             }
+
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
                 if (!isViewInitialized) return
             }
+
             override fun afterTextChanged(text: Editable) {
                 if (isTextChangedListenerDisabled()) {
                     return
@@ -529,6 +539,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
+        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -581,6 +592,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
+        bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -866,25 +878,25 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         formatToolbar = toolbar
     }
 
-    fun getToolbar() : IAztecToolbar? {
+    fun getToolbar(): IAztecToolbar? {
         return formatToolbar
     }
 
-    private fun addWatcherNestingLevel() : Int {
+    private fun addWatcherNestingLevel(): Int {
         watchersNestingLevel++
         return watchersNestingLevel
     }
 
-    private fun subWatcherNestingLevel() : Int {
+    private fun subWatcherNestingLevel(): Int {
         watchersNestingLevel--
         return watchersNestingLevel
     }
 
-    private fun isEventObservableCandidate() : Boolean {
+    private fun isEventObservableCandidate(): Boolean {
         return (observationQueue.hasActiveBuckets() && !bypassObservationQueue && (watchersNestingLevel == 1))
     }
 
-    fun isObservationQueueBeingPopulated() : Boolean {
+    fun isObservationQueueBeingPopulated(): Boolean {
         // TODO: use the value that is going to be published from ObservationQueue.MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS
         val MAXIMUM_TIME_BETWEEN_EVENTS_IN_PATTERN_MS = 100
         return !observationQueue.isEmpty() &&
@@ -979,6 +991,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
+        calculateInitialHTMLSHA()
+
         loadImages()
         loadVideos()
     }
@@ -1051,6 +1065,39 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
+    }
+
+    private fun calculateInitialHTMLSHA() {
+        try {
+            // Do not recalculate the hash if it's not the first call to `fromHTML`.
+            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
+                val initialHTMLParsed = toPlainHtml(false)
+                initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
+            }
+        } catch (e: Throwable) {
+            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+        }
+    }
+
+    @Throws(NoSuchAlgorithmException::class)
+    private fun calculateSHA256(s: String): ByteArray {
+        val digest = MessageDigest.getInstance("SHA-256")
+        digest.update(s.toByteArray())
+        return digest.digest()
+    }
+
+    open fun hasChanges(): EditorHasChanges {
+        if (!initialEditorContentParsedSHA256.isEmpty()) {
+            try {
+                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(toPlainHtml(false)))) {
+                    return EditorHasChanges.NO_CHANGES
+                }
+                return EditorHasChanges.CHANGES
+            } catch (e: Throwable) {
+                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+            }
+        }
+        return EditorHasChanges.UNKNOWN
     }
 
     // returns regular or "calypso" html depending on the mode
@@ -1583,7 +1630,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // here replace the inserted thing with a new "normal" insertion
             val afterData = data.afterEventData
             setText(afterData.textAfter)
-            setSelection(data.insertionStart+data.insertionLength)
+            setSelection(data.insertionStart + data.insertionLength)
         }
 
         enableObservationQueue()

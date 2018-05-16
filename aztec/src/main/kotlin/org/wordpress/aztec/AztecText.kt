@@ -110,6 +110,7 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
@@ -1066,18 +1067,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun calculateInitialHTMLSHA() {
-        // Do not recalculate the hash if it's not the first call to `fromHTML`.
-        if (!initialEditorContentParsedSHA256.isEmpty() && !Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
-            return
-        }
         try {
-            val initialHTMLParsed = toPlainHtml(false)
-            initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
+            // Do not recalculate the hash if it's not the first call to `fromHTML`.
+            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
+                val initialHTMLParsed = toPlainHtml(false)
+                initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
+            }
         } catch (e: Throwable) {
-            // Do nothing here.
+            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
         }
     }
 
+    @Throws(NoSuchAlgorithmException::class)
     private fun calculateSHA256(s: String): ByteArray {
         val digest = java.security.MessageDigest.getInstance("SHA-256")
         digest.update(s.toByteArray())
@@ -1092,7 +1093,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 }
                 return EditorHasChanges.CHANGES
             } catch (e: Throwable) {
-                // Do nothing here.
+                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
             }
         }
         return EditorHasChanges.UNKNOWN

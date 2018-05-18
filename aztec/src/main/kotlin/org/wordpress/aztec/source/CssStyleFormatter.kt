@@ -124,10 +124,10 @@ class CssStyleFormatter {
         }
 
         fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {
-            val firstStyles = firstStyle.trim().split(";").map { it.trim().replace(" ","") }
-            var secondStyles = secondStyle.trim().split(";").map { it.trim().replace(" ","") }
+            val firstStyles = firstStyle.trim().split(";").map { it.trim().replace(" ", "") }
+            var secondStyles = secondStyle.trim().split(";").map { it.trim().replace(" ", "") }
 
-            val mergedArray = firstStyles.union(secondStyles).filterNot {it.trim().isEmpty()}
+            val mergedArray = firstStyles.union(secondStyles).filterNot { it.trim().isEmpty() }
 
             var style = ""
             mergedArray.forEach({

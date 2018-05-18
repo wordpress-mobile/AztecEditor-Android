@@ -1,6 +1,7 @@
 package org.wordpress.aztec.demo.tests
 
 import android.support.test.rule.ActivityTestRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.wordpress.aztec.AztecText
@@ -174,6 +175,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .verifyHTML(html)
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/676")
     @Test
     fun testRemoveQuoteFormatting() {
         val text = "some text"
@@ -189,6 +191,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .verifyHTML(html)
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/676")
     @Test
     fun testQuotedListFormatting() {
         val text = "some text\nsome text\nsome text"
@@ -202,6 +205,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .verifyHTML(html)
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/676")
     @Test
     fun testQuotedListRemoveListFormatting() {
         val text = "some text\nsome text\nsome text"

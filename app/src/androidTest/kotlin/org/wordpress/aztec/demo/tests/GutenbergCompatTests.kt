@@ -51,6 +51,21 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
+    fun testRetainGutenbergPostContentAndInlineGutenbergComment() {
+        val html =  "<!-- wp:latest-posts {\"postsToShow\":4,\"displayPostDate\":true} /-->" +
+                "<!-- wp:paragraph --><p>Blue is not a color</p><!-- /wp:paragraph -->" +
+                "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->" +
+                "<!-- wp:heading --><h2>H2</h2><!-- /wp:heading -->" +
+                "<!-- wp:latest-posts {\"postsToShow\":10,\"displayPostDate\":false} /-->"
+
+        EditorPage().toggleHtml()
+                .insertHTML(html)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
     fun testRetainGutenbergCommentsOnAddingText() {
         val htmlStart = "<!-- wp:paragraph --><p>Blue is not</p><!-- /wp:paragraph -->"
         val appendText = " a beautiful color"

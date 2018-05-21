@@ -1,4 +1,11 @@
 # Changelog
+## [1.3.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.4) - 2018-05-21
+### Added
+- Better Gutenberg posts compatibility support (Gutenberg block delimiters are not lost anymore)
+
+### Fixed
+- Removed duplicate shortcut for Chromebook.
+
 ## [1.3.3](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.3) - 2018-05-02
 ### Fixed
 - Fix an issue that removed attributes from HR tags.

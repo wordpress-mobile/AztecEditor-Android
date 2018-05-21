@@ -52,7 +52,7 @@ class GutenbergCompatTests : BaseTest() {
 
     @Test
     fun testRetainGutenbergPostContentAndInlineGutenbergComment() {
-        val html =  "<!-- wp:latest-posts {\"postsToShow\":4,\"displayPostDate\":true} /-->" +
+        val html = "<!-- wp:latest-posts {\"postsToShow\":4,\"displayPostDate\":true} /-->" +
                 "<!-- wp:paragraph --><p>Blue is not a color</p><!-- /wp:paragraph -->" +
                 "<!-- wp:list --><ul><li>item 1</li><li>item2</li></ul><!-- /wp:list -->" +
                 "<!-- wp:heading --><h2>H2</h2><!-- /wp:heading -->" +

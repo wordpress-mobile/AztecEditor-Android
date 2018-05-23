@@ -270,4 +270,36 @@ class MixedTextFormattingTests : BaseTest() {
                 .hasChanges(AztecText.EditorHasChanges.CHANGES)
                 .verifyHTML(afterParser)
     }
+
+    @Test
+    fun testHasChangesOnHTMLEditor() {
+        val input = "<b>Test</b>"
+        val insertedText = " text added"
+        val afterParser = "<b>Test</b>$insertedText"
+
+        EditorPage().toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml() // switch back to HTML editor
+                .insertHTML(insertedText)
+                .hasChangesHTML(AztecText.EditorHasChanges.CHANGES)
+                .verifyHTML(afterParser)
+    }
+
+    @Test
+    fun testHasNoChangesOnHTMLEditor() {
+        val input = "<b>bold <i>italic</i> bold</b>"
+        val insertedText = " text added"
+        val afterParser = "<b>bold </b><i><b>italic</b></i><b> bold$insertedText</b>"
+
+        EditorPage()
+                .toggleHtml() // switch to HTML editor
+                .insertHTML(input)
+                .toggleHtml() // switch to Visual editor
+                .setCursorPositionAtEnd()
+                .insertText(insertedText)
+                .toggleHtml() // switch to HTML editor
+                .hasChangesHTML(AztecText.EditorHasChanges.NO_CHANGES)
+                .verifyHTML(afterParser)
+    }
 }

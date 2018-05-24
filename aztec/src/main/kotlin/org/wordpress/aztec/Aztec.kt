@@ -46,6 +46,10 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
 
         initToolbar()
         initSourceEditorHistory()
+
+        val initialContentHolder = AztecInitialContentHolder()
+        visualEditor.initialContentHolder = initialContentHolder
+        sourceEditor.initialContentHolder = initialContentHolder
     }
 
     companion object Factory {

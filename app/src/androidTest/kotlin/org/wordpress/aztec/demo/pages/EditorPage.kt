@@ -17,7 +17,7 @@ import android.view.View
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecInitialContentHolder
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
@@ -368,12 +368,12 @@ class EditorPage : BasePage() {
         return this
     }
 
-    fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
+    fun hasChanges(shouldHaveChanges : AztecInitialContentHolder.EditorHasChanges): EditorPage {
         editor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
         return this
     }
 
-    fun hasChangesHTML(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
+    fun hasChangesHTML(shouldHaveChanges : AztecInitialContentHolder.EditorHasChanges): EditorPage {
         htmlEditor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
         return this
     }

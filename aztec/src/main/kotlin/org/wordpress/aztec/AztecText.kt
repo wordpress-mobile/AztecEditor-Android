@@ -110,8 +110,6 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
@@ -162,10 +160,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    enum class EditorHasChanges {
-        CHANGES, NO_CHANGES, UNKNOWN
-    }
-
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
@@ -175,7 +169,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -185,6 +178,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
+    var initialContentHolder: AztecInitialContentHolder? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
@@ -539,7 +533,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        initialContentHolder = customState.getParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -592,7 +587,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
+        bundle.putParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialContentHolder)
+
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -991,10 +987,21 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        calculateInitialHTMLSHA()
+        initialContentHolder?.let {
+            if (it.needToSetInitialValue()) {
+                it.setInitialContent(toPlainHtml(false))
+            }
+        }
 
         loadImages()
         loadVideos()
+    }
+
+    fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
+        initialContentHolder?.let {
+            return it.hasChanges(toPlainHtml(false))
+        }
+        return AztecInitialContentHolder.EditorHasChanges.UNKNOWN
     }
 
     private fun loadImages() {
@@ -1065,39 +1072,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
-    }
-
-    private fun calculateInitialHTMLSHA() {
-        try {
-            // Do not recalculate the hash if it's not the first call to `fromHTML`.
-            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
-                val initialHTMLParsed = toPlainHtml(false)
-                initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
-            }
-        } catch (e: Throwable) {
-            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-        }
-    }
-
-    @Throws(NoSuchAlgorithmException::class)
-    private fun calculateSHA256(s: String): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        digest.update(s.toByteArray())
-        return digest.digest()
-    }
-
-    open fun hasChanges(): EditorHasChanges {
-        if (!initialEditorContentParsedSHA256.isEmpty()) {
-            try {
-                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(toPlainHtml(false)))) {
-                    return EditorHasChanges.NO_CHANGES
-                }
-                return EditorHasChanges.CHANGES
-            } catch (e: Throwable) {
-                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-            }
-        }
-        return EditorHasChanges.UNKNOWN
     }
 
     // returns regular or "calypso" html depending on the mode

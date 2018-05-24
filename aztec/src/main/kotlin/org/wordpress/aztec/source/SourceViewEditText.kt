@@ -14,21 +14,20 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import org.wordpress.aztec.AztecInitialContentHolder
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
-import java.util.Arrays
 
 @SuppressLint("SupportAnnotationUsage")
 open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
         val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
+
     }
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)
@@ -42,7 +41,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
 
     private var isInCalypsoMode = true
 
-    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
+    var initialContentHolder: AztecInitialContentHolder? = null
 
     var history: History? = null
 
@@ -98,7 +97,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
         visibility = customState.getInt("visibility")
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        initialContentHolder = customState.getParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
         val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
         setText(retainedContent)
     }
@@ -117,7 +116,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         bundle.putInt("visibility", visibility)
-        bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
+        bundle.putParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialContentHolder)
         savedState.state = bundle
         return savedState
     }
@@ -192,7 +191,12 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
-        calculateInitialHTMLSHA(source)
+        initialContentHolder?.let {
+            if (it.needToSetInitialValue()) {
+                it.setInitialContent(source)
+            }
+        }
+
         val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
 
         disableTextChangedListener()
@@ -204,36 +208,11 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
             setSelection(cursorPosition)
     }
 
-    private fun calculateInitialHTMLSHA(source: String) {
-        try {
-            // Do not recalculate the hash if it's not the first call to `fromHTML`.
-            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
-                initialEditorContentParsedSHA256 = calculateSHA256(source)
-            }
-        } catch (e: Throwable) {
-            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+    fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
+        initialContentHolder?.let {
+            return it.hasChanges(getPureHtml(false))
         }
-    }
-
-    @Throws(NoSuchAlgorithmException::class)
-    private fun calculateSHA256(s: String): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        digest.update(s.toByteArray())
-        return digest.digest()
-    }
-
-    open fun hasChanges(): AztecText.EditorHasChanges {
-        if (!initialEditorContentParsedSHA256.isEmpty()) {
-            try {
-                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(getPureHtml(false)))) {
-                    return AztecText.EditorHasChanges.NO_CHANGES
-                }
-                return AztecText.EditorHasChanges.CHANGES
-            } catch (e: Throwable) {
-                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-            }
-        }
-        return AztecText.EditorHasChanges.UNKNOWN
+        return AztecInitialContentHolder.EditorHasChanges.UNKNOWN
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {

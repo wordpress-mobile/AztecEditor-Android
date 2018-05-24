@@ -13,10 +13,12 @@ class AztecInitialContentHolder() : Parcelable {
     }
 
     constructor(parcel : Parcel) : this() {
+        initialEditorContentParsedSHA256 = ByteArray(parcel.readInt())
         parcel.readByteArray(initialEditorContentParsedSHA256)
     }
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeInt(initialEditorContentParsedSHA256.size)
         dest?.writeByteArray(initialEditorContentParsedSHA256)
     }
 
@@ -24,14 +26,16 @@ class AztecInitialContentHolder() : Parcelable {
         return 0
     }
 
-    @SuppressWarnings("unused")
-    val CREATOR: Parcelable.Creator<AztecInitialContentHolder> = object : Parcelable.Creator<AztecInitialContentHolder> {
-        override fun createFromParcel(`in`: Parcel): AztecInitialContentHolder {
-            return AztecInitialContentHolder(`in`)
-        }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<AztecInitialContentHolder> = object : Parcelable.Creator<AztecInitialContentHolder> {
+            override fun createFromParcel(`in`: Parcel): AztecInitialContentHolder {
+                return AztecInitialContentHolder(`in`)
+            }
 
-        override fun newArray(size: Int): Array<AztecInitialContentHolder?> {
-            return arrayOfNulls(size)
+            override fun newArray(size: Int): Array<AztecInitialContentHolder?> {
+                return arrayOfNulls(size)
+            }
         }
     }
 

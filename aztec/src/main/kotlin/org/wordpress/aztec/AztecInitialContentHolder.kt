@@ -49,11 +49,10 @@ class AztecInitialContentHolder() : Parcelable {
         try {
             // Do not recalculate the hash if it's not the first call to `fromHTML`.
             if (needToSetInitialValue()) {
-                //   val initialHTMLParsed = toPlainHtml(false)
                 initialEditorContentParsedSHA256 = calculateSHA256(source)
             }
         } catch (e: Throwable) {
-            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+            // Do nothing here. calculateSHA256 -> NoSuchAlgorithmException
         }
     }
 
@@ -72,7 +71,7 @@ class AztecInitialContentHolder() : Parcelable {
                 }
                 return EditorHasChanges.CHANGES
             } catch (e: Throwable) {
-                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+                // Do nothing here. calculateSHA256 -> NoSuchAlgorithmException
             }
         }
         return EditorHasChanges.UNKNOWN

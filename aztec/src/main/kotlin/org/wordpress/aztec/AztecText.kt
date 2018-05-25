@@ -989,7 +989,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         initialContentHolder?.let {
             if (it.needToSetInitialValue()) {
-                it.setInitialContent(toPlainHtml(false))
+                try {
+                    it.setInitialContent(toPlainHtml(false))
+                } catch (e: Throwable) {
+                    // Do nothing here. `toPlainHtml` can throw exceptions
+                }
             }
         }
 
@@ -999,7 +1003,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
         initialContentHolder?.let {
-            return it.hasChanges(toPlainHtml(false))
+            try {
+                return it.hasChanges(toPlainHtml(false))
+            } catch (e: Throwable) {
+                // Do nothing here. `toPlainHtml` can throw exceptions
+            }
         }
         return AztecInitialContentHolder.EditorHasChanges.UNKNOWN
     }

@@ -23,7 +23,8 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher,
+        AztecInitialContentHolder.EditorHasChangesInterface {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
         val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
@@ -191,13 +192,13 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
+        val formattedSource = Format.addSourceEditorFormatting(source, isInCalypsoMode)
         initialContentHolder?.let {
             if (it.needToSetInitialValue()) {
-                it.setInitialContent(source)
+                it.setInitialContent(formattedSource)
             }
         }
-
-        val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
+        val styledHtml = styleHtml(formattedSource)
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
@@ -208,7 +209,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
             setSelection(cursorPosition)
     }
 
-    fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
+    override fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
         initialContentHolder?.let {
             return it.hasChanges(getPureHtml(false))
         }

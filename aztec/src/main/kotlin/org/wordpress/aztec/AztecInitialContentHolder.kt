@@ -12,6 +12,10 @@ class AztecInitialContentHolder() : Parcelable {
         CHANGES, NO_CHANGES, UNKNOWN
     }
 
+    interface EditorHasChangesInterface {
+        fun hasChanges(): AztecInitialContentHolder.EditorHasChanges
+    }
+
     constructor(parcel : Parcel) : this() {
         initialEditorContentParsedSHA256 = ByteArray(parcel.readInt())
         parcel.readByteArray(initialEditorContentParsedSHA256)

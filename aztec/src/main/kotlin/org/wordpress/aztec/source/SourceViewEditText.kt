@@ -192,13 +192,12 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
-        val formattedSource = Format.addSourceEditorFormatting(source, isInCalypsoMode)
         initialContentHolder?.let {
             if (it.needToSetInitialValue()) {
-                it.setInitialContent(formattedSource)
+                it.setInitialContent(source)
             }
         }
-        val styledHtml = styleHtml(formattedSource)
+        val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)

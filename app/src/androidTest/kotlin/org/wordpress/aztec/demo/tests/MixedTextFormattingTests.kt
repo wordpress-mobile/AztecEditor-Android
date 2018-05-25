@@ -298,7 +298,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml() // switch back to HTML editor
                 .insertHTML(insertedText)
                 .hasChangesHTML(AztecInitialContentHolder.EditorHasChanges.CHANGES)
-                .toggleHtml() // switch back to HTML editor
+                .toggleHtml() // switch back to Visual editor
                 .verify(afterParser)
     }
 }

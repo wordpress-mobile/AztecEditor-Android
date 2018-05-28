@@ -1336,6 +1336,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         if (clip != null) {
             history.beforeTextChanged(this@AztecText)
+            hasUserChanges = true
 
             disableTextChangedListener()
 

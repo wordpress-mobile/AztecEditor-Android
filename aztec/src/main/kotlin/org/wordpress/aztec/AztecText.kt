@@ -506,7 +506,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
 
             override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
-                if (!isViewInitialized) return
             }
 
             override fun afterTextChanged(text: Editable) {

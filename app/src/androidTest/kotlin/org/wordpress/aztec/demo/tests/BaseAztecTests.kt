@@ -45,7 +45,6 @@ class BaseAztecTests : BaseTest() {
                 .hasChanges(Aztec.AztecHasChanges.CHANGES)
                 .verifyHTML(afterParser)
                 .toggleHtml()
-                .selectAllText().copyToClipboard()
     }
 
     @Test

@@ -373,8 +373,10 @@ class EditorPage : BasePage() {
         return this
     }
 
-    fun hasChangesHTML(shouldHaveChanges : Aztec.AztecHasChanges): EditorPage {
-        htmlEditor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
+    fun copyStringToClipboard(source: String): EditorPage {
+        editor.perform(Actions.copyToClipboard(source))
+        label("Copy String to clipboard")
+
         return this
     }
 

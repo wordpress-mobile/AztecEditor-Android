@@ -44,5 +44,21 @@ class BaseAztecTests : BaseTest() {
                 .toggleHtml()
                 .hasChanges(Aztec.AztecHasChanges.CHANGES)
                 .verifyHTML(afterParser)
+                .toggleHtml()
+                .selectAllText().copyToClipboard()
+    }
+
+    @Test
+    fun testHasChangesFromPaste() {
+        val word1 = "Testing"
+        val editorPage = EditorPage()
+
+        editorPage
+                .hasChanges(Aztec.AztecHasChanges.NO_CHANGES)
+                .copyStringToClipboard(word1)
+                .pasteFromClipboard()
+                .hasChanges(Aztec.AztecHasChanges.CHANGES)
+                .toggleHtml()
+                .verifyHTML(word1)
     }
 }

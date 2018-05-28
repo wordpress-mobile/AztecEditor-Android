@@ -414,7 +414,6 @@ open class MainActivity : AppCompatActivity(),
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
-
             aztec.addPlugin(CssUnderlinePlugin())
         }
 

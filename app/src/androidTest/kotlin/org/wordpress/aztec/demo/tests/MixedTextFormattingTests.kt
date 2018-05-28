@@ -4,7 +4,7 @@ import android.support.test.rule.ActivityTestRule
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.wordpress.aztec.AztecInitialContentHolder
+import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditorPage
@@ -233,72 +233,5 @@ class MixedTextFormattingTests : BaseTest() {
                 .insertText(text2)
                 .toggleHtml()
                 .verifyHTML(html)
-    }
-
-    /**
-     * Currently, this html <b>bold <i>italic</i> bold</b> after being parsed to span and back to html will become
-     * <b>bold </b><b><i>italic</i></b><b> bold</b>. This is not a bug, this is how Google originally implemented the parsing inside Html.java.
-     * https://github.com/wordpress-mobile/AztecEditor-Android/issues/136
-     *
-     * In this test we check the new `hasChanges` method to check if the post content has been edited by the user
-     */
-    @Test
-    fun testHasNoChangesWithMixedBoldAndItalicFormatting() {
-        val input = "<b>bold <i>italic</i> bold</b>"
-
-        EditorPage()
-                .toggleHtml()
-                .insertHTML(input)
-                .toggleHtml()
-                .toggleHtml()
-                .hasChanges(AztecInitialContentHolder.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
-    }
-
-    @Test
-    fun testHasChangesWithMixedBoldAndItalicFormatting() {
-        val input = "<b>bold <i>italic</i> bold</b>"
-        val insertedText = " text added"
-        val afterParser = "<b>bold </b><i><b>italic</b></i><b> bold$insertedText</b>"
-
-        EditorPage()
-                .toggleHtml()
-                .insertHTML(input)
-                .toggleHtml()
-                .setCursorPositionAtEnd()
-                .insertText(insertedText)
-                .toggleHtml()
-                .hasChanges(AztecInitialContentHolder.EditorHasChanges.CHANGES)
-                .verifyHTML(afterParser)
-    }
-
-    @Test
-    fun testHasChangesOnHTMLEditor() {
-        val input = "<b>Test</b>"
-        val insertedText = " text added"
-        val afterParser = "<b>Test</b>$insertedText"
-
-        EditorPage().toggleHtml()
-                .insertHTML(input)
-                .toggleHtml()
-                .toggleHtml() // switch back to HTML editor
-                .insertHTML(insertedText)
-                .hasChangesHTML(AztecInitialContentHolder.EditorHasChanges.CHANGES)
-                .verifyHTML(afterParser)
-    }
-
-    @Test
-    fun testHasChangesOnHTMLEditorTestedFromVisualEditor() {
-        val input = "<b>Test</b>"
-        val insertedText = " text added"
-        val afterParser = "Test$insertedText"
-
-        EditorPage().toggleHtml()
-                .insertHTML(input)
-                .toggleHtml()
-                .toggleHtml() // switch back to HTML editor
-                .insertHTML(insertedText)
-                .hasChangesHTML(AztecInitialContentHolder.EditorHasChanges.CHANGES)
-                .toggleHtml() // switch back to Visual editor
-                .verify(afterParser)
     }
 }

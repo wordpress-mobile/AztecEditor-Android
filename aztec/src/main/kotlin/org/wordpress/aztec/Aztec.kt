@@ -26,9 +26,16 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
     var sourceEditor: SourceViewEditText? = null
 
+    enum class AztecHasChanges {
+        CHANGES, NO_CHANGES
+    }
+
+    interface AztecHasChangesInterface {
+        fun hasChanges(): AztecHasChanges
+    }
+
     init {
         initToolbar()
-        initInitialContentHolder()
     }
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
@@ -47,7 +54,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
 
         initToolbar()
         initSourceEditorHistory()
-        initInitialContentHolder()
     }
 
     companion object Factory {
@@ -67,12 +73,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
-    }
-
-    private fun initInitialContentHolder() {
-        val initialContentHolder = AztecInitialContentHolder()
-        visualEditor.initialContentHolder = initialContentHolder
-        sourceEditor?.initialContentHolder = initialContentHolder
     }
 
     fun setImageGetter(imageGetter: Html.ImageGetter): Aztec {

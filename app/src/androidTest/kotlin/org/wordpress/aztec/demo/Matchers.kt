@@ -5,7 +5,7 @@ import android.widget.EditText
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.TypeSafeMatcher
-import org.wordpress.aztec.AztecInitialContentHolder
+import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
@@ -49,7 +49,7 @@ object Matchers {
         }
     }
 
-    fun hasContentChanges(shouldHaveChanges: AztecInitialContentHolder.EditorHasChanges): TypeSafeMatcher<View> {
+    fun hasContentChanges(shouldHaveChanges: Aztec.AztecHasChanges): TypeSafeMatcher<View> {
 
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {

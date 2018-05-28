@@ -166,6 +166,18 @@ open class MainActivity : AppCompatActivity(),
                         GUTENBERG_CODE_BLOCK +
                         QUOTE_RTL
 
+        private val EXAMPLE2 = "<!-- wp:quote -->\n" +
+                "<blockquote class=\"wp-block-quote\">\n" +
+                "\t<p>this </p>\n" +
+                "\t<p>is a</p>\n" +
+                "\t<p>quote</p><cite>this is a citation</cite></blockquote>\n" +
+                "<!-- /wp:quote -->"
+
+        private val EXAMPLE3 = "<!-- wp:quote -->\n" +
+                "<blockquote class=\"wp-block-quote\">\n" +
+                "\t<p>a quote</p><cite>this is a citation</cite></blockquote>\n" +
+                "<!-- /wp:quote -->"
+
         private val isRunningTest: Boolean by lazy {
             try {
                 Class.forName("android.support.test.espresso.Espresso")
@@ -412,7 +424,9 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            //aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE3)
+
 
             aztec.addPlugin(CssUnderlinePlugin())
         }

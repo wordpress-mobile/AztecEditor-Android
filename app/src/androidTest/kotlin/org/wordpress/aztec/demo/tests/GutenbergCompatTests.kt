@@ -278,6 +278,18 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
+    fun testRetainCitationInQuote() {
+        val htmlOriginal = "<!-- wp:quote --><blockquote class=\"wp-block-quote\"><p>quote</p><cite>this is a citation</cite></blockquote><!-- /wp:quote -->"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(htmlOriginal)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(htmlOriginal)
+    }
+
+    @Test
     fun testDeleteAllItemsFromFirstList() {
         val itemOnListTwo = "item 1 on list 2"
         val itemOnListOne = "item on list One"

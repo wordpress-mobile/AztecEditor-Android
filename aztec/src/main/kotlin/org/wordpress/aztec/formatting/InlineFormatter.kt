@@ -14,6 +14,7 @@ import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
+import org.wordpress.aztec.spans.AztecStyleCiteSpan
 import org.wordpress.aztec.spans.AztecStyleItalicSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
@@ -51,6 +52,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 when (item) {
                     AztecTextFormat.FORMAT_BOLD,
                     AztecTextFormat.FORMAT_ITALIC,
+                    AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
@@ -183,6 +185,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         when (span::class.java) {
             AztecStyleBoldSpan::class.java -> return AztecTextFormat.FORMAT_BOLD
             AztecStyleItalicSpan::class.java -> return AztecTextFormat.FORMAT_ITALIC
+            AztecStyleCiteSpan::class.java -> return AztecTextFormat.FORMAT_CITE
             AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
@@ -328,6 +331,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         when (textFormat) {
             AztecTextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
             AztecTextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
+            AztecTextFormat.FORMAT_CITE -> return AztecStyleCiteSpan()
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)

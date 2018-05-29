@@ -18,6 +18,7 @@ import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.R
 import org.wordpress.aztec.demo.pages.EditorPage
+import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.source.SourceViewEditText
 import java.io.File
 import java.io.FileOutputStream
@@ -287,6 +288,50 @@ class GutenbergCompatTests : BaseTest() {
                 .toggleHtml()
                 .toggleHtml()
                 .verifyHTML(htmlOriginal)
+    }
+
+    @Test
+    fun testRetainAudioTagByDisablingAudioShortcodePlugin() {
+        // we're using 2 different outputs to compare against, as Aztec does some tricks with newlines that do not
+        // belong to this test, so for the sake of simplicity just making it clear here that what this tests against
+        // is the plugin being applied or not.
+        val htmlOriginal =
+                "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\"><audio controls src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio><figcaption>a caption</figcaption></figure><!-- /wp:audio -->"
+
+        val htmlProcessedWithoutPlugin = "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\">\n" +
+                " <audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio>\n" +
+                " <figcaption>\n" +
+                "  a caption\n" +
+                " </figcaption></figure><!-- /wp:audio -->"
+
+        val htmlProcessedByPlugin = "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\">\n" +
+                " [audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"]\n" +
+                " <figcaption>\n" +
+                "  a caption\n" +
+                " </figcaption></figure><!-- /wp:audio -->"
+
+        // first let's test the plugin works as expected
+        val editorPage = EditorPage()
+        val audioShortcodePlugin = AudioShortcodePlugin()
+        editorPage.getAztecText()?.plugins?.add(audioShortcodePlugin)
+        editorPage
+                .toggleHtml()
+                .insertHTML(htmlOriginal)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(htmlProcessedByPlugin)
+
+        // now remove plugin and verify the Audio shortcode is not inserted, as per
+        // issue https://github.com/wordpress-mobile/AztecEditor-Android/issues/685
+        editorPage.getAztecText()?.plugins?.remove(audioShortcodePlugin)
+        editorPage
+                .toggleHtml()
+                .clearText()
+                .toggleHtml()
+                .insertHTML(htmlOriginal)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(htmlProcessedWithoutPlugin)
     }
 
     @Test

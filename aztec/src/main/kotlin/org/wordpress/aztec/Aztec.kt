@@ -137,6 +137,15 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         return this
     }
 
+    fun removePlugin(plugin: IAztecPlugin): Aztec {
+        plugins.remove(plugin)
+        if (plugin is IToolbarButton) {
+            toolbar.removeButton(plugin)
+        }
+
+        return this
+    }
+
     fun initSourceEditorHistory() {
         sourceEditor?.history = visualEditor.history
     }

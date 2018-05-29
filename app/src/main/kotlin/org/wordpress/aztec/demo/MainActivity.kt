@@ -166,6 +166,16 @@ open class MainActivity : AppCompatActivity(),
                         GUTENBERG_CODE_BLOCK +
                         QUOTE_RTL
 
+        private val EXAMPLE2 = "<!-- wp:audio {\"id\":435} -->\n" +
+                "<figure class=\"wp-block-audio\"><audio controls src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio>\n" +
+                "\t<figcaption>a caption</figcaption>\n" +
+                "</figure>\n" +
+                "<!-- /wp:audio -->\n" +
+                "\n" +
+                "<!-- wp:paragraph -->\n" +
+                "<p></p>\n" +
+                "<!-- /wp:paragraph -->"
+
         private val isRunningTest: Boolean by lazy {
             try {
                 Class.forName("android.support.test.espresso.Espresso")
@@ -397,7 +407,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(PageToolbarButton(visualEditor))
                 .addPlugin(CaptionShortcodePlugin(visualEditor))
                 .addPlugin(VideoShortcodePlugin())
-                .addPlugin(AudioShortcodePlugin())
+                //.addPlugin(AudioShortcodePlugin())
                 .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
@@ -412,7 +422,8 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            //aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE2)
 
             aztec.addPlugin(CssUnderlinePlugin())
         }

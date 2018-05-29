@@ -425,6 +425,13 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         button.setOnClickListener { _: View -> buttonPlugin.toggle() }
     }
 
+    override fun removeButton(buttonPlugin: IToolbarButton) {
+        toolbarButtonPlugins.remove(buttonPlugin)
+
+        val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
+        button.setOnClickListener(null)
+    }
+
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {

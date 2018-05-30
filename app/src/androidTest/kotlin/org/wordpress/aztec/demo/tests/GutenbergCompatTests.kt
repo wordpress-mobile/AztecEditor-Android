@@ -18,6 +18,7 @@ import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.R
 import org.wordpress.aztec.demo.pages.EditorPage
+import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
 import org.wordpress.aztec.source.SourceViewEditText
 import java.io.File
 import java.io.FileOutputStream
@@ -287,6 +288,50 @@ class GutenbergCompatTests : BaseTest() {
                 .toggleHtml()
                 .toggleHtml()
                 .verifyHTML(htmlOriginal)
+    }
+
+    @Test
+    fun testRetainAudioTagByDisablingAudioShortcodePlugin() {
+        val htmlGutenbergAudioBlock =
+                "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\"><audio controls src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio><figcaption>a caption</figcaption></figure><!-- /wp:audio -->"
+
+        val htmlNormalAudioTag =
+                "<figure class=\"wp-block-audio\"><audio controls src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio><figcaption>a caption</figcaption></figure>"
+
+        val htmlWithoutShortcode = "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\">\n" +
+                " <audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio>\n" +
+                " <figcaption>\n" +
+                "  a caption\n" +
+                " </figcaption></figure><!-- /wp:audio -->"
+
+        val htmlWithShortcode = "<figure class=\"wp-block-audio\">\n" +
+                " [audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"]\n" +
+                " <figcaption>\n" +
+                "  a caption\n" +
+                " </figcaption></figure>"
+
+        val editorPage = EditorPage()
+        val audioShortcodePlugin = AudioShortcodePlugin()
+        editorPage.getAztecText()?.plugins?.add(audioShortcodePlugin)
+        // let's test the plugin works as expected, i.e. it preserves the Gutenberg block structure
+        editorPage
+                .toggleHtml()
+                .insertHTML(htmlGutenbergAudioBlock)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(htmlWithoutShortcode)
+
+
+        // now test a non-Gutenberg piece and make sure the <audio> tag has been replaced by the [audio] shortcode
+        editorPage
+                .toggleHtml()
+                .clearText()
+                .toggleHtml()
+                .insertHTML(htmlNormalAudioTag)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(htmlWithShortcode)
+
     }
 
     @Test

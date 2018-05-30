@@ -321,7 +321,6 @@ class GutenbergCompatTests : BaseTest() {
                 .toggleHtml()
                 .verifyHTML(htmlWithoutShortcode)
 
-
         // now test a non-Gutenberg piece and make sure the <audio> tag has been replaced by the [audio] shortcode
         editorPage
                 .toggleHtml()

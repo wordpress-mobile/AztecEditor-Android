@@ -1,7 +1,5 @@
 package org.wordpress.aztec.demo.pages
 
-import android.app.Activity
-import android.support.test.InstrumentationRegistry.getInstrumentation
 import android.support.test.espresso.DataInteraction
 import android.support.test.espresso.Espresso.onData
 import android.support.test.espresso.Espresso.onView
@@ -14,8 +12,6 @@ import android.support.test.espresso.action.ViewActions.typeTextIntoFocusedView
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import android.support.test.runner.lifecycle.Stage
 import android.view.KeyEvent
 import android.view.View
 import org.hamcrest.Description
@@ -28,7 +24,6 @@ import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
-import org.wordpress.aztec.source.SourceViewEditText
 
 class EditorPage : BasePage() {
     private var editor: ViewInteraction

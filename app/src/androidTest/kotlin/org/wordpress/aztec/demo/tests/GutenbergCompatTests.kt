@@ -312,7 +312,9 @@ class GutenbergCompatTests : BaseTest() {
 
         val editorPage = EditorPage()
         val audioShortcodePlugin = AudioShortcodePlugin()
-        editorPage.getAztecText()?.plugins?.add(audioShortcodePlugin)
+        val aztecText = mActivityIntentsTestRule.activity.findViewById<AztecText>(R.id.aztec)
+        aztecText.plugins?.add(audioShortcodePlugin)
+
         // let's test the plugin works as expected, i.e. it preserves the Gutenberg block structure
         editorPage
                 .toggleHtml()

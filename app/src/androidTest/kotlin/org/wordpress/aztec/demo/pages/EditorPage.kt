@@ -55,8 +55,6 @@ class EditorPage : BasePage() {
     private var photoButton: ViewInteraction
     private var galleryButton: ViewInteraction
 
-    private var currentActivity: Activity?
-
     override val trait: ViewInteraction
         get() = onView(withId(R.id.aztec))
 
@@ -84,27 +82,6 @@ class EditorPage : BasePage() {
 
         photoButton = onView(allOf(withId(android.R.id.title), withText("Photo from device")))
         galleryButton = onView(withId(R.id.media_bar_button_gallery))
-
-        currentActivity = null
-    }
-
-    private fun getActivityInstance(): Activity? {
-        getInstrumentation().runOnMainSync {
-            val resumedActivities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
-            if (resumedActivities.iterator().hasNext()) {
-                currentActivity = resumedActivities.iterator().next() as Activity
-            }
-        }
-
-        return currentActivity
-    }
-
-    fun getAztecText(): AztecText? {
-        return getActivityInstance()?.findViewById(R.id.aztec)
-    }
-
-    fun getAztecSourceEditor(): SourceViewEditText? {
-        return getActivityInstance()?.findViewById(R.id.source)
     }
 
     fun tapTop(): EditorPage {

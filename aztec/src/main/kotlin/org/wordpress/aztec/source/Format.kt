@@ -24,7 +24,10 @@ object Format {
         var html = replaceAll(content, "iframe", iframePlaceholder)
         html = html.replace("<aztec_cursor>", "")
 
-        val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
+        val outputSetting = Document.OutputSettings()
+        outputSetting.prettyPrint(!isCalypsoFormat)
+        outputSetting.syntax(Document.OutputSettings.Syntax.html)
+        val doc = Jsoup.parseBodyFragment(html).outputSettings(outputSetting)
         if (isCalypsoFormat) {
             // remove empty span tags
             doc.select("*")
@@ -51,7 +54,11 @@ object Format {
     fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
-            val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
+            val outputSetting = Document.OutputSettings()
+            outputSetting.prettyPrint(false)
+            outputSetting.syntax(Document.OutputSettings.Syntax.html)
+
+            val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(outputSetting)
             return doc.body().html()
         } else {
             return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")

@@ -14,7 +14,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.shortcodes.TestUtils.safeEmpty
 
 /**
- * Tests for the caption shortcode plugin
+ * Tests for the audio shortcode plugin
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(25))

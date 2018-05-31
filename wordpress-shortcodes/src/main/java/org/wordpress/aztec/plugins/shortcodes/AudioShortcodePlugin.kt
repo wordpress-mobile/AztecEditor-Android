@@ -14,7 +14,13 @@ class AudioShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     }
 
     override fun onHtmlProcessed(source: String): String {
-        if (GutenbergUtils.contentContainsGutenbergBlocks(source)) return source
+        if (GutenbergUtils.contentContainsGutenbergBlocks(source)) {
+            // From https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio
+            // > Tag omission	None, both the starting and ending tag are mandatory.
+            return StringBuilder(source)
+                    .replace(Regex("(<$TAG[^>]*?)(\\s*/>)"), "\$1></$TAG>")
+        }
+
         return StringBuilder(source)
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), "[$TAG$1]")
                 .replace(Regex("<$TAG([^>]*(?<! )) *></$TAG>"), "[$TAG$1]")

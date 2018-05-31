@@ -3,6 +3,7 @@ package org.wordpress.aztec.plugins.shortcodes
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_ID
 import org.wordpress.aztec.plugins.shortcodes.extensions.ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
+import org.wordpress.aztec.plugins.shortcodes.utils.GutenbergUtils
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 
 class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
@@ -11,12 +12,20 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
     private val TAG_VIDEOPRESS_SHORTCODE = "wpvideo"
 
     override fun beforeHtmlProcessed(source: String): String {
+        if (GutenbergUtils.contentContainsGutenbergBlocks(source)) return source
         var newSource = source.replace(Regex("(?<!\\[)\\[$TAG([^\\]]*)\\](?!\\])"), "<$TAG$1 />")
         newSource = newSource.replace(Regex("(?<!\\[)\\[$TAG_VIDEOPRESS_SHORTCODE([^\\]]*)\\](?!\\])"), { it -> fromVideoPressShortCodeToHTML(it) })
         return newSource
     }
 
     override fun onHtmlProcessed(source: String): String {
+        if (GutenbergUtils.contentContainsGutenbergBlocks(source)) {
+            // From https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video
+            // > Tag omission	None, both the starting and ending tag are mandatory.
+            return StringBuilder(source)
+                    .replace(Regex("(<$TAG[^>]*?)(\\s*/>)"), "\$1></$TAG>")
+        }
+
         return StringBuilder(source)
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })

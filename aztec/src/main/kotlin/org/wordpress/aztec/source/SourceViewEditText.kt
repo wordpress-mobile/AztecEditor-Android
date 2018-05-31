@@ -14,6 +14,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import org.jsoup.Jsoup
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
@@ -259,7 +260,9 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
             enableTextChangedListener()
         }
 
-        return Format.removeSourceEditorFormatting(text.toString(), isInCalypsoMode)
+        val html = Format.removeSourceEditorFormatting(text.toString(), isInCalypsoMode)
+        val doc = Jsoup.parseBodyFragment(html).outputSettings(Format.getJsoupSettings(isInCalypsoMode))
+        return doc.body().html().trim()
     }
 
     fun disableTextChangedListener() {

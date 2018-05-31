@@ -53,6 +53,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
+import org.jsoup.Jsoup
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
@@ -1111,7 +1112,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // paragraphs and line breaks are added on server, from newline characters
             return Format.addSourceEditorFormatting(html, true)
         } else {
-            return html
+            val doc = Jsoup.parseBodyFragment(html).outputSettings(Format.getJsoupSettings(isInCalypsoMode))
+            return doc.body().html().trim()
         }
     }
 

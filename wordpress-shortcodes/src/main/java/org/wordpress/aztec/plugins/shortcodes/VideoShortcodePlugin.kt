@@ -28,7 +28,7 @@ class VideoShortcodePlugin : IHtmlPreprocessor, IHtmlPostprocessor {
 
         return StringBuilder(source)
                 .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
-                .replace(Regex("<$TAG([^>]*(?<! )) */>"), { it -> fromHTMLToShortcode(it) })
+                .replace(Regex("<$TAG([^>]*(?<! )) *></$TAG>"), { it -> fromHTMLToShortcode(it) })
     }
 
     /**

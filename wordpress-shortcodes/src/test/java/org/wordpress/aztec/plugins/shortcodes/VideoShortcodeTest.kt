@@ -58,7 +58,7 @@ class VideoShortcodeTest {
 
     @Test
     @Throws(Exception::class)
-    fun testAudioTagConvertsToShortcode() {
+    fun testVideoTagConvertsToShortcode() {
         Assert.assertTrue(safeEmpty(editText))
 
         editText.fromHtml(htmlNormalVideoTag)

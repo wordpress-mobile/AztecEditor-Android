@@ -51,7 +51,7 @@ class AudioShortcodeTest {
 
         // expected result: the <audio> tag does not get converted to shortcode when it's found within a Gutenberg block
         // Note: the slight difference of <audio controls> being converted to <audio controls="controls"> should be equivalent
-        val htmlWithoutShortcode = "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\"><audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\" /><figcaption>a caption</figcaption></figure><!-- /wp:audio -->"
+        val htmlWithoutShortcode = "<!-- wp:audio {\"id\":435} --><figure class=\"wp-block-audio\"><audio controls=\"controls\" src=\"https://selfhostedmario.mystagingwebsite.com/wp-content/uploads/2018/05/ArgentinaAnthem.mp3\"></audio><figcaption>a caption</figcaption></figure><!-- /wp:audio -->"
 
         Assert.assertEquals(htmlWithoutShortcode, editText.toPlainHtml())
     }

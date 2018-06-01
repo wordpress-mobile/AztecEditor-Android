@@ -174,9 +174,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
             spanned.insert(spanStart, "\n")
 
             // expand all same-start parents to include the new newline
-            SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { subParent -> subParent.span.nestingLevel < it.nestingLevel && subParent.start == spanStart + 1 }
-                    .forEach { subParent -> subParent.start-- }
+            expandSurroundingSpansAtStart(spanned, it, spanStart + 1, 1)
 
             markBlockElementLineBreak(spanned, spanStart)
         }
@@ -196,6 +194,9 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is IAztecParagraphStyle) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
+                    // expand all same-end parents to include the new newline
+                    expandSurroundingSpansAtEnd(spanned, it, spanEnd, 1)
                 }
 
                 return@forEach
@@ -207,10 +208,31 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
             // expand the span to include the new newline for block spans, because they are paragraphs
             if (it is IAztecParagraphStyle) {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
+                // expand all same-end parents to include the new newline
+                expandSurroundingSpansAtEnd(spanned, it, spanEnd, 1)
             }
 
             markBlockElementLineBreak(spanned, spanEnd)
         }
+    }
+
+    private fun expandSurroundingSpansAtStart(spanned: Editable,
+                                            paragraph: IAztecSurroundedWithNewlines,
+                                            spanStart: Int,
+                                            extra: Int) {
+        SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart, spanned.getSpanEnd(paragraph))
+                .filter { parent -> parent.start == spanStart && parent.span.nestingLevel < paragraph.nestingLevel }
+                .forEach { parent -> parent.start -= extra }
+    }
+
+    private fun expandSurroundingSpansAtEnd(spanned: Editable,
+                                            paragraph: IAztecSurroundedWithNewlines,
+                                            spanEnd: Int,
+                                            extra: Int) {
+        SpanWrapper.getSpans<IAztecNestable>(spanned, spanned.getSpanStart(paragraph), spanEnd)
+                .filter { parent -> parent.end == spanEnd && parent.span.nestingLevel < paragraph.nestingLevel }
+                .forEach { parent -> parent.end += extra }
     }
 
     // Always try to put a visual newline before block elements and only put one after if needed

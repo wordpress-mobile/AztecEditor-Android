@@ -1025,7 +1025,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
                     post {
-                        refreshText()
+                        refreshText(false)
                     }
                 }
             }
@@ -1058,7 +1058,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 private fun replaceImage(drawable: Drawable?) {
                     it.drawable = drawable
                     post {
-                        refreshText()
+                        refreshText(false)
                     }
                 }
             }
@@ -1246,10 +1246,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun refreshText() {
+        refreshText(true)
+    }
+
+    open fun refreshText(keepFocus: Boolean) {
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
-        setFocusOnParentView()
+        if (keepFocus) {
+            setFocusOnParentView()
+        }
         text = editableText
         setSelection(selStart, selEnd)
         enableTextChangedListener()

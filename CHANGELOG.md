@@ -1,4 +1,10 @@
 # Changelog
+## [1.3.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.5) - 2018-06-04
+### Fixed
+- `<cite>` tags are now respected (were being converted to `<i>`).
+- Fixed a bug where nested paragraphs would get duplicated
+- Fixed Gutenberg audio and video blocks handling
+
 ## [1.3.4](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.4) - 2018-05-21
 ### Fixed
 - Better Gutenberg posts compatibility support (Gutenberg block delimiters are not lost anymore)

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.demo
 
+import android.content.Context
 import android.graphics.Rect
 import android.support.test.espresso.UiController
 import android.support.test.espresso.ViewAction
@@ -62,6 +63,26 @@ object Actions {
             override fun perform(uiController: UiController, view: View) {
                 if (view is EditText) {
                     view.selectAll()
+                }
+            }
+        }
+    }
+
+    fun copyToClipboard(source: String): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> {
+                return allOf(isDisplayed(), isAssignableFrom(EditText::class.java))
+            }
+
+            override fun getDescription(): String {
+                return "Copy text to clipboard"
+            }
+
+            override fun perform(uiController: UiController?, view: View?) {
+                if (view is AztecText) {
+                    val clipboard = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Aztec", source)
+                    clipboard.primaryClip = clip
                 }
             }
         }

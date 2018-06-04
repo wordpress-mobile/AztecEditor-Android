@@ -26,6 +26,14 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
     var sourceEditor: SourceViewEditText? = null
 
+    enum class AztecHasChanges {
+        CHANGES, NO_CHANGES
+    }
+
+    interface AztecHasChangesInterface {
+        fun hasChanges(): AztecHasChanges
+    }
+
     init {
         initToolbar()
     }

@@ -14,6 +14,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
@@ -22,9 +23,11 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher,
+        Aztec.AztecHasChangesInterface {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
+        val HAS_USER_CHANGES = "HAS_USER_CHANGES"
     }
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)
@@ -37,6 +40,8 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     private var onImeBackListener: AztecText.OnImeBackListener? = null
 
     private var isInCalypsoMode = true
+
+    private var hasUserChanges: Boolean = false
 
     var history: History? = null
 
@@ -92,6 +97,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
         visibility = customState.getInt("visibility")
+        hasUserChanges = customState.getBoolean(HAS_USER_CHANGES)
         val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
         setText(retainedContent)
     }
@@ -110,6 +116,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         bundle.putInt("visibility", visibility)
+        bundle.putBoolean(HAS_USER_CHANGES, hasUserChanges)
         savedState.state = bundle
         return savedState
     }
@@ -159,6 +166,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
             return
         }
         styleTextWatcher?.afterTextChanged(text)
+        hasUserChanges = true
     }
 
     fun redo() {
@@ -193,6 +201,12 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
 
         if (cursorPosition > 0)
             setSelection(cursorPosition)
+    }
+
+    override fun hasChanges(): Aztec.AztecHasChanges {
+        if (hasUserChanges) return Aztec.AztecHasChanges.CHANGES
+
+        return Aztec.AztecHasChanges.NO_CHANGES
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {

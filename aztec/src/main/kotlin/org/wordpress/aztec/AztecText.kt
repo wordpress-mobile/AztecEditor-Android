@@ -110,14 +110,13 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
 
 @Suppress("UNUSED_PARAMETER")
-open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
+open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector,
+        Aztec.AztecHasChangesInterface {
     companion object {
         val BLOCK_EDITOR_HTML_KEY = "RETAINED_BLOCK_HTML_KEY"
         val BLOCK_EDITOR_START_INDEX_KEY = "BLOCK_EDITOR_START_INDEX_KEY"
@@ -137,7 +136,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val VISIBILITY_KEY = "VISIBILITY_KEY"
         val IS_MEDIA_ADDED_KEY = "IS_MEDIA_ADDED_KEY"
         val RETAINED_HTML_KEY = "RETAINED_HTML_KEY"
-        val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
+        val HAS_USER_CHANGES = "HAS_USER_CHANGES"
 
         val DEFAULT_IMAGE_WIDTH = 800
 
@@ -162,10 +161,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    enum class EditorHasChanges {
-        CHANGES, NO_CHANGES, UNKNOWN
-    }
-
     private var historyEnable = resources.getBoolean(R.bool.history_enable)
     private var historySize = resources.getInteger(R.integer.history_size)
 
@@ -175,7 +170,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
+    private var hasUserChanges: Boolean = false
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -420,9 +415,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             // required to clear the toolbar style when using hardware keyboard
             if (text.isEmpty()) {
-                disableTextChangedListener()
-                setText("")
-                enableTextChangedListener()
+                if (isTextChangedListenerDisabled()) {
+                    setText("")
+                } else {
+                    disableTextChangedListener()
+                    setText("")
+                    enableTextChangedListener()
+                }
             }
         }
         return wasStyleRemoved
@@ -470,6 +469,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // finally add the TextChangedListener
         addTextChangedListener(this)
+        addHasChangesWatcher()
     }
 
     private fun addHistoryLoggingWatcher() {
@@ -498,6 +498,24 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
         addTextChangedListener(historyLoggingWatcher)
+    }
+
+    private fun addHasChangesWatcher() {
+        val hasChangesWatcher = object : TextWatcher {
+            override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(text: Editable) {
+                if (!isViewInitialized) return
+                if (isTextChangedListenerDisabled()) return
+
+                hasUserChanges = true
+            }
+        }
+        addTextChangedListener(hasChangesWatcher)
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -539,7 +557,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -572,6 +589,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
+        hasUserChanges = customState.getBoolean(HAS_USER_CHANGES)
 
         enableTextChangedListener()
     }
@@ -592,7 +610,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
-        bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
+
         InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
@@ -616,6 +634,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
+        bundle.putBoolean(HAS_USER_CHANGES, hasUserChanges)
 
         savedState.state = bundle
         return savedState
@@ -993,10 +1012,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        calculateInitialHTMLSHA()
-
         loadImages()
         loadVideos()
+    }
+
+    override fun hasChanges(): Aztec.AztecHasChanges {
+        if (hasUserChanges) return Aztec.AztecHasChanges.CHANGES
+
+        return Aztec.AztecHasChanges.NO_CHANGES
     }
 
     private fun loadImages() {
@@ -1067,39 +1090,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Call the Video listener and ask for more info about the current video
             videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
-    }
-
-    private fun calculateInitialHTMLSHA() {
-        try {
-            // Do not recalculate the hash if it's not the first call to `fromHTML`.
-            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
-                val initialHTMLParsed = toPlainHtml(false)
-                initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
-            }
-        } catch (e: Throwable) {
-            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-        }
-    }
-
-    @Throws(NoSuchAlgorithmException::class)
-    private fun calculateSHA256(s: String): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        digest.update(s.toByteArray())
-        return digest.digest()
-    }
-
-    open fun hasChanges(): EditorHasChanges {
-        if (!initialEditorContentParsedSHA256.isEmpty()) {
-            try {
-                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(toPlainHtml(false)))) {
-                    return EditorHasChanges.NO_CHANGES
-                }
-                return EditorHasChanges.CHANGES
-            } catch (e: Throwable) {
-                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-            }
-        }
-        return EditorHasChanges.UNKNOWN
     }
 
     // returns regular or "calypso" html depending on the mode
@@ -1348,6 +1338,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         if (clip != null) {
             history.beforeTextChanged(this@AztecText)
+            hasUserChanges = true
 
             disableTextChangedListener()
 

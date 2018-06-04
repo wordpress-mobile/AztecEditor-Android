@@ -14,12 +14,10 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.view.KeyEvent
 import android.view.View
-import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
-import org.hamcrest.TypeSafeMatcher
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
@@ -370,22 +368,15 @@ class EditorPage : BasePage() {
         return this
     }
 
-    fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
-        val hasNoChangesMatcher = object : TypeSafeMatcher<View>() {
-            override fun describeTo(description: Description) {
-                description.appendText("User has made changes to the post: $shouldHaveChanges")
-            }
+    fun hasChanges(shouldHaveChanges : Aztec.AztecHasChanges): EditorPage {
+        editor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
+        return this
+    }
 
-            public override fun matchesSafely(view: View): Boolean {
-                if (view is AztecText) {
-                    return view.hasChanges() == shouldHaveChanges
-                }
+    fun copyStringToClipboard(source: String): EditorPage {
+        editor.perform(Actions.copyToClipboard(source))
+        label("Copy String to clipboard")
 
-                return false
-            }
-        }
-
-        editor.check(matches(hasNoChangesMatcher))
         return this
     }
 

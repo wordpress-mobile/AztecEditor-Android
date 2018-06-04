@@ -254,6 +254,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
     }
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/698")
     @Test
     fun testHasChangesWithMixedBoldAndItalicFormatting() {
         val input = "<b>bold <i>italic</i> bold</b>"

@@ -1219,4 +1219,13 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(output, inputAfterParser)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlParagraphInsideHiddenSpan_isEqual() {
+        val input = "<p>a</p><div><p>b</p></div><p>c</p>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
 }

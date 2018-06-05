@@ -24,16 +24,20 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
         try {
             shouldLog = logHelper?.shouldLog(ex) ?: true
         } catch (e: Throwable) {
-            AppLog.w(AppLog.T.EDITOR, "There was an exception in the Logger Helper. Set the logging to true" )
+            AppLog.w(AppLog.T.EDITOR, "There was an exception in the Logger Helper. Set the logging to true")
         }
 
         if (shouldLog) {
-            // Try to report the HTML code of the content, but do not report exceptions that can occur logging the content
+            // Try to report the HTML code of the content, the spans details, but do not report exceptions that can occur logging the content
             try {
                 AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash " + visualEditor.toPlainHtml(false))
             } catch (e: Throwable) {
-                AppLog.e(AppLog.T.EDITOR, "HTML Content of Aztec Editor before the crash is unavailable, log the details instead")
+                // nope
+            }
+            try {
                 AztecLog.logContentDetails(visualEditor)
+            } catch (e: Throwable) {
+                // nope
             }
         }
 

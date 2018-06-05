@@ -1124,11 +1124,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } catch (e: Exception) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
             AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 and #582 for details.")
-            when (e) {
-                is java.lang.ArrayIndexOutOfBoundsException, is java.lang.RuntimeException -> {
-                    AztecLog.logContentDetails(this)
-                }
-            }
+            // No need to log details here. The default AztecExceptionHandler does this for us.
             throw e
         }
 

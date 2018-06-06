@@ -14,6 +14,7 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import org.wordpress.aztec.AztecInitialContentHolder
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
@@ -22,9 +23,12 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher,
+        AztecInitialContentHolder.EditorHasChangesInterface {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
+        val RETAINED_INITIAL_HTML_PARSED_SHA256_KEY = "RETAINED_INITIAL_HTML_PARSED_SHA256_KEY"
+
     }
 
     @ColorInt var tagColor = ContextCompat.getColor(context, R.color.html_tag)
@@ -37,6 +41,8 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     private var onImeBackListener: AztecText.OnImeBackListener? = null
 
     private var isInCalypsoMode = true
+
+    var initialContentHolder: AztecInitialContentHolder? = null
 
     var history: History? = null
 
@@ -92,6 +98,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         super.onRestoreInstanceState(savedState.superState)
         val customState = savedState.state
         visibility = customState.getInt("visibility")
+        initialContentHolder = customState.getParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
         val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
         setText(retainedContent)
     }
@@ -110,6 +117,7 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
         bundle.putInt("visibility", visibility)
+        bundle.putParcelable(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialContentHolder)
         savedState.state = bundle
         return savedState
     }
@@ -184,6 +192,11 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
+        initialContentHolder?.let {
+            if (it.needToSetInitialValue()) {
+                it.setInitialContent(source)
+            }
+        }
         val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
 
         disableTextChangedListener()
@@ -193,6 +206,13 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
 
         if (cursorPosition > 0)
             setSelection(cursorPosition)
+    }
+
+    override fun hasChanges(): AztecInitialContentHolder.EditorHasChanges {
+        initialContentHolder?.let {
+            return it.hasChanges(getPureHtml(false))
+        }
+        return AztecInitialContentHolder.EditorHasChanges.UNKNOWN
     }
 
     fun consumeCursorTag(styledHtml: SpannableStringBuilder): Int {

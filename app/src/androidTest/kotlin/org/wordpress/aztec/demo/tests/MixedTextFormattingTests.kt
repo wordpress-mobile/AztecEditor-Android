@@ -4,7 +4,7 @@ import android.support.test.rule.ActivityTestRule
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecInitialContentHolder
 import org.wordpress.aztec.demo.BaseTest
 import org.wordpress.aztec.demo.MainActivity
 import org.wordpress.aztec.demo.pages.EditorPage
@@ -251,7 +251,7 @@ class MixedTextFormattingTests : BaseTest() {
                 .insertHTML(input)
                 .toggleHtml()
                 .toggleHtml()
-                .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
+                .hasChanges(AztecInitialContentHolder.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
     }
 
     @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/698")
@@ -268,7 +268,38 @@ class MixedTextFormattingTests : BaseTest() {
                 .setCursorPositionAtEnd()
                 .insertText(insertedText)
                 .toggleHtml()
-                .hasChanges(AztecText.EditorHasChanges.CHANGES)
+                .hasChanges(AztecInitialContentHolder.EditorHasChanges.CHANGES)
                 .verifyHTML(afterParser)
+    }
+
+    @Test
+    fun testHasChangesOnHTMLEditor() {
+        val input = "<b>Test</b>"
+        val insertedText = " text added"
+        val afterParser = "<b>Test</b>$insertedText"
+
+        EditorPage().toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml() // switch back to HTML editor
+                .insertHTML(insertedText)
+                .hasChangesHTML(AztecInitialContentHolder.EditorHasChanges.CHANGES)
+                .verifyHTML(afterParser)
+    }
+
+    @Test
+    fun testHasChangesOnHTMLEditorTestedFromVisualEditor() {
+        val input = "<b>Test</b>"
+        val insertedText = " text added"
+        val afterParser = "Test$insertedText"
+
+        EditorPage().toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml() // switch back to HTML editor
+                .insertHTML(insertedText)
+                .hasChangesHTML(AztecInitialContentHolder.EditorHasChanges.CHANGES)
+                .toggleHtml() // switch back to Visual editor
+                .verify(afterParser)
     }
 }

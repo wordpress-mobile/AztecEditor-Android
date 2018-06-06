@@ -160,6 +160,40 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             bitmap.density = DisplayMetrics.DENSITY_DEFAULT
             return BitmapDrawable(context.resources, bitmap)
         }
+
+        @Throws(NoSuchAlgorithmException::class)
+        private fun calculateSHA256(s: String): ByteArray {
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update(s.toByteArray())
+            return digest.digest()
+        }
+
+        fun calculateInitialHTMLSHA(initialHTMLParsed: String, initialEditorContentParsedSHA256: ByteArray): ByteArray {
+            try {
+                // Do not recalculate the hash if it's not the first call to `fromHTML`.
+                if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
+                    return calculateSHA256(initialHTMLParsed)
+                }
+            } catch (e: Throwable) {
+                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+            }
+
+            return ByteArray(0)
+        }
+
+        fun hasChanges(initialEditorContentParsedSHA256: ByteArray, newContent: String): EditorHasChanges {
+            if (!initialEditorContentParsedSHA256.isEmpty()) {
+                try {
+                    if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(newContent))) {
+                        return EditorHasChanges.NO_CHANGES
+                    }
+                    return EditorHasChanges.CHANGES
+                } catch (e: Throwable) {
+                    // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+                }
+            }
+            return EditorHasChanges.UNKNOWN
+        }
     }
 
     enum class EditorHasChanges {
@@ -175,7 +209,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
+
+    var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
@@ -993,7 +1028,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        calculateInitialHTMLSHA()
+        initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
 
         loadImages()
         loadVideos()
@@ -1069,37 +1104,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    private fun calculateInitialHTMLSHA() {
-        try {
-            // Do not recalculate the hash if it's not the first call to `fromHTML`.
-            if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
-                val initialHTMLParsed = toPlainHtml(false)
-                initialEditorContentParsedSHA256 = calculateSHA256(initialHTMLParsed)
-            }
-        } catch (e: Throwable) {
-            // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-        }
-    }
-
-    @Throws(NoSuchAlgorithmException::class)
-    private fun calculateSHA256(s: String): ByteArray {
-        val digest = MessageDigest.getInstance("SHA-256")
-        digest.update(s.toByteArray())
-        return digest.digest()
-    }
-
     open fun hasChanges(): EditorHasChanges {
-        if (!initialEditorContentParsedSHA256.isEmpty()) {
-            try {
-                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(toPlainHtml(false)))) {
-                    return EditorHasChanges.NO_CHANGES
-                }
-                return EditorHasChanges.CHANGES
-            } catch (e: Throwable) {
-                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
-            }
-        }
-        return EditorHasChanges.UNKNOWN
+        return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(false))
     }
 
     // returns regular or "calypso" html depending on the mode
@@ -1473,7 +1479,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             editHtml = unknownHtmlSpan.rawHtml.toString()
         }
 
-        source.displayStyledAndFormattedHtml(editHtml)
+        source.displayStyledAndFormattedHtml(editHtml, hasChanges() != EditorHasChanges.NO_CHANGES)
         builder.setView(dialogView)
 
         builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->

@@ -412,7 +412,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE, false)
 
             aztec.addPlugin(CssUnderlinePlugin())
         }

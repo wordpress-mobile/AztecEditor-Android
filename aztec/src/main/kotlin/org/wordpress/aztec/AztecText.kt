@@ -174,7 +174,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 if (initialEditorContentParsedSHA256.isEmpty() || Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(""))) {
                     return calculateSHA256(initialHTMLParsed)
                 } else {
-                    return initialEditorContentParsedSHA256;
+                    return initialEditorContentParsedSHA256
                 }
             } catch (e: Throwable) {
                 // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException

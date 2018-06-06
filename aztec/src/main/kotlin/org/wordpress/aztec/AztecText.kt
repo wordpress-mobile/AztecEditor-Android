@@ -1249,11 +1249,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         refreshText(true)
     }
 
-    open fun refreshText(keepFocus: Boolean) {
+    open fun refreshText(stealEditorFocus: Boolean) {
         disableTextChangedListener()
         val selStart = selectionStart
         val selEnd = selectionEnd
-        if (keepFocus) {
+        if (stealEditorFocus) {
             setFocusOnParentView()
         }
         text = editableText

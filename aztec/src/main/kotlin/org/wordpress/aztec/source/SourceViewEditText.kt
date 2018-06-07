@@ -263,17 +263,22 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun getPureHtml(withCursorTag: Boolean = false): String {
+        val str: String
+
         if (withCursorTag) {
-            disableTextChangedListener()
+            val withCursor = StringBuffer(text)
             if (!isCursorInsideTag()) {
-                text.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
+                withCursor.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
             } else {
-                text.insert(text.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
+                withCursor.insert(withCursor.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
             }
-            enableTextChangedListener()
+
+            str = withCursor.toString()
+        } else {
+            str = text.toString()
         }
 
-        return Format.removeSourceEditorFormatting(text.toString(), isInCalypsoMode)
+        return Format.removeSourceEditorFormatting(str, isInCalypsoMode)
     }
 
     fun disableTextChangedListener() {

@@ -412,17 +412,14 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
+            aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE, false)
+
             aztec.addPlugin(CssUnderlinePlugin())
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(EXAMPLE)
+            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
             aztec.initSourceEditorHistory()
-        }
-
-        if (!isRunningTest) {
-            aztec.sourceEditor?.displayStyledAndFormattedHtml(aztec.visualEditor.toPlainHtml(true),
-                    aztec.visualEditor.hasChanges() != AztecText.EditorHasChanges.NO_CHANGES)
         }
 
         invalidateOptionsHandler = Handler()

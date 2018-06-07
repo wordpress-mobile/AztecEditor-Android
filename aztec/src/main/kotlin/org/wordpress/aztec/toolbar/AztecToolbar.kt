@@ -566,14 +566,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         if (sourceEditor == null) return
 
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true),
-                    editor!!.hasChanges() != NO_CHANGES)
+            if (editor!!.hasChanges() != NO_CHANGES) {
+                sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
+            }
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
             toggleHtmlMode(true)
         } else {
-            editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            if (sourceEditor!!.hasChanges() != NO_CHANGES) {
+                editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            }
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 

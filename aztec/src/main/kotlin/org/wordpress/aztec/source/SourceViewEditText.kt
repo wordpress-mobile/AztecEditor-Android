@@ -189,16 +189,14 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
         }
     }
 
-    fun displayStyledAndFormattedHtml(source: String, hasChangesAlready: Boolean) {
+    fun displayStyledAndFormattedHtml(source: String) {
         val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
         text = styledHtml
-        if (!hasChangesAlready) {
-            initialEditorContentParsedSHA256 = AztecText.calculateInitialHTMLSHA(getPureHtml(false),
-                    initialEditorContentParsedSHA256)
-        }
+        initialEditorContentParsedSHA256 = AztecText.calculateInitialHTMLSHA(getPureHtml(false),
+                initialEditorContentParsedSHA256)
         enableTextChangedListener()
 
         if (cursorPosition > 0)

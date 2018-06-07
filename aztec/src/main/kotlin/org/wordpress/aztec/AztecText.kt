@@ -1481,7 +1481,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             editHtml = unknownHtmlSpan.rawHtml.toString()
         }
 
-        source.displayStyledAndFormattedHtml(editHtml, hasChanges() != EditorHasChanges.NO_CHANGES)
+        source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
         builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->

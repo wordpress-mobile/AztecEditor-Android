@@ -1,5 +1,6 @@
 package org.wordpress.aztec
 
+import org.wordpress.android.util.AppLog
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 
@@ -9,7 +10,13 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         if (index == -1) {
             addAttribute("", key, key, "string", value)
         } else {
-            setValue(index, value)
+            try {
+                setValue(index, value)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                // we should not be here since `getIndex(key)` checks if the attribute is already available or not,
+                // but apparently...https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                AppLog.e(AppLog.T.EDITOR, "Tried to set attribute: $key at index: $index")
+            }
         }
     }
 
@@ -20,7 +27,14 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
     fun removeAttribute(key: String) {
         if (hasAttribute(key)) {
             val index = getIndex(key)
-            removeAttribute(index)
+            try {
+                removeAttribute(index)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                // we should not be here since hasAttribute checked if the attribute is available or not,
+                // but apparently...https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                AppLog.e(AppLog.T.EDITOR, "Tried to remove attribute: $key that is not in the list.")
+                AppLog.e(AppLog.T.EDITOR, "Reported to be at index: $index")
+            }
         }
     }
 

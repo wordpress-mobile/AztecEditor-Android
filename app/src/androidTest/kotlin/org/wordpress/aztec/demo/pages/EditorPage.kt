@@ -14,11 +14,9 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.view.KeyEvent
 import android.view.View
-import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
-import org.hamcrest.TypeSafeMatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage

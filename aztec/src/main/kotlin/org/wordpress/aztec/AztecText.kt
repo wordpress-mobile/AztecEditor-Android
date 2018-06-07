@@ -184,17 +184,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         fun hasChanges(initialEditorContentParsedSHA256: ByteArray, newContent: String): EditorHasChanges {
-            if (!initialEditorContentParsedSHA256.isEmpty()) {
-                try {
-                    if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(newContent))) {
-                        return EditorHasChanges.NO_CHANGES
-                    }
-                    return EditorHasChanges.CHANGES
-                } catch (e: Throwable) {
-                    // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+            try {
+                if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(newContent))) {
+                    return EditorHasChanges.NO_CHANGES
                 }
+                return EditorHasChanges.CHANGES
+            } catch (e: Throwable) {
+                // Do nothing here. `toPlainHtml` can throw exceptions, also calculateSHA256 -> NoSuchAlgorithmException
+                return EditorHasChanges.UNKNOWN
             }
-            return EditorHasChanges.UNKNOWN
         }
     }
 

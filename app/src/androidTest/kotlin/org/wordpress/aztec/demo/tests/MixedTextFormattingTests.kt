@@ -254,7 +254,6 @@ class MixedTextFormattingTests : BaseTest() {
                 .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
     }
 
-    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/698")
     @Test
     fun testHasChangesWithMixedBoldAndItalicFormatting() {
         val input = "<b>bold <i>italic</i> bold</b>"
@@ -270,5 +269,36 @@ class MixedTextFormattingTests : BaseTest() {
                 .toggleHtml()
                 .hasChanges(AztecText.EditorHasChanges.CHANGES)
                 .verifyHTML(afterParser)
+    }
+
+    @Test
+    fun testHasChangesOnHTMLEditor() {
+        val input = "<b>Test</b>"
+        val insertedText = " text added"
+        val afterParser = "<b>Test</b>$insertedText"
+
+        EditorPage().toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml() // switch back to HTML editor
+                .insertHTML(insertedText)
+                .hasChangesHTML(AztecText.EditorHasChanges.CHANGES)
+                .verifyHTML(afterParser)
+    }
+
+    @Test
+    fun testHasChangesOnHTMLEditorTestedFromVisualEditor() {
+        val input = "<b>Test</b>"
+        val insertedText = " text added"
+        val afterParser = "Test$insertedText"
+
+        EditorPage().toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .toggleHtml() // switch back to HTML editor
+                .insertHTML(insertedText)
+                .hasChangesHTML(AztecText.EditorHasChanges.CHANGES)
+                .toggleHtml() // switch back to Visual editor
+                .verify(afterParser)
     }
 }

@@ -25,6 +25,7 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecText.EditorHasChanges.NO_CHANGES
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
@@ -565,13 +566,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         if (sourceEditor == null) return
 
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
+            if (editor!!.hasChanges() != NO_CHANGES) {
+                sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
+            }
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
             toggleHtmlMode(true)
         } else {
-            editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            if (sourceEditor!!.hasChanges() != NO_CHANGES) {
+                editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            }
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 

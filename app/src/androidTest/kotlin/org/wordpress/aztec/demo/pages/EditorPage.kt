@@ -14,11 +14,9 @@ import android.support.test.espresso.matcher.ViewMatchers.withId
 import android.support.test.espresso.matcher.ViewMatchers.withText
 import android.view.KeyEvent
 import android.view.View
-import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
-import org.hamcrest.TypeSafeMatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
@@ -371,21 +369,12 @@ class EditorPage : BasePage() {
     }
 
     fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
-        val hasNoChangesMatcher = object : TypeSafeMatcher<View>() {
-            override fun describeTo(description: Description) {
-                description.appendText("User has made changes to the post: $shouldHaveChanges")
-            }
+        editor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
+        return this
+    }
 
-            public override fun matchesSafely(view: View): Boolean {
-                if (view is AztecText) {
-                    return view.hasChanges() == shouldHaveChanges
-                }
-
-                return false
-            }
-        }
-
-        editor.check(matches(hasNoChangesMatcher))
+    fun hasChangesHTML(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
+        htmlEditor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
         return this
     }
 

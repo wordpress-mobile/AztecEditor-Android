@@ -162,6 +162,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    private val REGEXP_EMAIL = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$",
+            setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE))
+    private val REGEXP_STANDALONE_URL = Regex("^(?:[a-z]+:|#|\\?|\\.|/)", RegexOption.DOT_MATCHES_ALL)
+
     enum class EditorHasChanges {
         CHANGES, NO_CHANGES, UNKNOWN
     }
@@ -1420,6 +1424,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         onSelectionChanged(urlSpanBounds.first, urlSpanBounds.second)
     }
 
+    private fun correctUrl(inputUrl: String): String {
+        val url = inputUrl.trim()
+        if (REGEXP_EMAIL.matches(url)) {
+            return "mailto:$url"
+        }
+        if (!REGEXP_STANDALONE_URL.containsMatchIn(url)) {
+            return "http://$url"
+        }
+        return url
+    }
+
     @SuppressLint("InflateParams")
     fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
@@ -1441,7 +1456,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         builder.setTitle(R.string.link_dialog_title)
 
         builder.setPositiveButton(R.string.link_dialog_button_ok, { _, _ ->
-            val linkText = urlInput.text.toString().trim { it <= ' ' }
+            val linkText = correctUrl(urlInput.text.toString().trim { it <= ' ' })
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
             link(linkText, anchorText)

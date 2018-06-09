@@ -85,6 +85,7 @@ import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.IAztecToolbar
+import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
@@ -822,7 +823,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         plugins.filter { it is IToolbarButton }
-                .map { (it as IToolbarButton).action.textFormat }
+                .flatMap { (it as IToolbarButton).action.textFormats }
                 .forEach {
                     if (contains(it, newSelStart, newSelEnd)) {
                         styles.add(it)
@@ -864,12 +865,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6,
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
-            AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_ITALIC,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
+            AztecTextFormat.FORMAT_BOLD,
+            AztecTextFormat.FORMAT_STRONG  -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_ALIGN_LEFT,
@@ -878,7 +880,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             else -> {
-                plugins.filter { it is IToolbarButton && textFormat == it.action.textFormat }
+                plugins.filter { it is IToolbarButton && it.action.textFormats.contains(textFormat) }
                         .map { it as IToolbarButton }
                         .forEach { it.toggle() }
             }
@@ -894,6 +896,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> return lineBlockFormatter.containsHeading(format, selStart, selEnd)
             AztecTextFormat.FORMAT_BOLD,
+            AztecTextFormat.FORMAT_STRONG,
             AztecTextFormat.FORMAT_ITALIC,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
@@ -1278,6 +1281,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun removeInlineStylesFromRange(start: Int, end: Int) {
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRONG, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CITE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)

@@ -14,7 +14,7 @@ import org.wordpress.aztec.ITextFormat
 interface IToolbarAction {
     val buttonId: Int
     val actionType: ToolbarActionType
-    val textFormat: ITextFormat
+    val textFormats: Set<ITextFormat>
 
     /**
      * Determines, whether this action performs any text styling.

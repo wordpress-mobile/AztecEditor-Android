@@ -22,7 +22,7 @@ class MixedTextFormattingTests : BaseTest() {
         val text1 = "so"
         val text2 = "me "
         val text3 = "text "
-        val regex = Regex("<b>$text1</b><i>$text2</i><[bi]><[bi]>$text3</[bi]></[bi]>")
+        val regex = Regex("<strong>$text1</strong><i>$text2</i><(strong|i)><(strong|i)>$text3</(strong|i)></(strong|i)>")
 
         EditorPage()
                 .toggleBold()
@@ -43,7 +43,7 @@ class MixedTextFormattingTests : BaseTest() {
         val text1 = "a"
         val text2 = "b"
         val text3 = " "
-        val html = "a <b>b</b>"
+        val html = "a <strong>b</strong>"
 
         EditorPage()
                 .insertText(text1)
@@ -60,7 +60,7 @@ class MixedTextFormattingTests : BaseTest() {
         val text1 = "some"
         val text2 = "more"
         val text3 = "text"
-        val html = "$text1<b>$text2</b>$text3"
+        val html = "$text1<strong>$text2</strong>$text3"
 
         EditorPage()
                 .insertText(text1)

@@ -23,13 +23,13 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
     }
 
     private fun logInternalState() {
-        AppLog.e(AppLog.T.EDITOR, "AttributesImpl has an internal length of $length")
-        // Since we're not sure the internal state of the Obj is correct we're wrapping toString in a try/catch
+        AppLog.e(AppLog.T.EDITOR, "Dumping internal state:")
+        AppLog.e(AppLog.T.EDITOR, "length = $length")
+        // Since the toString can throw OOB error we need to wrap it in a try/catch
         try {
-            AppLog.e(AppLog.T.EDITOR, "Dumping internal state:")
             AppLog.e(AppLog.T.EDITOR, toString())
-        } catch (t: Throwable) {
-            AppLog.e(AppLog.T.EDITOR, "Error dumping internal state!")
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            AppLog.e(AppLog.T.EDITOR, "Error dumping internal state!", e)
         }
     }
 
@@ -58,12 +58,20 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
 
     override fun toString(): String {
         val sb = StringBuilder()
-        for (i in 0..this.length - 1) {
-            sb.append(this.getLocalName(i))
-            sb.append("=\"")
-            sb.append(this.getValue(i))
-            sb.append("\" ")
+        try {
+            for (i in 0..this.length - 1) {
+                sb.append(this.getLocalName(i))
+                sb.append("=\"")
+                sb.append(this.getValue(i))
+                sb.append("\" ")
+            }
+        } catch (e: ArrayIndexOutOfBoundsException) {
+            // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+            AppLog.e(AppLog.T.EDITOR, "IOOB occurred in toString. Dumping partial state:")
+            AppLog.e(AppLog.T.EDITOR, sb.trimEnd().toString())
+            throw e
         }
+
         return sb.trimEnd().toString()
     }
 }

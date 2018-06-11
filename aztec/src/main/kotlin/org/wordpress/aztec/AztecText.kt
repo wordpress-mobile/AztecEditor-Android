@@ -162,7 +162,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    private val REGEXP_EMAIL = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,20}$",
+    private val REGEXP_EMAIL = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$",
             setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.IGNORE_CASE))
     private val REGEXP_STANDALONE_URL = Regex("^(?:[a-z]+:|#|\\?|\\.|/)", RegexOption.DOT_MATCHES_ALL)
 

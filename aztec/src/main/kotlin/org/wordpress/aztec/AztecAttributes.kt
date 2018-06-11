@@ -7,16 +7,29 @@ import org.xml.sax.helpers.AttributesImpl
 class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImpl(attributes) {
     fun setValue(key: String, value: String) {
         val index = getIndex(key)
+
         if (index == -1) {
-            addAttribute("", key, key, "string", value)
-        } else {
             try {
-                setValue(index, value)
+                addAttribute("", key, key, "string", value)
             } catch (e: ArrayIndexOutOfBoundsException) {
-                // we should not be here since `getIndex(key)` checks if the attribute is already available or not,
-                // but apparently...https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-                AppLog.e(AppLog.T.EDITOR, "Tried to set attribute: $key at index: $index")
+                // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                AppLog.e(AppLog.T.EDITOR, "Error adding attribute with name: $key and value: $value")
+                logInternalState()
+                throw e
             }
+        } else {
+            setValue(index, value)
+        }
+    }
+
+    private fun logInternalState() {
+        AppLog.e(AppLog.T.EDITOR, "AttributesImpl has an internal length of $length")
+        // Since we're not sure the internal state of the Obj is correct we're wrapping toString in a try/catch
+        try {
+            AppLog.e(AppLog.T.EDITOR, "Dumping internal state:")
+            AppLog.e(AppLog.T.EDITOR, toString())
+        } catch (t: Throwable) {
+            AppLog.e(AppLog.T.EDITOR, "Error dumping internal state!")
         }
     }
 
@@ -30,10 +43,11 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
             try {
                 removeAttribute(index)
             } catch (e: ArrayIndexOutOfBoundsException) {
-                // we should not be here since hasAttribute checked if the attribute is available or not,
-                // but apparently...https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-                AppLog.e(AppLog.T.EDITOR, "Tried to remove attribute: $key that is not in the list.")
+                // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                AppLog.e(AppLog.T.EDITOR, "Tried to remove attribute: $key that is not in the list")
                 AppLog.e(AppLog.T.EDITOR, "Reported to be at index: $index")
+                logInternalState()
+                throw e
             }
         }
     }

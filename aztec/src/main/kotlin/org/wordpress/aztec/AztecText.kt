@@ -1456,7 +1456,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         builder.setTitle(R.string.link_dialog_title)
 
         builder.setPositiveButton(R.string.link_dialog_button_ok, { _, _ ->
-            val linkText = correctUrl(urlInput.text.toString().trim { it <= ' ' })
+            val linkText = TextUtils.htmlEncode(correctUrl(urlInput.text.toString().trim { it <= ' ' }))
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
             link(linkText, anchorText)

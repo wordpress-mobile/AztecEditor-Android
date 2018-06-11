@@ -29,7 +29,8 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         try {
             AppLog.e(AppLog.T.EDITOR, toString())
         } catch (e: ArrayIndexOutOfBoundsException) {
-            AppLog.e(AppLog.T.EDITOR, "Error dumping internal state!", e)
+            // No need to log anything here. `toString` already writes to log details, but we need to shallow the exception
+            // we don't want to crash logging state of the app
         }
     }
 

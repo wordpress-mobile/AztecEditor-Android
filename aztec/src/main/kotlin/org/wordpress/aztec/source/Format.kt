@@ -5,6 +5,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Entities
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.EndOfParagraphMarker
@@ -20,11 +21,19 @@ object Format {
     private val iframePlaceholder = "iframe-replacement-0x0"
 
     @JvmStatic
+    fun getJsoupSettings(isCalypsoFormat: Boolean): Document.OutputSettings {
+        return Document.OutputSettings()
+                .escapeMode(Entities.EscapeMode.extended)
+                .prettyPrint(!isCalypsoFormat)
+    }
+
+    @JvmStatic
     fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
         var html = replaceAll(content, "iframe", iframePlaceholder)
         html = html.replace("<aztec_cursor>", "")
 
-        val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
+        val doc = Jsoup.parseBodyFragment(html).outputSettings(Format.getJsoupSettings(isCalypsoFormat))
+
         if (isCalypsoFormat) {
             // remove empty span tags
             doc.select("*")
@@ -49,13 +58,15 @@ object Format {
 
     @JvmStatic
     fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
+        var content = html
         if (isCalypsoFormat) {
-            val htmlWithoutSourceFormatting = toCalypsoHtml(html)
-            val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
-            return doc.body().html()
+            content = toCalypsoHtml(content) // htmlWithoutSourceFormatting
+            content = content.replace("\n", "")
         } else {
-            return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
+            content = replaceAll(content, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
         }
+        val doc = Jsoup.parseBodyFragment(content).outputSettings(Format.getJsoupSettings(isCalypsoFormat))
+        return doc.body().html().trim()
     }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {

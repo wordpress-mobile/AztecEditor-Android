@@ -18,7 +18,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testSimpleBoldFormatting() {
         val text1 = "some"
         val text2 = "text"
-        val html = "$text1<b>$text2</b>"
+        val html = "$text1<strong>$text2</strong>"
 
         EditorPage()
                 .insertText(text1)

@@ -18,7 +18,7 @@ class FormattingHistoryTests : BaseHistoryTest() {
     @Test
     fun testAddBoldUndoRedo() {
         val word = "Testing"
-        val html = "<b>$word</b>"
+        val html = "<strong>$word</strong>"
         val editorPage = EditorPage()
 
         // Add bold text, verify
@@ -56,8 +56,8 @@ class FormattingHistoryTests : BaseHistoryTest() {
         val word1 = "Testing"
         val word2 = " Bolder"
         val word3 = " History"
-        val htmlSecond = "$word1<b>$word2</b>"
-        val htmlFinal = "$word1<b>$word2</b>$word3"
+        val htmlSecond = "$word1<strong>$word2</strong>"
+        val htmlFinal = "$word1<strong>$word2</strong>$word3"
         val editorPage = EditorPage()
 
         // Add first word - regular
@@ -109,7 +109,7 @@ class FormattingHistoryTests : BaseHistoryTest() {
     @Test
     fun testSelectToMakeBoldUndoRedo() {
         val text = "There's no crying in baseball!"
-        val html = "<b>$text</b>"
+        val html = "<strong>$text</strong>"
         val editorPage = EditorPage()
 
         // Insert text snippet

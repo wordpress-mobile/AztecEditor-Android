@@ -155,7 +155,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_BOLD, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRONG, true)
                     findViewById<ToggleButton>(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
@@ -245,7 +245,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             else -> {
                 toolbarButtonPlugins.forEach {
                     if (it.matchesKeyShortcut(keyCode, event)) {
-                        aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormat, true)
+                        aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormats.first(), true)
                         it.toggle()
                         return true
                     }
@@ -493,7 +493,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             val textFormats = ArrayList<ITextFormat>()
 
             actions.filter { it.isStylingAction() }
-                    .forEach { textFormats.add(it.textFormat) }
+                    .forEach { textFormats.add(it.textFormats.first()) }
 
             if (getSelectedHeadingMenuItem() != null) {
                 textFormats.add(getSelectedHeadingMenuItem()!!)
@@ -503,14 +503,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 textFormats.add(getSelectedListMenuItem()!!)
             }
 
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
             return editor!!.setSelectedStyles(textFormats)
         }
 
         // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
-            val returnValue = editor!!.toggleFormatting(action.textFormat)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
+            val returnValue = editor!!.toggleFormatting(action.textFormats.first())
 
             highlightAppliedStyles()
 

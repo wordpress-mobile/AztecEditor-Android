@@ -14,6 +14,7 @@ enum class AztecTextFormat : ITextFormat {
     FORMAT_UNORDERED_LIST,
     FORMAT_ORDERED_LIST,
     FORMAT_BOLD,
+    FORMAT_STRONG,
     FORMAT_ITALIC,
     FORMAT_CITE,
     FORMAT_UNDERLINE,

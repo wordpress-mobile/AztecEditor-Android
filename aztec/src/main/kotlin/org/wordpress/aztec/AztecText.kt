@@ -53,6 +53,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.EditText
+import org.jsoup.Jsoup
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
@@ -1154,7 +1155,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.postProcessSpannedText(output, isInCalypsoMode)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
+        val html = EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
+        val doc = Jsoup.parseBodyFragment(html).outputSettings(Format.getJsoupSettings(isInCalypsoMode))
+        return doc.body().html().trim()
     }
 
     fun toFormattedHtml(): String {

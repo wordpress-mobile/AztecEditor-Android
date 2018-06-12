@@ -163,7 +163,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         @Throws(NoSuchAlgorithmException::class)
-        private fun calculateSHA256(s: String): ByteArray {
+        fun calculateSHA256(s: String): ByteArray {
             val digest = MessageDigest.getInstance("SHA-256")
             digest.update(s.toByteArray())
             return digest.digest()

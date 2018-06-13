@@ -52,6 +52,21 @@ class GutenbergCompatTests : BaseTest() {
     }
 
     @Test
+    fun testRetainGutenbergPostContentWithCoverImage() {
+        val html = "<!-- wp:cover-image {\"url\":\"https://cldup.com/Fz-ASbo2s3.jpg\",\"align\":\"wide\"} -->" +
+                "<div class=\"wp-block-cover-image has-background-dim alignwide\" style=\"background-image:url('https://cldup.com/Fz-ASbo2s3.jpg');\">" +
+                "    <p class=\"wp-block-cover-image-text\">Of Mountains &amp; Printing Presses</p>" +
+                "</div>" +
+                "<!-- /wp:cover-image -->"
+
+        EditorPage().toggleHtml()
+                .insertHTML(html)
+                .toggleHtml()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
     fun testRetainGutenbergPostContentAndInlineGutenbergComment() {
         val html = "<!-- wp:latest-posts {\"postsToShow\":4,\"displayPostDate\":true} /-->" +
                 "<!-- wp:paragraph --><p>Blue is not a color</p><!-- /wp:paragraph -->" +

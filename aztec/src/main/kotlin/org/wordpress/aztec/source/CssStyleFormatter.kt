@@ -118,7 +118,7 @@ class CssStyleFormatter {
                 style += ";"
             }
 
-            style += " $styleAttributeName: $styleAttributeValue;"
+            style += " $styleAttributeName:$styleAttributeValue;"
             attributes.setValue(STYLE_ATTRIBUTE, style.trim())
         }
 

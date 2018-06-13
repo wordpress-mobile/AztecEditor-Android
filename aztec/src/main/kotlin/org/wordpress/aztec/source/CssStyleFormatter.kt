@@ -95,7 +95,6 @@ class CssStyleFormatter {
                     attributes.removeAttribute(STYLE_ATTRIBUTE)
                 } else {
                     newStyle = newStyle.replace(";".toRegex(), "; ")
-                    newStyle = newStyle.replace(":".toRegex(), ": ")
                     attributes.setValue(STYLE_ATTRIBUTE, newStyle.trim())
                 }
             }
@@ -131,7 +130,7 @@ class CssStyleFormatter {
 
             var style = ""
             mergedArray.forEach({
-                style = style + it.replace(":", ": ") + "; "
+                style = style + it + ";"
             })
             return style.trimEnd()
         }

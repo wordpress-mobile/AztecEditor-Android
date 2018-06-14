@@ -32,6 +32,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import java.util.Arrays
 import java.util.ArrayList
 import java.util.Locale
 
@@ -41,6 +42,9 @@ import java.util.Locale
  * Supports RTL layout direction on API 19+
  */
 class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
+    val RETAINED_EDITOR_HTML_PARSED_SHA256_KEY = "RETAINED_EDITOR_HTML_PARSED_SHA256_KEY"
+    val RETAINED_SOURCE_HTML_PARSED_SHA256_KEY = "RETAINED_SOURCE_HTML_PARSED_SHA256_KEY"
+
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
@@ -52,6 +56,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var isExpanded: Boolean = false
     private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
+
+    var editorContentParsedSHA256LastSwitch: ByteArray = ByteArray(0)
+    var sourceContentParsedSHA256LastSwitch: ByteArray = ByteArray(0)
 
     private lateinit var toolbarScrolView: HorizontalScrollView
     private lateinit var buttonEllipsisCollapsed: RippleToggleButton
@@ -346,6 +353,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isMediaToolbarVisible = restoredState.getBoolean("isMediaToolbarVisible")
         setAdvancedState()
         setupMediaToolbar()
+        editorContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY)
+        sourceContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY)
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -356,6 +365,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         bundle.putBoolean("isMediaMode", isMediaModeEnabled)
         bundle.putBoolean("isExpanded", isExpanded)
         bundle.putBoolean("isMediaToolbarVisible", isMediaToolbarVisible)
+        bundle.putByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY, editorContentParsedSHA256LastSwitch)
+        bundle.putByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY, sourceContentParsedSHA256LastSwitch)
         savedState.state = bundle
         return savedState
     }
@@ -561,22 +572,37 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
     }
 
+    private fun syncSourceFromEditor() {
+        val editorHtml = editor!!.toPlainHtml(true)
+        val sha256 = AztecText.calculateSHA256(editorHtml)
+        if (editor!!.hasChanges() != NO_CHANGES || !Arrays.equals(editorContentParsedSHA256LastSwitch, sha256)) {
+            sourceEditor!!.displayStyledAndFormattedHtml(editorHtml)
+        }
+        editorContentParsedSHA256LastSwitch = sha256
+    }
+
+    private fun syncEditorFromSource() {
+        // temp var of the source html to load it to the editor if needed
+        val sourceHtml = sourceEditor!!.getPureHtml(true)
+        val sha256 = AztecText.calculateSHA256(sourceHtml)
+        if (sourceEditor!!.hasChanges() != NO_CHANGES || !Arrays.equals(sourceContentParsedSHA256LastSwitch, sha256)) {
+            editor!!.fromHtml(sourceHtml)
+        }
+        sourceContentParsedSHA256LastSwitch = sha256
+    }
+
     override fun toggleEditorMode() {
         // only allow toggling if sourceEditor is present
         if (sourceEditor == null) return
 
         if (editor!!.visibility == View.VISIBLE) {
-            if (editor!!.hasChanges() != NO_CHANGES) {
-                sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
-            }
+            syncSourceFromEditor()
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
             toggleHtmlMode(true)
         } else {
-            if (sourceEditor!!.hasChanges() != NO_CHANGES) {
-                editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
-            }
+            syncEditorFromSource()
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 

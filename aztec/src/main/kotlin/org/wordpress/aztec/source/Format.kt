@@ -24,6 +24,7 @@ object Format {
     fun getJsoupSettings(isCalypsoFormat: Boolean): Document.OutputSettings {
         return Document.OutputSettings()
                 .escapeMode(Entities.EscapeMode.extended)
+                .syntax(Document.OutputSettings.Syntax.html)
                 .prettyPrint(!isCalypsoFormat)
     }
 

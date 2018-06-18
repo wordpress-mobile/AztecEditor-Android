@@ -1,3 +1,14 @@
+## [1.3.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.6) - 2018-04-12
+### Fixed
+- Fixed handling of schemed urls (mailto:, http, #, etc.).
+- Fixes a break in http:// descriptor as per a CSS readability feature would add a space after ":".
+- Crash fixes.
+
+### Changed
+- Cursor position is now retained when switching from Visual to HTML mode.
+- Change detection is now handled through a hash comparison implementation and syncs between HTML/visual editors.
+- The `<strong>` tag is now the styling element used when tapping on the B toolbar button.
+
 # Changelog
 ## [1.3.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.5) - 2018-06-04
 ### Fixed

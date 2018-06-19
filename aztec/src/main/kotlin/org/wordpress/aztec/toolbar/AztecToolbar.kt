@@ -575,6 +575,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private fun syncSourceFromEditor() {
         val editorHtml = editor!!.toPlainHtml(true)
         val sha256 = AztecText.calculateSHA256(editorHtml)
+
+        if (editorContentParsedSHA256LastSwitch.isEmpty()) {
+            // initialize the var if it's the first time we're about to use it
+            editorContentParsedSHA256LastSwitch = sha256
+        }
+
         if (editor!!.hasChanges() != NO_CHANGES || !Arrays.equals(editorContentParsedSHA256LastSwitch, sha256)) {
             sourceEditor!!.displayStyledAndFormattedHtml(editorHtml)
         }
@@ -585,6 +591,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         // temp var of the source html to load it to the editor if needed
         val sourceHtml = sourceEditor!!.getPureHtml(true)
         val sha256 = AztecText.calculateSHA256(sourceHtml)
+
+        if (sourceContentParsedSHA256LastSwitch.isEmpty()) {
+            // initialize the var if it's the first time we're about to use it
+            sourceContentParsedSHA256LastSwitch = sha256
+        }
+
         if (sourceEditor!!.hasChanges() != NO_CHANGES || !Arrays.equals(sourceContentParsedSHA256LastSwitch, sha256)) {
             editor!!.fromHtml(sourceHtml)
         }

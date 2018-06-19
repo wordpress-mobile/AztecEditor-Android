@@ -418,7 +418,7 @@ open class MainActivity : AppCompatActivity(),
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
+            aztec.visualEditor.fromHtml(EXAMPLE)
             aztec.initSourceEditorHistory()
         }
 

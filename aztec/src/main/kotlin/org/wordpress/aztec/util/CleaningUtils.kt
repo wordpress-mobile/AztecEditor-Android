@@ -19,7 +19,7 @@ object CleaningUtils {
     }
 
     @JvmStatic
-    fun cleanNestedBoldTags(html: String) :String {
+    fun cleanNestedBoldTags(html: String) : String {
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings())
         cleanNestedBoldTags(doc)
         return doc.html()

@@ -2,6 +2,7 @@ package org.wordpress.aztec.util
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.jsoup.parser.Parser
 
 object CleaningUtils {
 
@@ -20,7 +21,7 @@ object CleaningUtils {
 
     @JvmStatic
     fun cleanNestedBoldTags(html: String) : String {
-        val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings())
+        val doc = Jsoup.parse(html, "", Parser.xmlParser()).outputSettings(Document.OutputSettings().prettyPrint(false))
         cleanNestedBoldTags(doc)
         return doc.html()
     }

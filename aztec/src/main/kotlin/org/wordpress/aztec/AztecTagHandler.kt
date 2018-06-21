@@ -41,6 +41,7 @@ import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.HiddenHtmlBlock
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
@@ -75,8 +76,12 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 handleElement(output, opening, AztecStrikethroughSpan(tag, AztecAttributes(attributes)))
                 return true
             }
-            DIV, SPAN, FIGURE, FIGCAPTION, SECTION -> {
+            SPAN -> {
                 handleElement(output, opening, HiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel))
+                return true
+            }
+            DIV, FIGURE, FIGCAPTION, SECTION -> {
+                handleElement(output, opening, HiddenHtmlBlock(tag, AztecAttributes(attributes), nestingLevel))
                 return true
             }
             LIST_UL -> {

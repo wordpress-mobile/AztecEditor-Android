@@ -24,7 +24,7 @@ fun AztecText.updateVideoPressThumb(thumbURL: String, videoURL: String, videoPre
                 }
             }
             post {
-                refreshText()
+                refreshText(false)
             }
         }
 

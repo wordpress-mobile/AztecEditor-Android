@@ -14,7 +14,9 @@ import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
+import org.wordpress.aztec.spans.AztecStyleCiteSpan
 import org.wordpress.aztec.spans.AztecStyleItalicSpan
+import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
@@ -37,6 +39,17 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
+    /**
+     * Removes all formats in the list but if none found, applies the first one
+     */
+    fun toggleAny(textFormats: Set<ITextFormat>) {
+        if (!textFormats
+                .filter { containsInlineStyle(it) }
+                .fold(false, { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true })) {
+            applyInlineStyle(textFormats.first())
+        }
+    }
+
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
         if (textChangedEvent.isEndOfBufferMarker()) return
 
@@ -50,7 +63,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             for (item in editor.selectedStyles) {
                 when (item) {
                     AztecTextFormat.FORMAT_BOLD,
+                    AztecTextFormat.FORMAT_STRONG,
                     AztecTextFormat.FORMAT_ITALIC,
+                    AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
@@ -147,14 +162,13 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 }
             }
 
-            // if we already have same span within selection - reuse it by changing it's bounds
+            // if we already have same span within selection - reuse its attributes
             if (existingSpanOfSameStyle != null) {
                 editableText.removeSpan(existingSpanOfSameStyle)
-                (existingSpanOfSameStyle as IAztecInlineSpan).attributes = attrs
-                applySpan(existingSpanOfSameStyle as IAztecInlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            } else {
-                applySpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spanToApply.attributes = attrs
             }
+
+            applySpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         joinStyleSpans(start, end)
@@ -182,7 +196,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     fun spanToTextFormat(span: IAztecInlineSpan): ITextFormat? {
         when (span::class.java) {
             AztecStyleBoldSpan::class.java -> return AztecTextFormat.FORMAT_BOLD
+            AztecStyleStrongSpan::class.java -> return AztecTextFormat.FORMAT_STRONG
             AztecStyleItalicSpan::class.java -> return AztecTextFormat.FORMAT_ITALIC
+            AztecStyleCiteSpan::class.java -> return AztecTextFormat.FORMAT_CITE
             AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
@@ -231,16 +247,12 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     fun isSameInlineSpanType(firstSpan: IAztecInlineSpan, secondSpan: IAztecInlineSpan): Boolean {
-        if (firstSpan.javaClass == secondSpan.javaClass) {
-            // special check for StyleSpan
-            if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
-                return firstSpan.style == secondSpan.style
-            } else {
-                return true
-            }
+        // special check for StyleSpans
+        if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
+            return firstSpan.style == secondSpan.style
         }
 
-        return false
+        return firstSpan.javaClass == secondSpan.javaClass
     }
 
     // TODO: Check if there is more efficient way to tidy spans
@@ -327,7 +339,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     fun makeInlineSpan(textFormat: ITextFormat): IAztecInlineSpan {
         when (textFormat) {
             AztecTextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
+            AztecTextFormat.FORMAT_STRONG -> return AztecStyleStrongSpan()
             AztecTextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
+            AztecTextFormat.FORMAT_CITE -> return AztecStyleCiteSpan()
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)

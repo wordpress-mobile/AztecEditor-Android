@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ToggleButton
+import org.wordpress.android.util.DeviceUtils
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
@@ -29,7 +30,7 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.MORE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)!!,
                 nestingLevel,
                 visualEditor
         )
@@ -45,6 +46,10 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun matchesKeyShortcut(keyCode: Int, event: KeyEvent): Boolean {
+        if (DeviceUtils.getInstance().isChromebook(context)) {
+            return false // This opens the terminal in Chromebooks
+        }
+
         return keyCode == KeyEvent.KEYCODE_T && event.isAltPressed && event.isCtrlPressed // Read More = Alt + Ctrl + T
     }
 

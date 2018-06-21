@@ -29,7 +29,7 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
         html.append("-->")
     }
 
-    override fun handleComment(text: String, output: Editable, nestingLevel: Int): Boolean {
+    override fun handleComment(text: String, output: Editable, nestingLevel: Int, updateNesting: (Int) -> Unit): Boolean {
 
         val spanStart = output.length
 
@@ -41,7 +41,7 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more),
+                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)!!,
                             nestingLevel
                     ),
                     spanStart,
@@ -57,7 +57,7 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page),
+                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page)!!,
                             nestingLevel
                     ),
                     spanStart,

@@ -70,7 +70,7 @@ class ToolbarHighlightingTests : BaseTest() {
                 .insertText(text2)
                 .checkBold(isNotChecked())
                 .toggleHtml()
-                .verifyHTML("<b>$text1</b>$text2")
+                .verifyHTML("<strong>$text1</strong>$text2")
     }
 
     // make sure that selected toolbar style in empty editor remains when soft keyboard is displayed
@@ -87,6 +87,36 @@ class ToolbarHighlightingTests : BaseTest() {
                 .checkBold(isChecked())
                 .insertText(text)
                 .toggleHtml()
-                .verifyHTML("<b>$text</b>")
+                .verifyHTML("<strong>$text</strong>")
+    }
+
+    @Test
+    fun testHasBoldAndStrongFormatting() {
+        val input = "<b>bold</b> normal strong"
+        val html = "<b>bold</b> normal <strong>strong</strong>"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .selectText(12, 18)
+                .toggleBold()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testExpandBoldAndSetToStrongFormatting() {
+        val input = "<b>bold</b> normal strong"
+        val html = "<strong>bold normal strong</strong>"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(input)
+                .toggleHtml()
+                .selectAllText()
+                .toggleBold()
+                .toggleHtml()
+                .verifyHTML(html)
     }
 }

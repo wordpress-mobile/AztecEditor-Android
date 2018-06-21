@@ -95,7 +95,7 @@ class AztecToolbarTest {
         Assert.assertTrue(boldButton.isChecked)
 
         editText.append("bold")
-        Assert.assertEquals("<b>bold</b>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong>", editText.toHtml())
 
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
@@ -115,7 +115,7 @@ class AztecToolbarTest {
         editText.setSelection(0, editText.length())
         boldButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
-        Assert.assertEquals("<b>bold</b>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong>", editText.toHtml())
 
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
@@ -261,28 +261,28 @@ class AztecToolbarTest {
         editText.append("Bo")
         boldButton.performClick()
         editText.append("ld")
-        Assert.assertEquals("<b>Bo</b>ld", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld", editText.toHtml())
 
         // Italic
         italicButton.performClick()
         editText.append("Ita")
         italicButton.performClick()
         editText.append("lic")
-        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld<i>Ita</i>lic", editText.toHtml())
 
         // Strike
         strikeThroughButton.performClick()
         editText.append("Str")
         strikeThroughButton.performClick()
         editText.append("ike")
-        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic<del>Str</del>ike", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld<i>Ita</i>lic<del>Str</del>ike", editText.toHtml())
 
         // Underline
         underlineButton.performClick()
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
-        Assert.assertEquals("<b>Bo</b>ld<i>Ita</i>lic<del>Str</del>ike<u>Under</u>line", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld<i>Ita</i>lic<del>Str</del>ike<u>Under</u>line", editText.toHtml())
 
         // Clear text
         editText.setText("")
@@ -292,28 +292,28 @@ class AztecToolbarTest {
         boldButton.performClick()
         editText.append("ld")
         boldButton.performClick()
-        Assert.assertEquals("Bo<b>ld</b>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>", editText.toHtml())
 
         // Italic
         editText.append("Ita")
         italicButton.performClick()
         editText.append("lic")
         italicButton.performClick()
-        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>Ita<i>lic</i>", editText.toHtml())
 
         // Strike
         editText.append("Str")
         strikeThroughButton.performClick()
         editText.append("ike")
         strikeThroughButton.performClick()
-        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>Str<del>ike</del>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>Ita<i>lic</i>Str<del>ike</del>", editText.toHtml())
 
         // Underline
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
         underlineButton.performClick()
-        Assert.assertEquals("Bo<b>ld</b>Ita<i>lic</i>Str<del>ike</del>Under<u>line</u>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>Ita<i>lic</i>Str<del>ike</del>Under<u>line</u>", editText.toHtml())
     }
 
     /**
@@ -332,7 +332,7 @@ class AztecToolbarTest {
         editText.append("Bo")
         boldButton.performClick()
         editText.append("ld")
-        Assert.assertEquals(" <b>Bo</b>ld", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld", editText.toHtml())
 
         // Space
         editText.append(" ")
@@ -342,7 +342,7 @@ class AztecToolbarTest {
         editText.append("Ita")
         italicButton.performClick()
         editText.append("lic")
-        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld <i>Ita</i>lic", editText.toHtml())
 
         // Space
         editText.append(" ")
@@ -352,7 +352,7 @@ class AztecToolbarTest {
         editText.append("Str")
         strikeThroughButton.performClick()
         editText.append("ike")
-        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic <del>Str</del>ike", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld <i>Ita</i>lic <del>Str</del>ike", editText.toHtml())
 
         // Space
         editText.append(" ")
@@ -362,7 +362,7 @@ class AztecToolbarTest {
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
-        Assert.assertEquals(" <b>Bo</b>ld <i>Ita</i>lic <del>Str</del>ike <u>Under</u>line", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld <i>Ita</i>lic <del>Str</del>ike <u>Under</u>line", editText.toHtml())
     }
 
     /**
@@ -380,7 +380,7 @@ class AztecToolbarTest {
         boldButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> bolditalic italic strike underline normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> bolditalic italic strike underline normal", editText.toHtml())
 
         editText.setSelection(5, 15)
 
@@ -392,7 +392,7 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(italicButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> italic strike underline normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> <strong><i>bolditalic</i></strong> italic strike underline normal", editText.toHtml())
 
         editText.setSelection(16, 22)
 
@@ -407,14 +407,14 @@ class AztecToolbarTest {
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <del>strike</del> underline normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> <strong><i>bolditalic</i></strong> <i>italic</i> <del>strike</del> underline normal", editText.toHtml())
 
         editText.setSelection(30, 39)
 
         underlineButton.performClick()
         Assert.assertTrue(underlineButton.isChecked)
 
-        Assert.assertEquals("<b>bold</b> <b><i>bolditalic</i></b> <i>italic</i> <del>strike</del> <u>underline</u> normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> <strong><i>bolditalic</i></strong> <i>italic</i> <del>strike</del> <u>underline</u> normal", editText.toHtml())
     }
 
     /**
@@ -430,36 +430,36 @@ class AztecToolbarTest {
         boldButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
         editText.append("bold")
-        Assert.assertEquals("<b>bold</b>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong>", editText.toHtml())
 
         italicButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
         editText.append("bolditalic")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><i>bolditalic</i></strong>", editText.toHtml())
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
 
         editText.append("italic")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><i>bolditalic</i></strong><i>italic</i>", editText.toHtml())
         italicButton.performClick()
         Assert.assertFalse(italicButton.isChecked)
 
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
         editText.append("strike")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><i>bolditalic</i></strong><i>italic</i><del>strike</del>", editText.toHtml())
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
 
         underlineButton.performClick()
         Assert.assertTrue(underlineButton.isChecked)
         editText.append("underline")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><i>bolditalic</i></strong><i>italic</i><del>strike</del><u>underline</u>", editText.toHtml())
         underlineButton.performClick()
         Assert.assertFalse(underlineButton.isChecked)
 
         editText.append("normal")
-        Assert.assertEquals("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><i>bolditalic</i></strong><i>italic</i><del>strike</del><u>underline</u>normal", editText.toHtml())
     }
 
     /**
@@ -636,7 +636,7 @@ class AztecToolbarTest {
         Assert.assertEquals("bolditalic", editText.toHtml())
 
         boldButton.performClick()
-        Assert.assertEquals("<b>bolditalic</b>", editText.toHtml())
+        Assert.assertEquals("<strong>bolditalic</strong>", editText.toHtml())
     }
 
     /**
@@ -674,18 +674,18 @@ class AztecToolbarTest {
 
         editText.setSelection(0, 3)
         boldButton.performClick()
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span>Span</span><br>Hidden</div>",
+        Assert.assertEquals("<div class=\"third\"><strong>Div</strong><br><span>Span</span><br>Hidden</div>",
                 editText.toHtml())
 
         editText.setSelection(4, 8)
         italicButton.performClick()
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br>Hidden</div>",
+        Assert.assertEquals("<div class=\"third\"><strong>Div</strong><br><span><i>Span</i></span><br>Hidden</div>",
                 editText.toHtml())
 
         editText.setSelection(9, 15)
         strikeThroughButton.performClick()
 
-        Assert.assertEquals("<div class=\"third\"><b>Div</b><br><span><i>Span</i></span><br><del>Hidden</del></div>",
+        Assert.assertEquals("<div class=\"third\"><strong>Div</strong><br><span><i>Span</i></span><br><del>Hidden</del></div>",
                 editText.toHtml())
     }
 
@@ -809,18 +809,18 @@ class AztecToolbarTest {
 
         editText.setSelection(3)
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>",
+        Assert.assertEquals("<p style=\"text-align:right;\">Hello, this is some unformatted text.</p>",
                 editText.toHtml())
 
         alignRightButton.performClick()
         Assert.assertEquals("<p>Hello, this is some unformatted text.</p>", editText.toHtml())
 
         alignLeftButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: left;\">Hello, this is some unformatted text.</p>",
+        Assert.assertEquals("<p style=\"text-align:left;\">Hello, this is some unformatted text.</p>",
                 editText.toHtml())
 
         alignCenterButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: center;\">Hello, this is some unformatted text.</p>",
+        Assert.assertEquals("<p style=\"text-align:center;\">Hello, this is some unformatted text.</p>",
                 editText.toHtml())
     }
 
@@ -831,14 +831,14 @@ class AztecToolbarTest {
 
         editText.setSelection(3)
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>" +
+        Assert.assertEquals("<p style=\"text-align:right;\">Hello, this is some unformatted text.</p>" +
                 "Another line<br>Third line",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("Third"))
         alignCenterButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\">Hello, this is some unformatted text.</p>" +
-                "Another line<p style=\"text-align: center;\">Third line</p>",
+        Assert.assertEquals("<p style=\"text-align:right;\">Hello, this is some unformatted text.</p>" +
+                "Another line<p style=\"text-align:center;\">Third line</p>",
                 editText.toHtml())
     }
 
@@ -849,20 +849,20 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("bold"))
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p><i>italic</i><br><u>underline</u>",
+        Assert.assertEquals("<p style=\"text-align:right;\"><b>bold</b></p><i>italic</i><br><u>underline</u>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("italic"))
         alignCenterButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p>" +
-                "<p style=\"text-align: center;\"><i>italic</i></p><u>underline</u>",
+        Assert.assertEquals("<p style=\"text-align:right;\"><b>bold</b></p>" +
+                "<p style=\"text-align:center;\"><i>italic</i></p><u>underline</u>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("underline"))
         alignLeftButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b></p>" +
-                "<p style=\"text-align: center;\"><i>italic</i></p>" +
-                "<p style=\"text-align: left;\"><u>underline</u></p>",
+        Assert.assertEquals("<p style=\"text-align:right;\"><b>bold</b></p>" +
+                "<p style=\"text-align:center;\"><i>italic</i></p>" +
+                "<p style=\"text-align:left;\"><u>underline</u></p>",
                 editText.toHtml())
     }
 
@@ -873,7 +873,7 @@ class AztecToolbarTest {
 
         editText.setSelection(2, editText.length() - 2)
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\"><b>bold</b><br><i>italic</i><br><u>underline</u></p>",
+        Assert.assertEquals("<p style=\"text-align:right;\"><b>bold</b><br><i>italic</i><br><u>underline</u></p>",
                 editText.toHtml())
     }
 
@@ -884,7 +884,7 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("Heading 2"))
         alignRightButton.performClick()
-        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: right;\">Heading 2</h2><h3>Heading 3</h3>",
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align:right;\">Heading 2</h2><h3>Heading 3</h3>",
                 editText.toHtml())
     }
 
@@ -895,7 +895,7 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("2") + 1)
         alignCenterButton.performClick()
-        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: center;\">Heading 2</h2><h3>Heading 3</h3>",
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align:center;\">Heading 2</h2><h3>Heading 3</h3>",
                 editText.toHtml())
     }
 
@@ -906,8 +906,8 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("2"), editText.text.length)
         alignCenterButton.performClick()
-        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align: center;\">Heading 2</h2>" +
-                "<h3 style=\"text-align: center;\">Heading 3</h3>",
+        Assert.assertEquals("<h1>Heading 1</h1><h2 style=\"text-align:center;\">Heading 2</h2>" +
+                "<h3 style=\"text-align:center;\">Heading 3</h3>",
                 editText.toHtml())
     }
 
@@ -918,9 +918,9 @@ class AztecToolbarTest {
 
         editText.setSelection(0, editText.length())
         alignLeftButton.performClick()
-        Assert.assertEquals("<ul><li style=\"text-align: left;\">item 1</li>" +
-                "<li style=\"text-align: left;\">item 2</li>" +
-                "<li style=\"text-align: left;\">item 3</li></ul>",
+        Assert.assertEquals("<ul><li style=\"text-align:left;\">item 1</li>" +
+                "<li style=\"text-align:left;\">item 2</li>" +
+                "<li style=\"text-align:left;\">item 3</li></ul>",
                 editText.toHtml())
     }
 
@@ -931,13 +931,13 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("1"))
         alignLeftButton.performClick()
-        Assert.assertEquals("<ul><li style=\"text-align: left;\">item 1</li>" +
+        Assert.assertEquals("<ul><li style=\"text-align:left;\">item 1</li>" +
                 "<li>item 2</li><li>item 3</li></ul>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("1") + 1)
         alignRightButton.performClick()
-        Assert.assertEquals("<ul><li style=\"text-align: right;\">item 1</li>" +
+        Assert.assertEquals("<ul><li style=\"text-align:right;\">item 1</li>" +
                 "<li>item 2</li><li>item 3</li></ul>",
                 editText.toHtml())
 
@@ -947,25 +947,25 @@ class AztecToolbarTest {
 
         editText.setSelection(editText.text.indexOf("1") + 2)
         alignCenterButton.performClick()
-        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align: center;\">item 2</li><li>item 3</li></ul>",
+        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align:center;\">item 2</li><li>item 3</li></ul>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.length)
         alignCenterButton.performClick()
-        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align: center;\">item 2</li><li style=\"text-align: center;\">item 3</li></ul>",
+        Assert.assertEquals("<ul><li>item 1</li><li style=\"text-align:center;\">item 2</li><li style=\"text-align:center;\">item 3</li></ul>",
                 editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun orderedListMultiselectAlignment() {
-        editText.fromHtml("<ol><li>item 1</li><li style=\"text-align: center;\">item 2</li></ol>" +
-                "<hr><ol><li>item 3</li><li>item 4</li></ol>")
+        editText.fromHtml("<ol><li>item 1</li><li style=\"text-align:center;\">item 2</li></ol>" +
+                "<hr /><ol><li>item 3</li><li>item 4</li></ol>")
 
         editText.setSelection(editText.text.indexOf("2"), editText.text.indexOf("3"))
         alignRightButton.performClick()
-        Assert.assertEquals("<ol><li>item 1</li><li style=\"text-align: right;\">item 2</li></ol><hr>" +
-                "<ol><li style=\"text-align: right;\">item 3</li><li>item 4</li></ol>",
+        Assert.assertEquals("<ol><li>item 1</li><li style=\"text-align:right;\">item 2</li></ol><hr />" +
+                "<ol><li style=\"text-align:right;\">item 3</li><li>item 4</li></ol>",
                 editText.toHtml())
     }
 
@@ -976,7 +976,7 @@ class AztecToolbarTest {
 
         editText.setSelection(1)
         alignRightButton.performClick()
-        Assert.assertEquals("<blockquote style=\"text-align: right;\">Quote<br>newline</blockquote>",
+        Assert.assertEquals("<blockquote style=\"text-align:right;\">Quote<br>newline</blockquote>",
                 editText.toHtml())
     }
 
@@ -987,7 +987,7 @@ class AztecToolbarTest {
 
         editText.setSelection(1)
         alignCenterButton.performClick()
-        Assert.assertEquals("<pre style=\"text-align: center;\">test<br>newline</pre>",
+        Assert.assertEquals("<pre style=\"text-align:center;\">test<br>newline</pre>",
                 editText.toHtml())
     }
 
@@ -999,7 +999,7 @@ class AztecToolbarTest {
         editText.setSelection(7)
         alignLeftButton.performClick()
         Assert.assertEquals("<code>Code</code>" +
-                "<p style=\"text-align: left;\"><code>newline</code></p>",
+                "<p style=\"text-align:left;\"><code>newline</code></p>",
                 editText.toHtml())
     }
 
@@ -1010,7 +1010,7 @@ class AztecToolbarTest {
 
         editText.setSelection(3)
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\"><!-- Comment --></p>", editText.toHtml())
+        Assert.assertEquals("<p style=\"text-align:right;\"><!-- Comment --></p>", editText.toHtml())
 
         alignRightButton.performClick()
         Assert.assertEquals("<p><!-- Comment --></p>", editText.toHtml())
@@ -1019,25 +1019,25 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun hiddenElementAlignment() {
-        editText.fromHtml("<div>a<br><div>b<br><span>c</span><br>d</div></div>")
+        editText.fromHtml("<div>a<div>b<br><span>c</span><br>d</div></div>")
 
         editText.setSelection(editText.text.indexOf("a"))
         alignRightButton.performClick()
-        Assert.assertEquals("<div style=\"text-align: right;\">a<br><div>b<br><span>c</span><br>d</div></div>",
+        Assert.assertEquals("<div style=\"text-align:right;\">a<div>b<br><span>c</span><br>d</div></div>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("c") + 1)
         alignCenterButton.performClick()
-        Assert.assertEquals("<div style=\"text-align: center;\">a<br>" +
-                "<div style=\"text-align: center;\">b<br>" +
-                "<span style=\"text-align: center;\">c</span><br>d</div></div>",
+        Assert.assertEquals("<div style=\"text-align:center;\">a" +
+                "<div style=\"text-align:center;\">b<br>" +
+                "<span style=\"text-align:center;\">c</span><br>d</div></div>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("d"))
         alignLeftButton.performClick()
-        Assert.assertEquals("<div style=\"text-align: left;\">a<br>" +
-                "<div style=\"text-align: left;\">b<br>" +
-                "<span style=\"text-align: center;\">c</span><br>d</div></div>",
+        Assert.assertEquals("<div style=\"text-align:left;\">a" +
+                "<div style=\"text-align:left;\">b<br>" +
+                "<span style=\"text-align:center;\">c</span><br>d</div></div>",
                 editText.toHtml())
     }
 
@@ -1048,24 +1048,24 @@ class AztecToolbarTest {
 
         editText.setSelection(0)
         alignLeftButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>بعبثخز",
+        Assert.assertEquals("<p style=\"text-align:left;\">latin</p>بعبثخز",
                 editText.toHtml())
 
         editText.setSelection(editText.length())
         alignLeftButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
-                "<p style=\"text-align: left;\">بعبثخز</p>",
+        Assert.assertEquals("<p style=\"text-align:left;\">latin</p>" +
+                "<p style=\"text-align:left;\">بعبثخز</p>",
                 editText.toHtml())
 
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: left;\">latin</p>" +
-                "<p style=\"text-align: right;\">بعبثخز</p>",
+        Assert.assertEquals("<p style=\"text-align:left;\">latin</p>" +
+                "<p style=\"text-align:right;\">بعبثخز</p>",
                 editText.toHtml())
 
         editText.setSelection(0)
         alignRightButton.performClick()
-        Assert.assertEquals("<p style=\"text-align: right;\">latin</p>" +
-                "<p style=\"text-align: right;\">بعبثخز</p>",
+        Assert.assertEquals("<p style=\"text-align:right;\">latin</p>" +
+                "<p style=\"text-align:right;\">بعبثخز</p>",
                 editText.toHtml())
     }
 }

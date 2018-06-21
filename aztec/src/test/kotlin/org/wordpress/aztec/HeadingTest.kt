@@ -402,7 +402,7 @@ class HeadingTest {
         editText.fromHtml("<h5>Heading 5</h5><h1 foo=\"bar\">Heading 1</h1><h5>Heading 5</h5>")
         editText.setSelection(editText.text.indexOf("Heading 1"), editText.text.indexOf("Heading 1") + "Heading 1".length)
         editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h5>Heading 5</h5><h1 foo=\"bar\"><b>Heading 1</b></h1><h5>Heading 5</h5>", editText.toHtml())
+        Assert.assertEquals("<h5>Heading 5</h5><h1 foo=\"bar\"><strong>Heading 1</strong></h1><h5>Heading 5</h5>", editText.toHtml())
     }
 
     @Test
@@ -411,7 +411,7 @@ class HeadingTest {
         editText.fromHtml("<h5>Heading 5</h5><pre foo=\"bar\">Preformat</pre><h5>Heading 5</h5>")
         editText.setSelection(editText.text.indexOf("Preformat"), editText.text.indexOf("Preformat") + "Preformat".length)
         editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h5>Heading 5</h5><pre foo=\"bar\"><b>Preformat</b></pre><h5>Heading 5</h5>", editText.toHtml())
+        Assert.assertEquals("<h5>Heading 5</h5><pre foo=\"bar\"><strong>Preformat</strong></pre><h5>Heading 5</h5>", editText.toHtml())
     }
 
     @Test
@@ -420,7 +420,7 @@ class HeadingTest {
         editText.fromHtml("<h1 foo=\"bar\">Heading 1</h1>")
         editText.setSelection(0, 3)
         editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<h1 foo=\"bar\"><b>Hea</b>ding 1</h1>", editText.toHtml())
+        Assert.assertEquals("<h1 foo=\"bar\"><strong>Hea</strong>ding 1</h1>", editText.toHtml())
     }
 
     @Test
@@ -429,7 +429,7 @@ class HeadingTest {
         editText.fromHtml("<pre foo=\"bar\">Preformat</pre>")
         editText.setSelection(0, 3)
         editText.toggleFormatting(AztecTextFormat.FORMAT_BOLD)
-        Assert.assertEquals("<pre foo=\"bar\"><b>Pre</b>format</pre>", editText.toHtml())
+        Assert.assertEquals("<pre foo=\"bar\"><strong>Pre</strong>format</pre>", editText.toHtml())
     }
 
     @Test

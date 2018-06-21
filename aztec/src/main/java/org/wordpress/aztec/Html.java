@@ -44,7 +44,9 @@ import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
 import org.wordpress.aztec.spans.AztecStyleBoldSpan;
+import org.wordpress.aztec.spans.AztecStyleCiteSpan;
 import org.wordpress.aztec.spans.AztecStyleItalicSpan;
+import org.wordpress.aztec.spans.AztecStyleStrongSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
 import org.wordpress.aztec.spans.AztecSuperscriptSpan;
 import org.wordpress.aztec.spans.AztecTypefaceMonospaceSpan;
@@ -68,6 +70,9 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 import static org.wordpress.aztec.util.ExtensionsKt.getLast;
 
@@ -143,8 +148,11 @@ public class Html {
      * <p/>
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
-    public static Spanned fromHtml(String source, Context context, List<IAztecPlugin> plugins) {
-        return fromHtml(source, null, context, plugins);
+    public static Spanned fromHtml(String source,
+                                   Context context,
+                                   List<IAztecPlugin> plugins,
+                                   List<String> ignoredTags) {
+        return fromHtml(source, null, context, plugins, ignoredTags);
     }
 
     /**
@@ -166,7 +174,7 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
-                                   Context context, List<IAztecPlugin> plugins) {
+                                   Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
 
         Parser parser = new Parser();
         try {
@@ -183,7 +191,7 @@ public class Html {
         source = preprocessSource(source, plugins);
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins);
+                new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins, ignoredTags);
 
         return converter.convert();
     }
@@ -225,17 +233,19 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     private SpannableStringBuilder spannableStringBuilder;
     private Html.TagHandler tagHandler;
     private Context context;
+    private List<String> ignoredTags;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
             Parser parser,
-            Context context, List<IAztecPlugin> plugins) {
+            Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
         this.source = source;
         this.plugins = plugins;
         this.spannableStringBuilder = new SpannableStringBuilder();
         this.tagHandler = tagHandler;
         this.reader = parser;
         this.context = context;
+        this.ignoredTags = ignoredTags;
     }
 
     public Spanned convert() {
@@ -301,13 +311,13 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (tag.equalsIgnoreCase("aztec_cursor")) {
             handleCursor(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            start(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_STRONG, attributes);
         } else if (tag.equalsIgnoreCase("b")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("em")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("cite")) {
-            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_CITE, attributes);
         } else if (tag.equalsIgnoreCase("dfn")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
         } else if (tag.equalsIgnoreCase("i")) {
@@ -394,13 +404,13 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         if (tag.equalsIgnoreCase("br")) {
             handleBr(spannableStringBuilder);
         } else if (tag.equalsIgnoreCase("strong")) {
-            end(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_STRONG);
         } else if (tag.equalsIgnoreCase("b")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("cite")) {
-            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_CITE);
         } else if (tag.equalsIgnoreCase("dfn")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
         } else if (tag.equalsIgnoreCase("i")) {
@@ -479,8 +489,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             case FORMAT_BOLD:
                 newSpan = new AztecStyleBoldSpan(attributes);
                 break;
+            case FORMAT_STRONG:
+                newSpan = new AztecStyleStrongSpan(attributes);
+                break;
             case FORMAT_ITALIC:
                 newSpan = new AztecStyleItalicSpan(attributes);
+                break;
+            case FORMAT_CITE:
+                newSpan = new AztecStyleCiteSpan(attributes);
                 break;
             case FORMAT_UNDERLINE:
                 newSpan = new AztecUnderlineSpan(false, attributes);
@@ -525,8 +541,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             case FORMAT_BOLD:
                 span = (AztecStyleBoldSpan) getLast(text, AztecStyleBoldSpan.class);
                 break;
+            case FORMAT_STRONG:
+                span = (AztecStyleStrongSpan) getLast(text, AztecStyleStrongSpan.class);
+                break;
             case FORMAT_ITALIC:
                 span = (AztecStyleItalicSpan) getLast(text, AztecStyleItalicSpan.class);
+                break;
+            case FORMAT_CITE:
+                span = (AztecStyleCiteSpan) getLast(text, AztecStyleCiteSpan.class);
                 break;
             case FORMAT_UNDERLINE:
                 span = (AztecUnderlineSpan) getLast(text, AztecUnderlineSpan.class);
@@ -651,15 +673,19 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
 
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        nestingLevel++;
+        if (!ignoredTags.contains(localName)) {
+            nestingLevel++;
 
-        handleStartTag(localName, attributes, nestingLevel);
+            handleStartTag(localName, attributes, nestingLevel);
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        handleEndTag(localName, nestingLevel);
+        if (!ignoredTags.contains(localName)) {
+            handleEndTag(localName, nestingLevel);
 
-        nestingLevel--;
+            nestingLevel--;
+        }
     }
 
     public void characters(char ch[], int start, int length) throws SAXException {
@@ -795,7 +821,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         if (plugins != null) {
             for (IAztecPlugin plugin : plugins) {
                 if (plugin instanceof IHtmlCommentHandler) {
-                    wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder, nestingLevel);
+                    wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder,
+                            nestingLevel, new Function1<Integer, Unit>() {
+                        @Override
+                        public Unit invoke(Integer newNesting) {
+                            nestingLevel = newNesting;
+                            return Unit.INSTANCE;
+                        }
+                    });
                     if (wasCommentHandled) {
                         break;
                     }

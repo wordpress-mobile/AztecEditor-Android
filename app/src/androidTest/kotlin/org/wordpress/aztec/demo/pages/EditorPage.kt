@@ -17,6 +17,7 @@ import android.view.View
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
+import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
@@ -364,6 +365,16 @@ class EditorPage : BasePage() {
         htmlEditor.check(matches(withText(expected)))
         label("Verified expected HTML editor contents without stripping")
 
+        return this
+    }
+
+    fun hasChanges(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
+        editor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
+        return this
+    }
+
+    fun hasChangesHTML(shouldHaveChanges : AztecText.EditorHasChanges): EditorPage {
+        htmlEditor.check(matches(Matchers.hasContentChanges(shouldHaveChanges)))
         return this
     }
 

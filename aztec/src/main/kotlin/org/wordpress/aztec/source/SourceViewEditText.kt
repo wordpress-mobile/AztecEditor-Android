@@ -15,6 +15,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecText.EditorHasChanges
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
 import org.wordpress.aztec.History
 import org.wordpress.aztec.R
@@ -22,7 +23,7 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
     }
@@ -43,6 +44,8 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
     private var consumeEditEvent: Boolean = true
 
     private var accessibilityDelegate = AztecTextAccessibilityDelegate(this)
+
+    private var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     constructor(context: Context) : super(context) {
         init(null)
@@ -94,6 +97,7 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         visibility = customState.getInt("visibility")
         val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
         setText(retainedContent)
+        initialEditorContentParsedSHA256 = customState.getByteArray(AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
     }
 
     // Do not include the content of the editor when saving state to bundle.
@@ -106,6 +110,8 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
+        bundle.putByteArray(org.wordpress.aztec.AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY,
+                initialEditorContentParsedSHA256)
         InstanceStateUtils.writeTempInstance(context, null, RETAINED_CONTENT_KEY, text.toString(), bundle)
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
@@ -189,6 +195,8 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
         text = styledHtml
+        initialEditorContentParsedSHA256 = AztecText.calculateInitialHTMLSHA(getPureHtml(false),
+                initialEditorContentParsedSHA256)
         enableTextChangedListener()
 
         if (cursorPosition > 0)
@@ -248,18 +256,27 @@ class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatc
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
     }
 
+    fun hasChanges(): EditorHasChanges {
+        return AztecText.hasChanges(initialEditorContentParsedSHA256, getPureHtml(false))
+    }
+
     fun getPureHtml(withCursorTag: Boolean = false): String {
+        val str: String
+
         if (withCursorTag) {
-            disableTextChangedListener()
+            val withCursor = StringBuffer(text)
             if (!isCursorInsideTag()) {
-                text.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
+                withCursor.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
             } else {
-                text.insert(text.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
+                withCursor.insert(withCursor.lastIndexOf("<", selectionEnd), "<aztec_cursor></aztec_cursor>")
             }
-            enableTextChangedListener()
+
+            str = withCursor.toString()
+        } else {
+            str = text.toString()
         }
 
-        return Format.removeSourceEditorFormatting(text.toString(), isInCalypsoMode)
+        return Format.removeSourceEditorFormatting(str, isInCalypsoMode)
     }
 
     fun disableTextChangedListener() {

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.demo.tests
 
+import org.junit.Ignore
 import org.junit.Test
 import org.wordpress.aztec.demo.BaseHistoryTest
 import org.wordpress.aztec.demo.pages.EditorPage
@@ -24,7 +25,7 @@ class HistoryMixedTests : BaseHistoryTest() {
             "\t<li></li>\n" +
             "</ol>\n" +
             "\n" +
-            "<hr>\n" +
+            "<hr />\n" +
             "\n" +
             "<ul>\n" +
             "\t<li>Unordered</li>\n" +
@@ -60,6 +61,7 @@ class HistoryMixedTests : BaseHistoryTest() {
             "\n" +
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. [video src=\"https://examplebloge.files.wordpress.com/2017/06/d7d88643-88e6-d9b5-11e6-92e03def4804.mp4\"][audio src=\"https://upload.wikimedia.org/wikipedia/commons/9/94/H-Moll.ogg\"]"
 
+    @Ignore("Until this issue is fixed: https://github.com/wordpress-mobile/AztecEditor-Android/issues/676")
     @Test
     fun testSelectAllDeleteUndoRedo() {
         // Add demo html text to editor

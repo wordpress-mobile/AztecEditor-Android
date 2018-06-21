@@ -30,6 +30,7 @@ import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.extensions.toCssString
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
+import org.wordpress.aztec.plugins.visual2html.IBlockSpanHandler
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
@@ -54,17 +55,18 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Comparator
 
-class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
+class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = listOf(),
+                                            private val ignoredTags: List<String> = listOf("body", "html")) {
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
 
-        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource, AztecTagHandler(context, plugins), context, plugins))
+        val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
+                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)
         cleanupZWJ(spanned)
-        unbiasNestingLevel(spanned)
 
         postprocessSpans(spanned)
 
@@ -172,9 +174,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             spanned.insert(spanStart, "\n")
 
             // expand all same-start parents to include the new newline
-            SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart + 1, spanStart + 2)
-                    .filter { subParent -> subParent.span.nestingLevel < it.nestingLevel && subParent.start == spanStart + 1 }
-                    .forEach { subParent -> subParent.start-- }
+            expandSurroundingSpansAtStart(spanned, it, spanStart + 1, 1)
 
             markBlockElementLineBreak(spanned, spanStart)
         }
@@ -194,6 +194,9 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                 // but still, expand the span to include the newline for block spans, because they are paragraphs
                 if (it is IAztecParagraphStyle) {
                     spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
+                    // expand all same-end parents to include the new newline
+                    expandSurroundingSpansAtEnd(spanned, it, spanEnd, 1)
                 }
 
                 return@forEach
@@ -205,10 +208,31 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             // expand the span to include the new newline for block spans, because they are paragraphs
             if (it is IAztecParagraphStyle) {
                 spanned.setSpan(it, spanned.getSpanStart(it), spanEnd + 1, spanned.getSpanFlags(it))
+
+                // expand all same-end parents to include the new newline
+                expandSurroundingSpansAtEnd(spanned, it, spanEnd, 1)
             }
 
             markBlockElementLineBreak(spanned, spanEnd)
         }
+    }
+
+    private fun expandSurroundingSpansAtStart(spanned: Editable,
+                                            paragraph: IAztecSurroundedWithNewlines,
+                                            spanStart: Int,
+                                            extra: Int) {
+        SpanWrapper.getSpans<IAztecNestable>(spanned, spanStart, spanned.getSpanEnd(paragraph))
+                .filter { parent -> parent.start == spanStart && parent.span.nestingLevel < paragraph.nestingLevel }
+                .forEach { parent -> parent.start -= extra }
+    }
+
+    private fun expandSurroundingSpansAtEnd(spanned: Editable,
+                                            paragraph: IAztecSurroundedWithNewlines,
+                                            spanEnd: Int,
+                                            extra: Int) {
+        SpanWrapper.getSpans<IAztecNestable>(spanned, spanned.getSpanStart(paragraph), spanEnd)
+                .filter { parent -> parent.end == spanEnd && parent.span.nestingLevel < paragraph.nestingLevel }
+                .forEach { parent -> parent.end += extra }
     }
 
     // Always try to put a visual newline before block elements and only put one after if needed
@@ -305,11 +329,6 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
         } while (lastIndex > -1)
     }
 
-    private fun unbiasNestingLevel(text: Spanned) {
-        // while parsing html, the converter wraps the markup in a <html><body> pair so, nesting starts from 2
-        text.getSpans(0, text.length, IAztecNestable::class.java).forEach { it.nestingLevel -= 2 }
-    }
-
     private fun withinHtml(out: StringBuilder, text: Spanned) {
         withinHtml(out, text, 0, text.length, null, -1)
     }
@@ -367,7 +386,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             i = next
         } while (i < end)
 
-        consumeCursorIfInInput(out, text, text.length)
+        consumeCursorIfInInput(out, text, i)
     }
 
     private fun withinUnknown(out: StringBuilder, text: Spanned, start: Int, end: Int, unknownHtmlSpan: UnknownHtmlSpan) {
@@ -391,9 +410,23 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
             }
         }
 
-        out.append("<${nestable.startTag}>")
+        val blockHandlers = plugins.filter { it is IBlockSpanHandler && it.canHandleSpan(nestable) }
+
+        if (blockHandlers.isNotEmpty()) {
+            blockHandlers.map { it as IBlockSpanHandler }
+                    .forEach { it.handleSpanStart(out, nestable) }
+        } else {
+            out.append("<${nestable.startTag}>")
+        }
+
         withinHtml(out, text, start, end, parents, nestingLevel)
-        out.append("</${nestable.endTag}>")
+
+        if (blockHandlers.isNotEmpty()) {
+            blockHandlers.map { it as IBlockSpanHandler }
+                    .forEach { it.handleSpanEnd(out, nestable) }
+        } else {
+            out.append("</${nestable.endTag}>")
+        }
 
         if (end > 0
                 && text[end - 1] == Constants.NEWLINE
@@ -473,7 +506,7 @@ class AztecParser(val plugins: List<IAztecPlugin> = ArrayList()) {
                         }
 
                 if (span is AztecHorizontalRuleSpan) {
-                    out.append("<${span.startTag}>")
+                    out.append("<${span.startTag} />")
                     i = next
                 }
 

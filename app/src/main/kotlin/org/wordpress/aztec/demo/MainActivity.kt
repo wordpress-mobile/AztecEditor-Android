@@ -91,7 +91,7 @@ open class MainActivity : AppCompatActivity(),
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
-        private val LINE = "<hr>"
+        private val LINE = "<hr />"
         private val UNORDERED = "<ul><li style=\"color:darkred\">Unordered</li><li>Should not have color</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
         private val LINK = "<a href=\"https://github.com/wordpress-mobile/WordPress-Aztec-Android\">Link</a><br>"
@@ -113,7 +113,9 @@ open class MainActivity : AppCompatActivity(),
                         "</div>" +
                         "<br>"
         private val GUTENBERG_CODE_BLOCK = "<!-- wp:core/image {\"id\":316} -->\n" +
-                "<figure class=\"wp-block-image\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/1200px-WordPress_blue_logo.svg.png\" alt=\"\" /></figure>\n" +
+                "<figure class=\"wp-block-image\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/1200px-WordPress_blue_logo.svg.png\" alt=\"\" />\n" +
+                "  <figcaption>The WordPress logo!</figcaption>\n" +
+                "</figure>\n" +
                 "<!-- /wp:core/image -->"
         private val PREFORMAT =
                 "<pre>" +
@@ -292,7 +294,7 @@ open class MainActivity : AppCompatActivity(),
         aztec.visualEditor.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
         aztec.visualEditor.updateElementAttributes(predicate, attrs)
 
-        val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)
+        val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)!!
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
 
@@ -398,7 +400,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(CaptionShortcodePlugin(visualEditor))
                 .addPlugin(VideoShortcodePlugin())
                 .addPlugin(AudioShortcodePlugin())
-                .addPlugin(HiddenGutenbergPlugin())
+                .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
 
@@ -418,7 +420,9 @@ open class MainActivity : AppCompatActivity(),
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
+            if (!isRunningTest) {
+                aztec.visualEditor.fromHtml(EXAMPLE)
+            }
             aztec.initSourceEditorHistory()
         }
 

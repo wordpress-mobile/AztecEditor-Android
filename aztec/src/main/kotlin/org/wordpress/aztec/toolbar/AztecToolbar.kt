@@ -25,12 +25,14 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.AztecText.EditorHasChanges.NO_CHANGES
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import java.util.Arrays
 import java.util.ArrayList
 import java.util.Locale
 
@@ -40,6 +42,9 @@ import java.util.Locale
  * Supports RTL layout direction on API 19+
  */
 class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
+    val RETAINED_EDITOR_HTML_PARSED_SHA256_KEY = "RETAINED_EDITOR_HTML_PARSED_SHA256_KEY"
+    val RETAINED_SOURCE_HTML_PARSED_SHA256_KEY = "RETAINED_SOURCE_HTML_PARSED_SHA256_KEY"
+
     private var aztecToolbarListener: IAztecToolbarClickListener? = null
     private var editor: AztecText? = null
     private var headingMenu: PopupMenu? = null
@@ -52,12 +57,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var isMediaToolbarVisible: Boolean = false
     private var isMediaModeEnabled: Boolean = false
 
+    var editorContentParsedSHA256LastSwitch: ByteArray = ByteArray(0)
+    var sourceContentParsedSHA256LastSwitch: ByteArray = ByteArray(0)
+
     private lateinit var toolbarScrolView: HorizontalScrollView
     private lateinit var buttonEllipsisCollapsed: RippleToggleButton
     private lateinit var buttonEllipsisExpanded: RippleToggleButton
     private lateinit var layoutExpandedTranslateInEnd: Animation
     private lateinit var layoutExpandedTranslateOutStart: Animation
 
+    private lateinit var htmlButton: RippleToggleButton
     private lateinit var buttonMediaCollapsed: RippleToggleButton
     private lateinit var buttonMediaExpanded: RippleToggleButton
 
@@ -153,7 +162,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_BOLD, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRONG, true)
                     findViewById<ToggleButton>(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
@@ -243,7 +252,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             else -> {
                 toolbarButtonPlugins.forEach {
                     if (it.matchesKeyShortcut(keyCode, event)) {
-                        aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormat, true)
+                        aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormats.first(), true)
                         it.toggle()
                         return true
                     }
@@ -344,6 +353,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isMediaToolbarVisible = restoredState.getBoolean("isMediaToolbarVisible")
         setAdvancedState()
         setupMediaToolbar()
+        editorContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY)
+        sourceContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY)
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -354,6 +365,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         bundle.putBoolean("isMediaMode", isMediaModeEnabled)
         bundle.putBoolean("isExpanded", isExpanded)
         bundle.putBoolean("isMediaToolbarVisible", isMediaToolbarVisible)
+        bundle.putByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY, editorContentParsedSHA256LastSwitch)
+        bundle.putByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY, sourceContentParsedSHA256LastSwitch)
         savedState.state = bundle
         return savedState
     }
@@ -372,6 +385,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
+
+        if (sourceEditor == null) {
+            htmlButton.visibility = View.GONE
+        } else {
+            htmlButton.visibility = View.VISIBLE
+        }
     }
 
     private fun initView(attrs: AttributeSet?) {
@@ -384,6 +403,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         View.inflate(context, layout, this)
 
         toolbarScrolView = findViewById(R.id.format_bar_button_scroll)
+        htmlButton = findViewById(R.id.format_bar_button_html)
 
         setAdvancedState()
         setupMediaToolbar()
@@ -484,7 +504,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             val textFormats = ArrayList<ITextFormat>()
 
             actions.filter { it.isStylingAction() }
-                    .forEach { textFormats.add(it.textFormat) }
+                    .forEach { textFormats.add(it.textFormats.first()) }
 
             if (getSelectedHeadingMenuItem() != null) {
                 textFormats.add(getSelectedHeadingMenuItem()!!)
@@ -494,14 +514,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 textFormats.add(getSelectedListMenuItem()!!)
             }
 
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
             return editor!!.setSelectedStyles(textFormats)
         }
 
         // if text is selected and action is styling - toggle the style
         if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormat, false)
-            val returnValue = editor!!.toggleFormatting(action.textFormat)
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
+            val returnValue = editor!!.toggleFormatting(action.textFormats.first())
 
             highlightAppliedStyles()
 
@@ -552,18 +572,49 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
     }
 
+    private fun syncSourceFromEditor() {
+        val editorHtml = editor!!.toPlainHtml(true)
+        val sha256 = AztecText.calculateSHA256(editorHtml)
+
+        if (editorContentParsedSHA256LastSwitch.isEmpty()) {
+            // initialize the var if it's the first time we're about to use it
+            editorContentParsedSHA256LastSwitch = sha256
+        }
+
+        if (editor!!.hasChanges() != NO_CHANGES || !Arrays.equals(editorContentParsedSHA256LastSwitch, sha256)) {
+            sourceEditor!!.displayStyledAndFormattedHtml(editorHtml)
+        }
+        editorContentParsedSHA256LastSwitch = sha256
+    }
+
+    private fun syncEditorFromSource() {
+        // temp var of the source html to load it to the editor if needed
+        val sourceHtml = sourceEditor!!.getPureHtml(true)
+        val sha256 = AztecText.calculateSHA256(sourceHtml)
+
+        if (sourceContentParsedSHA256LastSwitch.isEmpty()) {
+            // initialize the var if it's the first time we're about to use it
+            sourceContentParsedSHA256LastSwitch = sha256
+        }
+
+        if (sourceEditor!!.hasChanges() != NO_CHANGES || !Arrays.equals(sourceContentParsedSHA256LastSwitch, sha256)) {
+            editor!!.fromHtml(sourceHtml)
+        }
+        sourceContentParsedSHA256LastSwitch = sha256
+    }
+
     override fun toggleEditorMode() {
         // only allow toggling if sourceEditor is present
         if (sourceEditor == null) return
 
         if (editor!!.visibility == View.VISIBLE) {
-            sourceEditor!!.displayStyledAndFormattedHtml(editor!!.toPlainHtml(true))
+            syncSourceFromEditor()
             editor!!.visibility = View.GONE
             sourceEditor!!.visibility = View.VISIBLE
 
             toggleHtmlMode(true)
         } else {
-            editor!!.fromHtml(sourceEditor!!.getPureHtml(true))
+            syncEditorFromSource()
             editor!!.visibility = View.VISIBLE
             sourceEditor!!.visibility = View.GONE
 

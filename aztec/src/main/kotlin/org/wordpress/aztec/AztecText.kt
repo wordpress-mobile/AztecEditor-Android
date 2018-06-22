@@ -87,6 +87,7 @@ import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.util.AztecLog
+import org.wordpress.aztec.util.CleaningUtils
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
@@ -1015,7 +1016,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
 
-        val cleanSource = Format.removeSourceEditorFormatting(source, isInCalypsoMode)
+        var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
+        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode)
         builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)

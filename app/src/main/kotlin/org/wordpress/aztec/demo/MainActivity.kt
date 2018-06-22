@@ -113,7 +113,9 @@ open class MainActivity : AppCompatActivity(),
                         "</div>" +
                         "<br>"
         private val GUTENBERG_CODE_BLOCK = "<!-- wp:core/image {\"id\":316} -->\n" +
-                "<figure class=\"wp-block-image\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/1200px-WordPress_blue_logo.svg.png\" alt=\"\" /></figure>\n" +
+                "<figure class=\"wp-block-image\"><img src=\"https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/WordPress_blue_logo.svg/1200px-WordPress_blue_logo.svg.png\" alt=\"\" />\n" +
+                "  <figcaption>The WordPress logo!</figcaption>\n" +
+                "</figure>\n" +
                 "<!-- /wp:core/image -->"
         private val PREFORMAT =
                 "<pre>" +
@@ -418,7 +420,9 @@ open class MainActivity : AppCompatActivity(),
         }
 
         if (savedInstanceState == null) {
-            aztec.visualEditor.fromHtml(aztec.sourceEditor?.getPureHtml()!!)
+            if (!isRunningTest) {
+                aztec.visualEditor.fromHtml(EXAMPLE)
+            }
             aztec.initSourceEditorHistory()
         }
 

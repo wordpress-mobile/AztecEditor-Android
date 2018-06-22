@@ -1019,23 +1019,23 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun hiddenElementAlignment() {
-        editText.fromHtml("<div>a<br><div>b<br><span>c</span><br>d</div></div>")
+        editText.fromHtml("<div>a<div>b<br><span>c</span><br>d</div></div>")
 
         editText.setSelection(editText.text.indexOf("a"))
         alignRightButton.performClick()
-        Assert.assertEquals("<div style=\"text-align:right;\">a<br><div>b<br><span>c</span><br>d</div></div>",
+        Assert.assertEquals("<div style=\"text-align:right;\">a<div>b<br><span>c</span><br>d</div></div>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("c") + 1)
         alignCenterButton.performClick()
-        Assert.assertEquals("<div style=\"text-align:center;\">a<br>" +
+        Assert.assertEquals("<div style=\"text-align:center;\">a" +
                 "<div style=\"text-align:center;\">b<br>" +
                 "<span style=\"text-align:center;\">c</span><br>d</div></div>",
                 editText.toHtml())
 
         editText.setSelection(editText.text.indexOf("d"))
         alignLeftButton.performClick()
-        Assert.assertEquals("<div style=\"text-align:left;\">a<br>" +
+        Assert.assertEquals("<div style=\"text-align:left;\">a" +
                 "<div style=\"text-align:left;\">b<br>" +
                 "<span style=\"text-align:center;\">c</span><br>d</div></div>",
                 editText.toHtml())

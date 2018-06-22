@@ -6,8 +6,11 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.toolbar.ToolbarActionType
 
+/**
+ * Class copied from demo app.
+ */
 enum class MediaToolbarAction constructor(override val buttonId: Int, override val actionType: ToolbarActionType,
-                                          override val textFormat: ITextFormat) : IToolbarAction {
-    GALLERY(R.id.media_bar_button_gallery, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE),
-    CAMERA(R.id.media_bar_button_camera, ToolbarActionType.OTHER, AztecTextFormat.FORMAT_NONE)
+                                          override val textFormats: Set<ITextFormat> = setOf()) : IToolbarAction {
+    GALLERY(R.id.media_bar_button_gallery, ToolbarActionType.OTHER, setOf(AztecTextFormat.FORMAT_NONE)),
+    CAMERA(R.id.media_bar_button_camera, ToolbarActionType.OTHER, setOf(AztecTextFormat.FORMAT_NONE))
 }

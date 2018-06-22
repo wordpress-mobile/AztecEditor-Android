@@ -9,6 +9,9 @@ import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
 
+/**
+ * Class copied from demo app.
+ */
 class MediaToolbarGalleryButton(val toolbar: AztecToolbar) : IMediaToolbarButton {
 
     private var clickListener: IMediaToolbarButton.IMediaToolbarClickListener? = null

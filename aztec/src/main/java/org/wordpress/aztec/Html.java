@@ -58,6 +58,7 @@ import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.IAztecParagraphStyle;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
+import org.wordpress.aztec.util.CleaningUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -187,6 +188,8 @@ public class Html {
             // Should not happen.
             throw new RuntimeException(e);
         }
+
+        source = CleaningUtils.cleanNestedBoldTags(source);
 
         source = preprocessSource(source, plugins);
 

@@ -74,6 +74,100 @@ class HtmlFormattingTest : AndroidTestCase() {
     private val HTML_BLOCK_WITH_NEWLINES = "\n\n<div>Division</div>\n\n"
     private val HTML_BLOCK_WITHOUT_NEWLINES = "<div>Division</div>"
 
+    private val HTML_NESTED_BOLD_TAGS = "<b><b><b><b><b><b><b>Test post</b></b></b></b></b></b></b> \n" +
+            "\n" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b>" +
+            "<b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b>" +
+            "</b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>" +
+            "<b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b>" +
+            "</b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b></b>" +
+            "<br /><br />Our room with a view[/caption]\n" +
+            "\n" +
+            "Test end"
+
+    private val HTML_NESTED_BOLD_TAGS_VISUAL2HTML_OUTPUT =
+            "<b>Test post</b><b> </b><br><br>Our room with a view[/caption] Test end"
+    private val HTML_NESTED_BOLD_TAGS_HTML_PROCESSING_OUTPUT =
+            "<b>Test post</b> <b></b><br><br>Our room with a view[/caption] Test end"
+
     /**
      * Initialize variables.
      */
@@ -136,5 +230,32 @@ class HtmlFormattingTest : AndroidTestCase() {
         val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
         Assert.assertEquals(HTML_BLOCK_WITHOUT_NEWLINES, output)
+    }
+
+    /**
+     * Test block conversion from HTML to visual mode with nested <b> blocks
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun noNestedBoldTagsConversion() {
+        val input = HTML_NESTED_BOLD_TAGS
+        val span = SpannableString(parser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(parser.toHtml(span)))
+        Assert.assertEquals(HTML_NESTED_BOLD_TAGS_VISUAL2HTML_OUTPUT, output)
+    }
+
+    /**
+     * Test adding source editor formatting handles nested <b> blocks
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun noNestedBoldTagsFromSource() {
+        val input = HTML_NESTED_BOLD_TAGS
+        val output = Format.removeSourceEditorFormatting(Format.addSourceEditorFormatting(input))
+        Assert.assertEquals(HTML_NESTED_BOLD_TAGS_HTML_PROCESSING_OUTPUT, output)
     }
 }

@@ -10,6 +10,7 @@ import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.util.CleaningUtils
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -25,6 +26,7 @@ object Format {
         html = html.replace("<aztec_cursor>", "")
 
         val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
+        CleaningUtils.cleanNestedBoldTags(doc)
         if (isCalypsoFormat) {
             // remove empty span tags
             doc.select("*")

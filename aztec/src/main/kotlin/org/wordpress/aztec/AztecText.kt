@@ -1012,7 +1012,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return cursorPosition
     }
 
-    fun fromHtml(source: String) {
+    open fun fromHtml(source: String) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
 

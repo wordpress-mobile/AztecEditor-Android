@@ -1,4 +1,13 @@
-## [1.3.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.6) - 2018-04-12
+# Changelog
+## [1.3.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.7) - 2018-06-29
+### Fixed
+- Fixed initial hash calculation for change detection mechanism.
+- Fixed crash with too many nested `<b>` tags.
+
+### Changed
+- Support for the `div`, `figure`, `figcaption` and `section` html elements to be block-level compatible instead of in-line.
+
+## [1.3.6](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.6) - 2018-06-18
 ### Fixed
 - Fixed handling of schemed urls (mailto:, http, #, etc.).
 - Fixes a break in http:// descriptor as per a CSS readability feature would add a space after ":".
@@ -9,7 +18,6 @@
 - Change detection is now handled through a hash comparison implementation and syncs between HTML/visual editors.
 - The `<strong>` tag is now the styling element used when tapping on the B toolbar button.
 
-# Changelog
 ## [1.3.5](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.5) - 2018-06-04
 ### Fixed
 - `<cite>` tags are now respected (were being converted to `<i>`).

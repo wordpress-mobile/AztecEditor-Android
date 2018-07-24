@@ -13,13 +13,7 @@ import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.spans.AztecHeadingSpan
-import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
-import org.wordpress.aztec.spans.AztecImageSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
-import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecVideoSpan
-import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.ArrayList
@@ -131,6 +125,14 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
                     onMediaDeletedListener: AztecText.OnMediaDeletedListener?) {
         val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
         val span = AztecImageSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onImageTappedListener,
+                onMediaDeletedListener, editor)
+        insertMedia(span)
+    }
+
+    fun insertAudio(drawable: Drawable?, attributes: Attributes, onAudioTappedListener: AztecText.OnAudioTappedListener?,
+                    onMediaDeletedListener: AztecText.OnMediaDeletedListener?) {
+        val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, selectionStart)
+        val span = AztecAudioSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onAudioTappedListener,
                 onMediaDeletedListener, editor)
         insertMedia(span)
     }

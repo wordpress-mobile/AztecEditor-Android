@@ -1561,6 +1561,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
+    fun insertAudio(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertAudio(drawable, attributes, onAudioTappedListener, onMediaDeletedListener)
+    }
+
     fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {

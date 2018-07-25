@@ -20,8 +20,10 @@ env:
     - ANDROID_TARGET=android-16
 
 before_install:
-  # Decrypt secret.json (firebase access)
-  - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
+   # require the repository to not be a fork
+  if: fork = false
+    # Decrypt secret.json (firebase access)
+    - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
 
 script:
   # Build

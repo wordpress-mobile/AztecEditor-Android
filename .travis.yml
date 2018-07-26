@@ -21,9 +21,9 @@ env:
 
 before_install:
    # require the repository to not be a fork
-  if: fork = false
+  - if: fork = false
     # Decrypt secret.json (firebase access)
-    - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
+  - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
 
 script:
   # Build

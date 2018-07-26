@@ -20,9 +20,9 @@ env:
     - ANDROID_TARGET=android-16
 
 before_install:
-  - if [ fork == false ]; then
-      openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
-    fi
+  - if: fork = false
+     openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
+    
 script:
   # Build
   - ./gradlew assemble assembleAndroidTest

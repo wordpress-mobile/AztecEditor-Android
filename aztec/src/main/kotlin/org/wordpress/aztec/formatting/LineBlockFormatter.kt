@@ -13,7 +13,14 @@ import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
-import org.wordpress.aztec.spans.*
+import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
+import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 import java.util.ArrayList

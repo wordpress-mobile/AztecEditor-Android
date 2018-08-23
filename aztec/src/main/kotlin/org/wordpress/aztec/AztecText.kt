@@ -1310,8 +1310,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         when (id) {
-            android.R.id.paste,
-            android.R.id.pasteAsPlainText -> paste(text, min, max)
+            android.R.id.paste -> paste(text, min, max)
+            android.R.id.pasteAsPlainText -> paste(text, min, max, true)
             android.R.id.copy -> {
                 copy(text, min, max)
                 setSelection(max) // dismiss the selection to make the action menu hide
@@ -1364,7 +1364,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // copied from TextView with some changes
-    fun paste(editable: Editable, min: Int, max: Int) {
+    fun paste(editable: Editable, min: Int, max: Int, asPlainText: Boolean = false) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
 
@@ -1394,7 +1394,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
+                val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
+                else clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
 
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")

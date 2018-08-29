@@ -129,6 +129,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val LINK_DIALOG_VISIBLE_KEY = "LINK_DIALOG_VISIBLE_KEY"
         val LINK_DIALOG_URL_KEY = "LINK_DIALOG_URL_KEY"
         val LINK_DIALOG_ANCHOR_KEY = "LINK_DIALOG_ANCHOR_KEY"
+        val LINK_DIALOG_OPEN_NEW_WINDOW_KEY = "LINK_DIALOG_OPEN_NEW_WINDOW_KEY"
 
         val HISTORY_LIST_KEY = "HISTORY_LIST_KEY"
         val HISTORY_CURSOR_KEY = "HISTORY_CURSOR_KEY"
@@ -596,8 +597,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (isLinkDialogVisible) {
             val retainedUrl = customState.getString(LINK_DIALOG_URL_KEY, "")
             val retainedAnchor = customState.getString(LINK_DIALOG_ANCHOR_KEY, "")
-
-            showLinkDialog(retainedUrl, retainedAnchor)
+            val retainedOpenInNewWindow = customState.getString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, "")
+            showLinkDialog(retainedUrl, retainedAnchor, retainedOpenInNewWindow)
         }
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
@@ -644,9 +645,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
             val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
+            val openInNewWindowCheckbox = addLinkDialog!!.findViewById<CheckBox>(R.id.openInNewWindow)
 
             bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
             bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
+            bundle.putString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, if (openInNewWindowCheckbox != null && openInNewWindowCheckbox.isChecked) "checked=true" else "checked=false")
         }
 
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
@@ -1450,12 +1453,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     @SuppressLint("InflateParams")
-    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
+    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "" ) {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
         val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
-        val openInNewWindow = urlAndAnchor.third
+        val openInNewWindow = if (TextUtils.isEmpty(presetOpenInNewWindow)) urlAndAnchor.third else presetOpenInNewWindow == "checked=true"
 
         val builder = AlertDialog.Builder(context)
 

@@ -19,9 +19,10 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         return !urlSpans.isEmpty()
     }
 
-    fun getSelectedUrlWithAnchor(): Pair<String, String> {
+    fun getSelectedUrlWithAnchor(): Triple<String, String, Boolean> {
         val url: String
         var anchor: String
+        var openInNewWindow = false
 
         if (!isUrlSelected()) {
             val clipboardUrl = getUrlFromClipboard(editor.context)
@@ -46,9 +47,11 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             if (anchor == url) {
                 anchor = ""
             }
+
+            openInNewWindow = if (urlSpan.attributes.hasAttribute("target")) urlSpan.attributes.getValue("target") == ("_blank") else false
         }
 
-        return Pair(url, anchor)
+        return Triple(url, anchor, openInNewWindow)
     }
 
     /**
@@ -78,13 +81,16 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         return Pair(spanStart, spanEnd)
     }
 
-    fun addLink(link: String, anchor: String, start: Int, end: Int) {
+    fun addLink(link: String, anchor: String, openInNewWindow: Boolean = false, start: Int, end: Int) {
         val cleanLink = link.trim()
 
         val actualAnchor = if (TextUtils.isEmpty(anchor)) cleanLink else anchor
 
         val ssb = SpannableStringBuilder(actualAnchor)
-        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length)
+        val attributes = getAttributes(end, start)
+        toggleOpenInNewWindowAttributes(openInNewWindow, attributes)
+
+        setLinkSpan(ssb, cleanLink, 0, actualAnchor.length, attributes)
 
         if (start == end) {
             // insert anchor
@@ -94,12 +100,25 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
             if (editor.getSelectedText() != anchor) {
                 editableText.replace(start, end, ssb)
             } else {
-                setLinkSpan(editableText, cleanLink, start, end)
+                setLinkSpan(editableText, cleanLink, start, end, attributes)
             }
         }
     }
 
-    fun editLink(link: String, anchor: String?, start: Int = selectionStart, end: Int = selectionEnd) {
+    private fun toggleOpenInNewWindowAttributes(openInNewWindow: Boolean = false, attributes: AztecAttributes = AztecAttributes()): AztecAttributes {
+        if (openInNewWindow) {
+            attributes.setValue("target", "_blank")
+            attributes.setValue("rel", "noopener")
+        } else {
+            attributes.removeAttribute("target")
+            if (attributes.hasAttribute("rel") && attributes.getValue("rel") == "noopener") {
+                attributes.removeAttribute("rel")
+            }
+        }
+        return attributes
+    }
+
+    fun editLink(link: String, anchor: String?, openInNewWindow: Boolean = false, start: Int = selectionStart, end: Int = selectionEnd) {
         val cleanLink = link.trim()
         val newEnd: Int
 
@@ -116,6 +135,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
 
         val attributes = getAttributes(end, start)
         attributes.setValue("href", cleanLink)
+        toggleOpenInNewWindowAttributes(openInNewWindow, attributes)
 
         linkValid(cleanLink, start, newEnd, attributes)
     }

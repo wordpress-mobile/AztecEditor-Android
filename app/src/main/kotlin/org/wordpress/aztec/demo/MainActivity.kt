@@ -72,6 +72,7 @@ open class MainActivity : AppCompatActivity(),
         AztecText.OnAudioTappedListener,
         AztecText.OnMediaDeletedListener,
         AztecText.OnVideoInfoRequestedListener,
+        AztecText.OnTextContextMenuItemListener,
         IAztecToolbarClickListener,
         IHistoryListener,
         OnRequestPermissionsResultCallback,
@@ -394,6 +395,7 @@ open class MainActivity : AppCompatActivity(),
                 .setOnAudioTappedListener(this)
                 .setOnMediaDeletedListener(this)
                 .setOnVideoInfoRequestedListener(this)
+                .setOnTextContextMenuItemListener(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))
                 .addPlugin(PageToolbarButton(visualEditor))
@@ -855,5 +857,21 @@ open class MainActivity : AppCompatActivity(),
     override fun onMediaDeleted(attrs: AztecAttributes) {
         val url = attrs.getValue("src")
         ToastUtils.showToast(this, "Media Deleted! " + url)
+    }
+
+    override fun onCut() {
+        ToastUtils.showToast(this, "on Cut!")
+    }
+
+    override fun onCopy() {
+        ToastUtils.showToast(this, "on Copy!")
+    }
+
+    override fun onPaste() {
+        ToastUtils.showToast(this, "on Paste!")
+    }
+
+    override fun onPasteAsPlainText() {
+        ToastUtils.showToast(this, "on Paste as plain text!")
     }
 }

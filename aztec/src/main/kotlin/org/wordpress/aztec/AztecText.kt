@@ -225,6 +225,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
+    private var onTextContextMenuItemListener: OnTextContextMenuItemListener? = null
+
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -303,6 +305,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnVideoInfoRequestedListener {
         fun onVideoInfoRequested(attrs: AztecAttributes)
+    }
+
+    interface OnTextContextMenuItemListener {
+        fun onCut()
+        fun onCopy()
+        fun onPaste()
+        fun onPasteAsPlainText()
     }
 
     constructor(context: Context) : super(context) {
@@ -729,6 +738,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
         this.onVideoInfoRequestedListener = listener
+    }
+
+    fun setOnTextContextMenuItemListener(listener: OnTextContextMenuItemListener) {
+        this.onTextContextMenuItemListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1310,11 +1323,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         when (id) {
-            android.R.id.paste -> paste(text, min, max)
-            android.R.id.pasteAsPlainText -> paste(text, min, max, true)
+            android.R.id.paste -> {
+                paste(text, min, max)
+                onTextContextMenuItemListener?.onPaste()
+            }
+            android.R.id.pasteAsPlainText -> {
+                paste(text, min, max, true)
+                onTextContextMenuItemListener?.onPasteAsPlainText()
+            }
             android.R.id.copy -> {
                 copy(text, min, max)
                 setSelection(max) // dismiss the selection to make the action menu hide
+                onTextContextMenuItemListener?.onCopy()
             }
             android.R.id.cut -> {
                 copy(text, min, max)
@@ -1324,6 +1344,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 if (min == 0) {
                     deleteInlineStyleFromTheBeginning()
                 }
+                onTextContextMenuItemListener?.onCut()
             }
             else -> return super.onTextContextMenuItem(id)
         }

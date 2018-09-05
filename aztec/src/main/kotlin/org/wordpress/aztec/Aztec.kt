@@ -23,6 +23,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
     private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
+    private var onTextContextMenuItemListener: AztecText.OnTextContextMenuItemListener? = null
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
     var sourceEditor: SourceViewEditText? = null
 
@@ -121,6 +122,12 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         return this
     }
 
+    fun setOnTextContextMenuItemListener(onTextContectMenuItemListener: AztecText.OnTextContextMenuItemListener): Aztec {
+        this.onTextContextMenuItemListener = onTextContectMenuItemListener
+        initOnTextContextMenuListener()
+        return this
+    }
+
     fun setHistoryListener(historyListener: IHistoryListener): Aztec {
         this.historyListener = historyListener
         initHistoryListener()
@@ -204,6 +211,12 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private fun initVideoInfoRequestedListener() {
         if (onVideoInfoRequestedListener != null) {
             visualEditor.setOnVideoInfoRequestedListener(onVideoInfoRequestedListener!!)
+        }
+    }
+
+    private fun initOnTextContextMenuListener() {
+        if (onTextContextMenuItemListener != null) {
+            visualEditor.setOnTextContextMenuItemListener(onTextContextMenuItemListener!!)
         }
     }
 }

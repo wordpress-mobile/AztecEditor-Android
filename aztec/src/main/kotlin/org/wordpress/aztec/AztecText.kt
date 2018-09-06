@@ -1012,7 +1012,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return cursorPosition
     }
 
-    open fun fromHtml(source: String) {
+    open fun fromHtml(source: String, isInit: Boolean = true) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
 
@@ -1037,7 +1037,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+        if (isInit) {
+            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+        }
 
         loadImages()
         loadVideos()
@@ -1400,7 +1402,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
-                fromHtml(newHtml)
+                fromHtml(newHtml, false)
                 inlineFormatter.joinStyleSpans(0, length())
             }
         }

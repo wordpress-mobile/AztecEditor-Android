@@ -1,4 +1,11 @@
 # Changelog
+## [1.3.9](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.9) - 2018-09-06
+### Added
+- Added support for creating links that open in a new window.
+
+### Fixed
+- Fixed: don't perform initial hash calculation when pasting content
+
 ## [1.3.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.8) - 2018-08-28
 ### Added
 - Added the ability to use the new Android 8 feature "paste as plain text"

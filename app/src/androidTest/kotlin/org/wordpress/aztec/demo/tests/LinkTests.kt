@@ -34,6 +34,26 @@ class LinkTests : BaseTest() {
     }
 
     @Test
+    fun testAddLinkWithOpenExternal() {
+        val text = "sample link"
+        val url = "https://github.com/wordpress-mobile/AztecEditor-Android"
+        val html = "<a target=\"_blank\" rel=\"noopener\" href=\"$url\">$text</a>"
+
+        EditorPage()
+                .makeLink()
+
+        EditLinkPage()
+                .updateURL(url)
+                .updateName(text)
+                .toggleOpenInNewWindow()
+                .ok()
+
+        EditorPage()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
     fun testMixedLinkFormatting() {
         val text1 = "sample "
         val text2 = "link"
@@ -93,6 +113,28 @@ class LinkTests : BaseTest() {
 
         EditLinkPage()
                 .updateName(text2)
+                .ok()
+
+        EditorPage()
+                .toggleHtml()
+                .verifyHTML(html)
+    }
+
+    @Test
+    fun testToggleOpenInNewWindowLink() {
+        val text = "sample link"
+        val url1 = "https://github.com/wordpress-mobile/AztecEditor-Android"
+        val link = "<a href=\"$url1\" rel=\"noopener\" target=\"_blank\">$text</a>"
+        val html = "<a href=\"$url1\">$text</a>"
+
+        EditorPage()
+                .toggleHtml()
+                .insertHTML(link)
+                .toggleHtml()
+                .makeLink()
+
+        EditLinkPage()
+                .toggleOpenInNewWindow()
                 .ok()
 
         EditorPage()

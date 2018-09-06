@@ -52,6 +52,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.widget.CheckBox
 import android.widget.EditText
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
@@ -128,6 +129,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val LINK_DIALOG_VISIBLE_KEY = "LINK_DIALOG_VISIBLE_KEY"
         val LINK_DIALOG_URL_KEY = "LINK_DIALOG_URL_KEY"
         val LINK_DIALOG_ANCHOR_KEY = "LINK_DIALOG_ANCHOR_KEY"
+        val LINK_DIALOG_OPEN_NEW_WINDOW_KEY = "LINK_DIALOG_OPEN_NEW_WINDOW_KEY"
 
         val HISTORY_LIST_KEY = "HISTORY_LIST_KEY"
         val HISTORY_CURSOR_KEY = "HISTORY_CURSOR_KEY"
@@ -595,8 +597,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (isLinkDialogVisible) {
             val retainedUrl = customState.getString(LINK_DIALOG_URL_KEY, "")
             val retainedAnchor = customState.getString(LINK_DIALOG_ANCHOR_KEY, "")
-
-            showLinkDialog(retainedUrl, retainedAnchor)
+            val retainedOpenInNewWindow = customState.getString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, "")
+            showLinkDialog(retainedUrl, retainedAnchor, retainedOpenInNewWindow)
         }
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
@@ -643,9 +645,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
             val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
+            val openInNewWindowCheckbox = addLinkDialog!!.findViewById<CheckBox>(R.id.openInNewWindow)
 
             bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
             bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
+            bundle.putString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, if (openInNewWindowCheckbox != null && openInNewWindowCheckbox.isChecked) "checked=true" else "checked=false")
         }
 
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
@@ -1421,14 +1425,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    fun link(url: String, anchor: String) {
+    fun link(url: String, anchor: String, openInNewWindow: Boolean = false) {
         history.beforeTextChanged(this@AztecText)
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {
-            linkFormatter.editLink(url, anchor, linkFormatter.getUrlSpanBounds().first, linkFormatter.getUrlSpanBounds().second)
+            linkFormatter.editLink(url, anchor, openInNewWindow, linkFormatter.getUrlSpanBounds().first, linkFormatter.getUrlSpanBounds().second)
         } else {
-            linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
+            linkFormatter.addLink(url, anchor, openInNewWindow, selectionStart, selectionEnd)
         }
     }
 
@@ -1451,11 +1455,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     @SuppressLint("InflateParams")
-    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
+    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "" ) {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
         val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
+        val openInNewWindow = if (TextUtils.isEmpty(presetOpenInNewWindow)) urlAndAnchor.third else presetOpenInNewWindow == "checked=true"
 
         val builder = AlertDialog.Builder(context)
 
@@ -1463,9 +1468,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val urlInput = dialogView.findViewById<EditText>(R.id.linkURL)
         val anchorInput = dialogView.findViewById<EditText>(R.id.linkText)
+        val openInNewWindowCheckbox = dialogView.findViewById<CheckBox>(R.id.openInNewWindow)
 
         urlInput.setText(url)
         anchorInput.setText(anchor)
+        openInNewWindowCheckbox.isChecked = openInNewWindow
 
         builder.setView(dialogView)
         builder.setTitle(R.string.link_dialog_title)
@@ -1474,7 +1481,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val linkText = TextUtils.htmlEncode(correctUrl(urlInput.text.toString().trim { it <= ' ' }))
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
-            link(linkText, anchorText)
+            link(linkText, anchorText, openInNewWindowCheckbox.isChecked)
         })
 
         if (linkFormatter.isUrlSelected()) {

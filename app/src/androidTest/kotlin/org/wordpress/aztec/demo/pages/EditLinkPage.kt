@@ -18,6 +18,7 @@ class EditLinkPage : BasePage() {
     private var okButton: ViewInteraction
     private var cancelButton: ViewInteraction
     private var removeButton: ViewInteraction
+    private var openInNewWindowCheckbox: ViewInteraction
 
     override val trait: ViewInteraction
         get() = onView(withText("Insert link"))
@@ -25,6 +26,7 @@ class EditLinkPage : BasePage() {
     init {
         urlField = onView(withId(R.id.linkURL))
         nameField = onView(withId(R.id.linkText))
+        openInNewWindowCheckbox = onView(withId(R.id.openInNewWindow))
         okButton = onView(withId(android.R.id.button1))
         cancelButton = onView(withId(android.R.id.button2))
         removeButton = onView(withId(android.R.id.button3))
@@ -55,6 +57,12 @@ class EditLinkPage : BasePage() {
         nameField.check(ViewAssertions.matches(withText(expected)))
         label("Verified expected name contents")
 
+        return this
+    }
+
+    fun toggleOpenInNewWindow(): EditLinkPage {
+        openInNewWindowCheckbox.perform(click())
+        label("Toggled open in a new window checkbox")
         return this
     }
 

@@ -49,6 +49,7 @@
     <string name="link_enter_url">URL</string>
     <string name="link_enter_url_text">Link text (optional)</string>
     <string name="create_a_link">Create a link</string>
+    <string name="link_open_new_window">Open link in a new window/tab</string>
 
     <!-- MEDIA -->
     <string name="error_chooser_photo">No app was found to choose a photo</string>

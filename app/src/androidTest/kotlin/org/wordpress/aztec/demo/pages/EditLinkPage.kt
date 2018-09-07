@@ -26,7 +26,7 @@ class EditLinkPage : BasePage() {
     init {
         urlField = onView(withId(R.id.linkURL))
         nameField = onView(withId(R.id.linkText))
-        openInNewWindowCheckbox = onView(withId(R.id.openInNewWindow))
+        openInNewWindowCheckbox = onView(withId(R.id.openInNewWindowCheck))
         okButton = onView(withId(android.R.id.button1))
         cancelButton = onView(withId(android.R.id.button2))
         removeButton = onView(withId(android.R.id.button3))

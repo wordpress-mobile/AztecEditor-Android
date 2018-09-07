@@ -39,7 +39,7 @@
             android:inputType="text" />
     </android.support.design.widget.TextInputLayout>
     <CheckBox
-        android:id="@+id/openInNewWindow"
+        android:id="@+id/openInNewWindowCheck"
         android:text="@string/link_open_new_window"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -645,7 +645,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
             val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
-            val openInNewWindowCheckbox = addLinkDialog!!.findViewById<CheckBox>(R.id.openInNewWindow)
+            val openInNewWindowCheckbox = addLinkDialog!!.findViewById<CheckBox>(R.id.openInNewWindowCheck)
 
             bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
             bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
@@ -1468,7 +1468,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val urlInput = dialogView.findViewById<EditText>(R.id.linkURL)
         val anchorInput = dialogView.findViewById<EditText>(R.id.linkText)
-        val openInNewWindowCheckbox = dialogView.findViewById<CheckBox>(R.id.openInNewWindow)
+        val openInNewWindowCheckbox = dialogView.findViewById<CheckBox>(R.id.openInNewWindowCheck)
 
         urlInput.setText(url)
         anchorInput.setText(anchor)

@@ -234,6 +234,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
+    private var isHandlingEnterEvent = false
 
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
@@ -435,7 +436,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             handleBackspaceAndEnter(event)
         }
 
-        //software keyboard
+        //software keyboard InputFilter(s) below
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -453,7 +454,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         val detectEnterKeyInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
-            if (!isViewInitialized) {
+            if (isHandlingEnterEvent || !isViewInitialized) {
                 // If the view is not initialized do nothing and accept the changes
                 null
             } else if (end > 1 && start == 0 && dstart == 0 && dend == 0) {
@@ -462,14 +463,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             } else
             //  You sometimes get a SpannableStringBuilder, sometimes a plain String in the source parameter
             if (source is SpannableStringBuilder) {
+                isHandlingEnterEvent = true
                 for (i in end - 1 downTo start) {
                     val currentChar = source[i]
                     if (currentChar == '\n' && onEnterListener?.onEnterKey() == true) {
                         source.replace(i, i + 1, "")
                     }
                 }
+                isHandlingEnterEvent = false
                 source
             } else {
+                isHandlingEnterEvent = true
                 val filteredStringBuilder = StringBuilder()
                 for (i in start until end) {
                     val currentChar = source[i]
@@ -479,6 +483,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         filteredStringBuilder.append(currentChar)
                     }
                 }
+                isHandlingEnterEvent = false
                 filteredStringBuilder.toString()
             }
         }

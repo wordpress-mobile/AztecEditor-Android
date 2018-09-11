@@ -227,7 +227,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
-    var onEnterListener: OnEnterListener? = null
+    private var onEnterListener: OnEnterListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -757,6 +757,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
+    }
+
+    fun setOnEnterListener(listener: OnEnterListener) {
+        this.onEnterListener = listener
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {

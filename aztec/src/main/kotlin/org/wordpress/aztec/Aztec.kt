@@ -16,6 +16,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
     private var imeBackListener: AztecText.OnImeBackListener? = null
+    private var onEnterListener: AztecText.OnEnterListener? = null
     private var onTouchListener: View.OnTouchListener? = null
     private var historyListener: IHistoryListener? = null
     private var onImageTappedListener: AztecText.OnImageTappedListener? = null
@@ -82,6 +83,12 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     fun setOnImeBackListener(imeBackListener: AztecText.OnImeBackListener): Aztec {
         this.imeBackListener = imeBackListener
         initImeBackListener()
+        return this
+    }
+
+    fun setOnEnterListener(enterListener: AztecText.OnEnterListener): Aztec {
+        this.onEnterListener = enterListener
+        initEnterListener()
         return this
     }
 
@@ -168,6 +175,12 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private fun initImeBackListener() {
         if (imeBackListener != null) {
             visualEditor.setOnImeBackListener(imeBackListener!!)
+        }
+    }
+
+    private fun initEnterListener() {
+        if (onEnterListener != null) {
+            visualEditor.setOnEnterListener(onEnterListener!!)
         }
     }
 

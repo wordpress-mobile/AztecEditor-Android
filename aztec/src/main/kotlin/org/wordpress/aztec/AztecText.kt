@@ -227,12 +227,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
+    private var onEnterListener: OnEnterListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
+    private var isHandlingEnterEvent = false
 
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
@@ -305,6 +307,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnVideoInfoRequestedListener {
         fun onVideoInfoRequested(attrs: AztecAttributes)
+    }
+
+    interface OnEnterListener {
+        fun onEnterKey() : Boolean
     }
 
     constructor(context: Context) : super(context) {
@@ -405,7 +411,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        setupZeroIndexBackspaceDetection()
+        setupZeroIndexBackspaceAndEnterDetection()
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -423,13 +429,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
-    private fun setupZeroIndexBackspaceDetection() {
+    // Also detect when Enter is inserted and call the callback if available
+    private fun setupZeroIndexBackspaceAndEnterDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
-            handleBackspace(event)
+            handleBackspaceAndEnter(event)
         }
 
-        //software keyboard
+        //software keyboard InputFilter(s) below
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -440,16 +447,57 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 // Prevent the forced backspace from being added to the history stack
                 consumeHistoryEvent = true
 
-                handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                 isHandlingBackspaceEvent = false
             }
             source
         }
 
-        filters = arrayOf(emptyEditTextBackspaceDetector)
+        val detectEnterKeyInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
+            if (isTextChangedListenerDisabled() || isHandlingEnterEvent || !isViewInitialized) {
+                // If the view is not initialized do nothing and accept the changes
+                null
+            } else if (end > 1 && start == 0 && dstart == 0 && dend == 0) {
+                // When the initial content is set to Aztec accept the changes without checking
+                // This case is just an additional check that should never happen if
+                // you call `fromHTML` since isTextChangedListenerDisabled does the trick
+                null
+            } else
+            //  You sometimes get a SpannableStringBuilder, sometimes a plain String in the source parameter
+            if (source is SpannableStringBuilder) {
+                isHandlingEnterEvent = true
+                for (i in end - 1 downTo start) {
+                    val currentChar = source[i]
+                    if (currentChar == '\n' && onEnterListener?.onEnterKey() == true) {
+                        source.replace(i, i + 1, "")
+                    }
+                }
+                isHandlingEnterEvent = false
+                source
+            } else {
+                isHandlingEnterEvent = true
+                val filteredStringBuilder = StringBuilder()
+                for (i in start until end) {
+                    val currentChar = source[i]
+                    if (currentChar == '\n' && onEnterListener?.onEnterKey() == true) {
+                        // nothing
+                    } else {
+                        filteredStringBuilder.append(currentChar)
+                    }
+                }
+                isHandlingEnterEvent = false
+                filteredStringBuilder.toString()
+            }
+        }
+
+        filters = arrayOf(emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
     }
 
-    private fun handleBackspace(event: KeyEvent): Boolean {
+    private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+            return onEnterListener?.onEnterKey() ?: false
+        }
+
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             if (!consumeHistoryEvent) {
@@ -709,6 +757,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
+    }
+
+    fun setOnEnterListener(listener: OnEnterListener) {
+        this.onEnterListener = listener
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {

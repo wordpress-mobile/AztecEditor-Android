@@ -31,6 +31,10 @@ abstract class BlockHandler<SpanType : IAztecBlockSpan>(val clazz: Class<SpanTyp
         this.isReplay = isReplay
         this.nestingLevel = nestingLevel
 
+        if (text.getSpans<SpanType>(inputStart, inputStart + count, clazz).isEmpty()) {
+            return
+        }
+
         // use charsNew to get the spans at the input point. It appears to be more reliable vs the whole Editable.
         var charsNew = text.subSequence(inputStart, inputStart + count) as Spanned
 

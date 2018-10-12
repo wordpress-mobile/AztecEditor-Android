@@ -70,7 +70,7 @@ class CssUnderlinePluginTest {
         editText.fromHtml(CSS_STYLE_UNDERLINE_WITH_OTHER_STYLES_HTML)
 
         val span = editText.text.getSpans(0, editText.length(), AztecUnderlineSpan::class.java).first()
-        CssStyleFormatter.addStyleAttribute(span.attributes, "test", "value")
+        span.attributes = CssStyleFormatter.addStyleAttribute(span.attributes, "test", "value")
 
         Assert.assertEquals(CSS_STYLE_UNDERLINE_WITH_EVEN_MORE_STYLES_REORDERED_HTML, editText.toPlainHtml())
     }

@@ -22,7 +22,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).filter { it.isCssStyle }.forEach {
             if (!CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
+                it.attributes = CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
             }
 
             val start = spannable.getSpanStart(it)
@@ -40,7 +40,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
                     if (hiddenSpan.TAG == SPAN_TAG) {
                         val parentStyle = hiddenSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
                         val childStyle = calypsoUnderlineSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
-                        hiddenSpan.attributes.setValue(CssStyleFormatter.STYLE_ATTRIBUTE, CssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
+                        hiddenSpan.attributes = hiddenSpan.attributes.withValue(CssStyleFormatter.STYLE_ATTRIBUTE to CssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
 
                         // remove the extra child span
                         spannable.removeSpan(calypsoUnderlineSpan)
@@ -53,7 +53,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
     override fun afterSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
             if (it.TAG == SPAN_TAG && CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
+                it.attributes = CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
                 spannable.setSpan(AztecUnderlineSpan(), spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 if (it.attributes.isEmpty()) {

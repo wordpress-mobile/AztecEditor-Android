@@ -272,16 +272,13 @@ open class MainActivity : AppCompatActivity(),
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
         val id = Random().nextInt(Integer.MAX_VALUE).toString()
-        val attrs = AztecAttributes()
-        attrs.setValue("src", mediaPath) // Temporary source value.  Replace with URL after uploaded.
-        attrs.setValue("id", id)
-        attrs.setValue("uploading", "true")
+        val params = mutableMapOf("src" to mediaPath, "id" to id, "uploading" to "true")
 
         if (isVideo) {
-            attrs.setValue("video", "true")
+            params["video"] = "true"
         }
 
-        return Pair(id, attrs)
+        return Pair(id, AztecAttributes().withValues(params))
     }
 
     private fun insertMediaAndSimulateUpload(id: String, attrs: AztecAttributes) {

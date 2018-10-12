@@ -399,13 +399,13 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
                                nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
 
         if (nestable.shouldParseAlignmentToHtml()) {
-            CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
+            nestable.attributes = CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
 
             nestable.align?.let {
                 val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
                 val isRtl = direction.isRtl(text, start, end - start)
 
-                CssStyleFormatter.addStyleAttribute(nestable.attributes,
+                nestable.attributes = CssStyleFormatter.addStyleAttribute(nestable.attributes,
                         CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString(isRtl))
             }
         }

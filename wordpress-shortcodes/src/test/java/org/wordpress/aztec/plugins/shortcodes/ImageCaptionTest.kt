@@ -441,7 +441,7 @@ class ImageCaptionTest {
         editText.fromHtml(html)
 
         val attrs = editText.getImageCaptionAttributes(predicate)
-        attrs.setValue("width", "100")
+                .withValue("width" to "100")
 
         val newCaption = "test caption"
         editText.setImageCaption(predicate, newCaption, attrs)
@@ -459,7 +459,7 @@ class ImageCaptionTest {
         Assert.assertTrue(removedAttrs.isEmpty())
 
         val differentAttrs = AztecAttributes()
-        differentAttrs.setValue("width", "99")
+                .withValue("width" to "99")
         editText.setImageCaption(predicate, newCaption, differentAttrs)
 
         val newAttrs = editText.getImageCaptionAttributes(predicate)

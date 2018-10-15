@@ -19,7 +19,7 @@ fun AztecText.updateVideoPressThumb(thumbURL: String, videoURL: String, videoPre
                         it.attributes.getValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_ID) == videoPressID) {
 
                     // Set the hidden videopress source. Used when the video is tapped
-                    it.attributes = it.attributes.withValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC to videoURL)
+                    it.attributes = it.attributes.withValues(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC to videoURL)
                     it.drawable = drawable
                 }
             }

@@ -92,10 +92,10 @@ class CssStyleFormatter {
                 var newStyle = m.replaceAll("")
 
                 return if (newStyle.isBlank()) {
-                    attributes.withoutValue(STYLE_ATTRIBUTE)
+                    attributes.withoutValues(STYLE_ATTRIBUTE)
                 } else {
                     newStyle = newStyle.replace(";".toRegex(), "; ")
-                    attributes.withValue(STYLE_ATTRIBUTE to newStyle.trim())
+                    attributes.withValues(STYLE_ATTRIBUTE to newStyle.trim())
                 }
             }
             return attributes
@@ -120,7 +120,7 @@ class CssStyleFormatter {
             }
 
             style += " $styleAttributeName:$styleAttributeValue;"
-            return attributes.withValue(STYLE_ATTRIBUTE to style.trim())
+            return attributes.withValues(STYLE_ATTRIBUTE to style.trim())
         }
 
         fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {

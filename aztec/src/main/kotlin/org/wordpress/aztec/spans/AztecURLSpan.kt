@@ -32,7 +32,7 @@ class AztecURLSpan : URLSpan, IAztecInlineSpan {
 
     constructor(url: String, attributes: AztecAttributes = AztecAttributes()) : super(url) {
         this.attributes = if (!this.attributes.hasAttribute("href")) {
-            attributes.withValue("href" to url)
+            attributes.withValues("href" to url)
         } else {
             attributes
         }

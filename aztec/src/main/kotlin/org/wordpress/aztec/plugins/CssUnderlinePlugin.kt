@@ -40,7 +40,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
                     if (hiddenSpan.TAG == SPAN_TAG) {
                         val parentStyle = hiddenSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
                         val childStyle = calypsoUnderlineSpan.attributes.getValue(CssStyleFormatter.STYLE_ATTRIBUTE)
-                        hiddenSpan.attributes = hiddenSpan.attributes.withValue(CssStyleFormatter.STYLE_ATTRIBUTE to CssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
+                        hiddenSpan.attributes = hiddenSpan.attributes.withValues(CssStyleFormatter.STYLE_ATTRIBUTE to CssStyleFormatter.mergeStyleAttributes(parentStyle, childStyle))
 
                         // remove the extra child span
                         spannable.removeSpan(calypsoUnderlineSpan)

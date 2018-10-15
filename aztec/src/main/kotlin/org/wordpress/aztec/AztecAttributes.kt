@@ -27,6 +27,16 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         return aztecAttributes
     }
 
+    @Deprecated("In order to keep the object immutable",
+            ReplaceWith("withValues(qName)", "org.wordpress.aztec.AztecAttributes.withValues"))
+    override fun addAttribute(uri: String?,
+                              localName: String?,
+                              qName: String?,
+                              type: String?,
+                              value: String?) {
+        super.addAttribute(uri, localName, qName, type, value)
+    }
+
     private fun logInternalState() {
         AppLog.e(AppLog.T.EDITOR, "Dumping internal state:")
         AppLog.e(AppLog.T.EDITOR, "length = $length")
@@ -61,6 +71,13 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
             }
         }
         return aztecAttributes
+    }
+
+    @Deprecated("In order to keep the object immutable",
+            ReplaceWith("withoutValues(qName)",
+                    "org.wordpress.aztec.AztecAttributes.withoutValues"))
+    override fun removeAttribute(index: Int) {
+        super.removeAttribute(index)
     }
 
     fun hasAttribute(key: String): Boolean {

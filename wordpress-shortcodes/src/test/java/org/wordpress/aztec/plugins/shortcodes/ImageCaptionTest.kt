@@ -19,6 +19,7 @@ import org.wordpress.aztec.plugins.shortcodes.extensions.getImageCaptionAttribut
 import org.wordpress.aztec.plugins.shortcodes.extensions.hasImageCaption
 import org.wordpress.aztec.plugins.shortcodes.extensions.removeImageCaption
 import org.wordpress.aztec.plugins.shortcodes.extensions.setImageCaption
+import org.wordpress.aztec.plugins.shortcodes.extensions.updateImageCaptionAttributes
 import org.xml.sax.Attributes
 
 /**
@@ -440,8 +441,7 @@ class ImageCaptionTest {
         val html = IMG_HTML
         editText.fromHtml(html)
 
-        val attrs = editText.getImageCaptionAttributes(predicate)
-                .withValues("width" to "100")
+        val attrs = editText.updateImageCaptionAttributes(predicate, "width" to "100")
 
         val newCaption = "test caption"
         editText.setImageCaption(predicate, newCaption, attrs)

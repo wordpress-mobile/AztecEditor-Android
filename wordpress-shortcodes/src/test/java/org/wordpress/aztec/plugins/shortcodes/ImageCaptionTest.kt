@@ -19,7 +19,6 @@ import org.wordpress.aztec.plugins.shortcodes.extensions.getImageCaptionAttribut
 import org.wordpress.aztec.plugins.shortcodes.extensions.hasImageCaption
 import org.wordpress.aztec.plugins.shortcodes.extensions.removeImageCaption
 import org.wordpress.aztec.plugins.shortcodes.extensions.setImageCaption
-import org.wordpress.aztec.plugins.shortcodes.extensions.updateImageCaptionAttributes
 import org.xml.sax.Attributes
 
 /**
@@ -441,7 +440,8 @@ class ImageCaptionTest {
         val html = IMG_HTML
         editText.fromHtml(html)
 
-        val attrs = editText.updateImageCaptionAttributes(predicate, "width" to "100")
+        val attrs = editText.getImageCaptionAttributes(predicate)
+        attrs.setValue("width", "100")
 
         val newCaption = "test caption"
         editText.setImageCaption(predicate, newCaption, attrs)
@@ -459,7 +459,7 @@ class ImageCaptionTest {
         Assert.assertTrue(removedAttrs.isEmpty())
 
         val differentAttrs = AztecAttributes()
-                .withValues("width" to "99")
+        differentAttrs.setValue("width", "99")
         editText.setImageCaption(predicate, newCaption, differentAttrs)
 
         val newAttrs = editText.getImageCaptionAttributes(predicate)
@@ -536,5 +536,14 @@ class ImageCaptionTest {
         editText.fromHtml(html)
         editText.text.delete(0, 4)
         Assert.assertEquals(editText.toPlainHtml(), expectedHtml)
+    }
+
+    private fun AztecAttributes.setValue(key: String, value: String) {
+        val index = getIndex(key)
+        if (index == -1) {
+            addAttribute("", key, key, "string", value)
+        } else {
+            setValue(index, value)
+        }
     }
 }

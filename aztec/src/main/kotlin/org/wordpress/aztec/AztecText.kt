@@ -311,6 +311,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnKeyListener {
         fun onEnterKey() : Boolean
+        fun onBackSpaceKey() : Boolean
     }
 
     constructor(context: Context) : super(context) {
@@ -411,7 +412,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        setupZeroIndexBackspaceAndEnterDetection()
+        setupBackspaceAndEnterDetection()
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -428,15 +429,26 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-    // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
-    // Also detect when Enter is inserted and call the callback if available
-    private fun setupZeroIndexBackspaceAndEnterDetection() {
+    // Setup the keyListener for Backspace and Enter key.
+    // Backspace: Ask the key listener if we need to process the event.
+    // If we need to process the event here, when no characters are deleted (eg. at 0 index of EditText)
+    // it will check to remove style.
+    // Enter: Ask the listener if we need to insert or not the char.
+    private fun setupBackspaceAndEnterDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
             handleBackspaceAndEnter(event)
         }
 
         //software keyboard InputFilter(s) below
+        val externalBackspaceDetector = InputFilter { source, _, _, _, _, _ ->
+            if (onKeyListener?.onBackSpaceKey() == true) {
+                ""
+            } else {
+                source
+            }
+        }
+
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -490,12 +502,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
 
-        filters = arrayOf(emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
+        filters = arrayOf(externalBackspaceDetector, emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             return onKeyListener?.onEnterKey() ?: false
+        }
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+            return onKeyListener?.onBackSpaceKey() ?: false
         }
 
         var wasStyleRemoved = false

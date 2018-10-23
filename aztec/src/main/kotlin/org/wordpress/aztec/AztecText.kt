@@ -227,7 +227,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
-    private var onEnterListener: OnEnterListener? = null
+    private var onKeyListener: OnKeyListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -309,7 +309,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
-    interface OnEnterListener {
+    interface OnKeyListener {
         fun onEnterKey() : Boolean
     }
 
@@ -468,7 +468,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 isHandlingEnterEvent = true
                 for (i in end - 1 downTo start) {
                     val currentChar = source[i]
-                    if (currentChar == '\n' && onEnterListener?.onEnterKey() == true) {
+                    if (currentChar == '\n' && onKeyListener?.onEnterKey() == true) {
                         source.replace(i, i + 1, "")
                     }
                 }
@@ -479,7 +479,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val filteredStringBuilder = StringBuilder()
                 for (i in start until end) {
                     val currentChar = source[i]
-                    if (currentChar == '\n' && onEnterListener?.onEnterKey() == true) {
+                    if (currentChar == '\n' && onKeyListener?.onEnterKey() == true) {
                         // nothing
                     } else {
                         filteredStringBuilder.append(currentChar)
@@ -495,7 +495,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-            return onEnterListener?.onEnterKey() ?: false
+            return onKeyListener?.onEnterKey() ?: false
         }
 
         var wasStyleRemoved = false
@@ -759,8 +759,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         this.onSelectionChangedListener = onSelectionChangedListener
     }
 
-    fun setOnEnterListener(listener: OnEnterListener) {
-        this.onEnterListener = listener
+    fun setOnKeyListener(listener: OnKeyListener) {
+        this.onKeyListener = listener
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {

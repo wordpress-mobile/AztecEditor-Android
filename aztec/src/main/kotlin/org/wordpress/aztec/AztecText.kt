@@ -511,7 +511,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             return onKeyListener?.onEnterKey() ?: false
         }
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
-            return onKeyListener?.onBackSpaceKey() ?: false
+            // Check if the external lister has consumed the backspace pressed event
+            // In that case stop the execution and do not delete styles later
+            if (onKeyListener?.onBackSpaceKey() == true) {
+                // There listener has consumed the event
+                return true
+            }
         }
 
         var wasStyleRemoved = false

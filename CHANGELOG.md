@@ -1,4 +1,8 @@
 # Changelog
+## [1.3.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.10) - 2018-10-23
+### Fixed
+- Fixed: crash when deleting text (span handling)
+
 ## [1.3.9](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.9) - 2018-09-06
 ### Added
 - Added support for creating links that open in a new window.

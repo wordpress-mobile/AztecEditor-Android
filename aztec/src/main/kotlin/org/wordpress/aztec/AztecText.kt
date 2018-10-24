@@ -430,24 +430,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-    // Setup the keyListener for Backspace and Enter key.
-    // Backspace: Ask the key listener if we need to process the event.
-    // If we need to process the event here, when no characters are deleted (eg. at 0 index of EditText)
-    // it will check to remove style.
+    // Setup the keyListener(s) for Backspace and Enter key.
+    // Backspace: Call the keyListeners if backspace happens at the start of text. If listener return false
+    // we remove the style here.
     // Enter: Ask the listener if we need to insert or not the char.
     private fun setupBackspaceAndEnterDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
             handleBackspaceAndEnter(event)
-        }
-
-        //software keyboard InputFilter(s) below
-        val externalBackspaceDetector = InputFilter { source, _, _, _, _, _ ->
-            if (onKeyListener?.onBackSpaceKey() == true) {
-                ""
-            } else {
-                source
-            }
         }
 
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
@@ -503,7 +493,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
 
-        filters = arrayOf(externalBackspaceDetector, emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
+        filters = arrayOf(emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {

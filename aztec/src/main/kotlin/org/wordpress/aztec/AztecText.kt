@@ -312,7 +312,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnKeyListener {
         fun onEnterKey() : Boolean
-        fun onBackSpaceKey() : Boolean
+        fun onBackspaceKey() : Boolean
     }
 
     constructor(context: Context) : super(context) {
@@ -431,9 +431,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.
-    // Backspace: Call the keyListeners if backspace happens at the start of text. If listener return false
-    // we remove the style here.
-    // Enter: Ask the listener if we need to insert or not the char.
+    // Backspace: If listener does return false we remove the style here
+    // Enter: Ask the listener if we need to insert or not the char
     private fun setupBackspaceAndEnterDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
@@ -503,7 +502,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             // Check if the external lister has consumed the backspace pressed event
             // In that case stop the execution and do not delete styles later
-            if (onKeyListener?.onBackSpaceKey() == true) {
+            if (onKeyListener?.onBackspaceKey() == true) {
                 // There listener has consumed the event
                 return true
             }

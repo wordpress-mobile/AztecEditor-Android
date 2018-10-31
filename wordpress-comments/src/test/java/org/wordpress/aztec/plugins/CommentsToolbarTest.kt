@@ -21,7 +21,7 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 
-/**
+/**ImageCaptionTest
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)

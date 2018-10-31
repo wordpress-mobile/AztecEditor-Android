@@ -76,7 +76,7 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                     }
                 }
 
-                span.attributes.removeAttribute(CssStyleFormatter.STYLE_ATTRIBUTE)
+                span.attributes = span.attributes.withoutValues(CssStyleFormatter.STYLE_ATTRIBUTE)
 
                 if (wrapper.end - wrapper.start == 1) {
                     wrapper.remove()
@@ -88,14 +88,15 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, CaptionShortcodeSpan::class.java).forEach {
-            it.attributes.removeAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)
-            if (it.align != null) {
-                it.attributes.setValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE,
-                        when (it.align) {
-                            Layout.Alignment.ALIGN_NORMAL -> CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE
-                            Layout.Alignment.ALIGN_CENTER -> CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE
-                            else -> CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE
-                        })
+            it.attributes = if (it.align != null) {
+                it.attributes.withValues(CaptionShortcodePlugin.ALIGN_ATTRIBUTE to
+                                when (it.align) {
+                                    Layout.Alignment.ALIGN_NORMAL -> CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE
+                                    Layout.Alignment.ALIGN_CENTER -> CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE
+                                    else -> CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE
+                                })
+            } else {
+                it.attributes.withoutValues(ALIGN_ATTRIBUTE)
             }
         }
     }

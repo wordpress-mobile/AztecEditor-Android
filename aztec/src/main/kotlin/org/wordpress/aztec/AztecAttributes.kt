@@ -5,21 +5,36 @@ import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 
 class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImpl(attributes) {
-    fun setValue(key: String, value: String) {
-        val index = getIndex(key)
+    fun withValues(vararg keyValues: Pair<String, String>): AztecAttributes {
+        val aztecAttributes = AztecAttributes(this)
+        keyValues.forEach { (key, value) ->
+            val index = aztecAttributes.getIndex(key)
 
-        if (index == -1) {
-            try {
-                addAttribute("", key, key, "string", value)
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-                AppLog.e(AppLog.T.EDITOR, "Error adding attribute with name: $key and value: $value")
-                logInternalState()
-                throw e
+            if (index == -1) {
+                try {
+                    aztecAttributes.addAttribute("", key, key, "string", value)
+                } catch (e: ArrayIndexOutOfBoundsException) {
+                    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                    AppLog.e(AppLog.T.EDITOR,
+                            "Error adding attribute with name: $key and value: $value")
+                    logInternalState()
+                    throw e
+                }
+            } else {
+                aztecAttributes.setValue(index, value)
             }
-        } else {
-            setValue(index, value)
         }
+        return aztecAttributes
+    }
+
+    @Deprecated("In order to keep the object immutable",
+            ReplaceWith("withValues(qName)", "org.wordpress.aztec.AztecAttributes.withValues"))
+    override fun addAttribute(uri: String?,
+                              localName: String?,
+                              qName: String?,
+                              type: String?,
+                              value: String?) {
+        super.addAttribute(uri, localName, qName, type, value)
     }
 
     private fun logInternalState() {
@@ -38,19 +53,31 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
         return length == 0
     }
 
-    fun removeAttribute(key: String) {
-        if (hasAttribute(key)) {
-            val index = getIndex(key)
-            try {
-                removeAttribute(index)
-            } catch (e: ArrayIndexOutOfBoundsException) {
-                // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
-                AppLog.e(AppLog.T.EDITOR, "Tried to remove attribute: $key that is not in the list")
-                AppLog.e(AppLog.T.EDITOR, "Reported to be at index: $index")
-                logInternalState()
-                throw e
+    fun withoutValues(vararg keys: String): AztecAttributes {
+        val aztecAttributes = AztecAttributes(this)
+        for (key in keys) {
+            if (aztecAttributes.hasAttribute(key)) {
+                val index = aztecAttributes.getIndex(key)
+                try {
+                    aztecAttributes.removeAttribute(index)
+                } catch (e: ArrayIndexOutOfBoundsException) {
+                    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/705
+                    AppLog.e(AppLog.T.EDITOR,
+                            "Tried to remove attribute: $key that is not in the list")
+                    AppLog.e(AppLog.T.EDITOR, "Reported to be at index: $index")
+                    logInternalState()
+                    throw e
+                }
             }
         }
+        return aztecAttributes
+    }
+
+    @Deprecated("In order to keep the object immutable",
+            ReplaceWith("withoutValues(qName)",
+                    "org.wordpress.aztec.AztecAttributes.withoutValues"))
+    override fun removeAttribute(index: Int) {
+        super.removeAttribute(index)
     }
 
     fun hasAttribute(key: String): Boolean {

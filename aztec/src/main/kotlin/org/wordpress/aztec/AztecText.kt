@@ -1189,12 +1189,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     fun toHtml(withCursorTag: Boolean = false): String {
         val html = toPlainHtml(withCursorTag)
 
-        if (isInCalypsoMode) {
+        return if (isInCalypsoMode) {
             // calypso format is a mix of newline characters and html
             // paragraphs and line breaks are added on server, from newline characters
-            return Format.addSourceEditorFormatting(html, true)
+            Format.addSourceEditorFormatting(html, true)
         } else {
-            return html
+            html
         }
     }
 

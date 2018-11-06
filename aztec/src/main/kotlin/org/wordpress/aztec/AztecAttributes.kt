@@ -34,6 +34,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
                               qName: String?,
                               type: String?,
                               value: String?) {
+        AppLog.d(AppLog.T.READER, "AztecAttr addAttribute: " + Thread.currentThread().name)
         super.addAttribute(uri, localName, qName, type, value)
     }
 
@@ -77,6 +78,7 @@ class AztecAttributes(attributes: Attributes = AttributesImpl()) : AttributesImp
             ReplaceWith("withoutValues(qName)",
                     "org.wordpress.aztec.AztecAttributes.withoutValues"))
     override fun removeAttribute(index: Int) {
+        AppLog.d(AppLog.T.READER, "AztecAttr removeAttribute: " + Thread.currentThread().name)
         super.removeAttribute(index)
     }
 

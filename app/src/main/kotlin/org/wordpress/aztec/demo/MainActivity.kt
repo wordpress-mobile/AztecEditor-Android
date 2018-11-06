@@ -791,11 +791,12 @@ open class MainActivity : AppCompatActivity(),
         mediaUploadDialog!!.show()
     }
 
-    override fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) {
+    override fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) : AztecAttributes {
         ToastUtils.showToast(this, "Image tapped!")
+        return attrs
     }
 
-    override fun onVideoTapped(attrs: AztecAttributes) {
+    override fun onVideoTapped(attrs: AztecAttributes) : AztecAttributes {
         val url = if (attrs.hasAttribute(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)) {
             attrs.getValue(ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC)
         } else {
@@ -817,6 +818,7 @@ open class MainActivity : AppCompatActivity(),
                 }
             }
         }
+        return attrs
     }
 
     override fun onVideoInfoRequested(attrs: AztecAttributes) {
@@ -836,7 +838,7 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onAudioTapped(attrs: AztecAttributes) {
+    override fun onAudioTapped(attrs: AztecAttributes) : AztecAttributes {
         val url = attrs.getValue("src")
         url?.let {
             try {
@@ -853,6 +855,7 @@ open class MainActivity : AppCompatActivity(),
                 }
             }
         }
+        return attrs
     }
 
     override fun onMediaDeleted(attrs: AztecAttributes) {

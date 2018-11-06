@@ -291,15 +291,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnImageTappedListener {
-        fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
+        fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int) : AztecAttributes
     }
 
     interface OnVideoTappedListener {
-        fun onVideoTapped(attrs: AztecAttributes)
+        fun onVideoTapped(attrs: AztecAttributes) : AztecAttributes
     }
 
     interface OnAudioTappedListener {
-        fun onAudioTapped(attrs: AztecAttributes)
+        fun onAudioTapped(attrs: AztecAttributes) : AztecAttributes
     }
 
     interface OnMediaDeletedListener {

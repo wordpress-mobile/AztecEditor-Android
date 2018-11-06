@@ -20,10 +20,6 @@ class AztecVideoSpan(context: Context, drawable: Drawable?, override var nesting
     }
 
     override fun onClick() {
-        val newAttributes =
-                onVideoTappedListener?.onVideoTapped(attributes)
-        if (newAttributes != null) {
-            attributes = newAttributes
-        }
+        onVideoTappedListener?.onVideoTapped(attributes)?.let { attributes = it; }
     }
 }

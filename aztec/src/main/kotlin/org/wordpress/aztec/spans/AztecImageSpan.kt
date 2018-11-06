@@ -15,10 +15,7 @@ class AztecImageSpan(context: Context, drawable: Drawable?,
     override val TAG: String = "img"
 
     override fun onClick() {
-        val newAttributes =
-                onImageTappedListener?.onImageTapped(attributes, getWidth(imageDrawable), getHeight(imageDrawable))
-        if (newAttributes != null) {
-            attributes = newAttributes
-        }
+        onImageTappedListener?.onImageTapped(
+                attributes, getWidth(imageDrawable), getHeight(imageDrawable))?.let { attributes = it; }
     }
 }

@@ -20,10 +20,6 @@ class AztecAudioSpan(context: Context, drawable: Drawable?, override var nesting
     }
 
     override fun onClick() {
-        val newAttributes =
-                onAudioTappedListener?.onAudioTapped(attributes)
-        if (newAttributes != null) {
-            attributes = newAttributes
-        }
+        onAudioTappedListener?.onAudioTapped(attributes)?.let { attributes = it; }
     }
 }

@@ -80,7 +80,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     open fun getHtml(): String {
         val sb = StringBuilder("<$TAG ")
 
-        attributes = attributes.withoutValues("aztec_id")
+        attributes.removeAttribute("aztec_id")
 
         sb.append(attributes)
         sb.trim()

@@ -106,15 +106,16 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
     }
 
     private fun toggleOpenInNewWindowAttributes(openInNewWindow: Boolean = false, attributes: AztecAttributes = AztecAttributes()): AztecAttributes {
-        return if (openInNewWindow) {
-            attributes.withValues("target" to "_blank", "rel" to "noopener")
+        if (openInNewWindow) {
+            attributes.setValue("target", "_blank")
+            attributes.setValue("rel", "noopener")
         } else {
+            attributes.removeAttribute("target")
             if (attributes.hasAttribute("rel") && attributes.getValue("rel") == "noopener") {
-                attributes.withoutValues("target", "rel")
-            } else {
-                attributes.withoutValues("target")
+                attributes.removeAttribute("rel")
             }
         }
+        return attributes
     }
 
     fun editLink(link: String, anchor: String?, openInNewWindow: Boolean = false, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -133,7 +134,7 @@ class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatte
         }
 
         val attributes = getAttributes(end, start)
-                .withValues("href" to cleanLink)
+        attributes.setValue("href", cleanLink)
         toggleOpenInNewWindowAttributes(openInNewWindow, attributes)
 
         linkValid(cleanLink, start, newEnd, attributes)

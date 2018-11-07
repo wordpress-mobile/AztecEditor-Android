@@ -28,7 +28,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
@@ -57,7 +56,6 @@ import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.android.Main
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext

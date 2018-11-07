@@ -56,6 +56,11 @@ import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withContext
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
@@ -1200,45 +1205,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    private val signal = Object()
-    private var wasSignalled = false
-
     // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         return if (Looper.myLooper() != Looper.getMainLooper()) {
-            var html = ""
-            wasSignalled = false
-            Handler(Looper.getMainLooper()).post {
-                AppLog.d(AppLog.T.EDITOR, "THREAD parse()")
-                html = parseHtml(withCursorTag)
-                doNotify()
+            runBlocking {
+                withContext(Dispatchers.Main) {
+                    parseHtml(withCursorTag)
+                }
             }
-            doWait()
-            html
         } else {
             parseHtml(withCursorTag)
-        }
-    }
-
-    private fun doWait() {
-        synchronized (signal) {
-            while (!wasSignalled) {
-                try {
-                    AppLog.d(AppLog.T.EDITOR, "THREAD wait()")
-                    signal.wait()
-                }
-                catch (e: InterruptedException) { }
-            }
-            // clear signal and continue running
-            wasSignalled = false
-        }
-    }
-
-    private fun doNotify() {
-        synchronized (signal) {
-            wasSignalled = true
-            AppLog.d(AppLog.T.EDITOR, "THREAD notify()")
-            signal.notify()
         }
     }
 

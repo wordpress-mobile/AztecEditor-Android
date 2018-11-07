@@ -28,6 +28,8 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.DrawableRes
@@ -1198,8 +1200,49 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    private val signal = Object()
+    private var wasSignalled = false
+
     // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
+        return if (Looper.myLooper() != Looper.getMainLooper()) {
+            var html = ""
+            wasSignalled = false
+            Handler(Looper.getMainLooper()).post {
+                AppLog.d(AppLog.T.EDITOR, "THREAD parse()")
+                html = parseHtml(withCursorTag)
+                doNotify()
+            }
+            doWait()
+            html
+        } else {
+            parseHtml(withCursorTag)
+        }
+    }
+
+    private fun doWait() {
+        synchronized (signal) {
+            while (!wasSignalled) {
+                try {
+                    AppLog.d(AppLog.T.EDITOR, "THREAD wait()")
+                    signal.wait()
+                }
+                catch (e: InterruptedException) { }
+            }
+            // clear signal and continue running
+            wasSignalled = false
+        }
+    }
+
+    private fun doNotify() {
+        synchronized (signal) {
+            wasSignalled = true
+            AppLog.d(AppLog.T.EDITOR, "THREAD notify()")
+            signal.notify()
+        }
+    }
+
+    private fun parseHtml(withCursorTag: Boolean): String {
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {

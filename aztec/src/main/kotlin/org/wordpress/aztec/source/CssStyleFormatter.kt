@@ -86,19 +86,18 @@ class CssStyleFormatter {
             return attributes.hasAttribute(STYLE_ATTRIBUTE) && getMatcher(attributes, styleAttributeName).find()
         }
 
-        fun removeStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): AztecAttributes {
+        fun removeStyleAttribute(attributes: AztecAttributes, styleAttributeName: String) {
             if (attributes.hasAttribute(STYLE_ATTRIBUTE)) {
                 val m = getMatcher(attributes, styleAttributeName)
                 var newStyle = m.replaceAll("")
 
-                return if (newStyle.isBlank()) {
-                    attributes.withoutValues(STYLE_ATTRIBUTE)
+                if (newStyle.isBlank()) {
+                    attributes.removeAttribute(STYLE_ATTRIBUTE)
                 } else {
                     newStyle = newStyle.replace(";".toRegex(), "; ")
-                    attributes.withValues(STYLE_ATTRIBUTE to newStyle.trim())
+                    attributes.setValue(STYLE_ATTRIBUTE, newStyle.trim())
                 }
             }
-            return attributes
         }
 
         fun getStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): String {
@@ -111,7 +110,7 @@ class CssStyleFormatter {
             return styleAttributeValue
         }
 
-        fun addStyleAttribute(attributes: AztecAttributes, styleAttributeName: String, styleAttributeValue: String): AztecAttributes {
+        fun addStyleAttribute(attributes: AztecAttributes, styleAttributeName: String, styleAttributeValue: String) {
             var style = attributes.getValue(STYLE_ATTRIBUTE) ?: ""
             style = style.trim()
 
@@ -120,7 +119,7 @@ class CssStyleFormatter {
             }
 
             style += " $styleAttributeName:$styleAttributeValue;"
-            return attributes.withValues(STYLE_ATTRIBUTE to style.trim())
+            attributes.setValue(STYLE_ATTRIBUTE, style.trim())
         }
 
         fun mergeStyleAttributes(firstStyle: String, secondStyle: String): String {

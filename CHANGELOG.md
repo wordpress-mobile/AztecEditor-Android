@@ -1,4 +1,7 @@
 # Changelog
+## [1.3.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.11) - 2018-11-08
+### Fixed
+- Fixed: Repeating characters in the editor
 ## [1.3.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.10) - 2018-10-23
 ### Fixed
 - Fixed: crash when deleting text (span handling)

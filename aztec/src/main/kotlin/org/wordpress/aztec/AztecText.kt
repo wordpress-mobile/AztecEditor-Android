@@ -460,44 +460,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        val detectEnterKeyInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
-            if (isTextChangedListenerDisabled() || isHandlingEnterEvent || !isViewInitialized) {
-                // If the view is not initialized do nothing and accept the changes
-                null
-            } else if (end > 1 && start == 0 && dstart == 0 && dend == 0) {
-                // When the initial content is set to Aztec accept the changes without checking
-                // This case is just an additional check that should never happen if
-                // you call `fromHTML` since isTextChangedListenerDisabled does the trick
-                null
-            } else
-            //  You sometimes get a SpannableStringBuilder, sometimes a plain String in the source parameter
-            if (source is SpannableStringBuilder) {
-                isHandlingEnterEvent = true
-                for (i in end - 1 downTo start) {
-                    val currentChar = source[i]
-                    if (currentChar == '\n' && onKeyListener?.onEnterKey() == true) {
-                        source.replace(i, i + 1, "")
-                    }
-                }
-                isHandlingEnterEvent = false
-                source
-            } else {
-                isHandlingEnterEvent = true
-                val filteredStringBuilder = StringBuilder()
-                for (i in start until end) {
-                    val currentChar = source[i]
-                    if (currentChar == '\n' && onKeyListener?.onEnterKey() == true) {
-                        // nothing
-                    } else {
-                        filteredStringBuilder.append(currentChar)
-                    }
-                }
-                isHandlingEnterEvent = false
-                filteredStringBuilder.toString()
-            }
-        }
-
-        filters = arrayOf(emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
+        filters = arrayOf(emptyEditTextBackspaceDetector)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {

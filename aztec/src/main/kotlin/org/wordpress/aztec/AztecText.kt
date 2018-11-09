@@ -465,8 +465,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-            return onKeyListener?.onEnterKey() ?: false
+            // Check if the external lister has consumed the enter pressed event
+            // In that case stop the execution
+            if (onKeyListener?.onEnterKey() == true) {
+                return true
+            }
         }
+
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             // Check if the external lister has consumed the backspace pressed event
             // In that case stop the execution and do not delete styles later

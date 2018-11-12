@@ -103,6 +103,7 @@ import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.EnterPressedWatcher
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
@@ -234,14 +235,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
-    private var onKeyListener: OnKeyListener? = null
+    private var onAztecKeyListener: OnAztecKeyListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
-    private var isHandlingEnterEvent = false
 
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
@@ -316,7 +316,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
-    interface OnKeyListener {
+    interface OnAztecKeyListener {
         fun onEnterKey() : Boolean
         fun onBackspaceKey() : Boolean
     }
@@ -461,51 +461,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        val detectEnterKeyInputFilter = InputFilter { source, start, end, dest, dstart, dend ->
-            if (isTextChangedListenerDisabled() || isHandlingEnterEvent || !isViewInitialized) {
-                // If the view is not initialized do nothing and accept the changes
-                null
-            } else if (end > 1 && start == 0 && dstart == 0 && dend == 0) {
-                // When the initial content is set to Aztec accept the changes without checking
-                // This case is just an additional check that should never happen if
-                // you call `fromHTML` since isTextChangedListenerDisabled does the trick
-                null
-            } else
-            //  You sometimes get a SpannableStringBuilder, sometimes a plain String in the source parameter
-                if (source is SpannableStringBuilder) {
-                    isHandlingEnterEvent = true
-                    for (i in end - 1 downTo start) {
-                        val currentChar = source[i]
-                        if (currentChar == '\n' /*&& onKeyListener?.onEnterKey() == true*/) {
-                            source.replace(i, i + 1, "")
-                        }
-                    }
-                    isHandlingEnterEvent = false
-                    source
-                } else {
-                    isHandlingEnterEvent = true
-                    val filteredStringBuilder = StringBuilder()
-                    for (i in start until end) {
-                        val currentChar = source[i]
-                        if (currentChar == '\n' /*&& onKeyListener?.onEnterKey() == true*/) {
-                            // nothing
-                        } else {
-                            filteredStringBuilder.append(currentChar)
-                        }
-                    }
-                    isHandlingEnterEvent = false
-                    filteredStringBuilder.toString()
-                }
-        }
-
-        filters = arrayOf(emptyEditTextBackspaceDetector, detectEnterKeyInputFilter)
+        filters = arrayOf(emptyEditTextBackspaceDetector)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             // Check if the external lister has consumed the enter pressed event
             // In that case stop the execution
-            if (onKeyListener?.onEnterKey() == true) {
+            if (onAztecKeyListener?.onEnterKey() == true) {
                 return true
             }
         }
@@ -513,7 +476,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             // Check if the external lister has consumed the backspace pressed event
             // In that case stop the execution and do not delete styles later
-            if (onKeyListener?.onBackspaceKey() == true) {
+            if (onAztecKeyListener?.onBackspaceKey() == true) {
                 // There listener has consumed the event
                 return true
             }
@@ -541,6 +504,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
+        EnterPressedWatcher.install(this)
+
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
@@ -780,8 +745,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         this.onSelectionChangedListener = onSelectionChangedListener
     }
 
-    fun setOnKeyListener(listener: OnKeyListener) {
-        this.onKeyListener = listener
+    fun getAztecKeyListener() : OnAztecKeyListener? {
+        return this.onAztecKeyListener
+    }
+
+    fun setAztecKeyListener(listenerAztec: OnAztecKeyListener) {
+        this.onAztecKeyListener = listenerAztec
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {

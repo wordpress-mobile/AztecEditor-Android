@@ -476,7 +476,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     isHandlingEnterEvent = true
                     for (i in end - 1 downTo start) {
                         val currentChar = source[i]
-                        Log.d("Danilo", "Type : "+Character.getType(currentChar))
                         if (currentChar == '\n' /*&& onKeyListener?.onEnterKey() == true*/) {
                             source.replace(i, i + 1, "")
                         }
@@ -488,7 +487,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     val filteredStringBuilder = StringBuilder()
                     for (i in start until end) {
                         val currentChar = source[i]
-                        Log.d("Danilo", "Type : "+Character.getType(currentChar))
                         if (currentChar == '\n' /*&& onKeyListener?.onEnterKey() == true*/) {
                             // nothing
                         } else {

@@ -503,6 +503,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
+        // Keep the enter pressed watcher at the beginning of the watchers list.
+        // We want to intercept Enter.key as soon as possible, and before other listeners start modifying the text.
+        // Also note that this Watchers, when the AztecKeyListener is set, keep hold a copy of the content in the editor.
         EnterPressedWatcher.install(this)
 
         ParagraphBleedAdjuster.install(this)
@@ -748,6 +751,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return this.onAztecKeyListener
     }
 
+    /**
+     * Sets the Aztec key listener to be used with this AztecText.
+     * Please note that this lister does hold a copy of the whole text in the editor
+     * each time a key is pressed.
+     */
     fun setAztecKeyListener(listenerAztec: OnAztecKeyListener) {
         this.onAztecKeyListener = listenerAztec
     }

@@ -472,7 +472,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // In that case stop the execution and do not delete styles later
             if (onKeyListener?.onBackspaceKey() == true) {
                 // There listener has consumed the event
-                return true
+                //return true
             }
         }
 

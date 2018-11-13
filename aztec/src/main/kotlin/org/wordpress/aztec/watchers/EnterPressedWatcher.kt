@@ -25,13 +25,13 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
 
     override fun afterTextChanged(text: Editable) {
         val aztecText = aztecTextRef.get()
-        val aztecKeyLister = aztecText?.getAztecKeyListener()
-        if (aztecText != null && !aztecText.isTextChangedListenerDisabled() && aztecKeyLister != null) {
+        val aztecKeyListener = aztecText?.getAztecKeyListener()
+        if (aztecText != null && !aztecText.isTextChangedListenerDisabled() && aztecKeyListener != null) {
             val newTextCopy = SpannableStringBuilder(text)
             // if new text length is longer than original text by 1
             if (textBefore?.length == newTextCopy.length - 1) {
                 // now check that the inserted character is actually a NEWLINE
-                if (newTextCopy[this.start] == Constants.NEWLINE && aztecKeyLister.onEnterKey()) {
+                if (newTextCopy[this.start] == Constants.NEWLINE && aztecKeyListener.onEnterKey()) {
                     text.replace(start, start + 1, "")
                 }
             }

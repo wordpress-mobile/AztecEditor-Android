@@ -753,7 +753,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     /**
      * Sets the Aztec key listener to be used with this AztecText.
-     * Please note that this lister does hold a copy of the whole text in the editor
+     * Please note that this listener does hold a copy of the whole text in the editor
      * each time a key is pressed.
      */
     fun setAztecKeyListener(listenerAztec: OnAztecKeyListener) {

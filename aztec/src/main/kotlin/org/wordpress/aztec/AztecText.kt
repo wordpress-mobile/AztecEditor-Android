@@ -102,6 +102,7 @@ import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.EnterPressedWatcher
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
@@ -233,14 +234,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
-    private var onKeyListener: OnKeyListener? = null
+    private var onAztecKeyListener: OnAztecKeyListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
     private var isLeadingStyleRemoved = false
 
     private var isHandlingBackspaceEvent = false
-    private var isHandlingEnterEvent = false
 
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
@@ -315,7 +315,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
-    interface OnKeyListener {
+    interface OnAztecKeyListener {
         fun onEnterKey() : Boolean
         fun onBackspaceKey() : Boolean
     }
@@ -465,12 +465,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
-            return onKeyListener?.onEnterKey() ?: false
+            // Check if the external listener has consumed the enter pressed event
+            // In that case stop the execution
+            if (onAztecKeyListener?.onEnterKey() == true) {
+                return true
+            }
         }
+
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
-            // Check if the external lister has consumed the backspace pressed event
+            // Check if the external listener has consumed the backspace pressed event
             // In that case stop the execution and do not delete styles later
-            if (onKeyListener?.onBackspaceKey() == true) {
+            if (onAztecKeyListener?.onBackspaceKey() == true) {
                 // There listener has consumed the event
                 return true
             }
@@ -498,6 +503,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
+        // Keep the enter pressed watcher at the beginning of the watchers list.
+        // We want to intercept Enter.key as soon as possible, and before other listeners start modifying the text.
+        // Also note that this Watchers, when the AztecKeyListener is set, keep hold a copy of the content in the editor.
+        EnterPressedWatcher.install(this)
+
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
@@ -737,8 +747,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         this.onSelectionChangedListener = onSelectionChangedListener
     }
 
-    fun setOnKeyListener(listener: OnKeyListener) {
-        this.onKeyListener = listener
+    fun getAztecKeyListener() : OnAztecKeyListener? {
+        return this.onAztecKeyListener
+    }
+
+    /**
+     * Sets the Aztec key listener to be used with this AztecText.
+     * Please note that this listener does hold a copy of the whole text in the editor
+     * each time a key is pressed.
+     */
+    fun setAztecKeyListener(listenerAztec: OnAztecKeyListener) {
+        this.onAztecKeyListener = listenerAztec
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {

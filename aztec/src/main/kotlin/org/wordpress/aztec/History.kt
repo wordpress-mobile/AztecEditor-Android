@@ -175,6 +175,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
 
     fun clearHistory() {
         inputLast = ""
+        historyCursor = 0
         historyList.clear()
     }
 

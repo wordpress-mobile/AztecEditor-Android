@@ -173,10 +173,14 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         return true
     }
 
-    fun clearHistory() {
-        inputLast = ""
-        historyCursor = 0
+    fun clearHistory(editText: EditText) {
+        inputLast = when (editText) {
+            is AztecText -> editText.toFormattedHtml()
+            is SourceViewEditText -> editText.text.toString()
+            else -> ""
+        }
         historyList.clear()
+        historyCursor = historyList.size
     }
 
     fun setHistoryListener(listener: IHistoryListener) {

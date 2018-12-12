@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.DrawableRes
@@ -52,7 +53,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.widget.CheckBox
 import android.widget.EditText
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.android.Main
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withContext
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
@@ -96,6 +102,7 @@ import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
+import org.wordpress.aztec.watchers.EnterPressedWatcher
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
@@ -128,6 +135,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val LINK_DIALOG_VISIBLE_KEY = "LINK_DIALOG_VISIBLE_KEY"
         val LINK_DIALOG_URL_KEY = "LINK_DIALOG_URL_KEY"
         val LINK_DIALOG_ANCHOR_KEY = "LINK_DIALOG_ANCHOR_KEY"
+        val LINK_DIALOG_OPEN_NEW_WINDOW_KEY = "LINK_DIALOG_OPEN_NEW_WINDOW_KEY"
 
         val HISTORY_LIST_KEY = "HISTORY_LIST_KEY"
         val HISTORY_CURSOR_KEY = "HISTORY_CURSOR_KEY"
@@ -151,7 +159,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap
                 bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
-            } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
+            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (drawable is VectorDrawableCompat || drawable is VectorDrawable) ) ||
+                    drawable is VectorDrawableCompat) {
                 bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -225,6 +234,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
+    private var onAztecKeyListener: OnAztecKeyListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -303,6 +313,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnVideoInfoRequestedListener {
         fun onVideoInfoRequested(attrs: AztecAttributes)
+    }
+
+    interface OnAztecKeyListener {
+        fun onEnterKey() : Boolean
+        fun onBackspaceKey() : Boolean
     }
 
     constructor(context: Context) : super(context) {
@@ -403,7 +418,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        setupZeroIndexBackspaceDetection()
+        setupBackspaceAndEnterDetection()
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -420,14 +435,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-    // detect the press of backspace when no characters are deleted (eg. at 0 index of EditText)
-    private fun setupZeroIndexBackspaceDetection() {
+    // Setup the keyListener(s) for Backspace and Enter key.
+    // Backspace: If listener does return false we remove the style here
+    // Enter: Ask the listener if we need to insert or not the char
+    private fun setupBackspaceAndEnterDetection() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
-            handleBackspace(event)
+            handleBackspaceAndEnter(event)
         }
 
-        //software keyboard
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -438,7 +454,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 // Prevent the forced backspace from being added to the history stack
                 consumeHistoryEvent = true
 
-                handleBackspace(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                 isHandlingBackspaceEvent = false
             }
             source
@@ -447,7 +463,24 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         filters = arrayOf(emptyEditTextBackspaceDetector)
     }
 
-    private fun handleBackspace(event: KeyEvent): Boolean {
+    private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
+            // Check if the external listener has consumed the enter pressed event
+            // In that case stop the execution
+            if (onAztecKeyListener?.onEnterKey() == true) {
+                return true
+            }
+        }
+
+        if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+            // Check if the external listener has consumed the backspace pressed event
+            // In that case stop the execution and do not delete styles later
+            if (onAztecKeyListener?.onBackspaceKey() == true) {
+                // There listener has consumed the event
+                return true
+            }
+        }
+
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             if (!consumeHistoryEvent) {
@@ -470,6 +503,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
+        // Keep the enter pressed watcher at the beginning of the watchers list.
+        // We want to intercept Enter.key as soon as possible, and before other listeners start modifying the text.
+        // Also note that this Watchers, when the AztecKeyListener is set, keep hold a copy of the content in the editor.
+        EnterPressedWatcher.install(this)
+
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
@@ -595,8 +633,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (isLinkDialogVisible) {
             val retainedUrl = customState.getString(LINK_DIALOG_URL_KEY, "")
             val retainedAnchor = customState.getString(LINK_DIALOG_ANCHOR_KEY, "")
-
-            showLinkDialog(retainedUrl, retainedAnchor)
+            val retainedOpenInNewWindow = customState.getString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, "")
+            showLinkDialog(retainedUrl, retainedAnchor, retainedOpenInNewWindow)
         }
 
         val isBlockEditorDialogVisible = customState.getBoolean(BLOCK_DIALOG_VISIBLE_KEY, false)
@@ -643,9 +681,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             val urlInput = addLinkDialog!!.findViewById<EditText>(R.id.linkURL)
             val anchorInput = addLinkDialog!!.findViewById<EditText>(R.id.linkText)
+            val openInNewWindowCheckbox = addLinkDialog!!.findViewById<CheckBox>(R.id.openInNewWindow)
 
             bundle.putString(LINK_DIALOG_URL_KEY, urlInput?.text?.toString())
             bundle.putString(LINK_DIALOG_ANCHOR_KEY, anchorInput?.text?.toString())
+            bundle.putString(LINK_DIALOG_OPEN_NEW_WINDOW_KEY, if (openInNewWindowCheckbox != null && openInNewWindowCheckbox.isChecked) "checked=true" else "checked=false")
         }
 
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
@@ -705,6 +745,19 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
+    }
+
+    fun getAztecKeyListener() : OnAztecKeyListener? {
+        return this.onAztecKeyListener
+    }
+
+    /**
+     * Sets the Aztec key listener to be used with this AztecText.
+     * Please note that this listener does hold a copy of the whole text in the editor
+     * each time a key is pressed.
+     */
+    fun setAztecKeyListener(listenerAztec: OnAztecKeyListener) {
+        this.onAztecKeyListener = listenerAztec
     }
 
     fun setOnImeBackListener(listener: OnImeBackListener) {
@@ -1012,7 +1065,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return cursorPosition
     }
 
-    open fun fromHtml(source: String) {
+    open fun fromHtml(source: String, isInit: Boolean = true) {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(plugins)
 
@@ -1037,7 +1090,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         setSelection(cursorPosition)
 
-        initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+        if (isInit) {
+            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+        }
 
         loadImages()
         loadVideos()
@@ -1132,6 +1187,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     // platform agnostic HTML
     fun toPlainHtml(withCursorTag: Boolean = false): String {
+        return if (Looper.myLooper() != Looper.getMainLooper()) {
+            runBlocking {
+                withContext(Dispatchers.Main) {
+                    parseHtml(withCursorTag)
+                }
+            }
+        } else {
+            parseHtml(withCursorTag)
+        }
+    }
+
+    private fun parseHtml(withCursorTag: Boolean): String {
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {
@@ -1310,8 +1377,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         when (id) {
-            android.R.id.paste,
-            android.R.id.pasteAsPlainText -> paste(text, min, max)
+            android.R.id.paste -> paste(text, min, max)
+            android.R.id.pasteAsPlainText -> paste(text, min, max, true)
             android.R.id.copy -> {
                 copy(text, min, max)
                 setSelection(max) // dismiss the selection to make the action menu hide
@@ -1364,7 +1431,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // copied from TextView with some changes
-    fun paste(editable: Editable, min: Int, max: Int) {
+    fun paste(editable: Editable, min: Int, max: Int, asPlainText: Boolean = false) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = clipboard.primaryClip
 
@@ -1394,12 +1461,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
+                val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
+                else clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
 
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
-                fromHtml(newHtml)
+                fromHtml(newHtml, false)
                 inlineFormatter.joinStyleSpans(0, length())
             }
         }
@@ -1418,14 +1486,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    fun link(url: String, anchor: String) {
+    fun link(url: String, anchor: String, openInNewWindow: Boolean = false) {
         history.beforeTextChanged(this@AztecText)
         if (TextUtils.isEmpty(url) && linkFormatter.isUrlSelected()) {
             removeLink()
         } else if (linkFormatter.isUrlSelected()) {
-            linkFormatter.editLink(url, anchor, linkFormatter.getUrlSpanBounds().first, linkFormatter.getUrlSpanBounds().second)
+            linkFormatter.editLink(url, anchor, openInNewWindow, linkFormatter.getUrlSpanBounds().first, linkFormatter.getUrlSpanBounds().second)
         } else {
-            linkFormatter.addLink(url, anchor, selectionStart, selectionEnd)
+            linkFormatter.addLink(url, anchor, openInNewWindow, selectionStart, selectionEnd)
         }
     }
 
@@ -1448,11 +1516,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     @SuppressLint("InflateParams")
-    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "") {
+    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "" ) {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
         val anchor = if (TextUtils.isEmpty(presetAnchor)) urlAndAnchor.second else presetAnchor
+        val openInNewWindow = if (TextUtils.isEmpty(presetOpenInNewWindow)) urlAndAnchor.third else presetOpenInNewWindow == "checked=true"
 
         val builder = AlertDialog.Builder(context)
 
@@ -1460,9 +1529,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val urlInput = dialogView.findViewById<EditText>(R.id.linkURL)
         val anchorInput = dialogView.findViewById<EditText>(R.id.linkText)
+        val openInNewWindowCheckbox = dialogView.findViewById<CheckBox>(R.id.openInNewWindow)
 
         urlInput.setText(url)
         anchorInput.setText(anchor)
+        openInNewWindowCheckbox.isChecked = openInNewWindow
 
         builder.setView(dialogView)
         builder.setTitle(R.string.link_dialog_title)
@@ -1471,7 +1542,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val linkText = TextUtils.htmlEncode(correctUrl(urlInput.text.toString().trim { it <= ' ' }))
             val anchorText = anchorInput.text.toString().trim { it <= ' ' }
 
-            link(linkText, anchorText)
+            link(linkText, anchorText, openInNewWindowCheckbox.isChecked)
         })
 
         if (linkFormatter.isUrlSelected()) {

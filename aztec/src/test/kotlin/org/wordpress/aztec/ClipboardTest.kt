@@ -310,4 +310,32 @@ class ClipboardTest {
 
         editText.setCalypsoMode(false)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndPasteAsPlainTextSameInlineStyle() {
+        editText.fromHtml("<b>Bold</b>")
+
+        editText.setSelection(0, editText.length())
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(editText.length())
+        TestUtils.pasteFromClipboardAsPlainText(editText)
+
+        Assert.assertEquals("<b>Bold</b>Bold", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun copyAndReplaceAsPlainText() {
+        editText.fromHtml(LONG_TEXT)
+
+        editText.setSelection(0, editText.length())
+        TestUtils.copyToClipboard(editText)
+
+        editText.setSelection(0, editText.length())
+        TestUtils.pasteFromClipboardAsPlainText(editText)
+
+        Assert.assertEquals(LONG_TEXT_EXPECTED, editText.toHtml())
+    }
 }

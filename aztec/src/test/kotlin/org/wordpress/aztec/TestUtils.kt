@@ -65,6 +65,15 @@ object TestUtils {
     }
 
     /**
+     * Issue a copy as plain text to clipboard key event
+     *
+     * @param text The EditText to issue the key event to
+     */
+    fun pasteFromClipboardAsPlainText(text: AztecText) {
+        text.paste(text.text, text.selectionStart, text.selectionEnd, true)
+    }
+
+    /**
      * Helper for calculating the EditText's length *without* counting the the end-of-text marker char if present
      *
      * @param text The EditText to check for length sans the end-of-text marker char if present

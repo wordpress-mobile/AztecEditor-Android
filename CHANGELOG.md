@@ -1,4 +1,22 @@
 # Changelog
+## [1.3.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.11) - 2018-11-08
+### Fixed
+- Fixed: Repeating characters in the editor
+## [1.3.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.10) - 2018-10-23
+### Fixed
+- Fixed: crash when deleting text (span handling)
+
+## [1.3.9](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.9) - 2018-09-06
+### Added
+- Added support for creating links that open in a new window.
+
+### Fixed
+- Fixed: don't perform initial hash calculation when pasting content
+
+## [1.3.8](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.8) - 2018-08-28
+### Added
+- Added the ability to use the new Android 8 feature "paste as plain text"
+
 ## [1.3.7](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.7) - 2018-06-29
 ### Fixed
 - Fixed initial hash calculation for change detection mechanism.

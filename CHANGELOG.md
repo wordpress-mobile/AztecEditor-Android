@@ -1,7 +1,16 @@
 # Changelog
+## [1.3.13](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.13) - 2018-12-20
+### Fixed
+- Fixed issue where `onEnterKey` key listener was called with the wrong text.
+
+## [1.3.12](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.12) - 2018-11-19
+### Fixed
+- Fixed: Repeating characters in the editor (fixed previous release)
+
 ## [1.3.11](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.11) - 2018-11-08
 ### Fixed
 - Fixed: Repeating characters in the editor
+
 ## [1.3.10](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.10) - 2018-10-23
 ### Fixed
 - Fixed: crash when deleting text (span handling)

@@ -1440,7 +1440,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             disableTextChangedListener()
 
-            if (min == 0 && max == text.length) {
+            if (min == 0 && (max == text.length || text.toString() == Constants.END_OF_BUFFER_MARKER_STRING)) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
                 editable.delete(min, max)

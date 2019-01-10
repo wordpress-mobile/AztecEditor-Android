@@ -29,9 +29,6 @@ android {
             includeAndroidResources = true
         }
     }
-
-    // enable kotlin coroutines
-    kotlin { experimental { coroutines "enable" } }
 }
 
 dependencies {
@@ -48,6 +45,6 @@ dependencies {
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 }

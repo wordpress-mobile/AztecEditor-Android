@@ -1,4 +1,9 @@
 # Changelog
+## [1.3.14](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.14) - 2019-01-11
+### Fixed
+- Fixed issue where pasting over the whole text emitted a delete char, causing Gutenberg to remove whole block
+- Updated Kotlin version to use stable version of Coroutines
+
 ## [1.3.13](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.13) - 2018-12-20
 ### Fixed
 - Fixed issue where `onEnterKey` key listener was called with the wrong text.

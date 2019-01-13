@@ -47,7 +47,9 @@ fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate):
     this.text.getSpans(0, this.text.length, AztecImageSpan::class.java)
         .firstOrNull {
             val wrapper = SpanWrapper<AztecImageSpan>(text, it)
-            return text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).isNotEmpty()
+            return text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)
+                    .map { span -> span as CaptionShortcodeSpan }
+                    .any { span -> attributePredicate.matches(span.attributes) }
         }
 
     return false

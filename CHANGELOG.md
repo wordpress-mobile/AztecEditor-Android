@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.15](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.15)
+### Changed
+- Synced the caption span alignment attribute with its the align property
+
 ## [1.3.14](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.14) - 2019-01-11
 ### Fixed
 - Fixed issue where pasting over the whole text emitted a delete char, causing Gutenberg to remove whole block

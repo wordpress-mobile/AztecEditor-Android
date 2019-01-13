@@ -1,5 +1,6 @@
 package org.wordpress.aztec.plugins.shortcodes.extensions
 
+import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
@@ -86,7 +87,17 @@ fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
         captionSpan.caption = value
 
         attrs?.let {
-            captionSpan!!.attributes = attrs
+            captionSpan.attributes = attrs
+
+            if (captionSpan.attributes.hasAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                when (captionSpan.attributes.getValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                    CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_OPPOSITE
+                    CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_CENTER
+                    CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_NORMAL
+                }
+            } else {
+                captionSpan.align = null
+            }
         }
     }
 }

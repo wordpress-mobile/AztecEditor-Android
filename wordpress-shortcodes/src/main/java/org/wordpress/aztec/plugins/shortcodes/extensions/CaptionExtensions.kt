@@ -57,7 +57,7 @@ fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate):
 
 fun AztecImageSpan.getCaption(): String {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.caption
         }
@@ -67,7 +67,7 @@ fun AztecImageSpan.getCaption(): String {
 
 fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.attributes
         }
@@ -78,7 +78,7 @@ fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
 @JvmOverloads
 fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
 
         var captionSpan = textView?.text?.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
         if (captionSpan == null) {
@@ -106,7 +106,7 @@ fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
 
 fun AztecImageSpan.removeCaption() {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.remove()
     }
 }

@@ -1,5 +1,6 @@
 package org.wordpress.aztec.plugins.shortcodes.extensions
 
+import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
@@ -44,9 +45,12 @@ fun AztecText.removeImageCaption(attributePredicate: AztecText.AttributePredicat
 
 fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate): Boolean {
     this.text.getSpans(0, this.text.length, AztecImageSpan::class.java)
-        .firstOrNull {
-            val wrapper = SpanWrapper<AztecImageSpan>(text, it)
-            return text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).isNotEmpty()
+            .firstOrNull {
+                attributePredicate.matches(it.attributes)
+            }
+            ?.let {
+                val wrapper = SpanWrapper(text, it)
+                return text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).isNotEmpty()
         }
 
     return false
@@ -54,7 +58,7 @@ fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate):
 
 fun AztecImageSpan.getCaption(): String {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.caption
         }
@@ -64,7 +68,7 @@ fun AztecImageSpan.getCaption(): String {
 
 fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.attributes
         }
@@ -75,7 +79,7 @@ fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
 @JvmOverloads
 fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
 
         var captionSpan = textView?.text?.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
         if (captionSpan == null) {
@@ -86,14 +90,24 @@ fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
         captionSpan.caption = value
 
         attrs?.let {
-            captionSpan!!.attributes = attrs
+            captionSpan.attributes = attrs
+
+            if (captionSpan.attributes.hasAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                when (captionSpan.attributes.getValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                    CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_OPPOSITE
+                    CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_CENTER
+                    CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_NORMAL
+                }
+            } else {
+                captionSpan.align = null
+            }
         }
     }
 }
 
 fun AztecImageSpan.removeCaption() {
     textView?.text?.let {
-        val wrapper = SpanWrapper<AztecImageSpan>(textView!!.text, this)
+        val wrapper = SpanWrapper(textView!!.text, this)
         textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.remove()
     }
 }

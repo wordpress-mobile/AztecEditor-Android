@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.16](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.16)
+### Fixed
+- Fix onSelectionChange being emitted twice when calling fromHTML (#776)
+
 ## [v1.3.15](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.15)
 ### Changed
 - Synced the caption span alignment attribute with its the align property

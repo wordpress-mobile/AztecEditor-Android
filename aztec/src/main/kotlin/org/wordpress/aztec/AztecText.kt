@@ -923,6 +923,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_6,
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,

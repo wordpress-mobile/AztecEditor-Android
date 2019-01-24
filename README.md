@@ -105,7 +105,7 @@ repositories {
 ```
 ```gradle
 dependencies {
-    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.3.17')
+    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.3.18')
 }
 ```
 

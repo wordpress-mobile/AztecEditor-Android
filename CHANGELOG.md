@@ -1,4 +1,9 @@
 # Changelog
+## [v1.3.18](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.18)
+### Fixed
+- Revert merge #776
+
+# Changelog
 ## [v1.3.17](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.17)
 ### Fixed
 - Add jitpack.yml to work around the Google licence issue (#778)

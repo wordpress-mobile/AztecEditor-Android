@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.17](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.17)
+### Fixed
+- Add jitpack.yml to work around the Google licence issue (#778)
+
 ## [v1.3.16](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.16)
 ### Fixed
 - Fix onSelectionChange being emitted twice when calling fromHTML (#776)

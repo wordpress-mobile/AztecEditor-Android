@@ -1082,18 +1082,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         val cursorPosition = consumeCursorPosition(builder)
-
-        if (!isInit) {
-            setSelection(0)
-        }
+        setSelection(0)
 
         setTextKeepState(builder)
         enableTextChangedListener()
 
+        setSelection(cursorPosition)
+
         if (isInit) {
             initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
-        } else {
-            setSelection(cursorPosition)
         }
 
         loadImages()

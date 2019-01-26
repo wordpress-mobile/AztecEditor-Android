@@ -251,7 +251,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         this.ignoredTags = ignoredTags;
     }
 
+    private static Spanned cachedResult;
+    private static int cachedSourceHash;
+
     public Spanned convert() {
+        if (cachedSourceHash == source.hashCode() && cachedResult != null) {
+            return new SpannableStringBuilder(cachedResult);
+        }
+
         reader.setContentHandler(this);
         try {
             reader.setProperty(Parser.lexicalHandlerProperty, this);
@@ -288,7 +295,10 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             }
         }
 
-        return spannableStringBuilder;
+        cachedResult = spannableStringBuilder;
+        cachedSourceHash = source.hashCode();
+
+        return new SpannableStringBuilder(spannableStringBuilder);
     }
 
     private void handleStartTag(String tag, Attributes attributes, int nestingLevel) {

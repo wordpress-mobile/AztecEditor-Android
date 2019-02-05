@@ -286,6 +286,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
+    private var focusOnVisible = true
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -1326,6 +1328,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return consumeSelectionChangedEvent
     }
 
+    fun setFocusOnVisible(focus: Boolean) {
+        focusOnVisible = focus
+    }
+
     open fun refreshText() {
         refreshText(true)
     }
@@ -1482,7 +1488,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
 
-        if (visibility == View.VISIBLE) {
+        if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }
     }

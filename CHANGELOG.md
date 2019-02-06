@@ -1,4 +1,9 @@
 # Changelog
+## [v1.3.19](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.19)
+### Changed
+- Support for `<em>` for italic and using it as default via the formatting toolbar #777
+
+# Changelog
 ## [v1.3.18](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.18)
 ### Fixed
 - Revert merge #776

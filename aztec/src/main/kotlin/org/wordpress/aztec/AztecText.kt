@@ -286,6 +286,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
+    private var focusOnVisible = true
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -1083,18 +1085,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         val cursorPosition = consumeCursorPosition(builder)
-
-        if (!isInit) {
-            setSelection(0)
-        }
+        setSelection(0)
 
         setTextKeepState(builder)
         enableTextChangedListener()
 
+        setSelection(cursorPosition)
+
         if (isInit) {
             initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
-        } else {
-            setSelection(cursorPosition)
         }
 
         loadImages()
@@ -1330,6 +1329,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return consumeSelectionChangedEvent
     }
 
+    fun setFocusOnVisible(focus: Boolean) {
+        focusOnVisible = focus
+    }
+
     open fun refreshText() {
         refreshText(true)
     }
@@ -1487,7 +1490,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
 
-        if (visibility == View.VISIBLE) {
+        if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }
     }

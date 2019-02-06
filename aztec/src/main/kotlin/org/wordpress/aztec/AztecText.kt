@@ -1359,6 +1359,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRONG, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_EMPHASIS, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CITE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)

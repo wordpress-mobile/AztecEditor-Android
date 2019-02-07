@@ -298,7 +298,7 @@ object Format {
     }
 
     @JvmStatic
-    fun preProcessSpannedText(text: SpannableStringBuilder, isCalypsoFormat: Boolean) {
+    fun preProcessSpannedText(text: Spannable, isCalypsoFormat: Boolean) {
         if (isCalypsoFormat) {
             text.getSpans(0, text.length, AztecVisualLinebreak::class.java).forEach {
                 val spanStart = text.getSpanStart(it)

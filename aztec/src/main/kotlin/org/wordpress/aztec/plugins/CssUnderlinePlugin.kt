@@ -1,5 +1,6 @@
 package org.wordpress.aztec.plugins
 
+import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
@@ -50,7 +51,7 @@ class CssUnderlinePlugin : ISpanPostprocessor, ISpanPreprocessor {
         }
     }
 
-    override fun afterSpansProcessed(spannable: SpannableStringBuilder) {
+    override fun afterSpansProcessed(spannable: Spannable) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
             if (it.TAG == SPAN_TAG && CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
                 CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)

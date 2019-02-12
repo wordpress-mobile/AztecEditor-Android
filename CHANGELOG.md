@@ -1,14 +1,16 @@
 # Changelog
-## [v1.3.19](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.19)
+## [v1.3.20](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.20)
 ### Changed
 - Support for `<em>` for italic and using it as default via the formatting toolbar #777
 
-# Changelog
+## [v1.3.19](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.19)
+### Fixed
+- Option to avoid autofocus when getting visible #783
+
 ## [v1.3.18](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.18)
 ### Fixed
 - Revert merge #776
 
-# Changelog
 ## [v1.3.17](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.17)
 ### Fixed
 - Add jitpack.yml to work around the Google licence issue (#778)

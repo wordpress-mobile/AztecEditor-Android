@@ -925,6 +925,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_6,
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
@@ -957,6 +958,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG,
             AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
@@ -1361,6 +1363,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRONG, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_EMPHASIS, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CITE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)

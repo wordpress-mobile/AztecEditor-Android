@@ -34,7 +34,7 @@ enum class ToolbarAction constructor(override val buttonId: Int, override val ac
     ITALIC(
             R.id.format_bar_button_italic,
             ToolbarActionType.INLINE_STYLE,
-            setOf(AztecTextFormat.FORMAT_ITALIC)),
+            setOf(AztecTextFormat.FORMAT_EMPHASIS, AztecTextFormat.FORMAT_ITALIC)),
     STRIKETHROUGH(
             R.id.format_bar_button_strikethrough,
             ToolbarActionType.INLINE_STYLE,

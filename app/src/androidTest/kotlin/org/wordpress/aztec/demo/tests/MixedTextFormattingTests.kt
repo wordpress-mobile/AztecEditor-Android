@@ -22,7 +22,7 @@ class MixedTextFormattingTests : BaseTest() {
         val text1 = "so"
         val text2 = "me "
         val text3 = "text "
-        val regex = Regex("<strong>$text1</strong><i>$text2</i><(strong|i)><(strong|i)>$text3</(strong|i)></(strong|i)>")
+        val regex = Regex("<strong>$text1</strong><em>$text2</em><(strong|em)><(strong|em)>$text3</(strong|em)></(strong|em)>")
 
         EditorPage()
                 .toggleBold()

@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.20](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.20)
+### Changed
+- Support for `<em>` for italic and using it as default via the formatting toolbar #777
+
 ## [v1.3.19](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.19)
 ### Fixed
 - Option to avoid autofocus when getting visible #783

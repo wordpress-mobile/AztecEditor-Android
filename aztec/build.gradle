@@ -27,6 +27,13 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            all {
+                if (project.hasProperty('testsMaxHeapSize')) {
+                    // maxHeapSize for tests is not limited unless we give an explicit value
+                    // See https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+                    maxHeapSize project.properties.get('testsMaxHeapSize')
+                }
+            }
         }
     }
 }

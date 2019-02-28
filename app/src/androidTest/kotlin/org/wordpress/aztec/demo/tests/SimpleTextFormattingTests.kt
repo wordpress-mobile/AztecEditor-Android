@@ -32,7 +32,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testSimpleItalicFormatting() {
         val text1 = "some"
         val text2 = "text"
-        val html = "$text1<i>$text2</i>"
+        val html = "$text1<em>$text2</em>"
 
         EditorPage()
                 .insertText(text1)
@@ -335,7 +335,7 @@ class SimpleTextFormattingTests : BaseTest() {
     @Test
     fun testInlineStyleAndDelete() {
         val text1 = "some"
-        val html = "<i>som</i>"
+        val html = "<em>som</em>"
 
         EditorPage()
                 .toggleItalics()

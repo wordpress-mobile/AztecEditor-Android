@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -27,6 +27,13 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            all {
+                if (project.hasProperty('testsMaxHeapSize')) {
+                    // maxHeapSize for tests is not limited unless we give an explicit value
+                    // See https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html
+                    maxHeapSize project.properties.get('testsMaxHeapSize')
+                }
+            }
         }
     }
 }

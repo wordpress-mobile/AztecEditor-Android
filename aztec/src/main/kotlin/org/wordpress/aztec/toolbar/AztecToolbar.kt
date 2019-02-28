@@ -182,7 +182,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             }
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ITALIC, true)
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_EMPHASIS, true)
                     findViewById<ToggleButton>(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }

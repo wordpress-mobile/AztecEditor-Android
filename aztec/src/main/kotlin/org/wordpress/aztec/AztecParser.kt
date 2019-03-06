@@ -62,6 +62,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
      * A faster version of fromHtml(), intended for inspecting the span structure only. It doesn't prepare the text for
      * visual editing.
      */
+    @Suppress("unused") // this method is used in wpandroid so, suppress the inspection
     fun parseHtmlForInspection(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
 

@@ -53,6 +53,8 @@ import java.util.ArrayList
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
+    private val markStack = mutableListOf<Any>()
+
     init {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))!!
@@ -163,8 +165,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             start(output, AztecMediaClickableSpan(mediaSpan))
             output.append(Constants.IMG_CHAR)
         } else {
-            end(output, mediaSpan.javaClass)
             end(output, AztecMediaClickableSpan::class.java)
+            end(output, mediaSpan.javaClass)
         }
     }
 
@@ -177,11 +179,23 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
     }
 
     private fun start(output: Editable, mark: Any) {
+        markStack.add(mark)
+
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
     private fun end(output: Editable, kind: Class<*>) {
-        val last = output.getLast(kind)
+        // Get the most recent mark from the stack.
+        // This is a speed optimization instead of getting it from the spannable via `getLast()`
+        val last = if (markStack.size > 0 && kind.equals(markStack[markStack.size - 1].javaClass)) {
+            markStack.removeAt(markStack.size - 1) // remove and return the top mark on the stack
+        } else {
+            // Warning: the marks stack is apparently incosistent at this point
+
+            // fall back to getting the last mark from the Spannable
+            output.getLast(kind)
+        }
+
         val start = output.getSpanStart(last)
         val end = output.length
 

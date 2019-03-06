@@ -53,7 +53,8 @@ import java.util.ArrayList
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
-    private val markStack = mutableListOf<Any>()
+    // Simple LIFO stack to track the html tag nesting for easy reference when we need to handle the ending of a tag
+    private val tagStack = mutableListOf<Any>()
 
     init {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
@@ -179,20 +180,20 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
     }
 
     private fun start(output: Editable, mark: Any) {
-        markStack.add(mark)
+        tagStack.add(mark)
 
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
     private fun end(output: Editable, kind: Class<*>) {
-        // Get the most recent mark from the stack.
-        // This is a speed optimization instead of getting it from the spannable via `getLast()`
-        val last = if (markStack.size > 0 && kind.equals(markStack[markStack.size - 1].javaClass)) {
-            markStack.removeAt(markStack.size - 1) // remove and return the top mark on the stack
+        // Get most recent tag type from the stack instead of `getLast()`. This is a speed optimization as `getLast()`
+        //  doesn't know that the tags are in fact nested and in pairs (since it's html)
+        val last = if (tagStack.size > 0 && kind.equals(tagStack[tagStack.size - 1].javaClass)) {
+            tagStack.removeAt(tagStack.size - 1) // remove and return the top mark on the stack
         } else {
-            // Warning: the marks stack is apparently incosistent at this point
+            // Warning: the tags stack is apparently inconsistent at this point
 
-            // fall back to getting the last mark from the Spannable
+            // fall back to getting the last tag type from the Spannable
             output.getLast(kind)
         }
 

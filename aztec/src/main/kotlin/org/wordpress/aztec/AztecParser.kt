@@ -22,6 +22,7 @@ import android.content.Context
 import android.support.v4.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Spannable
+import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -57,6 +58,21 @@ import java.util.Comparator
 
 class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = listOf(),
                                             private val ignoredTags: List<String> = listOf("body", "html")) {
+    /**
+     * A faster version of fromHtml(), intended for inspecting the span structure only. It doesn't prepare the text for
+     * visual editing.
+     */
+    @Suppress("unused") // this method is used in wpandroid so, suppress the inspection
+    fun parseHtmlForInspection(source: String, context: Context): Spanned {
+        val tidySource = tidy(source)
+
+        val spanned = SpannableString(Html.fromHtml(tidySource,
+                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
+
+        postprocessSpans(spanned)
+
+        return spanned
+    }
 
     fun fromHtml(source: String, context: Context): Spanned {
         val tidySource = tidy(source)
@@ -117,7 +133,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         return html
     }
 
-    private fun postprocessSpans(spannable: SpannableStringBuilder) {
+    private fun postprocessSpans(spannable: Spannable) {
         plugins.filter { it is ISpanPostprocessor }
             .map { it as ISpanPostprocessor }
             .forEach {
@@ -236,7 +252,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
     }
 
     // Always try to put a visual newline before block elements and only put one after if needed
-    fun syncVisualNewlinesOfBlockElements(spanned: Editable) {
+    fun syncVisualNewlinesOfBlockElements(spanned: Spannable) {
         // clear any visual newline marking. We'll mark them with a fresh set of passes
         spanned.getSpans(0, spanned.length, AztecVisualLinebreak::class.java).forEach {
             spanned.removeSpan(it)

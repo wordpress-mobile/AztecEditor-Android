@@ -286,6 +286,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
+    private var focusOnVisible = true
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -923,6 +925,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_6,
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
             AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
@@ -955,6 +958,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG,
             AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
@@ -1082,18 +1086,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         val cursorPosition = consumeCursorPosition(builder)
-
-        if (!isInit) {
-            setSelection(0)
-        }
+        setSelection(0)
 
         setTextKeepState(builder)
         enableTextChangedListener()
 
+        setSelection(cursorPosition)
+
         if (isInit) {
             initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
-        } else {
-            setSelection(cursorPosition)
         }
 
         loadImages()
@@ -1329,6 +1330,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return consumeSelectionChangedEvent
     }
 
+    fun setFocusOnVisible(focus: Boolean) {
+        focusOnVisible = focus
+    }
+
     open fun refreshText() {
         refreshText(true)
     }
@@ -1358,6 +1363,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BOLD, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRONG, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_ITALIC, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_EMPHASIS, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CITE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
@@ -1485,7 +1491,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
 
-        if (visibility == View.VISIBLE) {
+        if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }
     }

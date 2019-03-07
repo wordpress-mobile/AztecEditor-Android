@@ -46,6 +46,7 @@ import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
 import org.wordpress.aztec.spans.AztecStyleBoldSpan;
 import org.wordpress.aztec.spans.AztecStyleCiteSpan;
 import org.wordpress.aztec.spans.AztecStyleItalicSpan;
+import org.wordpress.aztec.spans.AztecStyleEmphasisSpan;
 import org.wordpress.aztec.spans.AztecStyleStrongSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
 import org.wordpress.aztec.spans.AztecSuperscriptSpan;
@@ -318,7 +319,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (tag.equalsIgnoreCase("b")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD, attributes);
         } else if (tag.equalsIgnoreCase("em")) {
-            start(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC, attributes);
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_EMPHASIS, attributes);
         } else if (tag.equalsIgnoreCase("cite")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_CITE, attributes);
         } else if (tag.equalsIgnoreCase("dfn")) {
@@ -411,7 +412,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (tag.equalsIgnoreCase("b")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_BOLD);
         } else if (tag.equalsIgnoreCase("em")) {
-            end(spannableStringBuilder, AztecTextFormat.FORMAT_ITALIC);
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_EMPHASIS);
         } else if (tag.equalsIgnoreCase("cite")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_CITE);
         } else if (tag.equalsIgnoreCase("dfn")) {
@@ -498,6 +499,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             case FORMAT_ITALIC:
                 newSpan = new AztecStyleItalicSpan(attributes);
                 break;
+            case FORMAT_EMPHASIS:
+                newSpan = new AztecStyleEmphasisSpan(attributes);
+                break;
             case FORMAT_CITE:
                 newSpan = new AztecStyleCiteSpan(attributes);
                 break;
@@ -549,6 +553,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                 break;
             case FORMAT_ITALIC:
                 span = (AztecStyleItalicSpan) getLast(text, AztecStyleItalicSpan.class);
+                break;
+            case FORMAT_EMPHASIS:
+                span = (AztecStyleEmphasisSpan) getLast(text, AztecStyleEmphasisSpan.class);
                 break;
             case FORMAT_CITE:
                 span = (AztecStyleCiteSpan) getLast(text, AztecStyleCiteSpan.class);

@@ -53,6 +53,9 @@ import java.util.ArrayList
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
+    // Simple LIFO stack to track the html tag nesting for easy reference when we need to handle the ending of a tag
+    private val tagStack = mutableListOf<Any>()
+
     init {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
         loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))!!
@@ -163,8 +166,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             start(output, AztecMediaClickableSpan(mediaSpan))
             output.append(Constants.IMG_CHAR)
         } else {
-            end(output, mediaSpan.javaClass)
             end(output, AztecMediaClickableSpan::class.java)
+            end(output, mediaSpan.javaClass)
         }
     }
 
@@ -177,11 +180,24 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
     }
 
     private fun start(output: Editable, mark: Any) {
+        tagStack.add(mark)
+
         output.setSpan(mark, output.length, output.length, Spanned.SPAN_MARK_MARK)
     }
 
     private fun end(output: Editable, kind: Class<*>) {
-        val last = output.getLast(kind)
+        // Get most recent tag type from the stack instead of `getLast()`. This is a speed optimization as `getLast()`
+        //  doesn't know that the tags are in fact nested and in pairs (since it's html), including empty html elements
+        //  (they are treated as pairs by tagsoup anyway).
+        val last = if (tagStack.size > 0 && kind.equals(tagStack[tagStack.size - 1].javaClass)) {
+            tagStack.removeAt(tagStack.size - 1) // remove and return the top mark on the stack
+        } else {
+            // Warning: the tags stack is apparently inconsistent at this point
+
+            // fall back to getting the last tag type from the Spannable
+            output.getLast(kind)
+        }
+
         val start = output.getSpanStart(last)
         val end = output.length
 

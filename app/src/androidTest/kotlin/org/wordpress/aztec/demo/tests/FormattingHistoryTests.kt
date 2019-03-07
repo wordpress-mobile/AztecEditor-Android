@@ -187,7 +187,7 @@ class FormattingHistoryTests : BaseHistoryTest() {
     @Test
     fun testAddItalicAndUnderlineUndoRedo() {
         val text = "There's no crying in baseball!"
-        val htmlRegex = Regex("<i><u>$text</u></i>|<u><i>$text</i></u>")
+        val htmlRegex = Regex("<em><u>$text</u></em>|<u><em>$text</em></u>")
         val editorPage = EditorPage()
 
         // Insert text snippet

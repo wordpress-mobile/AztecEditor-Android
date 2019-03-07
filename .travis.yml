@@ -9,7 +9,7 @@ android:
     - extra-google-m2repository
     - platform-tools
     - tools
-    - build-tools-27.0.3
+    - build-tools-28.0.3
     - android-27
 
 env:
@@ -21,7 +21,7 @@ env:
 
 before_install:
   # Decrypt secret.json (firebase access)
-  - openssl aes-256-cbc -K $encrypted_3480988b28c1_key -iv $encrypted_3480988b28c1_iv -in .firebase.secrets.json.enc -out .firebase.secrets.json -d
+  - openssl aes-256-cbc -md sha256 -d -in .firebase.secrets.json.enc -out .firebase.secrets.json -k "${FIREBASE_SECRETS_ENCRYPTION_KEY}"
 
 script:
   # Build

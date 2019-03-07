@@ -1,3 +1,3 @@
 before_install:
    - yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-27"
-   - yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;27.0.3"
+   - yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3"

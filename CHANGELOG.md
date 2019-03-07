@@ -1,4 +1,24 @@
 # Changelog
+## [v1.3.21](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.21)
+### Changed
+- Some performance improvements, mostly visible via the WPAndroid app https://github.com/wordpress-mobile/gutenberg-mobile/issues/672
+
+## [v1.3.20](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.20)
+### Changed
+- Support for `<em>` for italic and using it as default via the formatting toolbar #777
+
+## [v1.3.19](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.19)
+### Fixed
+- Option to avoid autofocus when getting visible #783
+
+## [v1.3.18](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.18)
+### Fixed
+- Revert merge #776
+
+## [v1.3.17](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.17)
+### Fixed
+- Add jitpack.yml to work around the Google licence issue (#778)
+
 ## [v1.3.16](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.16)
 ### Fixed
 - Fix onSelectionChange being emitted twice when calling fromHTML (#776)

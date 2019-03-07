@@ -16,6 +16,7 @@ import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 import org.wordpress.aztec.spans.AztecStyleCiteSpan
 import org.wordpress.aztec.spans.AztecStyleItalicSpan
+import org.wordpress.aztec.spans.AztecStyleEmphasisSpan
 import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
@@ -65,6 +66,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     AztecTextFormat.FORMAT_BOLD,
                     AztecTextFormat.FORMAT_STRONG,
                     AztecTextFormat.FORMAT_ITALIC,
+                    AztecTextFormat.FORMAT_EMPHASIS,
                     AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
                     AztecTextFormat.FORMAT_UNDERLINE,
@@ -198,6 +200,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecStyleBoldSpan::class.java -> return AztecTextFormat.FORMAT_BOLD
             AztecStyleStrongSpan::class.java -> return AztecTextFormat.FORMAT_STRONG
             AztecStyleItalicSpan::class.java -> return AztecTextFormat.FORMAT_ITALIC
+            AztecStyleEmphasisSpan::class.java -> return AztecTextFormat.FORMAT_EMPHASIS
             AztecStyleCiteSpan::class.java -> return AztecTextFormat.FORMAT_CITE
             AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
@@ -341,6 +344,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecTextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
             AztecTextFormat.FORMAT_STRONG -> return AztecStyleStrongSpan()
             AztecTextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
+            AztecTextFormat.FORMAT_EMPHASIS -> return AztecStyleEmphasisSpan()
             AztecTextFormat.FORMAT_CITE -> return AztecStyleCiteSpan()
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()

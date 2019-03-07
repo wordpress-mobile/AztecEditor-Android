@@ -187,7 +187,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
     private fun end(output: Editable, kind: Class<*>) {
         // Get most recent tag type from the stack instead of `getLast()`. This is a speed optimization as `getLast()`
-        //  doesn't know that the tags are in fact nested and in pairs (since it's html)
+        //  doesn't know that the tags are in fact nested and in pairs (since it's html), including empty html elements
+        //  (they are treated as pairs by tagsoup anyway).
         val last = if (tagStack.size > 0 && kind.equals(tagStack[tagStack.size - 1].javaClass)) {
             tagStack.removeAt(tagStack.size - 1) // remove and return the top mark on the stack
         } else {

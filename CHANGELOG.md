@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.21](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.21)
+### Changed
+- Some performance improvements, mostly visible via the WPAndroid app https://github.com/wordpress-mobile/gutenberg-mobile/issues/672
+
 ## [v1.3.20](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.20)
 ### Changed
 - Support for `<em>` for italic and using it as default via the formatting toolbar #777

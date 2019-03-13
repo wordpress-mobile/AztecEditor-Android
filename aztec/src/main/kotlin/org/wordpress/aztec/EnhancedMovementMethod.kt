@@ -77,11 +77,11 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
             }
 
-            if(link != null) {
+            if (link != null) {
                 if (link is AztecMediaClickableSpan || link is UnknownClickableSpan) {
                     link.onClick(widget)
                     return true
-                } else if(link is AztecURLSpan && clickableUrlSpan){
+                } else if (link is AztecURLSpan && clickableUrlSpan) {
                     urlClickListener?.onClick(widget, link.url) ?: link.onClick(widget)
                     return true
                 }

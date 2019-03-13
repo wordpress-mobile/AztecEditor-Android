@@ -1765,4 +1765,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
+
+    fun setUrlClickable(urlClickable: Boolean){
+        EnhancedMovementMethod.clickableUrlSpan = urlClickable
+    }
+
+    fun setOnUrlClickListener(listener: EnhancedMovementMethod.OnUrlClickListener){
+        EnhancedMovementMethod.urlClickListener = listener
+    }
 }

@@ -1770,7 +1770,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         EnhancedMovementMethod.clickableUrlSpan = urlClickable
     }
 
-    fun setOnUrlClickListener(listener: EnhancedMovementMethod.OnUrlClickListener){
+    fun setOnUrlClickListener(listener: EnhancedMovementMethod.OnUrlClickListener?){
         EnhancedMovementMethod.urlClickListener = listener
     }
 }

@@ -55,6 +55,7 @@ import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -1384,6 +1385,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             max = Math.max(0, Math.max(selectionStart, selectionEnd))
         }
 
+        var clipboardIdentifier = resources.getIdentifier("android:id/clipboard", "id", context.packageName)
+
         when (id) {
             android.R.id.paste -> paste(text, min, max)
             android.R.id.pasteAsPlainText -> paste(text, min, max, true)
@@ -1400,7 +1403,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     deleteInlineStyleFromTheBeginning()
                 }
             }
-            else -> return super.onTextContextMenuItem(id)
+            // Fix for crash when pasting text on Samsung Devices running Android 8.
+            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
+            clipboardIdentifier -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < 28
+                        && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                    // Nope return true
+                    Toast.makeText(context, R.string.samsung_disabled_custom_clipboard, Toast.LENGTH_LONG).show()
+                } else {
+                    return super.onTextContextMenuItem(id)
+                }
+            } else -> return super.onTextContextMenuItem(id)
         }
 
         return true

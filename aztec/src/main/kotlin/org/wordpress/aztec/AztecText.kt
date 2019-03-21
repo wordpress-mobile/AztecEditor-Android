@@ -47,7 +47,6 @@ import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -1386,7 +1385,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             max = Math.max(0, Math.max(selectionStart, selectionEnd))
         }
 
-        //
         var clipboardIdentifier = resources.getIdentifier("android:id/clipboard", "id", context.packageName)
 
         when (id) {

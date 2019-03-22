@@ -1,4 +1,8 @@
 # Changelog
+## [v1.3.22](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.22)
+### Fixed
+- Fix for crash on Samsung Clipboard ListView on Android 8.X #795
+
 ## [v1.3.21](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.21)
 ### Changed
 - Some performance improvements, mostly visible via the WPAndroid app https://github.com/wordpress-mobile/gutenberg-mobile/issues/672

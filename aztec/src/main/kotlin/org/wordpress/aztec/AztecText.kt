@@ -457,7 +457,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // problem is fixed at the Android OS level as described in the following url
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
-            var temp = source
+            var temp : CharSequence? = null
             if (!bypassCrashPreventerInputFilter  && dstart == dend && dest.length > dend+1) {
                 // dstart == dend means this is an insertion
                 // if there are any images right after the destination position, hack the text

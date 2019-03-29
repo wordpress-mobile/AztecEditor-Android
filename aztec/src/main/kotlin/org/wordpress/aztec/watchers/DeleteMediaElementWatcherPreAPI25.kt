@@ -14,6 +14,10 @@ class DeleteMediaElementWatcherPreAPI25(aztecText: AztecText) : TextWatcher {
             return
         }
 
+        if (aztecTextRef.get()?.isMediaDeletedListenerDisabled() ?: true) {
+            return
+        }
+
         if (count > 0) {
             aztecTextRef.get()?.text?.getSpans(start, start + count, AztecMediaSpan::class.java)
                     ?.forEach {

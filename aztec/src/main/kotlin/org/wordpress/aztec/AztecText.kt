@@ -458,35 +458,32 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
             var temp = source
-            if (dest.length > dend+1 && !bypassCrashPreventerInputFilter) {
+            if (!bypassCrashPreventerInputFilter  && dstart == dend && dest.length > dend+1) {
+                // dstart == dend means this is an insertion
                 // if there are any images right after the destination position, hack the text
                 val spans = dest.getSpans(dstart, dend+1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {
-                    // test: is this an insertion?
-                    if (dstart == dend) {
+                    // prevent this filter from running twice when `text.insert()` gets called a few lines below
+                    disableCrashPreventerInputFilter()
+                    // disable MediaDeleted listener before operating on content
+                    disableMediaDeletedListener()
 
-                        // prevent this filter from running twice when `text.insert()` gets called a few lines below
-                        disableCrashPreventerInputFilter()
-                        // disable MediaDeleted listener before operating on content
-                        disableMediaDeletedListener()
-
-                        // take the source (that is, what is being inserted), and append the Image to it. We will delete
-                        // the original Image later so to not have a duplicate.
-                        // use Spannable to copy / keep the current spans
-                        temp = SpannableStringBuilder(source).append(dest.subSequence(dend, dend+1))
+                    // take the source (that is, what is being inserted), and append the Image to it. We will delete
+                    // the original Image later so to not have a duplicate.
+                    // use Spannable to copy / keep the current spans
+                    temp = SpannableStringBuilder(source).append(dest.subSequence(dend, dend+1))
 
 
-                        // delete the original AztecImageSpan
-                        text.delete(dend, dend+1)
-                        // now insert both the new insertion _and_ the original AztecImageSpan
-                        text.insert(dend, temp)
-                        temp = "" // discard the original source parameter as an ouput from this InputFilter
+                    // delete the original AztecImageSpan
+                    text.delete(dend, dend+1)
+                    // now insert both the new insertion _and_ the original AztecImageSpan
+                    text.insert(dend, temp)
+                    temp = "" // discard the original source parameter as an ouput from this InputFilter
 
-                        // re-enable MediaDeleted listener
-                        enableMediaDeletedListener()
-                        // re-enable this very filter
-                        enableCrashPreventerInputFilter()
-                    }
+                    // re-enable MediaDeleted listener
+                    enableMediaDeletedListener()
+                    // re-enable this very filter
+                    enableCrashPreventerInputFilter()
                 }
             }
             temp

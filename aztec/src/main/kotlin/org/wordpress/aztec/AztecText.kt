@@ -458,7 +458,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
             var temp : CharSequence? = null
-            if (!bypassCrashPreventerInputFilter  && dstart == dend && dest.length > dend+1) {
+            if (!bypassCrashPreventerInputFilter && dstart == dend && dest.length > dend+1) {
                 // dstart == dend means this is an insertion
                 // if there are any images right after the destination position, hack the text
                 val spans = dest.getSpans(dstart, dend+1, AztecImageSpan::class.java)
@@ -472,7 +472,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     // the original Image later so to not have a duplicate.
                     // use Spannable to copy / keep the current spans
                     temp = SpannableStringBuilder(source).append(dest.subSequence(dend, dend+1))
-
 
                     // delete the original AztecImageSpan
                     text.delete(dend, dend+1)

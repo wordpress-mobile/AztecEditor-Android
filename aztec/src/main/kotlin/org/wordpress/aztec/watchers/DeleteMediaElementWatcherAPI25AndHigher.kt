@@ -17,6 +17,10 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
             return
         }
 
+        if (aztecTextRef.get()?.isMediaDeletedListenerDisabled() ?: true) {
+            return
+        }
+
         if (count > 0) {
             deleted = true
 

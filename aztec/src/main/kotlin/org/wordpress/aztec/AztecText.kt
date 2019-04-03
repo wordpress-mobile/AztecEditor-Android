@@ -321,6 +321,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         fun onBackspaceKey() : Boolean
     }
 
+    interface OnLinkTappedListener {
+        fun onLinkTapped(widget: View, url: String)
+    }
+
     constructor(context: Context) : super(context) {
         init(null)
     }
@@ -783,6 +787,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
         this.onVideoInfoRequestedListener = listener
+    }
+
+    fun setOnLinkTappedListener(listener: OnLinkTappedListener) {
+        EnhancedMovementMethod.linkTappedListener = listener
+    }
+
+    fun setLinkTapEnabled(isLinkTapEnabled: Boolean) {
+        EnhancedMovementMethod.isLinkTapEnabled = isLinkTapEnabled
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1766,11 +1778,4 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
 
-    fun setUrlClickable(urlClickable: Boolean) {
-        EnhancedMovementMethod.clickableUrlSpan = urlClickable
-    }
-
-    fun setOnUrlClickListener(listener: EnhancedMovementMethod.OnUrlClickListener?) {
-        EnhancedMovementMethod.urlClickListener = listener
-    }
 }

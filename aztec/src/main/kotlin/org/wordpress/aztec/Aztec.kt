@@ -24,6 +24,8 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
     private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
+    private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
+    private var isLinkTapEnabled: Boolean = false
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
     var sourceEditor: SourceViewEditText? = null
 
@@ -134,6 +136,18 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         return this
     }
 
+    fun setOnLinkTappedListener(onLinkTappedListener: AztecText.OnLinkTappedListener): Aztec {
+        this.onLinkTappedListener = onLinkTappedListener
+        initLinkTappedListener()
+        return this
+    }
+
+    fun setLinkTapEnabled(isLinkTapEnabled: Boolean): Aztec {
+        this.isLinkTapEnabled = isLinkTapEnabled
+        initLinkTapEnabled()
+        return this
+    }
+
     fun addPlugin(plugin: IAztecPlugin): Aztec {
         plugins.add(plugin)
 
@@ -218,5 +232,15 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         if (onVideoInfoRequestedListener != null) {
             visualEditor.setOnVideoInfoRequestedListener(onVideoInfoRequestedListener!!)
         }
+    }
+
+    private fun initLinkTappedListener() {
+        if (onLinkTappedListener != null) {
+            visualEditor.setOnLinkTappedListener(onLinkTappedListener!!)
+        }
+    }
+
+    private fun initLinkTapEnabled() {
+        visualEditor.setLinkTapEnabled(isLinkTapEnabled)
     }
 }

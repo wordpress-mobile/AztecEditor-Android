@@ -224,6 +224,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
+    private var bypassMediaDeletedListener: Boolean = false
+    private var bypassCrashPreventerInputFilter: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -320,6 +322,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     interface OnAztecKeyListener {
         fun onEnterKey() : Boolean
         fun onBackspaceKey() : Boolean
+    }
+
+    interface OnLinkTappedListener {
+        fun onLinkTapped(widget: View, url: String)
     }
 
     constructor(context: Context) : super(context) {
@@ -420,7 +426,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // triggers ClickableSpan onClick() events
         movementMethod = EnhancedMovementMethod
 
-        setupBackspaceAndEnterDetection()
+        setupKeyListenersAndInputFilters()
 
         //disable auto suggestions/correct for older devices
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -440,10 +446,50 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // Setup the keyListener(s) for Backspace and Enter key.
     // Backspace: If listener does return false we remove the style here
     // Enter: Ask the listener if we need to insert or not the char
-    private fun setupBackspaceAndEnterDetection() {
+    private fun setupKeyListenersAndInputFilters() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
             handleBackspaceAndEnter(event)
+        }
+
+        // This InputFilter created only for the purpose of avoiding crash described here:
+        // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
+        // https://github.com/wordpress-mobile/AztecEditor-Android/issues/729
+        // the rationale behind this workaround is that the specific crash happens only when adding/deleting text right
+        // before an AztecImageSpan, so we detect the specific case and re-create the contents only when that happens.
+        // This is indeed tackling the symptom rather than the actual problem, and should be removed once the real
+        // problem is fixed at the Android OS level as described in the following url
+        // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
+        val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
+            var temp : CharSequence? = null
+            if (!bypassCrashPreventerInputFilter && dstart == dend && dest.length > dend+1) {
+                // dstart == dend means this is an insertion
+                // if there are any images right after the destination position, hack the text
+                val spans = dest.getSpans(dstart, dend+1, AztecImageSpan::class.java)
+                if (spans.isNotEmpty()) {
+                    // prevent this filter from running twice when `text.insert()` gets called a few lines below
+                    disableCrashPreventerInputFilter()
+                    // disable MediaDeleted listener before operating on content
+                    disableMediaDeletedListener()
+
+                    // take the source (that is, what is being inserted), and append the Image to it. We will delete
+                    // the original Image later so to not have a duplicate.
+                    // use Spannable to copy / keep the current spans
+                    temp = SpannableStringBuilder(source).append(dest.subSequence(dend, dend+1))
+
+                    // delete the original AztecImageSpan
+                    text.delete(dend, dend+1)
+                    // now insert both the new insertion _and_ the original AztecImageSpan
+                    text.insert(dend, temp)
+                    temp = "" // discard the original source parameter as an ouput from this InputFilter
+
+                    // re-enable MediaDeleted listener
+                    enableMediaDeletedListener()
+                    // re-enable this very filter
+                    enableCrashPreventerInputFilter()
+                }
+            }
+            temp
         }
 
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
@@ -462,7 +508,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        filters = arrayOf(emptyEditTextBackspaceDetector)
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
+            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+        } else {
+            filters = arrayOf(emptyEditTextBackspaceDetector)
+        }
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
@@ -784,6 +835,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
         this.onVideoInfoRequestedListener = listener
+    }
+
+    fun setOnLinkTappedListener(listener: OnLinkTappedListener) {
+        EnhancedMovementMethod.linkTappedListener = listener
+    }
+
+    fun setLinkTapEnabled(isLinkTapEnabled: Boolean) {
+        EnhancedMovementMethod.isLinkTapEnabled = isLinkTapEnabled
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1303,6 +1362,26 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bypassObservationQueue = false
     }
 
+    fun disableCrashPreventerInputFilter() {
+        bypassCrashPreventerInputFilter = true
+    }
+
+    fun enableCrashPreventerInputFilter() {
+        bypassCrashPreventerInputFilter = false
+    }
+
+    fun disableMediaDeletedListener() {
+        bypassMediaDeletedListener = true
+    }
+
+    fun enableMediaDeletedListener() {
+        bypassMediaDeletedListener = false
+    }
+
+    fun isMediaDeletedListenerDisabled(): Boolean {
+        return bypassMediaDeletedListener
+    }
+
     fun isTextChangedListenerDisabled(): Boolean {
         return consumeEditEvent
     }
@@ -1778,4 +1857,5 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
+
 }

@@ -7,12 +7,16 @@ import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
 /**
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
+    var isLinkTapEnabled = false
+    var linkTappedListener: AztecText.OnLinkTappedListener? = null
+
     override fun onTouchEvent(widget: TextView, text: Spannable, event: MotionEvent): Boolean {
         val action = event.action
 
@@ -72,11 +76,14 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
             }
 
-            if (link != null && (link is AztecMediaClickableSpan || link is UnknownClickableSpan)) {
-                if (action == MotionEvent.ACTION_UP) {
+            if (link != null) {
+                if (link is AztecMediaClickableSpan || link is UnknownClickableSpan) {
                     link.onClick(widget)
+                    return true
+                } else if (link is AztecURLSpan && isLinkTapEnabled) {
+                    linkTappedListener?.onLinkTapped(widget, link.url) ?: link.onClick(widget)
+                    return true
                 }
-                return true
             }
         }
 

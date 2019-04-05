@@ -1,4 +1,12 @@
 # Changelog
+## [v1.3.24](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.24)
+### Changed
+- Improvement to how clickable URL spans are handled #793
+
+## [v1.3.23](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.23)
+### Fixed
+- Fix for crash when inserting characters right before an image #801
+
 ## [v1.3.22](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.22)
 ### Fixed
 - Fix for crash on Samsung Clipboard ListView on Android 8.X #795

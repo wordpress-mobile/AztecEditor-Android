@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space.steps
 
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData

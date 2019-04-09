@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence
 
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecListItemSpan

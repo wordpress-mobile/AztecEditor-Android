@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence
 
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -77,9 +76,6 @@ abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> 
         if (insideHeading && (text.length > inputEnd && text[inputEnd] == '\n')) {
             insideHeading = false
         }
-
-        AppLog.d(AppLog.T.EDITOR, "SEQUENCE OBSERVED COMPLETELY, IS IT WITHIN BLOCK?: " +
-                (isInsideList || insideHeading || isInsidePre || isInsideCode))
 
         return isInsideList || insideHeading || isInsidePre || isInsideCode
     }

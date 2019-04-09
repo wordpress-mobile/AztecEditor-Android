@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space.steps
 
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.event.text.AfterTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
@@ -18,17 +17,14 @@ class TextWatcherEventInsertTextDelAfter(beforeEventData: BeforeTextChangedEvent
 
     private fun testBeforeTextChangedEventData(data: BeforeTextChangedEventData): Boolean {
         beforeText = data.textBefore
-        AppLog.d(AppLog.T.EDITOR, "INSERTSPECIAL testBeforeTextChangedEventData: " + (data.count == 0 && data.after > 0))
         return data.count == 0 && data.after > 0
     }
 
     private fun testOnTextChangedEventData(data: OnTextChangedEventData): Boolean {
-        AppLog.d(AppLog.T.EDITOR, "INSERTSPECIAL testOnTextChangedEventData: " + (data.start >= 0 && data.count > 0 && data.textOn!!.length > 0))
         return data.start >= 0 && data.count > 0 && data.textOn!!.length > 0
     }
 
     private fun testAfterTextChangedEventData(data: AfterTextChangedEventData): Boolean {
-        AppLog.d(AppLog.T.EDITOR, "INSERTSPECIAL testAfterTextChangedEventData: " + (EndOfBufferMarkerAdder.safeLength(beforeText!!) == EndOfBufferMarkerAdder.safeLength(data.textAfter!!)))
         return EndOfBufferMarkerAdder.safeLength(beforeText!!) == EndOfBufferMarkerAdder.safeLength(data.textAfter!!)
     }
 

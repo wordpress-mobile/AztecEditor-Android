@@ -78,9 +78,6 @@ abstract class UserOperationEvent(var sequence: EventSequence<TextWatcherEvent> 
             insideHeading = false
         }
 
-        AppLog.d(AppLog.T.EDITOR, "SEQUENCE OBSERVED COMPLETELY, IS IT WITHIN BLOCK?: " +
-                (isInsideList || insideHeading || isInsidePre || isInsideCode))
-
         return isInsideList || insideHeading || isInsidePre || isInsideCode
     }
 

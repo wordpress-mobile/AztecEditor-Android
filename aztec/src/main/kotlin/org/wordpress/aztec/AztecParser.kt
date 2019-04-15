@@ -335,8 +335,9 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         do {
             lastIndex = text.lastIndexOf(Constants.ZWJ_CHAR, lastIndex)
             if (lastIndex == text.length - 1) {
-                // ZWJ at the end of text will serve as end-of-text marker so, let it be and finish.
-                return
+                // ZWJ at the end of text will serve as end-of-text marker so, let it be and continue cleaning up ZWJs
+                lastIndex--
+                continue
             }
 
             if (lastIndex > -1) {

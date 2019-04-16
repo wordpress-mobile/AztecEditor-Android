@@ -1,4 +1,11 @@
 # Changelog
+## [v1.3.25](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.25)
+### Changed
+- Remove some unneeded logging #806
+### Fixed
+- Don't bail when ZWJ cleanup found end-of-text marker #807
+- Prevent execution of InputFilter for new lines #809
+
 ## [v1.3.24](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.24)
 ### Changed
 - Improvement to how clickable URL spans are handled #793

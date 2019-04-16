@@ -462,8 +462,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
             var temp : CharSequence? = null
-            if (!bypassCrashPreventerInputFilter && dstart == dend && dest.length > dend+1) {
+            if (!bypassCrashPreventerInputFilter
+                    && dstart == dend && dest.length > dend+1
+                    && source != Constants.NEWLINE_STRING) {
                 // dstart == dend means this is an insertion
+                // avoid handling anything if it's a newline
                 // if there are any images right after the destination position, hack the text
                 val spans = dest.getSpans(dstart, dend+1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {

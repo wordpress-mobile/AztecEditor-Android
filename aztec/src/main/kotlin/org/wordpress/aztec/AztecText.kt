@@ -320,7 +320,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey(firedAfterTextChanged: Boolean) : Boolean
+        fun onEnterKey(firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
         fun onBackspaceKey(firedAfterTextChanged: Boolean) : Boolean
     }
 
@@ -520,7 +520,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             // Check if the external listener has consumed the enter pressed event
             // In that case stop the execution
-            if (onAztecKeyListener?.onEnterKey(false) == true) {
+            if (onAztecKeyListener?.onEnterKey(false, 0, 0) == true) {
                 return true
             }
         }

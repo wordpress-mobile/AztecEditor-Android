@@ -32,8 +32,7 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
             if (textBefore?.length == newTextCopy.length - 1) {
                 // now check that the inserted character is actually a NEWLINE
                 if (newTextCopy[this.start] == Constants.NEWLINE) {
-                    text.replace(start, start + 1, "")
-                    aztecKeyListener.onEnterKey()
+                    aztecKeyListener.onEnterKey(true)
                 }
             }
         }

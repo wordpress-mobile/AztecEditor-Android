@@ -9,6 +9,9 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import java.lang.ref.WeakReference
 
+// Class to be used as a temporary span to denote that Enter was detected
+class EnterPressedUnderway
+
 class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
@@ -27,8 +30,6 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
             this.selEnd = aztecText.selectionEnd;
         }
     }
-
-    public class EnterPressedUnderway(){}
 
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         val aztecText = aztecTextRef.get()

@@ -320,7 +320,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey(firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
+        fun onEnterKey(text: Spanned, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
         fun onBackspaceKey(firedAfterTextChanged: Boolean) : Boolean
     }
 
@@ -520,7 +520,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             // Check if the external listener has consumed the enter pressed event
             // In that case stop the execution
-            if (onAztecKeyListener?.onEnterKey(false, 0, 0) == true) {
+            if (onAztecKeyListener?.onEnterKey(text, false, 0, 0) == true) {
                 return true
             }
         }
@@ -725,7 +725,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
         bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
-        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(text, false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
@@ -1154,7 +1154,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         setSelection(cursorPosition)
 
         if (isInit) {
-            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
+            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(text, false), initialEditorContentParsedSHA256)
         }
 
         loadImages()
@@ -1232,12 +1232,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun hasChanges(): EditorHasChanges {
-        return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(false))
+        return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(text, false))
     }
 
     // returns regular or "calypso" html depending on the mode
-    fun toHtml(withCursorTag: Boolean = false): String {
-        val html = toPlainHtml(withCursorTag)
+    fun toHtml(inputText: Spanned, withCursorTag: Boolean = false): String {
+        val html = toPlainHtml(inputText, withCursorTag)
 
         if (isInCalypsoMode) {
             // calypso format is a mix of newline characters and html
@@ -1249,23 +1249,23 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // platform agnostic HTML
-    fun toPlainHtml(withCursorTag: Boolean = false): String {
+    fun toPlainHtml(inputText: Spanned, withCursorTag: Boolean = false): String {
         return if (Looper.myLooper() != Looper.getMainLooper()) {
             runBlocking {
                 withContext(Dispatchers.Main) {
-                    parseHtml(withCursorTag)
+                    parseHtml(inputText, withCursorTag)
                 }
             }
         } else {
-            parseHtml(withCursorTag)
+            parseHtml(inputText, withCursorTag)
         }
     }
 
-    private fun parseHtml(withCursorTag: Boolean): String {
+    private fun parseHtml(inputText: Spanned, withCursorTag: Boolean): String {
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {
-            output = SpannableStringBuilder(text)
+            output = SpannableStringBuilder(inputText)
         } catch (e: Exception) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
             AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 and #582 for details.")
@@ -1290,7 +1290,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun toFormattedHtml(): String {
-        return Format.addSourceEditorFormatting(toHtml(), isInCalypsoMode)
+        return Format.addSourceEditorFormatting(toHtml(text), isInCalypsoMode)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
@@ -1566,7 +1566,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
                 else clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
 
-                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
+                val oldHtml = toPlainHtml(editable).replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml, false)

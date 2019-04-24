@@ -3,6 +3,7 @@ package org.wordpress.aztec.watchers
 
 import android.text.Editable
 import android.text.SpannableStringBuilder
+import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
@@ -11,7 +12,7 @@ import java.lang.ref.WeakReference
 class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
-    private var textBefore : SpannableStringBuilder? = null
+    private lateinit var textBefore : SpannableStringBuilder
     private var start: Int = -1
     private var selStart: Int = 0
     private var selEnd: Int = 0
@@ -27,6 +28,8 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
         }
     }
 
+    public class EnterPressedUnderway(){}
+
     override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {
         val aztecText = aztecTextRef.get()
         val aztecKeyListener = aztecText?.getAztecKeyListener()
@@ -36,17 +39,21 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
             if (textBefore?.length == newTextCopy.length - 1) {
                 // now check that the inserted character is actually a NEWLINE
                 if (newTextCopy[this.start] == Constants.NEWLINE) {
-                    if (newTextCopy.length > this.start && this.start > 0 && newTextCopy[this.start - 1] != Constants.NEWLINE) {
-                        selStart++;
-                        selEnd++;
-                    }
-                    aztecKeyListener.onEnterKey(true, selStart, selEnd)
+//                    if (newTextCopy.length > this.start && this.start > 0 && newTextCopy[this.start - 1] != Constants.NEWLINE) {
+//                        selStart++;
+//                        selEnd++;
+//                    }
+                    aztecKeyListener.onEnterKey(newTextCopy.replace(this.start, this.start+1, ""), true, selStart, selEnd)
+                    aztecText.editableText.setSpan(EnterPressedUnderway(), 0, 0, Spanned.SPAN_USER)
                 }
             }
         }
     }
 
     override fun afterTextChanged(text: Editable) {
+        aztecTextRef.get()?.editableText?.getSpans(0, 0, EnterPressedUnderway::class.java)?.forEach {
+            aztecTextRef.get()?.editableText?.removeSpan(it)
+        }
     }
 
     companion object {

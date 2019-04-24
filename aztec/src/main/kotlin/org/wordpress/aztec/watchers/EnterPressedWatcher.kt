@@ -39,10 +39,6 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
             if (textBefore?.length == newTextCopy.length - 1) {
                 // now check that the inserted character is actually a NEWLINE
                 if (newTextCopy[this.start] == Constants.NEWLINE) {
-//                    if (newTextCopy.length > this.start && this.start > 0 && newTextCopy[this.start - 1] != Constants.NEWLINE) {
-//                        selStart++;
-//                        selEnd++;
-//                    }
                     aztecKeyListener.onEnterKey(newTextCopy.replace(this.start, this.start+1, ""), true, selStart, selEnd)
                     aztecText.editableText.setSpan(EnterPressedUnderway(), 0, 0, Spanned.SPAN_USER)
                 }

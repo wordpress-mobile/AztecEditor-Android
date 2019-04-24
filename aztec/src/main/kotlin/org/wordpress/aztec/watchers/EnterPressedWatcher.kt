@@ -26,8 +26,8 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
             // we need to make a copy to preserve the contents as they were before the change
             textBefore = SpannableStringBuilder(text)
             this.start = start
-            this.selStart = aztecText.selectionStart;
-            this.selEnd = aztecText.selectionEnd;
+            this.selStart = aztecText.selectionStart
+            this.selEnd = aztecText.selectionEnd
         }
     }
 

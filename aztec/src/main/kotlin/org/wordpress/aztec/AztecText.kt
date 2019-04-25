@@ -1235,6 +1235,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(text, false))
     }
 
+    fun toHtml(withCursorTag: Boolean = false): String {
+        return toHtml(text, withCursorTag)
+    }
+
     // returns regular or "calypso" html depending on the mode
     fun toHtml(inputText: Spanned, withCursorTag: Boolean = false): String {
         val html = toPlainHtml(inputText, withCursorTag)
@@ -1246,6 +1250,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } else {
             return html
         }
+    }
+
+    // platform agnostic HTML
+    fun toPlainHtml(withCursorTag: Boolean = false): String {
+        return toPlainHtml(text, withCursorTag)
     }
 
     // platform agnostic HTML

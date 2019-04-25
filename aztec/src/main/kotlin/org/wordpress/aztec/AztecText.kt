@@ -1575,7 +1575,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
                 else clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
 
-                val oldHtml = toPlainHtml(editable).replace("<aztec_cursor>", "")
+                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml, false)

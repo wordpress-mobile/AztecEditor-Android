@@ -183,12 +183,12 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             if (extLogger != null) {
                 extLogger.log("InlineFormatter.applySpan - setSpan has end before start." +
                         " Start:" + start + " End:" + end)
-                extLogger.log("Logging the whole content" + editor.toPlainHtml(editor.text))
+                extLogger.log("Logging the whole content" + editor.toPlainHtml())
             }
             // Now log in the default log
             AppLog.w(AppLog.T.EDITOR, "InlineFormatter.applySpan - setSpan has end before start." +
                     " Start:" + start + " End:" + end)
-            AppLog.w(AppLog.T.EDITOR, "Logging the whole content" + editor.toPlainHtml(editor.text))
+            AppLog.w(AppLog.T.EDITOR, "Logging the whole content" + editor.toPlainHtml())
             return
         }
         editableText.setSpan(span, start, end, type)

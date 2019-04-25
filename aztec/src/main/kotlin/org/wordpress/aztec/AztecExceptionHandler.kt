@@ -31,7 +31,7 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
             // Try to report the HTML code of the content, the spans details, but do not report exceptions that can occur logging the content
             try {
                 AppLog.e(AppLog.T.EDITOR, "HTML content of Aztec Editor before the crash:")
-                AppLog.e(AppLog.T.EDITOR, visualEditor.toPlainHtml(visualEditor.text, false))
+                AppLog.e(AppLog.T.EDITOR, visualEditor.toPlainHtml(false))
             } catch (e: Throwable) {
                 AppLog.e(AppLog.T.EDITOR, "Oops! There was an error logging the HTML code.")
             }

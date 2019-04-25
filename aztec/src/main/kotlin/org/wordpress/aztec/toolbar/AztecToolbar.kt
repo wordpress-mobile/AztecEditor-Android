@@ -573,7 +573,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun syncSourceFromEditor() {
-        val editorHtml = editor!!.toPlainHtml(editor!!.text, true)
+        val editorHtml = editor!!.toPlainHtml(true)
         val sha256 = AztecText.calculateSHA256(editorHtml)
 
         if (editorContentParsedSHA256LastSwitch.isEmpty()) {

@@ -321,7 +321,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnAztecKeyListener {
         fun onEnterKey(text: Spanned, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
-        fun onBackspaceKey(firedAfterTextChanged: Boolean) : Boolean
+        fun onBackspaceKey() : Boolean
     }
 
     interface OnLinkTappedListener {
@@ -528,7 +528,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
             // Check if the external listener has consumed the backspace pressed event
             // In that case stop the execution and do not delete styles later
-            if (onAztecKeyListener?.onBackspaceKey(false) == true) {
+            if (onAztecKeyListener?.onBackspaceKey() == true) {
                 // There listener has consumed the event
                 return true
             }
@@ -725,7 +725,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         InstanceStateUtils.writeTempInstance(context, externalLogger, INPUT_LAST_KEY, history.inputLast, bundle)
         bundle.putInt(VISIBILITY_KEY, visibility)
         bundle.putByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY, initialEditorContentParsedSHA256)
-        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(text, false), bundle)
+        InstanceStateUtils.writeTempInstance(context, externalLogger, RETAINED_HTML_KEY, toHtml(false), bundle)
         bundle.putInt(SELECTION_START_KEY, selectionStart)
         bundle.putInt(SELECTION_END_KEY, selectionEnd)
 
@@ -1154,7 +1154,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         setSelection(cursorPosition)
 
         if (isInit) {
-            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(text, false), initialEditorContentParsedSHA256)
+            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
         }
 
         loadImages()
@@ -1232,7 +1232,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun hasChanges(): EditorHasChanges {
-        return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(text, false))
+        return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(false))
     }
 
     fun toHtml(withCursorTag: Boolean = false): String {
@@ -1299,7 +1299,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun toFormattedHtml(): String {
-        return Format.addSourceEditorFormatting(toHtml(text), isInCalypsoMode)
+        return Format.addSourceEditorFormatting(toHtml(), isInCalypsoMode)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {

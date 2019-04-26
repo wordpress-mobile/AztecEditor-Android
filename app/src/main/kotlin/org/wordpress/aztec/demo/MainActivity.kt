@@ -129,7 +129,7 @@ open class MainActivity : AppCompatActivity(),
                         "}" +
                         "</pre>"
         private val CODE = "<code>if (value == 5) printf(value)</code><br>"
-        private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
+//        private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EMOJI = "&#x1F44D;"
         private val NON_LATIN_TEXT = "测试一个"
         private val LONG_TEXT = "<br><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
@@ -139,34 +139,44 @@ open class MainActivity : AppCompatActivity(),
         private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
         private val QUOTE_RTL = "<blockquote>לְצַטֵט<br>same quote but LTR</blockquote>"
 
+        private val IMG = "<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />"
+//        private val IMG = "[caption align=\"alignright\"]<img src=\"https://examplebloge.files.wordpress.com/2017/02/3def4804-d9b5-11e6-88e6-d7d8864392e0.png\" />Caption[/caption]"
         private val EXAMPLE =
+        "test<br><br>" +
                 IMG +
-                        HEADING +
-                        BOLD +
-                        ITALIC +
-                        UNDERLINE +
-                        STRIKETHROUGH +
-                        ORDERED +
-                        LINE +
-                        UNORDERED +
-                        QUOTE +
-                        PREFORMAT +
-                        LINK +
-                        HIDDEN +
-                        COMMENT +
-                        COMMENT_MORE +
-                        COMMENT_PAGE +
-                        CODE +
-                        UNKNOWN +
-                        EMOJI +
-                        NON_LATIN_TEXT +
-                        LONG_TEXT +
-                        VIDEO +
-                        VIDEOPRESS +
-                        VIDEOPRESS_2 +
-                        AUDIO +
-                        GUTENBERG_CODE_BLOCK +
-                        QUOTE_RTL
+                IMG +
+//                "test<br><br>" +
+//                IMG +
+                "test"
+//                        IMG
+//        private val EXAMPLE =
+//                IMG +
+//                        HEADING +
+//                        BOLD +
+//                        ITALIC +
+//                        UNDERLINE +
+//                        STRIKETHROUGH +
+//                        ORDERED +
+//                        LINE +
+//                        UNORDERED +
+//                        QUOTE +
+//                        PREFORMAT +
+//                        LINK +
+//                        HIDDEN +
+//                        COMMENT +
+//                        COMMENT_MORE +
+//                        COMMENT_PAGE +
+//                        CODE +
+//                        UNKNOWN +
+//                        EMOJI +
+//                        NON_LATIN_TEXT +
+//                        LONG_TEXT +
+//                        VIDEO +
+//                        VIDEOPRESS +
+//                        VIDEOPRESS_2 +
+//                        AUDIO +
+//                        GUTENBERG_CODE_BLOCK +
+//                        QUOTE_RTL
 
         private val isRunningTest: Boolean by lazy {
             try {

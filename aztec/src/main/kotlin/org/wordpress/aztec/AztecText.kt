@@ -36,14 +36,7 @@ import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
-import android.text.Editable
-import android.text.InputFilter
-import android.text.InputType
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextUtils
-import android.text.TextWatcher
+import android.text.*
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -226,6 +219,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassObservationQueue: Boolean = false
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
+    private var bypassMyCrashPreventerInputFilter: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -495,6 +489,48 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             temp
         }
 
+        val myCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
+            var temp : CharSequence? = null
+/*            if (!bypassMyCrashPreventerInputFilter) {
+
+                // if there are any images right after the destination position, hack the text
+                val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
+                if (spans.isNotEmpty()) {
+
+//                    undo();
+//                    redo();
+
+                    // prevent this filter from running twice when `text.insert()` gets called a few lines below
+                    disableMyCrashPreventerInputFilter()
+                    // disable MediaDeleted listener before operating on content
+                    disableMediaDeletedListener()
+
+//                    temp = SpannableStringBuilder(source.subSequence(start, end))
+//                            .append(dest.subSequence(dend, dend+1))
+
+
+//                    temp = SpannableStringBuilder(dest.subSequence(0, dstart))
+//                            .append(source.subSequence(start, end))
+//                            .append(dest.subSequence(dend, dest.length));
+
+                    text.delete(dend, dend+1)
+
+                    // now insert both the new insertion _and_ the original AztecImageSpan
+                    text.insert(dend, temp)
+
+//                    fromHtml(toFormattedHtml())
+
+                    temp = "" // discard the original source parameter as an ouput from this InputFilter
+
+                    // re-enable MediaDeleted listener
+                    enableMediaDeletedListener()
+                    // re-enable this very filter
+                    enableMyCrashPreventerInputFilter()
+                }
+            }*/
+            temp
+        }
+
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -513,7 +549,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+//            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+            filters = arrayOf(myCrashPreventer, emptyEditTextBackspaceDetector)
         } else {
             filters = arrayOf(emptyEditTextBackspaceDetector)
         }
@@ -1372,6 +1409,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     fun enableCrashPreventerInputFilter() {
         bypassCrashPreventerInputFilter = false
     }
+
+    fun disableMyCrashPreventerInputFilter() {
+        bypassMyCrashPreventerInputFilter = true
+    }
+
+    fun enableMyCrashPreventerInputFilter() {
+        bypassMyCrashPreventerInputFilter = false
+    }
+
 
     fun disableMediaDeletedListener() {
         bypassMediaDeletedListener = true

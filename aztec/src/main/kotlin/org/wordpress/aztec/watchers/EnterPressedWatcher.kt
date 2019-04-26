@@ -9,7 +9,7 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import java.lang.ref.WeakReference
 
-// Class to be used as a temporary span to denote that Enter was detected
+// Class to be used as a span to temporarily denote that Enter was detected
 class EnterPressedUnderway
 
 class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {

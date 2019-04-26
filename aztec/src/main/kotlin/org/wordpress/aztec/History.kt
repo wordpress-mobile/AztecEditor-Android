@@ -39,7 +39,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
                 textChangedPending = true
                 historyRunnable?.text =
                     when (editText) {
-                        is AztecText -> editText.toFormattedHtml()
+                        is AztecText -> editText.toFormattedHtml(editText.text)
                         is SourceViewEditText -> editText.text.toString()
                         else -> ""
                     }
@@ -52,7 +52,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     protected fun doHandleHistory(inputBefore: String, editText: EditText?) {
         textChangedPending = false
         inputLast = when (editText) {
-            is AztecText -> editText.toFormattedHtml()
+            is AztecText -> editText.toFormattedHtml(editText.text)
             is SourceViewEditText -> editText.text.toString()
             else -> ""
         }
@@ -85,7 +85,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return
         }
         if (editText is AztecText) {
-            inputLast = editText.toFormattedHtml()
+            inputLast = editText.toFormattedHtml(editText.text)
         } else if (editText is SourceViewEditText) {
             inputLast = editText.text.toString()
         }

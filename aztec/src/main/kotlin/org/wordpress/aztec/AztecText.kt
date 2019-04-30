@@ -102,7 +102,6 @@ import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
-import org.wordpress.aztec.watchers.EnterPressedWatcher
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
@@ -556,11 +555,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
-        // Keep the enter pressed watcher at the beginning of the watchers list.
-        // We want to intercept Enter.key as soon as possible, and before other listeners start modifying the text.
-        // Also note that this Watchers, when the AztecKeyListener is set, keep hold a copy of the content in the editor.
-        EnterPressedWatcher.install(this)
-
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
@@ -1417,10 +1411,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun isOnSelectionListenerDisabled(): Boolean {
         return consumeSelectionChangedEvent
-    }
-
-    fun isEnterPressedUnderway(): Boolean {
-        return EnterPressedWatcher.isEnterPressedUnderway(text)
     }
 
     fun setFocusOnVisible(focus: Boolean) {

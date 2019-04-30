@@ -1419,6 +1419,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return consumeSelectionChangedEvent
     }
 
+    fun isEnterPressedUnderway(): Boolean {
+        return EnterPressedWatcher.isEnterPressedUnderway(text)
+    }
+
     fun setFocusOnVisible(focus: Boolean) {
         focusOnVisible = focus
     }

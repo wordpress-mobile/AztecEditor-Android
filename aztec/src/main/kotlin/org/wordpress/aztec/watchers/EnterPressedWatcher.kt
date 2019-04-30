@@ -57,5 +57,9 @@ class EnterPressedWatcher(aztecText: AztecText) : TextWatcher {
         fun install(editText: AztecText) {
             editText.addTextChangedListener(EnterPressedWatcher(editText))
         }
+
+        fun isEnterPressedUnderway(spanned: Spanned?): Boolean {
+            return spanned?.getSpans(0, 0, EnterPressedUnderway::class.java)?.isNotEmpty() ?: false
+        }
     }
 }

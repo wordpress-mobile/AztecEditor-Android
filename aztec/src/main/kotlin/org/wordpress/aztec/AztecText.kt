@@ -461,7 +461,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {
 
-                    // prevent this filter from running twice when `text.insert()` gets called a few lines below
+                    // prevent this filter from running recursively
                     disableCrashPreventerInputFilter()
                     // disable MediaDeleted listener before operating on content
                     disableMediaDeletedListener()

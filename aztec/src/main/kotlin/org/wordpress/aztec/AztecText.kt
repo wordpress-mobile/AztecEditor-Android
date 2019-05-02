@@ -1230,11 +1230,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return hasChanges(initialEditorContentParsedSHA256, toPlainHtml(false))
     }
 
+    // returns regular or "calypso" html depending on the mode
+    // default behavior returns HTML from this text
     fun toHtml(withCursorTag: Boolean = false): String {
         return toHtml(text, withCursorTag)
     }
 
-    // returns regular or "calypso" html depending on the mode
+    // general function accepts any Spannable and converts it to regular or "calypso" html
+    // depending on the mode
     fun toHtml(content: Spannable, withCursorTag: Boolean = false): String {
         val html = toPlainHtml(content, withCursorTag)
 
@@ -1248,11 +1251,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // platform agnostic HTML
+    // default behavior returns HTML from this text
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         return toPlainHtml(text, withCursorTag)
     }
 
-    // platform agnostic HTML
+    // general function accepts any Spannable and converts it to platform agnostic HTML
     fun toPlainHtml(content: Spannable, withCursorTag: Boolean = false): String {
         return if (Looper.myLooper() != Looper.getMainLooper()) {
             runBlocking {

@@ -319,7 +319,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey(text: Spanned, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
+        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
         fun onBackspaceKey() : Boolean
     }
 

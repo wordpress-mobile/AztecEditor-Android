@@ -36,7 +36,14 @@ import android.support.graphics.drawable.VectorDrawableCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.AppCompatEditText
-import android.text.*
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -469,7 +476,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     // create a new Spannable to perform the text change here
                     var newText = SpannableStringBuilder(dest.subSequence(0, dstart))
                             .append(source.subSequence(start, end))
-                            .append(dest.subSequence(dend, dest.length));
+                            .append(dest.subSequence(dend, dest.length))
 
                     // force a history update to ensure the change is recorded
                     history.beforeTextChanged(this@AztecText)

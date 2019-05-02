@@ -33,7 +33,7 @@ class AztecLog {
             }
         }
 
-        private fun logSpansDetails(text: Spanned): String {
+        @JvmStatic fun logSpansDetails(text: Spanned): String {
             val spans = text.getSpans(0, text.length, Any::class.java)
             val spansList = Arrays.asList<Any>(*spans)
 

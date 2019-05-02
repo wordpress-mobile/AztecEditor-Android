@@ -102,7 +102,6 @@ import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
 import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
-import org.wordpress.aztec.watchers.EnterPressedWatcher
 import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
@@ -320,7 +319,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey() : Boolean
+        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
         fun onBackspaceKey() : Boolean
     }
 
@@ -521,7 +520,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             // Check if the external listener has consumed the enter pressed event
             // In that case stop the execution
-            if (onAztecKeyListener?.onEnterKey() == true) {
+            if (onAztecKeyListener?.onEnterKey(text, false, 0, 0) == true) {
                 return true
             }
         }
@@ -557,11 +556,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun install() {
-        // Keep the enter pressed watcher at the beginning of the watchers list.
-        // We want to intercept Enter.key as soon as possible, and before other listeners start modifying the text.
-        // Also note that this Watchers, when the AztecKeyListener is set, keep hold a copy of the content in the editor.
-        EnterPressedWatcher.install(this)
-
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
@@ -1239,15 +1233,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // returns regular or "calypso" html depending on the mode
     // default behavior returns HTML from this text
     fun toHtml(withCursorTag: Boolean = false): String {
-        val html = toPlainHtml(withCursorTag)
-
-        if (isInCalypsoMode) {
-            // calypso format is a mix of newline characters and html
-            // paragraphs and line breaks are added on server, from newline characters
-            return Format.addSourceEditorFormatting(html, true)
-        } else {
-            return html
-        }
+        return toHtml(text, withCursorTag)
     }
 
     // general function accepts any Spannable and converts it to regular or "calypso" html
@@ -1267,15 +1253,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // platform agnostic HTML
     // default behavior returns HTML from this text
     fun toPlainHtml(withCursorTag: Boolean = false): String {
-        return if (Looper.myLooper() != Looper.getMainLooper()) {
-            runBlocking {
-                withContext(Dispatchers.Main) {
-                    parseHtml(text, withCursorTag)
-                }
-            }
-        } else {
-            parseHtml(text, withCursorTag)
-        }
+        return toPlainHtml(text, withCursorTag)
     }
 
     // general function accepts any Spannable and converts it to platform agnostic HTML
@@ -1295,7 +1273,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {
-            //output = SpannableStringBuilder(text)
             output = SpannableStringBuilder(content)
         } catch (e: Exception) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.

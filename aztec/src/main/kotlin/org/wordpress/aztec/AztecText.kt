@@ -1235,8 +1235,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // returns regular or "calypso" html depending on the mode
-    fun toHtml(inputText: Spanned, withCursorTag: Boolean = false): String {
-        val html = toPlainHtml(inputText, withCursorTag)
+    fun toHtml(content: Spannable, withCursorTag: Boolean = false): String {
+        val html = toPlainHtml(content, withCursorTag)
 
         if (isInCalypsoMode) {
             // calypso format is a mix of newline characters and html
@@ -1253,23 +1253,23 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // platform agnostic HTML
-    fun toPlainHtml(inputText: Spanned, withCursorTag: Boolean = false): String {
+    fun toPlainHtml(content: Spannable, withCursorTag: Boolean = false): String {
         return if (Looper.myLooper() != Looper.getMainLooper()) {
             runBlocking {
                 withContext(Dispatchers.Main) {
-                    parseHtml(inputText, withCursorTag)
+                    parseHtml(content, withCursorTag)
                 }
             }
         } else {
-            parseHtml(inputText, withCursorTag)
+            parseHtml(content, withCursorTag)
         }
     }
 
-    private fun parseHtml(inputText: Spanned, withCursorTag: Boolean): String {
+    private fun parseHtml(content: Spannable, withCursorTag: Boolean): String {
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {
-            output = SpannableStringBuilder(inputText)
+            output = SpannableStringBuilder(content)
         } catch (e: Exception) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
             AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 and #582 for details.")

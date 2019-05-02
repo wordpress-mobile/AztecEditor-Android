@@ -462,29 +462,27 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
             var temp : CharSequence? = null
-            if (!bypassCrashPreventerInputFilter
-                    && dstart == dend && dest.length > dend+1
-                    && source != Constants.NEWLINE_STRING) {
-                // dstart == dend means this is an insertion
-                // avoid handling anything if it's a newline
+            if (!bypassCrashPreventerInputFilter && dend < dest.length && source != Constants.NEWLINE_STRING) {
+
                 // if there are any images right after the destination position, hack the text
-                val spans = dest.getSpans(dstart, dend+1, AztecImageSpan::class.java)
+                val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {
-                    // prevent this filter from running twice when `text.insert()` gets called a few lines below
+
+                    // prevent this filter from running recursively
                     disableCrashPreventerInputFilter()
                     // disable MediaDeleted listener before operating on content
                     disableMediaDeletedListener()
 
-                    // take the source (that is, what is being inserted), and append the Image to it. We will delete
-                    // the original Image later so to not have a duplicate.
-                    // use Spannable to copy / keep the current spans
-                    temp = SpannableStringBuilder(source).append(dest.subSequence(dend, dend+1))
+                    // create a new Spannable to perform the text change here
+                    var newText = SpannableStringBuilder(dest.subSequence(0, dstart))
+                            .append(source.subSequence(start, end))
+                            .append(dest.subSequence(dend, dest.length))
 
-                    // delete the original AztecImageSpan
-                    text.delete(dend, dend+1)
-                    // now insert both the new insertion _and_ the original AztecImageSpan
-                    text.insert(dend, temp)
-                    temp = "" // discard the original source parameter as an ouput from this InputFilter
+                    // force a history update to ensure the change is recorded
+                    history.beforeTextChanged(this@AztecText)
+
+                    // use HTML from the new text to set the state of the editText directly
+                    fromHtml(toFormattedHtml(newText), false)
 
                     // re-enable MediaDeleted listener
                     enableMediaDeletedListener()
@@ -1239,6 +1237,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     // returns regular or "calypso" html depending on the mode
+    // default behavior returns HTML from this text
     fun toHtml(withCursorTag: Boolean = false): String {
         val html = toPlainHtml(withCursorTag)
 
@@ -1251,24 +1250,53 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    // general function accepts any Spannable and converts it to regular or "calypso" html
+    // depending on the mode
+    fun toHtml(content: Spannable, withCursorTag: Boolean = false): String {
+        val html = toPlainHtml(content, withCursorTag)
+
+        if (isInCalypsoMode) {
+            // calypso format is a mix of newline characters and html
+            // paragraphs and line breaks are added on server, from newline characters
+            return Format.addSourceEditorFormatting(html, true)
+        } else {
+            return html
+        }
+    }
+
     // platform agnostic HTML
+    // default behavior returns HTML from this text
     fun toPlainHtml(withCursorTag: Boolean = false): String {
         return if (Looper.myLooper() != Looper.getMainLooper()) {
             runBlocking {
                 withContext(Dispatchers.Main) {
-                    parseHtml(withCursorTag)
+                    parseHtml(text, withCursorTag)
                 }
             }
         } else {
-            parseHtml(withCursorTag)
+            parseHtml(text, withCursorTag)
         }
     }
 
-    private fun parseHtml(withCursorTag: Boolean): String {
+    // general function accepts any Spannable and converts it to platform agnostic HTML
+    fun toPlainHtml(content: Spannable, withCursorTag: Boolean = false): String {
+        return if (Looper.myLooper() != Looper.getMainLooper()) {
+            runBlocking {
+                withContext(Dispatchers.Main) {
+                    parseHtml(content, withCursorTag)
+                }
+            }
+        } else {
+            parseHtml(content, withCursorTag)
+        }
+    }
+
+    private fun parseHtml(content: Spannable, withCursorTag: Boolean): String {
         val parser = AztecParser(plugins)
         val output: SpannableStringBuilder
         try {
-            output = SpannableStringBuilder(text)
+            //output = SpannableStringBuilder(text)
+            output = SpannableStringBuilder(content)
         } catch (e: Exception) {
             // FIXME: Remove this log once we've data to replicate the issue, and fix it in some way.
             AppLog.e(AppLog.T.EDITOR, "There was an error creating SpannableStringBuilder. See #452 and #582 for details.")
@@ -1292,8 +1320,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
     }
 
+    // default behavior returns formatted HTML from this text
     fun toFormattedHtml(): String {
-        return Format.addSourceEditorFormatting(toHtml(), isInCalypsoMode)
+        return toFormattedHtml(text)
+    }
+
+    // general function accepts any Spannable and converts it to formatted HTML
+    fun toFormattedHtml(content: Spannable): String {
+        return Format.addSourceEditorFormatting(toHtml(content), isInCalypsoMode)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
@@ -1548,8 +1582,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     (max == length || (length == 1 && text.toString() == Constants.END_OF_BUFFER_MARKER_STRING))) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
+                // prevent changes here from triggering the crash preventer
+                disableCrashPreventerInputFilter()
                 editable.delete(min, max)
                 editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
+                enableCrashPreventerInputFilter()
             }
 
             // don't let the pasted text be included in any existing style

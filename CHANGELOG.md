@@ -1,4 +1,10 @@
 # Changelog
+## [v1.3.26](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.26)
+### Fixed
+- DynamicLayout Crash #813
+- List handling in Gutenberg #812
+
+
 ## [v1.3.25](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.25)
 ### Changed
 - Remove some unneeded logging #806

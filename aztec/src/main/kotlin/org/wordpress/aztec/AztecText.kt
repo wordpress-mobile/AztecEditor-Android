@@ -1137,7 +1137,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val parser = AztecParser(plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
-        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode)
+        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
         builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
@@ -1547,7 +1547,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                 }
 
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)

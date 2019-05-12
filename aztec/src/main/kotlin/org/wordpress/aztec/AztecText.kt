@@ -246,6 +246,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
+    var isInGutenbergMode = false
 
     var consumeHistoryEvent: Boolean = false
 
@@ -341,6 +342,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setCalypsoMode(isCompatibleWithCalypso: Boolean) {
         isInCalypsoMode = isCompatibleWithCalypso
+    }
+
+    fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
+        isInGutenbergMode = isCompatibleWithGutenberg
     }
 
     @SuppressLint("ResourceType")
@@ -860,6 +865,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (!isViewInitialized) return
 
         if (isOnSelectionListenerDisabled()) {
+            if (isInGutenbergMode) {
+                return
+            }
+
             enableOnSelectionListener()
             return
         }

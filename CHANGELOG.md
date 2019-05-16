@@ -1,4 +1,11 @@
 # Changelog
+## [v1.3.27](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.27)
+### Fixed
+- Gutenberg fixes:
+  * Suppress multiple onSelectionChanged events when listener is disabled #817
+  * Avoid trimming spaces around html block elemts
+
+
 ## [v1.3.26](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.26)
 ### Fixed
 - DynamicLayout Crash #813

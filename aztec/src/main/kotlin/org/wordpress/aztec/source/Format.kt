@@ -50,13 +50,13 @@ object Format {
     }
 
     @JvmStatic
-    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
+    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false, isGutenbergMode: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
             val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
             return doc.body().html()
         } else {
-            return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
+            return if (isGutenbergMode) { html } else { replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>") }
         }
     }
 

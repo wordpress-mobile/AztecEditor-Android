@@ -246,6 +246,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
+    var isInGutenbergMode = false
 
     var consumeHistoryEvent: Boolean = false
 
@@ -341,6 +342,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setCalypsoMode(isCompatibleWithCalypso: Boolean) {
         isInCalypsoMode = isCompatibleWithCalypso
+    }
+
+    fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
+        isInGutenbergMode = isCompatibleWithGutenberg
     }
 
     @SuppressLint("ResourceType")
@@ -860,6 +865,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (!isViewInitialized) return
 
         if (isOnSelectionListenerDisabled()) {
+            if (isInGutenbergMode) {
+                return
+            }
+
             enableOnSelectionListener()
             return
         }
@@ -1128,7 +1137,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val parser = AztecParser(plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
-        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode)
+        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
         builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
@@ -1538,7 +1547,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                 }
 
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)

@@ -498,14 +498,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
-            if (selectionStart == 0 && selectionEnd == 0
-                    && end == 0 && start == 0
-                    && dstart == 0 && dend == 0
-                    && !isHandlingBackspaceEvent) {
+            if (end == 0 && start == 0 && !isHandlingBackspaceEvent) {
                 isHandlingBackspaceEvent = true
 
-                // Prevent the forced backspace from being added to the history stack
-                consumeHistoryEvent = true
+                // Check if destination is empty and nothing is selected
+                if (selectionStart == 0 && selectionEnd == 0 && dstart == 0 && dend == 0 ) {
+                    // Prevent the forced backspace from being added to the history stack
+                    consumeHistoryEvent = true
+                }
 
                 handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
                 isHandlingBackspaceEvent = false

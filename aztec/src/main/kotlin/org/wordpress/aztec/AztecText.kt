@@ -499,12 +499,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val backspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (isHandlingBackspaceEvent) {
-               // It's already handling a backspace event. Do nothing.
+                // It's already handling a backspace event. Do nothing.
             } else if (end != 0 || start != 0) {
                 // Not a backspace event
-            } else if (selectionStart != 0 || selectionEnd != 0) {
+            } else if (selectionStart != selectionEnd) {
                 // there is something selected on the editor, let's make Aztec do the work
-            } else if(onAztecKeyListener != null) {
+            } else if (onAztecKeyListener != null) {
                 isHandlingBackspaceEvent = true
 
                 // Prevent the forced backspace from being added to the history stack

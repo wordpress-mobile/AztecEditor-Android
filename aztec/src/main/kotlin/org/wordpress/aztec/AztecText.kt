@@ -501,10 +501,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             if (isHandlingBackspaceEvent) {
                 // It's already handling a backspace event. Do nothing.
             } else if (end != 0 || start != 0) {
-                // Not a backspace event
+                // Not a text erase event
             } else if (selectionStart != selectionEnd) {
                 // there is something selected on the editor, let's make Aztec do the work
             } else if (onAztecKeyListener != null) {
+                // There is a listener set, let's use it
                 isHandlingBackspaceEvent = true
 
                 // Prevent the forced backspace from being added to the history stack
@@ -513,6 +514,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL), start, end, dstart, dend)
                 isHandlingBackspaceEvent = false
             } else if (dstart == 0 && dend == 0) {
+                // Fallback to the old Aztec implementation that does check only the beginnning of the field
                 // Make sure we're at the beginning of the editor field
                 isHandlingBackspaceEvent = true
 

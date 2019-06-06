@@ -31,11 +31,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.DrawableRes
-import android.support.graphics.drawable.VectorDrawableCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -56,6 +51,11 @@ import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -346,6 +346,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
         isInGutenbergMode = isCompatibleWithGutenberg
+    }
+
+    // Newer AppCompatEditText returns Editable?, and using that would require changing all of Aztec to not use `text.`
+    override fun getText(): Editable {
+        return super.getText()!!
     }
 
     @SuppressLint("ResourceType")

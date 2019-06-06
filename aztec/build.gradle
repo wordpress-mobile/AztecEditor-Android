@@ -44,8 +44,8 @@ dependencies {
     implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
     implementation "org.jsoup:jsoup:$jSoupVersion"
 
-    implementation "com.android.support:support-v4:27.1.1"
-    implementation "com.android.support:design:27.1.1"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
 
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
@@ -54,4 +54,6 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 }

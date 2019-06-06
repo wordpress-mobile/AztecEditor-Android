@@ -5,8 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
@@ -14,6 +13,8 @@ import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.appcompat.widget.AppCompatEditText
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.EditorHasChanges
 import org.wordpress.aztec.AztecTextAccessibilityDelegate
@@ -23,7 +24,7 @@ import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.util.InstanceStateUtils
 
 @SuppressLint("SupportAnnotationUsage")
-open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, TextWatcher {
+open class SourceViewEditText : AppCompatEditText, TextWatcher {
     companion object {
         val RETAINED_CONTENT_KEY = "RETAINED_CONTENT_KEY"
     }
@@ -240,18 +241,18 @@ open class SourceViewEditText : android.support.v7.widget.AppCompatEditText, Tex
     }
 
     fun isCursorInsideTag(): Boolean {
-        val indexOfFirstClosingBracketOnTheRight = text.indexOf(">", selectionEnd)
-        val indexOfFirstOpeningBracketOnTheRight = text.indexOf("<", selectionEnd)
+        val indexOfFirstClosingBracketOnTheRight = text?.indexOf(">", selectionEnd)
+        val indexOfFirstOpeningBracketOnTheRight = text?.indexOf("<", selectionEnd)
 
         val isThereClosingBracketBeforeOpeningBracket = indexOfFirstClosingBracketOnTheRight != -1 &&
-                ((indexOfFirstClosingBracketOnTheRight < indexOfFirstOpeningBracketOnTheRight)
+                ((indexOfFirstClosingBracketOnTheRight!! < indexOfFirstOpeningBracketOnTheRight!!)
                         || indexOfFirstOpeningBracketOnTheRight == -1)
 
-        val indexOfFirstClosingBracketOnTheLeft = text.lastIndexOf(">", selectionEnd - 1)
-        val indexOfFirstOpeningBracketOnTheLeft = text.lastIndexOf("<", selectionEnd - 1)
+        val indexOfFirstClosingBracketOnTheLeft = text?.lastIndexOf(">", selectionEnd - 1)
+        val indexOfFirstOpeningBracketOnTheLeft = text?.lastIndexOf("<", selectionEnd - 1)
 
         val isThereOpeningBracketBeforeClosingBracket = indexOfFirstOpeningBracketOnTheLeft != -1 &&
-                ((indexOfFirstOpeningBracketOnTheLeft > indexOfFirstClosingBracketOnTheLeft) || indexOfFirstClosingBracketOnTheLeft == -1)
+                ((indexOfFirstOpeningBracketOnTheLeft!! > indexOfFirstClosingBracketOnTheLeft!!) || indexOfFirstClosingBracketOnTheLeft == -1)
 
         return isThereClosingBracketBeforeOpeningBracket && isThereOpeningBracketBeforeClosingBracket
     }

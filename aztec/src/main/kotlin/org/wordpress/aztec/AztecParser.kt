@@ -19,7 +19,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.support.v4.text.TextDirectionHeuristicsCompat
+import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableString

@@ -1,6 +1,6 @@
 package org.wordpress.aztec.source
 
-import android.support.v4.text.TextDirectionHeuristicsCompat
+import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spannable

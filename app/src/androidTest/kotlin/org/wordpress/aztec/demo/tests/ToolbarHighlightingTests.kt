@@ -1,8 +1,8 @@
 package org.wordpress.aztec.demo.tests
 
-import android.support.test.espresso.matcher.ViewMatchers.isChecked
-import android.support.test.espresso.matcher.ViewMatchers.isNotChecked
-import android.support.test.rule.ActivityTestRule
+import androidx.test.espresso.matcher.ViewMatchers.isChecked
+import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
+import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.wordpress.aztec.demo.BaseTest

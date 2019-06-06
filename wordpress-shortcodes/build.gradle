@@ -36,7 +36,7 @@ dependencies {
 
     implementation project(':aztec')
 
-    implementation "com.android.support:appcompat-v7:27.1.1"
+    implementation 'androidx.appcompat:appcompat:1.0.0'
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"

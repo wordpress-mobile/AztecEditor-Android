@@ -10,7 +10,7 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecURLSpan
 
-class LinkFormatter(editor: AztecText, val linkStyle: LinkStyle) : AztecFormatter(editor) {
+class LinkFormatter(editor: AztecText, var linkStyle: LinkStyle) : AztecFormatter(editor) {
 
     data class LinkStyle(val linkColor: Int, val linkUnderline: Boolean)
 

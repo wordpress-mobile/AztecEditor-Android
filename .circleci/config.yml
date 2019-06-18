@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  android: wordpress-mobile/android@0.0.21
+  android: wordpress-mobile/android@0.0.27
 
 jobs:
   Lint:
@@ -50,9 +50,9 @@ jobs:
           command: ./gradlew --stacktrace app:assembleDebug app:assembleDebugAndroidTest
       - run:
           name: Decrypt credentials
-          command: openssl aes-256-cbc -md sha256 -d -in .firebase.secrets.json.enc -out .firebase.secrets.json -k "${FIREBASE_SECRETS_ENCRYPTION_KEY}"
+          command: openssl aes-256-cbc -md sha256 -d -in .circleci/.firebase.secrets.json.enc -out .circleci/.firebase.secrets.json -k "${FIREBASE_SECRETS_ENCRYPTION_KEY}"
       - android/firebase-test:
-          key-file: .firebase.secrets.json
+          key-file: .circleci/.firebase.secrets.json
           type: instrumentation
           apk-path: app/build/outputs/apk/debug/app-debug.apk
           test-apk-path: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk

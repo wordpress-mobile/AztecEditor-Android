@@ -3,7 +3,6 @@
 package org.wordpress.aztec
 
 import android.test.AndroidTestCase
-import android.test.mock.MockContext
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import org.junit.Assert
@@ -14,6 +13,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowApplication
 
 /**
  * Tests for [AztecParser].
@@ -92,7 +92,7 @@ class AztecParserTest : AndroidTestCase() {
      */
     @Before
     fun init() {
-        context = MockContext()
+        context = ShadowApplication.getInstance().applicationContext
     }
 
     /**

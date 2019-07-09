@@ -123,9 +123,11 @@ class MixedTextFormattingTests : BaseTest() {
         EditorPage()
                 .toggleHtml()
                 .insertHTML(html)
+                .threadSleep(throttleTime)
                 .toggleHtml()
                 .selectAllText()
                 .makeHeader(EditorPage.HeadingStyle.ONE)
+                .threadSleep(throttleTime)
                 .toggleHtml()
                 .verifyHTML(html)
     }

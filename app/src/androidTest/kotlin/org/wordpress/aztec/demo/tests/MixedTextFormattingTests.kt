@@ -11,6 +11,8 @@ import org.wordpress.aztec.demo.pages.EditorPage
 
 class MixedTextFormattingTests : BaseTest() {
 
+    protected val throttleTime: Long = 1000L
+
     @Rule
     @JvmField
     var mActivityTestRule = ActivityTestRule(MainActivity::class.java)
@@ -27,11 +29,14 @@ class MixedTextFormattingTests : BaseTest() {
         EditorPage()
                 .toggleBold()
                 .insertText(text1)
+                .threadSleep(throttleTime)
                 .toggleBold()
                 .toggleItalics()
                 .insertText(text2)
+                .threadSleep(throttleTime)
                 .toggleBold()
                 .insertText(text3)
+                .threadSleep(throttleTime)
                 .toggleHtml()
                 .verifyHTML(regex)
     }
@@ -249,7 +254,9 @@ class MixedTextFormattingTests : BaseTest() {
         EditorPage()
                 .toggleHtml()
                 .insertHTML(input)
+                .threadSleep(throttleTime)
                 .toggleHtml()
+                .threadSleep(throttleTime)
                 .toggleHtml()
                 .hasChanges(AztecText.EditorHasChanges.NO_CHANGES) // Verify that the user had not changed the input
     }

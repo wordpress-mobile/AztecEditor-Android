@@ -253,12 +253,15 @@ class MixedTextFormattingTests : BaseTest() {
 
         EditorPage()
                 .makeList(EditorPage.ListStyle.UNORDERED)
+                .threadSleep(throttleTime)
                 .insertText(text1)
                 .threadSleep(throttleTime)
                 .toggleQuote()
+                .threadSleep(throttleTime)
                 .insertText(text2)
                 .threadSleep(throttleTime)
                 .toggleHtml()
+                .threadSleep(throttleTime)
                 .verifyHTML(html)
     }
 

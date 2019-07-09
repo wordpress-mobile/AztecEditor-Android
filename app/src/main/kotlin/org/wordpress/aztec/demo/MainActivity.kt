@@ -170,7 +170,7 @@ open class MainActivity : AppCompatActivity(),
 
         private val isRunningTest: Boolean by lazy {
             try {
-                Class.forName("android.support.test.espresso.Espresso")
+                Class.forName("androidx.test.espresso.Espresso")
                 true
             } catch (e: ClassNotFoundException) {
                 false

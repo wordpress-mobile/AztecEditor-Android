@@ -66,13 +66,10 @@ class MixedTextFormattingTests : BaseTest() {
 
         EditorPage()
                 .insertText(text1)
-                .threadSleep(throttleTime)
                 .toggleBold()
                 .insertText(text2)
-                .threadSleep(throttleTime)
                 .toggleBold()
                 .insertText(text3)
-                .threadSleep(throttleTime)
                 .toggleHtml()
                 .verifyHTML(html)
     }

@@ -58,7 +58,7 @@ jobs:
           test-apk-path: app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
           device: model=Nexus5X,version=26,locale=en,orientation=portrait
           project: api-project-108380595987
-          timeout: 10m
+          timeout: 18m
       - android/save-gradle-cache:
           cache-prefix: connected-tests
 

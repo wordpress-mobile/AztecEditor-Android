@@ -1,9 +1,9 @@
 package org.wordpress.aztec.source
 
-import android.support.annotation.ColorInt
 import android.text.Editable
 import android.text.Spannable
 import android.text.TextWatcher
+import androidx.annotation.ColorInt
 
 class HtmlStyleTextWatcher(@ColorInt private val tagColor: Int, @ColorInt private val attributeColor: Int) : TextWatcher {
 

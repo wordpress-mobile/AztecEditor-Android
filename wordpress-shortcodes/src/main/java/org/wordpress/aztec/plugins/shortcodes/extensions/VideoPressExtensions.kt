@@ -1,7 +1,7 @@
 package org.wordpress.aztec.plugins.shortcodes.extensions
 
 import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 import org.wordpress.aztec.spans.AztecVideoSpan

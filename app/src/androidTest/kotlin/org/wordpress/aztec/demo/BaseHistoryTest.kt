@@ -1,6 +1,6 @@
 package org.wordpress.aztec.demo
 
-import android.support.test.rule.ActivityTestRule
+import androidx.test.rule.ActivityTestRule
 import org.junit.Before
 import org.junit.Rule
 import org.wordpress.aztec.AztecText

@@ -3,7 +3,6 @@
 package org.wordpress.aztec
 
 import android.test.AndroidTestCase
-import android.test.mock.MockContext
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import junit.framework.Assert
@@ -13,6 +12,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowApplication
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
@@ -104,7 +104,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
      */
     @Before
     fun init() {
-        context = MockContext()
+        context = ShadowApplication.getInstance().applicationContext
     }
 
     /**

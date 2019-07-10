@@ -1,6 +1,6 @@
 package org.wordpress.aztec.demo.tests
 
-import android.support.test.espresso.intent.rule.IntentsTestRule
+import androidx.test.espresso.intent.rule.IntentsTestRule
 import org.junit.Rule
 import org.junit.Test
 import org.wordpress.aztec.demo.BaseTest

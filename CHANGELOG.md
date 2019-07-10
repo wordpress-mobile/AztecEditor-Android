@@ -1,4 +1,8 @@
 # Changelog
+## [1.3.28](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.28)
+### Added
+- Added support for AndroidX
+
 ## [v1.3.27](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.27)
 ### Fixed
 - Gutenberg fixes:

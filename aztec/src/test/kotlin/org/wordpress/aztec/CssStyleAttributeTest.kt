@@ -3,7 +3,6 @@
 package org.wordpress.aztec
 
 import android.test.AndroidTestCase
-import android.test.mock.MockContext
 import android.text.SpannableString
 import junit.framework.Assert
 import org.junit.Before
@@ -12,6 +11,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowApplication
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 
@@ -27,7 +27,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
     @Before
     fun init() {
-        context = MockContext()
+        context = ShadowApplication.getInstance().applicationContext
         parser = AztecParser()
     }
 

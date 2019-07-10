@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionName "1.0"
     }
 
@@ -36,6 +36,12 @@ android {
             }
         }
     }
+
+    // Gradle automatically adds 'android.test.runner' as a dependency.
+    useLibrary 'android.test.runner'
+
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
 }
 
 dependencies {
@@ -44,14 +50,23 @@ dependencies {
     implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
     implementation "org.jsoup:jsoup:$jSoupVersion"
 
-    implementation "com.android.support:support-v4:$supportLibVersion"
-    implementation "com.android.support:design:$supportLibVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
 
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
 
+    androidTestImplementation 'androidx.test:core:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
 }

@@ -21,11 +21,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.support.v4.text.TextDirectionHeuristicCompat
-import android.support.v4.text.TextDirectionHeuristicsCompat
-import android.support.v4.text.TextUtilsCompat
-import android.support.v4.util.ArrayMap
-import android.support.v4.view.ViewCompat
+import androidx.core.text.TextDirectionHeuristicCompat
+import androidx.core.text.TextDirectionHeuristicsCompat
+import androidx.core.text.TextUtilsCompat
+import androidx.core.view.ViewCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
@@ -33,6 +32,7 @@ import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
+import androidx.collection.ArrayMap
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 import java.util.Locale

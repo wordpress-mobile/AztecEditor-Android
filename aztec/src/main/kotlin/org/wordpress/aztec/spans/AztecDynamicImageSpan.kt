@@ -68,8 +68,8 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         val sizeRect = adjustBounds(start)
+        if (metrics != null && sizeRect.height() > 0) {
 
-        if (metrics != null && sizeRect.width() > 0) {
             metrics.ascent = - sizeRect.height()
             metrics.descent = 0
 
@@ -77,7 +77,13 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             metrics.bottom = 0
         }
 
-        return sizeRect.width()
+        if (sizeRect.width() > 0) {
+            return sizeRect.width()
+        } else {
+            // This code was crucial to get good results for overlapping issue
+            val size = super.getSize(paint, text, start, end, metrics)
+            return size
+        }
     }
 
     fun adjustBounds(start: Int): Rect {
@@ -89,7 +95,9 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         if (measuring || layout == null) {
             // if we're in pre-layout phase, just return a tiny rect
-            return Rect(0, 0, 1, 1)
+            // It looks like if we return 1 for right and bottom
+            // it will cause overlap
+            return Rect(0, 0, 0, 0)
         }
 
         val line = layout.getLineForOffset(start)
@@ -98,7 +106,6 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
-
         var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
         else maxWidth
         var height = if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1
@@ -107,6 +114,14 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         if (width > maxWidth) {
             width = maxWidth
             height = (width / aspectRatio).toInt()
+        }
+
+        // Note: This is not a solution just a temp code
+        // to demonstrate that for some reason value 36 ( which is got
+        // from imageDrawable?.intrinsicHeight ) is causing overlap problem
+        // or I think it's causing :D
+        if (height == 36) {
+            return Rect(0, 0, 0, 0)
         }
 
         imageDrawable?.bounds = Rect(0, 0, width, height)

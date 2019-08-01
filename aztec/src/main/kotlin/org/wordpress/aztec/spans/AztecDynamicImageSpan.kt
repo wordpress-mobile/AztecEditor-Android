@@ -82,7 +82,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         } else {
             // This block of code was added in order to resolve
             // span overlap issue on Chromebook devices
-            // -> https://github.com/wordpress-mobile/AztecEditor-Android/pull/835
+            // -> https://github.com/wordpress-mobile/AztecEditor-Android/issues/836
             return super.getSize(paint, text, start, end, metrics)
         }
     }
@@ -98,7 +98,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             // if we're in pre-layout phase, just return an empty rect
             // Update: Previous version of this code was: return Rect(0, 0, 1, 1)
             // but we needed to change it as it caused span overlap issue on Chromebook
-            // devices -> https://github.com/wordpress-mobile/AztecEditor-Android/pull/835
+            // devices -> https://github.com/wordpress-mobile/AztecEditor-Android/issues/836
             return Rect(0, 0, 0, 0)
         }
 

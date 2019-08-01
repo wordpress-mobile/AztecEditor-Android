@@ -452,7 +452,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         // layout is changing when app screen is resized (on Chromebooks, etc.)
         // we need to refresh text to reflect visual changes
         if (changed) {

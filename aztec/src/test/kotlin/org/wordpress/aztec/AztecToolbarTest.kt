@@ -648,7 +648,7 @@ class AztecToolbarTest {
     @Throws(Exception::class)
     fun emptySelection() {
         editText.fromHtml("<b>bold</b><b><i>italic</i></b>")
-        editText.setText("")
+        editText.fromHtml("", false)
 
         Assert.assertTrue(TestUtils.safeEmpty(editText))
 

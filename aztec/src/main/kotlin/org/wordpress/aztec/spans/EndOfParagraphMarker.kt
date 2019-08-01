@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.text.Spanned
 import android.text.style.LineHeightSpan
 import android.text.style.UpdateLayout
+import org.wordpress.aztec.Constants.ZWJ_CHAR
 
 // Used to mark newline at the end of calypso paragraphs
 class EndOfParagraphMarker(var verticalPadding: Int = 0) : LineHeightSpan, UpdateLayout {
@@ -17,7 +18,11 @@ class EndOfParagraphMarker(var verticalPadding: Int = 0) : LineHeightSpan, Updat
         if (spanned.getSpans(spanEnd, spanEnd, AztecQuoteSpan::class.java).any { spanned.getSpanEnd(it) == spanEnd }) {
             actualPadding = 0
         } else {
-            actualPadding = verticalPadding * 2
+            actualPadding = if (spanned.length >= spanEnd && spanned[spanEnd - 1] == ZWJ_CHAR) {
+                0
+            } else {
+                verticalPadding * 2
+            }
         }
 
         if (end == spanEnd) {

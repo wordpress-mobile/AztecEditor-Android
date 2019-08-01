@@ -80,9 +80,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         if (sizeRect.width() > 0) {
             return sizeRect.width()
         } else {
-            // This code was crucial to get good results for overlapping issue
-            val size = super.getSize(paint, text, start, end, metrics)
-            return size
+            // This block of code was added in order to resolve
+            // span overlap issue on Chromebook devices
+            // -> https://github.com/wordpress-mobile/AztecEditor-Android/pull/835
+            return super.getSize(paint, text, start, end, metrics)
         }
     }
 
@@ -94,9 +95,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         val layout = textView?.layout
 
         if (measuring || layout == null) {
-            // if we're in pre-layout phase, just return a tiny rect
-            // It looks like if we return 1 for right and bottom
-            // it will cause overlap
+            // if we're in pre-layout phase, just return an empty rect
+            // Update: Previous version of this code was: return Rect(0, 0, 1, 1)
+            // but we needed to change it as it caused span overlap issue on Chromebook
+            // devices -> https://github.com/wordpress-mobile/AztecEditor-Android/pull/835
             return Rect(0, 0, 0, 0)
         }
 
@@ -114,14 +116,6 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         if (width > maxWidth) {
             width = maxWidth
             height = (width / aspectRatio).toInt()
-        }
-
-        // Note: This is not a solution just a temp code
-        // to demonstrate that for some reason value 36 ( which is got
-        // from imageDrawable?.intrinsicHeight ) is causing overlap problem
-        // or I think it's causing :D
-        if (height == 36) {
-            return Rect(0, 0, 0, 0)
         }
 
         imageDrawable?.bounds = Rect(0, 0, width, height)

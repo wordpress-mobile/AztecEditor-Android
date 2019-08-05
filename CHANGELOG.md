@@ -1,4 +1,10 @@
 # Changelog
+## [1.3.29](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.29)
+### Fixed
+- Fix span overlapping on window resizing (Chromebooks)
+- Fix cursor size on new paragraph line (Chromebooks)
+- Fix breaking layout on slow window resizing (Chromebooks)
+
 ## [1.3.28](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.28)
 ### Added
 - Added support for AndroidX

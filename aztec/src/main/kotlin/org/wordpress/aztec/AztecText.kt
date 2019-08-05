@@ -452,6 +452,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        // layout is changing when app screen is resized (on Chromebooks, etc.)
+        // we need to refresh text to reflect visual changes
+        if (changed) {
+            post {
+                refreshText(false)
+            }
+        }
+        super.onLayout(changed, left, top, right, bottom)
+    }
+
     // Setup the keyListener(s) for Backspace and Enter key.
     // Backspace: If listener does return false we remove the style here
     // Enter: Ask the listener if we need to insert or not the char

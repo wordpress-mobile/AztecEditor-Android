@@ -121,6 +121,7 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
@@ -294,7 +295,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var focusOnVisible = true
 
-    var inputConnection: InputConnection? = null
+    var inputConnectionRef: WeakReference<InputConnection>? = null
     var inputConnectionEditorInfo: EditorInfo? = null
 
     interface OnSelectionChangedListener {
@@ -673,7 +674,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         // now init the InputConnection, or replace if EditorInfo contains anything different
-        if (inputConnection == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
+        if (inputConnectionRef?.get() == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
             // we have a new InputConnection to create, save the new EditorInfo data and create it
             // we make a copy of the parameters being received, because super.onCreateInputConnection may make changes
             // to EditorInfo params being sent to it, and we want to preserve the same data we received in order
@@ -689,11 +690,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
             // if non null, wrap the new InputConnection around our wrapper
             //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
-            inputConnection = localInputConnection
+            inputConnectionRef = WeakReference(localInputConnection)
         }
 
-        // returnn the existing inputConnection
-        return inputConnection!!
+        // return the existing inputConnection
+        return inputConnectionRef?.get()!!
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

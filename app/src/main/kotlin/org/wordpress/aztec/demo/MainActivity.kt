@@ -19,9 +19,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
-import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.Menu
@@ -32,6 +29,9 @@ import android.widget.PopupMenu
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
@@ -583,6 +583,10 @@ open class MainActivity : AppCompatActivity(),
         invalidateOptionsHandler.postDelayed(invalidateOptionsRunnable, resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
     }
 
+    override fun onUndo() {}
+
+    override fun onRedo() {}
+
     private fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -728,6 +732,7 @@ open class MainActivity : AppCompatActivity(),
     }
 
     override fun onToolbarFormatButtonClicked(format: ITextFormat, isKeyboardShortcut: Boolean) {
+        ToastUtils.showToast(this, format.toString())
     }
 
     override fun onToolbarHeadingButtonClicked() {

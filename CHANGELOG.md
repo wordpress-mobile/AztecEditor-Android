@@ -1,4 +1,9 @@
 # Changelog
+## [1.3.30](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.30)
+### Added
+- Added the ability to signal undo/redo events to host app
+
+# Changelog
 ## [1.3.29](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.29)
 ### Fixed
 - Fix span overlapping on window resizing (Chromebooks)

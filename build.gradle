@@ -22,6 +22,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$gradlePluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'digital.wup:android-maven-publish:3.6.2'
     }
 }
 
@@ -37,6 +38,21 @@ task clean(type: Delete) {
 }
 
 subprojects {
+
+    if (project.name != 'app') {
+        apply plugin: 'digital.wup.android-maven-publish'
+        publishing {
+            publications {
+                mavenAar(MavenPublication) {
+                    groupId 'com.github.wordpress-mobile.WordPress-Aztec-Android'
+                    artifactId project.name
+                    version '123.456.789'
+                    from components.android
+                }
+            }
+        }
+    }
+
     configurations {
         ktlint
     }

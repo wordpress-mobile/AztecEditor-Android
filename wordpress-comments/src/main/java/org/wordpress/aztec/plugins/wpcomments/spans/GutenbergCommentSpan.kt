@@ -1,6 +1,5 @@
 package org.wordpress.aztec.plugins.wpcomments.spans
 
-import android.text.Layout
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecBlockSpan
 
@@ -10,7 +9,6 @@ class GutenbergCommentSpan(
         override var attributes: AztecAttributes = AztecAttributes()
 ) : IAztecBlockSpan {
     override val TAG: String = "wp:"
-    override var align: Layout.Alignment? = null
     override var startBeforeCollapse: Int = -1
     override var endBeforeBleed: Int = -1
 

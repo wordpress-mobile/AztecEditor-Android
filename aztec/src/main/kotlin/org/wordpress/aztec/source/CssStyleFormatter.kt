@@ -6,6 +6,7 @@ import android.text.Layout
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.util.ColorConverter
@@ -47,18 +48,20 @@ class CssStyleFormatter {
         }
 
         private fun processAlignment(blockSpan: IAztecParagraphStyle, text: Editable, start: Int, end: Int) {
-            val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
-            if (!alignment.isBlank()) {
-                val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
-                val isRtl = direction.isRtl(text, start, end - start)
+            if (blockSpan is IAztecAlignmentSpan) {
+                val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
+                if (!alignment.isBlank()) {
+                    val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
+                    val isRtl = direction.isRtl(text, start, end - start)
 
-                val align = when (alignment) {
-                    "right" -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
-                    "center" -> Layout.Alignment.ALIGN_CENTER
-                    else -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+                    val align = when (alignment) {
+                        "right" -> if (isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+                        "center" -> Layout.Alignment.ALIGN_CENTER
+                        else -> if (!isRtl) Layout.Alignment.ALIGN_NORMAL else Layout.Alignment.ALIGN_OPPOSITE
+                    }
+
+                    blockSpan.align = align
                 }
-
-                blockSpan.align = align
             }
         }
 

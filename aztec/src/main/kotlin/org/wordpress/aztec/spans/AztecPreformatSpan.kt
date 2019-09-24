@@ -18,7 +18,13 @@ class AztecPreformatSpan(
         override var attributes: AztecAttributes = AztecAttributes(),
         var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0),
         override var align: Layout.Alignment? = null
-    ) : IAztecBlockSpan, LeadingMarginSpan, LineBackgroundSpan, LineHeightSpan, TypefaceSpan("monospace") {
+    ) : IAztecAlignmentSpan,
+        IAztecBlockSpan,
+        LeadingMarginSpan,
+        LineBackgroundSpan,
+        LineHeightSpan,
+        TypefaceSpan("monospace")
+    {
     override val TAG: String = "pre"
 
     override var endBeforeBleed: Int = -1

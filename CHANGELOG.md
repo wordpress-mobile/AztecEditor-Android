@@ -1,7 +1,7 @@
 # Changelog
 ## [1.3.31](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.31)
 ### Fixed
-- Fix lagging deleting and inserting text #853 and #854
+- Fix lag deleting and inserting text #853 and #854
 
 # Changelog
 ## [1.3.30](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.30)

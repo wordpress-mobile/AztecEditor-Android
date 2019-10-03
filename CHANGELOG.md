@@ -1,4 +1,9 @@
 # Changelog
+## [1.3.31](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.31)
+### Fixed
+- Fix lag deleting and inserting text #853 and #854
+
+# Changelog
 ## [1.3.30](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.30)
 ### Added
 - Added the ability to signal undo/redo events to host app

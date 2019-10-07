@@ -7,6 +7,7 @@ import android.text.style.StyleSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 
@@ -15,7 +16,7 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
                                                      override var nestingLevel: Int,
                                                      private val aztecText: AztecText? = null,
                                                      override var align: Layout.Alignment? = null)
-    : StyleSpan(Typeface.ITALIC), IAztecBlockSpan {
+    : StyleSpan(Typeface.ITALIC), IAztecAlignmentSpan, IAztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1

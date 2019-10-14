@@ -668,6 +668,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo) : InputConnection {
+        // limiting the reuseInputConnection fix for Anroid 8.0.0 for now
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            return handleReuseInputConnection(outAttrs)
+        }
+
+        return super.onCreateInputConnection(outAttrs)
+    }
+
+    private fun handleReuseInputConnection(outAttrs: EditorInfo) : InputConnection {
         // initialize inputConnectionEditorInfo
         if (inputConnectionEditorInfo == null) {
             inputConnectionEditorInfo = outAttrs
@@ -688,7 +697,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 // an InputConnectionWrapper of a null target
                 return localInputConnection
             }
-            // if non null, wrap the new InputConnection around our wrapper
+            // if non null, wrap the new InputConnection around our wrapper (used for logging purposes only)
             //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
             inputConnectionRef = WeakReference(localInputConnection)
         }

@@ -1,6 +1,9 @@
 package org.wordpress.aztec
 
+import android.os.Build
+import android.util.Log
 import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.util.DynamicLayoutGetBlockIndexOutOfBoundsException
 import org.wordpress.aztec.util.AztecLog
 import java.lang.Thread.UncaughtExceptionHandler
 
@@ -39,6 +42,16 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
                 AztecLog.logContentDetails(visualEditor)
             } catch (e: Throwable) {
                 // nop
+            }
+        }
+
+        // Detect ArrayIndexOutOfBoundsException on Android 8, and report it to the parent app
+        // See: https://github.com/wordpress-mobile/WordPress-Android/issues/8828
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
+                && ex is ArrayIndexOutOfBoundsException) {
+            val stackTrace = Log.getStackTraceString(ex)
+            if (stackTrace.contains("android.text.DynamicLayout.getBlockIndex(DynamicLayout.java:646)")) {
+                visualEditor.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
             }
         }
 

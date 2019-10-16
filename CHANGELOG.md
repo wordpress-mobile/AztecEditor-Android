@@ -1,8 +1,12 @@
 # Changelog
 
- ## [1.3.32](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.32)
- ### Fixed
- - Allow paragraph spans that do not extend AlignmentSpan (#851)
+## [1.3.33](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.33)
+### Fixed
+- IndexOutOfBounds case in DynamicLayout.reflow() under Android 8.0.0 (#834)
+
+## [1.3.32](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.32)
+### Fixed
+- Allow paragraph spans that do not extend AlignmentSpan (#851)
 
 ## [1.3.31](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.31)
 ### Fixed

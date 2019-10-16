@@ -1,4 +1,4 @@
-package org.wordpress.aztec.util
+package org.wordpress.aztec.exceptions
 
 import java.lang.RuntimeException
 

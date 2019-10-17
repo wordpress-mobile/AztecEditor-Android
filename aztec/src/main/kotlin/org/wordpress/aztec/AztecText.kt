@@ -525,12 +525,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
-        } else {
+//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+//            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
+//            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+//        } else {
             filters = arrayOf(emptyEditTextBackspaceDetector)
-        }
+//        }
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {

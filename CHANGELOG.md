@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.34](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.34)
+### Added
+- Added the ability to report to the host app the IndexOutOfBounds exception
+ in android.text.DynamicLayout.getBlockIndex(DynamicLayout.java:646) under Android 8.XX (#861)
+
 ## [1.3.33](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.33)
 ### Fixed
 - IndexOutOfBounds case in DynamicLayout.reflow() under Android 8.0.0 (#834)

@@ -75,8 +75,8 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         return spanned
     }
 
-    fun fromHtml(source: String, context: Context): Spanned {
-        val tidySource = tidy(source)
+    fun fromHtml(source: String, context: Context, isGutenbergMode: Boolean = false): Spanned {
+        val tidySource = if (isGutenbergMode) { source } else { tidy(source) }
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
                 AztecTagHandler(context, plugins), context, plugins, ignoredTags))

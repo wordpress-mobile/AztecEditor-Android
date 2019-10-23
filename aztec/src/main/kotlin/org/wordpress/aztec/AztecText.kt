@@ -1190,7 +1190,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         var cleanSource =  if (isInGutenbergMode) { source } else CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
 
-        builder.append(parser.fromHtml(cleanSource, context))
+        builder.append(parser.fromHtml(cleanSource, context, isInGutenbergMode))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 

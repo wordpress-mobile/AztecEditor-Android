@@ -1164,6 +1164,38 @@ class AztecParserTest : AndroidTestCase() {
         Assert.assertEquals(input, output)
     }
 
+    /**
+     * Currently, this html <p>Hello There!<br></p> after being parsed to span and back to html will become
+     * <p>Hello There!</p>.
+     * This is not a bug, this is how we originally implemented the function that cleans the HTML input
+     * in AztecParser->tidy method.
+     *
+     * Since we're using this editor in Gutenberg Mobile project, where the selection could be sent from
+     * the JS side to the native, we needed to take in consideration this behavior of Aztec in GB-mobile,
+     * and modify the logic that does set the selection accordingly.
+     *
+     * This test just checks that the underlying parser is working as expected.
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBrBeforePara_isNotEqual() {
+        val input = "<p>Hello There!<br></p>"
+        val expectedOutput = "<p>Hello There!</p>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(expectedOutput, output)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlBrBeforePara2_isNotEqual() {
+        val input = "<p>Hello There!<br><br><br><br></p>"
+        val expectedOutput = "<p>Hello There!</p>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(expectedOutput, output)
+    }
+
     @Test
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlMixedContentInListItem_isEqual() {

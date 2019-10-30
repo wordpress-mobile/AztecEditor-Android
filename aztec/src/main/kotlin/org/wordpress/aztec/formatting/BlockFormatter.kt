@@ -757,6 +757,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         val start = (0..index - 1).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
+
         if (start > end) {
             return false
         }

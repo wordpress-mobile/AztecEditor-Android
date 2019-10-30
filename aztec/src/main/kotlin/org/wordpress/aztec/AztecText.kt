@@ -415,7 +415,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
-                        styles.getColor(R.styleable.AztecText_preformatColor, 0),
+                        if (preformattedBackgroundColor != 0) preformattedBackgroundColor else styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin)
         )
 
@@ -1934,5 +1934,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
+
+    var preformattedBackgroundColor: Int = 0
 
 }

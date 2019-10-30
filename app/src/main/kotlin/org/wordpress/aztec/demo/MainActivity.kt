@@ -346,6 +346,9 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
+
+        visualEditor.preformattedBackgroundColor = resources.getColor(android.R.color.holo_red_dark)
+
         visualEditor.externalLogger = object : AztecLog.ExternalLogger {
             override fun log(message: String) {
             }

@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -414,7 +415,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         verticalParagraphMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
-                        styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
+                        getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin)
         )
@@ -704,6 +705,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // return the existing inputConnection
         return inputConnectionRef?.get()!!
+    }
+
+    protected fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
+        return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

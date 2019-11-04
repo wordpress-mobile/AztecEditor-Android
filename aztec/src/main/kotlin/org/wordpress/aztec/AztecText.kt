@@ -707,7 +707,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return inputConnectionRef?.get()!!
     }
 
-    protected fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
+    open fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
         return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
     }
 

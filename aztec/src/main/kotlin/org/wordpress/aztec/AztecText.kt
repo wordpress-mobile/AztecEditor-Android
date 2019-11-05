@@ -1141,6 +1141,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    fun shouldSkipTinying(): Boolean {
+        val containsQuote = blockFormatter.containsQuote()
+        val containsPreformat = blockFormatter.containsPreformat()
+        return isInGutenbergMode && containsQuote && containsPreformat
+    }
+
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             subWatcherNestingLevel()
@@ -1189,7 +1195,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTinying()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1354,7 +1360,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.postProcessSpannedText(output, isInCalypsoMode)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag, shouldSkipTinying()))
     }
 
     // default behavior returns formatted HTML from this text

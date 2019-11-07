@@ -1146,7 +1146,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    open fun shouldSkipTinying(): Boolean {
+    open fun shouldSkipTidying(): Boolean {
         return false
     }
 
@@ -1198,7 +1198,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTinying()))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1363,7 +1363,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.postProcessSpannedText(output, isInCalypsoMode)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag, shouldSkipTinying()))
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag, shouldSkipTidying()))
     }
 
     // default behavior returns formatted HTML from this text

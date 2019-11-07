@@ -1141,10 +1141,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    fun shouldSkipTinying(): Boolean {
-        val containsQuote = blockFormatter.containsQuote()
-        val containsPreformat = blockFormatter.containsPreformat()
-        return isInGutenbergMode && (containsQuote || containsPreformat)
+    open fun shouldSkipTinying(): Boolean {
+        return false
     }
 
     override fun afterTextChanged(text: Editable) {

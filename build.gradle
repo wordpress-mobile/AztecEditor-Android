@@ -30,9 +30,22 @@ buildscript {
 apply plugin: 'com.automattic.android.fetchstyle'
 
 allprojects {
+    apply plugin: 'checkstyle'
+
     repositories {
         google()
         jcenter()
+    }
+
+    task checkstyle(type: Checkstyle) {
+        source 'src'
+
+        classpath = files()
+    }
+
+    checkstyle {
+        toolVersion = '8.3'
+        configFile file("${project.rootDir}/config/checkstyle.xml")
     }
 }
 

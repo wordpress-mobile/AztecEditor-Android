@@ -283,6 +283,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var widthMeasureSpec: Int = 0
 
     var verticalParagraphMargin: Int = 0
+    var verticalHeadingMargin: Int = 0
 
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
@@ -389,6 +390,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
         verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
+        verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding, 0)
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
@@ -411,8 +413,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
                         verticalParagraphMargin),
-                BlockFormatter.HeaderStyle(
-                        verticalParagraphMargin),
+                BlockFormatter.HeaderStyle(verticalHeadingMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),

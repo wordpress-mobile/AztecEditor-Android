@@ -1148,7 +1148,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun shouldSkipTidying(): Boolean {
-        return false
+        return true
     }
 
     override fun afterTextChanged(text: Editable) {
@@ -1199,9 +1199,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
+        var returned = parser.fromHtml(cleanSource, context, shouldSkipTidying())
+        builder.append(returned)
+
+        var lengt3 = builder.length
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
+
+        var lengt2 = builder.length
 
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
@@ -1213,8 +1218,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val cursorPosition = consumeCursorPosition(builder)
         setSelection(0)
 
+        var lengt4 = builder.length
+
         setTextKeepState(builder)
         enableTextChangedListener()
+
+        var length = text.length
+
+        var lastIndex = text.lastIndexOf(Constants.ZWJ_CHAR, length-1)
 
         setSelection(cursorPosition)
 
@@ -1323,6 +1334,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // platform agnostic HTML
     // default behavior returns HTML from this text
     fun toPlainHtml(withCursorTag: Boolean = false): String {
+        var length = text.length
+        var lenth2 = text.toString().length
+
+        //println("ivasavic index " + lenth2)
+        for (j in 0 until lenth2) {
+            print("index " + j)
+            //print("  decimal: " + text.toString().get(j))
+            print("  char: " + text.toString().get(j).toInt())
+            println("")
+        }
+
         return toPlainHtml(text, withCursorTag)
     }
 

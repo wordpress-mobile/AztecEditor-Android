@@ -27,8 +27,6 @@
     <style name="AztecTextStyle">
         <item name="android:textCursorDrawable">?attr/textColor</item>
         <item name="backgroundColor">@android:color/transparent</item>
-        <item name="blockVerticalPadding">@dimen/block_vertical_padding</item>
-        <item name="headingVerticalPadding">@dimen/heading_vertical_padding</item>
         <item name="bulletColor">@color/blue_medium</item>
         <item name="bulletMargin">@dimen/bullet_margin</item>
         <item name="bulletPadding">@dimen/bullet_padding</item>

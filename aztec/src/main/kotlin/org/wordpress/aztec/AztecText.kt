@@ -389,8 +389,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
-        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
-        verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding, 0)
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
+                        resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+        verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding,
+                        resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(

@@ -22,7 +22,7 @@ import java.io.IOException
 import java.io.InputStream
 
 @GlideModule
-class GlideLoaderModule: LibraryGlideModule() {
+class GlideLoaderModule : LibraryGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         registry.append(String::class.java, InputStream::class.java, ThumbnailLoader.Factory(context))
         super.registerComponents(context, glide, registry)
@@ -38,7 +38,7 @@ class GlideLoaderModule: LibraryGlideModule() {
             return ModelLoader.LoadData<InputStream>(ObjectKey(model), VideoThumbnailFetcher(model, context))
         }
 
-        override fun handles(model: String):Boolean {
+        override fun handles(model: String): Boolean {
             return true
         }
 

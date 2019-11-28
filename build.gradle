@@ -5,7 +5,7 @@ buildscript {
         kotlinCoroutinesVersion = '1.1.0'
         supportLibVersion = '27.1.1'
         tagSoupVersion = '1.2.1'
-        glideVersion = '3.7.0'
+        glideVersion = '4.10.0'
         picassoVersion = '2.5.2'
         robolectricVersion = '3.5.1'
         jUnitVersion = '4.12'

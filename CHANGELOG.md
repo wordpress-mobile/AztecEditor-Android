@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.35](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.35)
+### Changed
+- Update Glide version to 4.10.0
+
 ## [1.3.34](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.34)
 ### Added
 - Added the ability to report to the host app the IndexOutOfBounds exception

@@ -65,6 +65,19 @@ abstract class AztecListSpan(override var nestingLevel: Int,
                 .size
     }
 
+    fun getNumberOfItemsInProcessedLine(text: CharSequence): Int {
+        val spanStart = (text as Spanned).getSpanStart(this)
+        val spanEnd = text.getSpanEnd(this)
+
+        val listText = text.subSequence(spanStart, spanEnd) as Spanned
+
+        return if (listText.length == 0) {
+            0
+        } else {
+            listText.split("\n").size
+        }
+    }
+
     fun nestingDepth(text: Spanned, index: Int, nextIndex: Int): Int {
         val finalNextIndex = if (nextIndex > text.length) index else nextIndex
         return IAztecNestable.getNestingLevelAt(text, index, finalNextIndex)

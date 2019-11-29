@@ -91,6 +91,24 @@ open class MainActivity : AppCompatActivity(),
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
+        private val ORDERED_WITH_START = "<h4>Start in 10 List:</h4>" +
+                "<ol start=\"10\">\n" +
+                "    <li>Ten</li>\n" +
+                "    <li>Eleven</li>\n" +
+                "    <li>Twelve</li>\n" +
+                "</ol>"
+        private val ORDERED_REVERSED = "<h4>Reversed List:</h4>" +
+                "<ol reversed>\n" +
+                "    <li>Three</li>\n" +
+                "    <li>Two</li>\n" +
+                "    <li>One</li>\n" +
+                "</ol>"
+        private val ORDERED_REVERSED_WITH_START = "<h4>Reversed Start in 10 List:</h4>" +
+                "<ol reversed start=\"10\">\n" +
+                "    <li>Ten</li>\n" +
+                "    <li>Nine</li>\n" +
+                "    <li>Eight</li>\n" +
+                "</ol>"
         private val LINE = "<hr />"
         private val UNORDERED = "<ul><li style=\"color:darkred\">Unordered</li><li>Should not have color</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
@@ -147,6 +165,9 @@ open class MainActivity : AppCompatActivity(),
                         UNDERLINE +
                         STRIKETHROUGH +
                         ORDERED +
+                        ORDERED_WITH_START +
+                        ORDERED_REVERSED +
+                        ORDERED_REVERSED_WITH_START +
                         LINE +
                         UNORDERED +
                         QUOTE +

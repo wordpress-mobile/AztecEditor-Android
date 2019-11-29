@@ -1,4 +1,47 @@
 # Changelog
+
+## [1.3.35](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.35)
+### Changed
+- Update Glide version to 4.10.0
+
+## [1.3.34](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.34)
+### Added
+- Added the ability to report to the host app the IndexOutOfBounds exception
+ in android.text.DynamicLayout.getBlockIndex(DynamicLayout.java:646) under Android 8.XX (#861)
+
+## [1.3.33](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.33)
+### Fixed
+- IndexOutOfBounds case in DynamicLayout.reflow() under Android 8.0.0 (#834)
+
+## [1.3.32](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.32)
+### Fixed
+- Allow paragraph spans that do not extend AlignmentSpan (#851)
+
+## [1.3.31](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.31)
+### Fixed
+- Fix lag deleting and inserting text #853 and #854
+
+## [1.3.30](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.30)
+### Added
+- Added the ability to signal undo/redo events to host app
+
+## [1.3.29](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.29)
+### Fixed
+- Fix span overlapping on window resizing (Chromebooks)
+- Fix cursor size on new paragraph line (Chromebooks)
+- Fix breaking layout on slow window resizing (Chromebooks)
+
+## [1.3.28](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.28)
+### Added
+- Added support for AndroidX
+
+## [v1.3.27](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.27)
+### Fixed
+- Gutenberg fixes:
+  * Suppress multiple onSelectionChanged events when listener is disabled #817
+  * Avoid trimming spaces around html block elemts
+
+
 ## [v1.3.26](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.26)
 ### Fixed
 - DynamicLayout Crash #813

@@ -23,7 +23,7 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.Spanned
 import org.wordpress.aztec.plugins.IAztecPlugin
@@ -45,7 +45,7 @@ import org.wordpress.aztec.spans.HiddenHtmlBlock
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
-import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
@@ -118,7 +118,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PARAGRAPH -> {
-                handleElement(output, opening, ParagraphSpan(nestingLevel, AztecAttributes(attributes)))
+                handleElement(output, opening, createParagraphSpan(nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             LINE -> {

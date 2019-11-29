@@ -19,7 +19,7 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.support.v4.text.TextDirectionHeuristicsCompat
+import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableString
@@ -44,6 +44,7 @@ import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
@@ -415,7 +416,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
     private fun withinNestable(out: StringBuilder, text: Spanned, start: Int, end: Int,
                                nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
 
-        if (nestable.shouldParseAlignmentToHtml()) {
+        if (nestable is IAztecAlignmentSpan && nestable.shouldParseAlignmentToHtml()) {
             CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
 
             nestable.align?.let {

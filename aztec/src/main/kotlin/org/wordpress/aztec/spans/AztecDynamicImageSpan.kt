@@ -68,8 +68,8 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
     override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         val sizeRect = adjustBounds(start)
+        if (metrics != null && sizeRect.height() > 0) {
 
-        if (metrics != null && sizeRect.width() > 0) {
             metrics.ascent = - sizeRect.height()
             metrics.descent = 0
 
@@ -77,7 +77,14 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
             metrics.bottom = 0
         }
 
-        return sizeRect.width()
+        if (sizeRect.width() > 0) {
+            return sizeRect.width()
+        } else {
+            // This block of code was added in order to resolve
+            // span overlap issue on Chromebook devices
+            // -> https://github.com/wordpress-mobile/AztecEditor-Android/issues/836
+            return super.getSize(paint, text, start, end, metrics)
+        }
     }
 
     fun adjustBounds(start: Int): Rect {
@@ -88,8 +95,11 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         val layout = textView?.layout
 
         if (measuring || layout == null) {
-            // if we're in pre-layout phase, just return a tiny rect
-            return Rect(0, 0, 1, 1)
+            // if we're in pre-layout phase, just return an empty rect
+            // Update: Previous version of this code was: return Rect(0, 0, 1, 1)
+            // but we needed to change it as it caused span overlap issue on Chromebook
+            // devices -> https://github.com/wordpress-mobile/AztecEditor-Android/issues/836
+            return Rect(0, 0, 0, 0)
         }
 
         val line = layout.getLineForOffset(start)
@@ -98,7 +108,6 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
-
         var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
         else maxWidth
         var height = if ((imageDrawable?.intrinsicHeight ?: -1) > -1) imageDrawable?.intrinsicHeight ?: -1

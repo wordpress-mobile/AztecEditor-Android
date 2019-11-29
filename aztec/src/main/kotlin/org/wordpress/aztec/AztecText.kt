@@ -31,11 +31,6 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.DrawableRes
-import android.support.graphics.drawable.VectorDrawableCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.AppCompatEditText
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -53,9 +48,16 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatEditText
+import androidx.core.content.ContextCompat
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -70,6 +72,7 @@ import org.wordpress.aztec.handlers.ListHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
+import org.wordpress.aztec.ime.EditorInfoUtils
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -118,6 +121,7 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
@@ -246,6 +250,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
+    var isInGutenbergMode = false
 
     var consumeHistoryEvent: Boolean = false
 
@@ -277,6 +282,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var widthMeasureSpec: Int = 0
 
     var verticalParagraphMargin: Int = 0
+    var verticalHeadingMargin: Int = 0
 
     var maxImagesWidth: Int = 0
     var minImagesWidth: Int = 0
@@ -289,6 +295,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
     private var focusOnVisible = true
+
+    var inputConnectionRef: WeakReference<InputConnection>? = null
+    var inputConnectionEditorInfo: EditorInfo? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -343,6 +352,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isInCalypsoMode = isCompatibleWithCalypso
     }
 
+    fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
+        isInGutenbergMode = isCompatibleWithGutenberg
+    }
+
+    // Newer AppCompatEditText returns Editable?, and using that would require changing all of Aztec to not use `text.`
+    override fun getText(): Editable {
+        return super.getText()!!
+    }
+
     @SuppressLint("ResourceType")
     private fun init(attrs: AttributeSet?) {
         disableTextChangedListener()
@@ -370,7 +388,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
-        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding, 0)
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
+                        resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+        verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding,
+                        resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
@@ -393,8 +414,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
                         verticalParagraphMargin),
-                BlockFormatter.HeaderStyle(
-                        verticalParagraphMargin),
+                BlockFormatter.HeaderStyle(verticalHeadingMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
@@ -650,6 +670,45 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    override fun onCreateInputConnection(outAttrs: EditorInfo) : InputConnection {
+        // limiting the reuseInputConnection fix for Anroid 8.0.0 for now
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            return handleReuseInputConnection(outAttrs)
+        }
+
+        return super.onCreateInputConnection(outAttrs)
+    }
+
+    private fun handleReuseInputConnection(outAttrs: EditorInfo) : InputConnection {
+        // initialize inputConnectionEditorInfo
+        if (inputConnectionEditorInfo == null) {
+            inputConnectionEditorInfo = outAttrs
+        }
+
+        // now init the InputConnection, or replace if EditorInfo contains anything different
+        if (inputConnectionRef?.get() == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
+            // we have a new InputConnection to create, save the new EditorInfo data and create it
+            // we make a copy of the parameters being received, because super.onCreateInputConnection may make changes
+            // to EditorInfo params being sent to it, and we want to preserve the same data we received in order
+            // to compare.
+            // (see https://android.googlesource.com/platform/frameworks/base/+/jb-mr0-release/core/java/android/widget/
+            // TextView.java#5404)
+            inputConnectionEditorInfo = EditorInfoUtils.copyEditorInfo(outAttrs)
+            val localInputConnection = super.onCreateInputConnection(outAttrs)
+            if (localInputConnection == null) {
+                // in case super returns null, let's just observe the base implementation, no need to make
+                // an InputConnectionWrapper of a null target
+                return localInputConnection
+            }
+            // if non null, wrap the new InputConnection around our wrapper (used for logging purposes only)
+            //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
+            inputConnectionRef = WeakReference(localInputConnection)
+        }
+
+        // return the existing inputConnection
+        return inputConnectionRef?.get()!!
+    }
+
     override fun onRestoreInstanceState(state: Parcelable?) {
         disableTextChangedListener()
 
@@ -860,6 +919,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (!isViewInitialized) return
 
         if (isOnSelectionListenerDisabled()) {
+            if (isInGutenbergMode) {
+                return
+            }
+
             enableOnSelectionListener()
             return
         }
@@ -1128,7 +1191,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val parser = AztecParser(plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
-        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode)
+        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
         builder.append(parser.fromHtml(cleanSource, context))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
@@ -1538,7 +1601,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                 }
 
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode)
+        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)

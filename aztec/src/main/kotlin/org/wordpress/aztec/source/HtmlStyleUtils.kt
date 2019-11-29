@@ -2,12 +2,12 @@ package org.wordpress.aztec.source
 
 import android.graphics.Typeface
 import android.os.Build
-import android.support.annotation.ColorInt
 import android.text.Spannable
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
+import androidx.annotation.ColorInt
 import org.wordpress.aztec.spans.AztecStyleSpan
 import java.util.regex.Pattern
 

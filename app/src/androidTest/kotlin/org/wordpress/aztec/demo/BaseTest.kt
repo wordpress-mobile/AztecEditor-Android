@@ -1,7 +1,7 @@
 package org.wordpress.aztec.demo
 
-import android.support.test.rule.GrantPermissionRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
+import androidx.test.runner.AndroidJUnit4
 import com.xamarin.testcloud.espresso.Factory
 import com.xamarin.testcloud.espresso.ReportHelper
 import org.junit.Before

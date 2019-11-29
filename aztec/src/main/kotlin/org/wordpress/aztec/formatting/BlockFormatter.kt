@@ -1,6 +1,6 @@
 package org.wordpress.aztec.formatting
 
-import android.support.v4.text.TextDirectionHeuristicsCompat
+import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
@@ -20,12 +20,13 @@ import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
-import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays
 
@@ -279,21 +280,6 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         }
     }
 
-    fun getOuterBlockSpanType(textFormat: ITextFormat): Class<out IAztecBlockSpan> {
-        when (textFormat) {
-            AztecTextFormat.FORMAT_ORDERED_LIST -> return AztecOrderedListSpan::class.java
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> return AztecUnorderedListSpan::class.java
-            AztecTextFormat.FORMAT_QUOTE -> return AztecQuoteSpan::class.java
-            AztecTextFormat.FORMAT_HEADING_1,
-            AztecTextFormat.FORMAT_HEADING_2,
-            AztecTextFormat.FORMAT_HEADING_3,
-            AztecTextFormat.FORMAT_HEADING_4,
-            AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan::class.java
-            else -> return ParagraphSpan::class.java
-        }
-    }
-
     // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
@@ -307,7 +293,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle))
             AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
-            else -> return Arrays.asList(ParagraphSpan(nestingLevel, attrs))
+            else -> return Arrays.asList(createParagraphSpan(nestingLevel, attrs))
         }
     }
 
@@ -335,7 +321,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class.java, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class.java, textFormat, nestingLevel, attrs)
-            else -> ParagraphSpan(nestingLevel, attrs)
+            else -> createParagraphSpan(nestingLevel, attrs)
         }
     }
 
@@ -347,7 +333,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
             AztecPreformatSpan::class.java -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
-            else -> ParagraphSpan(nestingLevel, attrs)
+            else -> createParagraphSpan(nestingLevel, attrs)
         }
     }
 
@@ -509,13 +495,13 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
             val alignment = getAlignment(textFormat,
                     editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
-            editableText.setSpan(ParagraphSpan(nestingLevel, AztecAttributes(), alignment),
+            editableText.setSpan(createParagraphSpan(nestingLevel, AztecAttributes(), alignment),
                     boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, Spanned.SPAN_PARAGRAPH)
         }
     }
 
-    private fun changeAlignment(it: IAztecParagraphStyle, blockElementType: ITextFormat?) {
-        val wrapper = SpanWrapper<IAztecParagraphStyle>(editableText, it)
+    private fun changeAlignment(it: IAztecAlignmentSpan, blockElementType: ITextFormat?) {
+        val wrapper = SpanWrapper(editableText, it)
         it.align = getAlignment(blockElementType, editableText.substring(wrapper.start until wrapper.end))
 
         editableText.setSpan(it, wrapper.start, wrapper.end, wrapper.flags)
@@ -905,10 +891,10 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
         return getAlignedSpans(textFormat, selStart, selEnd).isNotEmpty()
     }
 
-    private fun getAlignedSpans(textFormat: ITextFormat?, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecParagraphStyle> {
+    private fun getAlignedSpans(textFormat: ITextFormat?, selStart: Int = selectionStart, selEnd: Int = selectionEnd): List<IAztecAlignmentSpan> {
         if (selStart < 0 || selEnd < 0) return emptyList()
 
-        return editableText.getSpans(selStart, selEnd, IAztecParagraphStyle::class.java)
+        return editableText.getSpans(selStart, selEnd, IAztecAlignmentSpan::class.java)
                 .filter {
                     textFormat == null || it.align == getAlignment(textFormat,
                         editableText.substring(editableText.getSpanStart(it) until editableText.getSpanEnd(it)))

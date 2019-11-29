@@ -3,8 +3,8 @@ package org.wordpress.aztec.util
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
-import android.support.annotation.ColorInt
 import android.text.TextUtils
+import androidx.annotation.ColorInt
 import org.wordpress.aztec.util.ColorConverter.Companion.COLOR_NOT_FOUND
 
 /**

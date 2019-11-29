@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.EndOfParagraphMarker
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.util.CleaningUtils
@@ -50,13 +51,13 @@ object Format {
     }
 
     @JvmStatic
-    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false): String {
+    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false, isGutenbergMode: Boolean = false): String {
         if (isCalypsoFormat) {
             val htmlWithoutSourceFormatting = toCalypsoHtml(html)
             val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
             return doc.body().html()
         } else {
-            return replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>")
+            return if (isGutenbergMode) { html } else { replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>") }
         }
     }
 
@@ -356,8 +357,12 @@ object Format {
 
             // we don't care about actual ParagraphSpan in calypso that don't have attributes or are empty (paragraphs are made from double newline)
             text.getSpans(0, text.length, ParagraphSpan::class.java)
-                    .filter { it.attributes.isEmpty() && it.align == null || text.getSpanStart(it) == text.getSpanEnd(it) - 1 }
-                    .forEach {
+                    .filter {
+                        val hasNoAttributes = it.attributes.isEmpty()
+                        val isAligned = it is IAztecAlignmentSpan && it.align != null
+                        val isEmpty = text.getSpanStart(it) == text.getSpanEnd(it) - 1
+                        (hasNoAttributes && !isAligned) || isEmpty
+                    }.forEach {
                         text.removeSpan(it)
                     }
         }

@@ -1,8 +1,8 @@
 package org.wordpress.aztec
 
 import android.app.Activity
-import android.support.annotation.IdRes
 import android.view.View
+import androidx.annotation.IdRes
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
@@ -34,8 +34,8 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     }
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
-                @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+                        @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
+                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
             activity.findViewById<SourceViewEditText>(sourceTextId), activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,

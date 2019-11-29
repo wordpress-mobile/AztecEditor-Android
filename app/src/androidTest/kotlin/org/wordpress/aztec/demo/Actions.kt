@@ -1,15 +1,15 @@
 package org.wordpress.aztec.demo
 
 import android.graphics.Rect
-import android.support.test.espresso.UiController
-import android.support.test.espresso.ViewAction
-import android.support.test.espresso.action.CoordinatesProvider
-import android.support.test.espresso.action.GeneralClickAction
-import android.support.test.espresso.action.Press
-import android.support.test.espresso.action.Tap
-import android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom
-import android.support.test.espresso.matcher.ViewMatchers.isClickable
-import android.support.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.CoordinatesProvider
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.isClickable
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import android.view.View
 import android.widget.EditText
 import org.hamcrest.Matcher

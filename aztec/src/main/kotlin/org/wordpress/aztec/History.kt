@@ -121,6 +121,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         editText.requestFocus()
 
         updateActions()
+        historyListener?.onRedo()
     }
 
     fun undo(editText: EditText) {
@@ -143,6 +144,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
         editText.requestFocus()
 
         updateActions()
+        historyListener?.onUndo()
     }
 
     private fun setTextFromHistory(editText: EditText) {

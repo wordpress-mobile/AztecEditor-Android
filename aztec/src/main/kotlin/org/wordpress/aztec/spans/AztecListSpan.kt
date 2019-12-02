@@ -71,11 +71,7 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        return if (listText.length == 0) {
-            0
-        } else {
-            listText.split("\n").size
-        }
+        return listText.getSpans(0, listText.length, AztecListItemSpan::class.java).size
     }
 
     fun nestingDepth(text: Spanned, index: Int, nextIndex: Int): Int {

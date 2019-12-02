@@ -67,13 +67,13 @@ class AztecOrderedListSpan(
             else start + (getIndexOfProcessedLine(text, end) - 1)
         } else {
             val number = getNumberOfItemsInProcessedLine(text)
-            if (isReversed) number - (getIndexOfProcessedLine(text, end))
+            if (isReversed) number - (getIndexOfProcessedLine(text, end) - 1)
             else getIndexOfProcessedLine(text, end)
         }
 
         val textToDraw = if (dir >= 0) lineIndex.toString() + "."
             else "." + lineIndex.toString()
-        
+
         val width = p.measureText(textToDraw)
         maxWidth = Math.max(maxWidth, width)
 

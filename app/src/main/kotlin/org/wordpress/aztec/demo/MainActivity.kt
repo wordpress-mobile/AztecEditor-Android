@@ -109,6 +109,12 @@ open class MainActivity : AppCompatActivity(),
                 "    <li>Nine</li>\n" +
                 "    <li>Eight</li>\n" +
                 "</ol>"
+        private val ORDERED_REVERSED_NEGATIVE_WITH_START = "<h4>Reversed Start in 10 List:</h4>" +
+                "<ol reversed start=\"1\">\n" +
+                "    <li>Ten</li>\n" +
+                "    <li>Nine</li>\n" +
+                "    <li>Eight</li>\n" +
+                "</ol>"
         private val LINE = "<hr />"
         private val UNORDERED = "<ul><li style=\"color:darkred\">Unordered</li><li>Should not have color</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"
@@ -168,6 +174,7 @@ open class MainActivity : AppCompatActivity(),
                         ORDERED_WITH_START +
                         ORDERED_REVERSED +
                         ORDERED_REVERSED_WITH_START +
+                        ORDERED_REVERSED_NEGATIVE_WITH_START +
                         LINE +
                         UNORDERED +
                         QUOTE +

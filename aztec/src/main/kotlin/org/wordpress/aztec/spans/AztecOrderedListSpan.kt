@@ -61,18 +61,21 @@ class AztecOrderedListSpan(
             0
         }
 
-        val isReversed = attributes.hasAttribute("reversed")
-        val lineIndex = if (start > 0) {
-            if (isReversed) start - (getIndexOfProcessedLine(text, end) - 1)
-            else start + (getIndexOfProcessedLine(text, end) - 1)
-        } else {
-            val number = getNumberOfItemsInProcessedLine(text)
-            if (isReversed) number - (getIndexOfProcessedLine(text, end) - 1)
-            else getIndexOfProcessedLine(text, end)
-        }
+        var textToDraw = ""
+        getIndexOfProcessedLine(text, end)?.let {
+            val isReversed = attributes.hasAttribute("reversed")
+            val lineIndex = if (start > 0) {
+                if (isReversed) start - (it - 1)
+                else start + (it - 1)
+            } else {
+                val number = getNumberOfItemsInProcessedLine(text)
+                if (isReversed) number - (it - 1)
+                else it
+            }
 
-        val textToDraw = if (dir >= 0) lineIndex.toString() + "."
+            textToDraw = if (dir >= 0) lineIndex.toString() + "."
             else "." + lineIndex.toString()
+        }
 
         val width = p.measureText(textToDraw)
         maxWidth = Math.max(maxWidth, width)

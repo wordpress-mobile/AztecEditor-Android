@@ -34,7 +34,7 @@ abstract class AztecListSpan(override var nestingLevel: Int,
         }
     }
 
-    fun getIndexOfProcessedLine(text: CharSequence, end: Int): Int {
+    fun getIndexOfProcessedLine(text: CharSequence, end: Int): Int? {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
 
@@ -44,7 +44,7 @@ abstract class AztecListSpan(override var nestingLevel: Int,
             val hasSublist = listText.getSpans(end - spanStart - 1, end - spanStart, AztecListSpan::class.java)
                     .any { it.nestingLevel > nestingLevel }
             if (hasSublist) {
-                return -1
+                return null
             }
         }
 
@@ -55,7 +55,7 @@ abstract class AztecListSpan(override var nestingLevel: Int,
                 .any { it.nestingLevel == nestingLevel + 1 && listText.getSpanStart(it) == startOfLine }
 
         if (!isValidListItem) {
-            return -1
+            return null
         }
 
         // count the list item spans up to the current line with the expected nesting level => item number
@@ -71,7 +71,9 @@ abstract class AztecListSpan(override var nestingLevel: Int,
 
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
-        return listText.getSpans(0, listText.length, AztecListItemSpan::class.java).size
+        return listText.getSpans(0, listText.length, AztecListItemSpan::class.java)
+                .filter { it.nestingLevel == nestingLevel + 1 }
+                .size
     }
 
     fun nestingDepth(text: Spanned, index: Int, nextIndex: Int): Int {

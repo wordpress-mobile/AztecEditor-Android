@@ -53,7 +53,7 @@ class AztecUnorderedListSpan(
         p.style = Paint.Style.FILL
 
         val lineIndex = getIndexOfProcessedLine(text, end)
-        val textToDraw = if (lineIndex > -1) "\u2022" else ""
+        val textToDraw = if (lineIndex != null) "\u2022" else ""
 
         val width = p.measureText(textToDraw)
 

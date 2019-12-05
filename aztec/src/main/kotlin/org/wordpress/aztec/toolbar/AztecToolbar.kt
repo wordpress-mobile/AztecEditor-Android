@@ -32,7 +32,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.util.convertToButtonStateForAccessibility
+import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 import java.util.Arrays
 import java.util.ArrayList
 import java.util.Locale
@@ -445,7 +445,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
 
         if (buttonPlugin is IMediaToolbarButton) {
-            button.convertToButtonStateForAccessibility()
+            button.convertToButtonAccessibilityProperties()
         }
     }
 
@@ -460,7 +460,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         ToolbarAction.values().forEach { action ->
             if (targetActions.contains(action)) {
-                findViewById<ToggleButton>(action.buttonId).convertToButtonStateForAccessibility()
+                findViewById<ToggleButton>(action.buttonId).convertToButtonAccessibilityProperties()
             }
         }
     }

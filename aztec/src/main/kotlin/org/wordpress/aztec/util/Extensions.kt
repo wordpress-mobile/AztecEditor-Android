@@ -81,5 +81,3 @@ fun ToggleButton.convertToButtonAccessibilityProperties() {
         }
     })
 }
-
-

@@ -32,6 +32,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.util.convertToButtonStateForAccessibility
 import java.util.Arrays
 import java.util.ArrayList
 import java.util.Locale
@@ -407,6 +408,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         setAdvancedState()
         setupMediaToolbar()
+        setupToolbarButtonsForAccessibility()
 
         for (toolbarAction in ToolbarAction.values()) {
             val button = findViewById<ToggleButton>(toolbarAction.buttonId)
@@ -434,7 +436,33 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         toolbarButtonPlugins.add(buttonPlugin)
 
         val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
-        button.setOnClickListener { _: View -> buttonPlugin.toggle() }
+        button.setOnClickListener { buttonPlugin.toggle() }
+
+        setupMediaButtonForAccessibility(buttonPlugin)
+    }
+
+    private fun setupMediaButtonForAccessibility(buttonPlugin: IToolbarButton) {
+        val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
+
+        if (buttonPlugin is IMediaToolbarButton) {
+            button.convertToButtonStateForAccessibility()
+        }
+    }
+
+    private fun setupToolbarButtonsForAccessibility() {
+        val targetActions = listOf(ToolbarAction.ADD_MEDIA_EXPAND,
+                ToolbarAction.ADD_MEDIA_COLLAPSE,
+                ToolbarAction.HORIZONTAL_RULE,
+                ToolbarAction.HEADING,
+                ToolbarAction.LIST,
+                ToolbarAction.LINK
+        )
+
+        ToolbarAction.values().forEach { action ->
+            if (targetActions.contains(action)) {
+                findViewById<ToggleButton>(action.buttonId).convertToButtonStateForAccessibility()
+            }
+        }
     }
 
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {

@@ -90,6 +90,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         return spanned
     }
 
+    @JvmOverloads
     fun toHtml(text: Spanned, withCursor: Boolean = false, shouldSkipTidying: Boolean = false): String {
         val out = StringBuilder()
 

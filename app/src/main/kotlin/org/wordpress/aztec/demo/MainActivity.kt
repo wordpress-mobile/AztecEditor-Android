@@ -109,15 +109,28 @@ open class MainActivity : AppCompatActivity(),
                 "    <li>Nine</li>\n" +
                 "    <li>Eight</li>\n" +
                 "</ol>"
-        private val ORDERED_REVERSED_NEGATIVE_WITH_START = "<h4>Reversed Start in 10 List:</h4>" +
+        private val ORDERED_REVERSED_NEGATIVE_WITH_START = "<h4>Reversed Start in 1 List:</h4>" +
                 "<ol reversed start=\"1\">\n" +
-                "    <li>Ten</li>\n" +
-                "    <li>Nine</li>\n" +
-                "    <li>Eight</li>\n" +
+                "    <li>One</li>\n" +
+                "    <li>Zero</li>\n" +
+                "    <li>Minus One</li>\n" +
                 "</ol>"
-        private val ORDERED_REVERSED_WITH_START_IDENT = "<h4>Reversed Start in 4 List:</h4>" +
+        private val ORDERED_REVERSED_WITH_START_IDENT = "<h4>Reversed Start in 6 List:</h4>" +
                 "<ol reversed>" +
-                "<li>dkfdskfdf\\sd\\</li><li>dfds</li><li>fdf</li><li>dfd</li><li>f</li><li>dsfs<ol><li>fdfd</li><li>f</li><li>dsf</li><li>ds</li><li>d</li><li>g</li><li>sdg</li><li>ds</li></ol></li></ol>\n"
+                "   <li>Six</li>" +
+                "   <li>Five</li>" +
+                "   <li>Four</li>" +
+                "   <li>Three</li>" +
+                "   <li>Two</li>" +
+                "   <li>One<ol>" +
+                "   <li>One</li>" +
+                "   <li>Two</li>" +
+                "   <li>Three</li>" +
+                "   <li>Four</li>" +
+                "   <li>Five</li>" +
+                "   <li>Six</li>" +
+                "   <li>Seven</li> " +
+                "   </ol></li></ol>"
         private val LINE = "<hr />"
         private val UNORDERED = "<ul><li style=\"color:darkred\">Unordered</li><li>Should not have color</li></ul>"
         private val QUOTE = "<blockquote>Quote</blockquote>"

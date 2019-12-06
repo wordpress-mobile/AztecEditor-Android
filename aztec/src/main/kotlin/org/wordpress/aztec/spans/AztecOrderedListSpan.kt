@@ -55,12 +55,26 @@ class AztecOrderedListSpan(
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
 
-        val lineIndex = getIndexOfProcessedLine(text, end)
-        val textToDraw = if (lineIndex > -1) {
-            if (dir >= 0) lineIndex.toString() + "."
-            else "." + lineIndex.toString()
+        val start = if (attributes.hasAttribute("start") == true) {
+            attributes.getValue("start").toInt()
         } else {
-            ""
+            0
+        }
+
+        var textToDraw = ""
+        getIndexOfProcessedLine(text, end)?.let {
+            val isReversed = attributes.hasAttribute("reversed")
+            val lineIndex = if (start > 0) {
+                if (isReversed) start - (it - 1)
+                else start + (it - 1)
+            } else {
+                val number = getNumberOfItemsInProcessedLine(text)
+                if (isReversed) number - (it - 1)
+                else it
+            }
+
+            textToDraw = if (dir >= 0) lineIndex.toString() + "."
+            else "." + lineIndex.toString()
         }
 
         val width = p.measureText(textToDraw)

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.36](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.36)
+### Changed
+- Implement start and reversed in lists
+- Allow preformatted background alpha and tidying to be set from child classes
+
 ## [1.3.35](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.35)
 ### Changed
 - Update Glide version to 4.10.0

@@ -1570,13 +1570,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     deleteInlineStyleFromTheBeginning()
                 }
             }
-            // Fix for crash when pasting text on Samsung Devices running Android 8.
-            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
+            // Fix for crash when pasting text on Samsung Devices running Android 7 & 8.
+            // Android 7 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/10872
+            // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < 28
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                         && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
                     // Nope return true
-                    Toast.makeText(context, R.string.samsung_disabled_custom_clipboard, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
                 }

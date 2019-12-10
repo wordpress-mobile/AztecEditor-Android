@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -48,8 +49,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -72,7 +71,6 @@ import org.wordpress.aztec.handlers.ListHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
-import org.wordpress.aztec.ime.EditorInfoUtils
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -121,7 +119,6 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
@@ -296,9 +293,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var focusOnVisible = true
 
-    var inputConnectionRef: WeakReference<InputConnection>? = null
-    var inputConnectionEditorInfo: EditorInfo? = null
-
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -417,7 +411,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 BlockFormatter.HeaderStyle(verticalHeadingMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
-                        styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
+                        getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin)
         )
@@ -670,43 +664,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    override fun onCreateInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // limiting the reuseInputConnection fix for Anroid 8.0.0 for now
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            return handleReuseInputConnection(outAttrs)
-        }
-
-        return super.onCreateInputConnection(outAttrs)
-    }
-
-    private fun handleReuseInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // initialize inputConnectionEditorInfo
-        if (inputConnectionEditorInfo == null) {
-            inputConnectionEditorInfo = outAttrs
-        }
-
-        // now init the InputConnection, or replace if EditorInfo contains anything different
-        if (inputConnectionRef?.get() == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
-            // we have a new InputConnection to create, save the new EditorInfo data and create it
-            // we make a copy of the parameters being received, because super.onCreateInputConnection may make changes
-            // to EditorInfo params being sent to it, and we want to preserve the same data we received in order
-            // to compare.
-            // (see https://android.googlesource.com/platform/frameworks/base/+/jb-mr0-release/core/java/android/widget/
-            // TextView.java#5404)
-            inputConnectionEditorInfo = EditorInfoUtils.copyEditorInfo(outAttrs)
-            val localInputConnection = super.onCreateInputConnection(outAttrs)
-            if (localInputConnection == null) {
-                // in case super returns null, let's just observe the base implementation, no need to make
-                // an InputConnectionWrapper of a null target
-                return localInputConnection
-            }
-            // if non null, wrap the new InputConnection around our wrapper (used for logging purposes only)
-            //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
-            inputConnectionRef = WeakReference(localInputConnection)
-        }
-
-        // return the existing inputConnection
-        return inputConnectionRef?.get()!!
+    // We are exposing this method in order to allow subclasses to set their own alpha value
+    // for preformatted background
+    open fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
+        return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -1144,6 +1105,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    open fun shouldSkipTidying(): Boolean {
+        return false
+    }
+
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             subWatcherNestingLevel()
@@ -1192,7 +1157,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1357,7 +1322,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.postProcessSpannedText(output, isInCalypsoMode)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag, shouldSkipTidying()))
     }
 
     // default behavior returns formatted HTML from this text
@@ -1559,13 +1524,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     deleteInlineStyleFromTheBeginning()
                 }
             }
-            // Fix for crash when pasting text on Samsung Devices running Android 8.
-            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
+            // Fix for crash when pasting text on Samsung Devices running Android 7 & 8.
+            // Android 7 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/10872
+            // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < 28
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                         && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
                     // Nope return true
-                    Toast.makeText(context, R.string.samsung_disabled_custom_clipboard, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
                 }

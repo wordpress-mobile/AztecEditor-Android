@@ -75,8 +75,8 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         return spanned
     }
 
-    fun fromHtml(source: String, context: Context): Spanned {
-        val tidySource = tidy(source)
+    fun fromHtml(source: String, context: Context, shouldSkipTidying: Boolean = false): Spanned {
+        val tidySource = if (shouldSkipTidying) source else tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
                 AztecTagHandler(context, plugins), context, plugins, ignoredTags))
@@ -90,7 +90,8 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         return spanned
     }
 
-    fun toHtml(text: Spanned, withCursor: Boolean = false): String {
+    @JvmOverloads
+    fun toHtml(text: Spanned, withCursor: Boolean = false, shouldSkipTidying: Boolean = false): String {
         val out = StringBuilder()
 
         val data = SpannableStringBuilder(text)
@@ -107,7 +108,8 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         }
 
         withinHtml(out, data)
-        val html = postprocessHtml(tidy(out.toString()))
+        val tidyOut = if (shouldSkipTidying) out.toString() else tidy(out.toString())
+        val html = postprocessHtml(tidyOut)
         return html
     }
 

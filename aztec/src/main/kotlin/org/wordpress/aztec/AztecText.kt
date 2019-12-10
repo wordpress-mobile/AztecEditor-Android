@@ -49,8 +49,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -73,7 +71,6 @@ import org.wordpress.aztec.handlers.ListHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
-import org.wordpress.aztec.ime.EditorInfoUtils
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -122,7 +119,6 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
@@ -296,9 +292,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var uncaughtExceptionHandler: AztecExceptionHandler? = null
 
     private var focusOnVisible = true
-
-    var inputConnectionRef: WeakReference<InputConnection>? = null
-    var inputConnectionEditorInfo: EditorInfo? = null
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -669,45 +662,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
             blockEditorDialog!!.dismiss()
         }
-    }
-
-    override fun onCreateInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // limiting the reuseInputConnection fix for Anroid 8.0.0 for now
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            return handleReuseInputConnection(outAttrs)
-        }
-
-        return super.onCreateInputConnection(outAttrs)
-    }
-
-    private fun handleReuseInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // initialize inputConnectionEditorInfo
-        if (inputConnectionEditorInfo == null) {
-            inputConnectionEditorInfo = outAttrs
-        }
-
-        // now init the InputConnection, or replace if EditorInfo contains anything different
-        if (inputConnectionRef?.get() == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
-            // we have a new InputConnection to create, save the new EditorInfo data and create it
-            // we make a copy of the parameters being received, because super.onCreateInputConnection may make changes
-            // to EditorInfo params being sent to it, and we want to preserve the same data we received in order
-            // to compare.
-            // (see https://android.googlesource.com/platform/frameworks/base/+/jb-mr0-release/core/java/android/widget/
-            // TextView.java#5404)
-            inputConnectionEditorInfo = EditorInfoUtils.copyEditorInfo(outAttrs)
-            val localInputConnection = super.onCreateInputConnection(outAttrs)
-            if (localInputConnection == null) {
-                // in case super returns null, let's just observe the base implementation, no need to make
-                // an InputConnectionWrapper of a null target
-                return localInputConnection
-            }
-            // if non null, wrap the new InputConnection around our wrapper (used for logging purposes only)
-            //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
-            inputConnectionRef = WeakReference(localInputConnection)
-        }
-
-        // return the existing inputConnection
-        return inputConnectionRef?.get()!!
     }
 
     // We are exposing this method in order to allow subclasses to set their own alpha value

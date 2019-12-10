@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -410,7 +411,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 BlockFormatter.HeaderStyle(verticalHeadingMargin),
                 BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
-                        styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f),
+                        getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin)
         )
@@ -661,6 +662,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
             blockEditorDialog!!.dismiss()
         }
+    }
+
+    // We are exposing this method in order to allow subclasses to set their own alpha value
+    // for preformatted background
+    open fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
+        return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -1098,6 +1105,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    open fun shouldSkipTidying(): Boolean {
+        return false
+    }
+
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             subWatcherNestingLevel()
@@ -1146,7 +1157,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1311,7 +1322,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.postProcessSpannedText(output, isInCalypsoMode)
 
-        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag))
+        return EndOfBufferMarkerAdder.removeEndOfTextMarker(parser.toHtml(output, withCursorTag, shouldSkipTidying()))
     }
 
     // default behavior returns formatted HTML from this text
@@ -1513,13 +1524,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     deleteInlineStyleFromTheBeginning()
                 }
             }
-            // Fix for crash when pasting text on Samsung Devices running Android 8.
-            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
+            // Fix for crash when pasting text on Samsung Devices running Android 7 & 8.
+            // Android 7 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/10872
+            // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < 28
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                         && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
                     // Nope return true
-                    Toast.makeText(context, R.string.samsung_disabled_custom_clipboard, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
                 }

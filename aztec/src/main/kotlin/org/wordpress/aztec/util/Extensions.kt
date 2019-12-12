@@ -75,9 +75,7 @@ fun ToggleButton.convertToButtonAccessibilityProperties() {
             super.onInitializeAccessibilityNodeInfo(host, info)
             info?.className = Button::class.java.name
             info?.isCheckable = false
-            info?.isLongClickable = false
             info?.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(ACTION_CLICK, context.getString(R.string.accessibility_action_click_label)))
-            info?.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK)
         }
     })
 }

@@ -5,7 +5,15 @@ import android.content.Context
 import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
+import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK
+import android.widget.Button
+import android.widget.ToggleButton
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import org.wordpress.aztec.AztecParser
+import org.wordpress.aztec.R
 
 fun Editable.getLast(kind: Class<*>): Any? {
     val spans = this.getSpans(0, this.length, kind)
@@ -55,4 +63,19 @@ fun ClipData.Item.coerceToHtmlText(parser: AztecParser): String {
     }
 
     return text.toString()
+}
+
+/**
+ * Some of the toggle button controls that exist on the Aztec formatting toolbar act as buttons but are
+ * announced as switches so this function converts the accessibility properties to that of a button.
+ */
+fun ToggleButton.convertToButtonAccessibilityProperties() {
+    ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
+        override fun onInitializeAccessibilityNodeInfo(host: View?, info: AccessibilityNodeInfoCompat?) {
+            super.onInitializeAccessibilityNodeInfo(host, info)
+            info?.className = Button::class.java.name
+            info?.isCheckable = false
+            info?.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(ACTION_CLICK, context.getString(R.string.accessibility_action_click_label)))
+        }
+    })
 }

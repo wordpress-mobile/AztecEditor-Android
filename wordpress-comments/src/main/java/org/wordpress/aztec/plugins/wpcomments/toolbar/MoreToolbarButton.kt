@@ -16,6 +16,7 @@ import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
+import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 
 class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     override val action: IToolbarAction = CommentsToolbarAction.MORE
@@ -54,7 +55,9 @@ class MoreToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun inflateButton(parent: ViewGroup) {
-        LayoutInflater.from(context).inflate(R.layout.more_button, parent)
+        val rootView = LayoutInflater.from(context).inflate(R.layout.more_button, parent)
+        val button = rootView.findViewById<ToggleButton>(R.id.format_bar_button_more)
+        button.convertToButtonAccessibilityProperties()
     }
 
     override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {

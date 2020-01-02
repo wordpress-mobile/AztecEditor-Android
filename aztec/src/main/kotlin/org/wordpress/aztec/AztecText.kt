@@ -293,6 +293,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var focusOnVisible = true
 
+    val contentChangeWatcher = AztecContentChangeWatcher()
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -497,6 +499,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     // use HTML from the new text to set the state of the editText directly
                     fromHtml(toFormattedHtml(newText), false)
 
+                    contentChangeWatcher.notifyContentChanged()
+
                     // re-enable MediaDeleted listener
                     enableMediaDeletedListener()
                     // re-enable this very filter
@@ -565,6 +569,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 setText("")
                 enableTextChangedListener()
             }
+            contentChangeWatcher.notifyContentChanged()
         }
         return wasStyleRemoved
     }
@@ -627,6 +632,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
 
             override fun afterTextChanged(text: Editable) {
+                contentChangeWatcher.notifyContentChanged()
                 if (isTextChangedListenerDisabled()) {
                     return
                 }
@@ -1024,6 +1030,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         .forEach { it.toggle() }
             }
         }
+
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -1128,10 +1136,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun redo() {
         history.redo(this)
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun undo() {
         history.undo(this)
+        contentChangeWatcher.notifyContentChanged()
     }
 
     // Helper ======================================================================================
@@ -1618,6 +1628,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 fromHtml(newHtml, false)
                 inlineFormatter.joinStyleSpans(0, length())
             }
+            contentChangeWatcher.notifyContentChanged()
         }
     }
 
@@ -1643,6 +1654,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } else {
             linkFormatter.addLink(url, anchor, openInNewWindow, selectionStart, selectionEnd)
         }
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun removeLink() {

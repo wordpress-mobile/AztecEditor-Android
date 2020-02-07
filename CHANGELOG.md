@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.38](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.38)
+### Fixed
+- When text changes, only disable selection listener if text is empty
+
+## [1.3.37](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.37)
+### Fixed
+- Resolved clipboard issue on Android 7
+### Changed
+- Improved TalkBack handling of formatting toolbar
+- Added ability to register an observer for all the changes to the AztecText object
+
 ## [1.3.36](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.36)
 ### Changed
 - Implement start and reversed in lists

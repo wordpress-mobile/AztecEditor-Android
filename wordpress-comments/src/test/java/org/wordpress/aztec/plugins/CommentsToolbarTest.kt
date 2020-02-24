@@ -12,7 +12,6 @@ import org.robolectric.annotation.Config
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
-import org.wordpress.aztec.plugins.wpcomments.BuildConfig
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton

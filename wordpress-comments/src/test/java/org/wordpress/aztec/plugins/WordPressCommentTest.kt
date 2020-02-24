@@ -14,7 +14,6 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.TestUtils.backspaceAt
 import org.wordpress.aztec.plugins.TestUtils.safeEmpty
-import org.wordpress.aztec.plugins.wpcomments.BuildConfig
 import org.wordpress.aztec.plugins.wpcomments.CommentsTextFormat
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan

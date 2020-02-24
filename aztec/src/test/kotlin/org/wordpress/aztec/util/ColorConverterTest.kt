@@ -5,7 +5,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.BuildConfig
 
 /**
  * Tests for translating various strings to colors using [ColorConverter].

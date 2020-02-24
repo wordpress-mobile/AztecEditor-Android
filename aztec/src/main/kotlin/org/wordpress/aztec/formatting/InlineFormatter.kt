@@ -177,7 +177,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     private fun applySpan(span: IAztecInlineSpan, start: Int, end: Int, type: Int) {
-        if (start > end) {
+        if (start > end || start < 0 || end > editableText.length) {
             // If an external logger is available log the error there.
             val extLogger = editor.externalLogger
             if (extLogger != null) {

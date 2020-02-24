@@ -20,7 +20,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * Testing heading behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class HeadingTest {
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText

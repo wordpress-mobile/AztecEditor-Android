@@ -18,7 +18,7 @@ import org.wordpress.aztec.TestUtils.safeLength
  * Testing interactions of multiple block elements
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class BlockElementsTest {
     lateinit var editText: AztecText
 

@@ -5,6 +5,7 @@ package org.wordpress.aztec
 import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Ignore
@@ -13,13 +14,12 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowApplication
 
 /**
  * Tests for [AztecParser].
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class AztecParserTest : AndroidTestCase() {
     private var mParser = AztecParser()
     private val HTML_BOLD = "<b>Bold</b><br><br>"
@@ -92,7 +92,7 @@ class AztecParserTest : AndroidTestCase() {
      */
     @Before
     fun init() {
-        context = ShadowApplication.getInstance().applicationContext
+        context = ApplicationProvider.getApplicationContext()
     }
 
     /**

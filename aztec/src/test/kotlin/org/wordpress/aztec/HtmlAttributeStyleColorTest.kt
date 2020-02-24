@@ -5,6 +5,7 @@ package org.wordpress.aztec
 import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
@@ -12,7 +13,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowApplication
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 
 /**
@@ -29,7 +29,7 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
  * Also tests invalid html style attribute color properties.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(16, 21, 25))
+@Config(sdk = intArrayOf(16, 21, 25))
 class HtmlAttributeStyleColorTest : AndroidTestCase() {
 
     private val HTML_BOLD_STYLE_COLOR = "<b style=\"color:blue;\">Blue</b>"
@@ -45,7 +45,7 @@ class HtmlAttributeStyleColorTest : AndroidTestCase() {
 
     @Before
     fun init() {
-        context = ShadowApplication.getInstance().applicationContext
+        context = ApplicationProvider.getApplicationContext()
         parser = AztecParser()
     }
 

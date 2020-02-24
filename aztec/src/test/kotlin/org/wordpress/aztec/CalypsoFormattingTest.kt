@@ -5,6 +5,7 @@ package org.wordpress.aztec
 import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
+import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
@@ -12,11 +13,10 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
-import org.robolectric.shadows.ShadowApplication
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class CalypsoFormattingTest : AndroidTestCase() {
     private var parser = AztecParser()
 
@@ -104,7 +104,7 @@ class CalypsoFormattingTest : AndroidTestCase() {
      */
     @Before
     fun init() {
-        context = ShadowApplication.getInstance().applicationContext
+        context = ApplicationProvider.getApplicationContext()
     }
 
     /**

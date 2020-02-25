@@ -12,7 +12,6 @@ import org.robolectric.annotation.Config
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
-import org.wordpress.aztec.plugins.wpcomments.BuildConfig
 import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.toolbar.MoreToolbarButton
@@ -25,7 +24,7 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class CommentsToolbarTest {
 
     lateinit var editText: AztecText

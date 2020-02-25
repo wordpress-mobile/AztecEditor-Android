@@ -5,13 +5,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.wordpress.aztec.BuildConfig
 
 /**
  * Tests for translating various strings to colors using [ColorConverter].
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class ColorConverterTest {
 
     /**

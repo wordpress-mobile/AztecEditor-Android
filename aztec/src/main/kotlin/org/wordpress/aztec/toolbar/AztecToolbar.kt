@@ -5,8 +5,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.core.text.TextUtilsCompat
-import androidx.core.view.ViewCompat
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -23,6 +21,8 @@ import android.widget.PopupMenu.OnMenuItemClickListener
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.TextUtilsCompat
+import androidx.core.view.ViewCompat
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.EditorHasChanges.NO_CHANGES
@@ -33,8 +33,8 @@ import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
-import java.util.Arrays
 import java.util.ArrayList
+import java.util.Arrays
 import java.util.Locale
 
 /**
@@ -819,12 +819,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private fun setupMediaToolbar() {
         val mediaToolbarContainer : LinearLayout = findViewById(R.id.media_button_container)
         mediaToolbarContainer.visibility = if (isMediaToolbarAvailable) View.VISIBLE else View.GONE
+        buttonMediaCollapsed = findViewById(R.id.format_bar_button_media_collapsed)
         if (!isMediaToolbarAvailable) return
 
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)
 
-        buttonMediaCollapsed = findViewById(R.id.format_bar_button_media_collapsed)
         buttonMediaExpanded = findViewById(R.id.format_bar_button_media_expanded)
 
         if (isMediaToolbarVisible) {

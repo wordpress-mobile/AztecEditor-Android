@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
 class AztecParserTest : AndroidTestCase() {
-    private var mParser = AztecParser()
+    private var mParser = AztecParser(AlignmentApproach.SPAN_LEVEL)
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_LIST_ORDERED = "<ol><li>Ordered</li></ol>"
     private val HTML_LIST_ORDERED_WITH_EMPTY_ITEM = "<ol><li>Ordered 1</li><li></li><li>Ordered 2</li></ol>"

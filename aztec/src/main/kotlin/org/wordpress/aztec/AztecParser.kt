@@ -57,7 +57,8 @@ import java.util.ArrayList
 import java.util.Collections
 import java.util.Comparator
 
-class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = listOf(),
+class AztecParser @JvmOverloads constructor(private val alignmentApproach: AlignmentApproach,
+                                            val plugins: List<IAztecPlugin> = listOf(),
                                             private val ignoredTags: List<String> = listOf("body", "html")) {
     /**
      * A faster version of fromHtml(), intended for inspecting the span structure only. It doesn't prepare the text for
@@ -68,7 +69,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         val tidySource = tidy(source)
 
         val spanned = SpannableString(Html.fromHtml(tidySource,
-                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
+                AztecTagHandler(context, plugins, alignmentApproach), context, plugins, ignoredTags))
 
         postprocessSpans(spanned)
 
@@ -79,7 +80,7 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         val tidySource = if (shouldSkipTidying) source else tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
-                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
+                AztecTagHandler(context, plugins, alignmentApproach), context, plugins, ignoredTags))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

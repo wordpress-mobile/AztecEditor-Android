@@ -18,7 +18,7 @@ import org.wordpress.aztec.source.Format
 @Config(sdk = intArrayOf(23))
 class HtmlFormattingTest : AndroidTestCase() {
 
-    private var parser = AztecParser()
+    private var parser = AztecParser(AlignmentApproach.SPAN_LEVEL)
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
 

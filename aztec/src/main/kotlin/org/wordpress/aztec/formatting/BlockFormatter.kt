@@ -302,7 +302,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle))
             AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
-            else -> return Arrays.asList(createParagraphSpan(nestingLevel, attrs))
+            else -> return Arrays.asList(createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs))
         }
     }
 
@@ -330,7 +330,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
-            else -> createParagraphSpan(nestingLevel, attrs)
+            else -> createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs)
         }
     }
 
@@ -343,7 +343,7 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecQuoteSpan::class) -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle)
             typeIsAssignableTo(AztecPreformatSpan::class) -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
-            else -> createParagraphSpan(nestingLevel, attrs)
+            else -> createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs)
         }
     }
 
@@ -505,7 +505,7 @@ class BlockFormatter(editor: AztecText,
 
             val alignment = getAlignment(textFormat,
                     editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
-            editableText.setSpan(createParagraphSpan(nestingLevel, AztecAttributes(), alignment),
+            editableText.setSpan(createParagraphSpan(nestingLevel, alignment),
                     boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, Spanned.SPAN_PARAGRAPH)
         }
     }

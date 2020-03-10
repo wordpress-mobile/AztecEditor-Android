@@ -1,16 +1,21 @@
 package org.wordpress.aztec.spans
 
 import android.text.Layout
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 
 fun createParagraphSpan(nestingLevel: Int,
-                        attributes: AztecAttributes = AztecAttributes(),
-                        align: Layout.Alignment? = null) : IAztecBlockSpan =
-        if (align == null) {
-            ParagraphSpan(nestingLevel, attributes)
-        } else {
-            ParagraphSpanAligned(align, nestingLevel, attributes)
+                        alignmentApproach: AlignmentApproach,
+                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+        when (alignmentApproach) {
+            AlignmentApproach.SPAN_LEVEL -> ParagraphSpanAligned(nestingLevel, attributes, null)
+            AlignmentApproach.VIEW_LEVEL -> ParagraphSpan(nestingLevel, attributes)
         }
+
+fun createParagraphSpan(nestingLevel: Int,
+                        align: Layout.Alignment?,
+                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+        ParagraphSpanAligned(nestingLevel, attributes, align)
 
 /**
  * We need to have two classes for handling alignment at either the Span-level (ParagraphSpanAligned)
@@ -18,12 +23,11 @@ fun createParagraphSpan(nestingLevel: Int,
  * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
  * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
  * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
- * be created using the createParagraphSpan(...) method.
+ * be created using the createParagraphSpan(...) methods.
  */
 open class ParagraphSpan(
         override var nestingLevel: Int,
-        override var attributes: AztecAttributes = AztecAttributes()
-) : IAztecBlockSpan {
+        override var attributes: AztecAttributes) : IAztecBlockSpan {
 
     override var TAG: String = "p"
 
@@ -32,7 +36,6 @@ open class ParagraphSpan(
 }
 
 class ParagraphSpanAligned(
-        override var align: Layout.Alignment?,
         nestingLevel: Int,
-        attributes: AztecAttributes = AztecAttributes()
-) : ParagraphSpan(nestingLevel, attributes), IAztecAlignmentSpan
+        attributes: AztecAttributes,
+        override var align: Layout.Alignment?) : ParagraphSpan(nestingLevel, attributes), IAztecAlignmentSpan

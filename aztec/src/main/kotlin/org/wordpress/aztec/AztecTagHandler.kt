@@ -119,7 +119,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PARAGRAPH -> {
-                handleElement(output, opening, createParagraphSpan(nestingLevel, AztecAttributes(attributes)))
+                val paragraphSpan = createParagraphSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                handleElement(output, opening, paragraphSpan)
                 return true
             }
             LINE -> {

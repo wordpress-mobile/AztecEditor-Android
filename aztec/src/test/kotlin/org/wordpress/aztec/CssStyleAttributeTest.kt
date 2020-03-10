@@ -28,7 +28,7 @@ class CssStyleAttributeTest : AndroidTestCase() {
     @Before
     fun init() {
         context = ApplicationProvider.getApplicationContext()
-        parser = AztecParser()
+        parser = AztecParser(AlignmentApproach.SPAN_LEVEL)
     }
 
     @Test

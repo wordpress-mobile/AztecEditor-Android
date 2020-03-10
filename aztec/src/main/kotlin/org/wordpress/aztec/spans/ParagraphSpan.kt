@@ -13,11 +13,12 @@ fun createParagraphSpan(nestingLevel: Int,
         }
 
 /**
- * This class is the same as the {@link ParagraphSpanAligned except it does not implement
- * AlignmentSpan (via IAztecAlignmentSpan). This is necessary because IAztecParagraphSpan implements
- * AlignmentSpan which has a getAlignment method that returns a non-null Layout.Alignment. Since this
- * cannot be null it will always override the view's gravity. By having a class that does not implement
- * AlignmentSpan the view's gravity can control.
+ * We need to have two classes for handling alignment at either the Span-level (ParagraphSpanAligned)
+ * or the View-level (ParagraphSpan). IAztecAlignment implements AlignmentSpan, which has a
+ * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
+ * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
+ * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
+ * be created using the createParagraphSpan(...) method.
  */
 open class ParagraphSpan(
         override var nestingLevel: Int,

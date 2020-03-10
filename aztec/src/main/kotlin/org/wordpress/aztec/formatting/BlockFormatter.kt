@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
@@ -26,11 +27,19 @@ import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays
+import kotlin.reflect.KClass
 
-class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle: QuoteStyle, val headerStyle: HeaderStyle, val preformatStyle: PreformatStyle) : AztecFormatter(editor) {
+class BlockFormatter(editor: AztecText,
+                     private val listStyle: ListStyle,
+                     private val quoteStyle: QuoteStyle,
+                     private val headerStyle: HeaderStyle,
+                     private val preformatStyle: PreformatStyle,
+                     private val getAlignmentApproach: () -> AlignmentApproach
+) : AztecFormatter(editor) {
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
@@ -268,7 +277,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                     BlockHandler.set(editableText, span, spanStart, startOfBounds)
 
                     // now, let's "clone" the span and set it
-                    BlockHandler.set(editableText, makeBlockSpan(span.javaClass, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
+                    BlockHandler.set(editableText, makeBlockSpan(span::class, textFormat, span.nestingLevel, span.attributes), endOfBounds, spanEnd)
                 } else {
                     // tough luck. The span is fully inside the line so it gets axed.
 
@@ -291,7 +300,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle))
+            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle))
             AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
             else -> return Arrays.asList(createParagraphSpan(nestingLevel, attrs))
         }
@@ -311,28 +320,29 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
 
     fun makeBlockSpan(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
         return when (textFormat) {
-            AztecTextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class.java, textFormat, nestingLevel, attrs)
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class.java, textFormat, nestingLevel, attrs)
-            AztecTextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class.java, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class.java, textFormat, nestingLevel, attrs)
-            AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class.java, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
             else -> createParagraphSpan(nestingLevel, attrs)
         }
     }
 
-    fun <T : Class<out IAztecBlockSpan>> makeBlockSpan(type: T, textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
-        return when (type) {
-            AztecOrderedListSpan::class.java -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
-            AztecUnorderedListSpan::class.java -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
-            AztecListItemSpan::class.java -> AztecListItemSpan(nestingLevel, attrs)
-            AztecQuoteSpan::class.java -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
-            AztecHeadingSpan::class.java -> AztecHeadingSpan(nestingLevel, textFormat, attrs, headerStyle)
-            AztecPreformatSpan::class.java -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
+    private fun <T : KClass<out IAztecBlockSpan>> makeBlockSpan(type: T, textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
+        val typeIsAssignableTo = { clazz: KClass<out Any> -> clazz.java.isAssignableFrom(type.java) }
+        return when {
+            typeIsAssignableTo(AztecOrderedListSpan::class) -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
+            typeIsAssignableTo(AztecUnorderedListSpan::class) -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
+            typeIsAssignableTo(AztecListItemSpan::class) -> AztecListItemSpan(nestingLevel, attrs)
+            typeIsAssignableTo(AztecQuoteSpan::class) -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
+            typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle)
+            typeIsAssignableTo(AztecPreformatSpan::class) -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
             else -> createParagraphSpan(nestingLevel, attrs)
         }
     }
@@ -687,7 +697,7 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
             val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
 
-            HeadingHandler.cloneHeading(editableText, headingSpan, lineStart, lineEnd)
+            HeadingHandler.cloneHeading(editableText, headingSpan, getAlignmentApproach(), lineStart, lineEnd)
         }
     }
 
@@ -1038,7 +1048,12 @@ class BlockFormatter(editor: AztecText, val listStyle: ListStyle, val quoteStyle
                 val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
 
                 removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
-                editableText.setSpan(AztecHeadingSpan(preformat.nestingLevel, headingTextFormat, preformat.attributes), spanStart, spanEnd, spanFlags)
+                val headingSpan = createHeadingSpan(
+                        preformat.nestingLevel,
+                        headingTextFormat,
+                        preformat.attributes,
+                        getAlignmentApproach())
+                editableText.setSpan(headingSpan, spanStart, spanEnd, spanFlags)
                 editor.onSelectionChanged(start, end)
             }
         }

@@ -29,7 +29,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecAudioSpan
-import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -45,12 +44,14 @@ import org.wordpress.aztec.spans.HiddenHtmlBlock
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
 
-class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
+class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentApproach: AlignmentApproach
+) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
     // Simple LIFO stack to track the html tag nesting for easy reference when we need to handle the ending of a tag
@@ -138,7 +139,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
+                    handleElement(output, opening, createHeadingSpan(nestingLevel, tag, AztecAttributes(attributes), alignmentApproach))
                     return true
                 }
             }

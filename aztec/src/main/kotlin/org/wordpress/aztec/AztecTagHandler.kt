@@ -39,11 +39,11 @@ import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
-import org.wordpress.aztec.spans.HiddenHtmlBlock
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.createHeadingSpan
+import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.util.getLast
@@ -85,7 +85,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             DIV, FIGURE, FIGCAPTION, SECTION -> {
-                handleElement(output, opening, HiddenHtmlBlock(tag, AztecAttributes(attributes), nestingLevel))
+                val hiddenHtmlBlockSpan = createHiddenHtmlBlockSpan(tag, alignmentApproach, nestingLevel, AztecAttributes(attributes))
+                handleElement(output, opening, hiddenHtmlBlockSpan)
                 return true
             }
             LIST_UL -> {

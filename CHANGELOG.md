@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.41](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.41)
+### Changed
+- Update Heading, Preformat, and HiddenHtml span classes to allow view level alignment (#899)
+
 ## [1.3.40](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.40)
 ### Changed
 - Adds support to to customise styles for the Aztec Toolbar

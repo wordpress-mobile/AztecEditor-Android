@@ -29,6 +29,7 @@ import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createParagraphSpan
+import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays
 import kotlin.reflect.KClass
@@ -301,7 +302,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle))
-            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(AztecPreformatSpan(nestingLevel, attrs, preformatStyle))
+            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, getAlignmentApproach(), attrs, preformatStyle))
             else -> return Arrays.asList(createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs))
         }
     }
@@ -342,7 +343,7 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecListItemSpan::class) -> AztecListItemSpan(nestingLevel, attrs)
             typeIsAssignableTo(AztecQuoteSpan::class) -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle)
-            typeIsAssignableTo(AztecPreformatSpan::class) -> AztecPreformatSpan(nestingLevel, attrs, preformatStyle)
+            typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, getAlignmentApproach(), attrs, preformatStyle)
             else -> createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs)
         }
     }

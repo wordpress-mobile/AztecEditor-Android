@@ -35,7 +35,6 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
@@ -46,6 +45,7 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createParagraphSpan
+import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
@@ -135,7 +135,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PREFORMAT -> {
-                handleElement(output, opening, AztecPreformatSpan(nestingLevel, AztecAttributes(attributes)))
+                val preformatSpan = createPreformatSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                handleElement(output, opening, preformatSpan)
                 return true
             }
             else -> {

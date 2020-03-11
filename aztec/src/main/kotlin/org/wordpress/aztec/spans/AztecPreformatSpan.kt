@@ -10,16 +10,41 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.TypefaceSpan
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecPreformatSpan(
+fun createPreformatSpan(
+        nestingLevel: Int,
+        alignmentApproach: AlignmentApproach,
+        attributes: AztecAttributes = AztecAttributes(),
+        preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
+) : AztecPreformatSpan =
+        when (alignmentApproach) {
+            AlignmentApproach.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
+            AlignmentApproach.VIEW_LEVEL -> AztecPreformatSpan(nestingLevel, attributes, preformatStyle)
+        }
+
+/**
+ * We need to have two classes for handling alignment at either the Span-level (AztecPreformatSpanAligned)
+ * or the View-level (AztecPreformatSpan). IAztecAlignment implements AlignmentSpan, which has a
+ * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
+ * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
+ * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
+ * be created using the createPreformatSpan(...) method.
+ */
+class AztecPreformatSpanAligned(
         override var nestingLevel: Int,
-        override var attributes: AztecAttributes = AztecAttributes(),
-        var preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0),
+        override var attributes: AztecAttributes,
+        override var preformatStyle: BlockFormatter.PreformatStyle,
         override var align: Layout.Alignment? = null
-    ) : IAztecAlignmentSpan,
-        IAztecBlockSpan,
+) : AztecPreformatSpan(nestingLevel, attributes, preformatStyle), IAztecAlignmentSpan
+
+open class AztecPreformatSpan(
+        override var nestingLevel: Int,
+        override var attributes: AztecAttributes,
+        open var preformatStyle: BlockFormatter.PreformatStyle
+    ) : IAztecBlockSpan,
         LeadingMarginSpan,
         LineBackgroundSpan,
         LineHeightSpan,

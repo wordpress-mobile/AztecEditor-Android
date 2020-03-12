@@ -15,7 +15,7 @@ import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
-open class BlockElementWatcher(aztecText: AztecText, val getAlignmentApproach: () -> AlignmentApproach) : TextWatcher {
+open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     val handlers = ArrayList<TextChangeHandler>()
 
     interface TextChangeHandler {
@@ -23,6 +23,7 @@ open class BlockElementWatcher(aztecText: AztecText, val getAlignmentApproach: (
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
+    private val alignmentApproach: AlignmentApproach = aztecText.alignmentApproach
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (count > 0) {
@@ -46,7 +47,7 @@ open class BlockElementWatcher(aztecText: AztecText, val getAlignmentApproach: (
                                     spanWrapper.span.nestingLevel,
                                     spanWrapper.span.TAG,
                                     spanWrapper.span.attributes,
-                                    getAlignmentApproach(),
+                                    alignmentApproach,
                                     spanWrapper.span.headerStyle)
                             spannable.setSpan(headingSpan, deleteEnd - 1, deleteEnd, spanWrapper.flags)
                         }

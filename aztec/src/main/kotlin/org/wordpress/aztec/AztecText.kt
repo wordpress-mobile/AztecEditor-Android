@@ -152,6 +152,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val DEFAULT_IMAGE_WIDTH = 800
 
+        val DEFAULT_ALIGNMENT_APPROACH = AlignmentApproach.SPAN_LEVEL
+
         var watchersNestingLevel: Int = 0
 
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
@@ -248,12 +250,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
-    var alignmentApproach: AlignmentApproach = AlignmentApproach.SPAN_LEVEL
-    var isInGutenbergMode = false
-        set(value) {
-            field = value
-            alignmentApproach = if (value) AlignmentApproach.VIEW_LEVEL else AlignmentApproach.SPAN_LEVEL
-        }
+    var isInGutenbergMode: Boolean = false
+    val alignmentApproach: AlignmentApproach
 
     var consumeHistoryEvent: Boolean = false
 
@@ -339,14 +337,22 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     constructor(context: Context) : super(context) {
+        alignmentApproach = DEFAULT_ALIGNMENT_APPROACH
+        init(null)
+    }
+
+    constructor(context: Context, alignmentApproach: AlignmentApproach) : super(context) {
+        this.alignmentApproach = alignmentApproach
         init(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        alignmentApproach = DEFAULT_ALIGNMENT_APPROACH
         init(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        alignmentApproach = DEFAULT_ALIGNMENT_APPROACH
         init(attrs)
     }
 
@@ -422,7 +428,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin),
-                { alignmentApproach }
+                alignmentApproach
         )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
@@ -596,8 +602,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // NB: text change handler should not alter text before "afterTextChanged" is called otherwise not all watchers
         // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
 
-        BlockElementWatcher(this, { alignmentApproach })
-                .add(HeadingHandler { alignmentApproach })
+        BlockElementWatcher(this)
+                .add(HeadingHandler(alignmentApproach))
                 .add(ListHandler())
                 .add(ListItemHandler())
                 .add(QuoteHandler())
@@ -1924,5 +1930,3 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
 }
-
-enum class AlignmentApproach { SPAN_LEVEL, VIEW_LEVEL }

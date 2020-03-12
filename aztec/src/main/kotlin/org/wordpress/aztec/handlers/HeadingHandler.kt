@@ -7,7 +7,7 @@ import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.watchers.TextDeleter
 
-class HeadingHandler(private val getAlignmentApproach: () -> AlignmentApproach) : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
+class HeadingHandler(private val alignmentApproach: AlignmentApproach) : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
     override fun handleNewlineAtStartOfBlock() {
         // we got a newline at the start of the block. Let's just push the block after the newline
         block.start = newlineIndex + 1
@@ -46,7 +46,7 @@ class HeadingHandler(private val getAlignmentApproach: () -> AlignmentApproach) 
             //  not add a new block after it
         } else {
             // newline added at some position inside the block. Let's split the block into two
-            cloneHeading(text, block.span, getAlignmentApproach(), newlineIndex + 1, block.end)
+            cloneHeading(text, block.span, alignmentApproach, newlineIndex + 1, block.end)
         }
 
         block.end = newlineIndex + 1

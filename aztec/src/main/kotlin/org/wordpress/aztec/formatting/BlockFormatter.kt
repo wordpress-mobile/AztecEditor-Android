@@ -39,7 +39,7 @@ class BlockFormatter(editor: AztecText,
                      private val quoteStyle: QuoteStyle,
                      private val headerStyle: HeaderStyle,
                      private val preformatStyle: PreformatStyle,
-                     private val getAlignmentApproach: () -> AlignmentApproach
+                     private val alignmentApproach: AlignmentApproach
 ) : AztecFormatter(editor) {
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
@@ -301,9 +301,9 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle))
-            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, getAlignmentApproach(), attrs, preformatStyle))
-            else -> return Arrays.asList(createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs))
+            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle))
+            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle))
+            else -> return Arrays.asList(createParagraphSpan(nestingLevel, alignmentApproach, attrs))
         }
     }
 
@@ -331,7 +331,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
-            else -> createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs)
+            else -> createParagraphSpan(nestingLevel, alignmentApproach, attrs)
         }
     }
 
@@ -342,9 +342,9 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecUnorderedListSpan::class) -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
             typeIsAssignableTo(AztecListItemSpan::class) -> AztecListItemSpan(nestingLevel, attrs)
             typeIsAssignableTo(AztecQuoteSpan::class) -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
-            typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, getAlignmentApproach(), headerStyle)
-            typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, getAlignmentApproach(), attrs, preformatStyle)
-            else -> createParagraphSpan(nestingLevel, getAlignmentApproach(), attrs)
+            typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle)
+            typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle)
+            else -> createParagraphSpan(nestingLevel, alignmentApproach, attrs)
         }
     }
 
@@ -698,7 +698,7 @@ class BlockFormatter(editor: AztecText,
             val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
 
-            HeadingHandler.cloneHeading(editableText, headingSpan, getAlignmentApproach(), lineStart, lineEnd)
+            HeadingHandler.cloneHeading(editableText, headingSpan, alignmentApproach, lineStart, lineEnd)
         }
     }
 
@@ -1053,7 +1053,7 @@ class BlockFormatter(editor: AztecText,
                         preformat.nestingLevel,
                         headingTextFormat,
                         preformat.attributes,
-                        getAlignmentApproach())
+                        alignmentApproach)
                 editableText.setSpan(headingSpan, spanStart, spanEnd, spanFlags)
                 editor.onSelectionChanged(start, end)
             }

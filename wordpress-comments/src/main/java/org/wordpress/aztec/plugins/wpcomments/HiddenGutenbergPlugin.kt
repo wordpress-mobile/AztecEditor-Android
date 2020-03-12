@@ -22,7 +22,7 @@ class HiddenGutenbergPlugin @JvmOverloads constructor(private val aztecText: Azt
 
     init {
         aztecText?.let {
-            BlockElementWatcher(aztecText, { aztecText.alignmentApproach })
+            BlockElementWatcher(aztecText)
                     .add(GutenbergCommentHandler())
                     .install(aztecText)
         }

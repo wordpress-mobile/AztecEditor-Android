@@ -7,7 +7,7 @@ import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.watchers.BlockElementWatcher
 
-class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(aztecText, { aztecText.alignmentApproach }) {
+class CaptionWatcher(private val aztecText: AztecText) : BlockElementWatcher(aztecText) {
 
     override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
         super.onTextChanged(s, start, before, count)

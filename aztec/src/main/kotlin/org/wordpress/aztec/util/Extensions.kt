@@ -15,7 +15,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import org.wordpress.aztec.AztecParser
 import org.wordpress.aztec.R
 

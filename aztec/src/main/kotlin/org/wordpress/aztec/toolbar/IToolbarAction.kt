@@ -9,12 +9,14 @@ import org.wordpress.aztec.ITextFormat
  * @property buttonId the resource ID of a button.
  * @property actionType one of: INLINE_STYLE, BLOCK_STYLE, LINE_BLOCK or OTHER.
  * @property textFormat the type of text formatting this action performs.
+ * @property buttonDrawableRes the icon resourceId displayed for the button.
  */
 @SuppressLint("NewApi")
 interface IToolbarAction {
     val buttonId: Int
     val actionType: ToolbarActionType
     val textFormats: Set<ITextFormat>
+    val buttonDrawableRes: Int
 
     /**
      * Determines, whether this action performs any text styling.

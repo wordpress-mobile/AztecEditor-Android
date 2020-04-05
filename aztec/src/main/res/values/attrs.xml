@@ -40,6 +40,9 @@
         <attr name="mediaToolbarAvailable" format="reference|boolean" />
         <attr name="toolbarBackgroundColor" format="reference|color" />
         <attr name="toolbarBorderColor" format="reference|color" />
+        <attr name="toolbarIconNormalColor" format="reference|color" />
+        <attr name="toolbarIconHighlightColor" format="reference|color" />
+        <attr name="toolbarIconDisabledColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">

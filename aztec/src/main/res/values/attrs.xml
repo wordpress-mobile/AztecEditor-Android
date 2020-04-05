@@ -38,6 +38,8 @@
     <declare-styleable name="AztecToolbar">
         <attr name="advanced" format="reference|boolean" />
         <attr name="mediaToolbarAvailable" format="reference|boolean" />
+        <attr name="toolbarBackgroundColor" format="reference|color" />
+        <attr name="toolbarBorderColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">

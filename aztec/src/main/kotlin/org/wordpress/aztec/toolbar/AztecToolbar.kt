@@ -21,6 +21,7 @@ import android.widget.PopupMenu.OnMenuItemClickListener
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.text.TextUtilsCompat
 import androidx.core.view.ViewCompat
 import org.wordpress.android.util.AppLog
@@ -398,6 +399,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         val styles = context.obtainStyledAttributes(attrs, R.styleable.AztecToolbar, 0, R.style.AztecToolbarStyle)
         isAdvanced = styles.getBoolean(R.styleable.AztecToolbar_advanced, false)
         isMediaToolbarAvailable = styles.getBoolean(R.styleable.AztecToolbar_mediaToolbarAvailable, true)
+
+        val toolbarBackgroundColor = styles.getColor(
+                R.styleable.AztecToolbar_toolbarBackgroundColor,
+                ContextCompat.getColor(context, R.color.format_bar_background)
+        )
+        val toolbarBorderColor = styles.getColor(R.styleable.AztecToolbar_toolbarBorderColor,
+                ContextCompat.getColor(context, R.color.format_bar_divider_horizontal))
+
         styles.recycle()
 
         val layout = if (isAdvanced) R.layout.aztec_format_bar_advanced else R.layout.aztec_format_bar_basic
@@ -405,6 +414,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         toolbarScrolView = findViewById(R.id.format_bar_button_scroll)
         htmlButton = findViewById(R.id.format_bar_button_html)
+        setBackgroundColor(toolbarBackgroundColor)
+        findViewById<View>(R.id.format_bar_horizontal_divider).setBackgroundColor(toolbarBorderColor)
 
         setAdvancedState()
         setupMediaToolbar()

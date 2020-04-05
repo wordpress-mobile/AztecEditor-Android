@@ -7,12 +7,10 @@
     android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
     android:layout_gravity="bottom"
-    android:background="@color/format_bar_background"
     android:orientation="vertical">
 
     <View
         android:id="@+id/format_bar_horizontal_divider"
-        style="@style/DividerHorizontal"
         android:layout_width="match_parent"
         android:layout_height="@dimen/format_bar_horizontal_divider_height">
     </View>
@@ -187,7 +185,6 @@
                             android:id="@+id/format_bar_button_layout_collapsed"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:background="@color/format_bar_background"
                             android:orientation="horizontal">
 
                             <org.wordpress.aztec.toolbar.RippleToggleButton

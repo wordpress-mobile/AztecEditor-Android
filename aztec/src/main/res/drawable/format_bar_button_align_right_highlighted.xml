@@ -11,7 +11,7 @@
         android:pivotX="12"
         android:pivotY="12">
         <path
-            android:fillColor="#ff11181D"
+            android:fillColor="?attr/toolbarIconHighlightColor"
             android:pathData="M20 17l-16 0 0 2 16 0 0 -2zm-10 -2l10 0 0 -2 -10 0 0 2zM4 9L4 11 20 11 20 9 4 9Zm6 -2l10 0 0 -2 -10 0 0 2z"
             />
     </group>

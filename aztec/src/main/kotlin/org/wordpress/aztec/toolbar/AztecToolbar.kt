@@ -34,6 +34,7 @@ import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
+import org.wordpress.aztec.util.setBackgroundDrawableRes
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.Locale
@@ -432,6 +433,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             if (toolbarAction == ToolbarAction.LIST) {
                 setListMenu(findViewById(toolbarAction.buttonId))
             }
+
+            button?.setBackgroundDrawableRes(toolbarAction.buttonDrawableRes)
         }
     }
 
@@ -448,6 +451,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
         button.setOnClickListener { buttonPlugin.toggle() }
+        button.setBackgroundDrawableRes(buttonPlugin.action.buttonDrawableRes)
 
         setupMediaButtonForAccessibility(buttonPlugin)
     }
@@ -992,7 +996,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 return
             }
         }
-        listButton.setBackgroundResource(backgroundRes)
+        listButton.setBackgroundDrawableRes(backgroundRes)
         listButton.contentDescription = context.getString(contentDescriptionRes)
         listButton.isChecked = check
     }
@@ -1035,7 +1039,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 return
             }
         }
-        headingButton.setBackgroundResource(backgroundRes)
+        headingButton.setBackgroundDrawableRes(backgroundRes)
         headingButton.contentDescription = context.getString(contentDescriptionRes)
         headingButton.isChecked = check
     }

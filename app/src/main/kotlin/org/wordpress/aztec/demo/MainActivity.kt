@@ -29,8 +29,8 @@ import android.widget.PopupMenu
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
@@ -339,7 +339,7 @@ open class MainActivity : AppCompatActivity(),
         aztec.visualEditor.setOverlay(predicate, 0, ColorDrawable(0x80000000.toInt()), Gravity.FILL)
         aztec.visualEditor.updateElementAttributes(predicate, attrs)
 
-        val progressDrawable = ContextCompat.getDrawable(this, android.R.drawable.progress_horizontal)!!
+        val progressDrawable = AppCompatResources.getDrawable(this, android.R.drawable.progress_horizontal)!!
         // set the height of the progress bar to 2 (it's in dp since the drawable will be adjusted by the span)
         progressDrawable.setBounds(0, 0, 0, 4)
 
@@ -361,7 +361,7 @@ open class MainActivity : AppCompatActivity(),
 
                 if (attrs.hasAttribute("video")) {
                     attrs.removeAttribute(attrs.getIndex("video"))
-                    aztec.visualEditor.setOverlay(predicate, 0, ContextCompat.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
+                    aztec.visualEditor.setOverlay(predicate, 0, AppCompatResources.getDrawable(this, android.R.drawable.ic_media_play), Gravity.CENTER)
                 }
 
                 aztec.visualEditor.updateElementAttributes(predicate, attrs)

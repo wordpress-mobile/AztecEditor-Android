@@ -1,10 +1,10 @@
 package org.wordpress.aztec.formatting
 
 import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.OnImageTappedListener
@@ -103,7 +103,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         val span = AztecHorizontalRuleSpan(
                 editor.context,
-                ContextCompat.getDrawable(editor.context, R.drawable.img_hr)!!,
+                AppCompatResources.getDrawable(editor.context, R.drawable.img_hr)!!,
                 nestingLevel,
                 AztecAttributes(),
                 editor

@@ -6,8 +6,12 @@ import org.wordpress.aztec.plugins.wpcomments.R
 import org.wordpress.aztec.toolbar.IToolbarAction
 import org.wordpress.aztec.toolbar.ToolbarActionType
 
-enum class CommentsToolbarAction constructor(override val buttonId: Int, override val actionType: ToolbarActionType,
-                                             override val textFormats: Set<ITextFormat> = setOf()) : IToolbarAction {
-    MORE(R.id.format_bar_button_more, ToolbarActionType.LINE_BLOCK, setOf(CommentsTextFormat.FORMAT_MORE)),
-    PAGE(R.id.format_bar_button_page, ToolbarActionType.LINE_BLOCK, setOf(CommentsTextFormat.FORMAT_PAGE))
+enum class CommentsToolbarAction constructor(
+        override val buttonId: Int,
+        override val buttonDrawableRes: Int,
+        override val actionType: ToolbarActionType,
+        override val textFormats: Set<ITextFormat> = setOf()
+) : IToolbarAction {
+    MORE(R.id.format_bar_button_more, R.drawable.format_bar_button_more_selector, ToolbarActionType.LINE_BLOCK, setOf(CommentsTextFormat.FORMAT_MORE)),
+    PAGE(R.id.format_bar_button_page, R.drawable.format_bar_button_page_selector, ToolbarActionType.LINE_BLOCK, setOf(CommentsTextFormat.FORMAT_PAGE))
 }

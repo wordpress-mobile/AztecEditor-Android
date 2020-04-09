@@ -1,7 +1,7 @@
 package org.wordpress.aztec.plugins.shortcodes.extensions
 
 import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
 import org.wordpress.aztec.spans.AztecVideoSpan
@@ -10,7 +10,7 @@ val ATTRIBUTE_VIDEOPRESS_HIDDEN_ID = "videopress_hidden_id"
 val ATTRIBUTE_VIDEOPRESS_HIDDEN_SRC = "videopress_hidden_src"
 
 fun AztecText.updateVideoPressThumb(thumbURL: String, videoURL: String, videoPressID: String) {
-    val loadingDrawable = ContextCompat.getDrawable(context, this.drawableLoading)
+    val loadingDrawable = AppCompatResources.getDrawable(context, this.drawableLoading)
     val callbacks = object : Html.ImageGetter.Callbacks {
         private fun replaceImage(drawable: Drawable?) {
             val spans = text.getSpans(0, text.length, AztecVideoSpan::class.java)
@@ -29,7 +29,7 @@ fun AztecText.updateVideoPressThumb(thumbURL: String, videoURL: String, videoPre
         }
 
         override fun onImageFailed() {
-            replaceImage(ContextCompat.getDrawable(context, drawableFailed))
+            replaceImage(AppCompatResources.getDrawable(context, drawableFailed))
         }
 
         override fun onImageLoaded(drawable: Drawable?) {

@@ -1,9 +1,9 @@
 package org.wordpress.aztec.plugins.wpcomments
 
-import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.CharacterStyle
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
@@ -41,7 +41,7 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_more)!!,
+                            AppCompatResources.getDrawable(visualEditor.context, R.drawable.img_more)!!,
                             nestingLevel
                     ),
                     spanStart,
@@ -57,7 +57,7 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
                     WordPressCommentSpan(
                             text,
                             visualEditor.context,
-                            ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page)!!,
+                            AppCompatResources.getDrawable(visualEditor.context, R.drawable.img_page)!!,
                             nestingLevel
                     ),
                     spanStart,

@@ -1,12 +1,12 @@
 package org.wordpress.aztec.plugins.wpcomments.toolbar
 
-import androidx.core.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ToggleButton
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
@@ -31,7 +31,7 @@ class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.PAGE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page)!!,
+                AppCompatResources.getDrawable(visualEditor.context, R.drawable.img_page)!!,
                 nestingLevel,
                 visualEditor
         )

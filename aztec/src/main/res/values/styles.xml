@@ -53,6 +53,9 @@
 
     <style name="AztecToolbarStyle">
         <item name="advanced">false</item>
+        <item name="toolbarIconNormalColor">@color/grey_darken_20</item>
+        <item name="toolbarIconHighlightColor">@color/almost_black</item>
+        <item name="toolbarIconDisabledColor">@color/grey_lighten_20</item>
     </style>
 
     <style name="Shortcut.Key.Multiple" parent="TextAppearance.AppCompat">

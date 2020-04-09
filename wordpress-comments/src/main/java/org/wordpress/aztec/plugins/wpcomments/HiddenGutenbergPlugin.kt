@@ -1,9 +1,9 @@
 package org.wordpress.aztec.plugins.wpcomments
 
-import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.Spannable
 import android.text.style.CharacterStyle
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IAztecPlugin
@@ -62,7 +62,7 @@ class HiddenGutenbergPlugin @JvmOverloads constructor(private val aztecText: Azt
                     GutenbergInlineCommentSpan(
                             text,
                             aztecText.context,
-                            ContextCompat.getDrawable(aztecText.context, android.R.drawable.ic_menu_help)!!,
+                            AppCompatResources.getDrawable(aztecText.context, android.R.drawable.ic_menu_help)!!,
                             nestingLevel
                     ),
                     spanStart,

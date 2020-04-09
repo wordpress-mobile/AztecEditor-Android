@@ -54,6 +54,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -154,7 +155,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         var watchersNestingLevel: Int = 0
 
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
-            val drawable = ContextCompat.getDrawable(context, drawableId)
+            val drawable = AppCompatResources.getDrawable(context, drawableId)
             var bitmap: Bitmap
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap

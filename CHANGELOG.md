@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.40](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.40)
+### Changed
+- Adds support to to customise styles for the Aztec Toolbar
+
 ## [1.3.39](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.39)
 ### Fixed
 - Move media button initialization to avoid crash when advanced toolbar is enabled and media button is disabled

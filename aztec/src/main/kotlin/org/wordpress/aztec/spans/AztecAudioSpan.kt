@@ -2,8 +2,8 @@ package org.wordpress.aztec.spans
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 import android.view.Gravity
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 
@@ -16,7 +16,7 @@ class AztecAudioSpan(context: Context, drawable: Drawable?, override var nesting
     override val TAG: String = "audio"
 
     init {
-        setOverlay(0, ContextCompat.getDrawable(context, android.R.drawable.ic_lock_silent_mode_off), Gravity.CENTER)
+        setOverlay(0, AppCompatResources.getDrawable(context, android.R.drawable.ic_lock_silent_mode_off), Gravity.CENTER)
     }
 
     override fun onClick() {

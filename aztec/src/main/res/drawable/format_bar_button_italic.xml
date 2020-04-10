@@ -9,7 +9,7 @@
 
     <!-- @color/grey_darken_20 -->
     <path
-        android:fillColor="#ff4f748e"
+        android:fillColor="?attr/toolbarIconNormalColor"
         android:pathData="M22.4,16.4l-0.5,2.1h1.7l-2.6,12h-1.6l-0.5,2.2h6.7l0.5-2.2h-1.7l2.6-12h1.6l0.5-2.1H22.4z" >
     </path>
 

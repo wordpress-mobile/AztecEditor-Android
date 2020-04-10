@@ -1,11 +1,12 @@
 package org.wordpress.aztec.plugins.wpcomments.toolbar
 
-import androidx.core.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ToggleButton
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.IToolbarButton
@@ -14,6 +15,7 @@ import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
+import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 
 class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
 
@@ -29,7 +31,7 @@ class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
         val span = WordPressCommentSpan(
                 WordPressCommentSpan.Comment.PAGE.html,
                 visualEditor.context,
-                ContextCompat.getDrawable(visualEditor.context, R.drawable.img_page)!!,
+                AppCompatResources.getDrawable(visualEditor.context, R.drawable.img_page)!!,
                 nestingLevel,
                 visualEditor
         )
@@ -49,7 +51,9 @@ class PageToolbarButton(val visualEditor: AztecText) : IToolbarButton {
     }
 
     override fun inflateButton(parent: ViewGroup) {
-        LayoutInflater.from(context).inflate(R.layout.page_button, parent)
+        val rootView = LayoutInflater.from(context).inflate(R.layout.page_button, parent)
+        val button = rootView.findViewById<ToggleButton>(R.id.format_bar_button_page)
+        button.convertToButtonAccessibilityProperties()
     }
 
     override fun toolbarStateAboutToChange(toolbar: AztecToolbar, enable: Boolean) {

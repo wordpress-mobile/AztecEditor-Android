@@ -23,9 +23,9 @@ package org.wordpress.aztec
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 import android.text.Editable
 import android.text.Spanned
+import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecAudioSpan
@@ -58,7 +58,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
     init {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        loadingDrawable = ContextCompat.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))!!
+        loadingDrawable = AppCompatResources.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))!!
         styles.recycle()
     }
 
@@ -124,7 +124,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             LINE -> {
                 if (opening) {
                     // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, ContextCompat.getDrawable(context, R.drawable.img_hr)!!,
+                    start(output, AztecHorizontalRuleSpan(context, AppCompatResources.getDrawable(context, R.drawable.img_hr)!!,
                             nestingLevel, AztecAttributes(attributes)))
                     output.append(Constants.MAGIC_CHAR)
                 } else {

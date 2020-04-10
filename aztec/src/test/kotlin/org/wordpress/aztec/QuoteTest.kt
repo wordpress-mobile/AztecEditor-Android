@@ -17,7 +17,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  * Testing quote behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(23))
+@Config(sdk = intArrayOf(23))
 class QuoteTest {
 
     val formattingType = AztecTextFormat.FORMAT_QUOTE

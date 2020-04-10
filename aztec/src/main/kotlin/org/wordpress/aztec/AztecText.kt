@@ -49,13 +49,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -73,7 +72,6 @@ import org.wordpress.aztec.handlers.ListHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
-import org.wordpress.aztec.ime.EditorInfoUtils
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -122,7 +120,6 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
-import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.ArrayList
@@ -158,7 +155,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         var watchersNestingLevel: Int = 0
 
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
-            val drawable = ContextCompat.getDrawable(context, drawableId)
+            val drawable = AppCompatResources.getDrawable(context, drawableId)
             var bitmap: Bitmap
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap
@@ -297,8 +294,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var focusOnVisible = true
 
-    var inputConnectionRef: WeakReference<InputConnection>? = null
-    var inputConnectionEditorInfo: EditorInfo? = null
+    val contentChangeWatcher = AztecContentChangeWatcher()
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -504,6 +500,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     // use HTML from the new text to set the state of the editText directly
                     fromHtml(toFormattedHtml(newText), false)
 
+                    contentChangeWatcher.notifyContentChanged()
+
                     // re-enable MediaDeleted listener
                     enableMediaDeletedListener()
                     // re-enable this very filter
@@ -572,6 +570,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 setText("")
                 enableTextChangedListener()
             }
+            contentChangeWatcher.notifyContentChanged()
         }
         return wasStyleRemoved
     }
@@ -634,6 +633,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
 
             override fun afterTextChanged(text: Editable) {
+                contentChangeWatcher.notifyContentChanged()
                 if (isTextChangedListenerDisabled()) {
                     return
                 }
@@ -669,45 +669,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (blockEditorDialog != null && blockEditorDialog!!.isShowing) {
             blockEditorDialog!!.dismiss()
         }
-    }
-
-    override fun onCreateInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // limiting the reuseInputConnection fix for Anroid 8.0.0 for now
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            return handleReuseInputConnection(outAttrs)
-        }
-
-        return super.onCreateInputConnection(outAttrs)
-    }
-
-    private fun handleReuseInputConnection(outAttrs: EditorInfo) : InputConnection {
-        // initialize inputConnectionEditorInfo
-        if (inputConnectionEditorInfo == null) {
-            inputConnectionEditorInfo = outAttrs
-        }
-
-        // now init the InputConnection, or replace if EditorInfo contains anything different
-        if (inputConnectionRef?.get() == null || !EditorInfoUtils.areEditorInfosTheSame(outAttrs, inputConnectionEditorInfo!!)) {
-            // we have a new InputConnection to create, save the new EditorInfo data and create it
-            // we make a copy of the parameters being received, because super.onCreateInputConnection may make changes
-            // to EditorInfo params being sent to it, and we want to preserve the same data we received in order
-            // to compare.
-            // (see https://android.googlesource.com/platform/frameworks/base/+/jb-mr0-release/core/java/android/widget/
-            // TextView.java#5404)
-            inputConnectionEditorInfo = EditorInfoUtils.copyEditorInfo(outAttrs)
-            val localInputConnection = super.onCreateInputConnection(outAttrs)
-            if (localInputConnection == null) {
-                // in case super returns null, let's just observe the base implementation, no need to make
-                // an InputConnectionWrapper of a null target
-                return localInputConnection
-            }
-            // if non null, wrap the new InputConnection around our wrapper (used for logging purposes only)
-            //inputConnection = AztecTextInputConnectionWrapper(localInputConnection, this)
-            inputConnectionRef = WeakReference(localInputConnection)
-        }
-
-        // return the existing inputConnection
-        return inputConnectionRef?.get()!!
     }
 
     // We are exposing this method in order to allow subclasses to set their own alpha value
@@ -1070,6 +1031,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         .forEach { it.toggle() }
             }
         }
+
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun contains(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
@@ -1174,10 +1137,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun redo() {
         history.redo(this)
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun undo() {
         history.undo(this)
+        contentChangeWatcher.notifyContentChanged()
     }
 
     // Helper ======================================================================================
@@ -1570,13 +1535,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     deleteInlineStyleFromTheBeginning()
                 }
             }
-            // Fix for crash when pasting text on Samsung Devices running Android 8.
-            // Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
+            // Fix for crash when pasting text on Samsung Devices running Android 7 & 8.
+            // Android 7 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/10872
+            // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && Build.VERSION.SDK_INT < 28
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                         && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
                     // Nope return true
-                    Toast.makeText(context, R.string.samsung_disabled_custom_clipboard, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
                 }
@@ -1663,6 +1629,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 fromHtml(newHtml, false)
                 inlineFormatter.joinStyleSpans(0, length())
             }
+            contentChangeWatcher.notifyContentChanged()
         }
     }
 
@@ -1688,6 +1655,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } else {
             linkFormatter.addLink(url, anchor, openInNewWindow, selectionStart, selectionEnd)
         }
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun removeLink() {

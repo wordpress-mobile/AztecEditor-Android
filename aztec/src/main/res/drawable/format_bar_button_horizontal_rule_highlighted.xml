@@ -9,7 +9,7 @@
 
     <!-- @color/almost_black -->
     <path
-        android:fillColor="#ff11181D"
+        android:fillColor="?attr/toolbarIconHighlightColor"
         android:pathData="M14.2,22.9h19.6v2.2H14.2V22.9z" >
     </path>
 

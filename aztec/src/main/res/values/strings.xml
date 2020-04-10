@@ -2,7 +2,8 @@
 
     <!-- GENERAL -->
     <string name="cursor_moved">Cursor moved</string>
-    <string name="samsung_disabled_custom_clipboard">Sorry, this feature is disabled on Android 8. Please use the Paste action instead.</string>
+    <string name="samsung_disabled_custom_clipboard">Sorry, this feature is disabled on Android %1$s. Please use the Paste action instead.</string>
+    <string name="accessibility_action_click_label">activate</string>
 
     <!-- LINK DIALOG -->
     <string name="link_dialog_title">Insert link</string>

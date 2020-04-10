@@ -9,6 +9,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -57,6 +58,7 @@ dependencies {
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
+    testImplementation 'androidx.test:core:1.2.0'
 
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

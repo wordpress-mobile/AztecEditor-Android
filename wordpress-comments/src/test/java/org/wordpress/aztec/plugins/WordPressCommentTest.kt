@@ -14,7 +14,6 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.TestUtils.backspaceAt
 import org.wordpress.aztec.plugins.TestUtils.safeEmpty
-import org.wordpress.aztec.plugins.wpcomments.BuildConfig
 import org.wordpress.aztec.plugins.wpcomments.CommentsTextFormat
 import org.wordpress.aztec.plugins.wpcomments.WordPressCommentsPlugin
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
@@ -25,7 +24,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
  * Tests for special comments ([WordPressCommentSpan.Comment.MORE] and [WordPressCommentSpan.Comment.PAGE])
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(25))
+@Config(sdk = intArrayOf(25))
 class WordPressCommentTest {
     lateinit var editText: AztecText
 

@@ -1,3 +1,4 @@
+
 <h1><img align="center" width=50px height=50px src="https://github.com/wordpress-mobile/AztecEditor-iOS/raw/develop/RepoAssets/aztec.png" alt="Aztec Logo"/>&nbsp;Aztec: Native HTML Editor for Android</h1>
 
 [![CircleCI](https://circleci.com/gh/wordpress-mobile/AztecEditor-Android.svg?style=svg)](https://circleci.com/gh/wordpress-mobile/AztecEditor-Android)
@@ -105,7 +106,7 @@ repositories {
 ```
 ```gradle
 dependencies {
-    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.3.39')
+    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.3.40')
 }
 ```
 

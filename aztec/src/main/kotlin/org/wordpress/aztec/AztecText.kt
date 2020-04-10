@@ -677,6 +677,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
     }
 
+    // We are exposing this method in order to allow subclasses to set their own alpha value
+    // for preformatted background
+    open fun getPreformatBackgroundAlpha(styles: TypedArray): Float {
+        return styles.getFraction(R.styleable.AztecText_preformatBackgroundAlpha, 1, 1, 0f)
+    }
+
     override fun onRestoreInstanceState(state: Parcelable?) {
         disableTextChangedListener()
 

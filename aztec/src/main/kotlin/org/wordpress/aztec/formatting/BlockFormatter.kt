@@ -27,6 +27,7 @@ import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
 import org.wordpress.aztec.spans.IAztecLineBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
@@ -295,7 +296,7 @@ class BlockFormatter(editor: AztecText,
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
             AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
-            AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(AztecQuoteSpan(nestingLevel, attrs, quoteStyle))
+            AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle))
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
             AztecTextFormat.FORMAT_HEADING_3,
@@ -341,7 +342,7 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecOrderedListSpan::class) -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
             typeIsAssignableTo(AztecUnorderedListSpan::class) -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
             typeIsAssignableTo(AztecListItemSpan::class) -> AztecListItemSpan(nestingLevel, attrs)
-            typeIsAssignableTo(AztecQuoteSpan::class) -> AztecQuoteSpan(nestingLevel, attrs, quoteStyle)
+            typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle)
             typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle)
             else -> createParagraphSpan(nestingLevel, alignmentApproach, attrs)

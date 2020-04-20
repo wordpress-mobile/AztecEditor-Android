@@ -33,18 +33,42 @@ import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
 import androidx.collection.ArrayMap
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 import java.util.Locale
 
-class AztecQuoteSpan(
+fun createAztecQuoteSpan(
+        nestingLevel: Int,
+        attributes: AztecAttributes = AztecAttributes(),
+        alignmentApproach: AlignmentApproach,
+        quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
+) = when (alignmentApproach) {
+    AlignmentApproach.SPAN_LEVEL -> AztecQuoteSpanAligned(nestingLevel, attributes, quoteStyle, null)
+    AlignmentApproach.VIEW_LEVEL -> AztecQuoteSpan(nestingLevel, attributes, quoteStyle)
+}
+
+/**
+ * We need to have two classes for handling alignment at either the Span-level (AztecQuoteSpanAligned)
+ * or the View-level (AztecQuoteSpan). IAztecAlignment implements AlignmentSpan, which has a
+ * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
+ * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
+ * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
+ * be created using the createAztecQuoteSpan(...) methods.
+ */
+class AztecQuoteSpanAligned(
+        nestingLevel: Int,
+        attributes: AztecAttributes,
+        quoteStyle: BlockFormatter.QuoteStyle,
+        override var align: Layout.Alignment?
+) : AztecQuoteSpan(nestingLevel, attributes, quoteStyle), IAztecAlignmentSpan
+
+open class AztecQuoteSpan(
         override var nestingLevel: Int,
-        override var attributes: AztecAttributes = AztecAttributes(),
-        var quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0),
-        override var align: Layout.Alignment? = null
+        override var attributes: AztecAttributes,
+        var quoteStyle: BlockFormatter.QuoteStyle
     ) : QuoteSpan(),
         LineBackgroundSpan,
-        IAztecAlignmentSpan,
         IAztecBlockSpan,
         LineHeightSpan,
         UpdateLayout

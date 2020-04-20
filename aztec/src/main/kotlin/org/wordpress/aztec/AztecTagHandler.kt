@@ -42,6 +42,7 @@ import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
 import org.wordpress.aztec.spans.createParagraphSpan
@@ -98,7 +99,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             BLOCKQUOTE -> {
-                handleElement(output, opening, AztecQuoteSpan(nestingLevel, AztecAttributes(attributes)))
+                val span = createAztecQuoteSpan(nestingLevel, AztecAttributes(attributes), alignmentApproach)
+                handleElement(output, opening, span)
                 return true
             }
             IMAGE -> {

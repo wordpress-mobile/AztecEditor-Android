@@ -41,7 +41,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0', {

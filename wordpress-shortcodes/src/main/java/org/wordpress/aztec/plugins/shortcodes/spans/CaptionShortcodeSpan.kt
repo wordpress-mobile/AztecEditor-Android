@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.StyleSpan
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
@@ -11,12 +12,32 @@ import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
 
-class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: AztecAttributes,
-                                                     override val TAG: String,
-                                                     override var nestingLevel: Int,
-                                                     private val aztecText: AztecText? = null,
-                                                     override var align: Layout.Alignment? = null)
-    : StyleSpan(Typeface.ITALIC), IAztecAlignmentSpan, IAztecBlockSpan {
+fun createCaptionShortcodeSpan(
+        attributes: AztecAttributes,
+        TAG: String,
+        nestingLevel: Int,
+        aztecText: AztecText? = null
+) =  when (aztecText?.alignmentApproach ?: AztecText.DEFAULT_ALIGNMENT_APPROACH) {
+    AlignmentApproach.SPAN_LEVEL -> CaptionShortcodeSpanAligned(attributes, TAG, nestingLevel, aztecText, null)
+    AlignmentApproach.VIEW_LEVEL -> CaptionShortcodeSpan(attributes, TAG, nestingLevel, aztecText)
+}
+
+class CaptionShortcodeSpanAligned(
+        attributes: AztecAttributes,
+        TAG: String,
+        nestingLevel: Int,
+        aztecText: AztecText? = null,
+        override var align: Layout.Alignment? = null
+): CaptionShortcodeSpan(attributes, TAG, nestingLevel, aztecText), IAztecAlignmentSpan {
+    override fun shouldParseAlignmentToHtml() = false
+}
+
+open class CaptionShortcodeSpan(
+        override var attributes: AztecAttributes,
+        override val TAG: String,
+        override var nestingLevel: Int,
+        private val aztecText: AztecText?
+) : StyleSpan(Typeface.ITALIC), IAztecBlockSpan {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
@@ -85,9 +106,5 @@ class CaptionShortcodeSpan @JvmOverloads constructor(override var attributes: Az
             end--
         }
         return end
-    }
-
-    override fun shouldParseAlignmentToHtml(): Boolean {
-        return false
     }
 }

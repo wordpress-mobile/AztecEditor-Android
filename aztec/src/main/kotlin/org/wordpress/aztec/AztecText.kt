@@ -605,7 +605,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         BlockElementWatcher(this)
                 .add(HeadingHandler(alignmentApproach))
                 .add(ListHandler())
-                .add(ListItemHandler())
+                .add(ListItemHandler(alignmentApproach))
                 .add(QuoteHandler())
                 .add(PreformatHandler())
                 .install(this)

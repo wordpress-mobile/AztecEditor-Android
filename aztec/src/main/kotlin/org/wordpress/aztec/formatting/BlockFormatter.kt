@@ -29,8 +29,11 @@ import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
+import org.wordpress.aztec.spans.createListItemSpan
+import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays
 import kotlin.reflect.KClass
@@ -251,7 +254,7 @@ class BlockFormatter(editor: AztecText,
             // when removing style from multiple selected lines, if the last selected line is empty
             // or at the end of editor the selection wont include the trailing newline/EOB marker
             // that will leave us with orphan <li> tag, so we need to shift index to the right
-            val hasLingeringEmptyListItem = spanType.isAssignableFrom(AztecListItemSpan::class.java)
+            val hasLingeringEmptyListItem = AztecListItemSpan::class.java.isAssignableFrom(spanType)
                     && editableText.length > end
                     && (editableText[end] == '\n' || editableText[end] == Constants.END_OF_BUFFER_MARKER)
 
@@ -294,8 +297,8 @@ class BlockFormatter(editor: AztecText,
     // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
-            AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(AztecOrderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(AztecUnorderedListSpan(nestingLevel, attrs, listStyle), AztecListItemSpan(nestingLevel + 1))
+            AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(createOrderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentApproach))
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(createUnorderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentApproach))
             AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle))
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
@@ -339,9 +342,9 @@ class BlockFormatter(editor: AztecText,
     private fun <T : KClass<out IAztecBlockSpan>> makeBlockSpan(type: T, textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
         val typeIsAssignableTo = { clazz: KClass<out Any> -> clazz.java.isAssignableFrom(type.java) }
         return when {
-            typeIsAssignableTo(AztecOrderedListSpan::class) -> AztecOrderedListSpan(nestingLevel, attrs, listStyle)
-            typeIsAssignableTo(AztecUnorderedListSpan::class) -> AztecUnorderedListSpan(nestingLevel, attrs, listStyle)
-            typeIsAssignableTo(AztecListItemSpan::class) -> AztecListItemSpan(nestingLevel, attrs)
+            typeIsAssignableTo(AztecOrderedListSpan::class) -> createOrderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle)
+            typeIsAssignableTo(AztecUnorderedListSpan::class) -> createUnorderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle)
+            typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentApproach, attrs)
             typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle)
             typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle)
@@ -651,7 +654,7 @@ class BlockFormatter(editor: AztecText,
         BlockHandler.set(editableText, listSpan, start, end)
         // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
-            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1)
+            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1, alignmentApproach)
         } else {
             val listEnd = if (end == editableText.length) end else end - 1
             val listContent = editableText.substring(start, listEnd)
@@ -666,7 +669,12 @@ class BlockFormatter(editor: AztecText,
                     if ((start + it) != editableText.length) it + 1 else it // include the newline or not
                 }
 
-                ListItemHandler.newListItem(editableText, start + lineStart, start + lineEnd, listSpan.nestingLevel + 1)
+                ListItemHandler.newListItem(
+                        editableText,
+                        start + lineStart,
+                        start + lineEnd,
+                        listSpan.nestingLevel + 1,
+                        alignmentApproach)
             }
         }
     }

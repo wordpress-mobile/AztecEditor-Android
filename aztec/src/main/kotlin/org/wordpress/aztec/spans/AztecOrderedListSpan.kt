@@ -21,10 +21,28 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
+import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 
-class AztecOrderedListSpan(
+fun createOrderedListSpan(
+        nestingLevel: Int,
+        alignmentApproach: AlignmentApproach,
+        attributes: AztecAttributes = AztecAttributes(),
+        listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
+) = when (alignmentApproach) {
+    AlignmentApproach.SPAN_LEVEL -> AztecOrderedListSpanAligned(nestingLevel, attributes, listStyle, null)
+    AlignmentApproach.VIEW_LEVEL -> AztecOrderedListSpan(nestingLevel, attributes, listStyle)
+}
+
+class AztecOrderedListSpanAligned(
+        nestingLevel: Int,
+        attributes: AztecAttributes = AztecAttributes(),
+        listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0),
+        override var align: Layout.Alignment?
+) : AztecOrderedListSpan(nestingLevel, attributes, listStyle), IAztecAlignmentSpan
+
+open class AztecOrderedListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)

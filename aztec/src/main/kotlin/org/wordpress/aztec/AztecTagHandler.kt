@@ -31,13 +31,9 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
-import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -45,8 +41,11 @@ import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
+import org.wordpress.aztec.spans.createListItemSpan
+import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
@@ -74,7 +73,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                handleElement(output, opening, AztecListItemSpan(nestingLevel, AztecAttributes(attributes)))
+                val span = createListItemSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                handleElement(output, opening, span)
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
@@ -91,11 +91,11 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, AztecAttributes(attributes)))
+                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes)))
                 return true
             }
             LIST_OL -> {
-                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, AztecAttributes(attributes)))
+                handleElement(output, opening, createOrderedListSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes)))
                 return true
             }
             BLOCKQUOTE -> {

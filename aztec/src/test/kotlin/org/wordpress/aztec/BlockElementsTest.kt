@@ -5,8 +5,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 import org.wordpress.aztec.TestUtils.backspaceAt
@@ -17,10 +17,21 @@ import org.wordpress.aztec.TestUtils.safeLength
 /**
  * Testing interactions of multiple block elements
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
-class BlockElementsTest {
+class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
     lateinit var editText: AztecText
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentApproach.{0}")
+        fun data(): Collection<Array<AlignmentApproach>> {
+            return listOf(
+                    arrayOf(AlignmentApproach.SPAN_LEVEL),
+                    arrayOf(AlignmentApproach.VIEW_LEVEL)
+            )
+        }
+    }
 
     /**
      * Initialize variables.
@@ -28,7 +39,7 @@ class BlockElementsTest {
     @Before
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
-        editText = AztecText(activity)
+        editText = AztecText(activity, alignmentApproach)
         editText.setCalypsoMode(false)
         activity.setContentView(editText)
     }

@@ -11,17 +11,17 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
  * Tests for [AztecParser].
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
-class AztecParserTest : AndroidTestCase() {
-    private var mParser = AztecParser(AlignmentApproach.SPAN_LEVEL)
+class AztecParserTest(alignmentApproach: AlignmentApproach) : AndroidTestCase() {
+    private var mParser = AztecParser(alignmentApproach)
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_LIST_ORDERED = "<ol><li>Ordered</li></ol>"
     private val HTML_LIST_ORDERED_WITH_EMPTY_ITEM = "<ol><li>Ordered 1</li><li></li><li>Ordered 2</li></ol>"
@@ -86,6 +86,17 @@ class AztecParserTest : AndroidTestCase() {
     private val SPAN_STRIKETHROUGH = "Strikethrough\n\n"
     private val SPAN_UNDERLINE = "Underline\n\n"
     private val SPAN_UNKNOWN = "\uFFFC\n\n"
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentApproach.{0}")
+        fun data(): Collection<Array<AlignmentApproach>> {
+            return listOf(
+                    arrayOf(AlignmentApproach.SPAN_LEVEL),
+                    arrayOf(AlignmentApproach.VIEW_LEVEL)
+            )
+        }
+    }
 
     /**
      * Initialize variables.

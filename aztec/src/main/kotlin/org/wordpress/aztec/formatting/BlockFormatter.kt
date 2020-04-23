@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
+import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AlignmentApproach
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
@@ -132,15 +133,24 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun toggleTextAlignment(textFormat: ITextFormat) {
-        when (textFormat) {
-            AztecTextFormat.FORMAT_ALIGN_LEFT,
-            AztecTextFormat.FORMAT_ALIGN_CENTER,
-            AztecTextFormat.FORMAT_ALIGN_RIGHT ->
-                if (containsAlignment(textFormat)) {
-                    removeTextAlignment(textFormat)
-                } else {
-                    applyTextAlignment(textFormat)
+        when (alignmentApproach) {
+            AlignmentApproach.VIEW_LEVEL -> {
+                val message = "cannot toggle text alignment when ${AlignmentApproach.VIEW_LEVEL} is being used"
+                AppLog.d(AppLog.T.EDITOR, message)
+            }
+
+            AlignmentApproach.SPAN_LEVEL -> {
+                when (textFormat) {
+                    AztecTextFormat.FORMAT_ALIGN_LEFT,
+                    AztecTextFormat.FORMAT_ALIGN_CENTER,
+                    AztecTextFormat.FORMAT_ALIGN_RIGHT ->
+                        if (containsAlignment(textFormat)) {
+                            removeTextAlignment(textFormat)
+                        } else {
+                            applyTextAlignment(textFormat)
+                        }
                 }
+            }
         }
     }
 

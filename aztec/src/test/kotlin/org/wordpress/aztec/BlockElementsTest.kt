@@ -345,6 +345,21 @@ class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
     }
 
     @Test
+    fun testTogglingFormattingAlignment() {
+        val html = "<p>hi</p>"
+        editText.fromHtml(html)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ALIGN_CENTER)
+
+        val expected = when (editText.alignmentApproach) {
+            AlignmentApproach.SPAN_LEVEL -> "<p style=\"text-align:center;\">hi</p>"
+
+            // changing alignment with togglingFormatting is a no-op with VIEW_LEVEL AlignmentApproach
+            AlignmentApproach.VIEW_LEVEL -> html
+        }
+        Assert.assertEquals(expected, editText.toHtml())
+    }
+
+    @Test
     fun alignmentApproachEffectOnLeftAlignment() {
         assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:left;\">left</p>")
     }

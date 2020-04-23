@@ -68,18 +68,21 @@ class AztecParser @JvmOverloads constructor(val plugins: List<IAztecPlugin> = li
         val tidySource = tidy(source)
 
         val spanned = SpannableString(Html.fromHtml(tidySource,
-                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
+                AztecTagHandler(context, plugins), context, plugins, ignoredTags, true))
 
         postprocessSpans(spanned)
 
         return spanned
     }
 
-    fun fromHtml(source: String, context: Context, shouldSkipTidying: Boolean = false): Spanned {
+    fun fromHtml(source: String,
+                 context: Context,
+                 shouldSkipTidying: Boolean = false,
+                 shouldIgnoreWhitespace: Boolean = true): Spanned {
         val tidySource = if (shouldSkipTidying) source else tidy(source)
 
         val spanned = SpannableStringBuilder(Html.fromHtml(tidySource,
-                AztecTagHandler(context, plugins), context, plugins, ignoredTags))
+                AztecTagHandler(context, plugins), context, plugins, ignoredTags, shouldIgnoreWhitespace))
 
         addVisualNewlinesToBlockElements(spanned)
         markBlockElementsAsParagraphs(spanned)

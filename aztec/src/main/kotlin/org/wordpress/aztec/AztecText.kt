@@ -1118,6 +1118,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return false
     }
 
+    open fun shouldIgnoreWhitespace(): Boolean {
+        return true
+    }
+
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             subWatcherNestingLevel()
@@ -1168,7 +1172,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 

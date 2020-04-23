@@ -343,4 +343,25 @@ class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
 
         Assert.assertEquals(expectedHtml, editText.toHtml())
     }
+
+    @Test
+    fun alignmentApproachEffectOnLeftAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:left;\">left</p>")
+    }
+
+    @Test
+    fun alignmentApproachEffectOnCenterAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:center;\">center</p>")
+    }
+
+    @Test
+    fun alignmentApproachEffectOnRightAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:right;\">right</p>")
+    }
+
+    fun assertNoChangeWithFromHtmlToHtmlRoundTrip(html: String) {
+        editText.fromHtml(html)
+        val output = editText.toHtml()
+        Assert.assertEquals(html, output)
+    }
 }

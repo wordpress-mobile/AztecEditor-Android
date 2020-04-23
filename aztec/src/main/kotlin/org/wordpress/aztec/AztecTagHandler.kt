@@ -41,6 +41,7 @@ import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
+import org.wordpress.aztec.spans.createHiddenHtmlSpan
 import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
@@ -82,7 +83,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             SPAN -> {
-                handleElement(output, opening, HiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel))
+                val span = createHiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel, alignmentApproach)
+                handleElement(output, opening, span)
                 return true
             }
             DIV, FIGURE, FIGCAPTION, SECTION -> {

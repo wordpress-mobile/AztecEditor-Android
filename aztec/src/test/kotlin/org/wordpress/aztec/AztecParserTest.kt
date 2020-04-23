@@ -1260,4 +1260,14 @@ class AztecParserTest : AndroidTestCase() {
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlParagraphWithMultipleWhitespace_isNotEqual() {
+        val input = "<p>   Hello There!</p>"
+        val inputAfterParser = "<p>Hello There!</p>"
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(output, inputAfterParser)
+    }
 }

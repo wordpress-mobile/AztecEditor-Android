@@ -1,28 +1,33 @@
 package org.wordpress.aztec.spans
 
 import android.text.Layout
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 
 fun createParagraphSpan(nestingLevel: Int,
-                        attributes: AztecAttributes = AztecAttributes(),
-                        align: Layout.Alignment? = null) : IAztecBlockSpan =
-        if (align == null) {
-            ParagraphSpan(nestingLevel, attributes)
-        } else {
-            ParagraphSpanAligned(align, nestingLevel, attributes)
+                        alignmentRendering: AlignmentRendering,
+                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+        when (alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> ParagraphSpanAligned(nestingLevel, attributes, null)
+            AlignmentRendering.VIEW_LEVEL -> ParagraphSpan(nestingLevel, attributes)
         }
 
+fun createParagraphSpan(nestingLevel: Int,
+                        align: Layout.Alignment?,
+                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+        ParagraphSpanAligned(nestingLevel, attributes, align)
+
 /**
- * This class is the same as the {@link ParagraphSpanAligned except it does not implement
- * AlignmentSpan (via IAztecAlignmentSpan). This is necessary because IAztecParagraphSpan implements
- * AlignmentSpan which has a getAlignment method that returns a non-null Layout.Alignment. Since this
- * cannot be null it will always override the view's gravity. By having a class that does not implement
- * AlignmentSpan the view's gravity can control.
+ * We need to have two classes for handling alignment at either the Span-level (ParagraphSpanAligned)
+ * or the View-level (ParagraphSpan). IAztecAlignment implements AlignmentSpan, which has a
+ * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
+ * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
+ * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
+ * be created using the createParagraphSpan(...) methods.
  */
 open class ParagraphSpan(
         override var nestingLevel: Int,
-        override var attributes: AztecAttributes = AztecAttributes()
-) : IAztecBlockSpan {
+        override var attributes: AztecAttributes) : IAztecBlockSpan {
 
     override var TAG: String = "p"
 
@@ -31,7 +36,6 @@ open class ParagraphSpan(
 }
 
 class ParagraphSpanAligned(
-        override var align: Layout.Alignment?,
         nestingLevel: Int,
-        attributes: AztecAttributes = AztecAttributes()
-) : ParagraphSpan(nestingLevel, attributes), IAztecAlignmentSpan
+        attributes: AztecAttributes,
+        override var align: Layout.Alignment?) : ParagraphSpan(nestingLevel, attributes), IAztecAlignmentSpan

@@ -1,11 +1,13 @@
 package org.wordpress.aztec.handlers
 
 import android.text.Spannable
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.watchers.TextDeleter
 
-class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
+class HeadingHandler(private val alignmentRendering: AlignmentRendering) : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.java) {
     override fun handleNewlineAtStartOfBlock() {
         // we got a newline at the start of the block. Let's just push the block after the newline
         block.start = newlineIndex + 1
@@ -44,7 +46,7 @@ class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.ja
             //  not add a new block after it
         } else {
             // newline added at some position inside the block. Let's split the block into two
-            cloneHeading(text, block.span, newlineIndex + 1, block.end)
+            cloneHeading(text, block.span, alignmentRendering, newlineIndex + 1, block.end)
         }
 
         block.end = newlineIndex + 1
@@ -62,8 +64,8 @@ class HeadingHandler : BlockHandler<AztecHeadingSpan>(AztecHeadingSpan::class.ja
     }
 
     companion object {
-        fun cloneHeading(text: Spannable, block: AztecHeadingSpan, start: Int, end: Int) {
-            set(text, AztecHeadingSpan(block.nestingLevel, block.textFormat, block.attributes), start, end)
+        fun cloneHeading(text: Spannable, block: AztecHeadingSpan, alignmentRendering: AlignmentRendering, start: Int, end: Int) {
+            set(text, createHeadingSpan(block.nestingLevel, block.textFormat, block.attributes, alignmentRendering), start, end)
         }
     }
 }

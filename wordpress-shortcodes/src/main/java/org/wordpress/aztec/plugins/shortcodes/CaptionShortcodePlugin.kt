@@ -11,10 +11,12 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.plugins.shortcodes.handlers.CaptionHandler
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
+import org.wordpress.aztec.plugins.shortcodes.spans.createCaptionShortcodeSpan
 import org.wordpress.aztec.plugins.shortcodes.watchers.CaptionWatcher
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.source.CssStyleFormatter
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
@@ -45,7 +47,12 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
 
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
-            output.setSpan(CaptionShortcodeSpan(AztecAttributes(attributes), HTML_TAG, nestingLevel, aztecText), output.length, output.length, Spannable.SPAN_MARK_MARK)
+            val captionShortcodeSpan = createCaptionShortcodeSpan(
+                    AztecAttributes(attributes),
+                    HTML_TAG,
+                    nestingLevel,
+                    aztecText)
+            output.setSpan(captionShortcodeSpan, output.length, output.length, Spannable.SPAN_MARK_MARK)
         } else {
             val span = output.getLast<CaptionShortcodeSpan>()
             span?.let {
@@ -68,7 +75,7 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
                 }
                 output.setSpan(span, wrapper.start, output.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                if (span.attributes.hasAttribute(ALIGN_ATTRIBUTE)) {
+                if (span is IAztecAlignmentSpan && span.attributes.hasAttribute(ALIGN_ATTRIBUTE)) {
                     when (span.attributes.getValue(ALIGN_ATTRIBUTE)) {
                         ALIGN_RIGHT_ATTRIBUTE_VALUE -> span.align = Layout.Alignment.ALIGN_OPPOSITE
                         ALIGN_CENTER_ATTRIBUTE_VALUE -> span.align = Layout.Alignment.ALIGN_CENTER
@@ -89,7 +96,7 @@ class CaptionShortcodePlugin @JvmOverloads constructor(private val aztecText: Az
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, CaptionShortcodeSpan::class.java).forEach {
             it.attributes.removeAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)
-            if (it.align != null) {
+            if (it is IAztecAlignmentSpan && it.align != null) {
                 it.attributes.setValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE,
                         when (it.align) {
                             Layout.Alignment.ALIGN_NORMAL -> CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE

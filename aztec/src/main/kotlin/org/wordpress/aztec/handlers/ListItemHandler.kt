@@ -1,15 +1,19 @@
 package org.wordpress.aztec.handlers
 
 import android.text.Spannable
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.watchers.TextDeleter
 
-class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
+class ListItemHandler(
+        val alignmentRendering: AlignmentRendering
+) : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
 
     override fun handleNewlineAtStartOfBlock() {
         // newline added at start of bullet so, add a new bullet
-        newListItem(text, newlineIndex, newlineIndex + 1, block.span.nestingLevel)
+        newListItem(text, newlineIndex, newlineIndex + 1, block.span.nestingLevel, alignmentRendering)
 
         // push current bullet forward
         block.start = newlineIndex + 1
@@ -51,7 +55,7 @@ class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class
             newListItemStart = newlineIndex
         }
 
-        newListItem(text, newListItemStart, block.end, block.span.nestingLevel)
+        newListItem(text, newListItemStart, block.end, block.span.nestingLevel, alignmentRendering)
         block.end = newListItemStart
     }
 
@@ -62,7 +66,7 @@ class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class
         }
 
         // attach a new bullet around the end-of-text marker
-        newListItem(text, markerIndex, markerIndex + 1, block.span.nestingLevel)
+        newListItem(text, markerIndex, markerIndex + 1, block.span.nestingLevel, alignmentRendering)
 
         // the current list item has bled over to the marker so, let's adjust its range to just before the marker.
         //  There's a newline there hopefully :)
@@ -70,8 +74,14 @@ class ListItemHandler : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class
     }
 
     companion object {
-        fun newListItem(text: Spannable, start: Int, end: Int, nestingLevel: Int) {
-            set(text, AztecListItemSpan(nestingLevel), start, end)
+        fun newListItem(
+                text: Spannable,
+                start: Int,
+                end: Int,
+                nestingLevel: Int,
+                alignmentRendering: AlignmentRendering
+        ) {
+            set(text, createListItemSpan(nestingLevel, alignmentRendering), start, end)
         }
     }
 }

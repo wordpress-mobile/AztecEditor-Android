@@ -4,11 +4,13 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.MarkForReplay
+import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.lang.ref.WeakReference
 import java.util.ArrayList
@@ -21,6 +23,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
+    private val alignmentRendering: AlignmentRendering = aztecText.alignmentRendering
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (count > 0) {
@@ -39,9 +42,14 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                         aztecText.history.beforeTextChanged(it)
                         aztecText.consumeHistoryEvent = false
 
-                        spans.forEach {
-                            spannable.setSpan(AztecHeadingSpan(it.span.nestingLevel, it.span.TAG, it.span.attributes,
-                                    it.span.headerStyle), deleteEnd - 1, deleteEnd, it.flags)
+                        spans.forEach { spanWrapper ->
+                            val headingSpan = createHeadingSpan(
+                                    spanWrapper.span.nestingLevel,
+                                    spanWrapper.span.TAG,
+                                    spanWrapper.span.attributes,
+                                    alignmentRendering,
+                                    spanWrapper.span.headerStyle)
+                            spannable.setSpan(headingSpan, deleteEnd - 1, deleteEnd, spanWrapper.flags)
                         }
 
                         aztecText.consumeHistoryEvent = true

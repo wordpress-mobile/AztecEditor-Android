@@ -5,8 +5,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 import org.wordpress.aztec.TestUtils.backspaceAt
@@ -17,10 +17,21 @@ import org.wordpress.aztec.TestUtils.safeLength
 /**
  * Testing interactions of multiple block elements
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
-class BlockElementsTest {
+class BlockElementsTest(val alignmentRendering: AlignmentRendering) {
     lateinit var editText: AztecText
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentRendering.{0}")
+        fun data(): Collection<Array<AlignmentRendering>> {
+            return listOf(
+                    arrayOf(AlignmentRendering.SPAN_LEVEL),
+                    arrayOf(AlignmentRendering.VIEW_LEVEL)
+            )
+        }
+    }
 
     /**
      * Initialize variables.
@@ -28,7 +39,7 @@ class BlockElementsTest {
     @Before
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
-        editText = AztecText(activity)
+        editText = AztecText(activity, alignmentRendering)
         editText.setCalypsoMode(false)
         activity.setContentView(editText)
     }
@@ -331,5 +342,41 @@ class BlockElementsTest {
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
 
         Assert.assertEquals(expectedHtml, editText.toHtml())
+    }
+
+    @Test
+    fun testTogglingFormattingAlignment() {
+        val html = "<p>hi</p>"
+        editText.fromHtml(html)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_ALIGN_CENTER)
+
+        val expected = when (editText.alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> "<p style=\"text-align:center;\">hi</p>"
+
+            // changing alignment with togglingFormatting is a no-op with VIEW_LEVEL AlignmentRendering
+            AlignmentRendering.VIEW_LEVEL -> html
+        }
+        Assert.assertEquals(expected, editText.toHtml())
+    }
+
+    @Test
+    fun alignmentRenderingEffectOnLeftAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:left;\">left</p>")
+    }
+
+    @Test
+    fun alignmentRenderingEffectOnCenterAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:center;\">center</p>")
+    }
+
+    @Test
+    fun alignmentRenderingEffectOnRightAlignment() {
+        assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:right;\">right</p>")
+    }
+
+    fun assertNoChangeWithFromHtmlToHtmlRoundTrip(html: String) {
+        editText.fromHtml(html)
+        val output = editText.toHtml()
+        Assert.assertEquals(html, output)
     }
 }

@@ -2,7 +2,7 @@
 
 ## [1.3.42](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.42)
 ### Changed
-- Update Heading, Preformat, and HiddenHtml span classes to allow view level alignment (#899)
+- Update block-based span classes to allow view level alignment rendering (#899)
 
 ## [1.3.41](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.41)
 ### Changed

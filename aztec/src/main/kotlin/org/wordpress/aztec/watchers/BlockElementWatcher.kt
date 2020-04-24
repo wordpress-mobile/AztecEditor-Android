@@ -4,7 +4,7 @@ import android.text.Editable
 import android.text.Spannable
 import android.text.Spanned
 import android.text.TextWatcher
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.AztecHeadingSpan
@@ -23,7 +23,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
     }
 
     private val aztecTextRef: WeakReference<AztecText?> = WeakReference(aztecText)
-    private val alignmentApproach: AlignmentApproach = aztecText.alignmentApproach
+    private val alignmentRendering: AlignmentRendering = aztecText.alignmentRendering
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
         if (count > 0) {
@@ -47,7 +47,7 @@ open class BlockElementWatcher(aztecText: AztecText) : TextWatcher {
                                     spanWrapper.span.nestingLevel,
                                     spanWrapper.span.TAG,
                                     spanWrapper.span.attributes,
-                                    alignmentApproach,
+                                    alignmentRendering,
                                     spanWrapper.span.headerStyle)
                             spannable.setSpan(headingSpan, deleteEnd - 1, deleteEnd, spanWrapper.flags)
                         }

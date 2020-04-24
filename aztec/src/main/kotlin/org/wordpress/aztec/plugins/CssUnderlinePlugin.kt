@@ -3,7 +3,7 @@ package org.wordpress.aztec.plugins
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
@@ -14,7 +14,7 @@ import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.SpanWrapper
 
 class CssUnderlinePlugin(
-        val alignmentApproach: AlignmentApproach = AztecText.DEFAULT_ALIGNMENT_APPROACH
+        val alignmentRendering: AlignmentRendering = AztecText.DEFAULT_ALIGNMENT_RENDERING
 ) : ISpanPostprocessor, ISpanPreprocessor {
 
     private val SPAN_TAG = "span"

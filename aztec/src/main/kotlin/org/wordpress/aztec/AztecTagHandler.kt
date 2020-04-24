@@ -51,7 +51,7 @@ import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
 
-class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentApproach: AlignmentApproach
+class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
 ) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
@@ -74,7 +74,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                val span = createListItemSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                val span = createListItemSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, span)
                 return true
             }
@@ -83,25 +83,25 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             SPAN -> {
-                val span = createHiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel, alignmentApproach)
+                val span = createHiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel, alignmentRendering)
                 handleElement(output, opening, span)
                 return true
             }
             DIV, FIGURE, FIGCAPTION, SECTION -> {
-                val hiddenHtmlBlockSpan = createHiddenHtmlBlockSpan(tag, alignmentApproach, nestingLevel, AztecAttributes(attributes))
+                val hiddenHtmlBlockSpan = createHiddenHtmlBlockSpan(tag, alignmentRendering, nestingLevel, AztecAttributes(attributes))
                 handleElement(output, opening, hiddenHtmlBlockSpan)
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes)))
+                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
                 return true
             }
             LIST_OL -> {
-                handleElement(output, opening, createOrderedListSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes)))
+                handleElement(output, opening, createOrderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
                 return true
             }
             BLOCKQUOTE -> {
-                val span = createAztecQuoteSpan(nestingLevel, AztecAttributes(attributes), alignmentApproach)
+                val span = createAztecQuoteSpan(nestingLevel, AztecAttributes(attributes), alignmentRendering)
                 handleElement(output, opening, span)
                 return true
             }
@@ -124,7 +124,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PARAGRAPH -> {
-                val paragraphSpan = createParagraphSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                val paragraphSpan = createParagraphSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, paragraphSpan)
                 return true
             }
@@ -140,13 +140,13 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PREFORMAT -> {
-                val preformatSpan = createPreformatSpan(nestingLevel, alignmentApproach, AztecAttributes(attributes))
+                val preformatSpan = createPreformatSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, preformatSpan)
                 return true
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleElement(output, opening, createHeadingSpan(nestingLevel, tag, AztecAttributes(attributes), alignmentApproach))
+                    handleElement(output, opening, createHeadingSpan(nestingLevel, tag, AztecAttributes(attributes), alignmentRendering))
                     return true
                 }
             }

@@ -7,7 +7,7 @@ import android.text.TextPaint
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
@@ -17,7 +17,7 @@ import java.util.Locale
 fun createHeadingSpan(nestingLevel: Int,
                       tag: String,
                       attributes: AztecAttributes,
-                      alignmentApproach: AlignmentApproach,
+                      alignmentRendering: AlignmentRendering,
                       headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
 ) : AztecHeadingSpan {
     val textFormat = when (tag.toLowerCase(Locale.getDefault())) {
@@ -29,18 +29,18 @@ fun createHeadingSpan(nestingLevel: Int,
         "h6" -> AztecTextFormat.FORMAT_HEADING_6
         else -> AztecTextFormat.FORMAT_HEADING_1
     }
-    return createHeadingSpan(nestingLevel, textFormat, attributes, alignmentApproach, headerStyle)
+    return createHeadingSpan(nestingLevel, textFormat, attributes, alignmentRendering, headerStyle)
 }
 
 fun createHeadingSpan(nestingLevel: Int,
                       textFormat: ITextFormat,
                       attributes: AztecAttributes,
-                      alignmentApproach: AlignmentApproach,
+                      alignmentRendering: AlignmentRendering,
                       headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
 ) : AztecHeadingSpan =
-        when (alignmentApproach) {
-            AlignmentApproach.SPAN_LEVEL -> AztecHeadingSpanAligned(nestingLevel, textFormat, attributes, headerStyle)
-            AlignmentApproach.VIEW_LEVEL -> AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle)
+        when (alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> AztecHeadingSpanAligned(nestingLevel, textFormat, attributes, headerStyle)
+            AlignmentRendering.VIEW_LEVEL -> AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle)
         }
 
 /**

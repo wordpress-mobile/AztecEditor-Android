@@ -33,7 +33,7 @@ import android.text.style.LineHeightSpan
 import android.text.style.QuoteSpan
 import android.text.style.UpdateLayout
 import androidx.collection.ArrayMap
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 import java.util.Locale
@@ -41,11 +41,11 @@ import java.util.Locale
 fun createAztecQuoteSpan(
         nestingLevel: Int,
         attributes: AztecAttributes = AztecAttributes(),
-        alignmentApproach: AlignmentApproach,
+        alignmentRendering: AlignmentRendering,
         quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
-) = when (alignmentApproach) {
-    AlignmentApproach.SPAN_LEVEL -> AztecQuoteSpanAligned(nestingLevel, attributes, quoteStyle, null)
-    AlignmentApproach.VIEW_LEVEL -> AztecQuoteSpan(nestingLevel, attributes, quoteStyle)
+) = when (alignmentRendering) {
+    AlignmentRendering.SPAN_LEVEL -> AztecQuoteSpanAligned(nestingLevel, attributes, quoteStyle, null)
+    AlignmentRendering.VIEW_LEVEL -> AztecQuoteSpan(nestingLevel, attributes, quoteStyle)
 }
 
 /**

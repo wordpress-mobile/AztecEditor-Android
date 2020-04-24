@@ -1,15 +1,15 @@
 package org.wordpress.aztec.spans
 
 import android.text.Layout
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 
 fun createParagraphSpan(nestingLevel: Int,
-                        alignmentApproach: AlignmentApproach,
+                        alignmentRendering: AlignmentRendering,
                         attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
-        when (alignmentApproach) {
-            AlignmentApproach.SPAN_LEVEL -> ParagraphSpanAligned(nestingLevel, attributes, null)
-            AlignmentApproach.VIEW_LEVEL -> ParagraphSpan(nestingLevel, attributes)
+        when (alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> ParagraphSpanAligned(nestingLevel, attributes, null)
+            AlignmentRendering.VIEW_LEVEL -> ParagraphSpan(nestingLevel, attributes)
         }
 
 fun createParagraphSpan(nestingLevel: Int,

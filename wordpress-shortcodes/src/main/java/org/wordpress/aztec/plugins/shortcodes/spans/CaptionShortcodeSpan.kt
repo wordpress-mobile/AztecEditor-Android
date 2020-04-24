@@ -4,7 +4,7 @@ import android.graphics.Typeface
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.StyleSpan
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
@@ -17,9 +17,9 @@ fun createCaptionShortcodeSpan(
         TAG: String,
         nestingLevel: Int,
         aztecText: AztecText? = null
-) = when (aztecText?.alignmentApproach ?: AztecText.DEFAULT_ALIGNMENT_APPROACH) {
-    AlignmentApproach.SPAN_LEVEL -> CaptionShortcodeSpanAligned(attributes, TAG, nestingLevel, aztecText, null)
-    AlignmentApproach.VIEW_LEVEL -> CaptionShortcodeSpan(attributes, TAG, nestingLevel, aztecText)
+) = when (aztecText?.alignmentRendering ?: AztecText.DEFAULT_ALIGNMENT_RENDERING) {
+    AlignmentRendering.SPAN_LEVEL -> CaptionShortcodeSpanAligned(attributes, TAG, nestingLevel, aztecText, null)
+    AlignmentRendering.VIEW_LEVEL -> CaptionShortcodeSpan(attributes, TAG, nestingLevel, aztecText)
 }
 
 /**

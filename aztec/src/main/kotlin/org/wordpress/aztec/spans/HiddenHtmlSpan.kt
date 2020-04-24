@@ -1,16 +1,16 @@
 package org.wordpress.aztec.spans
 
 import android.text.Layout
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 
 fun createHiddenHtmlSpan(tag: String,
                          attributes: AztecAttributes = AztecAttributes(),
                          nestingLevel: Int,
-                         alignmentApproach: AlignmentApproach
-) = when (alignmentApproach) {
-    AlignmentApproach.SPAN_LEVEL -> HiddenHtmlSpanAligned(tag, attributes, nestingLevel)
-    AlignmentApproach.VIEW_LEVEL -> HiddenHtmlSpan(tag, attributes, nestingLevel)
+                         alignmentRendering: AlignmentRendering
+) = when (alignmentRendering) {
+    AlignmentRendering.SPAN_LEVEL -> HiddenHtmlSpanAligned(tag, attributes, nestingLevel)
+    AlignmentRendering.VIEW_LEVEL -> HiddenHtmlSpan(tag, attributes, nestingLevel)
 }
 
 class HiddenHtmlSpanAligned(tag: String,

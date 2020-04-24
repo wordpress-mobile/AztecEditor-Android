@@ -10,19 +10,19 @@ import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
 import android.text.style.TypefaceSpan
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createPreformatSpan(
         nestingLevel: Int,
-        alignmentApproach: AlignmentApproach,
+        alignmentRendering: AlignmentRendering,
         attributes: AztecAttributes = AztecAttributes(),
         preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
 ) : AztecPreformatSpan =
-        when (alignmentApproach) {
-            AlignmentApproach.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
-            AlignmentApproach.VIEW_LEVEL -> AztecPreformatSpan(nestingLevel, attributes, preformatStyle)
+        when (alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
+            AlignmentRendering.VIEW_LEVEL -> AztecPreformatSpan(nestingLevel, attributes, preformatStyle)
         }
 
 /**

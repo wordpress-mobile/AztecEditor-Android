@@ -6,7 +6,7 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import org.wordpress.android.util.AppLog
-import org.wordpress.aztec.AlignmentApproach
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
@@ -44,7 +44,7 @@ class BlockFormatter(editor: AztecText,
                      private val quoteStyle: QuoteStyle,
                      private val headerStyle: HeaderStyle,
                      private val preformatStyle: PreformatStyle,
-                     private val alignmentApproach: AlignmentApproach
+                     private val alignmentRendering: AlignmentRendering
 ) : AztecFormatter(editor) {
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
@@ -133,13 +133,13 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun toggleTextAlignment(textFormat: ITextFormat) {
-        when (alignmentApproach) {
-            AlignmentApproach.VIEW_LEVEL -> {
-                val message = "cannot toggle text alignment when ${AlignmentApproach.VIEW_LEVEL} is being used"
+        when (alignmentRendering) {
+            AlignmentRendering.VIEW_LEVEL -> {
+                val message = "cannot toggle text alignment when ${AlignmentRendering.VIEW_LEVEL} is being used"
                 AppLog.d(AppLog.T.EDITOR, message)
             }
 
-            AlignmentApproach.SPAN_LEVEL -> {
+            AlignmentRendering.SPAN_LEVEL -> {
                 when (textFormat) {
                     AztecTextFormat.FORMAT_ALIGN_LEFT,
                     AztecTextFormat.FORMAT_ALIGN_CENTER,
@@ -307,17 +307,17 @@ class BlockFormatter(editor: AztecText,
     // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
         when (textFormat) {
-            AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(createOrderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentApproach))
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(createUnorderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentApproach))
-            AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle))
+            AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle))
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle))
-            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle))
-            else -> return Arrays.asList(createParagraphSpan(nestingLevel, alignmentApproach, attrs))
+            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle))
+            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle))
+            else -> return Arrays.asList(createParagraphSpan(nestingLevel, alignmentRendering, attrs))
         }
     }
 
@@ -345,20 +345,20 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
-            else -> createParagraphSpan(nestingLevel, alignmentApproach, attrs)
+            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs)
         }
     }
 
     private fun <T : KClass<out IAztecBlockSpan>> makeBlockSpan(type: T, textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): IAztecBlockSpan {
         val typeIsAssignableTo = { clazz: KClass<out Any> -> clazz.java.isAssignableFrom(type.java) }
         return when {
-            typeIsAssignableTo(AztecOrderedListSpan::class) -> createOrderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle)
-            typeIsAssignableTo(AztecUnorderedListSpan::class) -> createUnorderedListSpan(nestingLevel, alignmentApproach, attrs, listStyle)
-            typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentApproach, attrs)
-            typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentApproach, quoteStyle)
-            typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentApproach, headerStyle)
-            typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentApproach, attrs, preformatStyle)
-            else -> createParagraphSpan(nestingLevel, alignmentApproach, attrs)
+            typeIsAssignableTo(AztecOrderedListSpan::class) -> createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
+            typeIsAssignableTo(AztecUnorderedListSpan::class) -> createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
+            typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentRendering, attrs)
+            typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle)
+            typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle)
+            typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle)
+            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs)
         }
     }
 
@@ -664,7 +664,7 @@ class BlockFormatter(editor: AztecText,
         BlockHandler.set(editableText, listSpan, start, end)
         // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
-            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1, alignmentApproach)
+            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1, alignmentRendering)
         } else {
             val listEnd = if (end == editableText.length) end else end - 1
             val listContent = editableText.substring(start, listEnd)
@@ -684,7 +684,7 @@ class BlockFormatter(editor: AztecText,
                         start + lineStart,
                         start + lineEnd,
                         listSpan.nestingLevel + 1,
-                        alignmentApproach)
+                        alignmentRendering)
             }
         }
     }
@@ -717,7 +717,7 @@ class BlockFormatter(editor: AztecText,
             val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
 
-            HeadingHandler.cloneHeading(editableText, headingSpan, alignmentApproach, lineStart, lineEnd)
+            HeadingHandler.cloneHeading(editableText, headingSpan, alignmentRendering, lineStart, lineEnd)
         }
     }
 
@@ -1072,7 +1072,7 @@ class BlockFormatter(editor: AztecText,
                         preformat.nestingLevel,
                         headingTextFormat,
                         preformat.attributes,
-                        alignmentApproach)
+                        alignmentRendering)
                 editableText.setSpan(headingSpan, spanStart, spanEnd, spanFlags)
                 editor.onSelectionChanged(start, end)
             }

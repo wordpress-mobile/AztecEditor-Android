@@ -19,16 +19,16 @@ import org.wordpress.aztec.TestUtils.safeLength
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
-class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
+class BlockElementsTest(val alignmentRendering: AlignmentRendering) {
     lateinit var editText: AztecText
 
     companion object {
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentApproach.{0}")
-        fun data(): Collection<Array<AlignmentApproach>> {
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentRendering.{0}")
+        fun data(): Collection<Array<AlignmentRendering>> {
             return listOf(
-                    arrayOf(AlignmentApproach.SPAN_LEVEL),
-                    arrayOf(AlignmentApproach.VIEW_LEVEL)
+                    arrayOf(AlignmentRendering.SPAN_LEVEL),
+                    arrayOf(AlignmentRendering.VIEW_LEVEL)
             )
         }
     }
@@ -39,7 +39,7 @@ class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
     @Before
     fun init() {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
-        editText = AztecText(activity, alignmentApproach)
+        editText = AztecText(activity, alignmentRendering)
         editText.setCalypsoMode(false)
         activity.setContentView(editText)
     }
@@ -350,27 +350,27 @@ class BlockElementsTest(val alignmentApproach: AlignmentApproach) {
         editText.fromHtml(html)
         editText.toggleFormatting(AztecTextFormat.FORMAT_ALIGN_CENTER)
 
-        val expected = when (editText.alignmentApproach) {
-            AlignmentApproach.SPAN_LEVEL -> "<p style=\"text-align:center;\">hi</p>"
+        val expected = when (editText.alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> "<p style=\"text-align:center;\">hi</p>"
 
-            // changing alignment with togglingFormatting is a no-op with VIEW_LEVEL AlignmentApproach
-            AlignmentApproach.VIEW_LEVEL -> html
+            // changing alignment with togglingFormatting is a no-op with VIEW_LEVEL AlignmentRendering
+            AlignmentRendering.VIEW_LEVEL -> html
         }
         Assert.assertEquals(expected, editText.toHtml())
     }
 
     @Test
-    fun alignmentApproachEffectOnLeftAlignment() {
+    fun alignmentRenderingEffectOnLeftAlignment() {
         assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:left;\">left</p>")
     }
 
     @Test
-    fun alignmentApproachEffectOnCenterAlignment() {
+    fun alignmentRenderingEffectOnCenterAlignment() {
         assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:center;\">center</p>")
     }
 
     @Test
-    fun alignmentApproachEffectOnRightAlignment() {
+    fun alignmentRenderingEffectOnRightAlignment() {
         assertNoChangeWithFromHtmlToHtmlRoundTrip("<p style=\"text-align:right;\">right</p>")
     }
 

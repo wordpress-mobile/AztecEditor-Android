@@ -20,8 +20,8 @@ import org.robolectric.annotation.Config
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(sdk = intArrayOf(23))
-class AztecParserTest(alignmentApproach: AlignmentApproach) : AndroidTestCase() {
-    private var mParser = AztecParser(alignmentApproach)
+class AztecParserTest(alignmentRendering: AlignmentRendering) : AndroidTestCase() {
+    private var mParser = AztecParser(alignmentRendering)
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_LIST_ORDERED = "<ol><li>Ordered</li></ol>"
     private val HTML_LIST_ORDERED_WITH_EMPTY_ITEM = "<ol><li>Ordered 1</li><li></li><li>Ordered 2</li></ol>"
@@ -89,11 +89,11 @@ class AztecParserTest(alignmentApproach: AlignmentApproach) : AndroidTestCase() 
 
     companion object {
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentApproach.{0}")
-        fun data(): Collection<Array<AlignmentApproach>> {
+        @ParameterizedRobolectricTestRunner.Parameters(name = "Testing parser with AlignmentRendering.{0}")
+        fun data(): Collection<Array<AlignmentRendering>> {
             return listOf(
-                    arrayOf(AlignmentApproach.SPAN_LEVEL),
-                    arrayOf(AlignmentApproach.VIEW_LEVEL)
+                    arrayOf(AlignmentRendering.SPAN_LEVEL),
+                    arrayOf(AlignmentRendering.VIEW_LEVEL)
             )
         }
     }

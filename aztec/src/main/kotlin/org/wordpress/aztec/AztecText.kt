@@ -1183,6 +1183,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val parser = AztecParser(alignmentRendering, plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
+        cleanSource = CleaningUtils.cleanEmptyParagraphTags(cleanSource);
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
         builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
 

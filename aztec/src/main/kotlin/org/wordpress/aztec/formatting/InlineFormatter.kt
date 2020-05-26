@@ -11,17 +11,20 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.ITextFormat
+import org.wordpress.aztec.R
+import org.wordpress.aztec.spans.AztecBackgroundColorSpan
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 import org.wordpress.aztec.spans.AztecStyleCiteSpan
-import org.wordpress.aztec.spans.AztecStyleItalicSpan
 import org.wordpress.aztec.spans.AztecStyleEmphasisSpan
-import org.wordpress.aztec.spans.AztecStyleStrongSpan
+import org.wordpress.aztec.spans.AztecStyleItalicSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
+import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
+import java.lang.String
 import java.util.ArrayList
 
 /**
@@ -29,6 +32,8 @@ import java.util.ArrayList
  * make sure any attributes belonging to the span are processed.
  */
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
+
+    var backgroundSpanColor: Int? = null
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
 
@@ -69,6 +74,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     AztecTextFormat.FORMAT_EMPHASIS,
                     AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
+                    AztecTextFormat.FORMAT_BACKGROUND,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
@@ -205,6 +211,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
+            AztecBackgroundColorSpan::class.java -> return AztecTextFormat.FORMAT_BACKGROUND
             else -> return null
         }
     }
@@ -349,6 +356,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
+            AztecTextFormat.FORMAT_BACKGROUND -> {
+                val color = backgroundSpanColor ?: R.color.background
+                return AztecBackgroundColorSpan(color, String.format("#%06X", 0xFFFFFF and color))
+            }
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

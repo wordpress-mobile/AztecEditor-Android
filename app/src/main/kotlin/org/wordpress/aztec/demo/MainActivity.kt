@@ -45,6 +45,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.CssBackgroundColorPlugin
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -89,6 +90,7 @@ open class MainActivity : AppCompatActivity(),
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i style=\"color:darkred\">Italic</i><br>"
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
+        private val BACKGROUND = "<span style=\"background-color:#087BDE\">BACKGROUND</span><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
         private val ORDERED_WITH_START = "<h4>Start in 10 List:</h4>" +
@@ -185,6 +187,7 @@ open class MainActivity : AppCompatActivity(),
                         BOLD +
                         ITALIC +
                         UNDERLINE +
+                        BACKGROUND +
                         STRIKETHROUGH +
                         ORDERED +
                         ORDERED_WITH_START +
@@ -459,9 +462,12 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
+            aztec.visualEditor.setBackgroundSpanColor(resources.getColor(R.color.blue_wordpress))
+
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
             aztec.addPlugin(CssUnderlinePlugin())
+            aztec.addPlugin(CssBackgroundColorPlugin())
         }
 
         if (savedInstanceState == null) {

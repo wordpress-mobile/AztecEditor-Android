@@ -5,7 +5,7 @@ import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecBackgroundColorSpan
 
-class CssBackgroundColorPlugin: ISpanPreprocessor {
+class CssBackgroundColorPlugin : ISpanPreprocessor {
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecBackgroundColorSpan::class.java).forEach {

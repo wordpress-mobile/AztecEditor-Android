@@ -90,7 +90,7 @@ open class MainActivity : AppCompatActivity(),
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i style=\"color:darkred\">Italic</i><br>"
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
-        private val BACKGROUND = "<span style=\"background-color:#087BDE\">BACK</span><span style=\"background-color:darkred\">GROUND</span><br>"
+        private val BACKGROUND = "<span style=\"background-color:#087BDE\">BACK<b>GROUND</b></span><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
         private val ORDERED_WITH_START = "<h4>Start in 10 List:</h4>" +

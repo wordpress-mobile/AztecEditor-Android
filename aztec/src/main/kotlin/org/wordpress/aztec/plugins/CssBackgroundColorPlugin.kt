@@ -10,7 +10,7 @@ class CssBackgroundColorPlugin: ISpanPreprocessor {
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecBackgroundColorSpan::class.java).forEach {
             if (!CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE)) {
-                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE, it.bgColorHex)
+                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE, it.getColorHex())
             }
         }
     }

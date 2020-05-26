@@ -2,6 +2,7 @@ package org.wordpress.aztec.formatting
 
 import android.graphics.Typeface
 import android.text.Spanned
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import org.wordpress.android.util.AppLog
@@ -24,7 +25,6 @@ import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.lang.String
 import java.util.ArrayList
 
 /**
@@ -250,6 +250,11 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         spans.forEach {
             editableText.removeSpan(it)
         }
+
+        val bgSpans = editableText.getSpans(start, end, BackgroundColorSpan::class.java)
+        bgSpans.forEach {
+            editableText.removeSpan(it)
+        }
     }
 
     fun removeInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
@@ -260,6 +265,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         // special check for StyleSpans
         if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
             return firstSpan.style == secondSpan.style
+        }
+        // special check for BackgroundSpan
+        if (firstSpan is BackgroundColorSpan && secondSpan is BackgroundColorSpan) {
+            return firstSpan.backgroundColor == secondSpan.backgroundColor
         }
 
         return firstSpan.javaClass == secondSpan.javaClass
@@ -356,10 +365,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
-            AztecTextFormat.FORMAT_BACKGROUND -> {
-                val color = backgroundSpanColor ?: R.color.background
-                return AztecBackgroundColorSpan(color, String.format("#%06X", 0xFFFFFF and color))
-            }
+            AztecTextFormat.FORMAT_BACKGROUND -> return AztecBackgroundColorSpan(backgroundSpanColor ?: R.color.background)
+
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

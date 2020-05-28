@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.43](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.43)
+### Changed
+- Fixed the add image icon in Aztec Toolbar (#908)
+
 ## [1.3.42](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.42)
 ### Changed
 - Update block-based span classes to allow view level alignment rendering (#899)

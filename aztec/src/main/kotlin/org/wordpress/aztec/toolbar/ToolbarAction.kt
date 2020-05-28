@@ -22,7 +22,7 @@ enum class ToolbarAction constructor(
             setOf(AztecTextFormat.FORMAT_NONE)),
     ADD_MEDIA_EXPAND(
             R.id.format_bar_button_media_expanded,
-            R.drawable.format_bar_button_media_expanded_selector,
+            R.drawable.format_bar_button_media_collapsed_selector,
             ToolbarActionType.OTHER,
             setOf(AztecTextFormat.FORMAT_NONE)),
     HEADING(R.id.format_bar_button_heading,

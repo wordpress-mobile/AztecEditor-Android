@@ -6,7 +6,9 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.shortcodes.CaptionShortcodePlugin
 import org.wordpress.aztec.plugins.shortcodes.spans.CaptionShortcodeSpan
+import org.wordpress.aztec.plugins.shortcodes.spans.createCaptionShortcodeSpan
 import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.util.SpanWrapper
 
@@ -83,23 +85,29 @@ fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
 
         var captionSpan = textView?.text?.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
         if (captionSpan == null) {
-            captionSpan = CaptionShortcodeSpan(AztecAttributes(), CaptionShortcodePlugin.HTML_TAG, IAztecNestable.getNestingLevelAt(textView!!.text, wrapper.start), textView!!)
+            captionSpan = createCaptionShortcodeSpan(
+                    AztecAttributes(),
+                    CaptionShortcodePlugin.HTML_TAG,
+                    IAztecNestable.getNestingLevelAt(textView!!.text, wrapper.start),
+                    textView!!)
             textView!!.text.setSpan(captionSpan, wrapper.start, wrapper.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         captionSpan.caption = value
 
-        attrs?.let {
-            captionSpan.attributes = attrs
+        if (captionSpan is IAztecAlignmentSpan) {
+            attrs?.let {
+                captionSpan.attributes = attrs
 
-            if (captionSpan.attributes.hasAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
-                when (captionSpan.attributes.getValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
-                    CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_OPPOSITE
-                    CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_CENTER
-                    CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_NORMAL
+                if (captionSpan.attributes.hasAttribute(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                    when (captionSpan.attributes.getValue(CaptionShortcodePlugin.ALIGN_ATTRIBUTE)) {
+                        CaptionShortcodePlugin.ALIGN_RIGHT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_OPPOSITE
+                        CaptionShortcodePlugin.ALIGN_CENTER_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_CENTER
+                        CaptionShortcodePlugin.ALIGN_LEFT_ATTRIBUTE_VALUE -> captionSpan.align = Layout.Alignment.ALIGN_NORMAL
+                    }
+                } else {
+                    captionSpan.align = null
                 }
-            } else {
-                captionSpan.align = null
             }
         }
     }

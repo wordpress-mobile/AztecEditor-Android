@@ -152,6 +152,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val DEFAULT_IMAGE_WIDTH = 800
 
+        val DEFAULT_ALIGNMENT_RENDERING = AlignmentRendering.SPAN_LEVEL
+
         var watchersNestingLevel: Int = 0
 
         private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
@@ -248,7 +250,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
 
     var isInCalypsoMode = true
-    var isInGutenbergMode = false
+    var isInGutenbergMode: Boolean = false
+    val alignmentRendering: AlignmentRendering
 
     var consumeHistoryEvent: Boolean = false
 
@@ -334,14 +337,22 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     constructor(context: Context) : super(context) {
+        alignmentRendering = DEFAULT_ALIGNMENT_RENDERING
+        init(null)
+    }
+
+    constructor(context: Context, alignmentRendering: AlignmentRendering) : super(context) {
+        this.alignmentRendering = alignmentRendering
         init(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        alignmentRendering = DEFAULT_ALIGNMENT_RENDERING
         init(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        alignmentRendering = DEFAULT_ALIGNMENT_RENDERING
         init(attrs)
     }
 
@@ -416,7 +427,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        verticalParagraphMargin)
+                        verticalParagraphMargin),
+                alignmentRendering
         )
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
@@ -591,9 +603,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // will have the chance to run their "beforeTextChanged" and "onTextChanged" with the same string!
 
         BlockElementWatcher(this)
-                .add(HeadingHandler())
+                .add(HeadingHandler(alignmentRendering))
                 .add(ListHandler())
-                .add(ListItemHandler())
+                .add(ListItemHandler(alignmentRendering))
                 .add(QuoteHandler())
                 .add(PreformatHandler())
                 .install(this)
@@ -1118,6 +1130,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return false
     }
 
+    open fun shouldIgnoreWhitespace(): Boolean {
+        return true
+    }
+
     override fun afterTextChanged(text: Editable) {
         if (isTextChangedListenerDisabled()) {
             subWatcherNestingLevel()
@@ -1164,11 +1180,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     open fun fromHtml(source: String, isInit: Boolean = true) {
         val builder = SpannableStringBuilder()
-        val parser = AztecParser(plugins)
+        val parser = AztecParser(alignmentRendering, plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
         cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying()))
+        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1309,7 +1325,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun parseHtml(content: Spannable, withCursorTag: Boolean): String {
-        val parser = AztecParser(plugins)
+        val parser = AztecParser(alignmentRendering, plugins)
         val output: SpannableStringBuilder
         try {
             output = SpannableStringBuilder(content)
@@ -1555,7 +1571,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // Convert selected text to html and add it to clipboard
     fun copy(editable: Editable, start: Int, end: Int) {
         val selectedText = editable.subSequence(start, end)
-        val parser = AztecParser(plugins)
+        val parser = AztecParser(alignmentRendering, plugins)
         val output = SpannableStringBuilder(selectedText)
 
         clearMetaSpans(output)
@@ -1621,7 +1637,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             if (clip.itemCount > 0) {
                 val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
-                else clip.getItemAt(0).coerceToHtmlText(AztecParser(plugins))
+                else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
 
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
                 val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
@@ -1739,7 +1755,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
-            textBuilder.append(AztecParser(plugins).fromHtml(source.getPureHtml(), context).trim())
+            textBuilder.append(AztecParser(alignmentRendering, plugins).fromHtml(source.getPureHtml(), context).trim())
             setSelection(spanStart)
 
             disableTextChangedListener()

@@ -154,7 +154,7 @@ public class Html {
                                    Context context,
                                    List<IAztecPlugin> plugins,
                                    List<String> ignoredTags) {
-        return fromHtml(source, null, context, plugins, ignoredTags);
+        return fromHtml(source, null, context, plugins, ignoredTags, true);
     }
 
     /**
@@ -176,7 +176,8 @@ public class Html {
      * <p>This uses TagSoup to handle real HTML, including all of the brokenness found in the wild.
      */
     public static Spanned fromHtml(String source, TagHandler tagHandler,
-                                   Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
+                                   Context context, List<IAztecPlugin> plugins,
+                                   List<String> ignoredTags, boolean shouldIgnoreWhitespace) {
 
         Parser parser = new Parser();
         try {
@@ -195,7 +196,13 @@ public class Html {
         source = preprocessSource(source, plugins);
 
         HtmlToSpannedConverter converter =
-                new HtmlToSpannedConverter(source, tagHandler, parser, context, plugins, ignoredTags);
+                new HtmlToSpannedConverter(source,
+                        tagHandler,
+                        parser,
+                        context,
+                        plugins,
+                        ignoredTags,
+                        shouldIgnoreWhitespace);
 
         return converter.convert();
     }
@@ -238,11 +245,13 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     private Html.TagHandler tagHandler;
     private Context context;
     private List<String> ignoredTags;
+    private boolean shouldIgnoreWhitespace;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
             Parser parser,
-            Context context, List<IAztecPlugin> plugins, List<String> ignoredTags) {
+            Context context, List<IAztecPlugin> plugins,
+            List<String> ignoredTags, boolean shouldIgnoreWhitespace) {
         this.source = source;
         this.plugins = plugins;
         this.spannableStringBuilder = new SpannableStringBuilder();
@@ -250,6 +259,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         this.reader = parser;
         this.context = context;
         this.ignoredTags = ignoredTags;
+        this.shouldIgnoreWhitespace = shouldIgnoreWhitespace;
     }
 
     public Spanned convert() {
@@ -718,6 +728,12 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             char c = ch[i + start];
 
             if (!insidePreTag && !insideCodeTag && c == ' ' || c == '\n') {
+
+                if (c == ' ' && !shouldIgnoreWhitespace) {
+                    sb.append(c);
+                    continue;
+                }
+
                 char pred;
                 int len = sb.length();
 

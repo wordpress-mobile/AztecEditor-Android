@@ -29,28 +29,30 @@ import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecAudioSpan
-import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
-import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecOrderedListSpan
-import org.wordpress.aztec.spans.AztecPreformatSpan
-import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
-import org.wordpress.aztec.spans.HiddenHtmlBlock
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.createAztecQuoteSpan
+import org.wordpress.aztec.spans.createHeadingSpan
+import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
+import org.wordpress.aztec.spans.createHiddenHtmlSpan
+import org.wordpress.aztec.spans.createListItemSpan
+import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
+import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.ArrayList
 
-class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList()) : Html.TagHandler {
+class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
+) : Html.TagHandler {
     private val loadingDrawable: Drawable
 
     // Simple LIFO stack to track the html tag nesting for easy reference when we need to handle the ending of a tag
@@ -72,7 +74,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
         when (tag.toLowerCase()) {
             LIST_LI -> {
-                handleElement(output, opening, AztecListItemSpan(nestingLevel, AztecAttributes(attributes)))
+                val span = createListItemSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
+                handleElement(output, opening, span)
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
@@ -80,23 +83,26 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             SPAN -> {
-                handleElement(output, opening, HiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel))
+                val span = createHiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel, alignmentRendering)
+                handleElement(output, opening, span)
                 return true
             }
             DIV, FIGURE, FIGCAPTION, SECTION -> {
-                handleElement(output, opening, HiddenHtmlBlock(tag, AztecAttributes(attributes), nestingLevel))
+                val hiddenHtmlBlockSpan = createHiddenHtmlBlockSpan(tag, alignmentRendering, nestingLevel, AztecAttributes(attributes))
+                handleElement(output, opening, hiddenHtmlBlockSpan)
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, AztecUnorderedListSpan(nestingLevel, AztecAttributes(attributes)))
+                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
                 return true
             }
             LIST_OL -> {
-                handleElement(output, opening, AztecOrderedListSpan(nestingLevel, AztecAttributes(attributes)))
+                handleElement(output, opening, createOrderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
                 return true
             }
             BLOCKQUOTE -> {
-                handleElement(output, opening, AztecQuoteSpan(nestingLevel, AztecAttributes(attributes)))
+                val span = createAztecQuoteSpan(nestingLevel, AztecAttributes(attributes), alignmentRendering)
+                handleElement(output, opening, span)
                 return true
             }
             IMAGE -> {
@@ -118,7 +124,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PARAGRAPH -> {
-                handleElement(output, opening, createParagraphSpan(nestingLevel, AztecAttributes(attributes)))
+                val paragraphSpan = createParagraphSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
+                handleElement(output, opening, paragraphSpan)
                 return true
             }
             LINE -> {
@@ -133,12 +140,13 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             PREFORMAT -> {
-                handleElement(output, opening, AztecPreformatSpan(nestingLevel, AztecAttributes(attributes)))
+                val preformatSpan = createPreformatSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
+                handleElement(output, opening, preformatSpan)
                 return true
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
-                    handleElement(output, opening, AztecHeadingSpan(nestingLevel, tag, AztecAttributes(attributes)))
+                    handleElement(output, opening, createHeadingSpan(nestingLevel, tag, AztecAttributes(attributes), alignmentRendering))
                     return true
                 }
             }

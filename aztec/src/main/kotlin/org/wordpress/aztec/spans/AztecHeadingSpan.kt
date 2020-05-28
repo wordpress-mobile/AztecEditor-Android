@@ -7,18 +7,64 @@ import android.text.TextPaint
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
+import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
+import java.util.Locale
 
-class AztecHeadingSpan @JvmOverloads constructor(
+fun createHeadingSpan(nestingLevel: Int,
+                      tag: String,
+                      attributes: AztecAttributes,
+                      alignmentRendering: AlignmentRendering,
+                      headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
+) : AztecHeadingSpan {
+    val textFormat = when (tag.toLowerCase(Locale.getDefault())) {
+        "h1" -> AztecTextFormat.FORMAT_HEADING_1
+        "h2" -> AztecTextFormat.FORMAT_HEADING_2
+        "h3" -> AztecTextFormat.FORMAT_HEADING_3
+        "h4" -> AztecTextFormat.FORMAT_HEADING_4
+        "h5" -> AztecTextFormat.FORMAT_HEADING_5
+        "h6" -> AztecTextFormat.FORMAT_HEADING_6
+        else -> AztecTextFormat.FORMAT_HEADING_1
+    }
+    return createHeadingSpan(nestingLevel, textFormat, attributes, alignmentRendering, headerStyle)
+}
+
+fun createHeadingSpan(nestingLevel: Int,
+                      textFormat: ITextFormat,
+                      attributes: AztecAttributes,
+                      alignmentRendering: AlignmentRendering,
+                      headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
+) : AztecHeadingSpan =
+        when (alignmentRendering) {
+            AlignmentRendering.SPAN_LEVEL -> AztecHeadingSpanAligned(nestingLevel, textFormat, attributes, headerStyle)
+            AlignmentRendering.VIEW_LEVEL -> AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle)
+        }
+
+/**
+ * We need to have two classes for handling alignment at either the Span-level (AlignedAztecHeadingSpan)
+ * or the View-level (AztecHeadingSpan). IAztecAlignment implements AlignmentSpan, which has a
+ * getAlignment method that returns a non-null Layout.Alignment. The Android system checks for
+ * AlignmentSpans and, if present, overrides the view's gravity with their value. Having a class
+ * that does not implement AlignmentSpan allows the view's gravity to control. These classes should
+ * be created using the createHeadingSpan(...) methods.
+ */
+class AztecHeadingSpanAligned(
         override var nestingLevel: Int,
         textFormat: ITextFormat,
         override var attributes: AztecAttributes,
-        var headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0),
+        override var headerStyle: BlockFormatter.HeaderStyle,
         override var align: Layout.Alignment? = null
-    ) : MetricAffectingSpan(), IAztecAlignmentSpan, IAztecLineBlockSpan, LineHeightSpan, UpdateLayout {
+) : AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle), IAztecAlignmentSpan
+
+open class AztecHeadingSpan(
+        override var nestingLevel: Int,
+        textFormat: ITextFormat,
+        override var attributes: AztecAttributes,
+        open var headerStyle: BlockFormatter.HeaderStyle
+) : MetricAffectingSpan(), IAztecLineBlockSpan, LineHeightSpan, UpdateLayout {
     override val TAG: String
         get() = heading.tag
 
@@ -53,18 +99,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
         private val SCALE_H5: Float = 0.72f
         private val SCALE_H6: Float = 0.60f
 
-        fun tagToTextFormat(tag: String): ITextFormat {
-            when (tag.toLowerCase()) {
-                "h1" -> return AztecTextFormat.FORMAT_HEADING_1
-                "h2" -> return AztecTextFormat.FORMAT_HEADING_2
-                "h3" -> return AztecTextFormat.FORMAT_HEADING_3
-                "h4" -> return AztecTextFormat.FORMAT_HEADING_4
-                "h5" -> return AztecTextFormat.FORMAT_HEADING_5
-                "h6" -> return AztecTextFormat.FORMAT_HEADING_6
-                else -> return AztecTextFormat.FORMAT_HEADING_1
-            }
-        }
-
         fun textFormatToHeading(textFormat: ITextFormat): Heading {
             when (textFormat) {
                 AztecTextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan.Heading.H1
@@ -81,10 +115,6 @@ class AztecHeadingSpan @JvmOverloads constructor(
     init {
         this.textFormat = textFormat
     }
-
-    constructor(nestingLevel: Int, tag: String, attrs: AztecAttributes = AztecAttributes(),
-            headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0))
-            : this(nestingLevel, tagToTextFormat(tag), attrs, headerStyle)
 
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned

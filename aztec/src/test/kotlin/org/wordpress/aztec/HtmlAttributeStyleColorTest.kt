@@ -46,7 +46,7 @@ class HtmlAttributeStyleColorTest : AndroidTestCase() {
     @Before
     fun init() {
         context = ApplicationProvider.getApplicationContext()
-        parser = AztecParser()
+        parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
     }
 
     /**

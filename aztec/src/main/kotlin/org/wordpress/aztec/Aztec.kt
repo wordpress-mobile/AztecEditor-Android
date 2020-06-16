@@ -12,7 +12,6 @@ open class Aztec private constructor(val visualEditor: AztecText) {
     private var onAztecKeyListener: AztecText.OnAztecKeyListener? = null
     private var onTouchListener: View.OnTouchListener? = null
     private var historyListener: IHistoryListener? = null
-    private var onImageTappedListener: AztecText.OnImageTappedListener? = null
     private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
     private var isLinkTapEnabled: Boolean = false
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
@@ -68,12 +67,6 @@ open class Aztec private constructor(val visualEditor: AztecText) {
         return this
     }
 
-    fun setOnImageTappedListener(onImageTappedListener: AztecText.OnImageTappedListener): Aztec {
-        this.onImageTappedListener = onImageTappedListener
-        initImageTappedListener()
-        return this
-    }
-
     fun setHistoryListener(historyListener: IHistoryListener): Aztec {
         this.historyListener = historyListener
         initHistoryListener()
@@ -122,12 +115,6 @@ open class Aztec private constructor(val visualEditor: AztecText) {
     private fun initTouchListener() {
         if (onTouchListener != null) {
             visualEditor.setOnTouchListener(onTouchListener!!)
-        }
-    }
-
-    private fun initImageTappedListener() {
-        if (onImageTappedListener != null) {
-            visualEditor.setOnImageTappedListener(onImageTappedListener!!)
         }
     }
 

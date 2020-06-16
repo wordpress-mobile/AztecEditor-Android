@@ -22,10 +22,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.TypedArray
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
@@ -41,7 +37,6 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
-import android.util.DisplayMetrics
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -51,17 +46,13 @@ import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.wordpress.android.util.AppLog
-import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -143,25 +134,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var watchersNestingLevel: Int = 0
 
-        private fun getPlaceholderDrawableFromResID(context: Context, @DrawableRes drawableId: Int, maxImageWidthForVisualEditor: Int): BitmapDrawable {
-            val drawable = AppCompatResources.getDrawable(context, drawableId)
-            var bitmap: Bitmap
-            if (drawable is BitmapDrawable) {
-                bitmap = drawable.bitmap
-                bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
-            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (drawable is VectorDrawableCompat || drawable is VectorDrawable) ) ||
-                    drawable is VectorDrawableCompat) {
-                bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                drawable.setBounds(0, 0, canvas.width, canvas.height)
-                drawable.draw(canvas)
-            } else {
-                throw IllegalArgumentException("Unsupported Drawable Type")
-            }
-            bitmap.density = DisplayMetrics.DENSITY_DEFAULT
-            return BitmapDrawable(context.resources, bitmap)
-        }
-
         @Throws(NoSuchAlgorithmException::class)
         fun calculateSHA256(s: String): ByteArray {
             val digest = MessageDigest.getInstance("SHA-256")
@@ -214,18 +186,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var consumeSelectionChangedEvent: Boolean = false
     private var isInlineTextHandlerEnabled: Boolean = true
     private var bypassObservationQueue: Boolean = false
-    private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
     private var onSelectionChangedListener: OnSelectionChangedListener? = null
     private var onImeBackListener: OnImeBackListener? = null
-    private var onImageTappedListener: OnImageTappedListener? = null
-    private var onVideoTappedListener: OnVideoTappedListener? = null
-    private var onAudioTappedListener: OnAudioTappedListener? = null
-    private var onMediaDeletedListener: OnMediaDeletedListener? = null
-    private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
@@ -247,11 +213,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     val selectedStyles = ArrayList<ITextFormat>()
 
     private var isNewStyleSelected = false
-
-    var drawableFailed: Int = 0
-    var drawableLoading: Int = 0
-
-    var isMediaAdded = false
 
     lateinit var history: History
 
@@ -287,26 +248,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnImeBackListener {
         fun onImeBack()
-    }
-
-    interface OnImageTappedListener {
-        fun onImageTapped(attrs: AztecAttributes, naturalWidth: Int, naturalHeight: Int)
-    }
-
-    interface OnVideoTappedListener {
-        fun onVideoTapped(attrs: AztecAttributes)
-    }
-
-    interface OnAudioTappedListener {
-        fun onAudioTapped(attrs: AztecAttributes)
-    }
-
-    interface OnMediaDeletedListener {
-        fun onMediaDeleted(attrs: AztecAttributes)
-    }
-
-    interface OnVideoInfoRequestedListener {
-        fun onVideoInfoRequested(attrs: AztecAttributes)
     }
 
     interface OnAztecKeyListener {
@@ -658,8 +599,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
 
-        isMediaAdded = customState.getBoolean(IS_MEDIA_ADDED_KEY)
-
         enableTextChangedListener()
     }
 
@@ -703,8 +642,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             bundle.putInt(BLOCK_EDITOR_START_INDEX_KEY, unknownBlockSpanStart)
             InstanceStateUtils.writeTempInstance(context, externalLogger, BLOCK_EDITOR_HTML_KEY, source?.getPureHtml(false), bundle)
         }
-
-        bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
         savedState.state = bundle
         return savedState
@@ -770,26 +707,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnImeBackListener(listener: OnImeBackListener) {
         this.onImeBackListener = listener
-    }
-
-    fun setOnImageTappedListener(listener: OnImageTappedListener) {
-        this.onImageTappedListener = listener
-    }
-
-    fun setOnVideoTappedListener(listener: OnVideoTappedListener) {
-        this.onVideoTappedListener = listener
-    }
-
-    fun setOnAudioTappedListener(listener: OnAudioTappedListener) {
-        this.onAudioTappedListener = listener
-    }
-
-    fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
-        this.onMediaDeletedListener = listener
-    }
-
-    fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
-        this.onVideoInfoRequestedListener = listener
     }
 
     fun setOnLinkTappedListener(listener: OnLinkTappedListener) {

@@ -5,13 +5,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <org.wordpress.aztec.toolbar.AztecToolbar
-        android:id="@+id/formatting_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/aztec_format_bar_height"
-        android:layout_alignParentBottom="true">
-    </org.wordpress.aztec.toolbar.AztecToolbar>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

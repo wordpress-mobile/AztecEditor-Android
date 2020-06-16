@@ -34,10 +34,6 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':aztec')
-    implementation project(':glide-loader')
-    implementation project(':picasso-loader')
-    implementation project(':wordpress-comments')
-    implementation project(':wordpress-shortcodes')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 

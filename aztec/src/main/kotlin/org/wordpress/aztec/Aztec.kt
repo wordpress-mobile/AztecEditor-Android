@@ -4,82 +4,50 @@ import android.app.Activity
 import android.view.View
 import androidx.annotation.IdRes
 import org.wordpress.aztec.plugins.IAztecPlugin
-import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.toolbar.AztecToolbar
-import org.wordpress.aztec.toolbar.IAztecToolbar
-import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
 import java.util.ArrayList
 
-open class Aztec private constructor(val visualEditor: AztecText, val toolbar: IAztecToolbar,
-                                     private val toolbarClickListener: IAztecToolbarClickListener) {
-    private var imageGetter: Html.ImageGetter? = null
-    private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+open class Aztec private constructor(val visualEditor: AztecText) {
     private var imeBackListener: AztecText.OnImeBackListener? = null
     private var onAztecKeyListener: AztecText.OnAztecKeyListener? = null
     private var onTouchListener: View.OnTouchListener? = null
     private var historyListener: IHistoryListener? = null
     private var onImageTappedListener: AztecText.OnImageTappedListener? = null
-    private var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
-    private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
-    private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
-    private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
     private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
     private var isLinkTapEnabled: Boolean = false
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
     var sourceEditor: SourceViewEditText? = null
 
-    init {
-        initToolbar()
-    }
-
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
-                        @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
-                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
-            activity.findViewById<SourceViewEditText>(sourceTextId), activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
+                        @IdRes sourceTextId: Int)
+            : this(activity.findViewById<AztecText>(aztecTextId),
+            activity.findViewById<SourceViewEditText>(sourceTextId))
 
-    private constructor(activity: Activity, @IdRes aztecTextId: Int,
-                @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
-            activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
+    private constructor(activity: Activity, @IdRes aztecTextId: Int)
+            : this(activity.findViewById<AztecText>(aztecTextId))
 
-    private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
+    private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText)
+            : this(visualEditor) {
         this.sourceEditor = sourceEditor
 
-        initToolbar()
         initSourceEditorHistory()
     }
 
     companion object Factory {
         @JvmStatic
-        fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int,
-                 @IdRes toolbarId: Int, toolbarClickListener: IAztecToolbarClickListener): Aztec {
-            return Aztec(activity, aztecTextId, sourceTextId, toolbarId, toolbarClickListener)
+        fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int): Aztec {
+            return Aztec(activity, aztecTextId, sourceTextId)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
-            return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
+        fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText): Aztec {
+            return Aztec(visualEditor, sourceEditor)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
-            return Aztec(visualEditor, toolbar, toolbarClickListener)
+        fun with(visualEditor: AztecText): Aztec {
+            return Aztec(visualEditor)
         }
-    }
-
-    fun setImageGetter(imageGetter: Html.ImageGetter): Aztec {
-        this.imageGetter = imageGetter
-        initImageGetter()
-        return this
-    }
-
-    fun setVideoThumbnailGetter(videoThumbnailGetter: Html.VideoThumbnailGetter): Aztec {
-        this.videoThumbnailGetter = videoThumbnailGetter
-        initVideoGetter()
-        return this
     }
 
     fun setOnImeBackListener(imeBackListener: AztecText.OnImeBackListener): Aztec {
@@ -106,30 +74,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         return this
     }
 
-    fun setOnVideoTappedListener(onVideoTappedListener: AztecText.OnVideoTappedListener): Aztec {
-        this.onVideoTappedListener = onVideoTappedListener
-        initVideoTappedListener()
-        return this
-    }
-
-    fun setOnAudioTappedListener(onAudioTappedListener: AztecText.OnAudioTappedListener): Aztec {
-        this.onAudioTappedListener = onAudioTappedListener
-        initAudioTappedListener()
-        return this
-    }
-
-    fun setOnMediaDeletedListener(onMediaDeletedListener: AztecText.OnMediaDeletedListener): Aztec {
-        this.onMediaDeletedListener = onMediaDeletedListener
-        initMediaDeletedListener()
-        return this
-    }
-
-    fun setOnVideoInfoRequestedListener(onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener): Aztec {
-        this.onVideoInfoRequestedListener = onVideoInfoRequestedListener
-        initVideoInfoRequestedListener()
-        return this
-    }
-
     fun setHistoryListener(historyListener: IHistoryListener): Aztec {
         this.historyListener = historyListener
         initHistoryListener()
@@ -150,11 +94,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
 
     fun addPlugin(plugin: IAztecPlugin): Aztec {
         plugins.add(plugin)
-
-        if (plugin is IToolbarButton) {
-            toolbar.addButton(plugin)
-        }
-
         return this
     }
 
@@ -162,27 +101,9 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
         sourceEditor?.history = visualEditor.history
     }
 
-    private fun initToolbar() {
-        toolbar.setEditor(visualEditor, sourceEditor)
-        toolbar.setToolbarListener(toolbarClickListener)
-        visualEditor.setToolbar(toolbar)
-    }
-
     private fun initHistoryListener() {
         if (historyListener != null) {
             visualEditor.history.setHistoryListener(historyListener!!)
-        }
-    }
-
-    private fun initImageGetter() {
-        if (imageGetter != null) {
-            visualEditor.imageGetter = imageGetter
-        }
-    }
-
-    private fun initVideoGetter() {
-        if (videoThumbnailGetter != null) {
-            visualEditor.videoThumbnailGetter = videoThumbnailGetter
         }
     }
 
@@ -207,30 +128,6 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
     private fun initImageTappedListener() {
         if (onImageTappedListener != null) {
             visualEditor.setOnImageTappedListener(onImageTappedListener!!)
-        }
-    }
-
-    private fun initVideoTappedListener() {
-        if (onVideoTappedListener != null) {
-            visualEditor.setOnVideoTappedListener(onVideoTappedListener!!)
-        }
-    }
-
-    private fun initAudioTappedListener() {
-        if (onAudioTappedListener != null) {
-            visualEditor.setOnAudioTappedListener(onAudioTappedListener!!)
-        }
-    }
-
-    private fun initMediaDeletedListener() {
-        if (onMediaDeletedListener != null) {
-            visualEditor.setOnMediaDeletedListener(onMediaDeletedListener!!)
-        }
-    }
-
-    private fun initVideoInfoRequestedListener() {
-        if (onVideoInfoRequestedListener != null) {
-            visualEditor.setOnVideoInfoRequestedListener(onVideoInfoRequestedListener!!)
         }
     }
 

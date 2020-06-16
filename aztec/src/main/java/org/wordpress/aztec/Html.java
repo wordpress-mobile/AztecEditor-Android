@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -40,7 +39,6 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
 import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler;
 import org.wordpress.aztec.spans.AztecCodeSpan;
 import org.wordpress.aztec.spans.AztecCursorSpan;
-import org.wordpress.aztec.spans.AztecMediaSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
 import org.wordpress.aztec.spans.AztecStyleBoldSpan;
@@ -86,46 +84,6 @@ import static org.wordpress.aztec.util.ExtensionsKt.getLast;
  * Not all HTML tags are supported.
  */
 public class Html {
-    /**
-     * Retrieves images for HTML &lt;img&gt; tags.
-     */
-    public interface ImageGetter {
-        /**
-         * This method is called when the HTML parser encounters an
-         * &lt;img&gt; tag.  The <code>source</code> argument is the
-         * string from the "src" attribute; the return value should be
-         * a Drawable representation of the image or <code>null</code>
-         * for a generic replacement image.  Make sure you call
-         * setBounds() on your Drawable if it doesn't already have
-         * its bounds set.
-         */
-        void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth);
-
-        void loadImage(String source, Html.ImageGetter.Callbacks callbacks, int maxWidth, int minWidth);
-
-        interface Callbacks {
-            void onImageFailed();
-
-            void onImageLoaded(Drawable drawable);
-
-            void onImageLoading(Drawable drawable);
-        }
-    }
-
-    public interface VideoThumbnailGetter {
-        void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth);
-
-        void loadVideoThumbnail(String source, Html.VideoThumbnailGetter.Callbacks callbacks, int maxWidth, int minWidth);
-
-        interface Callbacks {
-            void onThumbnailFailed();
-
-            void onThumbnailLoaded(Drawable drawable);
-
-            void onThumbnailLoading(Drawable drawable);
-        }
-    }
-
     /**
      * Is notified when HTML tags are encountered that the parser does
      * not know how to interpret.
@@ -278,7 +236,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         // Fix flags and range for paragraph-type markup.
         Object[] paragraphs = spannableStringBuilder.getSpans(0, spannableStringBuilder.length(), ParagraphStyle.class);
         for (Object paragraph : paragraphs) {
-            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof IAztecParagraphStyle || paragraph instanceof AztecMediaSpan) {
+            if (paragraph instanceof UnknownHtmlSpan || paragraph instanceof IAztecParagraphStyle) {
                 continue;
             }
             int start = spannableStringBuilder.getSpanStart(paragraph);
@@ -467,7 +425,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
 
             if (contentHandlerPlugin == null && contentHandlerLevel == 0) {
                 // Time to wrap up our content handler tag in a Span
-                spannableStringBuilder.append(Constants.INSTANCE.getIMG_CHAR()); // placeholder character
+                spannableStringBuilder.append(Constants.INSTANCE.getPLACEHOLDER_CHAR()); // placeholder character
                 endContentHandler(spannableStringBuilder, nestingLevel, content, context);
             } else if (contentHandlerLevel == 0) {
                 // Content is handled by a plugin

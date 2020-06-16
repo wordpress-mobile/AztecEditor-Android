@@ -22,19 +22,11 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Spanned
-import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
-import org.wordpress.aztec.spans.AztecAudioSpan
-import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
-import org.wordpress.aztec.spans.AztecImageSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
-import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
-import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
@@ -53,14 +45,11 @@ import java.util.ArrayList
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
 ) : Html.TagHandler {
-    private val loadingDrawable: Drawable
-
     // Simple LIFO stack to track the html tag nesting for easy reference when we need to handle the ending of a tag
     private val tagStack = mutableListOf<Any>()
 
     init {
         val styles = context.obtainStyledAttributes(R.styleable.AztecText)
-        loadingDrawable = AppCompatResources.getDrawable(context, styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading))!!
         styles.recycle()
     }
 
@@ -105,38 +94,9 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 handleElement(output, opening, span)
                 return true
             }
-            IMAGE -> {
-                handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
-                return true
-            }
-            VIDEO -> {
-                if (opening) {
-                    handleMediaElement(true, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
-                    handleMediaElement(false, output, AztecVideoSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
-                }
-                return true
-            }
-            AUDIO -> {
-                if (opening) {
-                    handleMediaElement(true, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
-                    handleMediaElement(false, output, AztecAudioSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
-                }
-                return true
-            }
             PARAGRAPH -> {
                 val paragraphSpan = createParagraphSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, paragraphSpan)
-                return true
-            }
-            LINE -> {
-                if (opening) {
-                    // Add an extra newline above the line to prevent weird typing on the line above
-                    start(output, AztecHorizontalRuleSpan(context, AppCompatResources.getDrawable(context, R.drawable.img_hr)!!,
-                            nestingLevel, AztecAttributes(attributes)))
-                    output.append(Constants.MAGIC_CHAR)
-                } else {
-                    end(output, AztecHorizontalRuleSpan::class.java)
-                }
                 return true
             }
             PREFORMAT -> {
@@ -166,17 +126,6 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                     }
                 })
         return false
-    }
-
-    private fun handleMediaElement(opening: Boolean, output: Editable, mediaSpan: AztecMediaSpan) {
-        if (opening) {
-            start(output, mediaSpan)
-            start(output, AztecMediaClickableSpan(mediaSpan))
-            output.append(Constants.IMG_CHAR)
-        } else {
-            end(output, AztecMediaClickableSpan::class.java)
-            end(output, mediaSpan.javaClass)
-        }
     }
 
     private fun handleElement(output: Editable, opening: Boolean, span: Any) {
@@ -241,9 +190,5 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
         private val PREFORMAT = "pre"
-        private val IMAGE = "img"
-        private val VIDEO = "video"
-        private val AUDIO = "audio"
-        private val LINE = "hr"
     }
 }

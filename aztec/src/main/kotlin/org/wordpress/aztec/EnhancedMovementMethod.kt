@@ -6,7 +6,6 @@ import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
@@ -77,7 +76,7 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             }
 
             if (link != null) {
-                if (link is AztecMediaClickableSpan || link is UnknownClickableSpan) {
+                if (link is UnknownClickableSpan) {
                     link.onClick(widget)
                     return true
                 } else if (link is AztecURLSpan && isLinkTapEnabled) {

@@ -1,23 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="FormatBarButton">
-        <item name="android:minWidth">@dimen/aztec_format_bar_height</item>
-        <item name="android:minHeight">@dimen/aztec_format_bar_height</item>
-        <item name="android:textOn">@null</item>
-        <item name="android:textOff">@null</item>
-    </style>
-
-    <style name="DividerHorizontal">
-        <item name="android:background">@color/format_bar_divider_horizontal</item>
-    </style>
-
     <style name="ToolbarLayoutDirection">
         <item name="android:layoutDirection" tools:targetApi="jelly_bean_mr1">ltr</item>
-    </style>
-
-    <style name="DividerVertical">
-        <item name="android:background">@color/format_bar_divider_vertical</item>
     </style>
 
     <style name="DividerSourceView">
@@ -49,13 +34,6 @@
         <item name="quoteWidth">@dimen/quote_width</item>
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>
-    </style>
-
-    <style name="AztecToolbarStyle">
-        <item name="advanced">false</item>
-        <item name="toolbarIconNormalColor">@color/grey_darken_20</item>
-        <item name="toolbarIconHighlightColor">@color/almost_black</item>
-        <item name="toolbarIconDisabledColor">@color/grey_lighten_20</item>
     </style>
 
     <style name="Shortcut.Key.Multiple" parent="TextAppearance.AppCompat">

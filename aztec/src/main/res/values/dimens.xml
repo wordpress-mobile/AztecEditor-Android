@@ -25,15 +25,6 @@
     <dimen name="spacing_extra">0dp</dimen>
     <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
 
-    <!-- TOOLBAR -->
-    <dimen name="aztec_format_bar_height">48dp</dimen>
-    <dimen name="aztec_format_bar_start_margin">5dp</dimen>
-    <dimen name="aztec_format_bar_end_margin">5dp</dimen>
-
-    <dimen name="format_bar_horizontal_divider_height">1dp</dimen>
-    <dimen name="format_bar_vertical_divider_width">0.6dp</dimen>
-    <dimen name="format_bar_vertical_divider_height">28dp</dimen>
-
     <dimen name="link_dialog_margin_inner">4dp</dimen>
     <dimen name="link_dialog_margin_outer">16dp</dimen>
 

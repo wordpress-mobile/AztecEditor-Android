@@ -16,27 +16,6 @@
     <string name="block_editor_dialog_button_save">Save</string>
     <string name="block_editor_dialog_button_cancel">Cancel</string>
 
-    <!-- FORMAT -->
-    <string name="format_bar_description_heading">Heading</string>
-    <string name="format_bar_description_bold">Bold</string>
-    <string name="format_bar_description_italic">Italic</string>
-    <string name="format_bar_description_underline">Underline</string>
-    <string name="format_bar_description_strike">Strikethrough</string>
-    <string name="format_bar_description_align_left">Align Left</string>
-    <string name="format_bar_description_align_right">Align Right</string>
-    <string name="format_bar_description_align_center">Align Center</string>
-    <string name="format_bar_description_quote">Block quote</string>
-    <string name="format_bar_description_link">Link</string>
-    <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>
-    <string name="format_bar_description_media_normal">Show Media Options</string>
-    <string name="format_bar_description_media_expanded">Hide Media Options</string>
-    <string name="format_bar_description_list">List</string>
-    <string name="format_bar_description_html">HTML</string>
-    <string name="format_bar_description_ellipsis_collapse">Collapse Toolbar</string>
-    <string name="format_bar_description_ellipsis_expand">Expand Toolbar</string>
-    <string name="visual_editor">Visual toolbarActionListener</string>
-    <string name="image_thumbnail">Image thumbnail</string>
-
     <!-- HEADING -->
     <string name="heading_1">Heading 1</string>
     <string name="heading_2">Heading 2</string>
@@ -52,22 +31,6 @@
     <string name="link_enter_url_text">Link text (optional)</string>
     <string name="create_a_link">Create a link</string>
     <string name="link_open_new_window">Open link in a new window/tab</string>
-
-    <!-- MEDIA -->
-    <string name="error_chooser_photo">No app was found to choose a photo</string>
-    <string name="error_chooser_video">No app was found to choose a video</string>
-    <string name="media_popup_gallery">Gallery</string>
-    <string name="media_upload_dialog_message">Media must be uploaded before editing HTML.</string>
-    <string name="media_upload_dialog_positive">OK</string>
-    <string name="title_select_photo">Select Photo</string>
-    <string name="title_select_video">Select Video</string>
-    <string name="media_popup_take_photo">Take Photo</string>
-    <string name="media_popup_take_video">Take Video</string>
-    <string name="media_popup_gallery_chose_photo">Photo from device</string>
-    <string name="media_popup_gallery_chose_video">Video from device</string>
-    <string name="media_bar_description_gallery">Pick a media from gallery</string>
-    <string name="media_bar_description_camera">Take Photo or Video with camera</string>
-    <string name="media_item_content_description">Media</string>
 
     <!-- SHORTCUTS -->
     <string name="header_edit">Edit</string>

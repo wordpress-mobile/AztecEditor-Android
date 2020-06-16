@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils
 class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     private val ACCESSIBILITY_INVALID_LINE_ID = -1
 
-    private val mediaItemContentDescription = aztecText.getContext().getString(R.string.media_item_content_description)
     private val cursorMovedText = aztecText.getContext().getString(R.string.cursor_moved)
     private val accessibilityManager = aztecText.context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
@@ -64,7 +63,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             aztecText.requestFocus()
         } else {
-            val announcement = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
+            val announcement = getTextAtLine(lineOffset)
             accessibilityManager.interrupt()
             aztecText.announceForAccessibility(announcement)
         }

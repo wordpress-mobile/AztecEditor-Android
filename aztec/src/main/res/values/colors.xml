@@ -16,19 +16,6 @@
     <color name="text">@color/grey_dark</color>
     <color name="text_hint">@color/grey_disabled</color>
 
-    <!-- TOOLBAR -->
-    <color name="format_bar_background">@color/grey_light</color>
-    <color name="format_bar_button">@color/grey</color>
-    <color name="format_bar_button_disabled">@color/grey_lighten_30</color>
-    <color name="format_bar_button_highlighted">@color/almost_black</color>
-    <color name="format_bar_divider_horizontal">@color/grey_lighten_10</color>
-    <color name="format_bar_divider_vertical">@color/grey_lighten_20</color>
-    <color name="format_bar_ripple_animation">@color/grey_lighten_10</color>
-
-    <color name="image_options_label">@color/grey</color>
-
-    <color name="legacy_format_bar_background">@color/grey_e</color>
-    <color name="legacy_format_bar_button_selected">@color/blue_medium</color>
     <color name="legacy_placeholder_content_text">#ff21759b</color>
     <color name="legacy_pressed_wordpress">#cc78c8e6</color>
 

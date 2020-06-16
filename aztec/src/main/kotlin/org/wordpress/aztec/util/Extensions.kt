@@ -9,9 +9,6 @@ import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK
 import android.widget.Button
 import android.widget.ToggleButton
-import androidx.annotation.DrawableRes
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -81,14 +78,4 @@ fun ToggleButton.convertToButtonAccessibilityProperties() {
             info?.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(ACTION_CLICK, context.getString(R.string.accessibility_action_click_label)))
         }
     })
-}
-
-/**
- * Method sets a customisable background drawable to all the toolbar buttons.
- * The AztecToolbarStyle can be overridden in the main app module to customise the color of the toolbar buttons.
- */
-fun ToggleButton.setBackgroundDrawableRes(@DrawableRes backgroundDrawableRes: Int) {
-    val wrapper = ContextThemeWrapper(context, R.style.AztecToolbarStyle)
-    val drawable = AppCompatResources.getDrawable(wrapper, backgroundDrawableRes)
-    this.background = drawable
 }

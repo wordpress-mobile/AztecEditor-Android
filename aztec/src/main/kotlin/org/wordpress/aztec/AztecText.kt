@@ -25,7 +25,6 @@ import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
 import android.os.Bundle
@@ -73,38 +72,26 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
-import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecCursorSpan
-import org.wordpress.aztec.spans.AztecDynamicImageSpan
-import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
-import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
-import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 import org.wordpress.aztec.spans.UnknownHtmlSpan
-import org.wordpress.aztec.toolbar.IAztecToolbar
-import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.CleaningUtils
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
 import org.wordpress.aztec.watchers.BlockElementWatcher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
-import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
 import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
@@ -257,8 +244,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private var unknownBlockSpanStart = -1
 
-    private var formatToolbar: IAztecToolbar? = null
-
     val selectedStyles = ArrayList<ITextFormat>()
 
     private var isNewStyleSelected = false
@@ -274,9 +259,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     lateinit var blockFormatter: BlockFormatter
     lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
-
-    var imageGetter: Html.ImageGetter? = null
-    var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
 
     var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
@@ -388,9 +370,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         setTextColor(styles.getColor(R.styleable.AztecText_textColor, ContextCompat.getColor(context, R.color.text)))
         setHintTextColor(styles.getColor(R.styleable.AztecText_textColorHint, ContextCompat.getColor(context, R.color.text_hint)))
 
-        drawableLoading = styles.getResourceId(R.styleable.AztecText_drawableLoading, R.drawable.ic_image_loading)
-        drawableFailed = styles.getResourceId(R.styleable.AztecText_drawableFailed, R.drawable.ic_image_failed)
-
         historyEnable = styles.getBoolean(R.styleable.AztecText_historyEnable, historyEnable)
         historySize = styles.getInt(R.styleable.AztecText_historySize, historySize)
 
@@ -480,49 +459,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             handleBackspaceAndEnter(event)
         }
 
-        // This InputFilter created only for the purpose of avoiding crash described here:
-        // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
-        // https://github.com/wordpress-mobile/AztecEditor-Android/issues/729
-        // the rationale behind this workaround is that the specific crash happens only when adding/deleting text right
-        // before an AztecImageSpan, so we detect the specific case and re-create the contents only when that happens.
-        // This is indeed tackling the symptom rather than the actual problem, and should be removed once the real
-        // problem is fixed at the Android OS level as described in the following url
-        // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
-        val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
-            var temp : CharSequence? = null
-            if (!bypassCrashPreventerInputFilter && dend < dest.length && source != Constants.NEWLINE_STRING) {
-
-                // if there are any images right after the destination position, hack the text
-                val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
-                if (spans.isNotEmpty()) {
-
-                    // prevent this filter from running recursively
-                    disableCrashPreventerInputFilter()
-                    // disable MediaDeleted listener before operating on content
-                    disableMediaDeletedListener()
-
-                    // create a new Spannable to perform the text change here
-                    var newText = SpannableStringBuilder(dest.subSequence(0, dstart))
-                            .append(source.subSequence(start, end))
-                            .append(dest.subSequence(dend, dest.length))
-
-                    // force a history update to ensure the change is recorded
-                    history.beforeTextChanged(this@AztecText)
-
-                    // use HTML from the new text to set the state of the editText directly
-                    fromHtml(toFormattedHtml(newText), false)
-
-                    contentChangeWatcher.notifyContentChanged()
-
-                    // re-enable MediaDeleted listener
-                    enableMediaDeletedListener()
-                    // re-enable this very filter
-                    enableCrashPreventerInputFilter()
-                }
-            }
-            temp
-        }
-
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && end == 0 && start == 0
@@ -539,12 +475,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
-        } else {
-            filters = arrayOf(emptyEditTextBackspaceDetector)
-        }
+        filters = arrayOf(emptyEditTextBackspaceDetector)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
@@ -612,16 +543,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         TextDeleter.install(this)
 
-        FullWidthImageElementWatcher.install(this)
-
         EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            DeleteMediaElementWatcherAPI25AndHigher.install(this)
-        } else {
-            DeleteMediaElementWatcherPreAPI25.install(this)
-        }
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()
@@ -649,8 +572,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 if (isTextChangedListenerDisabled()) {
                     return
                 }
-
-                isMediaAdded = text.getSpans(0, text.length, AztecMediaSpan::class.java).isNotEmpty()
 
                 if (consumeHistoryEvent) {
                     consumeHistoryEvent = false
@@ -886,14 +807,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return super.onKeyPreIme(keyCode, event)
     }
 
-    override fun onKeyUp(keyCode: Int, keyEvent: KeyEvent): Boolean {
-        if (formatToolbar?.onKeyUp(keyCode, keyEvent) ?: false) {
-            return true
-        } else {
-            return super.onKeyUp(keyCode, keyEvent)
-        }
-    }
-
     public override fun onSelectionChanged(selStart: Int, selEnd: Int) {
         super.onSelectionChanged(selStart, selEnd)
         if (!isViewInitialized) return
@@ -979,14 +892,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
         }
 
-        plugins.filter { it is IToolbarButton }
-                .flatMap { (it as IToolbarButton).action.textFormats }
-                .forEach {
-                    if (contains(it, newSelStart, newSelEnd)) {
-                        styles.add(it)
-                    }
-                }
-
         return styles
     }
 
@@ -1029,19 +934,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
-            AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
+            AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(setOf(AztecTextFormat.FORMAT_STRONG, AztecTextFormat.FORMAT_BOLD))
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
             AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
-            else -> {
-                plugins.filter { it is IToolbarButton && it.action.textFormats.contains(textFormat) }
-                        .map { it as IToolbarButton }
-                        .forEach { it.toggle() }
-            }
         }
 
         contentChangeWatcher.notifyContentChanged()
@@ -1073,14 +972,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_LINK -> return linkFormatter.containLink(selStart, selEnd)
             else -> return false
         }
-    }
-
-    fun setToolbar(toolbar: IAztecToolbar) {
-        formatToolbar = toolbar
-    }
-
-    fun getToolbar(): IAztecToolbar? {
-        return formatToolbar
     }
 
     private fun addWatcherNestingLevel(): Int {
@@ -1191,10 +1082,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         switchToAztecStyle(builder, 0, builder.length)
         disableTextChangedListener()
 
-        builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
-            it.textView = this
-        }
-
         val cursorPosition = consumeCursorPosition(builder)
         setSelection(0)
 
@@ -1205,79 +1092,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         if (isInit) {
             initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
-        }
-
-        loadImages()
-        loadVideos()
-    }
-
-    private fun loadImages() {
-        val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
-
-        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
-        // the wrong value when used in 3rd party app
-        val maxDimension = maxImagesWidth
-        spans.forEach {
-            val callbacks = object : Html.ImageGetter.Callbacks {
-                override fun onImageFailed() {
-                    replaceImage(
-                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
-                    )
-                }
-
-                override fun onImageLoaded(drawable: Drawable?) {
-                    replaceImage(drawable)
-                }
-
-                override fun onImageLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: loadingDrawable)
-                }
-
-                private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
-                    post {
-                        refreshText(false)
-                    }
-                }
-            }
-            imageGetter?.loadImage(it.getSource(), callbacks, maxDimension, minImagesWidth)
-        }
-    }
-
-    private fun loadVideos() {
-        val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
-        val videoListenerRef = this.onVideoInfoRequestedListener
-
-        // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
-        // the wrong value when used in 3rd party app
-        val maxDimension = maxImagesWidth
-        spans.forEach {
-            val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
-                override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
-                }
-
-                override fun onThumbnailLoaded(drawable: Drawable?) {
-                    replaceImage(drawable)
-                }
-
-                override fun onThumbnailLoading(drawable: Drawable?) {
-                    replaceImage(drawable ?: loadingDrawable)
-                }
-
-                private fun replaceImage(drawable: Drawable?) {
-                    it.drawable = drawable
-                    post {
-                        refreshText(false)
-                    }
-                }
-            }
-            videoThumbnailGetter?.loadVideoThumbnail(it.getSource(), callbacks, maxImagesWidth, minImagesWidth)
-
-            // Call the Video listener and ask for more info about the current video
-            videoListenerRef?.onVideoInfoRequested(it.attributes)
         }
     }
 
@@ -1382,24 +1196,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
-        val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
-        imageSpans.forEach {
-            it.onImageTappedListener = onImageTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
-        }
-
-        val videoSpans = editable.getSpans(start, end, AztecVideoSpan::class.java)
-        videoSpans.forEach {
-            it.onVideoTappedListener = onVideoTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
-        }
-
-        val audioSpans = editable.getSpans(start, end, AztecAudioSpan::class.java)
-        audioSpans.forEach {
-            it.onAudioTappedListener = onAudioTappedListener
-            it.onMediaDeletedListener = onMediaDeletedListener
-        }
-
         val unknownHtmlSpans = editable.getSpans(start, end, UnknownHtmlSpan::class.java)
         unknownHtmlSpans.forEach {
             it.onUnknownHtmlTappedListener = this
@@ -1437,18 +1233,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun enableCrashPreventerInputFilter() {
         bypassCrashPreventerInputFilter = false
-    }
-
-    fun disableMediaDeletedListener() {
-        bypassMediaDeletedListener = true
-    }
-
-    fun enableMediaDeletedListener() {
-        bypassMediaDeletedListener = false
-    }
-
-    fun isMediaDeletedListenerDisabled(): Boolean {
-        return bypassMediaDeletedListener
     }
 
     fun isTextChangedListenerDisabled(): Boolean {
@@ -1801,32 +1585,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         onSelectionChanged(0, 0)
     }
 
-    fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
-    }
-
-    fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
-    }
-
-    fun removeMedia(attributePredicate: AttributePredicate) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .forEach {
-                    val start = text.getSpanStart(it)
-                    val end = text.getSpanEnd(it)
-
-                    val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
-
-                    text.removeSpan(clickableSpan)
-                    text.removeSpan(it)
-
-                    text.delete(start, end)
-                }
-    }
-
     interface AttributePredicate {
         /**
          * Return true if the attributes list fulfills some condition
@@ -1838,56 +1596,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
             attributePredicate.matches(it.attributes)
         }?.attributes = attrs
-    }
-
-    fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes) && text.getSpanStart(it) != -1 && text.getSpanEnd(it) != -1
-                }
-                .forEach {
-                    editableText.setSpan(it, text.getSpanStart(it), text.getSpanEnd(it), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-    }
-
-    fun setOverlayLevel(attributePredicate: AttributePredicate, index: Int, level: Int) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .forEach {
-                    it.setOverlayLevel(index, level)
-                }
-    }
-
-    fun setOverlay(attributePredicate: AttributePredicate, index: Int, overlay: Drawable?, gravity: Int) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .forEach {
-                    // set the new overlay drawable
-                    it.setOverlay(index, overlay, gravity)
-
-                    invalidate()
-                }
-    }
-
-    fun clearOverlays(attributePredicate: AttributePredicate) {
-        text.getSpans(0, text.length, AztecMediaSpan::class.java)
-                .filter {
-                    attributePredicate.matches(it.attributes)
-                }
-                .forEach {
-                    it.clearOverlays()
-
-                    invalidate()
-                    post {
-                        // Refresh last history item so undo/redo works properly
-                        // for media.
-                        history.refreshLastHistoryItem(this@AztecText)
-                    }
-                }
     }
 
     fun getElementAttributes(attributePredicate: AttributePredicate): AztecAttributes {

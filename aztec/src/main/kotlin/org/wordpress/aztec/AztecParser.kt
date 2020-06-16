@@ -37,16 +37,12 @@ import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecCursorSpan
-import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
-import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
-import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.IAztecParagraphStyle
@@ -54,7 +50,6 @@ import org.wordpress.aztec.spans.IAztecSurroundedWithNewlines
 import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.ArrayList
-import java.util.Collections
 import java.util.Comparator
 
 class AztecParser @JvmOverloads constructor(private val alignmentRendering: AlignmentRendering,
@@ -365,8 +360,6 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
 
         do {
             val nestableElements = text.getSpans(i, end, IAztecNestable::class.java)
-                    .filter { it !is IAztecFullWidthImageSpan }
-                    .toTypedArray()
 
             nestableElements.sortWith(Comparator { a, b ->
                 val startComparison = text.getSpanStart(a).compareTo(text.getSpanStart(b))
@@ -503,8 +496,6 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
 
             val spans = text.getSpans(i, next, CharacterStyle::class.java).toMutableList()
 
-            fixOrderOfNestedMediaAndUrlSpans(spans, text)
-
             for (j in spans.indices) {
                 val span = spans[j]
 
@@ -528,16 +519,6 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
                                 i = next
                             }
                         }
-
-                if (span is AztecHorizontalRuleSpan) {
-                    out.append("<${span.startTag} />")
-                    i = next
-                }
-
-                if (span is AztecMediaSpan) {
-                    out.append(span.getHtml())
-                    i = next
-                }
             }
 
             withinStyle(out, text, i, next, nl)
@@ -574,23 +555,6 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
 
             out.append("<br>")
             consumeCursorIfInInput(out, text, end + z)
-        }
-    }
-
-    private fun fixOrderOfNestedMediaAndUrlSpans(spans: MutableList<CharacterStyle>, text: Spanned) {
-        val urlSpan = spans.firstOrNull { it is AztecURLSpan }
-        val mediaSpan = spans.firstOrNull { it is AztecMediaSpan }
-
-        if (urlSpan != null && mediaSpan != null) {
-            val urlSpanStart = text.getSpanStart(urlSpan)
-            val urlSpanEnd = text.getSpanEnd(urlSpan)
-
-            val isUrlSpanFollowsMediaSpan = spans.indexOf(urlSpan) > spans.indexOf(mediaSpan)
-            val isMediaSpanWithinUrlSpan = text.getSpanStart(mediaSpan) >= urlSpanStart && text.getSpanEnd(mediaSpan) <= urlSpanEnd
-
-            if (isUrlSpanFollowsMediaSpan && isMediaSpanWithinUrlSpan) {
-                Collections.swap(spans, spans.indexOf(urlSpan), spans.indexOf(mediaSpan))
-            }
         }
     }
 

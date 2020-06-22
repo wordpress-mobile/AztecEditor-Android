@@ -43,6 +43,7 @@
         <attr name="toolbarIconNormalColor" format="reference|color" />
         <attr name="toolbarIconHighlightColor" format="reference|color" />
         <attr name="toolbarIconDisabledColor" format="reference|color" />
+        <attr name="customLayout" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">

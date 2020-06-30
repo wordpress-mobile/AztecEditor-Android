@@ -3,7 +3,6 @@ package org.wordpress.aztec.formatting
 import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
-import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecAttributes
@@ -228,8 +227,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 editableText.removeSpan(it)
             }
         }
-        // remove the CSS style span
-        removeInlineCssStyle()
 
         list.forEach {
             if (it.isValid) {
@@ -243,18 +240,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
 
         joinStyleSpans(start, end)
-    }
-
-    fun removeInlineCssStyle(start: Int = selectionStart, end: Int = selectionEnd) {
-        val spans = editableText.getSpans(start, end, ForegroundColorSpan::class.java)
-        spans.forEach {
-            editableText.removeSpan(it)
-        }
-
-        val bgSpans = editableText.getSpans(start, end, BackgroundColorSpan::class.java)
-        bgSpans.forEach {
-            editableText.removeSpan(it)
-        }
     }
 
     fun removeInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {

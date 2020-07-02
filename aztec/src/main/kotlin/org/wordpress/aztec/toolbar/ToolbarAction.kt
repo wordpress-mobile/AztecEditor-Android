@@ -48,7 +48,7 @@ enum class ToolbarAction constructor(
             R.id.format_bar_button_italic,
             R.drawable.format_bar_button_italic_selector,
             ToolbarActionType.INLINE_STYLE,
-            setOf(AztecTextFormat.FORMAT_ITALIC, AztecTextFormat.FORMAT_EMPHASIS)),
+            setOf(AztecTextFormat.FORMAT_EMPHASIS, AztecTextFormat.FORMAT_ITALIC)),
     STRIKETHROUGH(
             R.id.format_bar_button_strikethrough,
             R.drawable.format_bar_button_strikethrough_selector,

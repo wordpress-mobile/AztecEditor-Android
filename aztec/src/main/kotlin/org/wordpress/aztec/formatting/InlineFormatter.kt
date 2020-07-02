@@ -115,7 +115,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             return
         }
 
-        if (textFormat == AztecTextFormat.FORMAT_BACKGROUND){
+        if (textFormat == AztecTextFormat.FORMAT_BACKGROUND) {
             //clear previous background before applying a new one to avoid problems when using multiple bg colors
             removeBackgroundInSelection(selectionStart, selectionEnd)
         }
@@ -237,11 +237,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun removeInlineStyle(spanToRemove: IAztecInlineSpan, start: Int = selectionStart, end: Int = selectionEnd) {
         val textFormat = spanToTextFormat(spanToRemove) ?: return
-
-        if (textFormat == AztecTextFormat.FORMAT_BACKGROUND){
-           // removeBackgroundInSelection(start, end)
-         //   return
-        }
 
         val spans = editableText.getSpans(start, end, IAztecInlineSpan::class.java)
         val list = ArrayList<AztecPart>()

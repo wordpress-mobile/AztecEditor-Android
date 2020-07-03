@@ -45,6 +45,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.BackgroundColorButton
 import org.wordpress.aztec.plugins.CssBackgroundColorPlugin
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
@@ -462,12 +463,13 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.visualEditor.setBackgroundSpanColor(resources.getColor(R.color.blue_wordpress))
+            aztec.visualEditor.setBackgroundSpanColor(resources.getColor(R.color.blue_dark))
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
             aztec.addPlugin(CssUnderlinePlugin())
             aztec.addPlugin(CssBackgroundColorPlugin())
+            aztec.addPlugin(BackgroundColorButton(visualEditor))
         }
 
         if (savedInstanceState == null) {

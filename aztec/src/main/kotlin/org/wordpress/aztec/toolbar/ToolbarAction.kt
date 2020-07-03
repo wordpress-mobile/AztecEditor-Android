@@ -34,11 +34,6 @@ enum class ToolbarAction constructor(
             R.drawable.format_bar_button_ul_selector,
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_NONE)),
-    BACKGROUND(
-            R.id.button_background_color,
-            R.drawable.format_bar_button_background_selector,
-            ToolbarActionType.INLINE_STYLE,
-            setOf(AztecTextFormat.FORMAT_BACKGROUND)),
     BOLD(
             R.id.format_bar_button_bold,
             R.drawable.format_bar_button_bold_selector,

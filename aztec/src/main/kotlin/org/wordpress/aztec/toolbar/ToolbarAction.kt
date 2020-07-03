@@ -35,7 +35,7 @@ enum class ToolbarAction constructor(
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_NONE)),
     BACKGROUND(
-            R.id.format_bar_button_background,
+            R.id.button_background_color,
             R.drawable.format_bar_button_background_selector,
             ToolbarActionType.INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_BACKGROUND)),

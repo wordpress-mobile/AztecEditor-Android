@@ -7,6 +7,7 @@ import org.wordpress.aztec.AztecAttributes
 
 class AztecBackgroundColorSpan(
         val color: Int,
+        val alpha: Int = 220,
         tag: String = "span",
         override var attributes: AztecAttributes = AztecAttributes()
 ) : BackgroundColorSpan(color), IAztecInlineSpan {
@@ -16,7 +17,7 @@ class AztecBackgroundColorSpan(
     }
 
     override fun updateDrawState(textPaint: TextPaint) {
-        textPaint.bgColor =  Color.argb(220, Color.red(color), Color.green(color), Color.blue(color))
+        textPaint.bgColor = Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color))
     }
 
     override val TAG = tag

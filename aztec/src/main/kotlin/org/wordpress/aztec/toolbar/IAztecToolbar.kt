@@ -8,7 +8,7 @@ import org.wordpress.aztec.source.SourceViewEditText
 interface IAztecToolbar {
     fun onKeyUp(keyCode: Int, keyEvent: KeyEvent): Boolean
     fun addButton(buttonPlugin: IToolbarButton)
-    fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?)
+    fun setEditor(editor: AztecText?, sourceEditor: SourceViewEditText?)
     fun setToolbarListener(listener: IAztecToolbarClickListener)
     fun toggleMediaToolbar()
     fun toggleEditorMode()

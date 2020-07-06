@@ -1081,7 +1081,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    fun setToolbar(toolbar: IAztecToolbar) {
+    fun setToolbar(toolbar: IAztecToolbar?) {
         formatToolbar = toolbar
     }
 

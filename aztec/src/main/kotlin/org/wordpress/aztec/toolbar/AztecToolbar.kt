@@ -378,7 +378,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         return editor != null && editor is AztecText
     }
 
-    override fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?) {
+    override fun setEditor(editor: AztecText?, sourceEditor: SourceViewEditText?) {
         this.sourceEditor = sourceEditor
         this.editor = editor
 

@@ -176,7 +176,7 @@ class AztecToolbarTest {
         Assert.assertTrue(strikeThroughButton.isChecked)
 
         editText.append("strike")
-        Assert.assertEquals("<del>strike</del>", editText.toHtml())
+        Assert.assertEquals("<s>strike</s>", editText.toHtml())
 
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
@@ -196,7 +196,7 @@ class AztecToolbarTest {
         editText.setSelection(0, editText.length())
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
-        Assert.assertEquals("<del>strike</del>", editText.toHtml())
+        Assert.assertEquals("<s>strike</s>", editText.toHtml())
 
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
@@ -275,14 +275,14 @@ class AztecToolbarTest {
         editText.append("Str")
         strikeThroughButton.performClick()
         editText.append("ike")
-        Assert.assertEquals("<strong>Bo</strong>ld<em>Ita</em>lic<del>Str</del>ike", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld<em>Ita</em>lic<s>Str</s>ike", editText.toHtml())
 
         // Underline
         underlineButton.performClick()
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
-        Assert.assertEquals("<strong>Bo</strong>ld<em>Ita</em>lic<del>Str</del>ike<u>Under</u>line", editText.toHtml())
+        Assert.assertEquals("<strong>Bo</strong>ld<em>Ita</em>lic<s>Str</s>ike<u>Under</u>line", editText.toHtml())
 
         // Clear text
         editText.setText("")
@@ -306,14 +306,14 @@ class AztecToolbarTest {
         strikeThroughButton.performClick()
         editText.append("ike")
         strikeThroughButton.performClick()
-        Assert.assertEquals("Bo<strong>ld</strong>Ita<em>lic</em>Str<del>ike</del>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>Ita<em>lic</em>Str<s>ike</s>", editText.toHtml())
 
         // Underline
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
         underlineButton.performClick()
-        Assert.assertEquals("Bo<strong>ld</strong>Ita<em>lic</em>Str<del>ike</del>Under<u>line</u>", editText.toHtml())
+        Assert.assertEquals("Bo<strong>ld</strong>Ita<em>lic</em>Str<s>ike</s>Under<u>line</u>", editText.toHtml())
     }
 
     /**
@@ -352,7 +352,7 @@ class AztecToolbarTest {
         editText.append("Str")
         strikeThroughButton.performClick()
         editText.append("ike")
-        Assert.assertEquals(" <strong>Bo</strong>ld <em>Ita</em>lic <del>Str</del>ike", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld <em>Ita</em>lic <s>Str</s>ike", editText.toHtml())
 
         // Space
         editText.append(" ")
@@ -362,7 +362,7 @@ class AztecToolbarTest {
         editText.append("Under")
         underlineButton.performClick()
         editText.append("line")
-        Assert.assertEquals(" <strong>Bo</strong>ld <em>Ita</em>lic <del>Str</del>ike <u>Under</u>line", editText.toHtml())
+        Assert.assertEquals(" <strong>Bo</strong>ld <em>Ita</em>lic <s>Str</s>ike <u>Under</u>line", editText.toHtml())
     }
 
     /**
@@ -407,14 +407,14 @@ class AztecToolbarTest {
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
 
-        Assert.assertEquals("<strong>bold</strong> <strong><em>bolditalic</em></strong> <em>italic</em> <del>strike</del> underline normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> <strong><em>bolditalic</em></strong> <em>italic</em> <s>strike</s> underline normal", editText.toHtml())
 
         editText.setSelection(30, 39)
 
         underlineButton.performClick()
         Assert.assertTrue(underlineButton.isChecked)
 
-        Assert.assertEquals("<strong>bold</strong> <strong><em>bolditalic</em></strong> <em>italic</em> <del>strike</del> <u>underline</u> normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong> <strong><em>bolditalic</em></strong> <em>italic</em> <s>strike</s> <u>underline</u> normal", editText.toHtml())
     }
 
     /**
@@ -447,19 +447,19 @@ class AztecToolbarTest {
         strikeThroughButton.performClick()
         Assert.assertTrue(strikeThroughButton.isChecked)
         editText.append("strike")
-        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><del>strike</del>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><s>strike</s>", editText.toHtml())
         strikeThroughButton.performClick()
         Assert.assertFalse(strikeThroughButton.isChecked)
 
         underlineButton.performClick()
         Assert.assertTrue(underlineButton.isChecked)
         editText.append("underline")
-        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><del>strike</del><u>underline</u>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><s>strike</s><u>underline</u>", editText.toHtml())
         underlineButton.performClick()
         Assert.assertFalse(underlineButton.isChecked)
 
         editText.append("normal")
-        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><del>strike</del><u>underline</u>normal", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong><em>italic</em><s>strike</s><u>underline</u>normal", editText.toHtml())
     }
 
     /**
@@ -470,7 +470,7 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun testSelection() {
-        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><del>strike</del><u>underline</u>normal")
+        editText.fromHtml("<b>bold</b><b><i>bolditalic</i></b><i>italic</i><s>strike</s><u>underline</u>normal")
 
         // cursor is at bold text
         editText.setSelection(2)
@@ -554,7 +554,7 @@ class AztecToolbarTest {
 
     /**
      * Select part of text with one common style applied to it (bold) and another style (strikethrough)
-     * applied to part of it ("ds" from <b>bold</b><b><del>strike</del></b>) and extend partially
+     * applied to part of it ("ds" from <b>bold</b><b><s>strike</s></b>) and extend partially
      * applied style (strikethrough) to other part of selection.
      *
      * @throws Exception
@@ -562,7 +562,7 @@ class AztecToolbarTest {
     @Test
     @Throws(Exception::class)
     fun extendStyleStrikethroughPartialSelection() {
-        editText.fromHtml("<b>bold</b><b><del>strike</del></b>")
+        editText.fromHtml("<b>bold</b><b><s>strike</s></b>")
 
         val selectedText = editText.text.substring(3, 5)
         Assert.assertEquals("ds", selectedText) // sanity check
@@ -572,7 +572,7 @@ class AztecToolbarTest {
         Assert.assertFalse(strikeThroughButton.isChecked)
 
         strikeThroughButton.performClick()
-        Assert.assertEquals("<b>bol</b><b><del>dstrike</del></b>", editText.toHtml())
+        Assert.assertEquals("<b>bol</b><b><s>dstrike</s></b>", editText.toHtml())
     }
 
     /**
@@ -685,7 +685,7 @@ class AztecToolbarTest {
         editText.setSelection(9, 15)
         strikeThroughButton.performClick()
 
-        Assert.assertEquals("<div class=\"third\"><strong>Div</strong><br><span><em>Span</em></span><br><del>Hidden</del></div>",
+        Assert.assertEquals("<div class=\"third\"><strong>Div</strong><br><span><em>Span</em></span><br><s>Hidden</s></div>",
                 editText.toHtml())
     }
 

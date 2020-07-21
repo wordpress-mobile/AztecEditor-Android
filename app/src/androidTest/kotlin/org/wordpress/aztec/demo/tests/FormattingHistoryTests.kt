@@ -232,7 +232,7 @@ class FormattingHistoryTests : BaseHistoryTest() {
     fun testMakeStrikethroughUndoRedo() {
         val snippet1 = "There's no crying in"
         val snippet2 = " baseball!"
-        val html = "$snippet1<del>$snippet2</del>"
+        val html = "$snippet1<s>$snippet2</s>"
         val editorPage = EditorPage()
 
         // Insert first snippet

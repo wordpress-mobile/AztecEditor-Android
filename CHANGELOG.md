@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.44](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.44)
+### Changed
+- Updated strikethrough to default to `<s>` tag (#919)
+
 ## [1.3.43](https://github.com/wordpress-mobile/AztecEditor-Android/releases/tag/v1.3.43)
 ### Changed
 - Fixed the add image icon in Aztec Toolbar (#908)

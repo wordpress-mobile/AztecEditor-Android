@@ -130,5 +130,4 @@ We use [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can ru
 
 ## License
 
-Aztec is an Open Source project covered by the
-[GNU General Public License version 2](LICENSE.md).
+Aztec is an open source project covered by the [Mozilla Public License Version 2.0](LICENSE.md).

@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
@@ -47,6 +48,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
@@ -86,6 +88,7 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
+import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -299,6 +302,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     val contentChangeWatcher = AztecContentChangeWatcher()
 
+    var lastPressedXCoord: Int = 0
+    var lastPressedYCoord: Int = 0
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -466,9 +472,110 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // Needed to properly initialize the cursor position
         setSelection(0)
 
+        // only override startDrag for Android 9 or later to workaround the following issue:
+        // "IllegalStateException: Drag shadow dimensions must be positive"
+        // - see https://issuetracker.google.com/issues/113347222
+        // - also https://github.com/wordpress-mobile/WordPress-Android/issues/10492
+        // rationale: the LongClick gesture takes precedence over the startDrag operation
+        // so, listening to it first gives us the possibility to discard processing the event
+        // when the crash conditions would be otherwise met. Conditions follow.
+        // In the case of a zero width character being the sole selection, the shadow dimensions
+        // would be zero, incurring in the actual crash. Given it doesn't really make sense to
+        // select a newline and try dragging it around, we're just completely capturing the event
+        // and signaling the OS that it was handled, so it doesn't propagate to the TextView's
+        // longClickListener actually implementing dragging.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            setOnLongClickListener(OnLongClickListener { // if we have a selection
+                val start: Int = getSelectionStart()
+                val end: Int = getSelectionEnd()
+                // the selection is exactly 1 character long, so let's check
+                if (end - start == 1) {
+                    // check if the user long-clicked on the selection to start a drag movement
+                    val selectionRect: Rect = getBoxContainingSelectionCoordinates()
+                    if (selectionRect.left < lastPressedXCoord
+                            && selectionRect.top < lastPressedYCoord
+                            && selectionRect.right > lastPressedXCoord
+                            && selectionRect.bottom > lastPressedYCoord) {
+
+                        if (selectionHasExactlyOneMarker(
+                                        start,
+                                        end,
+                                        EndOfParagraphMarker::class.java)) {
+                            // signal this event as handled so dragging does not go forward
+                            return@OnLongClickListener true
+                        }
+
+                        if (selectionHasExactlyOneMarker(
+                                        start,
+                                        end,
+                                        AztecVisualLinebreak::class.java)) {
+                            // signal this event as handled so dragging does not go forward
+                            return@OnLongClickListener true
+                        }
+                    }
+                }
+                false
+            })
+        }
+
         enableTextChangedListener()
 
         isViewInitialized = true
+    }
+
+    private fun <T>selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
+        val spanFound: Array<T> = editableText.getSpans(
+                start,
+                end,
+                type
+        )
+        return spanFound.size == 1
+    }
+
+    private fun getBoxContainingSelectionCoordinates(): Rect {
+        // obtain the location on the screen, we'll use it later to adjust x/y
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        val startLine = layout.getLineForOffset(selectionStart)
+        val endLine = layout.getLineForOffset(selectionEnd)
+        val startLineBounds = Rect()
+        getLineBounds(startLine, startLineBounds)
+        val containingBoxBounds: Rect
+        // if both lines aren't the same, the selection expands accross multiple lines
+        containingBoxBounds = if (endLine != startLine) {
+            // in such case, let's simplify things and obtain the bigger box
+            // (first line top/left, last line bottom/right)
+            val lastLineBounds = Rect()
+            getLineBounds(endLine, lastLineBounds)
+            Rect(
+                    startLineBounds.left + location[0] - scrollX,
+                    startLineBounds.top + location[1] - scrollY,
+                    lastLineBounds.right + location[0] - scrollX,
+                    lastLineBounds.bottom + location[1] - scrollY
+            )
+        } else {
+            // if the selection doesn't go through lines, then make the containing box adjusted to actual
+            // selection start / end
+            // now I need the X to be the actual start cursor X
+            val left = (layout.getPrimaryHorizontal(selectionStart).toInt() + location[0]
+                    - scrollX + startLineBounds.left)
+            val right = (layout.getPrimaryHorizontal(selectionEnd).toInt() + location[0]
+                    - scrollX + startLineBounds.left)
+            val top = startLineBounds.top + location[1] - scrollY
+            val bottom = startLineBounds.bottom + location[1] - scrollY
+            Rect(left, top, right, bottom)
+        }
+        return containingBoxBounds
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                && event.action == MotionEvent.ACTION_DOWN) {
+            // we'll use these values in OnLongClickListener
+            lastPressedXCoord = event.rawX.toInt()
+            lastPressedYCoord = event.rawY.toInt()
+        }
+        return super.onTouchEvent(event)
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.

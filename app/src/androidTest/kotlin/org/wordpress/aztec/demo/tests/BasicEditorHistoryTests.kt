@@ -116,7 +116,7 @@ class BasicEditorHistoryTests : BaseHistoryTest() {
                 .insertHTML(word4)
                 .threadSleep(throttleTime)
 
-        // Undo each change and verify.
+        // Undo each change and verify
         editorPage
                 .undoChange()
                 .verifyHTML(word1 + word2 + word3)
@@ -128,7 +128,7 @@ class BasicEditorHistoryTests : BaseHistoryTest() {
                 .verifyHTML("")
                 .threadSleep(throttleTime)
 
-        // Redo each change and verify.
+        // Redo each change and verify
         editorPage
                 .redoChange()
                 .verifyHTML(word1)

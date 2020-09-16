@@ -630,17 +630,31 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             temp
         }
 
-        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
-            if (selectionStart == 0 && selectionEnd == 0
-                    && end == 0 && start == 0
-                    && dstart == 0 && dend == 0
-                    && !isHandlingBackspaceEvent) {
+        val backspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+            if (isHandlingBackspaceEvent) {
+                // It's already handling a backspace event. Do nothing.
+            } else if (end != 0 || start != 0) {
+                // Not a text erase event
+            } else if (selectionStart != selectionEnd) {
+                // there is something selected on the editor, let's make Aztec do the work
+            } else if (onAztecKeyListener != null) {
+                // There is a listener set, let's use it
                 isHandlingBackspaceEvent = true
 
                 // Prevent the forced backspace from being added to the history stack
                 consumeHistoryEvent = true
 
-                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL), start, end, dstart, dend)
+                isHandlingBackspaceEvent = false
+            } else if (dstart == 0 && dend == 0) {
+                // Fallback to the old Aztec implementation that does check only the beginnning of the field
+                // Make sure we're at the beginning of the editor field
+                isHandlingBackspaceEvent = true
+
+                // Prevent the forced backspace from being added to the history stack
+                consumeHistoryEvent = true
+
+                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL), start, end, dstart, dend)
                 isHandlingBackspaceEvent = false
             }
             source
@@ -648,13 +662,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+            filters = arrayOf(dynamicLayoutCrashPreventer, backspaceDetector)
         } else {
-            filters = arrayOf(emptyEditTextBackspaceDetector)
+            filters = arrayOf(backspaceDetector)
         }
     }
 
-    private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {
+    private fun handleBackspaceAndEnter(event: KeyEvent, start: Int = -1, end: Int = -1, dstart: Int = -1, dend: Int = -1): Boolean {
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_ENTER) {
             // Check if the external listener has consumed the enter pressed event
             // In that case stop the execution

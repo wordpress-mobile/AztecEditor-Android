@@ -632,8 +632,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
-                    && end == 0 && start == 0
+                    && end == 1 && start == 0
                     && dstart == 0 && dend == 0
+                    && isCleanStringEmpty(source)
                     && !isHandlingBackspaceEvent) {
                 isHandlingBackspaceEvent = true
 
@@ -652,6 +653,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         } else {
             filters = arrayOf(emptyEditTextBackspaceDetector)
         }
+    }
+
+    private fun isCleanStringEmpty(text: CharSequence): Boolean {
+        return (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
     }
 
     private fun handleBackspaceAndEnter(event: KeyEvent): Boolean {

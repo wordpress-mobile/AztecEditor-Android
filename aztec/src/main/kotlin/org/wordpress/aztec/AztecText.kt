@@ -656,7 +656,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
-        if( isInGutenbergMode ) {
+        if ( isInGutenbergMode ) {
             return (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
         } else {
             return text.count() == 0

@@ -16,7 +16,7 @@ import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(16, 21, 25))
+@Config(sdk = intArrayOf(18, 21, 25))
 class CssStyleAttributeTest : AndroidTestCase() {
 
     private val EMPTY_STYLE_HTML = "<b>bold</b>"

@@ -29,7 +29,7 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
  * Also tests invalid html style attribute color properties.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(16, 21, 25))
+@Config(sdk = intArrayOf(18, 21, 25))
 class HtmlAttributeStyleColorTest : AndroidTestCase() {
 
     private val HTML_BOLD_STYLE_COLOR = "<b style=\"color:blue;\">Blue</b>"

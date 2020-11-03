@@ -752,7 +752,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // finally add the TextChangedListener
         addTextChangedListener(this)
-        addEnterKeyWatcher()
     }
 
     private fun addEnterKeyWatcher(){

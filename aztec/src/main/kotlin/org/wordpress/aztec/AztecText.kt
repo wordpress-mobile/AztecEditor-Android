@@ -44,6 +44,7 @@ import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -51,6 +52,7 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -584,7 +586,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private fun setupKeyListenersAndInputFilters() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
-            handleBackspaceAndEnter(event)
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL){
+             handleBackspaceAndEnter(event)
+            }
+            else {
+                return@setOnKeyListener false
+            }
         }
 
         // This InputFilter created only for the purpose of avoiding crash described here:
@@ -745,6 +752,36 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // finally add the TextChangedListener
         addTextChangedListener(this)
+        addEnterKeyWatcher()
+    }
+
+    private fun addEnterKeyWatcher(){
+        val enterKeyWatcher = object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
+
+                string?.let { s ->
+                    if (s.isNotEmpty() && s.subSequence(start, start + 1).toString().equals("\n", true) && before == 0 && count==1) {
+                        Log.v("testing","enter key");
+
+                        when{
+                            before == 0 && count == 1 -> {
+                                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                            }
+
+                        }
+                    }
+                }
+
+          }
+
+        }
+        addTextChangedListener(enterKeyWatcher);
     }
 
     private fun addHistoryLoggingWatcher() {

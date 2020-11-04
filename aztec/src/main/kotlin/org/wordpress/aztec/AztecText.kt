@@ -737,7 +737,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         FullWidthImageElementWatcher.install(this)
 
-        EndOfBufferMarkerAdder.install(this)
+       // EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
@@ -748,7 +748,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]
         addHistoryLoggingWatcher()
-        ParagraphCollapseRemover.install(this)
+        //ParagraphCollapseRemover.install(this)
 
         // finally add the TextChangedListener
         addTextChangedListener(this)

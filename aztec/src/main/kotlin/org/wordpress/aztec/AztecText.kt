@@ -469,7 +469,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
 
-        install()
+       // install()
 
         // Needed to properly initialize the cursor position
         setSelection(0)
@@ -741,9 +741,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         ZeroIndexContentWatcher.install(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            DeleteMediaElementWatcherAPI25AndHigher.install(this)
+        //    DeleteMediaElementWatcherAPI25AndHigher.install(this)
         } else {
-            DeleteMediaElementWatcherPreAPI25.install(this)
+        //    DeleteMediaElementWatcherPreAPI25.install(this)
         }
 
         // History related logging has to happen before the changes in [ParagraphCollapseRemover]

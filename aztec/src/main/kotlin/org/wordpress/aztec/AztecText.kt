@@ -768,7 +768,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     // ensures that we aren't processing the last character.
                     if (start != sequence.length) {
                         // checks to see if we have a /n within the sequence.
-                        if (sequence.isNotEmpty() && sequence.subSequence(start, start + 1).toString().equals(Constants.NEWLINE.toString(), true) && before == 0 && count == 1) {
+                        if (sequence.isNotEmpty() && sequence.subSequence(start, start + 1).toString().equals(Constants.NEWLINE.toString(), true)) {
                             handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                         }
                     }

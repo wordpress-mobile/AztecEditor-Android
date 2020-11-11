@@ -764,10 +764,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             }
 
             override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
-
-                string?.let { s ->
-                    if (s.isNotEmpty() && s.subSequence(start, start + 1).toString().equals(Constants.NEWLINE.toString(), true) && before == 0 && count == 1) {
-                        handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                string?.let { sequence ->
+                    // ensures that we aren't processing the last character.
+                    if (start != sequence.length - 1) {
+                        // checks to see if we have a /n within the sequence.
+                        if (sequence.isNotEmpty() && sequence.subSequence(start, start + 1).toString().equals(Constants.NEWLINE.toString(), true) && before == 0 && count == 1) {
+                            handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                        }
                     }
                 }
             }

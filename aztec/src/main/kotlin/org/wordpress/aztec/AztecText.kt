@@ -586,8 +586,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private fun setupKeyListenersAndInputFilters() {
         //hardware keyboard
         setOnKeyListener { _, _, event ->
-            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL){
-             handleBackspaceAndEnter(event)
+            if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+                handleBackspaceAndEnter(event)
             }
             else {
                 return@setOnKeyListener false
@@ -766,21 +766,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             override fun onTextChanged(string: CharSequence?, start: Int, before: Int, count: Int) {
 
                 string?.let { s ->
-                    if (s.isNotEmpty() && s.subSequence(start, start + 1).toString().equals("\n", true) && before == 0 && count==1) {
-                        Log.v("testing","enter key");
-
-                        when{
-                            before == 0 && count == 1 -> {
-                                handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
-                            }
-
-                        }
+                    if (s.isNotEmpty() && s.subSequence(start, start + 1).toString().equals(Constants.NEWLINE.toString(), true) && before == 0 && count == 1) {
+                        handleBackspaceAndEnter(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
                     }
                 }
-
+            }
           }
 
-        }
         addTextChangedListener(enterKeyWatcher);
     }
 

@@ -46,7 +46,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testSimpleStrikethroughFormatting() {
         val text1 = "some"
         val text2 = "text"
-        val html = "$text1<del>$text2</del>"
+        val html = "$text1<s>$text2</s>"
 
         EditorPage()
                 .insertText(text1)
@@ -351,7 +351,7 @@ class SimpleTextFormattingTests : BaseTest() {
     fun testInlineStyleAndSpace() {
         val text1 = "some"
         val text2 = "text "
-        val html = "$text1<del>$text2</del>"
+        val html = "$text1<s>$text2</s>"
 
         EditorPage()
                 .insertText(text1)

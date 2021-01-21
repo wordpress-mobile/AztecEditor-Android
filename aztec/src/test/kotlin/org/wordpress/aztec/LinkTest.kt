@@ -47,11 +47,11 @@ class LinkTest {
     @Test
     @Throws(Exception::class)
     fun insertLinkIntoStyledText() {
-        editText.fromHtml("<del><b>left</b><i>right</i></del>")
+        editText.fromHtml("<s><b>left</b><i>right</i></s>")
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
         // Still valid, but order of b and del is switched here for some reason.
-        Assert.assertEquals("<b><del>left</del></b><b><del><a href=\"http://wordpress.com\">WordPress</a></del></b><del><i>right</i></del>", editText.toHtml())
+        Assert.assertEquals("<b><s>left</s></b><b><s><a href=\"http://wordpress.com\">WordPress</a></s></b><s><i>right</i></s>", editText.toHtml())
     }
 
     @Test

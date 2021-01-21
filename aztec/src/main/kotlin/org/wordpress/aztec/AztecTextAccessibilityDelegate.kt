@@ -62,7 +62,6 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     private fun announceLine(lineOffset: Int) {
         if (!aztecText.isFocused || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
-            aztecText.requestFocus()
         } else {
             val announcement = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)
             accessibilityManager.interrupt()

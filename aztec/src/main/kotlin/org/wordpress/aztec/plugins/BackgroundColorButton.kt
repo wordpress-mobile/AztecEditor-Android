@@ -1,5 +1,6 @@
 package org.wordpress.aztec.plugins
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +9,12 @@ import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.toolbar.ToolbarActionType
 
 class BackgroundColorButton(val visualEditor: AztecText) : IToolbarButton {
 
-    override val action: IToolbarAction = BackgroundColorAction()
+    override val action: IToolbarAction = ToolbarAction.BACKGROUND
     override val context = visualEditor.context!!
 
     override fun toggle() {
@@ -27,10 +29,4 @@ class BackgroundColorButton(val visualEditor: AztecText) : IToolbarButton {
         toolbar.findViewById<View>(action.buttonId).isEnabled = enable
     }
 
-    inner class BackgroundColorAction : IToolbarAction {
-        override val buttonId = R.id.button_background_color
-        override val actionType = ToolbarActionType.INLINE_STYLE
-        override val textFormats = setOf(AztecTextFormat.FORMAT_BACKGROUND)
-        override val buttonDrawableRes = R.drawable.format_bar_button_background_selector
-    }
 }

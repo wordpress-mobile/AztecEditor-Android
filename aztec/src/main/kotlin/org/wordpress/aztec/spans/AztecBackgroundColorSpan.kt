@@ -6,11 +6,12 @@ import android.text.style.BackgroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 
 class AztecBackgroundColorSpan(
-        val color: Int,
-        val alpha: Int = 220,
-        tag: String = "span",
-        override var attributes: AztecAttributes = AztecAttributes()
+        val color: Int
 ) : BackgroundColorSpan(color), IAztecInlineSpan {
+
+    var alpha: Int = 220
+    var tag: String = "span"
+    override var attributes: AztecAttributes = AztecAttributes()
 
     fun getColorHex(): String {
         return java.lang.String.format("#%06X", 0xFFFFFF and color)

@@ -281,10 +281,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         if (firstSpan is StyleSpan && secondSpan is StyleSpan) {
             return firstSpan.style == secondSpan.style
         }
-        // special check for BackgroundSpan
-        if (firstSpan is AztecBackgroundColorSpan && secondSpan is AztecBackgroundColorSpan) {
-            return firstSpan.backgroundColor == secondSpan.backgroundColor
-        }
 
         return firstSpan.javaClass == secondSpan.javaClass
     }

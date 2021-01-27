@@ -16,7 +16,7 @@ enum class ToolbarAction constructor(
     : IToolbarAction {
 
     BACKGROUND(
-            R.id.button_background_color,
+            R.id.format_bar_button_background_color,
             R.drawable.format_bar_button_background_selector,
             ToolbarActionType.INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_BACKGROUND)

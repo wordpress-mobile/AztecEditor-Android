@@ -26,6 +26,7 @@ class AztecToolbarTest {
     lateinit var italicButton: ToggleButton
     lateinit var strikeThroughButton: ToggleButton
     lateinit var underlineButton: ToggleButton
+    lateinit var backgroundColorButton: ToggleButton
     lateinit var quoteButton: ToggleButton
     lateinit var linkButton: ToggleButton
     lateinit var htmlButton: ToggleButton
@@ -51,6 +52,7 @@ class AztecToolbarTest {
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic)
         strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough)
         underlineButton = toolbar.findViewById(R.id.format_bar_button_underline)
+        backgroundColorButton = toolbar.findViewById(R.id.format_bar_button_background_color)
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote)
         linkButton = toolbar.findViewById(R.id.format_bar_button_link)
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html)
@@ -243,6 +245,47 @@ class AztecToolbarTest {
         Assert.assertFalse(underlineButton.isChecked)
 
         Assert.assertEquals("underline", editText.toHtml())
+    }
+
+    /**
+     * Toggle backgroundColor button and type.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testBackgroundColorTyping() {
+        Assert.assertFalse(backgroundColorButton.isChecked)
+        backgroundColorButton.performClick()
+        Assert.assertTrue(backgroundColorButton.isChecked)
+
+        editText.append("backgroundColor")
+        Assert.assertEquals("<span>backgroundColor</span>", editText.toHtml())
+
+        backgroundColorButton.performClick()
+        Assert.assertFalse(backgroundColorButton.isChecked)
+    }
+
+    /**
+     * Select text and toggle backgroundColor button.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun testBackgroundColorToggle() {
+        Assert.assertFalse(backgroundColorButton.isChecked)
+
+        editText.append("backgroundColor")
+        editText.setSelection(0, editText.length())
+        backgroundColorButton.performClick()
+        Assert.assertTrue(backgroundColorButton.isChecked)
+        Assert.assertEquals("<span>backgroundColor</span>", editText.toHtml())
+
+        backgroundColorButton.performClick()
+        Assert.assertFalse(backgroundColorButton.isChecked)
+
+        Assert.assertEquals("backgroundColor", editText.toHtml())
     }
 
     /**

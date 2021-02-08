@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.wordpress.aztec.plugins.BackgroundColorButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
@@ -52,7 +53,6 @@ class AztecToolbarTest {
         italicButton = toolbar.findViewById(R.id.format_bar_button_italic)
         strikeThroughButton = toolbar.findViewById(R.id.format_bar_button_strikethrough)
         underlineButton = toolbar.findViewById(R.id.format_bar_button_underline)
-        backgroundColorButton = toolbar.findViewById(R.id.format_bar_button_background_color)
         quoteButton = toolbar.findViewById(R.id.format_bar_button_quote)
         linkButton = toolbar.findViewById(R.id.format_bar_button_link)
         htmlButton = toolbar.findViewById(R.id.format_bar_button_html)
@@ -60,6 +60,8 @@ class AztecToolbarTest {
         alignCenterButton = toolbar.findViewById(R.id.format_bar_button_align_center)
         alignRightButton = toolbar.findViewById(R.id.format_bar_button_align_right)
 
+        toolbar.addButton(BackgroundColorButton(editText))
+        backgroundColorButton = toolbar.findViewById(R.id.format_bar_button_background_color)
     }
 
     /**

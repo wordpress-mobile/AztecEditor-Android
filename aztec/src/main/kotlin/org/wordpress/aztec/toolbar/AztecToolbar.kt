@@ -450,7 +450,15 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         toolbarButtonPlugins.add(buttonPlugin)
 
         val button = findViewById<ToggleButton>(buttonPlugin.action.buttonId)
-        button.setOnClickListener { buttonPlugin.toggle() }
+        val isToolbarAction = ToolbarAction.values().contains(buttonPlugin.action)
+        button.setOnClickListener {
+            if (isToolbarAction) {
+                onToolbarAction(buttonPlugin.action)
+            } else {
+                buttonPlugin.toggle()
+            }
+        }
+
         button.setBackgroundDrawableRes(buttonPlugin.action.buttonDrawableRes)
 
         setupMediaButtonForAccessibility(buttonPlugin)

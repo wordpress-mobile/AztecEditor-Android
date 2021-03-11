@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <group
+      android:pivotX="32"
+      android:pivotY="32"
+      android:scaleX="0.6"
+      android:scaleY="0.6">
+  <path
+      android:fillColor="?attr/toolbarIconNormalColor"
+      android:pathData="M33.12,17.88l-17.88,-17.88 -2.83,2.83 4.76,4.76 -10.29,10.29c-1.17,1.17 -1.17,3.07 0,4.24l11,11c0.58,0.59 1.35,0.88 2.12,0.88s1.54,-0.29 2.12,-0.88l11,-11c1.17,-1.17 1.17,-3.07 0,-4.24zM10.41,20l9.59,-9.58 9.59,9.58h-19.18zM38,23s-4,4.33 -4,7c0,2.21 1.79,4 4,4s4,-1.79 4,-4c0,-2.67 -4,-7 -4,-7z"/>
+  </group>
+
+</vector>

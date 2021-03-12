@@ -505,7 +505,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
                     action != ToolbarAction.ELLIPSIS_EXPAND) {
                 val view = findViewById<ToggleButton>(action.buttonId)
-                if (view.isChecked) actions.add(action)
+                if (view?.isChecked == true) actions.add(action)
             }
         }
 

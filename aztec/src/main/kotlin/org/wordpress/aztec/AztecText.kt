@@ -2049,4 +2049,5 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
 
+    override fun performClick(): Boolean = super.performClick()
 }

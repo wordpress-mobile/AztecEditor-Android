@@ -306,4 +306,6 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
     override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }
+
+    override fun performClick(): Boolean = super.performClick()
 }

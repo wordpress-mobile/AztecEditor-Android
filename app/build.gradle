@@ -1,5 +1,7 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+}
 
 android {
     compileSdkVersion 28
@@ -39,7 +41,7 @@ dependencies {
     implementation project(':wordpress-comments')
     implementation project(':wordpress-shortcodes')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"

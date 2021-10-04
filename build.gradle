@@ -11,6 +11,7 @@ buildscript {
         jSoupVersion = '1.11.3'
         wordpressUtilsVersion = '1.21'
         espressoVersion = '3.0.1'
+        commonTargetSdkVersion = 29
     }
 }
 

@@ -12,6 +12,8 @@ buildscript {
         wordpressUtilsVersion = '1.21'
         espressoVersion = '3.0.1'
         commonTargetSdkVersion = 29
+
+        aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")
     }
 }
 

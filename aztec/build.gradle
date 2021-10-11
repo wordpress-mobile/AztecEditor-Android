@@ -1,6 +1,7 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -72,4 +73,23 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
     implementation 'org.apache.commons:commons-lang3:3.8.1'
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            AztecPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress"
+                artifactId "aztec"
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
+}
+
+publishToS3Plugin {
+    mavenPublishGroupId "org.wordpress"
+    mavenPublishArtifactId "aztec"
 }

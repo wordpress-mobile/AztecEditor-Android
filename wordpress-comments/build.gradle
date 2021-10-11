@@ -1,6 +1,7 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -44,4 +45,23 @@ dependencies {
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            WordPressCommentsPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "wordpress-comments"
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
+}
+
+publishToS3Plugin {
+    mavenPublishGroupId "org.wordpress.aztec"
+    mavenPublishArtifactId "wordpress-comments"
 }

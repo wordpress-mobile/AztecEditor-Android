@@ -1,6 +1,7 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -27,4 +28,23 @@ dependencies {
 
     implementation aztecProjectDependency
     implementation "com.github.bumptech.glide:glide:$glideVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            GlideLoaderPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "glide-loader"
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
+}
+
+publishToS3Plugin {
+    mavenPublishGroupId "org.wordpress.aztec"
+    mavenPublishArtifactId "glide-loader"
 }

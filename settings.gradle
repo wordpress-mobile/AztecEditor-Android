@@ -6,8 +6,16 @@ pluginManagement {
         id "com.android.library" version gradle.ext.agpVersion
         id "com.android.application" version gradle.ext.agpVersion
         id "org.jetbrains.kotlin.android" version gradle.ext.kotlinVersion
+        id "com.automattic.android.publish-to-s3" version "0.6.1"
     }
     repositories {
+        maven {
+            url 'https://a8c-libs.s3.amazonaws.com/android' 
+            content {
+                includeGroup "com.automattic.android"
+                includeGroup "com.automattic.android.publish-to-s3"
+            }
+        }
         gradlePluginPortal()
         google()
     }

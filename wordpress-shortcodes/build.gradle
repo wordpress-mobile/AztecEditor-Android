@@ -1,6 +1,7 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -35,10 +36,29 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
-    implementation project(':aztec')
+    implementation aztecProjectDependency
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            WordPressShortcodesPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "wordpress-shortcodes"
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
+}
+
+publishToS3Plugin {
+    mavenPublishGroupId "org.wordpress.aztec"
+    mavenPublishArtifactId "wordpress-shortcodes"
 }

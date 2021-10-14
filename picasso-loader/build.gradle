@@ -1,6 +1,7 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -24,10 +25,29 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
-    implementation project(':aztec')
+    implementation aztecProjectDependency
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation "com.squareup.picasso:picasso:$picassoVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            PicassoLoaderPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "picasso-loader"
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
+}
+
+publishToS3Plugin {
+    mavenPublishGroupId "org.wordpress.aztec"
+    mavenPublishArtifactId "picasso-loader"
 }

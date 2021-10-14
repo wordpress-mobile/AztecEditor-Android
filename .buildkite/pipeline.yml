@@ -1,0 +1,54 @@
+common-params:
+  &publish-android-artifacts-docker-container
+  docker#v3.8.0:
+    image: "public.ecr.aws/automattic/android-build-image:v1.1.0"
+    propagate-environment: true
+    environment:
+      # DO NOT MANUALLY SET THESE VALUES!
+      # They are passed from the Buildkite agent to the Docker container
+      - "AWS_ACCESS_KEY"
+      - "AWS_SECRET_KEY"
+
+steps:
+  - label: "Publish :aztec"
+    key: "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-aztec.sh
+
+  - label: "Publish :glide-loader"
+    key: "publish-glide-loader"
+    depends_on:
+      - "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-glide-loader.sh
+
+  - label: "Publish :picasso-loader"
+    key: "publish-picasso-loader"
+    depends_on:
+      - "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-picasso-loader.sh
+
+  - label: "Publish :wordpress-shortcodes"
+    key: "publish-wordpress-shortcodes"
+    depends_on:
+      - "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-wordpress-shortcodes.sh
+
+  - label: "Publish :wordpress-comments"
+    key: "publish-wordpress-comments"
+    depends_on:
+      - "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-wordpress-comments.sh

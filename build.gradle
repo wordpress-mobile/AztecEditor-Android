@@ -1,22 +1,17 @@
-buildscript {
-    ext {
-        gradlePluginVersion = '3.3.1'
-        kotlinCoroutinesVersion = '1.1.0'
-        supportLibVersion = '27.1.1'
-        tagSoupVersion = '1.2.1'
-        glideVersion = '4.10.0'
-        picassoVersion = '2.5.2'
-        robolectricVersion = '4.4'
-        jUnitVersion = '4.12'
-        jSoupVersion = '1.11.3'
-        wordpressUtilsVersion = '1.21'
-        espressoVersion = '3.0.1'
-        commonTargetSdkVersion = 30
-    }
+plugins {
+    id "com.android.application" apply false
+    id "org.jetbrains.kotlin.android" apply false
 }
 
 allprojects {
     repositories {
+        maven {
+            url "https://a8c-libs.s3.amazonaws.com/android"
+            content {
+                includeGroup "org.wordpress"
+                includeGroup "org.wordpress.aztec"
+            }
+        }
         google()
         jcenter()
     }
@@ -46,4 +41,21 @@ subprojects {
         classpath = configurations.ktlint
         args "-F", "src/**/*.kt"
     }
+}
+
+ext {
+    gradlePluginVersion = '3.3.1'
+    kotlinCoroutinesVersion = '1.1.0'
+    supportLibVersion = '27.1.1'
+    tagSoupVersion = '1.2.1'
+    glideVersion = '4.10.0'
+    picassoVersion = '2.5.2'
+    robolectricVersion = '4.4'
+    jUnitVersion = '4.12'
+    jSoupVersion = '1.11.3'
+    wordpressUtilsVersion = '1.21'
+    espressoVersion = '3.0.1'
+    commonTargetSdkVersion = 30
+
+    aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")
 }

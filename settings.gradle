@@ -6,7 +6,7 @@ pluginManagement {
         id "com.android.library" version gradle.ext.agpVersion
         id "com.android.application" version gradle.ext.agpVersion
         id "org.jetbrains.kotlin.android" version gradle.ext.kotlinVersion
-        id "com.automattic.android.publish-to-s3" version "0.6.1"
+        id "com.automattic.android.publish-to-s3" version "0.7.0"
     }
     repositories {
         maven {

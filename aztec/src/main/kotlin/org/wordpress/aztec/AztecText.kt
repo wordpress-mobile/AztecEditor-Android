@@ -1305,7 +1305,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
-        if(useAztecStyleHTML) {
+        if (useAztecStyleHTML) {
             switchToAztecStyle(builder, 0, builder.length)
         }
 

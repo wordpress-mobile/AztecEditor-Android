@@ -5,5 +5,6 @@
     <bool name="history_enable">true</bool>
     <bool name="comments_visible">true</bool>
     <bool name="link_underline">true</bool>
+    <bool name="use_aztec_style_html">true</bool>
 
 </resources>

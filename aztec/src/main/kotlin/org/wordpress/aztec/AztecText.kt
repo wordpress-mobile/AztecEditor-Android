@@ -251,6 +251,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var isHandlingBackspaceEvent = false
 
     var commentsVisible = resources.getBoolean(R.bool.comments_visible)
+    var useAztecStyleHTML = resources.getBoolean(R.bool.use_aztec_style_html)
 
     var isInCalypsoMode = true
     var isInGutenbergMode: Boolean = false
@@ -1304,7 +1305,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
-        switchToAztecStyle(builder, 0, builder.length)
+        if(useAztecStyleHTML) {
+            switchToAztecStyle(builder, 0, builder.length)
+        }
+
         disableTextChangedListener()
 
         builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {

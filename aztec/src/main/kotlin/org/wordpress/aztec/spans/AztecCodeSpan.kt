@@ -30,7 +30,7 @@ class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()
     var codeStyle = InlineFormatter.CodeStyle(0, 0.0f, 0)
 
     constructor(codeStyle: InlineFormatter.CodeStyle, attributes: AztecAttributes = AztecAttributes()) : this(attributes) {
-        this.codeStyle = codeStyle;
+        this.codeStyle = codeStyle
     }
 
     override fun updateDrawState(tp: TextPaint?) {

@@ -59,6 +59,7 @@ import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.IAztecParagraphStyle;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
+import org.wordpress.aztec.spans.MarkSpan;
 import org.wordpress.aztec.util.CleaningUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -355,6 +356,8 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = true;
             start(spannableStringBuilder, AztecTextFormat.FORMAT_CODE, attributes);
+        } else if (tag.equalsIgnoreCase("mark")) {
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_MARK, attributes);
         } else if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
             // Initialize a new "Unknown" node
             if (contentHandlerLevel == 0) {
@@ -448,6 +451,8 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
         } else if (tag.equalsIgnoreCase("code")) {
             insideCodeTag = false;
             end(spannableStringBuilder, AztecTextFormat.FORMAT_CODE);
+        } else if (tag.equalsIgnoreCase("mark")) {
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_MARK);
         }
     }
 
@@ -543,6 +548,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             case FORMAT_CODE:
                 newSpan = new AztecCodeSpan(attributes);
                 break;
+            case FORMAT_MARK:
+                newSpan = new MarkSpan(attributes);
+                break;
             default:
                 throw new IllegalArgumentException("Style not supported");
         }
@@ -596,6 +604,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                 break;
             case FORMAT_CODE:
                 span = (AztecCodeSpan) getLast(text, AztecCodeSpan.class);
+                break;
+            case FORMAT_MARK:
+                span = (MarkSpan) getLast(text, MarkSpan.class);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

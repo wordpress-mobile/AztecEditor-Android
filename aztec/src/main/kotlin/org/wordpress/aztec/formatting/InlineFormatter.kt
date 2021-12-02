@@ -21,6 +21,7 @@ import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
+import org.wordpress.aztec.spans.MarkSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
 import java.util.ArrayList
 
@@ -72,6 +73,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                    }
+                    AztecTextFormat.FORMAT_MARK -> {
+                        // For cases of an empty mark tag, either at the beginning of the text or in between
+                        if (textChangedEvent.inputStart == 0 && textChangedEvent.inputEnd == 1) {
+                            applyMarkInlineStyle(textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                        } else {
+                            applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                        }
                     }
                     else -> {
                         // do nothing
@@ -176,6 +185,13 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         joinStyleSpans(start, end)
     }
 
+    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
+        val previousSpans = editableText.getSpans(start, end, MarkSpan::class.java)
+        previousSpans.forEach {
+            it.applyInlineStyleAttributes(editableText, start, end)
+        }
+    }
+
     private fun applySpan(span: IAztecInlineSpan, start: Int, end: Int, type: Int) {
         if (start > end || start < 0 || end > editableText.length) {
             // If an external logger is available log the error there.
@@ -205,6 +221,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
+            MarkSpan::class.java -> return AztecTextFormat.FORMAT_MARK
             else -> return null
         }
     }
@@ -349,6 +366,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
+            AztecTextFormat.FORMAT_MARK -> return MarkSpan()
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

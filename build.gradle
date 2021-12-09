@@ -53,7 +53,7 @@ ext {
     robolectricVersion = '4.4'
     jUnitVersion = '4.12'
     jSoupVersion = '1.11.3'
-    wordpressUtilsVersion = '1.21'
+    wordpressUtilsVersion = 'trunk-1ed207c03d2242b6fc3d74f9e388e9163cbc82a6'
     espressoVersion = '3.0.1'
     commonTargetSdkVersion = 30
 

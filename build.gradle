@@ -47,16 +47,16 @@ subprojects {
 ext {
     gradlePluginVersion = '3.3.1'
     kotlinCoroutinesVersion = '1.1.0'
-    supportLibVersion = '27.1.1'
     tagSoupVersion = '1.2.1'
     glideVersion = '4.10.0'
     picassoVersion = '2.5.2'
     robolectricVersion = '4.4'
     jUnitVersion = '4.12'
     jSoupVersion = '1.11.3'
-    wordpressUtilsVersion = '1.21'
+    wordpressUtilsVersion = 'trunk-1ed207c03d2242b6fc3d74f9e388e9163cbc82a6'
     espressoVersion = '3.0.1'
     commonTargetSdkVersion = 30
+    commonMinSdkVersion = 21
 
     aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")
 }

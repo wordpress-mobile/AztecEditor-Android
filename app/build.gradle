@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
-        minSdkVersion 16
+        minSdkVersion commonMinSdkVersion
         targetSdkVersion commonTargetSdkVersion
         versionCode 1
         versionName "1.0"

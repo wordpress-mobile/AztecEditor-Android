@@ -1048,7 +1048,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-        setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        // Gutenberg controls the selected styles so we need to prevent Aztec to modify them
+        if (!isInGutenbergMode) {
+            setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        }
 
         isLeadingStyleRemoved = false
     }

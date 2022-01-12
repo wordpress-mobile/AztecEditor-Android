@@ -44,7 +44,7 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
             activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
+                toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
         this.sourceEditor = sourceEditor
 
         initToolbar()
@@ -60,12 +60,12 @@ open class Aztec private constructor(val visualEditor: AztecText, val toolbar: I
 
         @JvmStatic
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
+                 toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
+        fun with(visualEditor: AztecText, toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
     }

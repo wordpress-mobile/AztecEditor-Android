@@ -1,13 +1,15 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
+}
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion commonMinSdkVersion
+        targetSdkVersion commonTargetSdkVersion
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
     }
@@ -46,7 +48,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
     implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
     implementation "org.jsoup:jsoup:$jSoupVersion"
@@ -71,4 +73,19 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
     implementation 'org.apache.commons:commons-lang3:3.8.1'
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            AztecPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress"
+                artifactId "aztec"
+                artifact tasks.named("androidSourcesJar")
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
 }

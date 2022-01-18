@@ -245,5 +245,6 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val VIDEO = "video"
         private val AUDIO = "audio"
         private val LINE = "hr"
+        private val MARK = "mark"
     }
 }

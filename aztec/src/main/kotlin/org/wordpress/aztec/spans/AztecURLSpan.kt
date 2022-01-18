@@ -25,8 +25,7 @@ import org.wordpress.aztec.formatting.LinkFormatter
 class AztecURLSpan : URLSpan, IAztecInlineSpan {
     override val TAG = "a"
 
-    private var linkColor = 0
-    private var linkUnderline = true
+    var linkStyle = LinkFormatter.LinkStyle(0, true)
 
     override var attributes: AztecAttributes = AztecAttributes()
 
@@ -39,12 +38,11 @@ class AztecURLSpan : URLSpan, IAztecInlineSpan {
     }
 
     constructor(url: String, linkStyle: LinkFormatter.LinkStyle, attributes: AztecAttributes = AztecAttributes()) : this(url, attributes) {
-        this.linkColor = linkStyle.linkColor
-        this.linkUnderline = linkStyle.linkUnderline
+        this.linkStyle = linkStyle
     }
 
     override fun updateDrawState(ds: TextPaint) {
-        ds.color = if (linkColor != 0) linkColor else ds.linkColor
-        ds.isUnderlineText = linkUnderline
+        ds.color = if (linkStyle.linkColor != 0) linkStyle.linkColor else ds.linkColor
+        ds.isUnderlineText = linkStyle.linkUnderline
     }
 }

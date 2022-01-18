@@ -27,14 +27,10 @@ import org.wordpress.aztec.formatting.InlineFormatter
 class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()) : MetricAffectingSpan(), IAztecInlineSpan {
     override val TAG = "code"
 
-    private var codeBackground: Int = 0
-    private var codeBackgroundAlpha: Float = 0.0f
-    private var codeColor: Int = 0
+    var codeStyle = InlineFormatter.CodeStyle(0, 0.0f, 0)
 
     constructor(codeStyle: InlineFormatter.CodeStyle, attributes: AztecAttributes = AztecAttributes()) : this(attributes) {
-        this.codeBackground = codeStyle.codeBackground
-        this.codeBackgroundAlpha = codeStyle.codeBackgroundAlpha
-        this.codeColor = codeStyle.codeColor
+        this.codeStyle = codeStyle
     }
 
     override fun updateDrawState(tp: TextPaint?) {
@@ -46,9 +42,13 @@ class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()
     }
 
     private fun configureTextPaint(tp: TextPaint?) {
-        val alpha: Int = (codeBackgroundAlpha * 255).toInt()
+        val alpha: Int = (codeStyle.codeBackgroundAlpha * 255).toInt()
         tp?.typeface = Typeface.MONOSPACE
-        tp?.bgColor = Color.argb(alpha, Color.red(codeBackground), Color.green(codeBackground), Color.blue(codeBackground))
-        tp?.color = codeColor
+        tp?.bgColor = Color.argb(
+                alpha,
+                Color.red(codeStyle.codeBackground),
+                Color.green(codeStyle.codeBackground),
+                Color.blue(codeStyle.codeBackground))
+        tp?.color = codeStyle.codeColor
     }
 }

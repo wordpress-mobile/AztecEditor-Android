@@ -1,13 +1,15 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id "com.android.library"
+    id "org.jetbrains.kotlin.android"
+    id "com.automattic.android.publish-to-s3"
+}
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion commonMinSdkVersion
+        targetSdkVersion commonTargetSdkVersion
         versionCode 1
         versionName "1.0"
     }
@@ -21,12 +23,27 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
-    implementation project(':aztec')
+    implementation aztecProjectDependency
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation "com.squareup.picasso:picasso:$picassoVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            PicassoLoaderPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "picasso-loader"
+                artifact tasks.named("androidSourcesJar")
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+   }
 }

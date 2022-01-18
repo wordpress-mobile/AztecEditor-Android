@@ -1,14 +1,15 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+}
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion commonMinSdkVersion
+        targetSdkVersion commonTargetSdkVersion
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
@@ -39,7 +40,7 @@ dependencies {
     implementation project(':wordpress-comments')
     implementation project(':wordpress-shortcodes')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
@@ -50,5 +51,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestImplementation('com.xamarin.testcloud:espresso-support:1.3')
 }

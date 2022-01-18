@@ -46,8 +46,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             layout.getLineBounds(line, lineRect)
 
             val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
-            val clickedOnSpanToTheLeftOfCursor = x in charPrevX..charX
-            val clickedOnSpanToTheRightOfCursor = x in charX..charNextX
+            val clickedOnSpanToTheLeftOfCursor = x.toFloat() in charPrevX..charX
+            val clickedOnSpanToTheRightOfCursor = x.toFloat() in charX..charNextX
 
             val clickedOnSpan = clickedWithinLineHeight &&
                     (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)

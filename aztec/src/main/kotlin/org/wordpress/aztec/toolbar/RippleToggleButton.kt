@@ -9,10 +9,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLongClickListener
 import android.widget.Toast
-import android.widget.ToggleButton
+import androidx.appcompat.widget.AppCompatToggleButton
 import org.wordpress.aztec.R
 
-class RippleToggleButton : ToggleButton, OnLongClickListener {
+class RippleToggleButton : AppCompatToggleButton, OnLongClickListener {
     private var mHalfWidth: Float = 0.toFloat()
     private var mAnimationIsRunning = false
     private var mTimer = 0

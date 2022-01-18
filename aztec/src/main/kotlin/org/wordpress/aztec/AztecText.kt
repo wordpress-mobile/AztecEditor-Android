@@ -1048,7 +1048,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-        setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        // Gutenberg controls the selected styles so we need to prevent Aztec to modify them
+        if (!isInGutenbergMode) {
+            setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        }
 
         isLeadingStyleRemoved = false
     }
@@ -1178,6 +1181,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_MARK,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(format, selStart, selEnd)
@@ -1481,22 +1485,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, IAztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
         editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
-
-        val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
-        for (span in urlSpans) {
-            val spanStart = editable.getSpanStart(span)
-            val spanEnd = editable.getSpanEnd(span)
-            editable.removeSpan(span)
-            editable.setSpan(linkFormatter.makeUrlSpan(span.url, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        val codeSpans = editable.getSpans(start, end, AztecCodeSpan::class.java)
-        codeSpans.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-            editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        editable.getSpans(start, end, AztecURLSpan::class.java).forEach { it.linkStyle = linkFormatter.linkStyle }
+        editable.getSpans(start, end, AztecCodeSpan::class.java).forEach { it.codeStyle = inlineFormatter.codeStyle }
 
         val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
         imageSpans.forEach {
@@ -1633,6 +1623,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_MARK, start, end)
     }
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {

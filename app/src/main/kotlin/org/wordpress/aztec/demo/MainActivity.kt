@@ -178,6 +178,7 @@ open class MainActivity : AppCompatActivity(),
         private val VIDEOPRESS = "[wpvideo OcobLTqC]"
         private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
         private val QUOTE_RTL = "<blockquote>לְצַטֵט<br>same quote but LTR</blockquote>"
+        private val MARK = "<p>Donec ipsum dolor, <mark style=\"color:#ff0000\">tempor sed</mark> bibendum <mark style=\"color:#1100ff\">vita</mark>.</p>"
 
         private val EXAMPLE =
                 IMG +
@@ -211,7 +212,8 @@ open class MainActivity : AppCompatActivity(),
                         VIDEOPRESS_2 +
                         AUDIO +
                         GUTENBERG_CODE_BLOCK +
-                        QUOTE_RTL
+                        QUOTE_RTL +
+                        MARK
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -517,7 +519,7 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
         if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {

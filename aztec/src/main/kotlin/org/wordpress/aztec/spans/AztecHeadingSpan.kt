@@ -81,6 +81,7 @@ open class AztecHeadingSpan(
 
     var previousFontMetrics: Paint.FontMetricsInt? = null
     var previousTextScale: Float = 1.0f
+    var previousSpacing: Float? = null
 
     enum class Heading constructor(internal val scale: Float, internal val tag: String) {
         H1(SCALE_H1, "h1"),
@@ -163,10 +164,11 @@ open class AztecHeadingSpan(
 
     override fun updateMeasureState(textPaint: TextPaint) {
         // when font size changes - reset cached font metrics to reapply vertical padding
-        if (previousTextScale != heading.scale) {
+        if (previousTextScale != heading.scale || previousSpacing != textPaint.fontSpacing) {
             previousFontMetrics = null
         }
         previousTextScale = heading.scale
+        previousSpacing = textPaint.fontSpacing
 
         textPaint.textSize *= heading.scale
     }

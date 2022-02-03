@@ -104,7 +104,7 @@ repositories {
 ```
 ```gradle
 dependencies {
-    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:v1.5.4')
+    api "org.wordpress:aztec:v1.5.4"
 }
 ```
 
@@ -113,9 +113,9 @@ or have fun with the latest snapshot at their own risk:
 
 ```gradle
 dependencies {
-    api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:trunk-{commit_sha1}')
+    api "org.wordpress:aztec:trunk-{commit_sha1}"
     // As an example, for '3f004c8c8cd4b53ab9748f42f373cf00a30e9d86' commit sha1, this would look like:
-    // api ('com.github.wordpress-mobile.WordPress-Aztec-Android:aztec:trunk-3f004c8c8cd4b53ab9748f42f373cf00a30e9d86')
+    // api "org.wordpress:aztec:trunk-3f004c8c8cd4b53ab9748f42f373cf00a30e9d86"
 }
 ```
 

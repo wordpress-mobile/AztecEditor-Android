@@ -76,17 +76,17 @@ open class Aztec private constructor(
 
         @JvmStatic
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                 toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
+                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener, toolbarOrder)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
+        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
+        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener, toolbarOrder)
         }
     }

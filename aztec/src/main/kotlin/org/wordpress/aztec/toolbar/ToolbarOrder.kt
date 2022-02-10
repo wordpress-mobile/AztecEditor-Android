@@ -3,13 +3,12 @@ package org.wordpress.aztec.toolbar
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import org.wordpress.aztec.R
-import org.wordpress.aztec.toolbar.ToolbarOrder.ToolbarElement.*
 
 sealed class ToolbarOrder {
     data class BasicOrder(val toolbarElements: LinkedHashSet<ToolbarElement>) : ToolbarOrder() {
         init {
-            if (!toolbarElements.contains(PLUGINS)) {
-                toolbarElements.add(PLUGINS)
+            if (!toolbarElements.contains(ToolbarElement.PLUGINS)) {
+                toolbarElements.add(ToolbarElement.PLUGINS)
             }
         }
 
@@ -22,11 +21,11 @@ sealed class ToolbarOrder {
 
     data class AdvancedOrder(val expandedItems: LinkedHashSet<ToolbarElement>, val collapsedItems: LinkedHashSet<ToolbarElement>) : ToolbarOrder() {
         init {
-            if (!expandedItems.contains(PLUGINS)) {
-                expandedItems.add(PLUGINS)
+            if (!expandedItems.contains(ToolbarElement.PLUGINS)) {
+                expandedItems.add(ToolbarElement.PLUGINS)
             }
-            if (collapsedItems.contains(PLUGINS)) {
-                collapsedItems.remove(PLUGINS)
+            if (collapsedItems.contains(ToolbarElement.PLUGINS)) {
+                collapsedItems.remove(ToolbarElement.PLUGINS)
             }
         }
 
@@ -42,39 +41,39 @@ sealed class ToolbarOrder {
 
     companion object {
         val defaultBasicOrder = BasicOrder(toolbarElements = linkedSetOf(
-                HEADING,
-                LIST,
-                QUOTE,
-                BOLD,
-                ITALIC,
-                LINK,
-                UNDERLINE,
-                STRIKETHROUGH,
-                ALIGN_LEFT,
-                ALIGN_CENTER,
-                ALIGN_RIGHT,
-                HORIZONTAL_RULE,
-                PLUGINS,
-                HTML
+                ToolbarElement.HEADING,
+                ToolbarElement.LIST,
+                ToolbarElement.QUOTE,
+                ToolbarElement.BOLD,
+                ToolbarElement.ITALIC,
+                ToolbarElement.LINK,
+                ToolbarElement.UNDERLINE,
+                ToolbarElement.STRIKETHROUGH,
+                ToolbarElement.ALIGN_LEFT,
+                ToolbarElement.ALIGN_CENTER,
+                ToolbarElement.ALIGN_RIGHT,
+                ToolbarElement.HORIZONTAL_RULE,
+                ToolbarElement.PLUGINS,
+                ToolbarElement.HTML
         ))
         val defaultAdvancedOrder = AdvancedOrder(
                 expandedItems = linkedSetOf(
-                        LINK,
-                        UNDERLINE,
-                        STRIKETHROUGH,
-                        ALIGN_LEFT,
-                        ALIGN_CENTER,
-                        ALIGN_RIGHT,
-                        HORIZONTAL_RULE,
-                        PLUGINS,
-                        HTML
+                        ToolbarElement.LINK,
+                        ToolbarElement.UNDERLINE,
+                        ToolbarElement.STRIKETHROUGH,
+                        ToolbarElement.ALIGN_LEFT,
+                        ToolbarElement.ALIGN_CENTER,
+                        ToolbarElement.ALIGN_RIGHT,
+                        ToolbarElement.HORIZONTAL_RULE,
+                        ToolbarElement.PLUGINS,
+                        ToolbarElement.HTML
                 ),
                 collapsedItems = linkedSetOf(
-                        HEADING,
-                        LIST,
-                        QUOTE,
-                        BOLD,
-                        ITALIC
+                        ToolbarElement.HEADING,
+                        ToolbarElement.LIST,
+                        ToolbarElement.QUOTE,
+                        ToolbarElement.BOLD,
+                        ToolbarElement.ITALIC
                 ))
     }
 

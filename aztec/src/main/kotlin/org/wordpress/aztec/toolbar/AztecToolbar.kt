@@ -92,8 +92,6 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     private var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
-    private var toolbarOrder: ToolbarOrder? = null
-
     constructor(context: Context) : super(context) {
         initView(null)
     }
@@ -106,18 +104,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         initView(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, toolbarOrder: ToolbarOrder) : super(context, attrs) {
-        initView(attrs)
-        this.toolbarOrder = toolbarOrder
-    }
-
     override fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
     }
 
     override fun setToolbarOrder(toolbarOrder: ToolbarOrder?) {
-        this.toolbarOrder = toolbarOrder
-        setupToolbarButtons()
+        setupToolbarButtons(toolbarOrder ?: if (isAdvanced) {
+            ToolbarOrder.defaultAdvancedOrder
+        } else {
+            ToolbarOrder.defaultBasicOrder
+        })
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -713,10 +709,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isExpanded = true
     }
 
-    private fun setupToolbarButtons() {
+    private fun setupToolbarButtons(toolbarOrder: ToolbarOrder) {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
         val inflater = LayoutInflater.from(context)
-        toolbarOrder!!.let { order ->
+        toolbarOrder.let { order ->
             when (order) {
                 is ToolbarOrder.BasicOrder -> {
                     order.addInto(layoutExpanded, inflater)

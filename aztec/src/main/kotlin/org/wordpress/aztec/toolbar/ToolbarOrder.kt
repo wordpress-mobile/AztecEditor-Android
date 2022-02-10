@@ -8,8 +8,11 @@ import org.wordpress.aztec.toolbar.ToolbarOrder.ToolbarElement.*
 sealed class ToolbarOrder {
     data class BasicOrder(val toolbarElements: LinkedHashSet<ToolbarElement>) : ToolbarOrder() {
         init {
-            assert(toolbarElements.contains(PLUGINS))
+            if (!toolbarElements.contains(PLUGINS)) {
+                toolbarElements.add(PLUGINS)
+            }
         }
+
         fun addInto(toolbarContainer: LinearLayout, inflater: LayoutInflater) {
             toolbarElements.forEachIndexed { index, toolbarElement ->
                 toolbarElement.addInto(toolbarContainer, inflater, index)
@@ -17,13 +20,22 @@ sealed class ToolbarOrder {
         }
     }
 
-    data class AdvancedOrder(val formatElements: LinkedHashSet<ToolbarElement>, val layoutElements: LinkedHashSet<ToolbarElement>) : ToolbarOrder() {
-        fun addInto(formatContainer: LinearLayout, layoutContainer: LinearLayout, inflater: LayoutInflater) {
-            formatElements.forEachIndexed { index, toolbarElement ->
-                toolbarElement.addInto(formatContainer, inflater, index)
+    data class AdvancedOrder(val expandedItems: LinkedHashSet<ToolbarElement>, val collapsedItems: LinkedHashSet<ToolbarElement>) : ToolbarOrder() {
+        init {
+            if (!expandedItems.contains(PLUGINS)) {
+                expandedItems.add(PLUGINS)
             }
-            layoutElements.forEachIndexed { index, toolbarElement ->
-                toolbarElement.addInto(layoutContainer, inflater, index)
+            if (collapsedItems.contains(PLUGINS)) {
+                collapsedItems.remove(PLUGINS)
+            }
+        }
+
+        fun addInto(expandedContainer: LinearLayout, collapsedContainer: LinearLayout, inflater: LayoutInflater) {
+            expandedItems.forEachIndexed { index, toolbarElement ->
+                toolbarElement.addInto(expandedContainer, inflater, index)
+            }
+            collapsedItems.forEachIndexed { index, toolbarElement ->
+                toolbarElement.addInto(collapsedContainer, inflater, index)
             }
         }
     }
@@ -43,10 +55,10 @@ sealed class ToolbarOrder {
                 ALIGN_RIGHT,
                 HORIZONTAL_RULE,
                 PLUGINS,
-                HTML,
+                HTML
         ))
         val defaultAdvancedOrder = AdvancedOrder(
-                formatElements = linkedSetOf(
+                expandedItems = linkedSetOf(
                         LINK,
                         UNDERLINE,
                         STRIKETHROUGH,
@@ -57,7 +69,7 @@ sealed class ToolbarOrder {
                         PLUGINS,
                         HTML
                 ),
-                layoutElements = linkedSetOf(
+                collapsedItems = linkedSetOf(
                         HEADING,
                         LIST,
                         QUOTE,

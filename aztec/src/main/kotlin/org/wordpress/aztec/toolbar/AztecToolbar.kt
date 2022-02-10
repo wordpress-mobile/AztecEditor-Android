@@ -55,6 +55,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var sourceEditor: SourceViewEditText? = null
     private var dialogShortcuts: AlertDialog? = null
     private var isAdvanced: Boolean = false
+    private var hasCustomLayout: Boolean = false
     private var isMediaToolbarAvailable: Boolean = false
     private var isExpanded: Boolean = false
     private var isMediaToolbarVisible: Boolean = false
@@ -422,24 +423,21 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         val toolbarBorderColor = styles.getColor(R.styleable.AztecToolbar_toolbarBorderColor,
                 ContextCompat.getColor(context, R.color.format_bar_divider_horizontal))
 
-        styles.recycle()
-
-        val layout = if (isAdvanced) {
-            if (toolbarOrder == null) {
-                toolbarOrder = ToolbarOrder.defaultAdvancedOrder
+        val layout = when {
+            styles.hasValue(R.styleable.AztecToolbar_customLayout) -> {
+                hasCustomLayout = true
+                styles.getResourceId(R.styleable.AztecToolbar_customLayout, 0)
             }
-            R.layout.aztec_format_bar_advanced
-        } else {
-            if (toolbarOrder == null) {
-                toolbarOrder = ToolbarOrder.defaultBasicOrder
-            }
-            R.layout.aztec_format_bar_basic
+            isAdvanced -> R.layout.aztec_format_bar_advanced
+            else -> R.layout.aztec_format_bar_basic
         }
+
+        styles.recycle()
         View.inflate(context, layout, this)
 
         toolbarScrolView = findViewById(R.id.format_bar_button_scroll)
         setBackgroundColor(toolbarBackgroundColor)
-        findViewById<View>(R.id.format_bar_horizontal_divider).setBackgroundColor(toolbarBorderColor)
+        findViewById<View>(R.id.format_bar_horizontal_divider)?.setBackgroundColor(toolbarBorderColor)
 
         setAdvancedState()
         setupMediaToolbar()
@@ -681,17 +679,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         return listMenu
     }
 
-    fun getSelectedHeadingMenuItem(): ITextFormat? {
-        if (headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked!!) return AztecTextFormat.FORMAT_PARAGRAPH
-        else if (headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_1
-        else if (headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_2
-        else if (headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_3
-        else if (headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_4
-        else if (headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_5
-        else if (headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked!!) return AztecTextFormat.FORMAT_HEADING_6
-//        TODO: Uncomment when Preformat is to be added back as a feature
-//        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return AztecTextFormat.FORMAT_PREFORMAT
-        return null
+    fun getSelectedHeadingMenuItem(): ITextFormat? = when {
+        headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked == true -> AztecTextFormat.FORMAT_PARAGRAPH
+        headingMenu?.menu?.findItem(R.id.heading_1)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_1
+        headingMenu?.menu?.findItem(R.id.heading_2)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_2
+        headingMenu?.menu?.findItem(R.id.heading_3)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_3
+        headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_4
+        headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_5
+        headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_6
+        //        TODO: Uncomment when Preformat is to be added back as a feature
+        //        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return AztecTextFormat.FORMAT_PREFORMAT
+        else -> null
     }
 
     fun getSelectedListMenuItem(): ITextFormat? {
@@ -731,18 +729,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
 
         for (toolbarAction in ToolbarAction.values()) {
-            val button = findViewById<ToggleButton>(toolbarAction.buttonId)
-            button?.setOnClickListener { onToolbarAction(toolbarAction) }
+            findViewById<ToggleButton>(toolbarAction.buttonId)?.let {
+                it.setOnClickListener { onToolbarAction(toolbarAction) }
 
-            if (toolbarAction == ToolbarAction.HEADING) {
-                setHeadingMenu(findViewById(toolbarAction.buttonId))
+                when (toolbarAction) {
+                    ToolbarAction.HEADING -> setHeadingMenu(it)
+                    ToolbarAction.LIST -> setListMenu(it)
+                }
+                if (!hasCustomLayout) {
+                    it.setBackgroundDrawableRes(toolbarAction.buttonDrawableRes)
+                }
             }
-
-            if (toolbarAction == ToolbarAction.LIST) {
-                setListMenu(findViewById(toolbarAction.buttonId))
-            }
-
-            button?.setBackgroundDrawableRes(toolbarAction.buttonDrawableRes)
         }
     }
 
@@ -782,7 +779,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun selectListMenuItem(textFormats: ArrayList<ITextFormat>) {
-        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId)
+        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId) ?: return
         updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
         listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
         foreach@ for (it in textFormats) {
@@ -871,10 +868,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun setupMediaToolbar() {
-        val mediaToolbarContainer : LinearLayout = findViewById(R.id.media_button_container)
+        if (!isMediaToolbarAvailable) return
+        val mediaToolbarContainer: LinearLayout = findViewById(R.id.media_button_container)
         mediaToolbarContainer.visibility = if (isMediaToolbarAvailable) View.VISIBLE else View.GONE
         buttonMediaCollapsed = findViewById(R.id.format_bar_button_media_collapsed)
-        if (!isMediaToolbarAvailable) return
 
         mediaToolbar = findViewById(R.id.media_toolbar)
         stylingToolbar = findViewById(R.id.styling_toolbar)

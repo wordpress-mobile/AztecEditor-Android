@@ -36,7 +36,8 @@
                 android:id="@+id/media_button_container"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <org.wordpress.aztec.toolbar.RippleToggleButton
                     android:id="@+id/format_bar_button_media_collapsed"

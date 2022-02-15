@@ -44,6 +44,7 @@ class HeadingTest {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
+        toolbar.setToolbarOrder(null)
         toolbar.setEditor(editText, sourceText)
         buttonQuote = toolbar.findViewById<ToggleButton>(R.id.format_bar_button_quote)
         menuHeading = toolbar.getHeadingMenu() as PopupMenu

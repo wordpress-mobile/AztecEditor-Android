@@ -59,6 +59,7 @@ class ListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
+        toolbar.setToolbarOrder(null)
         toolbar.setEditor(editText, sourceText)
         menuList = toolbar.getListMenu() as PopupMenu
         menuListOrdered = menuList.menu.getItem(1)

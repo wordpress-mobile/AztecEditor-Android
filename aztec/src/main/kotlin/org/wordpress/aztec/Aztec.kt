@@ -13,6 +13,7 @@ import java.util.ArrayList
 
 open class Aztec private constructor(
         val visualEditor: AztecText,
+        val sourceEditor: SourceViewEditText? = null,
         val toolbar: IAztecToolbar,
         toolbarClickListener: IAztecToolbarClickListener) {
     private var imageGetter: Html.ImageGetter? = null
@@ -29,7 +30,6 @@ open class Aztec private constructor(
     private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
     private var isLinkTapEnabled: Boolean = false
     private var plugins: ArrayList<IAztecPlugin> = visualEditor.plugins
-    var sourceEditor: SourceViewEditText? = null
 
     init {
         initToolbar(toolbarClickListener)
@@ -45,13 +45,8 @@ open class Aztec private constructor(
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
                         @IdRes toolbarId: Int,
-                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId), null,
             activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
-
-    private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                        toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
-        this.sourceEditor = sourceEditor
-    }
 
     companion object Factory {
         @JvmStatic
@@ -68,7 +63,7 @@ open class Aztec private constructor(
 
         @JvmStatic
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
-            return Aztec(visualEditor, toolbar, toolbarClickListener)
+            return Aztec(visualEditor, null, toolbar, toolbarClickListener)
         }
     }
 

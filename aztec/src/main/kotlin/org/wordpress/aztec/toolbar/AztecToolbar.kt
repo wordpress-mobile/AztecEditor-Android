@@ -393,13 +393,13 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 highlightAppliedStyles(selStart, selEnd)
             }
         })
+        setupToolbarItems()
 
         if (sourceEditor == null) {
             htmlButton?.visibility = View.GONE
         } else {
             htmlButton?.visibility = View.VISIBLE
         }
-        setupToolbarItems()
     }
 
     private fun initView(attrs: AttributeSet?) {

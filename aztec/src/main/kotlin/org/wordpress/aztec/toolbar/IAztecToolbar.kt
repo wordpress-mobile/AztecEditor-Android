@@ -10,7 +10,6 @@ interface IAztecToolbar {
     fun addButton(buttonPlugin: IToolbarButton)
     fun setEditor(editor: AztecText, sourceEditor: SourceViewEditText?)
     fun setToolbarListener(listener: IAztecToolbarClickListener)
-    fun setToolbarOrder(toolbarOrder: ToolbarOrder?)
     fun toggleMediaToolbar()
     fun toggleEditorMode()
 }

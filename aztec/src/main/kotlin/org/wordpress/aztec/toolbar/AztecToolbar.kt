@@ -92,6 +92,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     private var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
+    private var toolbarOrder: ToolbarOrder? = null
+
     constructor(context: Context) : super(context) {
         initView(null)
     }
@@ -106,14 +108,6 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     override fun setToolbarListener(listener: IAztecToolbarClickListener) {
         aztecToolbarListener = listener
-    }
-
-    override fun setToolbarOrder(toolbarOrder: ToolbarOrder?) {
-        setupToolbarButtons(toolbarOrder ?: if (isAdvanced) {
-            ToolbarOrder.defaultAdvancedOrder
-        } else {
-            ToolbarOrder.defaultBasicOrder
-        })
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
@@ -405,6 +399,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         } else {
             htmlButton?.visibility = View.VISIBLE
         }
+        setupToolbarButtons()
     }
 
     private fun initView(attrs: AttributeSet?) {
@@ -709,18 +704,25 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isExpanded = true
     }
 
-    private fun setupToolbarButtons(toolbarOrder: ToolbarOrder) {
+    fun setToolbarOrder(toolbarOrder: ToolbarOrder) {
+        this.toolbarOrder = toolbarOrder
+    }
+
+    private fun setupToolbarButtons() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
         val inflater = LayoutInflater.from(context)
-        toolbarOrder.let { order ->
-            when (order) {
-                is ToolbarOrder.BasicOrder -> {
-                    order.addInto(layoutExpanded, inflater)
-                }
-                is ToolbarOrder.AdvancedOrder -> {
-                    val layoutCollapsed = findViewById<LinearLayout>(R.id.format_bar_button_layout_collapsed)
-                    order.addInto(layoutExpanded, layoutCollapsed, inflater)
-                }
+        val order = toolbarOrder ?: if (isAdvanced) {
+            ToolbarOrder.defaultAdvancedOrder
+        } else {
+            ToolbarOrder.defaultBasicOrder
+        }
+        when (order) {
+            is ToolbarOrder.BasicOrder -> {
+                order.addInto(layoutExpanded, inflater)
+            }
+            is ToolbarOrder.AdvancedOrder -> {
+                val layoutCollapsed = findViewById<LinearLayout>(R.id.format_bar_button_layout_collapsed)
+                order.addInto(layoutExpanded, layoutCollapsed, inflater)
             }
         }
 

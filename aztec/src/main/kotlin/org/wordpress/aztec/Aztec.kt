@@ -15,8 +15,7 @@ import java.util.ArrayList
 open class Aztec private constructor(
         val visualEditor: AztecText,
         val toolbar: IAztecToolbar,
-        toolbarClickListener: IAztecToolbarClickListener,
-        toolbarOrder: ToolbarOrder? = null) {
+        toolbarClickListener: IAztecToolbarClickListener) {
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
     private var imeBackListener: AztecText.OnImeBackListener? = null
@@ -34,7 +33,7 @@ open class Aztec private constructor(
     var sourceEditor: SourceViewEditText? = null
 
     init {
-        initToolbar(toolbarClickListener, toolbarOrder)
+        initToolbar(toolbarClickListener)
         sourceEditor?.let {
             initSourceEditorHistory()
         }
@@ -42,16 +41,16 @@ open class Aztec private constructor(
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
                         @IdRes sourceTextId: Int, @IdRes toolbarId: Int,
-                        toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder? = null) : this(activity.findViewById<AztecText>(aztecTextId),
-            activity.findViewById<SourceViewEditText>(sourceTextId), activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener, toolbarOrder)
+                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+            activity.findViewById<SourceViewEditText>(sourceTextId), activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(activity: Activity, @IdRes aztecTextId: Int,
-                @IdRes toolbarId: Int,
-                toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder? = null) : this(activity.findViewById<AztecText>(aztecTextId),
-            activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener, toolbarOrder)
+                        @IdRes toolbarId: Int,
+                        toolbarClickListener: IAztecToolbarClickListener) : this(activity.findViewById<AztecText>(aztecTextId),
+            activity.findViewById<AztecToolbar>(toolbarId), toolbarClickListener)
 
     private constructor(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder? = null) : this(visualEditor, toolbar, toolbarClickListener, toolbarOrder) {
+                        toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener) : this(visualEditor, toolbar, toolbarClickListener) {
         this.sourceEditor = sourceEditor
     }
 
@@ -63,31 +62,14 @@ open class Aztec private constructor(
         }
 
         @JvmStatic
-        fun with(activity: Activity, @IdRes aztecTextId: Int, @IdRes sourceTextId: Int,
-                 @IdRes toolbarId: Int, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
-            return Aztec(activity, aztecTextId, sourceTextId, toolbarId, toolbarClickListener, toolbarOrder)
-        }
-
-        @JvmStatic
         fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
                  toolbar: IAztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener)
         }
 
         @JvmStatic
-        fun with(visualEditor: AztecText, sourceEditor: SourceViewEditText,
-                 toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
-            return Aztec(visualEditor, sourceEditor, toolbar, toolbarClickListener, toolbarOrder)
-        }
-
-        @JvmStatic
         fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener): Aztec {
             return Aztec(visualEditor, toolbar, toolbarClickListener)
-        }
-
-        @JvmStatic
-        fun with(visualEditor: AztecText, toolbar: AztecToolbar, toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?): Aztec {
-            return Aztec(visualEditor, toolbar, toolbarClickListener, toolbarOrder)
         }
     }
 
@@ -183,8 +165,7 @@ open class Aztec private constructor(
         sourceEditor?.history = visualEditor.history
     }
 
-    private fun initToolbar(toolbarClickListener: IAztecToolbarClickListener, toolbarOrder: ToolbarOrder?) {
-        toolbar.setToolbarOrder(toolbarOrder)
+    private fun initToolbar(toolbarClickListener: IAztecToolbarClickListener) {
         toolbar.setEditor(visualEditor, sourceEditor)
         toolbar.setToolbarListener(toolbarClickListener)
         visualEditor.setToolbar(toolbar)

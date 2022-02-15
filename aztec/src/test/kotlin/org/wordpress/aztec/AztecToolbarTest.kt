@@ -45,7 +45,6 @@ class AztecToolbarTest {
 
         activity.setContentView(editText)
         toolbar = AztecToolbar(activity)
-        toolbar.setToolbarOrder(null)
         toolbar.setEditor(editText, sourceText)
 
         boldButton = toolbar.findViewById(R.id.format_bar_button_bold)

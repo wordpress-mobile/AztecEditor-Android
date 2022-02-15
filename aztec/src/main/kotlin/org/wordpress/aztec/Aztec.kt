@@ -9,7 +9,6 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
-import org.wordpress.aztec.toolbar.ToolbarOrder
 import java.util.ArrayList
 
 open class Aztec private constructor(

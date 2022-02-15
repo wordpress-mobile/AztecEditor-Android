@@ -92,7 +92,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     private var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
-    private var toolbarOrder: ToolbarOrder? = null
+    private var toolbarItems: ToolbarItems? = null
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -399,7 +399,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         } else {
             htmlButton?.visibility = View.VISIBLE
         }
-        setupToolbarButtons()
+        setupToolbarItems()
     }
 
     private fun initView(attrs: AttributeSet?) {
@@ -704,23 +704,26 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isExpanded = true
     }
 
-    fun setToolbarOrder(toolbarOrder: ToolbarOrder) {
-        this.toolbarOrder = toolbarOrder
+    /**
+     * Call this method before Aztec is initialized to change the items visible in the Aztec toolbar
+     */
+    fun setToolbarItems(toolbarItems: ToolbarItems) {
+        this.toolbarItems = toolbarItems
     }
 
-    private fun setupToolbarButtons() {
+    private fun setupToolbarItems() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
         val inflater = LayoutInflater.from(context)
-        val order = toolbarOrder ?: if (isAdvanced) {
-            ToolbarOrder.defaultAdvancedOrder
+        val order = toolbarItems ?: if (isAdvanced) {
+            ToolbarItems.defaultAdvancedLayout
         } else {
-            ToolbarOrder.defaultBasicOrder
+            ToolbarItems.defaultBasicLayout
         }
         when (order) {
-            is ToolbarOrder.BasicOrder -> {
+            is ToolbarItems.BasicLayout -> {
                 order.addInto(layoutExpanded, inflater)
             }
-            is ToolbarOrder.AdvancedOrder -> {
+            is ToolbarItems.AdvancedLayout -> {
                 val layoutCollapsed = findViewById<LinearLayout>(R.id.format_bar_button_layout_collapsed)
                 order.addInto(layoutExpanded, layoutCollapsed, inflater)
             }

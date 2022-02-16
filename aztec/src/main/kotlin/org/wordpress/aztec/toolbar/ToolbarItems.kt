@@ -12,10 +12,11 @@ sealed class ToolbarItems {
      * This class defines the elements in the basic layout. It contains a set of visible items in a given order.
      * The plugins are added automatically at the end if they are missing from the toolbarElements object.
      */
-    data class BasicLayout(val toolbarItems: LinkedHashSet<ToolbarItem>) : ToolbarItems() {
+    data class BasicLayout(val toolbarItemGroup: ToolbarItemGroup) : ToolbarItems() {
+        constructor(vararg toolbarItems: ToolbarItem): this(toolbarItemGroup = ToolbarItemGroup(linkedSetOf(*toolbarItems)))
         init {
-            if (!toolbarItems.contains(ToolbarItem.PLUGINS)) {
-                toolbarItems.add(ToolbarItem.PLUGINS)
+            if (!toolbarItemGroup.toolbarItems.contains(ToolbarItem.PLUGINS)) {
+                toolbarItemGroup.toolbarItems.add(ToolbarItem.PLUGINS)
             }
         }
 
@@ -23,9 +24,7 @@ sealed class ToolbarItems {
          * Draws toolbar elements into the given layout
          */
         fun addInto(toolbarContainer: LinearLayout, inflater: LayoutInflater) {
-            toolbarItems.forEachIndexed { index, toolbarElement ->
-                toolbarElement.addInto(toolbarContainer, inflater, index)
-            }
+            addItems(toolbarContainer, inflater, toolbarItemGroup)
         }
     }
 
@@ -34,13 +33,13 @@ sealed class ToolbarItems {
      * Collapsed items are visible by default and the expanded items are visible on button click. The Plugins element
      * is added to the expanded items if missing. Plugins are never visible in the collapsed items.
      */
-    data class AdvancedLayout(val expandedItems: LinkedHashSet<ToolbarItem>, val collapsedItems: LinkedHashSet<ToolbarItem>) : ToolbarItems() {
+    data class AdvancedLayout(val expandedItemGroup: ToolbarItemGroup, val collapsedItemGroup: ToolbarItemGroup) : ToolbarItems() {
         init {
-            if (!expandedItems.contains(ToolbarItem.PLUGINS)) {
-                expandedItems.add(ToolbarItem.PLUGINS)
+            if (!expandedItemGroup.toolbarItems.contains(ToolbarItem.PLUGINS)) {
+                expandedItemGroup.toolbarItems.add(ToolbarItem.PLUGINS)
             }
-            if (collapsedItems.contains(ToolbarItem.PLUGINS)) {
-                collapsedItems.remove(ToolbarItem.PLUGINS)
+            if (collapsedItemGroup.toolbarItems.contains(ToolbarItem.PLUGINS)) {
+                collapsedItemGroup.toolbarItems.remove(ToolbarItem.PLUGINS)
             }
         }
 
@@ -48,20 +47,28 @@ sealed class ToolbarItems {
          * Draws the expanded items into the expanded container and collapsed items into the collapsed container.
          */
         fun addInto(expandedContainer: LinearLayout, collapsedContainer: LinearLayout, inflater: LayoutInflater) {
-            expandedItems.forEachIndexed { index, toolbarElement ->
-                toolbarElement.addInto(expandedContainer, inflater, index)
-            }
-            collapsedItems.forEachIndexed { index, toolbarElement ->
-                toolbarElement.addInto(collapsedContainer, inflater, index)
-            }
+            addItems(expandedContainer, inflater, expandedItemGroup)
+            addItems(collapsedContainer, inflater, collapsedItemGroup)
         }
     }
 
     companion object {
+        fun addItems(container: LinearLayout, inflater: LayoutInflater, toolbarItemGroup: ToolbarItemGroup) {
+            var offset = 0
+            toolbarItemGroup.toolbarItems.forEachIndexed { index, toolbarElement ->
+                if (toolbarItemGroup.verticalDividerIndices.contains(index)) {
+                    val view = inflater.inflate(R.layout.format_bar_vertical_divider, null)
+                    container.addView(view, index + offset)
+                    offset += 1
+                }
+                toolbarElement.addInto(container, inflater, index + offset)
+            }
+        }
+
         /**
          * The default order of elements in the basic layout. It's used when there is no order added by the user.
          */
-        val defaultBasicLayout = BasicLayout(toolbarItems = linkedSetOf(
+        val defaultBasicLayout = BasicLayout(
                 ToolbarItem.HEADING,
                 ToolbarItem.LIST,
                 ToolbarItem.QUOTE,
@@ -76,13 +83,13 @@ sealed class ToolbarItems {
                 ToolbarItem.HORIZONTAL_RULE,
                 ToolbarItem.PLUGINS,
                 ToolbarItem.HTML
-        ))
+        )
 
         /**
          * The default order of elements in the advanced layout. It's used when there is no order added by the user.
          */
         val defaultAdvancedLayout = AdvancedLayout(
-                expandedItems = linkedSetOf(
+                expandedItemGroup = ToolbarItemGroup(linkedSetOf(
                         ToolbarItem.LINK,
                         ToolbarItem.UNDERLINE,
                         ToolbarItem.STRIKETHROUGH,
@@ -92,15 +99,17 @@ sealed class ToolbarItems {
                         ToolbarItem.HORIZONTAL_RULE,
                         ToolbarItem.PLUGINS,
                         ToolbarItem.HTML
-                ),
-                collapsedItems = linkedSetOf(
+                )),
+                collapsedItemGroup = ToolbarItemGroup(linkedSetOf(
                         ToolbarItem.HEADING,
                         ToolbarItem.LIST,
                         ToolbarItem.QUOTE,
                         ToolbarItem.BOLD,
                         ToolbarItem.ITALIC
-                ))
+                )))
     }
+
+    data class ToolbarItemGroup(val toolbarItems: LinkedHashSet<ToolbarItem>, val verticalDividerIndices: Set<Int> = emptySet())
 
     /**
      * A list of supported default toolbar elements. If you need to add custom toolbar elements, create a new Plugin.
@@ -119,8 +128,7 @@ sealed class ToolbarItems {
         ALIGN_RIGHT(R.layout.format_bar_button_align_right),
         HORIZONTAL_RULE(R.layout.format_bar_button_horizontal_line),
         HTML(R.layout.format_bar_button_html),
-        PLUGINS,
-        VERTICAL_DIVIDER(R.layout.format_bar_vertical_divider);
+        PLUGINS;
 
         fun addInto(toolbarContainer: LinearLayout, inflater: LayoutInflater, index: Int) {
             layout?.let {

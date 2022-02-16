@@ -78,6 +78,11 @@ enum class ToolbarAction constructor(
             R.drawable.format_bar_button_link_selector,
             ToolbarActionType.OTHER,
             setOf(AztecTextFormat.FORMAT_LINK)),
+    CODE(
+            R.id.format_bar_button_code,
+            R.drawable.format_bar_button_code_selector,
+            ToolbarActionType.BLOCK_STYLE,
+            setOf(AztecTextFormat.FORMAT_CODE, AztecTextFormat.FORMAT_PREFORMAT)),
     HORIZONTAL_RULE(
             R.id.format_bar_button_horizontal_rule,
             R.drawable.format_bar_button_horizontal_rule_selector,

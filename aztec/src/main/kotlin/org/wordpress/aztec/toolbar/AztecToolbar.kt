@@ -33,6 +33,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 import org.wordpress.aztec.util.setBackgroundDrawableRes
 import java.util.ArrayList
@@ -569,7 +570,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
 
         // if text is selected and action is styling - toggle the style
-        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
+        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST && action != ToolbarAction.CODE) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
             val returnValue = editor!!.toggleFormatting(action.textFormats.first())
 
@@ -609,6 +610,19 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             ToolbarAction.ELLIPSIS_EXPAND -> {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
+            }
+            ToolbarAction.CODE -> {
+                editor?.apply {
+                    val spans = editableText.getSpans(selectionStart, selectionEnd, AztecPreformatSpan::class.java).size
+                    val isInlineCode = isTextSelected() && spans == 1 || inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE)
+                    if (blockFormatter.containsPreformat() || !isInlineCode) {
+                        toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
+                        aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, false)
+                    } else {
+                        toggleFormatting(AztecTextFormat.FORMAT_CODE)
+                        aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_CODE, false)
+                    }
+                }
             }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()

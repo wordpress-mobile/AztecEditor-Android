@@ -1139,8 +1139,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6,
-            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
+            AztecTextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
             AztecTextFormat.FORMAT_ITALIC,
             AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
@@ -1154,6 +1153,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
             AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
+            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
             else -> {

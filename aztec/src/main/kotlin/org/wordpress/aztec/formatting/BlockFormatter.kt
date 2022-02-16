@@ -91,6 +91,18 @@ class BlockFormatter(editor: AztecText,
         }
     }
 
+    fun togglePreformat() {
+        if (!containsPreformat()) {
+                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT)) {
+                    switchHeadingToPreformat()
+                } else {
+                    applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
+                }
+        } else {
+            removeEntireBlock(AztecPreformatSpan::class.java)
+        }
+    }
+
     fun toggleHeading(textFormat: ITextFormat) {
         when (textFormat) {
             AztecTextFormat.FORMAT_HEADING_1,
@@ -117,15 +129,6 @@ class BlockFormatter(editor: AztecText,
                 }
 
                 removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
-            }
-            AztecTextFormat.FORMAT_PREFORMAT -> {
-                if (!containsPreformat()) {
-                    if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT)) {
-                        switchHeadingToPreformat()
-                    } else {
-                        applyBlockStyle(textFormat)
-                    }
-                }
             }
             else -> {
             }

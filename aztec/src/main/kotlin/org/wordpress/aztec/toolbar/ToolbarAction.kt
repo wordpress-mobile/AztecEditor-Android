@@ -64,13 +64,14 @@ enum class ToolbarAction constructor(
             R.id.format_bar_button_align_center,
             R.drawable.format_bar_button_align_center_selector,
             ToolbarActionType.BLOCK_STYLE,
-            setOf(AztecTextFormat.FORMAT_ALIGN_CENTER)),
+            setOf(AztecTextFormat.FORMAT_ALIGN_CENTER),
+            R.layout.format_bar_button_align_center),
     ALIGN_RIGHT(
             R.id.format_bar_button_align_right,
             R.drawable.format_bar_button_align_right_selector,
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_ALIGN_RIGHT),
-            R.layout.format_bar_button_align_center),
+            R.layout.format_bar_button_align_right),
     UNDERLINE(
             R.id.format_bar_button_underline,
             R.drawable.format_bar_button_underline_selector,

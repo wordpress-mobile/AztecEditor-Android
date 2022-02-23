@@ -63,7 +63,7 @@ open class AztecTaskListSpan(
         var onRefresh: ((AztecTaskListSpan) -> Unit)? = null
 ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     private var toggled: Boolean = false
-    override val TAG = "tl"
+    override val TAG = "ul"
 
     override fun getLeadingMargin(first: Boolean): Int {
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding

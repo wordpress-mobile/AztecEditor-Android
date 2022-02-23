@@ -3,6 +3,8 @@ package org.wordpress.aztec.handlers
 import android.text.Spannable
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
+import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.IAztecNestable
 import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.watchers.TextDeleter
@@ -82,7 +84,12 @@ class ListItemHandler(
                 nestingLevel: Int,
                 alignmentRendering: AlignmentRendering
         ) {
-            set(text, createListItemSpan(nestingLevel, alignmentRendering), start, end)
+            val isInTaskList = !text.getSpans(start, end, AztecTaskListSpan::class.java).isNullOrEmpty()
+            set(text, createListItemSpan(nestingLevel, alignmentRendering).apply {
+                if (isInTaskList) {
+                    this.attributes.setValue(CHECKED, "false")
+                }
+            }, start, end)
         }
     }
 }

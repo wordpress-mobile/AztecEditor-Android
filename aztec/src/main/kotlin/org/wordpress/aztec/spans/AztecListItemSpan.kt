@@ -3,6 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.Layout
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import java.lang.StringBuilder
 
 fun createListItemSpan(nestingLevel: Int,
                        alignmentRendering: AlignmentRendering,
@@ -30,6 +31,37 @@ open class AztecListItemSpan(
             attributes.setValue(CHECKED, "true")
         }
     }
+
+    override val startTag: String
+        get() {
+            val shouldReplaceCheckedAttribute = attributes.hasAttribute(CHECKED)
+            return if (shouldReplaceCheckedAttribute) {
+                val sb = StringBuilder()
+                sb.append(TAG)
+                sb.append(" ")
+                for (i in 0 until attributes.length) {
+                    val localName = attributes.getLocalName(i)
+                    if (localName != CHECKED) {
+                        sb.append(localName)
+                        sb.append("=\"")
+                        sb.append(attributes.getValue(i))
+                        sb.append("\" ")
+                    }
+                }
+                sb.append(">")
+                if (shouldReplaceCheckedAttribute) {
+                    sb.append("<input type=\"checkbox\" class=\"task-list-item-checkbox\"")
+                    if (attributes.getValue(CHECKED) == "true") {
+                        sb.append(" checked")
+                    }
+                    sb.append(" /")
+                }
+                return sb.toString()
+            } else {
+                super.startTag
+            }
+
+        }
 
     override val TAG = "li"
 

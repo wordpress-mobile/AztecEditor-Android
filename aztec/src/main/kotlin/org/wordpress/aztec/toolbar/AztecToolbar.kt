@@ -1047,6 +1047,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 // keep default background
             }
             AztecTextFormat.FORMAT_TASK_LIST -> {
+                backgroundRes = R.drawable.format_bar_button_tasklist_selector
                 contentDescriptionRes = R.string.item_format_task_list
                 // keep default background
             }

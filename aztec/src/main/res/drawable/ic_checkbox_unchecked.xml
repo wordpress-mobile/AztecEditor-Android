@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="16dp"
-    android:height="16dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group>
+    <item>
+        <shape android:shape="rectangle" android:thickness="12dp"
+            android:useLevel="false">
+            <corners android:radius="2dp"/>
+            <size android:height="24dp" android:width="24dp"/>
+            <solid android:color="@color/background"/>
+            <stroke android:color="@color/background_key" android:width="2dp"/>
+        </shape>
+    </item>
+</layer-list>
 
-        <clip-path android:pathData="M2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0Z" />
-
-        <path
-            android:fillColor="#F0F0F0"
-            android:pathData="M0 0V16H16V0" />
-
-        <path
-            android:pathData="M2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0Z"
-            android:strokeWidth="2"
-            android:strokeColor="#1A000000" />
-
-    </group>
-
-</vector>

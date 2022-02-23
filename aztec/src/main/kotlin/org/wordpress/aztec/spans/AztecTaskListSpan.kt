@@ -92,7 +92,7 @@ open class AztecTaskListSpan(
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)
         val leftBound = markerStartPosition.toInt()
-        if (!isChecked(text, lineIndex)) {
+        if (isChecked(text, lineIndex)) {
             d.state = intArrayOf(android.R.attr.state_checked)
         } else {
             d.state = intArrayOf()

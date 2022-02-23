@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle" android:thickness="12dp"
+            android:useLevel="false">
+            <corners android:radius="2dp"/>
+            <size android:height="24dp" android:width="24dp"/>
+            <solid android:color="@color/bullet"/>
+        </shape>
+    </item>
 
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="16dp"
-    android:height="16dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
-
-    <group>
-
-        <clip-path android:pathData="M2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0Z" />
-
-        <path
-            android:fillColor="#1E1E1E"
-            android:pathData="M0 0V16H16V0" />
-
-        <path
-            android:pathData="M2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0Z"
-            android:strokeWidth="2"
-            android:strokeColor="#1A000000" />
-
-    </group>
-
-</vector>
+    <!--    replace with your own check image-->
+    <item android:gravity="center" android:drawable="@drawable/ic_baseline_check_24">
+    </item>
+</layer-list>

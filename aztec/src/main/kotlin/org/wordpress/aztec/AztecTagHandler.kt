@@ -31,9 +31,13 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan.Companion.TASK_LIST
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -93,7 +97,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
+                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context))
                 return true
             }
             LIST_OL -> {
@@ -143,6 +147,20 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 val preformatSpan = createPreformatSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, preformatSpan)
                 return true
+            }
+            INPUT -> {
+                if (opening && attributes.getValue("type") == "checkbox") {
+                    val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan
+                    val wrappingList = tagStack.getOrNull(tagStack.size - 2) as? AztecUnorderedListSpan
+                    if (wrappingList != null && wrappingListItem != null) {
+                        wrappingList.attributes.setValue(TASK_LIST, "true")
+                        val checkedAttribute = attributes.getValue("checked")
+                        val isChecked = checkedAttribute != null && checkedAttribute != "false"
+                        wrappingListItem.attributes.setValue(CHECKED, isChecked.toString())
+                        return true
+                    }
+                }
+                return false
             }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
@@ -241,6 +259,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
         private val PREFORMAT = "pre"
+        private val INPUT = "input"
         private val IMAGE = "img"
         private val VIDEO = "video"
         private val AUDIO = "audio"

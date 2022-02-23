@@ -17,22 +17,26 @@
 
 package org.wordpress.aztec.spans
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createUnorderedListSpan(
         nestingLevel: Int,
         alignmentRendering: AlignmentRendering,
         attributes: AztecAttributes = AztecAttributes(),
+        context: Context,
         listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
 ) = when (alignmentRendering) {
-    AlignmentRendering.SPAN_LEVEL -> AztecUnorderedListSpanAligned(nestingLevel, attributes, listStyle, null)
-    AlignmentRendering.VIEW_LEVEL -> AztecUnorderedListSpan(nestingLevel, attributes, listStyle)
+    AlignmentRendering.SPAN_LEVEL -> AztecUnorderedListSpanAligned(nestingLevel, attributes, context, listStyle, null)
+    AlignmentRendering.VIEW_LEVEL -> AztecUnorderedListSpan(nestingLevel, attributes, context, listStyle)
 }
 
 /**
@@ -46,20 +50,26 @@ fun createUnorderedListSpan(
 class AztecUnorderedListSpanAligned(
         nestingLevel: Int,
         attributes: AztecAttributes = AztecAttributes(),
+        context: Context,
         listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0),
         override var align: Layout.Alignment?
-) : AztecUnorderedListSpan(nestingLevel, attributes, listStyle), IAztecAlignmentSpan
+) : AztecUnorderedListSpan(nestingLevel, attributes, context, listStyle), IAztecAlignmentSpan
 
 open class AztecUnorderedListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
-        var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
-    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
+        val context: Context,
+        var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0),
+        var onRefresh: (() -> Unit)? = null
+) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
+    private var toggled: Boolean = false
     override val TAG = "ul"
 
     override fun getLeadingMargin(first: Boolean): Int {
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
     }
+
+    private fun isChecklist() = attributes.hasAttribute(TASK_LIST)
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
                                    top: Int, baseline: Int, bottom: Int,
@@ -87,10 +97,41 @@ open class AztecUnorderedListSpan(
         var markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         if (dir == 1)
             markerStartPosition -= width
-
-        c.drawText(textToDraw, markerStartPosition , (baseline + (width - p.descent())), p)
+        if (isChecklist() && lineIndex != null) {
+            val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)
+            val leftBound = markerStartPosition.toInt()
+            if (!isChecked(text, lineIndex)) {
+                d.state = intArrayOf(android.R.attr.state_checked)
+            } else {
+                d.state = intArrayOf()
+            }
+            d.setBounds(leftBound - 40, baseline - 40, leftBound + 8, baseline + 8)
+            d.draw(c)
+        } else {
+            c.drawText(textToDraw, markerStartPosition, (baseline + (width - p.descent())), p)
+        }
 
         p.color = oldColor
         p.style = style
+    }
+
+    fun canToggle(): Boolean {
+        val canToggle = !toggled
+        toggled = canToggle
+        return canToggle
+    }
+
+    fun refresh() {
+        onRefresh?.invoke()
+    }
+
+    private fun isChecked(text: CharSequence, lineIndex: Int): Boolean {
+        val spanStart = (text as Spanned).getSpanStart(this)
+        val spanEnd = text.getSpanEnd(this)
+        return text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
+    }
+
+    companion object {
+        const val TASK_LIST = "task_list"
     }
 }

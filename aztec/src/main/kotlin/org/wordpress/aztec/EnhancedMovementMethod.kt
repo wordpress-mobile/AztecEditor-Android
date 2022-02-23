@@ -6,8 +6,10 @@ import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
+import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecURLSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
 /**
@@ -74,6 +76,14 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                 }
             } else if (failedToPinpointClickedSpan) {
                 link = text.getSpans(off, off, ClickableSpan::class.java).firstOrNull { text.getSpanStart(it) == off }
+            } else {
+                val clickedList = text.getSpans(off, off, AztecUnorderedListSpan::class.java).firstOrNull()
+                val clickedLine = text.getSpans(off, off, AztecListItemSpan::class.java).lastOrNull()
+                val spanStart = text.getSpanStart(clickedLine)
+                if (spanStart == off && clickedList != null && clickedLine != null && clickedList.canToggle()) {
+                    clickedLine.toggleCheck()
+                    clickedList.refresh()
+                }
             }
 
             if (link != null) {

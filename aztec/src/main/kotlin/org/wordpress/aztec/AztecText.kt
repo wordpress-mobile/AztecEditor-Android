@@ -87,6 +87,8 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecURLSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpan
+import org.wordpress.aztec.spans.AztecUnorderedListSpanAligned
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.CommentSpan
@@ -1150,6 +1152,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
+            AztecTextFormat.FORMAT_TASK_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
@@ -1184,6 +1187,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_MARK,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
+            AztecTextFormat.FORMAT_TASK_LIST,
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(format, selStart, selEnd)
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
@@ -1511,6 +1515,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             it.onUnknownHtmlTappedListener = this
         }
 
+        val unorderedLists = editable.getSpans(start, end, AztecUnorderedListSpan::class.java)
+        unorderedLists.forEach { unorderedList ->
+            unorderedList.onRefresh = {
+                refreshUnorderedListSpan(editable, unorderedList)
+            }
+        }
+
         if (!commentsVisible) {
             val commentSpans = editable.getSpans(start, end, CommentSpan::class.java)
             commentSpans.forEach {
@@ -1519,6 +1530,26 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 editable.replace(wrapper.start, wrapper.end, Constants.MAGIC_STRING)
             }
         }
+    }
+
+    private fun refreshUnorderedListSpan(editable: Editable, unorderedList: AztecUnorderedListSpan) {
+        val selStart = selectionStart
+        val selEnd = selectionEnd
+        val spanStart = editable.getSpanStart(unorderedList)
+        val spanEnd = editable.getSpanEnd(unorderedList)
+        val flags = editable.getSpanFlags(unorderedList)
+        unorderedList.onRefresh = null
+        this.editableText.removeSpan(unorderedList)
+        val newSpan = if (unorderedList is AztecUnorderedListSpanAligned) {
+            AztecUnorderedListSpanAligned(unorderedList.nestingLevel, unorderedList.attributes, unorderedList.context, unorderedList.listStyle, unorderedList.align)
+        } else {
+            AztecUnorderedListSpan(unorderedList.nestingLevel, unorderedList.attributes, unorderedList.context, unorderedList.listStyle)
+        }
+        newSpan.onRefresh = {
+            refreshUnorderedListSpan(this.editableText, newSpan)
+        }
+        this.editableText.setSpan(newSpan, spanStart, spanEnd, flags)
+        setSelection(selStart, selEnd)
     }
 
     fun disableTextChangedListener() {

@@ -23,10 +23,21 @@ fun createListItemSpan(nestingLevel: Int,
 open class AztecListItemSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes) : IAztecCompositeBlockSpan {
+    fun toggleCheck() {
+        if (attributes.getValue(CHECKED) == "true") {
+            attributes.setValue(CHECKED, "false")
+        } else {
+            attributes.setValue(CHECKED, "true")
+        }
+    }
+
     override val TAG = "li"
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
+    companion object {
+        const val CHECKED = "checked"
+    }
 }
 
 class AztecListItemSpanAligned(

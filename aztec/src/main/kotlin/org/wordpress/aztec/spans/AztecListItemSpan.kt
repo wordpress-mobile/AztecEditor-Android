@@ -38,14 +38,14 @@ open class AztecListItemSpan(
             return if (shouldReplaceCheckedAttribute) {
                 val sb = StringBuilder()
                 sb.append(TAG)
-                sb.append(" ")
                 for (i in 0 until attributes.length) {
                     val localName = attributes.getLocalName(i)
                     if (localName != CHECKED) {
+                        sb.append(" ")
                         sb.append(localName)
                         sb.append("=\"")
                         sb.append(attributes.getValue(i))
-                        sb.append("\" ")
+                        sb.append("\"")
                     }
                 }
                 sb.append(">")

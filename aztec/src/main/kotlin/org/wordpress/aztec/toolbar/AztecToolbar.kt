@@ -33,6 +33,7 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
+import org.wordpress.aztec.toolbar.ToolbarAction.*
 import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 import org.wordpress.aztec.util.setBackgroundDrawableRes
 import java.util.ArrayList
@@ -93,6 +94,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var toolbarButtonPlugins: ArrayList<IToolbarButton> = ArrayList()
 
     private var toolbarItems: ToolbarItems? = null
+    private var tasklistEnabled: Boolean = false
 
     constructor(context: Context) : super(context) {
         initView(null)
@@ -171,14 +173,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             KeyEvent.KEYCODE_B -> {
                 if (event.isCtrlPressed) { // Bold = Ctrl + B
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRONG, true)
-                    findViewById<ToggleButton>(ToolbarAction.BOLD.buttonId).performClick()
+                    findViewById<ToggleButton>(BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
                 if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRIKETHROUGH, true)
-                    findViewById<ToggleButton>(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
+                    findViewById<ToggleButton>(STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
             }
@@ -191,14 +193,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             KeyEvent.KEYCODE_I -> {
                 if (event.isCtrlPressed) { // Italic = Ctrl + I
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_EMPHASIS, true)
-                    findViewById<ToggleButton>(ToolbarAction.ITALIC.buttonId).performClick()
+                    findViewById<ToggleButton>(ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
                 if (event.isCtrlPressed) { // Link = Ctrl + K
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, true)
-                    findViewById<ToggleButton>(ToolbarAction.LINK.buttonId).performClick()
+                    findViewById<ToggleButton>(LINK.buttonId).performClick()
                     return true
                 }
             }
@@ -207,7 +209,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                     if (aztecToolbarListener != null && aztecToolbarListener!!.onToolbarMediaButtonClicked()) {
                         //event is consumed by listener
                     } else {
-                        val mediaAction = if (isMediaToolbarVisible) ToolbarAction.ADD_MEDIA_EXPAND else ToolbarAction.ADD_MEDIA_COLLAPSE
+                        val mediaAction = if (isMediaToolbarVisible) ADD_MEDIA_EXPAND else ADD_MEDIA_COLLAPSE
                         findViewById<ToggleButton>(mediaAction.buttonId).performClick()
                     }
                     return true
@@ -223,7 +225,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             KeyEvent.KEYCODE_Q -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_QUOTE, true)
-                    findViewById<ToggleButton>(ToolbarAction.QUOTE.buttonId).performClick()
+                    findViewById<ToggleButton>(QUOTE.buttonId).performClick()
                     return true
                 }
             }
@@ -234,7 +236,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                     return true
                 } else if (event.isCtrlPressed) { // Underline = Ctrl + U
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNDERLINE, true)
-                    findViewById<ToggleButton>(ToolbarAction.UNDERLINE.buttonId).performClick()
+                    findViewById<ToggleButton>(UNDERLINE.buttonId).performClick()
                     return true
                 }
             }
@@ -281,7 +283,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         val checked = (item?.isChecked == false)
         item?.isChecked = checked
-        val headingButton = findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId)
+        val headingButton = findViewById<ToggleButton>(HEADING.buttonId)
 
         when (item?.itemId) {
         // Heading Menu
@@ -479,15 +481,15 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun setupToolbarButtonsForAccessibility() {
-        val targetActions = listOf(ToolbarAction.ADD_MEDIA_EXPAND,
-                ToolbarAction.ADD_MEDIA_COLLAPSE,
-                ToolbarAction.HORIZONTAL_RULE,
-                ToolbarAction.HEADING,
-                ToolbarAction.LIST,
-                ToolbarAction.LINK
+        val targetActions = listOf(ADD_MEDIA_EXPAND,
+                ADD_MEDIA_COLLAPSE,
+                HORIZONTAL_RULE,
+                HEADING,
+                LIST,
+                LINK
         )
 
-        ToolbarAction.values().forEach { action ->
+        values().forEach { action ->
             if (targetActions.contains(action)) {
                 findViewById<ToggleButton>(action.buttonId)?.convertToButtonAccessibilityProperties()
             }
@@ -495,7 +497,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
-        ToolbarAction.values().forEach { action ->
+        values().forEach { action ->
             if (toolbarActions.contains(action)) {
                 toggleButton(findViewById<ToggleButton>(action.buttonId), true)
             } else {
@@ -507,9 +509,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private fun getSelectedActions(): ArrayList<IToolbarAction> {
         val actions = ArrayList<IToolbarAction>()
 
-        for (action in ToolbarAction.values()) {
-            if (action != ToolbarAction.ELLIPSIS_COLLAPSE &&
-                    action != ToolbarAction.ELLIPSIS_EXPAND) {
+        for (action in values()) {
+            if (action != ELLIPSIS_COLLAPSE &&
+                    action != ELLIPSIS_EXPAND) {
                 val view = findViewById<ToggleButton>(action.buttonId)
                 if (view?.isChecked == true) actions.add(action)
             }
@@ -542,13 +544,13 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     private fun highlightAlignButtons(appliedStyles: ArrayList<ITextFormat>) {
         if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_LEFT)) {
-            toggleButton(findViewById(ToolbarAction.ALIGN_LEFT.buttonId), false)
+            toggleButton(findViewById(ALIGN_LEFT.buttonId), false)
         }
         if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_CENTER)) {
-            toggleButton(findViewById(ToolbarAction.ALIGN_CENTER.buttonId), false)
+            toggleButton(findViewById(ALIGN_CENTER.buttonId), false)
         }
         if (!appliedStyles.contains(AztecTextFormat.FORMAT_ALIGN_RIGHT)) {
-            toggleButton(findViewById(ToolbarAction.ALIGN_RIGHT.buttonId), false)
+            toggleButton(findViewById(ALIGN_RIGHT.buttonId), false)
         }
     }
 
@@ -576,7 +578,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
 
         // if text is selected and action is styling - toggle the style
-        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
+        if (action.isStylingAction() && action != HEADING && action != LIST) {
             aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
             val returnValue = editor!!.toggleFormatting(action.textFormats.first())
 
@@ -587,33 +589,33 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
         // other toolbar action
         when (action) {
-            ToolbarAction.ADD_MEDIA_COLLAPSE, ToolbarAction.ADD_MEDIA_EXPAND -> {
+            ADD_MEDIA_COLLAPSE, ADD_MEDIA_EXPAND -> {
                 if (aztecToolbarListener != null && aztecToolbarListener!!.onToolbarMediaButtonClicked()) {
                     //event is consumed by listener
                 } else {
                     toggleMediaToolbar()
                 }
             }
-            ToolbarAction.HEADING -> {
+            HEADING -> {
                 aztecToolbarListener?.onToolbarHeadingButtonClicked()
                 headingMenu?.show()
             }
-            ToolbarAction.LIST -> {
+            LIST -> {
                 aztecToolbarListener?.onToolbarListButtonClicked()
                 listMenu?.show()
             }
-            ToolbarAction.LINK -> {
+            LINK -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, false)
                 editor!!.showLinkDialog()
             }
-            ToolbarAction.HTML -> {
+            HTML -> {
                 aztecToolbarListener?.onToolbarHtmlButtonClicked()
             }
-            ToolbarAction.ELLIPSIS_COLLAPSE -> {
+            ELLIPSIS_COLLAPSE -> {
                 aztecToolbarListener?.onToolbarCollapseButtonClicked()
                 animateToolbarCollapse()
             }
-            ToolbarAction.ELLIPSIS_EXPAND -> {
+            ELLIPSIS_EXPAND -> {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
             }
@@ -729,6 +731,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         this.toolbarItems = toolbarItems
     }
 
+    fun enableTaskList() {
+        this.tasklistEnabled = true
+    }
+
     private fun setupToolbarItems() {
         layoutExpanded = findViewById(R.id.format_bar_button_layout_expanded)
         val inflater = LayoutInflater.from(context)
@@ -747,13 +753,13 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             }
         }
 
-        for (toolbarAction in ToolbarAction.values()) {
+        for (toolbarAction in values()) {
             findViewById<ToggleButton>(toolbarAction.buttonId)?.let {
                 it.setOnClickListener { onToolbarAction(toolbarAction) }
 
                 when (toolbarAction) {
-                    ToolbarAction.HEADING -> setHeadingMenu(it)
-                    ToolbarAction.LIST -> setListMenu(it)
+                    HEADING -> setHeadingMenu(it)
+                    LIST -> setListMenu(it)
                 }
                 if (!hasCustomLayout) {
                     it.setBackgroundDrawableRes(toolbarAction.buttonDrawableRes)
@@ -776,7 +782,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun selectHeadingMenuItem(textFormats: ArrayList<ITextFormat>) {
-        val headingButton = findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId) ?: return
+        val headingButton = findViewById<ToggleButton>(HEADING.buttonId) ?: return
         // Use unnumbered heading selector by default.
         updateHeadingMenuItem(AztecTextFormat.FORMAT_PARAGRAPH, headingButton)
         headingMenu?.menu?.findItem(R.id.paragraph)?.isChecked = true
@@ -798,7 +804,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun selectListMenuItem(textFormats: ArrayList<ITextFormat>) {
-        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId) ?: return
+        val listButton = findViewById<ToggleButton>(LIST.buttonId) ?: return
         updateListMenuItem(AztecTextFormat.FORMAT_NONE, listButton)
         listMenu?.menu?.findItem(R.id.list_none)?.isChecked = true
         foreach@ for (it in textFormats) {
@@ -1011,9 +1017,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         headingMenu?.inflate(R.menu.heading)
         headingMenu?.setOnDismissListener({
             if (getSelectedHeadingMenuItem() == null || getSelectedHeadingMenuItem() == AztecTextFormat.FORMAT_PARAGRAPH) {
-                findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = false
+                findViewById<ToggleButton>(HEADING.buttonId).isChecked = false
             } else {
-                findViewById<ToggleButton>(ToolbarAction.HEADING.buttonId).isChecked = true
+                findViewById<ToggleButton>(HEADING.buttonId).isChecked = true
             }
         })
     }
@@ -1023,13 +1029,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         listMenu = PopupMenu(context, view)
         listMenu?.setOnMenuItemClickListener(this)
         listMenu?.inflate(R.menu.list)
-        listMenu?.setOnDismissListener({
-            if (getSelectedListMenuItem() == null) {
-                findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = false
-            } else {
-                findViewById<ToggleButton>(ToolbarAction.LIST.buttonId).isChecked = true
-            }
-        })
+        if (!tasklistEnabled) {
+            listMenu?.menu?.findItem(R.id.task_list)?.setVisible(false);
+        }
+        listMenu?.setOnDismissListener {
+            (getSelectedListMenuItem() != null).also { findViewById<ToggleButton>(LIST.buttonId).isChecked = it }
+        }
     }
 
     private fun updateListMenuItem(textFormat: ITextFormat, listButton: ToggleButton?) {
@@ -1122,8 +1127,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun toggleHtmlMode(isHtmlMode: Boolean) {
-        ToolbarAction.values().forEach { action ->
-            if (action == ToolbarAction.HTML) {
+        values().forEach { action ->
+            if (action == HTML) {
                 toggleButton(findViewById(action.buttonId), isHtmlMode)
             } else {
                 toggleButtonState(findViewById(action.buttonId), !isHtmlMode)
@@ -1136,7 +1141,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     private fun toggleListMenuSelection(listMenuItemId: Int, isChecked: Boolean) {
-        val listButton = findViewById<ToggleButton>(ToolbarAction.LIST.buttonId)
+        val listButton = findViewById<ToggleButton>(LIST.buttonId)
         if (isChecked) {
             listMenu?.menu?.findItem(listMenuItemId)?.isChecked = true
 
@@ -1157,8 +1162,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     }
 
     fun enableFormatButtons(isEnabled: Boolean) {
-        ToolbarAction.values().forEach { action ->
-            if (action != ToolbarAction.HTML) {
+        values().forEach { action ->
+            if (action != HTML) {
                 toggleButtonState(findViewById(action.buttonId), isEnabled)
             }
         }

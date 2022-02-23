@@ -559,16 +559,6 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             return editor!!.setSelectedStyles(textFormats)
         }
 
-        // if text is selected and action is styling - toggle the style
-        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST && action != ToolbarAction.CODE) {
-            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
-            val returnValue = editor!!.toggleFormatting(action.textFormats.first())
-
-            highlightAppliedStyles()
-
-            return returnValue
-        }
-
         // other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA_COLLAPSE, ToolbarAction.ADD_MEDIA_EXPAND -> {
@@ -615,7 +605,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 }
             }
             else -> {
-                Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
+                // if text is selected and action is styling - toggle the style
+                if (action.isStylingAction()) {
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
+                    val returnValue = editor!!.toggleFormatting(action.textFormats.first())
+
+                    highlightAppliedStyles()
+
+                    return returnValue
+                } else {
+                    Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -36,8 +36,9 @@ import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan.Companion.TASK_LIST
+import org.wordpress.aztec.spans.AztecUnorderedListSpanAligned
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -50,10 +51,10 @@ import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
-import java.util.ArrayList
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
 ) : Html.TagHandler {
@@ -97,7 +98,12 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context))
+                val lastSpan = tagStack.lastOrNull()
+                if (!opening && lastSpan is AztecTaskListSpan) {
+                    handleElement(output, opening, createTaskListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context))
+                } else {
+                    handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
+                }
                 return true
             }
             LIST_OL -> {
@@ -150,15 +156,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
             INPUT -> {
                 if (opening && attributes.getValue("type") == "checkbox") {
-                    val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan
-                    val wrappingList = tagStack.getOrNull(tagStack.size - 2) as? AztecUnorderedListSpan
-                    if (wrappingList != null && wrappingListItem != null) {
-                        wrappingList.attributes.setValue(TASK_LIST, "true")
-                        val checkedAttribute = attributes.getValue("checked")
-                        val isChecked = checkedAttribute != null && checkedAttribute != "false"
-                        wrappingListItem.attributes.setValue(CHECKED, isChecked.toString())
-                        return true
-                    }
+                    return handleCheckboxInput(output, context, attributes)
                 }
                 return false
             }
@@ -170,6 +168,29 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
         }
         return false
+    }
+
+    private fun handleCheckboxInput(output: Editable, context: Context, attributes: Attributes): Boolean {
+        val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan ?: return false
+        val wrappingUnorderedList = tagStack.getOrNull(tagStack.size - 2) as? AztecUnorderedListSpan
+        if (wrappingUnorderedList != null) {
+            val start = output.getSpanStart(wrappingUnorderedList)
+            val end = output.getSpanEnd(wrappingUnorderedList)
+            val flags = output.getSpanFlags(wrappingUnorderedList)
+            output.removeSpan(wrappingUnorderedList)
+            val alignment = when (wrappingUnorderedList) {
+                is AztecUnorderedListSpanAligned -> AlignmentRendering.SPAN_LEVEL
+                else -> AlignmentRendering.VIEW_LEVEL
+
+            }
+            val taskListSpan = createTaskListSpan(wrappingUnorderedList.nestingLevel, alignment, wrappingUnorderedList.attributes, context, wrappingUnorderedList.listStyle)
+            output.setSpan(taskListSpan, start, end, flags)
+            tagStack[tagStack.size - 2] = taskListSpan
+        }
+        val checkedAttribute = attributes.getValue("checked")
+        val isChecked = checkedAttribute != null && checkedAttribute != "false"
+        wrappingListItem.attributes.setValue(CHECKED, isChecked.toString())
+        return true
     }
 
     private fun processTagHandlerPlugins(tag: String, opening: Boolean, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {

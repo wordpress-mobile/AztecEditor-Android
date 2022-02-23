@@ -37,6 +37,7 @@ class ListItemHandler(
 
     override fun handleNewlineAtEmptyBody() {
         // just remove list item when entering a newline on an empty item at the end of the list
+
         block.remove()
     }
 

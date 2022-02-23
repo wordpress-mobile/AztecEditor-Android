@@ -238,6 +238,13 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                     return true
                 }
             }
+            KeyEvent.KEYCODE_T -> {
+                if (event.isAltPressed && event.isCtrlPressed) { // Task List = Alt + Ctrl + T
+                    aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_TASK_LIST, true)
+                    editor?.toggleFormatting(AztecTextFormat.FORMAT_TASK_LIST)
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_X -> {
                 if (event.isAltPressed && event.isCtrlPressed) { // Code = Alt + Ctrl + X
 //                    TODO: Add Code action.
@@ -340,6 +347,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             R.id.list_unordered -> {
                 aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, false)
                 editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
+                toggleListMenuSelection(item.itemId, checked)
+
+                editor?.let {
+                    highlightAppliedStyles(editor!!.selectionStart, editor!!.selectionEnd)
+                }
+                return true
+            }
+            R.id.task_list -> {
+                aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_TASK_LIST, false)
+                editor?.toggleFormatting(AztecTextFormat.FORMAT_TASK_LIST)
                 toggleListMenuSelection(item.itemId, checked)
 
                 editor?.let {
@@ -686,6 +703,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     fun getSelectedListMenuItem(): ITextFormat? {
         if (listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked == true) return AztecTextFormat.FORMAT_UNORDERED_LIST
         else if (listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked == true) return AztecTextFormat.FORMAT_ORDERED_LIST
+        else if (listMenu?.menu?.findItem(R.id.task_list)?.isChecked == true) return AztecTextFormat.FORMAT_TASK_LIST
         return null
     }
 
@@ -787,6 +805,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             when (it) {
                 AztecTextFormat.FORMAT_UNORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_unordered)?.isChecked = true
                 AztecTextFormat.FORMAT_ORDERED_LIST -> listMenu?.menu?.findItem(R.id.list_ordered)?.isChecked = true
+                AztecTextFormat.FORMAT_TASK_LIST -> listMenu?.menu?.findItem(R.id.task_list)?.isChecked = true
                 else -> continue@foreach
             }
             updateListMenuItem(it, listButton)
@@ -1027,6 +1046,10 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 contentDescriptionRes = R.string.item_format_list_unordered
                 // keep default background
             }
+            AztecTextFormat.FORMAT_TASK_LIST -> {
+                contentDescriptionRes = R.string.item_format_task_list
+                // keep default background
+            }
             AztecTextFormat.FORMAT_NONE -> {
                 check = false
                 // keep default background and content description
@@ -1119,6 +1142,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             when (listMenuItemId) {
                 R.id.list_ordered -> updateListMenuItem(AztecTextFormat.FORMAT_ORDERED_LIST, listButton)
                 R.id.list_unordered -> updateListMenuItem(AztecTextFormat.FORMAT_UNORDERED_LIST, listButton)
+                R.id.task_list -> updateListMenuItem(AztecTextFormat.FORMAT_TASK_LIST, listButton)
                 else -> {
                     AppLog.w(AppLog.T.EDITOR, "Unknown list menu item")
                     updateListMenuItem(AztecTextFormat.FORMAT_UNORDERED_LIST, listButton) // Use unordered list selector by default.

@@ -58,6 +58,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
+        toolbar.enableTaskList()
         toolbar.setEditor(editText, sourceText)
         menuList = toolbar.getListMenu() as PopupMenu
         menuListTaskList = menuList.menu.getItem(2)

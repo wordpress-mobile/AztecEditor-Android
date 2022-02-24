@@ -26,6 +26,8 @@
     <string name="format_bar_description_align_right">Align Right</string>
     <string name="format_bar_description_align_center">Align Center</string>
     <string name="format_bar_description_quote">Block quote</string>
+    <string name="format_bar_description_code">Code</string>
+    <string name="format_bar_description_pre">Preformatted code</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>
     <string name="format_bar_description_media_normal">Show Media Options</string>

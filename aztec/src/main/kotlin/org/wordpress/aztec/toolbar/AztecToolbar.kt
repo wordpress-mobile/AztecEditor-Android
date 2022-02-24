@@ -33,7 +33,6 @@ import org.wordpress.aztec.R
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.util.convertToButtonAccessibilityProperties
 import org.wordpress.aztec.util.setBackgroundDrawableRes
 import java.util.ArrayList
@@ -559,6 +558,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             return editor!!.setSelectedStyles(textFormats)
         }
 
+        // if text is selected and action is styling - toggle the style
+        if (action.isStylingAction() && action != ToolbarAction.HEADING && action != ToolbarAction.LIST) {
+            aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
+            val returnValue = editor!!.toggleFormatting(action.textFormats.first())
+
+            highlightAppliedStyles()
+
+            return returnValue
+        }
+
         // other toolbar action
         when (action) {
             ToolbarAction.ADD_MEDIA_COLLAPSE, ToolbarAction.ADD_MEDIA_EXPAND -> {
@@ -591,32 +600,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
             }
-            ToolbarAction.CODE -> {
-                editor?.apply {
-                    val spans = editableText.getSpans(selectionStart, selectionEnd, AztecPreformatSpan::class.java).size
-                    val isInlineCode = isTextSelected() && spans <= 1 || inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE)
-                    val containsLineBreak = editableText.toString().substring(selectionStart, selectionEnd).contains("\n")
-                    if (blockFormatter.containsPreformat() || !isInlineCode || containsLineBreak) {
-                        toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
-                        aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, false)
-                    } else {
-                        toggleFormatting(AztecTextFormat.FORMAT_CODE)
-                        aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_CODE, false)
-                    }
-                }
-            }
             else -> {
-                // if text is selected and action is styling - toggle the style
-                if (action.isStylingAction()) {
-                    aztecToolbarListener?.onToolbarFormatButtonClicked(action.textFormats.first(), false)
-                    val returnValue = editor!!.toggleFormatting(action.textFormats.first())
-
-                    highlightAppliedStyles()
-
-                    return returnValue
-                } else {
-                    Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }
         }
     }

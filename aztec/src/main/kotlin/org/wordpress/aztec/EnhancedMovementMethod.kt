@@ -10,7 +10,6 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecURLSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
 /**

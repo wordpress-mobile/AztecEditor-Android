@@ -27,7 +27,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     val listTag = listHtmlTag
 
     val otherListType = AztecTextFormat.FORMAT_ORDERED_LIST
-    val otherListTag =  "ol"
+    val otherListTag = "ol"
 
     lateinit var editText: AztecText
     lateinit var menuList: PopupMenu
@@ -104,7 +104,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(4, 15) // we partially selected first and second item
 
         editText.toggleFormatting(listType)
-         Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>third item", editText.toHtml())
+        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>third item", editText.toHtml())
     }
 
     @Test

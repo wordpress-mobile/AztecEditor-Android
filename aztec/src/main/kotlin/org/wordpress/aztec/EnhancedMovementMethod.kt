@@ -102,7 +102,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
         if (spanStart == off && clickedList != null && clickedLine != null && clickedList.canToggle()) {
             clickedLine.toggleCheck()
             clickedList.refresh()
+            return true
         }
-        return clickedList != null && clickedLine != null
+        return false
     }
 }

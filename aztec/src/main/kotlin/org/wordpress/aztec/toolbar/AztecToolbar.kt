@@ -594,8 +594,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             ToolbarAction.CODE -> {
                 editor?.apply {
                     val spans = editableText.getSpans(selectionStart, selectionEnd, AztecPreformatSpan::class.java).size
-                    val isInlineCode = isTextSelected() && spans == 1 || inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE)
-                    if (blockFormatter.containsPreformat() || !isInlineCode) {
+                    val isInlineCode = isTextSelected() && spans <= 1 || inlineFormatter.containsInlineStyle(AztecTextFormat.FORMAT_CODE)
+                    val containsLineBreak = editableText.toString().substring(selectionStart, selectionEnd).contains("\n")
+                    if (blockFormatter.containsPreformat() || !isInlineCode || containsLineBreak) {
                         toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
                         aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, false)
                     } else {

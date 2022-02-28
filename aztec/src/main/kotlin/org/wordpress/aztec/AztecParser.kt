@@ -35,6 +35,7 @@ import org.wordpress.aztec.plugins.visual2html.IBlockSpanHandler
 import org.wordpress.aztec.plugins.visual2html.IHtmlPostprocessor
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
+import org.wordpress.aztec.source.CssStyleAttribute
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
@@ -423,14 +424,14 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
                                nestable: IAztecParagraphStyle, parents: ArrayList<IAztecNestable>?, nestingLevel: Int) {
 
         if (nestable is IAztecAlignmentSpan && nestable.shouldParseAlignmentToHtml()) {
-            CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE)
+            CssStyleFormatter.removeStyleAttribute(nestable.attributes, CssStyleAttribute.CSS_TEXT_ALIGN_ATTRIBUTE)
 
             nestable.align?.let {
                 val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
                 val isRtl = direction.isRtl(text, start, end - start)
 
                 CssStyleFormatter.addStyleAttribute(nestable.attributes,
-                        CssStyleFormatter.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString(isRtl))
+                        CssStyleAttribute.CSS_TEXT_ALIGN_ATTRIBUTE, nestable.align!!.toCssString(isRtl))
             }
         }
 

@@ -7,6 +7,7 @@ import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.plugins.html2visual.ISpanPostprocessor
 import org.wordpress.aztec.plugins.visual2html.ISpanPreprocessor
+import org.wordpress.aztec.source.CssStyleAttribute
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
@@ -26,8 +27,8 @@ class CssUnderlinePlugin(
 
     override fun beforeSpansProcessed(spannable: SpannableStringBuilder) {
         spannable.getSpans(0, spannable.length, AztecUnderlineSpan::class.java).filter { it.isCssStyle }.forEach {
-            if (!CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
+            if (!CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleAttribute.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                CssStyleFormatter.addStyleAttribute(it.attributes, CssStyleAttribute.CSS_TEXT_DECORATION_ATTRIBUTE, UNDERLINE_STYLE_VALUE)
             }
 
             val start = spannable.getSpanStart(it)
@@ -59,8 +60,8 @@ class CssUnderlinePlugin(
 
     override fun afterSpansProcessed(spannable: Spannable) {
         spannable.getSpans(0, spannable.length, HiddenHtmlSpan::class.java).forEach {
-            if (it.TAG == SPAN_TAG && CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)) {
-                CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleFormatter.CSS_TEXT_DECORATION_ATTRIBUTE)
+            if (it.TAG == SPAN_TAG && CssStyleFormatter.containsStyleAttribute(it.attributes, CssStyleAttribute.CSS_TEXT_DECORATION_ATTRIBUTE)) {
+                CssStyleFormatter.removeStyleAttribute(it.attributes, CssStyleAttribute.CSS_TEXT_DECORATION_ATTRIBUTE)
                 spannable.setSpan(AztecUnderlineSpan(), spannable.getSpanStart(it), spannable.getSpanEnd(it), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                 if (it.attributes.isEmpty()) {

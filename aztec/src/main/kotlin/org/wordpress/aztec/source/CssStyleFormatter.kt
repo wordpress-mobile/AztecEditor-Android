@@ -24,10 +24,6 @@ class CssStyleFormatter {
     companion object {
 
         val STYLE_ATTRIBUTE = "style"
-        val CSS_TEXT_DECORATION_ATTRIBUTE = "text-decoration"
-        val CSS_TEXT_ALIGN_ATTRIBUTE = "text-align"
-        val CSS_COLOR_ATTRIBUTE = "color"
-        val CSS_BACKGROUND_COLOR_ATTRIBUTE = "background-color"
 
         /**
          * Check the provided [attributedSpan] for the *style* attribute. If found, parse out the
@@ -52,7 +48,7 @@ class CssStyleFormatter {
 
         private fun processAlignment(blockSpan: IAztecParagraphStyle, text: Editable, start: Int, end: Int) {
             if (blockSpan is IAztecAlignmentSpan) {
-                val alignment = getStyleAttribute(blockSpan.attributes, CSS_TEXT_ALIGN_ATTRIBUTE)
+                val alignment = getStyleAttribute(blockSpan.attributes, CssStyleAttribute.CSS_TEXT_ALIGN_ATTRIBUTE)
                 if (!alignment.isBlank()) {
                     val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
                     val isRtl = direction.isRtl(text, start, end - start)
@@ -79,7 +75,7 @@ class CssStyleFormatter {
         }
 
         private fun processColor(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
-            val colorAttrValue = getStyleAttribute(attributes, CSS_COLOR_ATTRIBUTE)
+            val colorAttrValue = getStyleAttribute(attributes, CssStyleAttribute.CSS_COLOR_ATTRIBUTE)
             if (!colorAttrValue.isBlank()) {
                 val colorInt = ColorConverter.getColorInt(colorAttrValue)
                 if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
@@ -89,7 +85,7 @@ class CssStyleFormatter {
         }
 
         private fun processBackgroundColor(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
-            val colorAttrValue = getStyleAttribute(attributes, CSS_BACKGROUND_COLOR_ATTRIBUTE)
+            val colorAttrValue = getStyleAttribute(attributes, CssStyleAttribute.CSS_BACKGROUND_COLOR_ATTRIBUTE)
             if (!colorAttrValue.isBlank()) {
                 val colorInt = ColorConverter.getColorInt(colorAttrValue)
                 if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
@@ -98,13 +94,13 @@ class CssStyleFormatter {
             }
         }
 
-        fun containsStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): Boolean {
-            return attributes.hasAttribute(STYLE_ATTRIBUTE) && getMatcher(attributes, styleAttributeName).find()
+        fun containsStyleAttribute(attributes: AztecAttributes, styleAttributeName: CssStyleAttribute): Boolean {
+            return attributes.hasAttribute(STYLE_ATTRIBUTE) && getMatcher(attributes, styleAttributeName.name).find()
         }
 
-        fun removeStyleAttribute(attributes: AztecAttributes, styleAttributeName: String) {
+        fun removeStyleAttribute(attributes: AztecAttributes, styleAttributeName: CssStyleAttribute) {
             if (attributes.hasAttribute(STYLE_ATTRIBUTE)) {
-                val m = getMatcher(attributes, styleAttributeName)
+                val m = getMatcher(attributes, styleAttributeName.key)
                 var newStyle = m.replaceAll("")
 
                 if (newStyle.isBlank()) {
@@ -116,8 +112,8 @@ class CssStyleFormatter {
             }
         }
 
-        fun getStyleAttribute(attributes: AztecAttributes, styleAttributeName: String): String {
-            val m = getMatcher(attributes, styleAttributeName)
+        fun getStyleAttribute(attributes: AztecAttributes, styleAttributeName: CssStyleAttribute): String {
+            val m = getMatcher(attributes, styleAttributeName.key)
 
             var styleAttributeValue = ""
             if (m.find()) {
@@ -126,7 +122,7 @@ class CssStyleFormatter {
             return styleAttributeValue
         }
 
-        fun addStyleAttribute(attributes: AztecAttributes, styleAttributeName: String, styleAttributeValue: String) {
+        fun addStyleAttribute(attributes: AztecAttributes, styleAttributeName: CssStyleAttribute, styleAttributeValue: String) {
             var style = attributes.getValue(STYLE_ATTRIBUTE) ?: ""
             style = style.trim()
 
@@ -134,7 +130,7 @@ class CssStyleFormatter {
                 style += ";"
             }
 
-            style += " $styleAttributeName:$styleAttributeValue;"
+            style += " ${styleAttributeName.key}:$styleAttributeValue;"
             attributes.setValue(STYLE_ATTRIBUTE, style.trim())
         }
 
@@ -151,4 +147,11 @@ class CssStyleFormatter {
             return style.trimEnd()
         }
     }
+}
+
+enum class CssStyleAttribute(val key: String) {
+    CSS_TEXT_DECORATION_ATTRIBUTE("text-decoration"),
+    CSS_TEXT_ALIGN_ATTRIBUTE("text-align"),
+    CSS_COLOR_ATTRIBUTE("color"),
+    CSS_BACKGROUND_COLOR_ATTRIBUTE("background-color")
 }

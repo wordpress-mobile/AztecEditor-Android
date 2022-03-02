@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-
-    <dimen name="bullet_margin">32dp</dimen>
-    <dimen name="bullet_padding">8dp</dimen>
-    <dimen name="bullet_width">2dp</dimen>
-    <dimen name="quote_margin">32dp</dimen>
-    <dimen name="quote_padding">8dp</dimen>
-    <dimen name="quote_width">2dp</dimen>
-    <dimen name="spacing_extra">4dp</dimen>
-    <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
-
     <bool name="is_large_tablet_landscape">false</bool>
-
 </resources>

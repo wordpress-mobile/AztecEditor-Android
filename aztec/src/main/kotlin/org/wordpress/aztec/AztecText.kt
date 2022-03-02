@@ -1325,7 +1325,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
         // the wrong value when used in 3rd party app
@@ -1334,7 +1334,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
                     replaceImage(
-                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                            getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
                     )
                 }
 
@@ -1359,7 +1359,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
@@ -1368,7 +1368,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
+                    getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {

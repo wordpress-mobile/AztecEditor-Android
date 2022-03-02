@@ -946,6 +946,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         selectedStyles.addAll(styles)
     }
 
+    fun indent() {
+        blockFormatter.indent()
+    }
+
+    fun outdent() {
+        blockFormatter.outdent()
+    }
+
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
     }

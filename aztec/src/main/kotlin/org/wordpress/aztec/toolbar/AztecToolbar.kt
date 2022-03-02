@@ -600,6 +600,12 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
             }
+            ToolbarAction.INDENT -> {
+                editor?.indent()
+            }
+            ToolbarAction.OUTDENT -> {
+                editor?.outdent()
+            }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
             }

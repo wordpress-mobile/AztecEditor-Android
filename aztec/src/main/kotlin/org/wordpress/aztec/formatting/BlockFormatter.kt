@@ -1,10 +1,10 @@
 package org.wordpress.aztec.formatting
 
-import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.core.text.TextDirectionHeuristicsCompat
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
@@ -46,20 +46,29 @@ class BlockFormatter(editor: AztecText,
                      private val preformatStyle: PreformatStyle,
                      private val alignmentRendering: AlignmentRendering
 ) : AztecFormatter(editor) {
+    private val listFormatter = ListFormatter(editor)
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)
 
+    fun indent() {
+        val result = listFormatter.indentList()
+    }
+
+    fun outdent() {
+        val result = listFormatter.outdentList()
+    }
+
     fun toggleOrderedList() {
-        if (!containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
-            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+        if (!containsList(listClass = AztecTextFormat.FORMAT_ORDERED_LIST.toBlockSpanClass())) {
+            if (containsList(listClass = AztecTextFormat.FORMAT_UNORDERED_LIST.toBlockSpanClass())) {
                 switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
             } else {
                 applyBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
-            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+            if (containsList(listClass = AztecTextFormat.FORMAT_UNORDERED_LIST.toBlockSpanClass())) {
                 switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
             } else {
                 removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
@@ -68,14 +77,14 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun toggleUnorderedList() {
-        if (!containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
-            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+        if (!containsList(listClass = AztecTextFormat.FORMAT_UNORDERED_LIST.toBlockSpanClass())) {
+            if (containsList(listClass = AztecTextFormat.FORMAT_ORDERED_LIST.toBlockSpanClass())) {
                 switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
             } else {
                 applyBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+            if (containsList(listClass = AztecTextFormat.FORMAT_ORDERED_LIST.toBlockSpanClass())) {
                 switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
             } else {
                 removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
@@ -349,6 +358,22 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
             else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs)
+        }
+    }
+
+    private fun ITextFormat.toBlockSpanClass(): Class<*> {
+        return when (this) {
+            AztecTextFormat.FORMAT_ORDERED_LIST -> AztecOrderedListSpan::class.java
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> AztecUnorderedListSpan::class.java
+            AztecTextFormat.FORMAT_QUOTE -> AztecQuoteSpan::class.java
+            AztecTextFormat.FORMAT_HEADING_1,
+            AztecTextFormat.FORMAT_HEADING_2,
+            AztecTextFormat.FORMAT_HEADING_3,
+            AztecTextFormat.FORMAT_HEADING_4,
+            AztecTextFormat.FORMAT_HEADING_5,
+            AztecTextFormat.FORMAT_HEADING_6 -> AztecHeadingSpan::class.java
+            AztecTextFormat.FORMAT_PREFORMAT -> AztecPreformatSpan::class.java
+            else -> ParagraphSpan::class.java
         }
     }
 
@@ -749,12 +774,16 @@ class BlockFormatter(editor: AztecText,
         }
     }
 
-    fun containsList(textFormat: ITextFormat, nestingLevel: Int, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+    fun containsList(format: ITextFormat, selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        return containsList(selStart, selEnd, format.toBlockSpanClass())
+    }
+
+    fun containsList(selStart: Int = selectionStart, selEnd: Int = selectionEnd, listClass: Class<*>): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart > lineEnd) {
@@ -770,31 +799,31 @@ class BlockFormatter(editor: AztecText,
              *                                                  multiple lines (before), current partially or entirely selected
              */
             if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                    || (selEnd in lineStart..lineEnd)
+                    || (selStart in lineStart..lineEnd)) {
                 list.add(i)
             }
         }
 
         if (list.isEmpty()) return false
 
-        return list.any { containsBlockElement(textFormat, it, editableText, nestingLevel) }
+        return list.any { containsBlockElement(it, editableText, listClass) }
     }
 
-    fun containsBlockElement(textFormat: ITextFormat, index: Int, text: Editable, nestingLevel: Int): Boolean {
+    fun containsBlockElement(index: Int, text: Editable, blockClass: Class<*>): Boolean {
         val lines = TextUtils.split(text.toString(), "\n")
         if (index < 0 || index >= lines.size) {
             return false
         }
 
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start > end) {
             return false
         }
 
-        val spans = editableText.getSpans(start, end, makeBlockSpan(textFormat, nestingLevel).javaClass)
+        val spans = editableText.getSpans(start, end, blockClass)
         return spans.isNotEmpty()
     }
 

@@ -2,7 +2,6 @@ package org.wordpress.aztec.toolbar
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet

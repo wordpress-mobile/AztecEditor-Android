@@ -21,7 +21,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
      *   @return true if the selection was a list. It returns true even if the indentation wasn't possible
      */
     fun indentList(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionEnd = selEnd, selectionStart = selStart)
+        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
         if (listSpans.isEmpty()) return false
         buildListState(listSpans, selStart, selEnd)?.apply {
             // You cannot indent the first list item
@@ -76,7 +76,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
      *   @return true if the selection was a list. It returns true even if the outdent wasn't possible
      */
     fun outdentList(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionEnd = selEnd, selectionStart = selStart)
+        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
         if (listSpans.isEmpty()) return false
         buildListState(listSpans, selStart, selEnd)?.apply {
             // In order to indent the previous list item has to be on the same level as the first selected item
@@ -150,7 +150,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         val fullListEnd = editableText.getSpanEnd(topLevelParent)
         val directParentFlags = editableText.getSpanFlags(directParent)
 
-        val selectedItems = editableText.getSpans(selStart, selEnd, AztecListItemSpan::class.java).filterCorrectSpans(fullListEnd, selectionEnd = selEnd, selectionStart = selStart)
+        val selectedItems = editableText.getSpans(selStart, selEnd, AztecListItemSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
         if (!validateSelection(selectedItems, directParent)) return null
         val selectedListItems = selectedItems.filter {
             it.nestingLevel > directParent.nestingLevel
@@ -200,12 +200,15 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         return true
     }
 
-    private fun <T : IAztecBlockSpan> Array<T>.filterCorrectSpans(wrapperEnd: Int? = null, selectionStart: Int, selectionEnd: Int): List<T> {
-        val endOfTopSpan = wrapperEnd ?: this.maxOfOrNull { editableText.getSpanEnd(it) } ?: return emptyList()
+    private fun <T : IAztecBlockSpan> Array<T>.filterCorrectSpans(selectionStart: Int, selectionEnd: Int): List<T> {
         return this.filterIndexed { index, span ->
             val spanStart = editableText.getSpanStart(span)
-            val spanEnd = editableText.getSpanEnd(span)
-            (selectionEnd == endOfTopSpan && spanEnd == endOfTopSpan) || (spanStart <= selectionEnd && spanEnd > selectionStart)
+            var spanEnd = editableText.getSpanEnd(span)
+            val endsWithNewLine = editableText.toString().substring(spanStart, spanEnd).endsWith("\n")
+            if (endsWithNewLine) {
+                spanEnd -= 1
+            }
+            (spanStart <= selectionEnd && spanEnd >= selectionStart)
         }
     }
 

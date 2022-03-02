@@ -201,7 +201,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun <T : IAztecBlockSpan> Array<T>.filterCorrectSpans(wrapperEnd: Int? = null, selectionStart: Int, selectionEnd: Int): List<T> {
-        val endOfTopSpan = wrapperEnd ?: this.maxOf { editableText.getSpanEnd(it) }
+        val endOfTopSpan = wrapperEnd ?: this.maxOfOrNull { editableText.getSpanEnd(it) } ?: return emptyList()
         return this.filterIndexed { index, span ->
             val spanStart = editableText.getSpanStart(span)
             val spanEnd = editableText.getSpanEnd(span)

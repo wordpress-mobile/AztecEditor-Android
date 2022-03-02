@@ -14,7 +14,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -662,12 +661,7 @@ open class MainActivity : AppCompatActivity(),
 
     private fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                Intent(Intent.ACTION_OPEN_DOCUMENT)
-            } else {
-                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_photo))
-            }
-
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "image/*"
 
@@ -682,12 +676,7 @@ open class MainActivity : AppCompatActivity(),
 
     private fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                Intent(Intent.ACTION_OPEN_DOCUMENT)
-            } else {
-                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_video))
-            }
-
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "video/*"
 

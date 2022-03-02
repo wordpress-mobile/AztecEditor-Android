@@ -854,8 +854,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     //HorizontalScrollView does not support RTL layout direction on API <= 18, so we will always scroll to the left
     fun scrollToBeginingOfToolbar() {
-        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
-                || Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
             toolbarScrolView.fullScroll(View.FOCUS_LEFT)
         } else {
             toolbarScrolView.fullScroll(View.FOCUS_RIGHT)

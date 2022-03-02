@@ -1,7 +1,6 @@
 package org.wordpress.aztec
 
 import android.content.Context
-import android.os.Build
 import android.text.Selection
 import android.view.MotionEvent
 import android.view.accessibility.AccessibilityEvent
@@ -60,7 +59,7 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     }
 
     private fun announceLine(lineOffset: Int) {
-        if (!aztecText.isFocused || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !aztecText.isAccessibilityFocused)) {
+        if (!aztecText.isFocused || !aztecText.isAccessibilityFocused) {
             aztecText.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED)
         } else {
             val announcement = getTextAtLine(lineOffset).replace(Constants.IMG_STRING, mediaItemContentDescription)

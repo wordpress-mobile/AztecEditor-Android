@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
     <!-- GENERAL -->
     <string name="cursor_moved">Cursor moved</string>

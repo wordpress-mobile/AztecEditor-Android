@@ -32,6 +32,11 @@ open class AztecListItemSpan(
         }
     }
 
+    /**
+     * This override makes sure that if the list item is in a task list (= the parameter "checked" is present), we
+     * print the `<input type=checkbox/>` as the first element of the generated HTML. This shouldn't happen in any
+     * other list type.
+     */
     override val startTag: String
         get() {
             val shouldReplaceCheckedAttribute = attributes.hasAttribute(CHECKED)

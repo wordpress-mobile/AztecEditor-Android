@@ -79,9 +79,6 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
         if (listSpans.isEmpty()) return false
         buildListState(listSpans, selStart, selEnd)?.apply {
-            // In order to indent the previous list item has to be on the same level as the first selected item
-            val lowerLevel = nestingLevel - 2
-
             when {
                 listItemSpanBeforeSelection == null && listItemSpanAfterSelection == null -> {
                     // In case of the selected list spam doesn't have any predecessor or successor, remove the list container
@@ -110,7 +107,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                     }
                 }
                 listItemSpanBeforeSelection != null && listItemSpanAfterSelection != null -> {
-                    if (listItemSpanBeforeSelection.nestingLevel == nestingLevel) {
+                    if (listItemSpanBeforeSelection.nestingLevel >= nestingLevel) {
                         if (listItemSpanAfterSelection.nestingLevel == nestingLevel) {
                             // Predecessor and successor are on the same level as selected items, this means we have to split
                             // the current list wrapper in half and move the selected items to the lower nesting level
@@ -120,15 +117,16 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                             editableText.setSpan(directParent.copyList(), spanStart, firstSelectedItemStart, spanFlags)
                             directParent.changeSpanStart(lastSelectedItemEnd)
                         } else if (listItemSpanAfterSelection.nestingLevel < nestingLevel) {
+                            // In case the span after selection has lower nesting level, we don't have to worry about it
                             selectedListItems.outdentAll()
-                            directParent.changeSpanStart(lastSelectedItemEnd)
+                            directParent.changeSpanEnd(firstSelectedItemStart)
                         }
-                    } else if (listItemSpanBeforeSelection.nestingLevel == lowerLevel && listItemSpanAfterSelection.nestingLevel == nestingLevel) {
+                    } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel == nestingLevel) {
                         // Predecessor is on lower level and successor is on the same level, this means we can move all the
                         // selected items to lower level and leave the successor on the current level
                         selectedListItems.outdentAll()
                         directParent.changeSpanStart(lastSelectedItemEnd)
-                    } else if (listItemSpanBeforeSelection.nestingLevel == lowerLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel) {
+                    } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel) {
                         // In this case the selected items are the only items on the current level. Both the successor and
                         // the predecessor are on a lower level. This means we can remove the wrapping span and move all
                         // the selected items to the lower level.

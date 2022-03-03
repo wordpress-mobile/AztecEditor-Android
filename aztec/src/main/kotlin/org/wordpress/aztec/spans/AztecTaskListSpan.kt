@@ -104,7 +104,12 @@ open class AztecTaskListSpan(
         } else {
             d.state = intArrayOf()
         }
-        d.setBounds((leftBound - drawableHeight*0.8).toInt(), (baseline - drawableHeight*0.8).toInt(), (leftBound + drawableHeight*0.2).toInt(), (baseline + drawableHeight*0.2).toInt())
+        val (startShift, endShift) = if (dir > 0) {
+            0.8 to 0.2
+        } else {
+            0.2 to 0.8
+        }
+        d.setBounds((leftBound - drawableHeight*startShift).toInt(), (baseline - drawableHeight*0.8).toInt(), (leftBound + drawableHeight*endShift).toInt(), (baseline + drawableHeight*0.2).toInt())
         d.draw(c)
 
         p.color = oldColor

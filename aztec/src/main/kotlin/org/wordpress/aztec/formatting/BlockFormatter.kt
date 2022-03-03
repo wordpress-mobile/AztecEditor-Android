@@ -53,11 +53,11 @@ class BlockFormatter(editor: AztecText,
     data class HeaderStyle(val verticalPadding: Int)
 
     fun indent() {
-        val result = listFormatter.indentList()
+        if (listFormatter.indentList()) return
     }
 
     fun outdent() {
-        val result = listFormatter.outdentList()
+        if (listFormatter.outdentList()) return
     }
 
     fun toggleOrderedList() {

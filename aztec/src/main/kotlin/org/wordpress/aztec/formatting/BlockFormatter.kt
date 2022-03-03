@@ -1033,9 +1033,22 @@ class BlockFormatter(editor: AztecText,
                 val spanEnd = editableText.getSpanEnd(existingListSpan)
                 val spanFlags = editableText.getSpanFlags(existingListSpan)
                 editableText.removeSpan(existingListSpan)
+                cleanupTaskItems(existingListSpan, listTypeToSwitchTo, spanStart, spanEnd)
 
                 editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel, attrs), spanStart, spanEnd, spanFlags)
                 editor.onSelectionChanged(start, end)
+            }
+        }
+    }
+
+    private fun cleanupTaskItems(existingListSpan: AztecListSpan?, listTypeToSwitchTo: ITextFormat, spanStart: Int, spanEnd: Int) {
+        val isTaskListSpan = existingListSpan is AztecTaskListSpan
+        val isSwitchingToTaskListSpan = listTypeToSwitchTo == AztecTextFormat.FORMAT_TASK_LIST
+        editableText.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).forEach {
+            if (isTaskListSpan) {
+                it.attributes.removeAttribute(AztecListItemSpan.CHECKED)
+            } else if (isSwitchingToTaskListSpan) {
+                it.attributes.setValue(AztecListItemSpan.CHECKED, "false")
             }
         }
     }

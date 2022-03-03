@@ -54,10 +54,12 @@ class BlockFormatter(editor: AztecText,
 
     fun indent() {
         if (listFormatter.indentList()) return
+        // TODO handle other indents
     }
 
     fun outdent() {
         if (listFormatter.outdentList()) return
+        // TODO handle other outdents
     }
 
     fun toggleOrderedList() {

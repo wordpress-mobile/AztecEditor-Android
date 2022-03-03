@@ -169,6 +169,12 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         return false
     }
 
+    /**
+     * This method takes the checkbox input inside a list item and applies a parameter to the parent list item.
+     * We convert <li><input type=checkbox checked />Test</li>
+     * into something like this: <li checked="true">Test</li>
+     * We convert this back when we generate HTML
+     */
     private fun handleCheckboxInput(attributes: Attributes): Boolean {
         val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan ?: return false
         val checkedAttribute = attributes.getValue("checked")

@@ -94,7 +94,7 @@ open class AztecTaskListSpan(
 
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
-        val drawableHeight = (0.9*(p.fontMetrics.bottom - p.fontMetrics.top))
+        val drawableHeight = (0.9 * (p.fontMetrics.bottom - p.fontMetrics.top))
         // Make sure the marker is correctly aligned on RTL languages
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)
@@ -109,7 +109,7 @@ open class AztecTaskListSpan(
         } else {
             0.2 to 0.8
         }
-        d.setBounds((leftBound - drawableHeight*startShift).toInt(), (baseline - drawableHeight*0.8).toInt(), (leftBound + drawableHeight*endShift).toInt(), (baseline + drawableHeight*0.2).toInt())
+        d.setBounds((leftBound - drawableHeight * startShift).toInt(), (baseline - drawableHeight * 0.8).toInt(), (leftBound + drawableHeight * endShift).toInt(), (baseline + drawableHeight * 0.2).toInt())
         d.draw(c)
 
         p.color = oldColor

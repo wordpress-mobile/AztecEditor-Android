@@ -37,8 +37,6 @@ import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecTaskListSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.AztecUnorderedListSpanAligned
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -99,11 +97,12 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
             LIST_UL -> {
                 val lastSpan = tagStack.lastOrNull()
-                if (!opening && lastSpan is AztecTaskListSpan) {
-                    handleElement(output, opening, createTaskListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context))
+                val element = if (attributes.isTaskList() || !opening && lastSpan is AztecTaskListSpan) {
+                    createTaskListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context)
                 } else {
-                    handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
+                    createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 }
+                handleElement(output, opening, element)
                 return true
             }
             LIST_OL -> {
@@ -156,7 +155,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
             INPUT -> {
                 if (opening && attributes.getValue("type") == "checkbox") {
-                    return handleCheckboxInput(output, context, attributes)
+                    return handleCheckboxInput(attributes)
                 }
                 return false
             }
@@ -170,23 +169,8 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         return false
     }
 
-    private fun handleCheckboxInput(output: Editable, context: Context, attributes: Attributes): Boolean {
+    private fun handleCheckboxInput(attributes: Attributes): Boolean {
         val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan ?: return false
-        val wrappingUnorderedList = tagStack.getOrNull(tagStack.size - 2) as? AztecUnorderedListSpan
-        if (wrappingUnorderedList != null) {
-            val start = output.getSpanStart(wrappingUnorderedList)
-            val end = output.getSpanEnd(wrappingUnorderedList)
-            val flags = output.getSpanFlags(wrappingUnorderedList)
-            output.removeSpan(wrappingUnorderedList)
-            val alignment = when (wrappingUnorderedList) {
-                is AztecUnorderedListSpanAligned -> AlignmentRendering.SPAN_LEVEL
-                else -> AlignmentRendering.VIEW_LEVEL
-
-            }
-            val taskListSpan = createTaskListSpan(wrappingUnorderedList.nestingLevel, alignment, wrappingUnorderedList.attributes, context, wrappingUnorderedList.listStyle)
-            output.setSpan(taskListSpan, start, end, flags)
-            tagStack[tagStack.size - 2] = taskListSpan
-        }
         val checkedAttribute = attributes.getValue("checked")
         val isChecked = checkedAttribute != null && checkedAttribute != "false"
         wrappingListItem.attributes.setValue(CHECKED, isChecked.toString())

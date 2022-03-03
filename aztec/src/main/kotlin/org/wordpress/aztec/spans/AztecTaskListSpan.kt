@@ -27,6 +27,7 @@ import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
+import org.wordpress.aztec.setTaskList
 
 fun createTaskListSpan(
         nestingLevel: Int,
@@ -64,6 +65,12 @@ open class AztecTaskListSpan(
 ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     private var toggled: Boolean = false
     override val TAG = "ul"
+
+    override val startTag: String
+        get() {
+            attributes.setTaskList()
+            return "$TAG $attributes"
+        }
 
     override fun getLeadingMargin(first: Boolean): Int {
         return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding

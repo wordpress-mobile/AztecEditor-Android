@@ -1,10 +1,10 @@
 package org.wordpress.aztec.formatting
 
-import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.core.text.TextDirectionHeuristicsCompat
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
@@ -21,6 +21,7 @@ import org.wordpress.aztec.spans.AztecListSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
+import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
@@ -34,6 +35,7 @@ import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.SpanWrapper
 import java.util.Arrays
@@ -53,13 +55,13 @@ class BlockFormatter(editor: AztecText,
 
     fun toggleOrderedList() {
         if (!containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
-            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_TASK_LIST, 0)) {
                 switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
             } else {
                 applyBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
             }
         } else {
-            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+            if (containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_TASK_LIST, 0)) {
                 switchListType(AztecTextFormat.FORMAT_ORDERED_LIST)
             } else {
                 removeBlockStyle(AztecTextFormat.FORMAT_ORDERED_LIST)
@@ -69,16 +71,35 @@ class BlockFormatter(editor: AztecText,
 
     fun toggleUnorderedList() {
         if (!containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
-            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_TASK_LIST, 0)) {
                 switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
             } else {
                 applyBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
             }
         } else {
-            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0)) {
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_TASK_LIST, 0)) {
                 switchListType(AztecTextFormat.FORMAT_UNORDERED_LIST)
             } else {
                 removeBlockStyle(AztecTextFormat.FORMAT_UNORDERED_LIST)
+            }
+        }
+    }
+
+    fun toggleTaskList() {
+        if (!containsList(AztecTextFormat.FORMAT_TASK_LIST, 0)) {
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_TASK_LIST)
+                editor.addRefreshListenersToTaskLists(editableText, selectionStart, selectionEnd)
+            } else {
+                applyBlockStyle(AztecTextFormat.FORMAT_TASK_LIST)
+                editor.addRefreshListenersToTaskLists(editableText, selectionStart, selectionEnd)
+            }
+        } else {
+            if (containsList(AztecTextFormat.FORMAT_ORDERED_LIST, 0) || containsList(AztecTextFormat.FORMAT_UNORDERED_LIST, 0)) {
+                switchListType(AztecTextFormat.FORMAT_TASK_LIST)
+                editor.addRefreshListenersToTaskLists(editableText, selectionStart, selectionEnd)
+            } else {
+                removeBlockStyle(AztecTextFormat.FORMAT_TASK_LIST)
             }
         }
     }
@@ -309,18 +330,19 @@ class BlockFormatter(editor: AztecText,
 
     // TODO: Come up with a better way to init spans and get their classes (all the "make" methods)
     fun makeBlock(textFormat: ITextFormat, nestingLevel: Int, attrs: AztecAttributes = AztecAttributes()): List<IAztecBlockSpan> {
-        when (textFormat) {
-            AztecTextFormat.FORMAT_ORDERED_LIST -> return Arrays.asList(createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
-            AztecTextFormat.FORMAT_UNORDERED_LIST -> return Arrays.asList(createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
-            AztecTextFormat.FORMAT_QUOTE -> return Arrays.asList(createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle))
+        return when (textFormat) {
+            AztecTextFormat.FORMAT_ORDERED_LIST -> listOf(createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_UNORDERED_LIST -> listOf(createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_TASK_LIST -> listOf(createTaskListSpan(nestingLevel, alignmentRendering, attrs, editor.context, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_QUOTE -> listOf(createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle))
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6 -> return Arrays.asList(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle))
-            AztecTextFormat.FORMAT_PREFORMAT -> return Arrays.asList(createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle))
-            else -> return Arrays.asList(createParagraphSpan(nestingLevel, alignmentRendering, attrs))
+            AztecTextFormat.FORMAT_HEADING_6 -> listOf(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle))
+            AztecTextFormat.FORMAT_PREFORMAT -> listOf(createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle))
+            else -> listOf(createParagraphSpan(nestingLevel, alignmentRendering, attrs))
         }
     }
 
@@ -340,6 +362,7 @@ class BlockFormatter(editor: AztecText,
         return when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> makeBlockSpan(AztecOrderedListSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> makeBlockSpan(AztecUnorderedListSpan::class, textFormat, nestingLevel, attrs)
+            AztecTextFormat.FORMAT_TASK_LIST -> makeBlockSpan(AztecTaskListSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_QUOTE -> makeBlockSpan(AztecQuoteSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
@@ -357,6 +380,7 @@ class BlockFormatter(editor: AztecText,
         return when {
             typeIsAssignableTo(AztecOrderedListSpan::class) -> createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
             typeIsAssignableTo(AztecUnorderedListSpan::class) -> createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
+            typeIsAssignableTo(AztecTaskListSpan::class) -> createTaskListSpan(nestingLevel, alignmentRendering, attrs, editor.context, listStyle)
             typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentRendering, attrs)
             typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle)
@@ -369,6 +393,7 @@ class BlockFormatter(editor: AztecText,
         when (blockElement) {
             is AztecOrderedListSpan -> blockElement.listStyle = listStyle
             is AztecUnorderedListSpan -> blockElement.listStyle = listStyle
+            is AztecTaskListSpan -> blockElement.listStyle = listStyle
             is AztecQuoteSpan -> blockElement.quoteStyle = quoteStyle
             is AztecPreformatSpan -> blockElement.preformatStyle = preformatStyle
             is AztecHeadingSpan -> blockElement.headerStyle = headerStyle
@@ -652,6 +677,7 @@ class BlockFormatter(editor: AztecText,
         when (blockSpan) {
             is AztecOrderedListSpan -> applyListBlock(blockSpan, start, end)
             is AztecUnorderedListSpan -> applyListBlock(blockSpan, start, end)
+            is AztecTaskListSpan -> applyListBlock(blockSpan, start, end)
             is AztecQuoteSpan -> applyQuote(blockSpan, start, end)
             is AztecHeadingSpan -> applyHeadingBlock(blockSpan, start, end)
             is AztecPreformatSpan -> BlockHandler.set(editableText, blockSpan, start, end)
@@ -681,7 +707,6 @@ class BlockFormatter(editor: AztecText,
                 val lineEnd = (lineStart + lineLength).let {
                     if ((start + it) != editableText.length) it + 1 else it // include the newline or not
                 }
-
                 ListItemHandler.newListItem(
                         editableText,
                         start + lineStart,
@@ -728,6 +753,7 @@ class BlockFormatter(editor: AztecText,
         when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> liftListBlock(AztecOrderedListSpan::class.java, start, end)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> liftListBlock(AztecUnorderedListSpan::class.java, start, end)
+            AztecTextFormat.FORMAT_TASK_LIST -> liftListBlock(AztecTaskListSpan::class.java, start, end)
             AztecTextFormat.FORMAT_QUOTE -> editableText.getSpans(start, end, AztecQuoteSpan::class.java).forEach {
                 IAztecNestable.pullUp(editableText, start, end, it.nestingLevel)
                 editableText.removeSpan(it)
@@ -998,7 +1024,7 @@ class BlockFormatter(editor: AztecText,
         return spans.isNotEmpty()
     }
 
-    fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd) {
+    fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
         var spans = editableText.getSpans(start, end, AztecListSpan::class.java)
         if (start == end && spans.size > 1) {
             spans = spans.filter { editableText.getSpanStart(it) == start }.toTypedArray()
@@ -1010,9 +1036,22 @@ class BlockFormatter(editor: AztecText,
                 val spanEnd = editableText.getSpanEnd(existingListSpan)
                 val spanFlags = editableText.getSpanFlags(existingListSpan)
                 editableText.removeSpan(existingListSpan)
+                cleanupTaskItems(existingListSpan, listTypeToSwitchTo, spanStart, spanEnd)
 
-                editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel), spanStart, spanEnd, spanFlags)
+                editableText.setSpan(makeBlockSpan(listTypeToSwitchTo, existingListSpan.nestingLevel, attrs), spanStart, spanEnd, spanFlags)
                 editor.onSelectionChanged(start, end)
+            }
+        }
+    }
+
+    private fun cleanupTaskItems(existingListSpan: AztecListSpan?, listTypeToSwitchTo: ITextFormat, spanStart: Int, spanEnd: Int) {
+        val isTaskListSpan = existingListSpan is AztecTaskListSpan
+        val isSwitchingToTaskListSpan = listTypeToSwitchTo == AztecTextFormat.FORMAT_TASK_LIST
+        editableText.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).forEach {
+            if (isTaskListSpan) {
+                it.attributes.removeAttribute(AztecListItemSpan.CHECKED)
+            } else if (isSwitchingToTaskListSpan) {
+                it.attributes.setValue(AztecListItemSpan.CHECKED, "false")
             }
         }
     }

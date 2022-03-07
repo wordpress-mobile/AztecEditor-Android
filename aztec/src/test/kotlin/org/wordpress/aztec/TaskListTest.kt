@@ -26,6 +26,9 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     val listType = listTextFormat
     val listTag = listHtmlTag
 
+    private val listStartTag = "$listTag type=\"task-list\""
+    private val checkbox = "<input type=\"checkbox\" class=\"task-list-item-checkbox\" />"
+
     val otherListType = AztecTextFormat.FORMAT_ORDERED_LIST
     val otherListTag = "ol"
 
@@ -74,7 +77,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun styleSingleItem() {
         TestUtils.safeAppend(editText, "first item")
         editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -89,7 +92,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0, editText.length())
 
         editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -104,7 +107,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(4, 15) // we partially selected first and second item
 
         editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>third item", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>third item", editText.toHtml())
     }
 
     @Test
@@ -119,7 +122,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(14)
 
         editText.toggleFormatting(listType)
-        Assert.assertEquals("first item<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>third item", editText.toHtml())
+        Assert.assertEquals("first item<$listStartTag><li>${checkbox}second item</li></$listTag>third item", editText.toHtml())
     }
 
     // enable styling on empty line and enter text
@@ -129,7 +132,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun styleSingleEnteredItem() {
         editText.toggleFormatting(listType)
         TestUtils.safeAppend(editText, "first item")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -139,7 +142,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "first item")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "second item")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -153,7 +156,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
@@ -170,23 +173,23 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         TestUtils.safeAppend(editText, "firstitem")
         editText.text.insert(5, "\n")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first</li><li>${checkbox}item</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun splitTwoListsWithNewline() {
-        editText.fromHtml("<$listTag><li>List 1</li></$listTag><$listTag><li>List 2</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>${checkbox}List 1</li></$listTag><$listStartTag><li>${checkbox}List 2</li></$listTag>")
         val mark2 = editText.text.indexOf("List 2")
         editText.text.insert(mark2, "\n")
-        Assert.assertEquals("<$listTag><li>List 1</li></$listTag><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}List 1</li></$listTag><$listStartTag><li>${checkbox}</li><li>${checkbox}List 2</li></$listTag>", editText.toHtml())
 
         val mark1 = editText.text.indexOf("List 1") + "List 1".length
         editText.text.insert(mark1, "\n")
-        Assert.assertEquals("<$listTag><li>List 1</li><li></li></$listTag><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}List 1</li><li>${checkbox}</li></$listTag><$listStartTag><li>${checkbox}</li><li>${checkbox}List 2</li></$listTag>", editText.toHtml())
 
         editText.text.insert(mark1 + 1, "\n")
-        Assert.assertEquals("<$listTag><li>List 1</li></$listTag><br><$listTag><li></li><li>List 2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}List 1</li></$listTag><br><$listStartTag><li>${checkbox}</li><li>${checkbox}List 2</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -204,7 +207,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.text.delete(start, end)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -219,84 +222,84 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val mark = editText.length()
         TestUtils.safeAppend(editText, "\n")
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li><li>${checkbox}</li></$listTag>", editText.toHtml())
         TestUtils.safeAppend(editText, "\n")
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
 
         TestUtils.safeAppend(editText, "not in list")
         editText.setSelection(mark)
         editText.text.insert(mark, "\n")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li><li>${checkbox}</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openListByAddingNewline() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.fromHtml("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in list")
         editText.setSelection(editText.length())
 
         editText.text.insert(editText.text.indexOf("not in list") - 1, "\n")
         editText.text.insert(editText.text.indexOf("not in list") - 1, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openListByAppendingTextToTheEnd() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.fromHtml("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in list")
         editText.setSelection(editText.length())
         editText.text.insert(editText.text.indexOf("not in list") - 1, " (appended)")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item (appended)</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item (appended)</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openListByMovingOutsideTextInsideList() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.fromHtml("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in list")
         editText.setSelection(editText.length())
         editText.text.delete(editText.text.indexOf("not in list") - 1, editText.text.indexOf("not in list"))
-        Assert.assertEquals("<$listTag><li>first item</li><li>second itemnot in list</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second itemnot in list</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun listRemainsClosedWhenLastCharacterIsDeleted() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>not in list")
+        editText.fromHtml("<$listStartTag><li>first item</li><li>second item</li></$listTag>not in list")
         editText.setSelection(editText.length())
 
         // delete last character from "second item"
         editText.text.delete(editText.text.indexOf("not in list") - 2, editText.text.indexOf("not in list") - 1)
-        Assert.assertEquals("<$listTag><li>first item</li><li>second ite</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>first item</li><li>second ite</li></$listTag>not in list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun openingAndReopeningOfList() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>")
         editText.setSelection(editText.length())
 
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "not in the list")
         val mark = editText.text.indexOf("not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>not in the list", editText.toHtml())
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "foo")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>not in the list<br>foo", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>not in the list<br>foo", editText.toHtml())
 
         // reopen list
         editText.text.delete(mark - 1, mark) // delete the newline before the not-in-the-list text
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third itemnot in the list</li></$listTag>foo", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third itemnot in the list</li></$listTag>foo", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closeList() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>first item</li><li>second item</li></$listTag>")
         editText.setSelection(editText.length())
 
         TestUtils.safeAppend(editText, "\n")
@@ -305,27 +308,27 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.text.delete(mark, mark + 1)
         TestUtils.safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun handleListReopeningAfterLastElementDeletion() {
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.text.delete(editText.text.indexOf("third item", 0), editText.length())
 
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the list") - 1, " addition")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item addition</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("not in the list") - 1, "\n")
         editText.text.insert(editText.text.indexOf("not in the list") - 1, "third item")
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item addition</li><li>third item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item addition</li><li>${checkbox}third item</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
@@ -341,11 +344,11 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "not in the list")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li></$listTag>not in the list", editText.toHtml())
 
         editText.text.insert(mark, " (addition)")
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item (addition)</li></$listTag>not in the list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item (addition)</li></$listTag>not in the list", editText.toHtml())
     }
 
     @Test
@@ -357,7 +360,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         val oppositeTag = if (listTag == "ol") "ul" else "ol"
 
-        editText.fromHtml("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>first item</li><li>second item</li><li>third item</li></$listTag>")
         editText.setSelection(editText.length())
 
         editText.toggleFormatting(oppositeTextFormat)
@@ -365,7 +368,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         Assert.assertEquals("<$oppositeTag><li>first item</li><li>second item</li><li>third item</li></$oppositeTag>", editText.toHtml())
 
         editText.toggleFormatting(listType)
-        Assert.assertEquals("<$listTag><li>first item</li><li>second item</li><li>third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -383,7 +386,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -401,7 +404,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -418,11 +421,11 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(editText.length())
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li></$listTag>second item<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li></$listTag>second item<$listStartTag><li>${checkbox}third item</li></$listTag>", editText.toHtml())
         editText.setSelection(15)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}second item</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -435,7 +438,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0)
         editText.text.insert(0, "addition ")
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />addition first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}addition first item</li><li>${checkbox}second item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -452,7 +455,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(mark)
         editText.text.insert(mark, "addition ")
 
-        Assert.assertEquals("not in list<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />addition first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />second item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("not in list<$listStartTag><li>${checkbox}addition first item</li><li>${checkbox}second item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -469,11 +472,11 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0)
         editText.text.delete(firstMark + 1, secondMark)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />first item</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}first item</li><li>${checkbox}</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
 
         editText.text.delete(0, firstMark)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />third item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}third item</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -482,26 +485,26 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.toggleFormatting(listType)
         TestUtils.safeAppend(editText, "item")
         editText.text.insert(0, "\n")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li><li>${checkbox}item</li></$listTag>", editText.toHtml())
 
         editText.text.insert(1, "\n")
         editText.text.insert(2, "\n")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}item</li></$listTag>", editText.toHtml())
 
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />item</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}item</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closeListWithEmptyLineBelowIt() {
-        editText.fromHtml("<$listTag><li>Ordered</li></$listTag><br>not in list")
+        editText.fromHtml("<$listStartTag><li>Ordered</li></$listTag><br>not in list")
 
         // remove newline after list (put cursor on newline after list and press backspace)
         val mark = editText.text.indexOf("Ordered") + "Ordered".length
         editText.text.delete(mark + 1, mark + 2) // +1 to cater for the item's endline
-        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>Ordered</li></$listTag>not in list", editText.toHtml())
 
         // press enter twice after at the end of the list to add new item and then remove it and close list
         editText.setSelection(mark)
@@ -509,79 +512,79 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.setSelection(mark + 1)
         editText.text.insert(mark + 1, "\n")
-        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag><br>not in list", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>Ordered</li></$listTag><br>not in list", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun closeListWithTrailingEmptyItem() {
-        editText.fromHtml("<$listTag><li>Ordered</li><li></li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>Ordered</li><li></li></$listTag>")
 
         // insert newline after empty list item to remove it and close the list (put cursor on empty list item and pres enter)
         val mark = editText.text.indexOf("Ordered") + "Ordered".length + 1 // must add 1 because of the newline at item end
         editText.setSelection(mark)
         editText.text.insert(editText.selectionEnd, "\n")
 
-        Assert.assertEquals("<$listTag><li>Ordered</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>Ordered</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun addLinebreaksAfterListWithEmptyItem() {
-        editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>after")
+        editText.fromHtml("<$listStartTag><li>item</li><li></li></$listTag>after")
 
         editText.text.insert(editText.text.indexOf("after"), "\n")
-        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("after"), "\n")
-        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li></$listTag><br><br>after", editText.toHtml())
 
         editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
-        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li></$listTag><br>after", editText.toHtml())
 
         editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
-        Assert.assertEquals("<$listTag><li>item</li><li></li></$listTag>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li></$listTag>after", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun addLinebreaksAfterListWithNonEmptyItem() {
-        editText.fromHtml("<$listTag><li>item</li><li>item2</li></$listTag>after")
+        editText.fromHtml("<$listStartTag><li>item</li><li>item2</li></$listTag>after")
 
         editText.text.insert(editText.text.indexOf("after"), "\n")
-        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
 
         editText.text.insert(editText.text.indexOf("after"), "\n")
-        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li>item2</li></$listTag><br><br>after", editText.toHtml())
 
         editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
-        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li>item2</li></$listTag><br>after", editText.toHtml())
 
         editText.text.delete(editText.text.indexOf("after") - 1, editText.text.indexOf("after"))
-        Assert.assertEquals("<$listTag><li>item</li><li>item2</li></$listTag>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li>item2</li></$listTag>after", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun deleteTextFromLastItem() {
-        editText.fromHtml("<$listTag><li>item</li><li></li><li></li><li>item2</li></$listTag>after")
+        editText.fromHtml("<$listStartTag><li>item</li><li></li><li></li><li>item2</li></$listTag>after")
 
         val mark = editText.text.indexOf("item2")
         editText.text.delete(mark, mark + "item2".length)
-        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li><li></li><li></li></$listTag>after", editText.toHtml())
 
         editText.text.delete(mark - 1, mark)
-        Assert.assertEquals("<$listTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>item</li><li></li><li></li></$listTag>after", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun checkIfEndOfTextMarkerAddedToLastEmptyListItem() {
-        editText.fromHtml("before<$listTag><li>item</li><li></li><li></li></$listTag>")
+        editText.fromHtml("before<$listStartTag><li>item</li><li></li><li></li></$listTag>")
 
         Assert.assertEquals(editText.text.last(), Constants.END_OF_BUFFER_MARKER)
 
-        editText.fromHtml("<$listTag><li>item</li><li></li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>item</li><li></li></$listTag>")
 
         Assert.assertEquals(editText.text.last(), Constants.END_OF_BUFFER_MARKER)
     }
@@ -589,79 +592,79 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun addTwoNewlinesAfterList() {
-        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>a</li><li>b</li></$listTag>")
 
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun deleteEmptyListItemWithBackspace() {
-        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>a</li><li>b</li></$listTag>")
 
         TestUtils.safeAppend(editText, "\n")
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
 
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "c")
         Assert.assertEquals("a\nb\nc", editText.text.toString())
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>b</li></$listTag>c", editText.toHtml())
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun appendTextToLastItemWithBacskpace() {
-        editText.fromHtml("<$listTag><li>a</li><li>b</li></$listTag>c")
+        editText.fromHtml("<$listStartTag><li>a</li><li>b</li></$listTag>c")
 
         val mark = editText.text.indexOf("c")
         editText.text.delete(mark - 1, mark)
-        Assert.assertEquals("<$listTag><li>a</li><li>bc</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>bc</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun appendTextToEmptyLastItemWithBacskpace() {
-        editText.fromHtml("<$listTag><li>a</li><li></li><li></li></$listTag>c")
+        editText.fromHtml("<$listStartTag><li>a</li><li></li><li></li></$listTag>c")
 
         var mark = editText.text.indexOf("c")
         editText.text.delete(mark - 1, mark)
         Assert.assertEquals("a\n\nc", editText.text.toString())
-        Assert.assertEquals("<$listTag><li>a</li><li></li><li>c</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li></li><li>c</li></$listTag>", editText.toHtml())
 
         mark = editText.text.indexOf("c")
         editText.text.delete(mark - 1, mark)
         Assert.assertEquals("a\nc", editText.text.toString())
-        Assert.assertEquals("<$listTag><li>a</li><li>c</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>c</li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun deleteSecondEmptyLineAndTestForZwjCharOnFirst() {
-        editText.fromHtml("<$listTag><li></li><li></li></$listTag>")
+        editText.fromHtml("<$listStartTag><li></li><li></li></$listTag>")
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
 
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
-        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li></li></$listTag>", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun deleteLastItemFromList() {
-        editText.fromHtml("<$listTag><li>a</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>a</li></$listTag>")
 
         editText.setSelection(editText.length())
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
 
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
-        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li></li></$listTag>", editText.toHtml())
 
         TestUtils.backspaceAt(editText, TestUtils.safeLength(editText))
         Assert.assertEquals("", editText.text.toString())
@@ -670,12 +673,12 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun deleteLastItemFromListWithTextAbove() {
-        editText.fromHtml("abc<$listTag><li>a</li></$listTag>")
+        editText.fromHtml("abc<$listStartTag><li>a</li></$listTag>")
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
 
         Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("abc\n"), editText.text.toString())
-        Assert.assertEquals("abc<$listTag><li></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("abc<$listStartTag><li></li></$listTag>", editText.toHtml())
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
         Assert.assertEquals(EndOfBufferMarkerAdder.ensureEndOfTextMarker("abc"), editText.text.toString())
@@ -685,12 +688,12 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun addTwoLinesThenDeleteTheList() {
-        editText.fromHtml("<$listTag><li></li></$listTag>")
+        editText.fromHtml("<$listStartTag><li></li></$listTag>")
 
         TestUtils.safeAppend(editText, "a")
         TestUtils.safeAppend(editText, "\n")
         TestUtils.safeAppend(editText, "b")
-        Assert.assertEquals("<$listTag><li>a</li><li>b</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>a</li><li>${checkbox}b</li></$listTag>", editText.toHtml())
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
         Assert.assertEquals("a\n" + Constants.ZWJ_CHAR, editText.text.toString())
@@ -700,7 +703,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.text.delete(TestUtils.safeLength(editText) - 1, TestUtils.safeLength(editText))
         Assert.assertEquals(Constants.ZWJ_STRING, editText.text.toString())
-        Assert.assertEquals("<$listTag><li></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li></li></$listTag>", editText.toHtml())
 
         // Send key event since that's the way AztecText will remove the style when text is empty
         TestUtils.backspaceAt(editText, TestUtils.safeLength(editText))
@@ -711,21 +714,21 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun nestListWithSimilarNeighboringList_issue288() {
-        val preQuote = "<$listTag><li>Unordered1</li><li></li></$listTag>"
-        val aftQuote = "<$listTag><li>Unordered2</li><li></li></$listTag>"
+        val preQuote = "<$listStartTag><li>Unordered1</li><li></li></$listTag>"
+        val aftQuote = "<$listStartTag><li>Unordered2</li><li></li></$listTag>"
         editText.fromHtml(preQuote + "<blockquote>Quote</blockquote>" + aftQuote)
 
         editText.setSelection(editText.text.indexOf("Quote"))
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("$preQuote<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /><blockquote>Quote</blockquote></li></$listTag>$aftQuote", editText.toHtml())
+        Assert.assertEquals("$preQuote<$listStartTag><li>${checkbox}<blockquote>Quote</blockquote></li></$listTag>$aftQuote", editText.toHtml())
     }
 
     @Test
     @Throws(Exception::class)
     fun nestedListsHaveVisualNewline() {
-        val html = "outpre<blockquote><$listTag><li><$listTag><li>nested</li></$listTag></li></$listTag></blockquote>outaft"
+        val html = "outpre<blockquote><$listStartTag><li><$listStartTag><li>nested</li></$listTag></li></$listTag></blockquote>outaft"
         editText.fromHtml(html)
 
         val nestedPosition = editText.text.indexOf("nested")
@@ -801,7 +804,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -816,7 +819,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(3)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<br><br><br><$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag><br><br>", editText.toHtml())
+        Assert.assertEquals("<br><br><br><$listStartTag><li>${checkbox}</li></$listTag><br><br>", editText.toHtml())
     }
 
     @Test
@@ -828,7 +831,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}</li><li>${checkbox}</li></$listTag>", editText.toHtml())
 
         editText.setSelection(0, TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
@@ -847,7 +850,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(4)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("1<br>2<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>3<br>4", editText.toHtml())
+        Assert.assertEquals("1<br>2<$listStartTag><li>${checkbox}</li></$listTag>3<br>4", editText.toHtml())
     }
 
     @Test
@@ -862,7 +865,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0, TestUtils.safeLength(editText) - 1)
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />1</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />2</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />3</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />4</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}1</li><li>${checkbox}2</li><li>${checkbox}</li><li>${checkbox}3</li><li>${checkbox}4</li><li>${checkbox}</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -873,7 +876,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(TestUtils.safeLength(editText))
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("1<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" /></li></$listTag>", editText.toHtml())
+        Assert.assertEquals("1<$listStartTag><li>${checkbox}</li></$listTag>", editText.toHtml())
     }
 
     @Test
@@ -884,7 +887,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(0, editText.length())
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li>1</li></$listTag><br><$listTag><li>2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}1</li></$listTag><br><$listStartTag><li>${checkbox}2</li></$listTag>", editText.toHtml())
         Assert.assertEquals(menuListOrdered.isChecked, false)
         Assert.assertEquals(menuListUnordered.isChecked, false )
         Assert.assertEquals(menuListTaskList.isChecked, true)
@@ -901,7 +904,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun otherListTypeChangeWithDifferentListsSelected() {
-        editText.fromHtml("<$listTag><li>1</li></$listTag><br><$otherListTag><li>2</li></$otherListTag>")
+        editText.fromHtml("<$listStartTag><li>${checkbox}1</li></$listTag><br><$otherListTag><li>2</li></$otherListTag>")
 
         editText.setSelection(0, editText.length())
         editText.toggleFormatting(otherListType)
@@ -913,7 +916,7 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
 
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li>1</li></$listTag><br><$listTag><li>2</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}1</li></$listTag><br><$listStartTag><li>${checkbox}2</li></$listTag>", editText.toHtml())
         Assert.assertEquals(menuListOrdered.isChecked, false)
         Assert.assertEquals(menuListUnordered.isChecked, false)
         Assert.assertEquals(menuListTaskList.isChecked, true)
@@ -922,27 +925,27 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     @Test
     @Throws(Exception::class)
     fun addQuoteToListItem() {
-        editText.fromHtml("<$listTag><li>1</li><li>2</li></$listTag>")
+        editText.fromHtml("<$listStartTag><li>1</li><li>2</li></$listTag>")
 
         editText.setSelection(0)
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
 
-        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li>2</li></$listTag>",
+        Assert.assertEquals("<$listStartTag><li><blockquote>1</blockquote></li><li>2</li></$listTag>",
                 editText.toHtml())
 
         editText.setSelection(3)
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<$listTag><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></$listTag>",
+        Assert.assertEquals("<$listStartTag><li><blockquote>1</blockquote></li><li><blockquote>2</blockquote></li></$listTag>",
                 editText.toHtml())
 
         editText.setSelection(1)
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<$listTag><li>1</li><li><blockquote>2</blockquote></li></$listTag>",
+        Assert.assertEquals("<$listStartTag><li>1</li><li><blockquote>2</blockquote></li></$listTag>",
                 editText.toHtml())
 
         editText.setSelection(editText.length())
         editText.toggleFormatting(AztecTextFormat.FORMAT_QUOTE)
-        Assert.assertEquals("<$listTag><li>1</li><li>2</li></$listTag>",
+        Assert.assertEquals("<$listStartTag><li>1</li><li>2</li></$listTag>",
                 editText.toHtml())
     }
 
@@ -954,6 +957,6 @@ class TaskListTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         editText.setSelection(editText.length())
         editText.toggleFormatting(listType)
 
-        Assert.assertEquals("<$listTag><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />a</li></$listTag>", editText.toHtml())
+        Assert.assertEquals("<$listStartTag><li>${checkbox}a</li></$listTag>", editText.toHtml())
     }
 }

@@ -15,6 +15,11 @@
         </item>
 
         <item
+            android:id="@+id/task_list"
+            android:title="@string/item_format_task_list" >
+        </item>
+
+        <item
             android:id="@+id/list_none"
             android:title="@string/item_format_list_no"
             android:visible="false" >

@@ -6,7 +6,9 @@ import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
+import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
+import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
@@ -62,6 +64,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             var link: ClickableSpan? = null
 
+            if (handleTaskListClick(text, off)) return true
+
             if (clickedOnSpan) {
                 if (isClickedSpanAmbiguous) {
                     if (clickedOnSpanToTheLeftOfCursor) {
@@ -88,5 +92,17 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
         }
 
         return super.onTouchEvent(widget, text, event)
+    }
+
+    private fun handleTaskListClick(text: Spannable, off: Int): Boolean {
+        val clickedList = text.getSpans(off, off, AztecTaskListSpan::class.java).firstOrNull()
+        val clickedLine = text.getSpans(off, off, AztecListItemSpan::class.java).lastOrNull()
+        val spanStart = text.getSpanStart(clickedLine)
+        if (spanStart == off && clickedList != null && clickedLine != null && clickedList.canToggle()) {
+            clickedLine.toggleCheck()
+            clickedList.refresh()
+            return true
+        }
+        return false
     }
 }

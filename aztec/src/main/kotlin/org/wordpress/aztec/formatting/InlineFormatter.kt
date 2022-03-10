@@ -35,9 +35,24 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
+            if (getExclusiveInlineTextFormats().contains(textFormat)) {
+                // If text format is exclusive, remove all the inclusive text formats already applied
+                removeAllInclusiveFormats()
+            } else {
+                // If text format is inclusive, remove all the exclusive text formats already applied
+                removeAllExclusiveFormats()
+            }
             applyInlineStyle(textFormat)
         } else {
             removeInlineStyle(textFormat)
+        }
+    }
+
+    private fun removeAllInclusiveFormats() {
+        for (inclusiveInlineTextFormat in getInclusiveInlineTextFormats()) {
+            if (containsInlineStyle(inclusiveInlineTextFormat)) {
+                removeInlineStyle(inclusiveInlineTextFormat)
+            }
         }
     }
 
@@ -47,8 +62,17 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     fun toggleAny(textFormats: Set<ITextFormat>) {
         if (!textFormats
                 .filter { containsInlineStyle(it) }
-                .fold(false, { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true })) {
+                .fold(false) { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
+            removeAllExclusiveFormats()
             applyInlineStyle(textFormats.first())
+        }
+    }
+
+    private fun removeAllExclusiveFormats() {
+        for (exclusiveInlineTextFormat in getExclusiveInlineTextFormats()) {
+            if (containsInlineStyle(exclusiveInlineTextFormat)) {
+                removeInlineStyle(exclusiveInlineTextFormat)
+            }
         }
     }
 
@@ -370,6 +394,21 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }
+
+    private fun getInclusiveInlineTextFormats() = listOf<ITextFormat>(
+            AztecTextFormat.FORMAT_BOLD,
+            AztecTextFormat.FORMAT_STRONG,
+            AztecTextFormat.FORMAT_ITALIC,
+            AztecTextFormat.FORMAT_EMPHASIS,
+            AztecTextFormat.FORMAT_CITE,
+            AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_UNDERLINE,
+            AztecTextFormat.FORMAT_MARK
+    )
+
+    private fun getExclusiveInlineTextFormats() = listOf<ITextFormat>(
+            AztecTextFormat.FORMAT_CODE
+    )
 
     fun makeInlineSpan(spanType: Class<IAztecInlineSpan>, attrs: AztecAttributes = AztecAttributes()): IAztecInlineSpan {
         when (spanType) {

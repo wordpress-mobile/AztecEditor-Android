@@ -28,4 +28,8 @@ interface IToolbarAction {
     fun isStylingAction(): Boolean {
         return actionType != ToolbarActionType.OTHER
     }
+
+    fun isInlineAction(): Boolean {
+        return actionType == ToolbarActionType.INLINE_STYLE || actionType == ToolbarActionType.EXCLUSIVE_INLINE_STYLE
+    }
 }

@@ -60,6 +60,8 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.toolbar.ToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarItems
 import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
@@ -431,6 +433,7 @@ open class MainActivity : AppCompatActivity(),
         })
 
         toolbar.enableTaskList()
+        toolbar.setToolbarItems(ToolbarItems.BasicLayout(ToolbarAction.BOLD, ToolbarAction.ITALIC, ToolbarAction.CODE))
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))

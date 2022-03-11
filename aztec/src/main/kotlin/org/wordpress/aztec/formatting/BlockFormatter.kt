@@ -256,13 +256,15 @@ class BlockFormatter(editor: AztecText,
             val spanFlags = editableText.getSpanFlags(it)
             val nextLineLength = "\n".length
             // Defines end of a line in a block
-            val lineEnd = editableText.indexOf("\n", selectionEnd) + nextLineLength
+            val previousLineBreak = editableText.indexOf("\n", selectionEnd)
+            val lineEnd = if (previousLineBreak > -1) { previousLineBreak + nextLineLength } else spanEnd
             // Defines start of a line in a block
-            val lineStart = if (lineEnd == selectionStart + nextLineLength) {
+            val nextLineBreak = if (lineEnd == selectionStart + nextLineLength) {
                 editableText.lastIndexOf("\n", selectionStart - 1)
             } else {
                 editableText.lastIndexOf("\n", selectionStart)
-            } + nextLineLength
+            }
+            val lineStart = if (nextLineBreak > -1) { nextLineBreak + nextLineLength } else spanStart
             val spanStartsBeforeLineStart = spanStart < lineStart
             val spanEndsAfterLineEnd = spanEnd > lineEnd
             if (spanStartsBeforeLineStart && spanEndsAfterLineEnd) {

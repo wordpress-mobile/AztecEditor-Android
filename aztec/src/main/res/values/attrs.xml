@@ -33,6 +33,7 @@
         <attr name="quoteWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
+        <attr name="exclusiveBlocks" format="reference|boolean" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">

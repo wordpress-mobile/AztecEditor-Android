@@ -116,7 +116,7 @@ class BlockFormatter(editor: AztecText,
 
     fun togglePreformat() {
         if (!containsPreformat()) {
-                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT)) {
+                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
                     switchHeadingToPreformat()
                 } else {
                     applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
@@ -135,7 +135,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> {
                 if (!containsHeadingOnly(textFormat)) {
-                    if (containsPreformat()) {
+                    if (containsPreformat() && !exclusiveBlockStyles.enabled) {
                         switchPreformatToHeading(textFormat)
                     } else if (containsOtherHeadings(textFormat)) {
                         switchHeaderType(textFormat)

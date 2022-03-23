@@ -236,17 +236,12 @@ class BlockFormatter(editor: AztecText,
                 editableText.removeSpan(it)
                 return@forEach
             }
-            // Only these supported blocks will be split/removed on block change
-            val format = when (it) {
-                is AztecHeadingSpan -> it.textFormat
-                is AztecOrderedListSpan -> AztecTextFormat.FORMAT_ORDERED_LIST
-                is AztecUnorderedListSpan -> AztecTextFormat.FORMAT_UNORDERED_LIST
-                is AztecTaskListSpan -> AztecTextFormat.FORMAT_TASK_LIST
-                is AztecListItemSpan -> AztecTextFormat.FORMAT_UNORDERED_LIST
-                is AztecQuoteSpan -> AztecTextFormat.FORMAT_QUOTE
-                is AztecPreformatSpan -> AztecTextFormat.FORMAT_PREFORMAT
-                else -> return@forEach
+            // We don't mind the paragraph blocks which wrap everything
+            if (it is ParagraphSpan) {
+                return@forEach
             }
+            // Only these supported blocks will be split/removed on block change
+            val format = it.textFormat ?: return@forEach
             // We do not want to handle cases where the applied style is already existing on a span
             if (it.javaClass == appliedClass.javaClass) {
                 return@forEach

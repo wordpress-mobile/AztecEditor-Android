@@ -3,6 +3,7 @@ package org.wordpress.aztec.spans
 import android.text.Layout
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.ITextFormat
 
 fun createHiddenHtmlBlockSpan(tag: String,
                               alignmentRendering: AlignmentRendering,
@@ -34,4 +35,5 @@ open class HiddenHtmlBlockSpan(tag: String,
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
     override val TAG: String = tag
+    override val textFormat: ITextFormat? = null
 }

@@ -3,10 +3,12 @@ package org.wordpress.aztec.spans
 import android.text.Layout
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 
 fun createParagraphSpan(nestingLevel: Int,
                         alignmentRendering: AlignmentRendering,
-                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+                        attributes: AztecAttributes = AztecAttributes()): IAztecBlockSpan =
         when (alignmentRendering) {
             AlignmentRendering.SPAN_LEVEL -> ParagraphSpanAligned(nestingLevel, attributes, null)
             AlignmentRendering.VIEW_LEVEL -> ParagraphSpan(nestingLevel, attributes)
@@ -14,7 +16,7 @@ fun createParagraphSpan(nestingLevel: Int,
 
 fun createParagraphSpan(nestingLevel: Int,
                         align: Layout.Alignment?,
-                        attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+                        attributes: AztecAttributes = AztecAttributes()): IAztecBlockSpan =
         ParagraphSpanAligned(nestingLevel, attributes, align)
 
 /**
@@ -33,6 +35,7 @@ open class ParagraphSpan(
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_PARAGRAPH
 }
 
 class ParagraphSpanAligned(

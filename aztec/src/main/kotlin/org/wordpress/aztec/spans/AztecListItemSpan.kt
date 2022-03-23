@@ -3,6 +3,8 @@ package org.wordpress.aztec.spans
 import android.text.Layout
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import java.lang.StringBuilder
 
 fun createListItemSpan(nestingLevel: Int,
@@ -67,6 +69,7 @@ open class AztecListItemSpan(
             }
 
         }
+    override val textFormat: ITextFormat? = null
 
     override val TAG = "li"
 

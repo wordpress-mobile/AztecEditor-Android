@@ -71,7 +71,7 @@ open class AztecHeadingSpan(
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
-    var textFormat: ITextFormat = AztecTextFormat.FORMAT_HEADING_1
+    override var textFormat: ITextFormat = AztecTextFormat.FORMAT_HEADING_1
         set(value) {
             field = value
             heading = textFormatToHeading(value)

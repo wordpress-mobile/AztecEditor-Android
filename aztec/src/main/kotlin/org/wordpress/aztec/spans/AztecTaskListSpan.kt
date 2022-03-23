@@ -25,6 +25,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.setTaskList
@@ -134,4 +136,6 @@ open class AztecTaskListSpan(
         }
         return sortedSpans.getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_TASK_LIST
 }

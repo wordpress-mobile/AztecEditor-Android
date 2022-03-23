@@ -4,6 +4,7 @@ import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
@@ -26,6 +27,7 @@ class CssStyleFormatter {
         val CSS_TEXT_DECORATION_ATTRIBUTE = "text-decoration"
         val CSS_TEXT_ALIGN_ATTRIBUTE = "text-align"
         val CSS_COLOR_ATTRIBUTE = "color"
+        val CSS_BACKGROUND_COLOR_ATTRIBUTE = "background-color"
 
         /**
          * Check the provided [attributedSpan] for the *style* attribute. If found, parse out the
@@ -41,6 +43,7 @@ class CssStyleFormatter {
         fun applyInlineStyleAttributes(text: Editable, attributedSpan: IAztecAttributedSpan, start: Int, end: Int) {
             if (attributedSpan.attributes.hasAttribute(STYLE_ATTRIBUTE) && start != end) {
                 processColor(attributedSpan.attributes, text, start, end)
+                processBackgroundColor(attributedSpan.attributes, text, start, end)
                 if (attributedSpan is IAztecParagraphStyle) {
                     processAlignment(attributedSpan, text, start, end)
                 }
@@ -81,6 +84,16 @@ class CssStyleFormatter {
                 val colorInt = ColorConverter.getColorInt(colorAttrValue)
                 if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
                     text.setSpan(ForegroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+
+        private fun processBackgroundColor(attributes: AztecAttributes, text: Editable, start: Int, end: Int) {
+            val colorAttrValue = getStyleAttribute(attributes, CSS_BACKGROUND_COLOR_ATTRIBUTE)
+            if (!colorAttrValue.isBlank()) {
+                val colorInt = ColorConverter.getColorInt(colorAttrValue)
+                if (colorInt != ColorConverter.COLOR_NOT_FOUND) {
+                    text.setSpan(BackgroundColorSpan(colorInt), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }

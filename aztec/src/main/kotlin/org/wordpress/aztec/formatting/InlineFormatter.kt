@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import androidx.annotation.ColorRes
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecPart
@@ -20,18 +21,19 @@ import org.wordpress.aztec.spans.AztecStyleEmphasisSpan
 import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
+import org.wordpress.aztec.spans.HighlightSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.MarkSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.util.ArrayList
 
 /**
  * <b>Important</b> - use [applySpan] to add new spans to the editor. This method will
  * make sure any attributes belonging to the span are processed.
  */
-class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val highlightStyle: HighlightStyle) : AztecFormatter(editor) {
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
+    data class HighlightStyle(@ColorRes val color: Int)
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
@@ -72,6 +74,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                    }
+                    AztecTextFormat.FORMAT_HIGHLIGHT -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     AztecTextFormat.FORMAT_MARK -> {
@@ -222,6 +227,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
             MarkSpan::class.java -> return AztecTextFormat.FORMAT_MARK
+            HighlightSpan::class.java -> return AztecTextFormat.FORMAT_HIGHLIGHT
             else -> return null
         }
     }
@@ -366,14 +372,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
             AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
+            AztecTextFormat.FORMAT_HIGHLIGHT -> {
+                return HighlightSpan(highlightStyle = highlightStyle, context = editor.context)
+            }
             AztecTextFormat.FORMAT_MARK -> return MarkSpan()
-            else -> return AztecStyleSpan(Typeface.NORMAL)
-        }
-    }
-
-    fun makeInlineSpan(spanType: Class<IAztecInlineSpan>, attrs: AztecAttributes = AztecAttributes()): IAztecInlineSpan {
-        when (spanType) {
-            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
             else -> return AztecStyleSpan(Typeface.NORMAL)
         }
     }

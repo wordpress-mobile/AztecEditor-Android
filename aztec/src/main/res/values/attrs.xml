@@ -13,6 +13,7 @@
         <attr name="codeBackground" format="reference|color" />
         <attr name="codeBackgroundAlpha" format="reference|fraction" />
         <attr name="codeColor" format="reference|color" />
+        <attr name="highlightColor" format="reference|color" />
         <attr name="drawableFailed" format="reference" />
         <attr name="drawableLoading" format="reference" />
         <attr name="historyEnable" format="reference|boolean" />

@@ -37,6 +37,12 @@ enum class ToolbarAction constructor(
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_NONE),
             R.layout.format_bar_button_list),
+    HIGHLIGHT(
+            R.id.format_bar_button_highlight,
+            R.drawable.format_bar_button_highlight_selector,
+            ToolbarActionType.INLINE_STYLE,
+            setOf(AztecTextFormat.FORMAT_HIGHLIGHT),
+            R.layout.format_bar_button_highlight),
     BOLD(
             R.id.format_bar_button_bold,
             R.drawable.format_bar_button_bold_selector,

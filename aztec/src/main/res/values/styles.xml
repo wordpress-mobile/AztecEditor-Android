@@ -8,7 +8,7 @@
         <item name="android:textOff">@null</item>
     </style>
 
-    <style name="DividerHorizontal">
+    <style name="DividerHorizontal" tools:ignore="UnusedResources">
         <item name="android:background">@color/format_bar_divider_horizontal</item>
     </style>
 
@@ -20,7 +20,7 @@
         <item name="android:background">@color/format_bar_divider_vertical</item>
     </style>
 
-    <style name="DividerSourceView">
+    <style name="DividerSourceView" tools:ignore="UnusedResources">
         <item name="android:background">@color/sourceview_separator</item>
     </style>
 

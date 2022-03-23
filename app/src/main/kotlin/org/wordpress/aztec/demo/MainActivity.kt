@@ -430,6 +430,8 @@ open class MainActivity : AppCompatActivity(),
             }
         })
 
+        toolbar.enableTaskList()
+
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))
                 .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))

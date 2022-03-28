@@ -1,6 +1,7 @@
 package org.wordpress.aztec.plugins.wpcomments.spans
 
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.spans.IAztecBlockSpan
 
 class GutenbergCommentSpan(
@@ -18,4 +19,6 @@ class GutenbergCommentSpan(
         set(value) {
             _endTag = value
         }
+
+    override val textFormat: ITextFormat? = null
 }

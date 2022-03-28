@@ -35,6 +35,8 @@ import android.text.style.UpdateLayout
 import androidx.collection.ArrayMap
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 import java.util.Locale
 
@@ -67,12 +69,11 @@ open class AztecQuoteSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes,
         var quoteStyle: BlockFormatter.QuoteStyle
-    ) : QuoteSpan(),
+) : QuoteSpan(),
         LineBackgroundSpan,
         IAztecBlockSpan,
         LineHeightSpan,
-        UpdateLayout
-    {
+        UpdateLayout {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
@@ -197,4 +198,5 @@ open class AztecQuoteSpan(
         return textDirectionHeuristic.isRtl(text, start, end - start)
     }
 
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_QUOTE
 }

@@ -12,6 +12,8 @@ import android.text.style.LineHeightSpan
 import android.text.style.TypefaceSpan
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createPreformatSpan(
@@ -19,7 +21,7 @@ fun createPreformatSpan(
         alignmentRendering: AlignmentRendering,
         attributes: AztecAttributes = AztecAttributes(),
         preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
-) : AztecPreformatSpan =
+): AztecPreformatSpan =
         when (alignmentRendering) {
             AlignmentRendering.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
             AlignmentRendering.VIEW_LEVEL -> AztecPreformatSpan(nestingLevel, attributes, preformatStyle)
@@ -44,12 +46,11 @@ open class AztecPreformatSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes,
         open var preformatStyle: BlockFormatter.PreformatStyle
-    ) : IAztecBlockSpan,
+) : IAztecBlockSpan,
         LeadingMarginSpan,
         LineBackgroundSpan,
         LineHeightSpan,
-        TypefaceSpan("monospace")
-    {
+        TypefaceSpan("monospace") {
     override val TAG: String = "pre"
 
     override var endBeforeBleed: Int = -1
@@ -105,4 +106,6 @@ open class AztecPreformatSpan(
     override fun getLeadingMargin(first: Boolean): Int {
         return MARGIN
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_PREFORMAT
 }

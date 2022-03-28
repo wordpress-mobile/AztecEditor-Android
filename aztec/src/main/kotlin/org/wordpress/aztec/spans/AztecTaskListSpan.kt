@@ -25,6 +25,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.setTaskList
@@ -129,6 +131,11 @@ open class AztecTaskListSpan(
     private fun isChecked(text: CharSequence, lineIndex: Int): Boolean {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
-        return text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
+        val sortedSpans = text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).sortedBy {
+            text.getSpanStart(it)
+        }
+        return sortedSpans.getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_TASK_LIST
 }

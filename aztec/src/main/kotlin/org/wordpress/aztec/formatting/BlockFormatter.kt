@@ -48,7 +48,12 @@ class BlockFormatter(editor: AztecText,
                      private val preformatStyle: PreformatStyle,
                      private val alignmentRendering: AlignmentRendering
 ) : AztecFormatter(editor) {
-    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
+    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int) {
+        fun leadingMargin(): Int {
+            return indicatorMargin + 2 * indicatorWidth + indicatorPadding
+        }
+    }
+
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)

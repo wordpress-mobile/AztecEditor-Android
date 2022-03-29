@@ -73,7 +73,7 @@ open class AztecTaskListSpan(
         }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
+        return listStyle.leadingMargin()
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -129,6 +129,9 @@ open class AztecTaskListSpan(
     private fun isChecked(text: CharSequence, lineIndex: Int): Boolean {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
-        return text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
+        val sortedSpans = text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).sortedBy {
+            text.getSpanStart(it)
+        }
+        return sortedSpans.getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
     }
 }

@@ -698,7 +698,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 history.beforeTextChanged(this@AztecText)
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
-            if (shouldAddMediaInline) {
+            if (!shouldAddMediaInline) {
                 blockFormatter.moveSelectionIfImageSelected()
             }
 

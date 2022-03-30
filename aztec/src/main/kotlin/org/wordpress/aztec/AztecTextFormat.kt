@@ -41,20 +41,6 @@ enum class AztecTextFormat : ITextFormat {
 
     companion object {
         /**
-         * Marks all the inline text formats which could be applied at once.
-         */
-        val inclusiveInlineStyles: List<AztecTextFormat> = listOf(
-                FORMAT_BOLD,
-                FORMAT_STRONG,
-                FORMAT_ITALIC,
-                FORMAT_EMPHASIS,
-                FORMAT_CITE,
-                FORMAT_STRIKETHROUGH,
-                FORMAT_UNDERLINE,
-                FORMAT_MARK
-        )
-
-        /**
          * Marks all the inline text formats which are exclusive. When applied they cancel the other text formats.
          */
         val exclusiveInlineStyles: List<AztecTextFormat> = listOf(

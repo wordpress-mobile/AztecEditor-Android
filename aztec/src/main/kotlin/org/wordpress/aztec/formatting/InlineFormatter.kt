@@ -51,11 +51,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
     }
 
     private fun removeAllInclusiveFormats() {
-        for (inclusiveInlineTextFormat in AztecTextFormat.inclusiveInlineStyles) {
-            if (containsInlineStyle(inclusiveInlineTextFormat)) {
-                removeInlineStyle(inclusiveInlineTextFormat)
-            }
-        }
+        val exclusiveSpans = AztecTextFormat.exclusiveInlineStyles.map { makeInlineSpan(it).javaClass }
+        editableText.getSpans(selectionStart, selectionEnd, IAztecInlineSpan::class.java).filter {
+            !exclusiveSpans.contains(it.javaClass)
+        }.forEach { removeInlineStyle(it) }
     }
 
     /**
@@ -71,11 +70,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
     }
 
     private fun removeAllExclusiveFormats() {
-        for (exclusiveInlineTextFormat in AztecTextFormat.exclusiveInlineStyles) {
-            if (containsInlineStyle(exclusiveInlineTextFormat)) {
-                removeInlineStyle(exclusiveInlineTextFormat)
-            }
-        }
+        val exclusiveSpans = AztecTextFormat.exclusiveInlineStyles.map { makeInlineSpan(it).javaClass }
+        editableText.getSpans(selectionStart, selectionEnd, IAztecInlineSpan::class.java).filter {
+            exclusiveSpans.contains(it.javaClass)
+        }.forEach { removeInlineStyle(it) }
     }
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {

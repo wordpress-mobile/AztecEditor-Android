@@ -413,13 +413,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getColor(R.styleable.AztecText_codeColor, 0)),
                 InlineFormatter.HighlightStyle(styles.getResourceId(R.styleable.AztecText_highlightColor, R.color.grey_lighten_10)))
 
+        val listStyle = BlockFormatter.ListStyle(
+                styles.getColor(R.styleable.AztecText_bulletColor, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                verticalParagraphMargin)
         blockFormatter = BlockFormatter(this,
-                BlockFormatter.ListStyle(
-                        styles.getColor(R.styleable.AztecText_bulletColor, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        verticalParagraphMargin),
+                listStyle,
                 BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
@@ -437,6 +438,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 alignmentRendering,
                 BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false))
         )
+        EnhancedMovementMethod.taskListClickHandler = TaskListClickHandler(listStyle)
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),

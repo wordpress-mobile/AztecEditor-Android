@@ -75,7 +75,7 @@ open class AztecTaskListSpan(
         }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
+        return listStyle.leadingMargin()
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -96,7 +96,7 @@ open class AztecTaskListSpan(
 
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
-        val drawableHeight = (0.9 * (p.fontMetrics.bottom - p.fontMetrics.top))
+        val drawableHeight = (0.8 * (p.fontMetrics.bottom - p.fontMetrics.top))
         // Make sure the marker is correctly aligned on RTL languages
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)

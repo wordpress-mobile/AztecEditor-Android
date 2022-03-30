@@ -1,12 +1,9 @@
 package org.wordpress.aztec.formatting
 
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
-import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.text.TextDirectionHeuristicsCompat
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AlignmentRendering
@@ -15,23 +12,19 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.ITextFormat
-import org.wordpress.aztec.R
 import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
-import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
-import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecCompositeBlockSpan
@@ -47,8 +40,6 @@ import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.SpanWrapper
-import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
-import org.xml.sax.Attributes
 import java.util.Arrays
 import kotlin.reflect.KClass
 

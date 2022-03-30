@@ -37,9 +37,6 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
-            // This handles the case when the task list checkbox is clicked
-            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) return true
-
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
             val charX = layout.getPrimaryHorizontal(off)
@@ -65,6 +62,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
                     && !clickedOnSpanToTheLeftOfCursor && !clickedOnSpanToTheRightOfCursor
 
             var link: ClickableSpan? = null
+
+            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) return true
 
             if (clickedOnSpan) {
                 if (isClickedSpanAmbiguous) {

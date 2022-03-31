@@ -66,7 +66,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         }
     }
 
-    override fun getSize(paint: Paint?, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
+    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, metrics: Paint.FontMetricsInt?): Int {
         val sizeRect = adjustBounds(start)
         if (metrics != null && sizeRect.height() > 0) {
 

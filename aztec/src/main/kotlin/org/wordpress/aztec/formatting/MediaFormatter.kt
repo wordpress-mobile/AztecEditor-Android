@@ -42,17 +42,14 @@ class MediaFormatter(editor: AztecText) : AztecFormatter(editor) {
         val builder = SpannableStringBuilder(Constants.MAGIC_STRING)
         builder.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-        val start = if (inline) {
+        if (inline) {
             editableText.replace(selectionStart, selectionEnd, builder)
-            selectionStart
+            val newSelectionPosition = editableText.indexOf(Constants.MAGIC_CHAR, selectionStart) + 1
+            editor.setSelection(newSelectionPosition)
         } else {
-            val position = getEndOfBlock()
-            editableText.insert(position, builder)
-            position
+            builder.append("\n")
+            insertSpanAfterBlock(builder)
         }
-
-        val newSelectionPosition = editableText.indexOf(Constants.MAGIC_CHAR, start) + 1
-        editor.setSelection(newSelectionPosition)
     }
 
     fun insertVideo(inline: Boolean, drawable: Drawable?, attributes: Attributes, onVideoTappedListener: AztecText.OnVideoTappedListener?,
@@ -95,10 +92,14 @@ class MediaFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun insertMediaAfterBlock(span: AztecMediaSpan) {
-        val position = getEndOfBlock()
         val ssb = SpannableStringBuilder(Constants.IMG_STRING)
         ssb.append("\n")
         buildClickableMediaSpan(ssb, span)
+        insertSpanAfterBlock(ssb)
+    }
+
+    private fun insertSpanAfterBlock(ssb: SpannableStringBuilder) {
+        val position = getEndOfBlock()
         // We need to be sure the cursor is placed correctly after media insertion
         // Note that media has '\n' around them when needed
         val isLastItem = position == EndOfBufferMarkerAdder.safeLength(editor)

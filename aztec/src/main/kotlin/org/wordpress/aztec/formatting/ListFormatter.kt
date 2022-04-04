@@ -155,8 +155,6 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
         if (selectedListItems.isEmpty()) return null
         val nestingLevel = selectedListItems.first().nestingLevel
-        selectedListItems.forEach {
-        }
         if (selectedListItems.any { it.nestingLevel != nestingLevel }) return null
         val firstSelectedItemStart = editableText.getSpanStart(selectedListItems.first())
         val lastSelectedItemEnd = editableText.getSpanEnd(selectedListItems.last())
@@ -199,7 +197,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun <T : IAztecBlockSpan> Array<T>.filterCorrectSpans(selectionStart: Int, selectionEnd: Int): List<T> {
-        return this.filterIndexed { index, span ->
+        return this.filterIndexed { _, span ->
             val spanStart = editableText.getSpanStart(span)
             var spanEnd = editableText.getSpanEnd(span)
             val endsWithNewLine = editableText.toString().substring(spanStart, spanEnd).endsWith("\n")

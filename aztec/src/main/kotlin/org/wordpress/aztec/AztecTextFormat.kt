@@ -37,14 +37,5 @@ enum class AztecTextFormat : ITextFormat {
     FORMAT_MONOSPACE,
     FORMAT_CODE,
     FORMAT_MARK,
-    FORMAT_HIGHLIGHT;
-
-    companion object {
-        /**
-         * Marks all the inline text formats which are exclusive. When applied they cancel the other text formats.
-         */
-        val exclusiveInlineStyles: List<AztecTextFormat> = listOf(
-                FORMAT_CODE
-        )
-    }
+    FORMAT_HIGHLIGHT
 }

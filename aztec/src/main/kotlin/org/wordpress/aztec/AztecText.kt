@@ -68,7 +68,6 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.formatting.MediaFormatter
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListHandler
 import org.wordpress.aztec.handlers.ListItemHandler
@@ -280,7 +279,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     lateinit var blockFormatter: BlockFormatter
     lateinit var lineBlockFormatter: LineBlockFormatter
     lateinit var linkFormatter: LinkFormatter
-    lateinit var mediaFormatter: MediaFormatter
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
@@ -457,7 +455,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 styles.getBoolean(R.styleable.AztecText_linkUnderline, true)))
 
         lineBlockFormatter = LineBlockFormatter(this)
-        mediaFormatter = MediaFormatter(this)
 
         styles.recycle()
 
@@ -1170,7 +1167,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
             AztecTextFormat.FORMAT_HORIZONTAL_RULE -> {
-                mediaFormatter.applyHorizontalRule(shouldAddMediaInline)
+                lineBlockFormatter.applyHorizontalRule(shouldAddMediaInline)
             }
             else -> {
                 plugins.filter { it is IToolbarButton && it.action.textFormats.contains(textFormat) }
@@ -1960,11 +1957,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        mediaFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        mediaFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

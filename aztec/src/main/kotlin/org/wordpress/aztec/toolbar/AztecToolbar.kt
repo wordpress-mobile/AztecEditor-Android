@@ -494,7 +494,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
     }
 
-    fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
+    fun highlightActionButtons(toolbarActions: List<IToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {
                 toggleButton(findViewById<ToggleButton>(action.buttonId), true)
@@ -556,8 +556,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         if (!isEditorAttached()) return
 
         // if nothing is selected just mark the style as active
-        if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
-            val actions = getSelectedActions()
+        if (!editor!!.isTextSelected() && action.isInlineAction()) {
+            val toggledActionIsExclusive = action.actionType == ToolbarActionType.EXCLUSIVE_INLINE_STYLE
+            val selectedActions = getSelectedActions()
+            val actions = selectedActions.filter {
+                val isExclusive = it.actionType == ToolbarActionType.EXCLUSIVE_INLINE_STYLE
+                (it == action || !it.isInlineAction() || !toggledActionIsExclusive && !isExclusive)
+            }
+            if (selectedActions.size != actions.size) {
+                highlightActionButtons(actions)
+            }
             val textFormats = ArrayList<ITextFormat>()
 
             actions.filter { it.isStylingAction() }

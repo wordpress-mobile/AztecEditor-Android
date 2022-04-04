@@ -99,7 +99,7 @@ enum class ToolbarAction constructor(
     CODE(
             R.id.format_bar_button_code,
             R.drawable.format_bar_button_code_selector,
-            ToolbarActionType.INLINE_STYLE,
+            ToolbarActionType.EXCLUSIVE_INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_CODE),
             R.layout.format_bar_button_code),
     PREFORMAT(

@@ -6,9 +6,7 @@ import android.text.method.ArrowKeyMovementMethod
 import android.text.style.ClickableSpan
 import android.view.MotionEvent
 import android.widget.TextView
-import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
-import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.UnknownClickableSpan
 
@@ -16,6 +14,7 @@ import org.wordpress.aztec.spans.UnknownClickableSpan
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
+    var taskListClickHandler: TaskListClickHandler? = null
     var isLinkTapEnabled = false
     var linkTappedListener: AztecText.OnLinkTappedListener? = null
 
@@ -37,6 +36,9 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
+
+            // This handles the case when the task list checkbox is clicked
+            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) return true
 
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
@@ -64,8 +66,6 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
 
             var link: ClickableSpan? = null
 
-            if (handleTaskListClick(text, off)) return true
-
             if (clickedOnSpan) {
                 if (isClickedSpanAmbiguous) {
                     if (clickedOnSpanToTheLeftOfCursor) {
@@ -92,17 +92,5 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
         }
 
         return super.onTouchEvent(widget, text, event)
-    }
-
-    private fun handleTaskListClick(text: Spannable, off: Int): Boolean {
-        val clickedList = text.getSpans(off, off, AztecTaskListSpan::class.java).firstOrNull()
-        val clickedLine = text.getSpans(off, off, AztecListItemSpan::class.java).lastOrNull()
-        val spanStart = text.getSpanStart(clickedLine)
-        if (spanStart == off && clickedList != null && clickedLine != null && clickedList.canToggle()) {
-            clickedLine.toggleCheck()
-            clickedList.refresh()
-            return true
-        }
-        return false
     }
 }

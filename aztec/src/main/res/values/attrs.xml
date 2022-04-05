@@ -13,6 +13,7 @@
         <attr name="codeBackground" format="reference|color" />
         <attr name="codeBackgroundAlpha" format="reference|fraction" />
         <attr name="codeColor" format="reference|color" />
+        <attr name="highlightColor" format="reference|color" />
         <attr name="drawableFailed" format="reference" />
         <attr name="drawableLoading" format="reference" />
         <attr name="historyEnable" format="reference|boolean" />
@@ -33,6 +34,7 @@
         <attr name="quoteWidth" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
+        <attr name="exclusiveBlocks" format="reference|boolean" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">

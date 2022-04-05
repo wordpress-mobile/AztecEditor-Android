@@ -46,14 +46,20 @@ class BlockFormatter(editor: AztecText,
                      private val quoteStyle: QuoteStyle,
                      private val headerStyle: HeaderStyle,
                      private val preformatStyle: PreformatStyle,
-                     private val alignmentRendering: AlignmentRendering
+                     private val alignmentRendering: AlignmentRendering,
+                     private val exclusiveBlockStyles: ExclusiveBlockStyles
 ) : AztecFormatter(editor) {
     private val listFormatter = ListFormatter(editor)
 
-    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int)
+    data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int) {
+        fun leadingMargin(): Int {
+            return indicatorMargin + 2 * indicatorWidth + indicatorPadding
+        }
+    }
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)
+    data class ExclusiveBlockStyles(val enabled: Boolean = false)
 
     fun indent() {
         if (listFormatter.indentList()) return
@@ -126,11 +132,11 @@ class BlockFormatter(editor: AztecText,
 
     fun togglePreformat() {
         if (!containsPreformat()) {
-            if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT)) {
-                switchHeadingToPreformat()
-            } else {
-                applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
-            }
+                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
+                    switchHeadingToPreformat()
+                } else {
+                    applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
+                }
         } else {
             removeEntireBlock(AztecPreformatSpan::class.java)
         }
@@ -145,7 +151,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> {
                 if (!containsHeadingOnly(textFormat)) {
-                    if (containsPreformat()) {
+                    if (containsPreformat() && !exclusiveBlockStyles.enabled) {
                         switchPreformatToHeading(textFormat)
                     } else if (containsOtherHeadings(textFormat)) {
                         switchHeaderType(textFormat)
@@ -222,6 +228,75 @@ class BlockFormatter(editor: AztecText,
         }
 
         return changed
+    }
+
+    /**
+     * This method makes sure only one block style is ever applied to part of the text. The following block styles are
+     * made exclusive if the option is enabled:
+     * - all the lists
+     * - all the headings
+     * - quote
+     * - preformat
+     */
+    private fun removeBlockStylesFromSelectedLine(appliedClass: IAztecBlockSpan) {
+        // We only want to remove the previous block styles if this option is enabled
+        if (!exclusiveBlockStyles.enabled) {
+            return
+        }
+        val selectionStart = editor.selectionStart
+
+        // try to remove block styling when pressing backspace at the beginning of the text
+        editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).forEach {
+            // We want to remove any list item span that's being converted to another block
+            if (it is AztecListItemSpan) {
+                editableText.removeSpan(it)
+                return@forEach
+            }
+            // We don't mind the paragraph blocks which wrap everything
+            if (it is ParagraphSpan) {
+                return@forEach
+            }
+            // Only these supported blocks will be split/removed on block change
+            val format = it.textFormat ?: return@forEach
+            // We do not want to handle cases where the applied style is already existing on a span
+            if (it.javaClass == appliedClass.javaClass) {
+                return@forEach
+            }
+            val spanStart = editableText.getSpanStart(it)
+            val spanEnd = editableText.getSpanEnd(it)
+            val spanFlags = editableText.getSpanFlags(it)
+            val nextLineLength = "\n".length
+            // Defines end of a line in a block
+            val previousLineBreak = editableText.indexOf("\n", selectionEnd)
+            val lineEnd = if (previousLineBreak > -1) { previousLineBreak + nextLineLength } else spanEnd
+            // Defines start of a line in a block
+            val nextLineBreak = if (lineEnd == selectionStart + nextLineLength) {
+                editableText.lastIndexOf("\n", selectionStart - 1)
+            } else {
+                editableText.lastIndexOf("\n", selectionStart)
+            }
+            val lineStart = if (nextLineBreak > -1) { nextLineBreak + nextLineLength } else spanStart
+            val spanStartsBeforeLineStart = spanStart < lineStart
+            val spanEndsAfterLineEnd = spanEnd > lineEnd
+            if (spanStartsBeforeLineStart && spanEndsAfterLineEnd) {
+                // The line is fully inside of the span so we want to split span in two around the selected line
+                val copy = makeBlock(format, it.nestingLevel, it.attributes).first()
+                editableText.removeSpan(it)
+                editableText.setSpan(it, spanStart, lineStart, spanFlags)
+                editableText.setSpan(copy, lineEnd, spanEnd, spanFlags)
+            } else if (!spanStartsBeforeLineStart && spanEndsAfterLineEnd) {
+                // If the selected line is at the beginning of a span, move the span start to the end of the line
+                editableText.removeSpan(it)
+                editableText.setSpan(it, lineEnd, spanEnd, spanFlags)
+            } else if (spanStartsBeforeLineStart && !spanEndsAfterLineEnd) {
+                // If the selected line is at the end of a span, move the span end to the start of the line
+                editableText.removeSpan(it)
+                editableText.setSpan(it, spanStart, lineStart, spanFlags)
+            } else {
+                // In this case the line fully covers the span so we just want to remove the span
+                editableText.removeSpan(it)
+            }
+        }
     }
 
     fun removeBlockStyle(textFormat: ITextFormat) {
@@ -597,6 +672,7 @@ class BlockFormatter(editor: AztecText,
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
         val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, start) + 1
         val spanToApply = makeBlockSpan(blockElementType, nestingLevel)
+        removeBlockStylesFromSelectedLine(spanToApply)
 
         if (start != end) {
             // we want to push line blocks as deep as possible, because they can't contain other block elements (e.g. headings)

@@ -35,7 +35,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -166,8 +165,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap
                 bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
-            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (drawable is VectorDrawableCompat || drawable is VectorDrawable) ) ||
-                    drawable is VectorDrawableCompat) {
+            } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
                 bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -412,15 +410,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 InlineFormatter.CodeStyle(
                         styles.getColor(R.styleable.AztecText_codeBackground, 0),
                         styles.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        styles.getColor(R.styleable.AztecText_codeColor, 0)))
+                        styles.getColor(R.styleable.AztecText_codeColor, 0)),
+                InlineFormatter.HighlightStyle(styles.getResourceId(R.styleable.AztecText_highlightColor, R.color.grey_lighten_10)))
 
+        val listStyle = BlockFormatter.ListStyle(
+                styles.getColor(R.styleable.AztecText_bulletColor, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                verticalParagraphMargin)
         blockFormatter = BlockFormatter(this,
-                BlockFormatter.ListStyle(
-                        styles.getColor(R.styleable.AztecText_bulletColor, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        verticalParagraphMargin),
+                listStyle,
                 BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
@@ -435,8 +435,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
                         verticalParagraphMargin),
-                alignmentRendering
+                alignmentRendering,
+                BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false))
         )
+        EnhancedMovementMethod.taskListClickHandler = TaskListClickHandler(listStyle)
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -462,11 +464,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         movementMethod = EnhancedMovementMethod
 
         setupKeyListenersAndInputFilters()
-
-        //disable auto suggestions/correct for older devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
 
         install()
 
@@ -710,9 +707,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            SuggestionWatcher.install(this)
-        }
+        SuggestionWatcher.install(this)
 
         InlineTextWatcher.install(inlineFormatter, this)
 
@@ -1158,6 +1153,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
@@ -1196,6 +1192,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_MARK,
+            AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
             AztecTextFormat.FORMAT_TASK_LIST,
@@ -1348,7 +1345,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
         // the wrong value when used in 3rd party app
@@ -1357,7 +1354,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
                     replaceImage(
-                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                            getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
                     )
                 }
 
@@ -1382,7 +1379,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
@@ -1391,7 +1388,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
+                    getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {

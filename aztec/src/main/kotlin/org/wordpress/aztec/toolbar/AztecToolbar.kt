@@ -2,7 +2,6 @@ package org.wordpress.aztec.toolbar
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -495,7 +494,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         }
     }
 
-    fun highlightActionButtons(toolbarActions: ArrayList<IToolbarAction>) {
+    fun highlightActionButtons(toolbarActions: List<IToolbarAction>) {
         ToolbarAction.values().forEach { action ->
             if (toolbarActions.contains(action)) {
                 toggleButton(findViewById<ToggleButton>(action.buttonId), true)
@@ -557,8 +556,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         if (!isEditorAttached()) return
 
         // if nothing is selected just mark the style as active
-        if (!editor!!.isTextSelected() && action.actionType == ToolbarActionType.INLINE_STYLE) {
-            val actions = getSelectedActions()
+        if (!editor!!.isTextSelected() && action.isInlineAction()) {
+            val toggledActionIsExclusive = action.actionType == ToolbarActionType.EXCLUSIVE_INLINE_STYLE
+            val selectedActions = getSelectedActions()
+            val actions = selectedActions.filter {
+                val isExclusive = it.actionType == ToolbarActionType.EXCLUSIVE_INLINE_STYLE
+                (it == action || !it.isInlineAction() || !toggledActionIsExclusive && !isExclusive)
+            }
+            if (selectedActions.size != actions.size) {
+                highlightActionButtons(actions)
+            }
             val textFormats = ArrayList<ITextFormat>()
 
             actions.filter { it.isStylingAction() }
@@ -884,8 +891,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
 
     //HorizontalScrollView does not support RTL layout direction on API <= 18, so we will always scroll to the left
     fun scrollToBeginingOfToolbar() {
-        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR
-                || Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_LTR) {
             toolbarScrolView.fullScroll(View.FOCUS_LEFT)
         } else {
             toolbarScrolView.fullScroll(View.FOCUS_RIGHT)

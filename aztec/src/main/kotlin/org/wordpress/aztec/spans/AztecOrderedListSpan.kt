@@ -23,6 +23,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createOrderedListSpan(
@@ -125,4 +127,6 @@ open class AztecOrderedListSpan(
         p.color = oldColor
         p.style = style
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_ORDERED_LIST
 }

@@ -25,6 +25,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.setTaskList
@@ -73,7 +75,7 @@ open class AztecTaskListSpan(
         }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return listStyle.indicatorMargin + 2 * listStyle.indicatorWidth + listStyle.indicatorPadding
+        return listStyle.leadingMargin()
     }
 
     override fun drawLeadingMargin(c: Canvas, p: Paint, x: Int, dir: Int,
@@ -94,7 +96,7 @@ open class AztecTaskListSpan(
 
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
-        val drawableHeight = (0.9 * (p.fontMetrics.bottom - p.fontMetrics.top))
+        val drawableHeight = (0.8 * (p.fontMetrics.bottom - p.fontMetrics.top))
         // Make sure the marker is correctly aligned on RTL languages
         val markerStartPosition: Float = x + (listStyle.indicatorMargin * dir) * 1f
         val d: Drawable = context.resources.getDrawable(R.drawable.ic_checkbox, null)
@@ -129,6 +131,11 @@ open class AztecTaskListSpan(
     private fun isChecked(text: CharSequence, lineIndex: Int): Boolean {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
-        return text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
+        val sortedSpans = text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).sortedBy {
+            text.getSpanStart(it)
+        }
+        return sortedSpans.getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_TASK_LIST
 }

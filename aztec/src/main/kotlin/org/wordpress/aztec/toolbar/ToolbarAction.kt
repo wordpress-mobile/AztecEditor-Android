@@ -37,6 +37,12 @@ enum class ToolbarAction constructor(
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_NONE),
             R.layout.format_bar_button_list),
+    HIGHLIGHT(
+            R.id.format_bar_button_highlight,
+            R.drawable.format_bar_button_highlight_selector,
+            ToolbarActionType.INLINE_STYLE,
+            setOf(AztecTextFormat.FORMAT_HIGHLIGHT),
+            R.layout.format_bar_button_highlight),
     UNORDERED_LIST(
             R.id.format_bar_button_list_unordered,
             R.drawable.format_bar_button_ul_selector,
@@ -117,7 +123,7 @@ enum class ToolbarAction constructor(
     CODE(
             R.id.format_bar_button_code,
             R.drawable.format_bar_button_code_selector,
-            ToolbarActionType.INLINE_STYLE,
+            ToolbarActionType.EXCLUSIVE_INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_CODE),
             R.layout.format_bar_button_code),
     PREFORMAT(

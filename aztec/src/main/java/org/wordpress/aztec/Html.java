@@ -55,6 +55,7 @@ import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
 import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
+import org.wordpress.aztec.spans.HighlightSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.IAztecParagraphStyle;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
@@ -500,7 +501,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     }
 
 
-    private static void start(SpannableStringBuilder text, AztecTextFormat textFormat, Attributes attrs) {
+    private void start(SpannableStringBuilder text, AztecTextFormat textFormat, Attributes attrs) {
         final AztecAttributes attributes = new AztecAttributes(attrs);
         IAztecInlineSpan newSpan;
 
@@ -550,6 +551,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                 break;
             case FORMAT_MARK:
                 newSpan = new MarkSpan(attributes);
+                break;
+            case FORMAT_HIGHLIGHT:
+                newSpan = HighlightSpan.create(attributes, context);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

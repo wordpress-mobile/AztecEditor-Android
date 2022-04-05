@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import androidx.annotation.ColorRes
 import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecPart
@@ -20,25 +21,41 @@ import org.wordpress.aztec.spans.AztecStyleEmphasisSpan
 import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecStyleSpan
 import org.wordpress.aztec.spans.AztecUnderlineSpan
+import org.wordpress.aztec.spans.HighlightSpan
+import org.wordpress.aztec.spans.IAztecExclusiveInlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.MarkSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.util.ArrayList
 
 /**
  * <b>Important</b> - use [applySpan] to add new spans to the editor. This method will
  * make sure any attributes belonging to the span are processed.
  */
-class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormatter(editor) {
+class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val highlightStyle: HighlightStyle) : AztecFormatter(editor) {
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
+    data class HighlightStyle(@ColorRes val color: Int)
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
+            val inlineSpan = makeInlineSpan(textFormat)
+            if (inlineSpan is IAztecExclusiveInlineSpan) {
+                // If text format is exclusive, remove all the inclusive text formats already applied
+                removeAllInclusiveFormats()
+            } else {
+                // If text format is inclusive, remove all the exclusive text formats already applied
+                removeAllExclusiveFormats()
+            }
             applyInlineStyle(textFormat)
         } else {
             removeInlineStyle(textFormat)
         }
+    }
+
+    private fun removeAllInclusiveFormats() {
+        editableText.getSpans(selectionStart, selectionEnd, IAztecInlineSpan::class.java).filter {
+            it !is IAztecExclusiveInlineSpan
+        }.forEach { removeInlineStyle(it) }
     }
 
     /**
@@ -47,9 +64,15 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     fun toggleAny(textFormats: Set<ITextFormat>) {
         if (!textFormats
                 .filter { containsInlineStyle(it) }
-                .fold(false, { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true })) {
+                .fold(false) { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
+            removeAllExclusiveFormats()
             applyInlineStyle(textFormats.first())
         }
+    }
+
+    private fun removeAllExclusiveFormats() {
+        editableText.getSpans(selectionStart, selectionEnd, IAztecExclusiveInlineSpan::class.java)
+                .forEach { removeInlineStyle(it) }
     }
 
     fun handleInlineStyling(textChangedEvent: TextChangedEvent) {
@@ -72,6 +95,9 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                    }
+                    AztecTextFormat.FORMAT_HIGHLIGHT -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     AztecTextFormat.FORMAT_MARK -> {
@@ -112,7 +138,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
         }
     }
 
-    fun applyInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
+    private fun applyInlineStyle(textFormat: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
         val spanToApply = makeInlineSpan(textFormat)
         spanToApply.attributes = attrs
 
@@ -139,7 +165,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 if (spanEnd > start) {
                     // ensure css style is applied
                     (precedingSpan as IAztecInlineSpan).applyInlineStyleAttributes(editableText, start, end)
-                    return@applyInlineStyle // we are adding text inside span - no need to do anything special
+                    return // we are adding text inside span - no need to do anything special
                 } else {
                     applySpan(precedingSpan as IAztecInlineSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
@@ -212,17 +238,18 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     fun spanToTextFormat(span: IAztecInlineSpan): ITextFormat? {
-        when (span::class.java) {
-            AztecStyleBoldSpan::class.java -> return AztecTextFormat.FORMAT_BOLD
-            AztecStyleStrongSpan::class.java -> return AztecTextFormat.FORMAT_STRONG
-            AztecStyleItalicSpan::class.java -> return AztecTextFormat.FORMAT_ITALIC
-            AztecStyleEmphasisSpan::class.java -> return AztecTextFormat.FORMAT_EMPHASIS
-            AztecStyleCiteSpan::class.java -> return AztecTextFormat.FORMAT_CITE
-            AztecStrikethroughSpan::class.java -> return AztecTextFormat.FORMAT_STRIKETHROUGH
-            AztecUnderlineSpan::class.java -> return AztecTextFormat.FORMAT_UNDERLINE
-            AztecCodeSpan::class.java -> return AztecTextFormat.FORMAT_CODE
-            MarkSpan::class.java -> return AztecTextFormat.FORMAT_MARK
-            else -> return null
+        return when (span::class.java) {
+            AztecStyleBoldSpan::class.java -> AztecTextFormat.FORMAT_BOLD
+            AztecStyleStrongSpan::class.java -> AztecTextFormat.FORMAT_STRONG
+            AztecStyleItalicSpan::class.java -> AztecTextFormat.FORMAT_ITALIC
+            AztecStyleEmphasisSpan::class.java -> AztecTextFormat.FORMAT_EMPHASIS
+            AztecStyleCiteSpan::class.java -> AztecTextFormat.FORMAT_CITE
+            AztecStrikethroughSpan::class.java -> AztecTextFormat.FORMAT_STRIKETHROUGH
+            AztecUnderlineSpan::class.java -> AztecTextFormat.FORMAT_UNDERLINE
+            AztecCodeSpan::class.java -> AztecTextFormat.FORMAT_CODE
+            MarkSpan::class.java -> AztecTextFormat.FORMAT_MARK
+            HighlightSpan::class.java -> AztecTextFormat.FORMAT_HIGHLIGHT
+            else -> null
         }
     }
 
@@ -357,24 +384,20 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
     }
 
     fun makeInlineSpan(textFormat: ITextFormat): IAztecInlineSpan {
-        when (textFormat) {
-            AztecTextFormat.FORMAT_BOLD -> return AztecStyleBoldSpan()
-            AztecTextFormat.FORMAT_STRONG -> return AztecStyleStrongSpan()
-            AztecTextFormat.FORMAT_ITALIC -> return AztecStyleItalicSpan()
-            AztecTextFormat.FORMAT_EMPHASIS -> return AztecStyleEmphasisSpan()
-            AztecTextFormat.FORMAT_CITE -> return AztecStyleCiteSpan()
-            AztecTextFormat.FORMAT_STRIKETHROUGH -> return AztecStrikethroughSpan()
-            AztecTextFormat.FORMAT_UNDERLINE -> return AztecUnderlineSpan()
-            AztecTextFormat.FORMAT_CODE -> return AztecCodeSpan(codeStyle)
-            AztecTextFormat.FORMAT_MARK -> return MarkSpan()
-            else -> return AztecStyleSpan(Typeface.NORMAL)
-        }
-    }
-
-    fun makeInlineSpan(spanType: Class<IAztecInlineSpan>, attrs: AztecAttributes = AztecAttributes()): IAztecInlineSpan {
-        when (spanType) {
-            AztecCodeSpan::class.java -> return AztecCodeSpan(codeStyle, attrs)
-            else -> return AztecStyleSpan(Typeface.NORMAL)
+        return when (textFormat) {
+            AztecTextFormat.FORMAT_BOLD -> AztecStyleBoldSpan()
+            AztecTextFormat.FORMAT_STRONG -> AztecStyleStrongSpan()
+            AztecTextFormat.FORMAT_ITALIC -> AztecStyleItalicSpan()
+            AztecTextFormat.FORMAT_EMPHASIS -> AztecStyleEmphasisSpan()
+            AztecTextFormat.FORMAT_CITE -> AztecStyleCiteSpan()
+            AztecTextFormat.FORMAT_STRIKETHROUGH -> AztecStrikethroughSpan()
+            AztecTextFormat.FORMAT_UNDERLINE -> AztecUnderlineSpan()
+            AztecTextFormat.FORMAT_CODE -> AztecCodeSpan(codeStyle)
+            AztecTextFormat.FORMAT_HIGHLIGHT -> {
+                HighlightSpan(highlightStyle = highlightStyle, context = editor.context)
+            }
+            AztecTextFormat.FORMAT_MARK -> MarkSpan()
+            else -> AztecStyleSpan(Typeface.NORMAL)
         }
     }
 
@@ -390,18 +413,16 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle) : AztecFormat
                 return false
             } else {
                 val before = editableText.getSpans(start - 1, start, IAztecInlineSpan::class.java)
-                        .filter { it -> isSameInlineSpanType(it, spanToCheck) }
-                        .firstOrNull()
+                        .firstOrNull { isSameInlineSpanType(it, spanToCheck) }
                 val after = editableText.getSpans(start, start + 1, IAztecInlineSpan::class.java)
-                        .filter { isSameInlineSpanType(it, spanToCheck) }
-                        .firstOrNull()
+                        .firstOrNull { isSameInlineSpanType(it, spanToCheck) }
                 return before != null && after != null && isSameInlineSpanType(before, after)
             }
         } else {
             val builder = StringBuilder()
 
             // Make sure no duplicate characters be added
-            for (i in start..end - 1) {
+            for (i in start until end) {
                 val spans = editableText.getSpans(i, i + 1, IAztecInlineSpan::class.java)
 
                 for (span in spans) {

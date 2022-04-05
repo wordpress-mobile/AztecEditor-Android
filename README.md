@@ -119,6 +119,39 @@ dependencies {
 }
 ```
 
+## Modifications
+
+You can use the API to modify Aztec behaviour. 
+
+### Toolbar items
+
+If you want to limit the functionality the Aztec library provides, you can change it calling the `setToolbarItems` method on `AztecToolbar`. 
+The following example will enable only `bold`, `plugins` and `list` items in the given order.
+
+```kotlin
+aztecToolbar.setToolbarItems(ToolbarItems.BasicLayout(ToolbarAction.BOLD, ToolbarItems.PLUGINS, ToolbarAction.LIST))
+```
+
+You can set new items which are not enabled by default. `ToolbarAction.CODE` and `ToolbarAction.PRE`. 
+- `CODE` represents inline HTML code 
+- `PRE` represents a preformat block (including code block)
+
+### Task list
+
+There is an optional list type you can enable in the editor. In addition to ordered and unordered lists you can use `task list`. 
+A task list is an unordered list which shows and saves checkboxes instead of the bullets. Enable it by calling the following method.
+```kotlin
+aztecToolbar.enableTaskList()
+```
+
+### Nested blocks
+
+By default Aztec allows nested blocks. In certain cases this doesn't have to be the preferred behaviour. There is an option to disable nested blocks.
+When switched, this editor will always add media and horizontal rule after the currently selected block, not in the middle of it.
+```kotlin
+aztecText.addMediaAfterBlocks()
+```
+
 ## Code formatting
 
 We use [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can run ktlint using `./gradlew ktlint`, and you can also run `./gradlew ktlintFormat` for auto-formatting. There is no IDEA plugin (like Checkstyle's) at this time.

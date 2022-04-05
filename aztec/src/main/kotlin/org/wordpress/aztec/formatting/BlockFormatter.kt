@@ -16,8 +16,10 @@ import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
@@ -288,6 +290,23 @@ class BlockFormatter(editor: AztecText,
         }
     }
 
+    fun moveSelectionIfImageSelected() {
+        if (selectionStart == selectionEnd &&
+                (hasImageRightAfterSelection() || hasHorizontalRuleRightAfterSelection())) {
+            editor.setSelection(selectionStart - 1)
+        }
+    }
+
+    private fun hasImageRightAfterSelection() =
+            editableText.getSpans(selectionStart, selectionEnd, AztecMediaSpan::class.java).any {
+                editableText.getSpanStart(it) == selectionStart
+            }
+
+    private fun hasHorizontalRuleRightAfterSelection() =
+            editableText.getSpans(selectionStart, selectionEnd, AztecHorizontalRuleSpan::class.java).any {
+                editableText.getSpanStart(it) == selectionStart
+            }
+
     fun removeBlockStyle(textFormat: ITextFormat) {
         removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
     }
@@ -422,7 +441,7 @@ class BlockFormatter(editor: AztecText,
         }
     }
 
-    fun getAlignment(textFormat: ITextFormat?, text: CharSequence) : Layout.Alignment? {
+    fun getAlignment(textFormat: ITextFormat?, text: CharSequence): Layout.Alignment? {
         val direction = TextDirectionHeuristicsCompat.FIRSTSTRONG_LTR
         val isRtl = direction.isRtl(text, 0, text.length)
 
@@ -533,7 +552,7 @@ class BlockFormatter(editor: AztecText,
         return delimiters.distinct().sorted()
     }
 
-    private fun checkBound(bounds: HashMap<Int, Int>, key: Int, delimiters: ArrayList<Int>, lastIndex: Int) : Int {
+    private fun checkBound(bounds: HashMap<Int, Int>, key: Int, delimiters: ArrayList<Int>, lastIndex: Int): Int {
         if (bounds[key]!! != bounds[lastIndex]!!) {
             if (bounds[key]!! < bounds[lastIndex]!!) {
                 delimiters.add(key)
@@ -1033,7 +1052,7 @@ class BlockFormatter(editor: AztecText,
         return editableText.getSpans(selStart, selEnd, IAztecAlignmentSpan::class.java)
                 .filter {
                     textFormat == null || it.align == getAlignment(textFormat,
-                        editableText.substring(editableText.getSpanStart(it) until editableText.getSpanEnd(it)))
+                            editableText.substring(editableText.getSpanStart(it) until editableText.getSpanEnd(it)))
                 }
                 .filter {
                     val spanStart = editableText.getSpanStart(it)

@@ -254,6 +254,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var isInCalypsoMode = true
     var isInGutenbergMode: Boolean = false
     val alignmentRendering: AlignmentRendering
+    // If this field is true, the media and horizontal line are added inline. If it's false, they are added after the
+    // current block.
+    var shouldAddMediaInline: Boolean = true
 
     var consumeHistoryEvent: Boolean = false
 
@@ -367,6 +370,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
         isInGutenbergMode = isCompatibleWithGutenberg
+    }
+
+    /**
+     * Default behaviour is to add media and horizontal rule inline. They could be added inside lists and quotes.
+     * If you call this method, this behaviour will be disabled and the media and horizontal rule will be automatically
+     * added after the currently selected block. For example after the list in which you have your cursor.
+     */
+    fun addMediaAfterBlocks() {
+        this.shouldAddMediaInline = false
     }
 
     // Newer AppCompatEditText returns Editable?, and using that would require changing all of Aztec to not use `text.`
@@ -685,6 +697,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 history.beforeTextChanged(this@AztecText)
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+            if (!shouldAddMediaInline) {
+                blockFormatter.moveSelectionIfImageSelected()
+            }
 
             if (selectionStart == 0 || selectionEnd == 0) {
                 deleteInlineStyleFromTheBeginning()
@@ -1153,7 +1168,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
             AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
+            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> {
+                lineBlockFormatter.applyHorizontalRule(shouldAddMediaInline)
+            }
             else -> {
                 plugins.filter { it is IToolbarButton && it.action.textFormats.contains(textFormat) }
                         .map { it as IToolbarButton }
@@ -1942,11 +1959,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {

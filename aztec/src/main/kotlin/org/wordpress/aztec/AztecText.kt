@@ -948,11 +948,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun indent() {
+        history.beforeTextChanged(this@AztecText)
         blockFormatter.indent()
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun outdent() {
+        history.beforeTextChanged(this@AztecText)
         blockFormatter.outdent()
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {

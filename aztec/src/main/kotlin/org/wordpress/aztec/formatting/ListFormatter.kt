@@ -34,24 +34,30 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                 // If the following list item is missing or it's on the same level as the current list item, create a new span
                 if ((listItemSpanAfterSelection == null || listItemSpanAfterSelection.nestingLevel <= nestingLevel)) {
                     selectedListItems.indentAll()
-                    val wrapper = directParent.copyList(increaseNestingLevel = true) ?: return@apply
-                    editableText.setSpan(wrapper, firstSelectedItemStart, lastSelectedItemEnd, directParentFlags)
+                    val wrapper = directParentList.copyList(increaseNestingLevel = true) ?: return@apply
+                    editableText.setSpan(wrapper, firstSelectedItemStart, selectionEnd, directParentFlags)
+
                 } else if (listSpanAfterSelection != null && listSpanAfterSelection.nestingLevel > nestingLevel) {
                     selectedListItems.indentAll()
                     listSpanAfterSelection.changeSpanStart(firstSelectedItemStart)
+                    selectedListItems.last().trimEnd(editableText.getSpanStart(listItemSpanAfterSelection))
                 }
             } else if (deeperListSpanBeforeSelection?.nestingLevel == nestingLevel + 1) {
                 // In this case the previous list span is indented by one level, we can indent current span on the same level
                 if ((listItemSpanAfterSelection == null || listItemSpanAfterSelection.nestingLevel <= nestingLevel)) {
                     selectedListItems.indentAll()
-                    deeperListSpanBeforeSelection.changeSpanEnd(lastSelectedItemEnd)
+                    deeperListSpanBeforeSelection.changeSpanEnd(selectionEnd)
                 } else if (listItemSpanAfterSelection.nestingLevel == nextItemLevel) {
                     // Merge previous and following list before and after the selection
                     selectedListItems.indentAll()
                     val followingSpanEnd = editableText.getSpanEnd(listSpanAfterSelection)
                     editableText.removeSpan(listSpanAfterSelection)
                     deeperListSpanBeforeSelection.changeSpanEnd(followingSpanEnd)
+                    selectedListItems.last().trimEnd(editableText.getSpanStart(listItemSpanAfterSelection))
                 }
+            }
+            listItemSpansBeforeSelection.filter { it.nestingLevel < nextItemLevel }.forEach {
+                it.stretchEnd(selectionEnd)
             }
         }
         return true
@@ -82,7 +88,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
             when {
                 listItemSpanBeforeSelection == null && listItemSpanAfterSelection == null -> {
                     // In case of the selected list spam doesn't have any predecessor or successor, remove the list container
-                    editableText.removeSpan(directParent)
+                    editableText.removeSpan(directParentList)
                     selectedListItems.forEach { editableText.removeSpan(it) }
                 }
                 listItemSpanBeforeSelection == null && listItemSpanAfterSelection != null -> {
@@ -90,7 +96,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         // In case there is no predecessor and the successor has the same nesting level, move the list wrapper
                         // to the end of the current selection and remove the selection from the list
                         selectedListItems.outdentAll()
-                        directParent.changeSpanStart(lastSelectedItemEnd)
+                        directParentList.changeSpanStart(selectionEnd)
                     }
                 }
                 listItemSpanBeforeSelection != null && listItemSpanAfterSelection == null -> {
@@ -98,13 +104,14 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         // In case there is no successor and the predecessor has the same nesting level, move the list wrapper
                         // to the start of the current selection and remove the selection from the list
                         selectedListItems.outdentAll()
-                        directParent.changeSpanEnd(firstSelectedItemStart)
+                        directParentList.changeSpanEnd(firstSelectedItemStart)
                     } else {
                         // Predecessor has a lower nesting level and there is no successor, this means that the currently
                         // selected items can be all moved to lower nesting level and their wrapper can be removed
                         selectedListItems.outdentAll()
-                        editableText.removeSpan(directParent)
+                        editableText.removeSpan(directParentList)
                     }
+                    directParentListItem?.trimEnd(firstSelectedItemStart)
                 }
                 listItemSpanBeforeSelection != null && listItemSpanAfterSelection != null -> {
                     if (listItemSpanBeforeSelection.nestingLevel >= nestingLevel) {
@@ -112,26 +119,35 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                             // Predecessor and successor are on the same level as selected items, this means we have to split
                             // the current list wrapper in half and move the selected items to the lower nesting level
                             selectedListItems.outdentAll()
-                            val spanStart = editableText.getSpanStart(directParent)
-                            val spanFlags = editableText.getSpanFlags(directParent)
-                            editableText.setSpan(directParent.copyList(), spanStart, firstSelectedItemStart, spanFlags)
-                            directParent.changeSpanStart(lastSelectedItemEnd)
+                            val spanStart = editableText.getSpanStart(directParentList)
+                            val spanFlags = editableText.getSpanFlags(directParentList)
+                            editableText.setSpan(directParentList.copyList(), spanStart, firstSelectedItemStart, spanFlags)
+                            directParentListItem?.apply {
+                                val listItemEnd = editableText.getSpanEnd(this)
+                                selectedListItems.last().changeSpanEnd(listItemEnd)
+                            }
+                            directParentList.changeSpanStart(selectionEnd)
+                            directParentListItem?.changeSpanEnd(firstSelectedItemStart)
                         } else if (listItemSpanAfterSelection.nestingLevel < nestingLevel) {
                             // In case the span after selection has lower nesting level, we don't have to worry about it
                             selectedListItems.outdentAll()
-                            directParent.changeSpanEnd(firstSelectedItemStart)
+                            directParentList.changeSpanEnd(firstSelectedItemStart)
+                            directParentListItem?.changeSpanEnd(firstSelectedItemStart)
                         }
                     } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel == nestingLevel) {
                         // Predecessor is on lower level and successor is on the same level, this means we can move all the
                         // selected items to lower level and leave the successor on the current level
                         selectedListItems.outdentAll()
-                        directParent.changeSpanStart(lastSelectedItemEnd)
+                        directParentList.changeSpanStart(selectionEnd)
+                        directParentListItem?.changeSpanEnd(firstSelectedItemStart)
+                        selectedListItems.last().changeSpanEnd(editableText.getSpanEnd(directParentList))
                     } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel) {
                         // In this case the selected items are the only items on the current level. Both the successor and
                         // the predecessor are on a lower level. This means we can remove the wrapping span and move all
                         // the selected items to the lower level.
                         selectedListItems.outdentAll()
-                        editableText.removeSpan(directParent)
+                        editableText.removeSpan(directParentList)
+                        directParentListItem?.changeSpanEnd(firstSelectedItemStart)
                     }
                 }
             }
@@ -139,7 +155,20 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         return true
     }
 
-    private data class ListState(val nestingLevel: Int, val directParent: AztecListSpan, val directParentFlags: Int, val selectedListItems: List<AztecListItemSpan>, val deeperListSpanBeforeSelection: AztecListSpan?, val listSpanAfterSelection: AztecListSpan?, val listItemSpanBeforeSelection: AztecListItemSpan?, val listItemSpanAfterSelection: AztecListItemSpan?, val firstSelectedItemStart: Int, val lastSelectedItemEnd: Int)
+    private data class ListState(
+            val nestingLevel: Int,
+            val directParentList: AztecListSpan,
+            val directParentListItem: AztecListItemSpan?,
+            val directParentFlags: Int,
+            val selectedListItems: List<AztecListItemSpan>,
+            val deeperListSpanBeforeSelection: AztecListSpan?,
+            val listSpanAfterSelection: AztecListSpan?,
+            val listItemSpanBeforeSelection: AztecListItemSpan?,
+            val listItemSpansBeforeSelection: List<AztecListItemSpan>,
+            val listItemSpanAfterSelection: AztecListItemSpan?,
+            val firstSelectedItemStart: Int,
+            val selectionEnd: Int
+    )
 
     private fun buildListState(listSpans: List<AztecListSpan>, selStart: Int, selEnd: Int): ListState? {
         val directParent = listSpans.maxByOrNull { it.nestingLevel } ?: return null
@@ -148,16 +177,26 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         val fullListEnd = editableText.getSpanEnd(topLevelParent)
         val directParentFlags = editableText.getSpanFlags(directParent)
 
+        var startIndex = selStart
         val selectedItems = editableText.getSpans(selStart, selEnd, AztecListItemSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
-        if (!validateSelection(selectedItems, directParent)) return null
         val selectedListItems = selectedItems.filter {
             it.nestingLevel > directParent.nestingLevel
         }
+        var countdown = selectedListItems.size
+        while (countdown > 0) {
+            selectedListItems.find { startIndex in editableText.getSpanStart(it) until editableText.getSpanEnd(it) }?.let {
+                startIndex = editableText.getSpanEnd(it)
+            }
+            countdown -= 1
+        }
+        if (startIndex < selEnd) return null
+
+        val directParentListItem = selectedItems.filter { it.nestingLevel < directParent.nestingLevel }.maxByOrNull { it.nestingLevel }
         if (selectedListItems.isEmpty()) return null
         val nestingLevel = selectedListItems.first().nestingLevel
         if (selectedListItems.any { it.nestingLevel != nestingLevel }) return null
         val firstSelectedItemStart = editableText.getSpanStart(selectedListItems.first())
-        val lastSelectedItemEnd = editableText.getSpanEnd(selectedListItems.last())
+        val selectionEnd = editableText.getSpanEnd(selectedListItems.last())
 
         val allLists = editableText.getSpans(fullListStart, fullListEnd, AztecListSpan::class.java)
         val allListItems = editableText.getSpans(fullListStart, fullListEnd, AztecListItemSpan::class.java)
@@ -165,25 +204,30 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
             it.nestingLevel == nestingLevel + 1 && editableText.getSpanEnd(it) == firstSelectedItemStart
         }
         val listSpanAfterSelection: AztecListSpan? = allLists.find {
-            editableText.getSpanStart(it) == lastSelectedItemEnd
+            val spanStart = editableText.getSpanStart(it)
+            val spanEnd = editableText.getSpanEnd(it)
+            spanStart in (firstSelectedItemStart + 1)..selectionEnd && spanEnd >= selectionEnd
         }
-        val listItemSpanBeforeSelection: AztecListItemSpan? = allListItems.find {
-            editableText.getSpanEnd(it) == firstSelectedItemStart
+        val listItemSpansBeforeSelection: List<AztecListItemSpan> = allListItems.filter {
+            editableText.getSpanStart(it) < firstSelectedItemStart && editableText.getSpanEnd(it) >= firstSelectedItemStart
         }
         val listItemSpanAfterSelection: AztecListItemSpan? = allListItems.find {
-            editableText.getSpanStart(it) == lastSelectedItemEnd
+            val spanStart = editableText.getSpanStart(it)
+            spanStart in (firstSelectedItemStart + 1)..selectionEnd
         }
         return ListState(
                 nestingLevel = nestingLevel,
-                directParent = directParent,
+                directParentList = directParent,
+                directParentListItem = directParentListItem,
                 directParentFlags = directParentFlags,
                 selectedListItems = selectedListItems,
                 deeperListSpanBeforeSelection = deeperListSpanBeforeSelection,
                 listSpanAfterSelection = listSpanAfterSelection,
-                listItemSpanBeforeSelection = listItemSpanBeforeSelection,
+                listItemSpanBeforeSelection = listItemSpansBeforeSelection.maxByOrNull { it.nestingLevel },
+                listItemSpansBeforeSelection = listItemSpansBeforeSelection,
                 listItemSpanAfterSelection = listItemSpanAfterSelection,
                 firstSelectedItemStart = firstSelectedItemStart,
-                lastSelectedItemEnd = lastSelectedItemEnd
+                selectionEnd = selectionEnd
         )
     }
 
@@ -238,6 +282,28 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         forEach {
             it.nestingLevel = nestingLevel + 2
         }
+    }
+
+    private fun IAztecBlockSpan.stretchEnd(newEnd: Int) {
+        val end = editableText.getSpanEnd(this)
+        if (end >= newEnd) {
+            return
+        }
+        val start = editableText.getSpanStart(this)
+        val flags = editableText.getSpanFlags(this)
+        editableText.removeSpan(this)
+        editableText.setSpan(this, start, newEnd, flags)
+    }
+
+    private fun IAztecBlockSpan.trimEnd(newEnd: Int) {
+        val end = editableText.getSpanEnd(this)
+        if (end <= newEnd) {
+            return
+        }
+        val start = editableText.getSpanStart(this)
+        val flags = editableText.getSpanFlags(this)
+        editableText.removeSpan(this)
+        editableText.setSpan(this, start, newEnd, flags)
     }
 }
 

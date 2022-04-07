@@ -10,6 +10,8 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -18,13 +20,17 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
+import android.text.Layout
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.PopupMenu
+import android.widget.ScrollView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +43,7 @@ import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecExceptionHandler
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
@@ -234,6 +241,7 @@ open class MainActivity : AppCompatActivity(),
     private val REQUEST_MEDIA_VIDEO: Int = 2004
 
     protected lateinit var aztec: Aztec
+    private lateinit var placeholderManager: PlaceholderManager
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 
@@ -301,19 +309,11 @@ open class MainActivity : AppCompatActivity(),
     }
 
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
-        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
-        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
-        insertMediaAndSimulateUpload(id, attrs)
-        aztec.toolbar.toggleMediaToolbar()
+        placeholderManager.insertPlaceholder(mediaPath, "sample1")
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
-        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
-        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
-        insertMediaAndSimulateUpload(id, attrs)
-        aztec.toolbar.toggleMediaToolbar()
+        placeholderManager.insertPlaceholder(mediaPath, "sample2")
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
@@ -451,6 +451,8 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
+
+        placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {

@@ -35,6 +35,7 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecPlaceholderSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
@@ -116,6 +117,10 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
             IMAGE -> {
                 handleMediaElement(opening, output, AztecImageSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
+                return true
+            }
+            PLACEHOLDER -> {
+                handleMediaElement(opening, output, AztecPlaceholderSpan(context, loadingDrawable, nestingLevel, AztecAttributes(attributes)))
                 return true
             }
             VIDEO -> {
@@ -272,6 +277,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val PREFORMAT = "pre"
         private val INPUT = "input"
         private val IMAGE = "img"
+        private val PLACEHOLDER = "placeholder"
         private val VIDEO = "video"
         private val AUDIO = "audio"
         private val LINE = "hr"

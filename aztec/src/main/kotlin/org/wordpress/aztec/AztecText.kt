@@ -1962,6 +1962,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
+    fun insertPlaceholder(drawable: Drawable?, attributes: Attributes) {
+        lineBlockFormatter.insertPlaceholder(shouldAddMediaInline, drawable, attributes, onMediaDeletedListener)
+    }
+
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
@@ -1995,6 +1999,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
             attributePredicate.matches(it.attributes)
         }?.attributes = attrs
+    }
+
+    fun getElementPosition(attributePredicate: AttributePredicate): Int? {
+        return text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let {
+            editableText.getSpanStart(it)
+        }
     }
 
     fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {

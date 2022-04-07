@@ -23,7 +23,6 @@ class ImageBlockTest {
     lateinit var sourceText: SourceViewEditText
     lateinit var toolbar: AztecToolbar
 
-
     /**
      * Initialize variables.
      */
@@ -139,4 +138,3 @@ class ImageBlockTest {
         Assert.assertEquals("<h1>Headline 1</h1><hr /><h2>Headline 2</h2>", editText.toHtml())
     }
 }
-

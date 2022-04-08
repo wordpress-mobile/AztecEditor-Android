@@ -168,7 +168,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun insertSpanAfterBlock(ssb: SpannableStringBuilder) {
-        var position = getEndOfBlock()
+        val position = getEndOfBlock()
         // We need to be sure the cursor is placed correctly after media insertion
         // Note that media has '\n' around them when needed
         val isLastItem = position == EndOfBufferMarkerAdder.safeLength(editor)

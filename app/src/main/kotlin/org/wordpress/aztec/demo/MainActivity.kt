@@ -10,9 +10,6 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -20,17 +17,13 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
-import android.text.Layout
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.PopupMenu
-import android.widget.ScrollView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -38,12 +31,10 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
-import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecExceptionHandler
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Html
@@ -187,39 +178,9 @@ open class MainActivity : AppCompatActivity(),
         private val MARK = "<p>Donec ipsum dolor, <mark style=\"color:#ff0000\">tempor sed</mark> bibendum <mark style=\"color:#1100ff\">vita</mark>.</p>"
 
         private val EXAMPLE =
-                IMG +
-                        HEADING +
-                        BOLD +
-                        ITALIC +
-                        UNDERLINE +
-                        STRIKETHROUGH +
-                        ORDERED +
-                        ORDERED_WITH_START +
-                        ORDERED_REVERSED +
-                        ORDERED_REVERSED_WITH_START +
-                        ORDERED_REVERSED_NEGATIVE_WITH_START +
-                        ORDERED_REVERSED_WITH_START_IDENT +
-                        LINE +
-                        UNORDERED +
-                        QUOTE +
-                        PREFORMAT +
-                        LINK +
-                        HIDDEN +
-                        COMMENT +
-                        COMMENT_MORE +
-                        COMMENT_PAGE +
-                        CODE +
-                        UNKNOWN +
-                        EMOJI +
-                        NON_LATIN_TEXT +
-                        LONG_TEXT +
-                        VIDEO +
-                        VIDEOPRESS +
-                        VIDEOPRESS_2 +
-                        AUDIO +
-                        GUTENBERG_CODE_BLOCK +
-                        QUOTE_RTL +
-                        MARK
+                """
+                    <placeholder id="123" type="test" src="test.jpg"/>
+                """.trimIndent()
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -242,6 +203,7 @@ open class MainActivity : AppCompatActivity(),
 
     protected lateinit var aztec: Aztec
     private lateinit var placeholderManager: PlaceholderManager
+    private lateinit var videoDrawer: VideoDrawer
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 
@@ -309,11 +271,14 @@ open class MainActivity : AppCompatActivity(),
     }
 
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertPlaceholder(mediaPath, "sample1")
+        placeholderManager.insertPlaceholder(mediaPath, "test")
     }
+    var index = 0
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertPlaceholder(mediaPath, "sample2")
+        videoDrawer.addMedia(index.toString(), mediaPath)
+        placeholderManager.insertPlaceholder(index.toString(), "video")
+        index += 1
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
@@ -431,6 +396,11 @@ open class MainActivity : AppCompatActivity(),
 
         toolbar.enableTaskList()
 
+        placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
+        videoDrawer = VideoDrawer(this)
+        placeholderManager.registerDrawer("video", videoDrawer)
+        placeholderManager.registerDrawer("test", LayoutDrawer())
+
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))
                 .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
@@ -451,8 +421,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
-
-        placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
+                .addPlugin(placeholderManager)
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {
@@ -900,5 +869,10 @@ open class MainActivity : AppCompatActivity(),
     override fun onMediaDeleted(attrs: AztecAttributes) {
         val url = attrs.getValue("src")
         ToastUtils.showToast(this, "Media Deleted! " + url)
+        placeholderManager.onMediaDeleted(attrs)
+    }
+
+    override fun beforeMediaDeleted(attrs: AztecAttributes) {
+        placeholderManager.beforeMediaDeleted(attrs)
     }
 }

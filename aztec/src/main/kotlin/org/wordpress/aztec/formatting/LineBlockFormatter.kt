@@ -16,7 +16,6 @@ import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecPlaceholderSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
@@ -147,10 +146,10 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
     }
 
-    fun insertPlaceholder(inline: Boolean, drawable: Drawable?, attributes: Attributes, onMediaDeletedListener: AztecText.OnMediaDeletedListener?) {
-        val nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
-        val span = AztecPlaceholderSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes),
-                onMediaDeletedListener, editor)
+    fun insertSpan(inline: Boolean, span: AztecMediaSpan) {
+        if (span is IAztecNestable) {
+            span.nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
+        }
         if (inline) {
             insertMediaInline(span)
         } else {

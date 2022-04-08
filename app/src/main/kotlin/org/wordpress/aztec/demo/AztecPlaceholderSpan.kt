@@ -1,11 +1,12 @@
-package org.wordpress.aztec.spans
+package org.wordpress.aztec.demo
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.view.Gravity
-import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.IAztecFullWidthImageSpan
+import org.wordpress.aztec.spans.IAztecSpan
 
 class AztecPlaceholderSpan(
         context: Context,

@@ -13,11 +13,11 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
     private var deletedSpans = ArrayList<AztecMediaSpan>()
 
     override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {
-        if (aztecTextRef.get()?.isTextChangedListenerDisabled() ?: true) {
+        if (aztecTextRef.get()?.isTextChangedListenerDisabled() != false) {
             return
         }
 
-        if (aztecTextRef.get()?.isMediaDeletedListenerDisabled() ?: true) {
+        if (aztecTextRef.get()?.isMediaDeletedListenerDisabled() != false) {
             return
         }
 
@@ -31,6 +31,10 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
                         deletedSpans.add(it)
                     }
 
+
+            if (!queueHasBeenPopulatedInThisTimeframe) {
+                deletedSpans.forEach { it.beforeMediaDeleted() }
+            }
             // only call the onMediaDeleted callback if we are sure the ObservationQueue has not been filled with
             // platform-only events in a short time. These platform-originated events shall not be confused with
             // real user deletions.
@@ -52,7 +56,7 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
     }
 
     override fun afterTextChanged(text: Editable) {
-        if (deleted && aztecTextRef.get()?.isObservationQueueBeingPopulated() ?: true) {
+        if (deleted && aztecTextRef.get()?.isObservationQueueBeingPopulated() != false) {
             queueHasBeenPopulatedInThisTimeframe = true
         }
     }

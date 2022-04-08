@@ -329,6 +329,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+        fun beforeMediaDeleted(attrs: AztecAttributes) {}
     }
 
     interface OnVideoInfoRequestedListener {
@@ -1962,8 +1963,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
-    fun insertPlaceholder(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertPlaceholder(shouldAddMediaInline, drawable, attributes, onMediaDeletedListener)
+    fun insertSpan(span: AztecMediaSpan) {
+        span.onMediaDeletedListener = onMediaDeletedListener
+        lineBlockFormatter.insertSpan(shouldAddMediaInline, span)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {

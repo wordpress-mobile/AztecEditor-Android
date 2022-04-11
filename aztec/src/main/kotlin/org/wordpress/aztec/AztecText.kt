@@ -954,6 +954,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         contentChangeWatcher.notifyContentChanged()
     }
 
+    fun isIndentAvailable(): Boolean {
+        return blockFormatter.isIndentAvailable()
+    }
+
+    fun isOutdentAvailable(): Boolean {
+        return blockFormatter.isOutdentAvailable()
+    }
+
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
     }

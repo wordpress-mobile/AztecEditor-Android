@@ -63,6 +63,32 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         return true
     }
 
+    /**
+     * Returns true if the current position contains a list item that can be indented. It contains a copy of logic
+     * from `indentList` function without the actual list idents.
+     */
+    fun isIndentAvailable(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
+        if (listSpans.isEmpty()) return false
+        buildListState(listSpans, selStart, selEnd)?.apply {
+            if (listItemSpanBeforeSelection == null) {
+                return false
+            }
+            return if (listItemSpanBeforeSelection.nestingLevel == nestingLevel) {
+                if ((listItemSpanAfterSelection == null || listItemSpanAfterSelection.nestingLevel <= nestingLevel)) {
+                    true
+                } else listSpanAfterSelection != null && listSpanAfterSelection.nestingLevel > nestingLevel
+            } else if (deeperListSpanBeforeSelection?.nestingLevel == nestingLevel + 1) {
+                if ((listItemSpanAfterSelection == null || listItemSpanAfterSelection.nestingLevel <= nestingLevel)) {
+                    true
+                } else listItemSpanAfterSelection.nestingLevel == nestingLevel + 2
+            } else {
+                false
+            }
+        }
+        return false
+    }
+
     private fun AztecListSpan.copyList(increaseNestingLevel: Boolean = false): AztecListSpan? {
         val updatedNestingLevel = if (increaseNestingLevel) nestingLevel + 2 else nestingLevel
         return when (this) {
@@ -150,6 +176,41 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         directParentListItem?.changeSpanEnd(firstSelectedItemStart)
                     }
                 }
+            }
+        }
+        return true
+    }
+
+    /**
+     * Returns true if the current position contains a list item that can be outdented. It contains a copy of logic
+     * from `outdentList` function without the actual list idents.
+     */
+    fun isOutdentAvailable(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
+        val listSpans = editableText.getSpans(selStart, selEnd, AztecListSpan::class.java).filterCorrectSpans(selectionStart = selStart, selectionEnd = selEnd)
+        if (listSpans.isEmpty()) return false
+        buildListState(listSpans, selStart, selEnd)?.apply {
+            when {
+                listItemSpanBeforeSelection == null && listItemSpanAfterSelection == null -> {
+                    return true
+                }
+                listItemSpanBeforeSelection == null && listItemSpanAfterSelection != null -> {
+                    if (listItemSpanAfterSelection.nestingLevel == nestingLevel) {
+                        return true
+                    }
+                }
+                listItemSpanBeforeSelection != null && listItemSpanAfterSelection == null -> {
+                    return true
+                }
+                listItemSpanBeforeSelection != null && listItemSpanAfterSelection != null -> {
+                    return if (listItemSpanBeforeSelection.nestingLevel >= nestingLevel) {
+                        if (listItemSpanAfterSelection.nestingLevel == nestingLevel) {
+                            true
+                        } else listItemSpanAfterSelection.nestingLevel < nestingLevel
+                    } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel == nestingLevel) {
+                        true
+                    } else listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel
+                }
+                else -> return false
             }
         }
         return true

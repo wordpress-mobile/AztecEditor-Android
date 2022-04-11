@@ -25,10 +25,6 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     val listType = listTextFormat
     val listTag = listHtmlTag
 
-    val otherListType = if (listTextFormat == AztecTextFormat.FORMAT_ORDERED_LIST) AztecTextFormat.FORMAT_UNORDERED_LIST
-                        else AztecTextFormat.FORMAT_ORDERED_LIST
-    val otherListTag = if (listTag == "ol") "ul" else "ol"
-
     lateinit var editText: AztecText
     lateinit var menuList: PopupMenu
     lateinit var menuListOrdered: MenuItem
@@ -81,6 +77,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentLastItemOfAListIfNoOtherItemsIndented() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li></$listTag>", editText.toHtml())
@@ -91,6 +88,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentLastItemOfAListIfNoOtherItemsIndented() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1</li><li>Item 2</li></$listTag>", editText.toHtml())
@@ -101,6 +99,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentMiddleItemOfAListIfNoOtherItemsIndented() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3</li></$listTag>", editText.toHtml())
@@ -111,6 +110,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentMiddleItemOfAListIfNoOtherItemsIndented() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li></$listTag>", editText.toHtml())
@@ -121,6 +121,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentMiddleItemOfAListIfFollowingItemIndented() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>", editText.toHtml())
@@ -131,6 +132,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentMiddleItemOfAListIfFollowingItemIndented() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1</li><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li></$listTag></li></$listTag>", editText.toHtml())
@@ -141,6 +143,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentLastItemOfAListIfPreviousItemIndented() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>", editText.toHtml())
@@ -151,6 +154,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentLastItemOfAListIfPreviousItemIndented() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3</li></$listTag>", editText.toHtml())
@@ -161,6 +165,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentItemInAMiddleOfOtherIndentedItems() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3<$listTag style=\"text-align:left;\"><li>Item 4</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li><li>Item 4</li></$listTag></li></$listTag>", editText.toHtml())
@@ -171,6 +176,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentItemInAMiddleOfOtherIndentedItems() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li><li>Item 4</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li></$listTag></li><li>Item 3<$listTag style=\"text-align:left;\"><li>Item 4</li></$listTag></li></$listTag>", editText.toHtml())
@@ -181,6 +187,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentItemInAMiddleOfOtherNestedIndentedItems() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li></$listTag></li><li>Item 4<$listTag style=\"text-align:left;\"><li>Item 5</li></$listTag></li></$listTag></$listTag></li>")
         editText.setSelection(editText.editableText.indexOf("4"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li><li>Item 4</li><li>Item 5</li></$listTag></li></$listTag></li></$listTag>", editText.toHtml())
@@ -191,6 +198,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentItemInAMiddleOfOtherNestedIndentedItems() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li><li>Item 4</li><li>Item 5</li></$listTag></li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("4"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2<$listTag style=\"text-align:left;\"><li>Item 3</li></$listTag></li><li>Item 4<$listTag style=\"text-align:left;\"><li>Item 5</li></$listTag></li></$listTag></li></$listTag>", editText.toHtml())
@@ -201,6 +209,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentSplitsListInTheMiddle() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag style=\"text-align:left;\"><li>Item 1</li></$listTag>Item 2<$listTag><li>Item 3</li></$listTag>", editText.toHtml())
@@ -211,6 +220,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentMultipleItems() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>", editText.toHtml())
@@ -221,6 +231,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun outdentMultipleItems() {
         editText.fromHtml("<$listTag><li>Item 1<$listTag><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li></$listTag>", editText.toHtml())
@@ -231,6 +242,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
     fun indentMultipleItemsInALongerList() {
         editText.fromHtml("<$listTag><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li></$listTag>")
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), true)
         editText.indent()
 
         Assert.assertEquals("<$listTag><li>Item 1<$listTag style=\"text-align:left;\"><li>Item 2</li><li>Item 3</li></$listTag></li><li>Item 4</li></$listTag>", editText.toHtml())
@@ -242,6 +254,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1</li><li>Item 2<$listTag><li>Item 3</li></$listTag></li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), false)
         editText.indent()
 
         Assert.assertEquals(source, editText.toHtml())
@@ -253,6 +266,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1</li><li>Item 2<$listTag><li>Item 3</li></$listTag></li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isOutdentAvailable(), true)
         editText.outdent()
 
         Assert.assertEquals(source, editText.toHtml())
@@ -264,6 +278,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1</li><li>Item 2</li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("1"))
+        Assert.assertEquals(editText.isIndentAvailable(), false)
         editText.indent()
 
         Assert.assertEquals(source, editText.toHtml())
@@ -275,6 +290,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1<$listTag><li>Item 2</li><li>Item 3</li></$listTag></li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("2"))
+        Assert.assertEquals(editText.isIndentAvailable(), false)
         editText.indent()
 
         Assert.assertEquals(source, editText.toHtml())
@@ -286,6 +302,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1<$listTag><li>Item 2<$listTag><li>Item 3</li><li>Item 4</li></$listTag></li></$listTag></li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("3"))
+        Assert.assertEquals(editText.isIndentAvailable(), false)
         editText.indent()
 
         Assert.assertEquals(source, editText.toHtml())

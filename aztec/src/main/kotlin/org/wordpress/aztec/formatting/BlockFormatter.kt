@@ -71,6 +71,14 @@ class BlockFormatter(editor: AztecText,
         // TODO handle other outdents
     }
 
+    fun isIndentAvailable(): Boolean {
+        return listFormatter.isIndentAvailable()
+    }
+
+    fun isOutdentAvailable(): Boolean {
+        return listFormatter.isOutdentAvailable()
+    }
+
     fun toggleOrderedList() {
         if (!containsList(listClass = AztecTextFormat.FORMAT_ORDERED_LIST.toBlockSpanClass())) {
             if (containsList(listClass = AztecTextFormat.FORMAT_UNORDERED_LIST.toBlockSpanClass()) || containsList(listClass = AztecTextFormat.FORMAT_TASK_LIST.toBlockSpanClass())) {

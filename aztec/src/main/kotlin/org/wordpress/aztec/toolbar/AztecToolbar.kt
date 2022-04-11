@@ -538,6 +538,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         selectHeadingMenuItem(appliedStyles)
         selectListMenuItem(appliedStyles)
         highlightAlignButtons(appliedStyles)
+        setIndentState()
+    }
+
+    private fun setIndentState() {
+        findViewById<View>(ToolbarAction.INDENT.buttonId)?.let {
+            toggleButtonState(it, editor?.isIndentAvailable() == true)
+        }
+        findViewById<View>(ToolbarAction.OUTDENT.buttonId)?.let {
+            toggleButtonState(it, editor?.isOutdentAvailable() == true)
+        }
     }
 
     private fun highlightAlignButtons(appliedStyles: ArrayList<ITextFormat>) {

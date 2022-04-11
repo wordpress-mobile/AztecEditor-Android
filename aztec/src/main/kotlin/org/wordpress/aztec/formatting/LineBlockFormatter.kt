@@ -182,7 +182,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         } else {
             ssb.append("\n")
-
             val ssbLength = ssb.length
             editableText.getSpans(position, position + ssbLength, IAztecBlockSpan::class.java).filter {
                 it !is AztecMediaSpan && editableText.getSpanStart(it) == position
@@ -238,6 +237,12 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             if (spanEnd > position) {
                 position = spanEnd
             }
+        }
+        if (position <= 0 && selectionEnd != 0) {
+            position = editableText.indexOf("\n", selectionEnd)
+        }
+        if (position <= 0 && selectionEnd != 0) {
+            position = editableText.length
         }
         return position
     }

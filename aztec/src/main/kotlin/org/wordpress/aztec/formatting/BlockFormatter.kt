@@ -50,33 +50,37 @@ class BlockFormatter(editor: AztecText,
                      private val exclusiveBlockStyles: ExclusiveBlockStyles
 ) : AztecFormatter(editor) {
     private val listFormatter = ListFormatter(editor)
+    private val indentFormatter = IndentFormatter(editor)
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int) {
         fun leadingMargin(): Int {
             return indicatorMargin + 2 * indicatorWidth + indicatorPadding
         }
     }
+
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
     data class HeaderStyle(val verticalPadding: Int)
     data class ExclusiveBlockStyles(val enabled: Boolean = false)
 
     fun indent() {
-        if (listFormatter.indentList()) return
-        // TODO handle other indents
+        listFormatter.indentList()
+        indentFormatter.indent()
     }
 
     fun outdent() {
-        if (listFormatter.outdentList()) return
-        // TODO handle other outdents
+        listFormatter.outdentList()
+        indentFormatter.outdent()
     }
 
     fun isIndentAvailable(): Boolean {
-        return listFormatter.isIndentAvailable()
+        if (listFormatter.isIndentAvailable()) return true
+        return indentFormatter.isIndentAvailable()
     }
 
     fun isOutdentAvailable(): Boolean {
-        return listFormatter.isOutdentAvailable()
+        if (listFormatter.isOutdentAvailable()) return true
+        return indentFormatter.isOutdentAvailable()
     }
 
     fun toggleOrderedList() {
@@ -140,11 +144,11 @@ class BlockFormatter(editor: AztecText,
 
     fun togglePreformat() {
         if (!containsPreformat()) {
-                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
-                    switchHeadingToPreformat()
-                } else {
-                    applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
-                }
+            if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
+                switchHeadingToPreformat()
+            } else {
+                applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
+            }
         } else {
             removeEntireBlock(AztecPreformatSpan::class.java)
         }
@@ -276,14 +280,18 @@ class BlockFormatter(editor: AztecText,
             val nextLineLength = "\n".length
             // Defines end of a line in a block
             val previousLineBreak = editableText.indexOf("\n", selectionEnd)
-            val lineEnd = if (previousLineBreak > -1) { previousLineBreak + nextLineLength } else spanEnd
+            val lineEnd = if (previousLineBreak > -1) {
+                previousLineBreak + nextLineLength
+            } else spanEnd
             // Defines start of a line in a block
             val nextLineBreak = if (lineEnd == selectionStart + nextLineLength) {
                 editableText.lastIndexOf("\n", selectionStart - 1)
             } else {
                 editableText.lastIndexOf("\n", selectionStart)
             }
-            val lineStart = if (nextLineBreak > -1) { nextLineBreak + nextLineLength } else spanStart
+            val lineStart = if (nextLineBreak > -1) {
+                nextLineBreak + nextLineLength
+            } else spanStart
             val spanStartsBeforeLineStart = spanStart < lineStart
             val spanEndsAfterLineEnd = spanEnd > lineEnd
             if (spanStartsBeforeLineStart && spanEndsAfterLineEnd) {

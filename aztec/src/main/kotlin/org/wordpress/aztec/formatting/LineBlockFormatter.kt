@@ -239,10 +239,8 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             }
         }
         if (position <= 0 && selectionEnd != 0) {
-            position = editableText.indexOf("\n", selectionEnd)
-        }
-        if (position <= 0 && selectionEnd != 0) {
-            position = editableText.length
+            // If the text contains "\n" return that as the position, else set the position to the end of the text
+            position = editableText.indexOf("\n", selectionEnd).takeIf { it >= 0 } ?: editableText.length
         }
         return position
     }

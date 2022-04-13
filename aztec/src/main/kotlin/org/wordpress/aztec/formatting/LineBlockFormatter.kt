@@ -231,6 +231,9 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun getEndOfBlock(): Int {
+        if (selectionStart == 0 && selectionEnd == 0) {
+            return 0
+        }
         var position = 0
         editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).forEach {
             val spanEnd = editableText.getSpanEnd(it)

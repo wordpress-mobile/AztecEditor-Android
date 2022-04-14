@@ -31,7 +31,6 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
                         deletedSpans.add(it)
                     }
 
-
             if (!queueHasBeenPopulatedInThisTimeframe) {
                 deletedSpans.forEach { it.beforeMediaDeleted() }
             }

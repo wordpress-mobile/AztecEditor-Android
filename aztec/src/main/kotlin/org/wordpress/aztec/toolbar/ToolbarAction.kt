@@ -43,6 +43,30 @@ enum class ToolbarAction constructor(
             ToolbarActionType.INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_HIGHLIGHT),
             R.layout.format_bar_button_highlight),
+    UNORDERED_LIST(
+            R.id.format_bar_button_list_unordered,
+            R.drawable.format_bar_button_ul_selector,
+            ToolbarActionType.BLOCK_STYLE,
+            setOf(AztecTextFormat.FORMAT_UNORDERED_LIST),
+            R.layout.format_bar_button_list_unordered),
+    ORDERED_LIST(
+            R.id.format_bar_button_list_ordered,
+            R.drawable.format_bar_button_ol_selector,
+            ToolbarActionType.BLOCK_STYLE,
+            setOf(AztecTextFormat.FORMAT_ORDERED_LIST),
+            R.layout.format_bar_button_list_ordered),
+    INDENT(
+            R.id.format_bar_button_indent,
+            R.drawable.format_bar_button_indent_selector,
+            ToolbarActionType.OTHER,
+            setOf(AztecTextFormat.FORMAT_NONE),
+            R.layout.format_bar_button_indent),
+    OUTDENT(
+            R.id.format_bar_button_outdent,
+            R.drawable.format_bar_button_outdent_selector,
+            ToolbarActionType.OTHER,
+            setOf(AztecTextFormat.FORMAT_NONE),
+            R.layout.format_bar_button_outdent),
     BOLD(
             R.id.format_bar_button_bold,
             R.drawable.format_bar_button_bold_selector,

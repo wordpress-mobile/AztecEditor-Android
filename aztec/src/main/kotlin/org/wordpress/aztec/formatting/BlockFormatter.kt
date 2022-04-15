@@ -16,8 +16,10 @@ import org.wordpress.aztec.handlers.BlockHandler
 import org.wordpress.aztec.handlers.HeadingHandler
 import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.spans.AztecHeadingSpan
+import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
+import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecPreformatSpan
 import org.wordpress.aztec.spans.AztecQuoteSpan
@@ -314,6 +316,23 @@ class BlockFormatter(editor: AztecText,
             }
         }
     }
+
+    fun moveSelectionIfImageSelected() {
+        if (selectionStart == selectionEnd &&
+                (hasImageRightAfterSelection() || hasHorizontalRuleRightAfterSelection())) {
+            editor.setSelection(selectionStart - 1)
+        }
+    }
+
+    private fun hasImageRightAfterSelection() =
+            editableText.getSpans(selectionStart, selectionEnd, AztecMediaSpan::class.java).any {
+                editableText.getSpanStart(it) == selectionStart
+            }
+
+    private fun hasHorizontalRuleRightAfterSelection() =
+            editableText.getSpans(selectionStart, selectionEnd, AztecHorizontalRuleSpan::class.java).any {
+                editableText.getSpanStart(it) == selectionStart
+            }
 
     fun removeBlockStyle(textFormat: ITextFormat) {
         removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })

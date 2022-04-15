@@ -1,4 +1,4 @@
-<h1><img align="center" width=50px height=50px src="https://github.com/wordpress-mobile/AztecEditor-iOS/raw/develop/RepoAssets/aztec.png" alt="Aztec Logo"/>&nbsp;Aztec: Native HTML Editor for Android</h1>
+<h1><img align="center" width=50px height=50px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/RepoAssets/aztec.png" alt="Aztec Logo"/>&nbsp;Aztec: Native HTML Editor for Android</h1>
 
 [![CircleCI](https://circleci.com/gh/wordpress-mobile/AztecEditor-Android.svg?style=svg)](https://circleci.com/gh/wordpress-mobile/AztecEditor-Android)
 
@@ -7,7 +7,7 @@ documents in Android.
 
 Supports Android 4.1+ (API 16 - Jelly Bean)
 
-<img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/develop/visual_editor.png" alt="Visual Editor"/> <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/develop/code_editor.png" alt="Visual Editor"/>
+<img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/visual_editor.png" alt="Visual Editor"/> <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/code_editor.png" alt="Visual Editor"/>
 
 ## Getting started
 
@@ -59,7 +59,7 @@ Aztec.with(visualEditor, sourceEditor, toolbar, context)
     .setVideoThumbnailGetter(GlideVideoThumbnailLoader(context))
 ```
 
-For more options, such as edit history, listeners and plugins please refer to the [demo app implementation](https://github.com/wordpress-mobile/AztecEditor-Android/blob/develop/app/src/main/kotlin/org/wordpress/aztec/demo/MainActivity.kt).
+For more options, such as edit history, listeners and plugins please refer to the [demo app implementation](https://github.com/wordpress-mobile/AztecEditor-Android/blob/trunk/app/src/main/kotlin/org/wordpress/aztec/demo/MainActivity.kt).
 
 ## Build and test
 

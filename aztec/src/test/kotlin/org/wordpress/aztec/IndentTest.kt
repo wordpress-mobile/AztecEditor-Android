@@ -26,6 +26,7 @@ class IndentTest {
         val activity = Robolectric.buildActivity(Activity::class.java).create().visible().get()
         editText = AztecText(activity)
         editText.setCalypsoMode(false)
+        editText.setGutenbergMode(true)
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
@@ -278,11 +279,23 @@ class IndentTest {
     fun testOutdentingComplexText() {
         editText.fromHtml("\tLine 1<br>\tLine 2<ul><li>List item</li></ul><h1>\tHeading 3</h1><img src=\"test.jpg\" /><pre>\tTest pre 1<br>\tTest pre 2</pre>")
 
-        editText.setSelection(editText.editableText.indexOf("1"), editText.editableText.indexOf("3"))
+        editText.setSelection(editText.editableText.indexOf("1"), editText.editableText.indexOf("pre 2"))
 
         editText.outdent()
 
         Assert.assertEquals("Line 1<br>Line 2<ul><li>List item</li></ul><h1>Heading 3</h1><img src=\"test.jpg\" /><pre>Test pre 1<br>Test pre 2</pre>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testOutdentingSecondLineOnly() {
+        editText.fromHtml("\tLine 1<br>\tLine 2<br>\tLine 3")
+
+        editText.setSelection(editText.editableText.indexOf("2"))
+
+        editText.outdent()
+
+        Assert.assertEquals("\tLine 1<br>Line 2<br>\tLine 3", editText.toHtml())
     }
 }
 

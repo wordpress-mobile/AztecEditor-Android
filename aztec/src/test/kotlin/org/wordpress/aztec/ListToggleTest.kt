@@ -72,7 +72,7 @@ class ListToggleTest {
     fun togglesFormattingOfSimpleListFromOrderedListToTaskList() {
         editText.fromHtml("<ol><li>Item 1</li><li>Item 2</li></ol>")
         editText.setSelection(editText.editableText.indexOf("2"))
-        editText.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
+        editText.toggleFormatting(AztecTextFormat.FORMAT_TASK_LIST)
 
         Assert.assertEquals("<ul type=\"task-list\"><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />Item 1</li><li><input type=\"checkbox\" class=\"task-list-item-checkbox\" />Item 2</li></ul>", editText.toHtml())
     }

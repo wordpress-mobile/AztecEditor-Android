@@ -21,8 +21,10 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         val indicesToIndent = mutableSetOf<Int>()
         // Look for the line break before the selection start
         val previousLineBreak = editableText.substring(0, selectionStart).lastIndexOf("\n") + 1
+        var firstLineIndented = false
         // Check whether the current line can be indented and indents it if necessary
         if (selectionCanBeIndented(previousLineBreak, selectionStart)) {
+            firstLineIndented = true
             indicesToIndent.add(previousLineBreak)
         }
         // This cycle goes line by line and tries to add an indent if possible
@@ -51,7 +53,12 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
         if (offset > 0) {
             // Set the selection over the same indented block
-            editor.setSelection(previousSelectionStart + 1, previousSelectionEnd + offset)
+            val newStart = if (firstLineIndented) {
+                previousSelectionStart + 1
+            } else {
+                previousSelectionStart
+            }
+            editor.setSelection(newStart, previousSelectionEnd + offset)
         }
     }
 
@@ -64,15 +71,16 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         val indicesToOutdent = mutableSetOf<Int>()
         // Look for the line break before the selection start
         val previousLineBreak = editableText.substring(0, selectionStart).lastIndexOf("\n")
+        var firstLineOutdented = false
         // Check whether there is an indent which can be removed
         if (previousLineBreak > 0 && selectionCanBeOutdented(previousLineBreak + 1, selectionStart)) {
+            firstLineOutdented = true
             indicesToOutdent.add(previousLineBreak + 1)
         }
         // Special use case when the whole entry doesn't start with line break but starts with an indent
-        if (previousLineBreak == -1 && editableText.startsWith("\t")) {
-            if (selectionCanBeOutdented(0, 2)) {
-                indicesToOutdent.add(0)
-            }
+        if (previousLineBreak == -1 && editableText.startsWith("\t") && selectionCanBeOutdented(0, 2)) {
+            firstLineOutdented = true
+            indicesToOutdent.add(0)
         }
         var startIndex = selectionStart
         // Cycle goes over all the indents after a line break and removes them if they are within the selection
@@ -97,7 +105,12 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
             offset += 1
         }
         if (offset > 0) {
-            editor.setSelection(previousSelectionStart - 1, previousSelectionEnd - offset)
+            val newStart = if (firstLineOutdented) {
+                previousSelectionStart - 1
+            } else {
+                previousSelectionStart
+            }
+            editor.setSelection(newStart, previousSelectionEnd - offset)
         }
     }
 

@@ -753,6 +753,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         this.toolbarItems = toolbarItems
     }
 
+    /**
+     * Call this method to enable a task list with checkboxes
+     */
     fun enableTaskList() {
         this.tasklistEnabled = true
     }

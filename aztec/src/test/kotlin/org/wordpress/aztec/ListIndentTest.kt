@@ -266,7 +266,7 @@ class ListIndentTest(listTextFormat: ITextFormat, listHtmlTag: String) {
         val source = "<$listTag><li>Item 1</li><li>Item 2<$listTag><li>Item 3</li></$listTag></li></$listTag>"
         editText.fromHtml(source)
         editText.setSelection(editText.editableText.indexOf("2"), editText.editableText.indexOf("3"))
-        Assert.assertEquals(editText.isOutdentAvailable(), true)
+        Assert.assertEquals(editText.isOutdentAvailable(), false)
         editText.outdent()
 
         Assert.assertEquals(source, editText.toHtml())

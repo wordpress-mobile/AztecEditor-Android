@@ -26,7 +26,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
         buildListState(listSpans, selStart, selEnd)?.apply {
             // You cannot indent the first list item
             if (listItemSpanBeforeSelection == null) {
-                return@apply
+                return false
             }
             // In order to indent the previous list item has to be on the same level as the first selected item
             val nextItemLevel = nestingLevel + 2
@@ -59,7 +59,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
             listItemSpansBeforeSelection.filter { it.nestingLevel < nextItemLevel }.forEach {
                 it.stretchEnd(selectionEnd)
             }
-        }
+        } ?: return false
         return true
     }
 
@@ -116,6 +116,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                     // In case of the selected list spam doesn't have any predecessor or successor, remove the list container
                     editableText.removeSpan(directParentList)
                     selectedListItems.forEach { editableText.removeSpan(it) }
+                    return true
                 }
                 listItemSpanBeforeSelection == null && listItemSpanAfterSelection != null -> {
                     if (listItemSpanAfterSelection.nestingLevel == nestingLevel) {
@@ -123,6 +124,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         // to the end of the current selection and remove the selection from the list
                         selectedListItems.outdentAll()
                         directParentList.changeSpanStart(selectionEnd)
+                        return true
                     }
                 }
                 listItemSpanBeforeSelection != null && listItemSpanAfterSelection == null -> {
@@ -138,6 +140,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         editableText.removeSpan(directParentList)
                     }
                     directParentListItem?.trimEnd(firstSelectedItemStart)
+                    return true
                 }
                 listItemSpanBeforeSelection != null && listItemSpanAfterSelection != null -> {
                     if (listItemSpanBeforeSelection.nestingLevel >= nestingLevel) {
@@ -154,11 +157,13 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                             }
                             directParentList.changeSpanStart(selectionEnd)
                             directParentListItem?.changeSpanEnd(firstSelectedItemStart)
+                            return true
                         } else if (listItemSpanAfterSelection.nestingLevel < nestingLevel) {
                             // In case the span after selection has lower nesting level, we don't have to worry about it
                             selectedListItems.outdentAll()
                             directParentList.changeSpanEnd(firstSelectedItemStart)
                             directParentListItem?.changeSpanEnd(firstSelectedItemStart)
+                            return true
                         }
                     } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel == nestingLevel) {
                         // Predecessor is on lower level and successor is on the same level, this means we can move all the
@@ -167,6 +172,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         directParentList.changeSpanStart(selectionEnd)
                         directParentListItem?.changeSpanEnd(firstSelectedItemStart)
                         selectedListItems.last().changeSpanEnd(editableText.getSpanEnd(directParentList))
+                        return true
                     } else if (listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel) {
                         // In this case the selected items are the only items on the current level. Both the successor and
                         // the predecessor are on a lower level. This means we can remove the wrapping span and move all
@@ -174,11 +180,12 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         selectedListItems.outdentAll()
                         editableText.removeSpan(directParentList)
                         directParentListItem?.changeSpanEnd(firstSelectedItemStart)
+                        return true
                     }
                 }
             }
         }
-        return true
+        return false
     }
 
     /**
@@ -210,10 +217,9 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
                         true
                     } else listItemSpanBeforeSelection.nestingLevel < nestingLevel && listItemSpanAfterSelection.nestingLevel < nestingLevel
                 }
-                else -> return false
             }
         }
-        return true
+        return false
     }
 
     private data class ListState(

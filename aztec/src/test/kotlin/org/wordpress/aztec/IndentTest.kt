@@ -297,5 +297,43 @@ class IndentTest {
 
         Assert.assertEquals("\tLine 1<br>Line 2<br>\tLine 3", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCannotOutdentEmptyText() {
+        editText.fromHtml("")
+
+        editText.setSelection(0)
+
+        Assert.assertFalse(editText.isOutdentAvailable())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCanIndentEmptyText() {
+        editText.fromHtml("")
+
+        editText.setSelection(0)
+
+        Assert.assertTrue(editText.isIndentAvailable())
+        editText.indent()
+
+        Assert.assertEquals("\t", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCanOutdentSingleIndent() {
+        editText.fromHtml("")
+        editText.setSelection(0)
+        editText.indent()
+
+        editText.setSelection(1)
+
+        Assert.assertTrue(editText.isOutdentAvailable())
+        editText.outdent()
+
+        Assert.assertEquals("", editText.toHtml())
+    }
 }
 

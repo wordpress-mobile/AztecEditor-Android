@@ -637,9 +637,11 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             }
             ToolbarAction.INDENT -> {
                 editor?.indent()
+                setIndentState()
             }
             ToolbarAction.OUTDENT -> {
                 editor?.outdent()
+                setIndentState()
             }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()

@@ -21,12 +21,10 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         val indicesToIndent = mutableSetOf<Int>()
         // Look for the line break before the selection start
         val previousLineBreak = editableText.substring(0, selectionStart).lastIndexOf("\n") + 1
-        var firstLineIndented = false
-        // Check whether the current line can be indented and indents it if necessary
-        if (selectionCanBeIndented(previousLineBreak, selectionStart)) {
-            firstLineIndented = true
+        val firstLineIndented = if (selectionCanBeIndented(previousLineBreak, selectionStart)) {
             indicesToIndent.add(previousLineBreak)
-        }
+            true
+        } else false
         // This cycle goes line by line and tries to add an indent if possible
         var startIndex = selectionStart
         while (startIndex in selectionStart until selectionEnd) {

@@ -12,7 +12,7 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class IndentTest {
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText

@@ -122,7 +122,7 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         val mediaSpans = editableText.getSpans(start, end, AztecDynamicImageSpan::class.java)
         if (mediaSpans.isNotEmpty()) return false
         val spans = editableText.getSpans(start, end, IAztecBlockSpan::class.java)
-        return spans.isEmpty() || spans.all {
+        return editableText.isEmpty() || spans.isEmpty() || spans.all {
             it is ParagraphSpan || it is AztecHeadingSpan || it is AztecQuoteSpan || it is AztecPreformatSpan
         }
     }
@@ -136,7 +136,12 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
         val mediaSpans = editableText.getSpans(start + 1, end, AztecDynamicImageSpan::class.java)
         if (mediaSpans.isNotEmpty()) return false
         val spans = editableText.getSpans(start + 1, end, IAztecBlockSpan::class.java)
-        return editableText[start] == "\t"[0] && (spans.isEmpty() || spans.all {
+        val shiftedStart = if (editableText.length in 1..start) {
+            start - 1
+        } else {
+            start
+        }
+        return editableText.isNotEmpty() && editableText[shiftedStart] == "\t"[0] && (spans.isEmpty() || spans.all {
             it is ParagraphSpan || it is AztecHeadingSpan || it is AztecQuoteSpan || it is AztecPreformatSpan
         })
     }

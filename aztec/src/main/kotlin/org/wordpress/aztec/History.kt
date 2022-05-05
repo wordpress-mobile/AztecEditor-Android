@@ -33,19 +33,21 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
     }
 
     fun beforeTextChanged(editText: EditText) {
-        if (historyEnabled && !historyWorking) {
-            mainHandler.removeCallbacks(historyRunnable)
-            if (!textChangedPending) {
-                textChangedPending = true
-                historyRunnable?.text =
-                    when (editText) {
-                        is AztecText -> editText.toFormattedHtml()
-                        is SourceViewEditText -> editText.text.toString()
-                        else -> ""
-                    }
-                historyRunnable?.editText = editText
+        historyRunnable?.let { runnable ->
+            if (historyEnabled && !historyWorking) {
+                mainHandler.removeCallbacks(runnable)
+                if (!textChangedPending) {
+                    textChangedPending = true
+                    runnable.text =
+                            when (editText) {
+                                is AztecText -> editText.toFormattedHtml()
+                                is SourceViewEditText -> editText.text.toString()
+                                else -> ""
+                            }
+                    runnable.editText = editText
+                }
+                mainHandler.postDelayed(runnable, historyThrottleTime)
             }
-            mainHandler.postDelayed(historyRunnable, historyThrottleTime)
         }
     }
 

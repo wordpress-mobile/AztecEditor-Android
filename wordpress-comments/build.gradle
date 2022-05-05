@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion commonMinSdkVersion
@@ -40,7 +40,7 @@ dependencies {
     implementation aztecProjectDependency
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.material:material:1.6.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     testImplementation "junit:junit:$jUnitVersion"

@@ -832,7 +832,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)?.let {
+            initialEditorContentParsedSHA256 = it
+        }
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -877,9 +879,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return false
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val savedState = SavedState(superState)
+        val savedState = superState?.let { SavedState(it) }
         val bundle = Bundle()
         InstanceStateUtils.writeTempInstance(context, externalLogger, HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
@@ -912,7 +914,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
-        savedState.state = bundle
+        savedState?.state = bundle
         return savedState
     }
 
@@ -922,7 +924,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
-            state = parcel.readBundle(javaClass.classLoader)
+            parcel.readBundle(javaClass.classLoader)?.let {
+                state = it
+            }
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
@@ -1773,8 +1777,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
     }
 
     // copied from TextView with some changes
@@ -1961,7 +1965,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        blockEditorDialog!!.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog!!.show()
     }
 

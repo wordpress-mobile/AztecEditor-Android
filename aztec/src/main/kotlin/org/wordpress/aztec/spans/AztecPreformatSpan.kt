@@ -76,7 +76,7 @@ open class AztecPreformatSpan(
         }
     }
 
-    override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
+    override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int, lnum: Int) {
         val color = paint.color
         val alpha: Int = (preformatStyle.preformatBackgroundAlpha * 255).toInt()
         paint.color = Color.argb(

@@ -98,7 +98,9 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
         visibility = customState.getInt("visibility")
         val retainedContent = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_CONTENT_KEY, "", savedState.state)
         setText(retainedContent)
-        initialEditorContentParsedSHA256 = customState.getByteArray(AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        customState.getByteArray(AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)?.let {
+            initialEditorContentParsedSHA256 = it
+        }
     }
 
     // Do not include the content of the editor when saving state to bundle.
@@ -109,12 +111,12 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
         return false
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val bundle = Bundle()
-        bundle.putByteArray(org.wordpress.aztec.AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY,
+        bundle.putByteArray(AztecText.RETAINED_INITIAL_HTML_PARSED_SHA256_KEY,
                 initialEditorContentParsedSHA256)
         InstanceStateUtils.writeTempInstance(context, null, RETAINED_CONTENT_KEY, text.toString(), bundle)
-        val superState = super.onSaveInstanceState()
+        val superState = super.onSaveInstanceState() ?: return null
         val savedState = SavedState(superState)
         bundle.putInt("visibility", visibility)
         savedState.state = bundle
@@ -127,7 +129,9 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
         constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
-            state = parcel.readBundle(javaClass.classLoader)
+            parcel.readBundle(javaClass.classLoader)?.let {
+                state = it
+            }
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
@@ -265,7 +269,7 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
         val str: String
 
         if (withCursorTag) {
-            val withCursor = StringBuffer(text)
+            val withCursor = StringBuffer(text.toString())
             if (!isCursorInsideTag()) {
                 withCursor.insert(selectionEnd, "<aztec_cursor></aztec_cursor>")
             } else {

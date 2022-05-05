@@ -14,7 +14,7 @@ import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class InlineElementsTest {
 
     lateinit var editText: AztecText

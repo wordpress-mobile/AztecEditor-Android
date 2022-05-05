@@ -19,7 +19,7 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class ListToggleTest {
 
     lateinit var editText: AztecText

@@ -14,7 +14,7 @@ import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class ImageBlockTest {
     lateinit var editText: AztecText
     lateinit var menuList: PopupMenu

@@ -1370,6 +1370,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
+
+        // Avoid the work of getting placeholder drawable if there are no images. This becomes a big
+        // on screens that have many AztecText views
+        if (spans.isEmpty()) {
+            return
+        }
+
         val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
@@ -1404,6 +1411,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
+
+        // Avoid the work of getting placeholder drawable if there are no videos. This becomes a big
+        // on screens that have many AztecText views
+        if (spans.isEmpty()) {
+            return
+        }
+
         val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 

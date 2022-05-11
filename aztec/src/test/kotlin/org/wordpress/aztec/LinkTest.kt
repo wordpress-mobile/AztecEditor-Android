@@ -10,7 +10,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class LinkTest {
 
     lateinit var editText: AztecText

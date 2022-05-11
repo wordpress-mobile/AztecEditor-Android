@@ -52,6 +52,7 @@ class BlockFormatter(editor: AztecText,
                      private val exclusiveBlockStyles: ExclusiveBlockStyles
 ) : AztecFormatter(editor) {
     private val listFormatter = ListFormatter(editor)
+    private val indentFormatter = IndentFormatter(editor)
 
     data class ListStyle(val indicatorColor: Int, val indicatorMargin: Int, val indicatorPadding: Int, val indicatorWidth: Int, val verticalPadding: Int) {
         fun leadingMargin(): Int {
@@ -65,21 +66,23 @@ class BlockFormatter(editor: AztecText,
     data class ExclusiveBlockStyles(val enabled: Boolean = false)
 
     fun indent() {
-        if (listFormatter.indentList()) return
-        // TODO handle other indents
+        listFormatter.indentList()
+        indentFormatter.indent()
     }
 
     fun outdent() {
-        if (listFormatter.outdentList()) return
-        // TODO handle other outdents
+        listFormatter.outdentList()
+        indentFormatter.outdent()
     }
 
     fun isIndentAvailable(): Boolean {
-        return listFormatter.isIndentAvailable()
+        if (listFormatter.isIndentAvailable()) return true
+        return indentFormatter.isIndentAvailable()
     }
 
     fun isOutdentAvailable(): Boolean {
-        return listFormatter.isOutdentAvailable()
+        if (listFormatter.isOutdentAvailable()) return true
+        return indentFormatter.isOutdentAvailable()
     }
 
     fun toggleOrderedList() {
@@ -126,11 +129,11 @@ class BlockFormatter(editor: AztecText,
 
     fun togglePreformat() {
         if (!containsPreformat()) {
-                if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
-                    switchHeadingToPreformat()
-                } else {
-                    applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
-                }
+            if (containsOtherHeadings(AztecTextFormat.FORMAT_PREFORMAT) && !exclusiveBlockStyles.enabled) {
+                switchHeadingToPreformat()
+            } else {
+                applyBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
+            }
         } else {
             removeEntireBlock(AztecPreformatSpan::class.java)
         }

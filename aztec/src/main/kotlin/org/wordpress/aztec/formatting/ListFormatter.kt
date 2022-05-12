@@ -300,7 +300,7 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
             it.nestingLevel > lastSelectedListItem.nestingLevel
         }.minByOrNull { editableText.getSpanStart(it) } ?: allListItems.find {
             val spanStart = editableText.getSpanStart(it)
-            spanStart in (firstSelectedItemStart + 1)..lastSelectedListItemEnd
+            spanStart == lastSelectedListItemEnd
         }
         return ListState(
                 nestingLevel = nestingLevel,

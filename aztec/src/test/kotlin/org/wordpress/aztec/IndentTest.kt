@@ -335,5 +335,20 @@ class IndentTest {
 
         Assert.assertEquals("", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun testCanOutdentMultipleNestedLists() {
+        editText.fromHtml("<ul><li>Item 1<ul><li>Item 2<ul><li>Item 3<ul><li>Item 4</li></ul></li><li>Item 5</li></ul></li><li>Item 6</li></ul></li><li>Item 7</li></ul>")
+        editText.setSelection(editText.editableText.indexOf("4"))
+        editText.outdent()
+
+        editText.setSelection(editText.editableText.indexOf("3"), editText.editableText.indexOf("5"))
+
+        Assert.assertTrue(editText.isOutdentAvailable())
+        editText.outdent()
+
+        Assert.assertEquals("<ul><li>Item 1<ul><li>Item 2</li><li>Item 3</li><li>Item 4</li><li>Item 5</li><li>Item 6</li></ul></li><li>Item 7</li></ul>", editText.toHtml())
+    }
 }
 

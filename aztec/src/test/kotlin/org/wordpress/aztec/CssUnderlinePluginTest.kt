@@ -16,7 +16,7 @@ import org.wordpress.aztec.spans.AztecUnderlineSpan
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class CssUnderlinePluginTest {
     lateinit var editText: AztecText
 

@@ -16,7 +16,7 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  * Testing attribute preservation for supported HTML elements
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class AttributeTest {
     companion object {
         private val HEADING =

@@ -10,7 +10,7 @@ import org.robolectric.annotation.Config
  * Tests for translating various strings to colors using [ColorConverter].
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class ColorConverterTest {
 
     /**

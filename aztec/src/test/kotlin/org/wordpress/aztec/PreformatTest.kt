@@ -5,7 +5,7 @@ package org.wordpress.aztec
 // * Testing preformat behavior.
 // */
 //@RunWith(RobolectricTestRunner::class)
-//@Config(sdk = intArrayOf(23))
+//@Config(sdk = [23])
 //class PreformatTest {
 //    val tag = "pre"
 //

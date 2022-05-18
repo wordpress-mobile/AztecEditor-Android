@@ -95,6 +95,8 @@
     <string name="item_format_list_ordered">Ordered List</string>
     <string name="item_format_list_unordered">Unordered List</string>
     <string name="item_format_task_list">Task List</string>
+    <string name="item_format_indent">Indent</string>
+    <string name="item_format_outdent">Outdent</string>
     <string name="item_format_paragraph">Paragraph</string>
     <string name="item_format_preformatted">Preformatted</string>
     <string name="item_format_quote">Quote</string>

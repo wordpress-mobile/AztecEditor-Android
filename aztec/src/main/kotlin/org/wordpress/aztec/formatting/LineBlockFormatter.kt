@@ -92,6 +92,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
         return false
     }
+
     fun applyHorizontalRule(inline: Boolean) {
         val nestingLevel = if (inline) {
             editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
@@ -117,7 +118,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             val newSelectionPosition = editableText.indexOf(Constants.MAGIC_CHAR, selectionStart) + 1
             editor.setSelection(newSelectionPosition)
         } else {
-            builder.append("\n")
             insertSpanAfterBlock(builder)
         }
     }
@@ -174,7 +174,6 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
 
     private fun insertMediaAfterBlock(span: AztecMediaSpan) {
         val ssb = SpannableStringBuilder(Constants.IMG_STRING)
-        ssb.append("\n")
         buildClickableMediaSpan(ssb, span)
         insertSpanAfterBlock(ssb)
     }
@@ -184,22 +183,37 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         // We need to be sure the cursor is placed correctly after media insertion
         // Note that media has '\n' around them when needed
         val isLastItem = position == EndOfBufferMarkerAdder.safeLength(editor)
-        val insertedLength = ssb.length
-        editableText.insert(position, ssb)
-        val spans = editableText.getSpans(position, position + insertedLength, IAztecBlockSpan::class.java).filter {
-            it !is AztecMediaSpan && editableText.getSpanStart(it) == position
-        }
-        spans.forEach {
-            val spanStart = editableText.getSpanStart(it)
-            val spanEnd = editableText.getSpanEnd(it)
-            val spanFlags = editableText.getSpanFlags(it)
-            editableText.removeSpan(it)
-            if (spanStart + insertedLength < spanEnd) {
-                editableText.setSpan(it, spanStart + insertedLength, spanEnd, spanFlags)
+        if (isLastItem) {
+            editableText.getSpans(position, editableText.length, IAztecBlockSpan::class.java).filter {
+                it !is AztecMediaSpan && editableText.getSpanEnd(it) == editableText.length
+            }.map {
+                SpanData(it, editableText.getSpanStart(it), position + 1, editableText.getSpanFlags(it))
+            }.applyWithRemovedSpans {
+                editableText.append(ssb)
+            }
+        } else {
+            ssb.append("\n")
+            val ssbLength = ssb.length
+            editableText.getSpans(position, position + ssbLength, IAztecBlockSpan::class.java).filter {
+                it !is AztecMediaSpan && editableText.getSpanStart(it) == position
+            }.map {
+                SpanData(it, editableText.getSpanStart(it) + ssbLength, editableText.getSpanEnd(it) + ssbLength, editableText.getSpanFlags(it))
+            }.applyWithRemovedSpans {
+                editableText.insert(position, ssb)
             }
         }
         setSelection(isLastItem, position)
     }
+
+    private fun List<SpanData>.applyWithRemovedSpans(action: () -> Unit) {
+        this.onEach { editableText.removeSpan(it.span) }
+        action()
+        this.onEach {
+            editableText.setSpan(it.span, it.spanStart, it.spanEnd, it.spanFlags)
+        }
+    }
+
+    data class SpanData(val span: IAztecBlockSpan, val spanStart: Int, val spanEnd: Int, val spanFlags: Int)
 
     private fun setSelection(isLastItem: Boolean, position: Int) {
         val newSelection = if (isLastItem) {
@@ -228,12 +242,19 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
     }
 
     private fun getEndOfBlock(): Int {
+        if (selectionStart == 0 && selectionEnd == 0) {
+            return 0
+        }
         var position = 0
         editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).forEach {
             val spanEnd = editableText.getSpanEnd(it)
             if (spanEnd > position) {
                 position = spanEnd
             }
+        }
+        if (position <= 0 && selectionEnd != 0) {
+            // If the text contains "\n" return that as the position, else set the position to the end of the text
+            position = editableText.indexOf("\n", selectionEnd).takeIf { it >= 0 } ?: editableText.length
         }
         return position
     }

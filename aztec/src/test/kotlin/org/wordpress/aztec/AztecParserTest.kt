@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
  * Tests for [AztecParser].
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class AztecParserTest(alignmentRendering: AlignmentRendering) : AndroidTestCase() {
     private var mParser = AztecParser(alignmentRendering)
     private val HTML_BOLD = "<b>Bold</b><br><br>"

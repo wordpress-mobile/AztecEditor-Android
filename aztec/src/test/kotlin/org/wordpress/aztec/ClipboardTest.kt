@@ -12,7 +12,7 @@ import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class ClipboardTest {
     private val HEADING =
             "<h1>Heading 1</h1>" +

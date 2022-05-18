@@ -24,7 +24,7 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class CommentsToolbarTest {
 
     lateinit var editText: AztecText

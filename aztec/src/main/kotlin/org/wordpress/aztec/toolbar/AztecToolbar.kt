@@ -538,6 +538,16 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         selectHeadingMenuItem(appliedStyles)
         selectListMenuItem(appliedStyles)
         highlightAlignButtons(appliedStyles)
+        setIndentState()
+    }
+
+    private fun setIndentState() {
+        findViewById<View>(ToolbarAction.INDENT.buttonId)?.let {
+            toggleButtonState(it, editor?.isIndentAvailable() == true)
+        }
+        findViewById<View>(ToolbarAction.OUTDENT.buttonId)?.let {
+            toggleButtonState(it, editor?.isOutdentAvailable() == true)
+        }
     }
 
     private fun highlightAlignButtons(appliedStyles: ArrayList<ITextFormat>) {
@@ -624,6 +634,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
             ToolbarAction.ELLIPSIS_EXPAND -> {
                 aztecToolbarListener?.onToolbarExpandButtonClicked()
                 animateToolbarExpand()
+            }
+            ToolbarAction.INDENT -> {
+                editor?.indent()
+                setIndentState()
+            }
+            ToolbarAction.OUTDENT -> {
+                editor?.outdent()
+                setIndentState()
             }
             else -> {
                 Toast.makeText(context, "Unsupported action", Toast.LENGTH_SHORT).show()
@@ -737,6 +755,9 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         this.toolbarItems = toolbarItems
     }
 
+    /**
+     * Call this method to enable a task list with checkboxes
+     */
     fun enableTaskList() {
         this.tasklistEnabled = true
     }

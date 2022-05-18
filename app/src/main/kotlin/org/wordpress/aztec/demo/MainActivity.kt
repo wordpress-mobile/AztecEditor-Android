@@ -394,8 +394,6 @@ open class MainActivity : AppCompatActivity(),
             }
         })
 
-        toolbar.enableTaskList()
-
         placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
         videoDrawer = VideoDrawer(this)
         placeholderManager.registerDrawer("video", videoDrawer)

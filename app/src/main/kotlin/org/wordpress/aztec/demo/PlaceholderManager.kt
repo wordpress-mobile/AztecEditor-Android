@@ -1,6 +1,7 @@
 package org.wordpress.aztec.demo
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Handler
@@ -17,10 +18,11 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
+import java.util.UUID
 
 class PlaceholderManager(private val aztecText: AztecText, private val container: FrameLayout) : AztecContentChangeWatcher.AztecTextChangeObserver, IHtmlTagHandler, AztecText.OnMediaDeletedListener {
     private val drawers = mutableMapOf<String, PlaceholderDrawer>()
-    private val positionToId = mutableMapOf<Int, String>()
+    private val positionToId = mutableSetOf<Placeholder>()
 
     init {
         aztecText.contentChangeWatcher.registerObserver(this)
@@ -30,12 +32,12 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         drawers[type] = placeholderDrawer
     }
 
-    fun insertPlaceholder(id: String, type: String) {
-        val attrs = getAttributesForMedia(id, type)
+    fun insertPlaceholder(id: String, type: String, vararg attributes: Pair<String, String>) {
+        val attrs = getAttributesForMedia(id, type, attributes)
         val drawable = buildPlaceholderDrawable(type) ?: return
         aztecText.insertSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText))
-        insertContentOverSpanWithId(id, null)
+        insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
     private fun buildPlaceholderDrawable(type: String): Drawable? {
@@ -46,20 +48,18 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
     }
 
     private fun updateAllBelowSelection(selectionStart: Int) {
-        val textViewLayout: Layout = aztecText.layout ?: return
-        val currentLineForOffset = textViewLayout.getLineForOffset(selectionStart)
-        positionToId.filterKeys {
-            it > currentLineForOffset
+        positionToId.filter {
+            it.elementPosition >= selectionStart - 1
         }.forEach {
-            insertContentOverSpanWithId(it.value, it.key)
+            insertContentOverSpanWithId(it.uuid, it.elementPosition)
         }
     }
 
-    private fun insertContentOverSpanWithId(id: String, currentPosition: Int? = null) {
+    private fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
-                val match = attrs.getValue(ID_ATTRIBUTE) == id
+                val match = attrs.getValue(UUID_ATTRIBUTE) == uuid
                 if (match) {
                     aztecAttributes = attrs as AztecAttributes
                 }
@@ -74,19 +74,21 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
     private fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
         validateAttributes(attrs)
         val id = attrs.getValue(ID_ATTRIBUTE)
+        val uuid = attrs.getValue(UUID_ATTRIBUTE)
         val type = attrs.getValue(TYPE_ATTRIBUTE)
         val textViewLayout: Layout = aztecText.layout
         val parentTextViewRect = Rect()
-        val currentLineStartOffset = textViewLayout.getLineForOffset(targetPosition)
+        val targetLineOffset = getLineForOffset(targetPosition)
         if (currentPosition != null) {
-            val previousLineStartOffset = textViewLayout.getLineForOffset(currentPosition)
-            if (previousLineStartOffset == currentLineStartOffset) {
+            if (targetLineOffset != 0 && currentPosition == targetPosition) {
                 return
             } else {
-                positionToId.remove(currentLineStartOffset)
+                positionToId.removeAll {
+                    it.uuid == uuid
+                }
             }
         }
-        textViewLayout.getLineBounds(currentLineStartOffset, parentTextViewRect)
+        textViewLayout.getLineBounds(targetLineOffset, parentTextViewRect)
 
         val parentTextViewLocation = intArrayOf(0, 0)
         aztecText.getLocationOnScreen(parentTextViewLocation)
@@ -95,37 +97,56 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
 
-        var box = container.findViewWithTag<View>(id)
+        var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
         val drawer = drawers[type]!!
         if (!exists) {
-            box = drawer.onCreateView(container.context, id)
+            box = drawer.onCreateView(container.context, id, attrs)
         }
         val params = FrameLayout.LayoutParams(
                 parentTextViewRect.right - parentTextViewRect.left - 20,
                 parentTextViewRect.bottom - parentTextViewRect.top - 20
         )
-        params.setMargins(parentTextViewRect.left + 10, parentTextViewRect.top + 10, parentTextViewRect.right - 10, parentTextViewRect.bottom - 10)
+        val padding = 10
+        params.setMargins(parentTextViewRect.left + padding, parentTextViewRect.top + padding, parentTextViewRect.right - padding, parentTextViewRect.bottom - padding)
         box.layoutParams = params
-        box.tag = id
-        positionToId[currentLineStartOffset] = id
+        box.tag = uuid
+        box.setBackgroundColor(Color.TRANSPARENT)
+        positionToId.add(Placeholder(targetPosition, id, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
             drawer.onViewCreated(box, id)
         }
     }
 
+    private fun getLineForOffset(offset: Int): Int {
+        var counter = 0
+        var index = 0
+        for (line in aztecText.text.split("\n")) {
+            counter += line.length + 1
+            if (counter > offset) {
+                break
+            }
+            index += 1
+        }
+        return index
+    }
+
     private fun validateAttributes(attributes: AztecAttributes): Boolean {
-        if (!attributes.hasAttribute(ID_ATTRIBUTE)) return false
+        if (!attributes.hasAttribute(UUID_ATTRIBUTE)) return false
         if (!attributes.hasAttribute(TYPE_ATTRIBUTE)) return false
         val type = attributes.getValue(TYPE_ATTRIBUTE)
         return drawers[type] != null
     }
 
-    private fun getAttributesForMedia(id: String, type: String): AztecAttributes {
+    private fun getAttributesForMedia(id: String, type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {
         val attrs = AztecAttributes()
         attrs.setValue(ID_ATTRIBUTE, id)
+        attrs.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
         attrs.setValue(TYPE_ATTRIBUTE, type)
+        attributes.forEach {
+            attrs.setValue(it.first, it.second)
+        }
         return attrs
     }
 
@@ -135,10 +156,12 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
 
     override fun onMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
+            val uuid = attrs.getValue(UUID_ATTRIBUTE)
             val id = attrs.getValue(ID_ATTRIBUTE)
             val drawer = drawers[attrs.getValue(TYPE_ATTRIBUTE)]
             drawer?.onPlaceholderDeleted(id)
-            container.findViewWithTag<View>(id)?.let {
+            positionToId.removeAll { it.uuid == uuid }
+            container.findViewWithTag<View>(uuid)?.let {
                 it.visibility = View.GONE
                 container.removeView(it)
             }
@@ -147,8 +170,8 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
 
     override fun beforeMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
-            val id = attrs.getValue(ID_ATTRIBUTE)
-            container.findViewWithTag<View>(id)?.let {
+            val uuid = attrs.getValue(UUID_ATTRIBUTE)
+            container.findViewWithTag<View>(uuid)?.let {
                 it.visibility = View.GONE
             }
         }
@@ -162,6 +185,7 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         if (opening) {
             val drawable = buildPlaceholderDrawable(attributes.getValue(TYPE_ATTRIBUTE))
             val aztecAttributes = AztecAttributes(attributes)
+            aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
             val span = AztecPlaceholderSpan(
                     context = aztecText.context,
                     drawable = drawable,
@@ -186,7 +210,7 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
     }
 
     interface PlaceholderDrawer {
-        fun onCreateView(context: Context, id: String): View
+        fun onCreateView(context: Context, id: String, attrs: AztecAttributes): View
         fun onViewCreated(view: View, id: String) {}
         fun onPlaceholderDeleted(id: String) {}
 
@@ -206,8 +230,11 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         }
     }
 
+    data class Placeholder(val elementPosition: Int, val id: String, val uuid: String)
+
     companion object {
         private const val ID_ATTRIBUTE = "id"
+        private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
     }
 }

@@ -301,7 +301,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun moveSelectionIfImageSelected() {
-        if (selectionStart == selectionEnd &&
+        if (selectionStart == selectionEnd && selectionStart > 0 &&
                 (hasImageRightAfterSelection() || hasHorizontalRuleRightAfterSelection())) {
             editor.setSelection(selectionStart - 1)
         }

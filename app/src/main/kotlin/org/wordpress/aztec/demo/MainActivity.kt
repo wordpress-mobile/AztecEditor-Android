@@ -179,7 +179,7 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 """
-                    <placeholder id="123" type="test" src="test.jpg"/>
+                    <placeholder id="123" type="video" src="test.jpg"/>
                 """.trimIndent()
 
         private val isRunningTest: Boolean by lazy {
@@ -276,8 +276,7 @@ open class MainActivity : AppCompatActivity(),
     var index = 0
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        videoDrawer.addMedia(index.toString(), mediaPath)
-        placeholderManager.insertPlaceholder(index.toString(), "video")
+        placeholderManager.insertPlaceholder(index.toString(), "video", "src" to mediaPath)
         index += 1
     }
 
@@ -420,6 +419,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
                 .addPlugin(placeholderManager)
+        aztec.visualEditor.addMediaAfterBlocks()
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {

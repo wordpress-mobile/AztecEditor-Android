@@ -25,7 +25,16 @@ open class Aztec private constructor(
     private var onImageTappedListener: AztecText.OnImageTappedListener? = null
     private var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
     private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
-    private var onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null
+    private val onMediaDeletedListeners: MutableList<AztecText.OnMediaDeletedListener> = mutableListOf()
+    private val onMediaDeletedListener = object: AztecText.OnMediaDeletedListener {
+        override fun onMediaDeleted(attrs: AztecAttributes) {
+            onMediaDeletedListeners.forEach { it.onMediaDeleted(attrs) }
+        }
+
+        override fun beforeMediaDeleted(attrs: AztecAttributes) {
+            onMediaDeletedListeners.forEach { it.beforeMediaDeleted(attrs) }
+        }
+    }
     private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
     private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
     private var isLinkTapEnabled: Boolean = false
@@ -115,8 +124,16 @@ open class Aztec private constructor(
         return this
     }
 
+    @Deprecated("Use the method to add a media deleted listener instead", ReplaceWith("addOnMediaDeletedListener"))
     fun setOnMediaDeletedListener(onMediaDeletedListener: AztecText.OnMediaDeletedListener): Aztec {
-        this.onMediaDeletedListener = onMediaDeletedListener
+        this.onMediaDeletedListeners.clear()
+        this.onMediaDeletedListeners.add(onMediaDeletedListener)
+        initMediaDeletedListener()
+        return this
+    }
+
+    fun addOnMediaDeletedListener(onMediaDeletedListener: AztecText.OnMediaDeletedListener): Aztec {
+        this.onMediaDeletedListeners.add(onMediaDeletedListener)
         initMediaDeletedListener()
         return this
     }
@@ -220,9 +237,7 @@ open class Aztec private constructor(
     }
 
     private fun initMediaDeletedListener() {
-        if (onMediaDeletedListener != null) {
-            visualEditor.setOnMediaDeletedListener(onMediaDeletedListener!!)
-        }
+        visualEditor.setOnMediaDeletedListener(onMediaDeletedListener)
     }
 
     private fun initVideoInfoRequestedListener() {

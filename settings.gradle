@@ -20,4 +20,4 @@ pluginManagement {
         google()
     }
 }
-include ':app', ':aztec', ':glide-loader', ':picasso-loader', ':wordpress-comments', ':wordpress-shortcodes'
+include ':app', ':aztec', ':glide-loader', ':picasso-loader', ':wordpress-comments', ':wordpress-shortcodes', ':media-placeholders'

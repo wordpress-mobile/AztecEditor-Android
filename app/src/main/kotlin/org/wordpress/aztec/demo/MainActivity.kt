@@ -42,6 +42,8 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.placeholders.ImageWithCaptionDrawer
+import org.wordpress.aztec.placeholders.PlaceholderManager
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -179,7 +181,9 @@ open class MainActivity : AppCompatActivity(),
 
         private val EXAMPLE =
                 """
-                    <placeholder id="123" type="video" src="test.jpg"/>
+                    <br>
+                    <placeholder id="123" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image"/>
+                    <br>
                 """.trimIndent()
 
         private val isRunningTest: Boolean by lazy {
@@ -203,7 +207,6 @@ open class MainActivity : AppCompatActivity(),
 
     protected lateinit var aztec: Aztec
     private lateinit var placeholderManager: PlaceholderManager
-    private lateinit var videoDrawer: VideoDrawer
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 
@@ -270,13 +273,15 @@ open class MainActivity : AppCompatActivity(),
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertPlaceholder(mediaPath, "test")
-    }
     var index = 0
 
+    private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
+        ImageWithCaptionDrawer.insertImageWithCaption(placeholderManager, index.toString(), mediaPath, "Test caption")
+        index += 1
+    }
+
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertPlaceholder(index.toString(), "video", "src" to mediaPath)
+        placeholderManager.insertItem(index.toString(), "video", "src" to mediaPath)
         index += 1
     }
 
@@ -394,9 +399,7 @@ open class MainActivity : AppCompatActivity(),
         })
 
         placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
-        videoDrawer = VideoDrawer(this)
-        placeholderManager.registerDrawer("video", videoDrawer)
-        placeholderManager.registerDrawer("test", LayoutDrawer())
+        placeholderManager.registerDrawer(ImageWithCaptionDrawer())
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))
@@ -407,7 +410,8 @@ open class MainActivity : AppCompatActivity(),
                 .setOnImageTappedListener(this)
                 .setOnVideoTappedListener(this)
                 .setOnAudioTappedListener(this)
-                .setOnMediaDeletedListener(this)
+                .addOnMediaDeletedListener(this)
+                .addOnMediaDeletedListener(placeholderManager)
                 .setOnVideoInfoRequestedListener(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))
@@ -460,6 +464,7 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
+        placeholderManager.onDestroy()
         aztec.visualEditor.disableCrashLogging()
     }
 
@@ -867,10 +872,5 @@ open class MainActivity : AppCompatActivity(),
     override fun onMediaDeleted(attrs: AztecAttributes) {
         val url = attrs.getValue("src")
         ToastUtils.showToast(this, "Media Deleted! " + url)
-        placeholderManager.onMediaDeleted(attrs)
-    }
-
-    override fun beforeMediaDeleted(attrs: AztecAttributes) {
-        placeholderManager.beforeMediaDeleted(attrs)
     }
 }

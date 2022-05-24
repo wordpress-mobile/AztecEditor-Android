@@ -1997,9 +1997,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
-    fun insertSpan(span: AztecMediaSpan) {
+    /**
+     * Use this method to insert a custom AztecMediaSpan at the cursor position
+     */
+    fun insertMediaSpan(span: AztecMediaSpan) {
         span.onMediaDeletedListener = onMediaDeletedListener
-        lineBlockFormatter.insertSpan(shouldAddMediaInline, span)
+        lineBlockFormatter.insertMediaSpan(shouldAddMediaInline, span)
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {

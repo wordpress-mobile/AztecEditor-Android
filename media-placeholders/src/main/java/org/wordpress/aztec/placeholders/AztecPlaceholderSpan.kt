@@ -1,4 +1,4 @@
-package org.wordpress.aztec.demo
+package org.wordpress.aztec.placeholders
 
 import android.content.Context
 import android.graphics.drawable.Drawable

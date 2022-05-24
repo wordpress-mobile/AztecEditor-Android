@@ -1,4 +1,4 @@
-package org.wordpress.aztec.demo
+package org.wordpress.aztec.placeholders
 
 import android.content.Context
 import android.graphics.Color
@@ -11,6 +11,11 @@ import android.text.Spanned
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -19,8 +24,25 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 
-class PlaceholderManager(private val aztecText: AztecText, private val container: FrameLayout) : AztecContentChangeWatcher.AztecTextChangeObserver, IHtmlTagHandler, AztecText.OnMediaDeletedListener {
+/**
+ * This class handles the "Placeholders". Placeholders are custom spans which are drawn in the Aztec text and the user
+ * can interact with them in a similar way as with other media. These spans are invisible and are used by this class
+ * as a place we can draw over with custom views. The custom views are placed in the `FrameLayout` which contains the
+ * Aztec text item and are shifted up and down if anything above them changes (for example if the user adds a new line
+ * before the placeholder).
+ */
+class PlaceholderManager(
+        private val aztecText: AztecText,
+        private val container: FrameLayout
+) : AztecContentChangeWatcher.AztecTextChangeObserver,
+        IHtmlTagHandler,
+        AztecText.OnMediaDeletedListener,
+        CoroutineScope {
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
     private val drawers = mutableMapOf<String, PlaceholderDrawer>()
     private val positionToId = mutableSetOf<Placeholder>()
 
@@ -28,20 +50,37 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         aztecText.contentChangeWatcher.registerObserver(this)
     }
 
-    fun registerDrawer(type: String, placeholderDrawer: PlaceholderDrawer) {
-        drawers[type] = placeholderDrawer
+    fun onDestroy() {
+        aztecText.contentChangeWatcher.unregisterObserver(this)
+        job.cancel()
+        drawers.clear()
     }
 
-    fun insertPlaceholder(id: String, type: String, vararg attributes: Pair<String, String>) {
+    /**
+     * Register a custom drawer to draw a custom view over a placeholder.
+     */
+    fun registerDrawer(placeholderDrawer: PlaceholderDrawer) {
+        drawers[placeholderDrawer.type] = placeholderDrawer
+    }
+
+    /**
+     * Call this method to manually insert a new item into the aztec text. There has to be a drawer associated with the
+     * item type.
+     * @param id placeholder ID
+     * @param type placeholder type
+     * @param attributes other attributes passed to the view. For example a `src` for an image.
+     */
+    fun insertItem(id: String, type: String, vararg attributes: Pair<String, String>) {
+        if (drawers[type] == null) throw IllegalArgumentException("Drawer for inserted type not found. Register it with `registerDrawer` method")
         val attrs = getAttributesForMedia(id, type, attributes)
-        val drawable = buildPlaceholderDrawable(type) ?: return
-        aztecText.insertSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+        val drawer = drawers[type] ?: return
+        val drawable = buildPlaceholderDrawable(drawer)
+        aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
-    private fun buildPlaceholderDrawable(type: String): Drawable? {
-        val drawer = drawers[type] ?: return null
+    private fun buildPlaceholderDrawable(drawer: PlaceholderDrawer): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
         drawable.setBounds(0, 0, aztecText.maxImagesWidth, drawer.getHeight(aztecText.maxImagesWidth))
         return drawable
@@ -150,10 +189,16 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         return attrs
     }
 
+    /**
+     * Called when the aztec text content changes.
+     */
     override fun onContentChanged() {
         updateAllBelowSelection(aztecText.selectionStart)
     }
 
+    /**
+     * Called when any media is deleted. We use this method to remove the custom views if the placeholder is deleted.
+     */
     override fun onMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
@@ -168,6 +213,10 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
         }
     }
 
+    /**
+     * Called before media is deleted. There is a delay between user deleting a media and when the media is actually is
+     * confirmed. That's why we first hide the media and we delete it when `onMediaDeleted` is actually called.
+     */
     override fun beforeMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
@@ -178,12 +227,17 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
     }
 
     override fun canHandleTag(tag: String): Boolean {
-        return tag == "placeholder"
+        return tag == HTML_TAG
     }
 
+    /**
+     * This method handled a `placeholder` tag found in the HTML. It creates a placeholder and inserts a view over it.
+     */
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
-            val drawable = buildPlaceholderDrawable(attributes.getValue(TYPE_ATTRIBUTE))
+            val type = attributes.getValue(TYPE_ATTRIBUTE)
+            val drawer = drawers[type] ?: return false
+            val drawable = buildPlaceholderDrawable(drawer)
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
             val span = AztecPlaceholderSpan(
@@ -202,19 +256,63 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
             output.setSpan(span, position, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.applyInlineStyleAttributes(output, position, output.length)
 
-            Handler().postDelayed({
+            // The delay here is necessary because we don't know the view width before it's drawn.
+            launch {
+                delay(100)
+                // At this point we know the editor width so we need to update the drawable.
+                val editorWidth = aztecText.width
+                span.drawable?.setBounds(0, 0, editorWidth, drawer.getHeight(editorWidth))
+                aztecText.refreshText(false)
+                delay(100)
+                // Once the drawable and the placeholder are redrawn, we can finally insert the custom view over it.
                 insertInPosition(aztecAttributes, position)
-            }, 500)
+            }
         }
-        return tag == "placeholder"
+        return tag == HTML_TAG
     }
 
+    /**
+     * A drawer for a custom view drawn over the placeholder in the Aztec text.
+     */
     interface PlaceholderDrawer {
+        /**
+         * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
+         * the `onViewCreated` method where the view is already present in its correct size.
+         * @param context necessary to build custoom views
+         * @param id the placeholder ID
+         * @param attrs aztec attributes of the view
+         */
         fun onCreateView(context: Context, id: String, attrs: AztecAttributes): View
+
+        /**
+         * Called after the view is measured. Use this method if you need the actual width and height of the view to
+         * draw your media.
+         * @param view the frame layout wrapping the custom view
+         * @param id the placeholder ID
+         */
         fun onViewCreated(view: View, id: String) {}
+
+        /**
+         * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the
+         * item is deleted (for example delete an image in your DB).
+         * @param id placeholder ID
+         */
         fun onPlaceholderDeleted(id: String) {}
 
+        /**
+         * Override this field to set the height of the placeholder. It could be either a ratio of width to height or
+         * a fixed size.
+         */
         val placeholderHeight: PlaceholderHeight
+
+        /**
+         * Define unique string type here in order to differentiate between the drawers drawing the custom views.
+         */
+        val type: String
+
+        /**
+         * Returns height of the view based on the width and the placeholder height.
+         */
         fun getHeight(width: Int): Int {
             return placeholderHeight.let {
                 when (it) {
@@ -233,6 +331,7 @@ class PlaceholderManager(private val aztecText: AztecText, private val container
     data class Placeholder(val elementPosition: Int, val id: String, val uuid: String)
 
     companion object {
+        private const val HTML_TAG = "placeholder"
         private const val ID_ATTRIBUTE = "id"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"

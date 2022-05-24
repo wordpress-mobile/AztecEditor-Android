@@ -42,7 +42,7 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
-import org.wordpress.aztec.placeholders.ImageWithCaptionDrawer
+import org.wordpress.aztec.placeholders.ImageWithCaptionAdapter
 import org.wordpress.aztec.placeholders.PlaceholderManager
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
@@ -276,7 +276,7 @@ open class MainActivity : AppCompatActivity(),
     var index = 0
 
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        ImageWithCaptionDrawer.insertImageWithCaption(placeholderManager, index.toString(), mediaPath, "Test caption")
+        ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, index.toString(), mediaPath, "Test caption")
         index += 1
     }
 
@@ -399,7 +399,7 @@ open class MainActivity : AppCompatActivity(),
         })
 
         placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
-        placeholderManager.registerDrawer(ImageWithCaptionDrawer())
+        placeholderManager.registerDrawer(ImageWithCaptionAdapter())
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))

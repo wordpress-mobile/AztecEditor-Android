@@ -9,19 +9,19 @@ import android.widget.LinearLayout.*
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderDrawer.PlaceholderHeight
+import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.PlaceholderHeight
 
 /**
  * A sample drawer which draws a custom layout over the placeholder. Treat this as an example of what can be done.
  * This drawer draws an image with a caption under it
  */
-class ImageWithCaptionDrawer(override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f), override val type: String = "image_with_caption") : PlaceholderManager.PlaceholderDrawer {
+class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f), override val type: String = "image_with_caption") : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
-    override fun onCreateView(context: Context, id: String, attrs: AztecAttributes): View {
+    override fun createView(context: Context, placeholderId: String, attrs: AztecAttributes): View {
         val imageLayoutId = View.generateViewId()
         val captionLayoutId = View.generateViewId()
-        if (media[id] == null) {
-            media[id] = ImageWithCaptionObject(id, attrs.getValue(SRC_ATTRIBUTE), imageLayoutId)
+        if (media[placeholderId] == null) {
+            media[placeholderId] = ImageWithCaptionObject(placeholderId, attrs.getValue(SRC_ATTRIBUTE), imageLayoutId)
         }
         val linearLayout = LinearLayout(context)
         linearLayout.orientation = VERTICAL
@@ -57,19 +57,19 @@ class ImageWithCaptionDrawer(override val placeholderHeight: PlaceholderHeight =
         return linearLayout
     }
 
-    override fun onViewCreated(view: View, id: String) {
-        val image = media[id]!!
+    override fun onViewCreated(view: View, placeholderId: String) {
+        val image = media[placeholderId]!!
         val width = view.width
         val imageView = view.findViewById<ImageView>(image.layoutId)
         val height = getHeight(width)
 //        imageView.layoutParams = ViewGroup.LayoutParams(width, height)
 
         Glide.with(view).load(image.src).into(imageView)
-        super.onViewCreated(view, id)
+        super.onViewCreated(view, placeholderId)
     }
 
-    override fun onPlaceholderDeleted(id: String) {
-        media.remove(id)
+    override fun onPlaceholderDeleted(placeholderId: String) {
+        media.remove(placeholderId)
     }
 
     data class ImageWithCaptionObject(val id: String, val src: String, val layoutId: Int)

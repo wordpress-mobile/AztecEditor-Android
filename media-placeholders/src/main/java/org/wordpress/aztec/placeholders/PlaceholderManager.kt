@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Handler
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
@@ -43,7 +42,7 @@ class PlaceholderManager(
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-    private val drawers = mutableMapOf<String, PlaceholderDrawer>()
+    private val drawers = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToId = mutableSetOf<Placeholder>()
 
     init {
@@ -59,8 +58,8 @@ class PlaceholderManager(
     /**
      * Register a custom drawer to draw a custom view over a placeholder.
      */
-    fun registerDrawer(placeholderDrawer: PlaceholderDrawer) {
-        drawers[placeholderDrawer.type] = placeholderDrawer
+    fun registerDrawer(placeholderAdapter: PlaceholderAdapter) {
+        drawers[placeholderAdapter.type] = placeholderAdapter
     }
 
     /**
@@ -80,9 +79,9 @@ class PlaceholderManager(
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
-    private fun buildPlaceholderDrawable(drawer: PlaceholderDrawer): Drawable {
+    private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        drawable.setBounds(0, 0, aztecText.maxImagesWidth, drawer.getHeight(aztecText.maxImagesWidth))
+        drawable.setBounds(0, 0, aztecText.maxImagesWidth, adapter.getHeight(aztecText.maxImagesWidth))
         return drawable
     }
 
@@ -140,7 +139,7 @@ class PlaceholderManager(
         val exists = box != null
         val drawer = drawers[type]!!
         if (!exists) {
-            box = drawer.onCreateView(container.context, id, attrs)
+            box = drawer.createView(container.context, id, attrs)
         }
         val params = FrameLayout.LayoutParams(
                 parentTextViewRect.right - parentTextViewRect.left - 20,
@@ -274,30 +273,30 @@ class PlaceholderManager(
     /**
      * A drawer for a custom view drawn over the placeholder in the Aztec text.
      */
-    interface PlaceholderDrawer {
+    interface PlaceholderAdapter {
         /**
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
          * @param context necessary to build custoom views
-         * @param id the placeholder ID
+         * @param placeholderId the placeholder ID
          * @param attrs aztec attributes of the view
          */
-        fun onCreateView(context: Context, id: String, attrs: AztecAttributes): View
+        fun createView(context: Context, placeholderId: String, attrs: AztecAttributes): View
 
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
          * draw your media.
          * @param view the frame layout wrapping the custom view
-         * @param id the placeholder ID
+         * @param placeholderId the placeholder ID
          */
-        fun onViewCreated(view: View, id: String) {}
+        fun onViewCreated(view: View, placeholderId: String) {}
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the
          * item is deleted (for example delete an image in your DB).
-         * @param id placeholder ID
+         * @param placeholderId placeholder ID
          */
-        fun onPlaceholderDeleted(id: String) {}
+        fun onPlaceholderDeleted(placeholderId: String) {}
 
         /**
          * Override this field to set the height of the placeholder. It could be either a ratio of width to height or

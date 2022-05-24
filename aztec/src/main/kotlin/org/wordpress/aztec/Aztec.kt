@@ -26,7 +26,7 @@ open class Aztec private constructor(
     private var onVideoTappedListener: AztecText.OnVideoTappedListener? = null
     private var onAudioTappedListener: AztecText.OnAudioTappedListener? = null
     private val onMediaDeletedListeners: MutableList<AztecText.OnMediaDeletedListener> = mutableListOf()
-    private val onMediaDeletedListener = object: AztecText.OnMediaDeletedListener {
+    private val onMediaDeletedListener = object : AztecText.OnMediaDeletedListener {
         override fun onMediaDeleted(attrs: AztecAttributes) {
             onMediaDeletedListeners.forEach { it.onMediaDeleted(attrs) }
         }

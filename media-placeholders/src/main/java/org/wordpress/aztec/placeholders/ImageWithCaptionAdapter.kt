@@ -5,7 +5,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.LinearLayout.*
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import org.wordpress.aztec.AztecAttributes
@@ -24,16 +23,16 @@ class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight 
             media[placeholderId] = ImageWithCaptionObject(placeholderId, attrs.getValue(SRC_ATTRIBUTE), imageLayoutId)
         }
         val linearLayout = LinearLayout(context)
-        linearLayout.orientation = VERTICAL
+        linearLayout.orientation = LinearLayout.VERTICAL
 
-        val layoutParams = LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT)
+        val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT)
         linearLayout.layoutParams = layoutParams
         val image = ImageView(context)
         image.id = imageLayoutId
-        val imageParams = LayoutParams(
-                LayoutParams.MATCH_PARENT,
+        val imageParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
         1.0f)
         imageParams.setMargins(5, 5, 5, 5)
@@ -43,9 +42,9 @@ class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight 
         val caption = TextView(context)
         caption.id = captionLayoutId
         caption.text = attrs.getValue(CAPTION_ATTRIBUTE)
-        val captionParams = LayoutParams(
-                LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT)
+        val captionParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT)
 
         captionParams.setMargins(5, 5, 5, 5)
         captionParams.gravity = Gravity.CENTER_HORIZONTAL

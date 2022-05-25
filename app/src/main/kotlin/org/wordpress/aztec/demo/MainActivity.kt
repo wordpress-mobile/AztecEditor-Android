@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -31,6 +32,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
+import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
 import org.wordpress.android.util.ToastUtils
 import org.wordpress.aztec.Aztec
@@ -42,8 +44,6 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
-import org.wordpress.aztec.placeholders.ImageWithCaptionAdapter
-import org.wordpress.aztec.placeholders.PlaceholderManager
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -180,12 +180,39 @@ open class MainActivity : AppCompatActivity(),
         private val MARK = "<p>Donec ipsum dolor, <mark style=\"color:#ff0000\">tempor sed</mark> bibendum <mark style=\"color:#1100ff\">vita</mark>.</p>"
 
         private val EXAMPLE =
-                """
-                    <br>
-                    <placeholder id="1" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image 1"/>
-                    <br>
-                    <placeholder id="2" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image 2"/>
-                """.trimIndent()
+                IMG +
+                        HEADING +
+                        BOLD +
+                        ITALIC +
+                        UNDERLINE +
+                        STRIKETHROUGH +
+                        ORDERED +
+                        ORDERED_WITH_START +
+                        ORDERED_REVERSED +
+                        ORDERED_REVERSED_WITH_START +
+                        ORDERED_REVERSED_NEGATIVE_WITH_START +
+                        ORDERED_REVERSED_WITH_START_IDENT +
+                        LINE +
+                        UNORDERED +
+                        QUOTE +
+                        PREFORMAT +
+                        LINK +
+                        HIDDEN +
+                        COMMENT +
+                        COMMENT_MORE +
+                        COMMENT_PAGE +
+                        CODE +
+                        UNKNOWN +
+                        EMOJI +
+                        NON_LATIN_TEXT +
+                        LONG_TEXT +
+                        VIDEO +
+                        VIDEOPRESS +
+                        VIDEOPRESS_2 +
+                        AUDIO +
+                        GUTENBERG_CODE_BLOCK +
+                        QUOTE_RTL +
+                        MARK
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -207,7 +234,6 @@ open class MainActivity : AppCompatActivity(),
     private val REQUEST_MEDIA_VIDEO: Int = 2004
 
     protected lateinit var aztec: Aztec
-    private lateinit var placeholderManager: PlaceholderManager
     private lateinit var mediaFile: String
     private lateinit var mediaPath: String
 
@@ -275,11 +301,19 @@ open class MainActivity : AppCompatActivity(),
     }
 
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, mediaPath, "Test caption")
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = false)
+        aztec.visualEditor.insertImage(BitmapDrawable(resources, bitmapResized), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
+        aztec.toolbar.toggleMediaToolbar()
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertItem("video", "src" to mediaPath)
+        val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
+        val (id, attrs) = generateAttributesForMedia(mediaPath, isVideo = true)
+        aztec.visualEditor.insertVideo(BitmapDrawable(resources, bitmapResized), attrs)
+        insertMediaAndSimulateUpload(id, attrs)
+        aztec.toolbar.toggleMediaToolbar()
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {
@@ -395,9 +429,6 @@ open class MainActivity : AppCompatActivity(),
             }
         })
 
-        placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
-        placeholderManager.registerAdapter(ImageWithCaptionAdapter())
-
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))
                 .setVideoThumbnailGetter(GlideVideoThumbnailLoader(this))
@@ -418,8 +449,6 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
-                .addPlugin(placeholderManager)
-        aztec.visualEditor.addMediaAfterBlocks()
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {
@@ -460,7 +489,6 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        placeholderManager.onDestroy()
         aztec.visualEditor.disableCrashLogging()
     }
 

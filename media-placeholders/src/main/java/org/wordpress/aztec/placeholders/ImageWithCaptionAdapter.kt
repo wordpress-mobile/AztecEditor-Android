@@ -14,7 +14,10 @@ import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.Pl
  * A sample adapter which creates a custom layout over the placeholder. Treat this as an example of what can be done.
  * This adapter creates an image with a caption under it
  */
-class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f), override val type: String = "image_with_caption") : PlaceholderManager.PlaceholderAdapter {
+class ImageWithCaptionAdapter(
+        override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f),
+        override val type: String = "image_with_caption"
+) : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
     override fun createView(context: Context, placeholderId: String, attrs: AztecAttributes): View {
         val imageLayoutId = View.generateViewId()
@@ -34,7 +37,7 @@ class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight 
         val imageParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
-        1.0f)
+                1.0f)
         imageParams.setMargins(5, 5, 5, 5)
 
         image.layoutParams = imageParams

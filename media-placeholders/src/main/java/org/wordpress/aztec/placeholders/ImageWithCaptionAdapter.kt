@@ -19,12 +19,12 @@ class ImageWithCaptionAdapter(
         override val type: String = "image_with_caption"
 ) : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
-    override fun createView(context: Context, placeholderId: String, attrs: AztecAttributes): View {
-        val imageLayoutId = View.generateViewId()
-        val captionLayoutId = View.generateViewId()
-        if (media[placeholderId] == null) {
-            media[placeholderId] = ImageWithCaptionObject(placeholderId, attrs.getValue(SRC_ATTRIBUTE), imageLayoutId)
+    override fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View {
+        val imageWithCaptionObject = media[placeholderUuid] ?: ImageWithCaptionObject(placeholderUuid, attrs.getValue(SRC_ATTRIBUTE), View.generateViewId()).apply {
+            media[placeholderUuid] = this
         }
+        val captionLayoutId = View.generateViewId()
+        val imageLayoutId = imageWithCaptionObject.layoutId
         val linearLayout = LinearLayout(context)
         linearLayout.orientation = LinearLayout.VERTICAL
 
@@ -59,19 +59,15 @@ class ImageWithCaptionAdapter(
         return linearLayout
     }
 
-    override fun onViewCreated(view: View, placeholderId: String) {
-        val image = media[placeholderId]!!
-        val width = view.width
+    override fun onViewCreated(view: View, placeholderUuid: String) {
+        val image = media[placeholderUuid]!!
         val imageView = view.findViewById<ImageView>(image.layoutId)
-        val height = getHeight(width)
-//        imageView.layoutParams = ViewGroup.LayoutParams(width, height)
-
         Glide.with(view).load(image.src).into(imageView)
-        super.onViewCreated(view, placeholderId)
+        super.onViewCreated(view, placeholderUuid)
     }
 
-    override fun onPlaceholderDeleted(placeholderId: String) {
-        media.remove(placeholderId)
+    override fun onPlaceholderDeleted(placeholderUuid: String) {
+        media.remove(placeholderUuid)
     }
 
     data class ImageWithCaptionObject(val id: String, val src: String, val layoutId: Int)
@@ -81,8 +77,8 @@ class ImageWithCaptionAdapter(
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
 
-        fun insertImageWithCaption(placeholderManager: PlaceholderManager, id: String, src: String, caption: String) {
-            placeholderManager.insertItem(id, ADAPTER_TYPE, SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
+        fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String) {
+            placeholderManager.insertItem(ADAPTER_TYPE, SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
         }
     }
 }

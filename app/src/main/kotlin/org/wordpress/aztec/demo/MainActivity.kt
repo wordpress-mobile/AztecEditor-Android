@@ -274,16 +274,12 @@ open class MainActivity : AppCompatActivity(),
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    var index = 0
-
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, index.toString(), mediaPath, "Test caption")
-        index += 1
+        ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, mediaPath, "Test caption")
     }
 
     fun insertVideoAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
-        placeholderManager.insertItem(index.toString(), "video", "src" to mediaPath)
-        index += 1
+        placeholderManager.insertItem("video", "src" to mediaPath)
     }
 
     private fun generateAttributesForMedia(mediaPath: String, isVideo: Boolean): Pair<String, AztecAttributes> {

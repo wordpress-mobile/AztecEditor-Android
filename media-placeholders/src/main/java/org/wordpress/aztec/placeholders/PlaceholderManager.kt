@@ -60,14 +60,13 @@ class PlaceholderManager(
     /**
      * Call this method to manually insert a new item into the aztec text. There has to be a adapter associated with the
      * item type.
-     * @param id placeholder ID
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
-    fun insertItem(id: String, type: String, vararg attributes: Pair<String, String>) {
+    fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerDrawer` method")
-        val attrs = getAttributesForMedia(id, type, attributes)
+        val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText))
@@ -106,7 +105,6 @@ class PlaceholderManager(
 
     private fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
         validateAttributes(attrs)
-        val id = attrs.getValue(ID_ATTRIBUTE)
         val uuid = attrs.getValue(UUID_ATTRIBUTE)
         val type = attrs.getValue(TYPE_ATTRIBUTE)
         val textViewLayout: Layout = aztecText.layout
@@ -134,7 +132,7 @@ class PlaceholderManager(
         val exists = box != null
         val adapter = adapters[type]!!
         if (!exists) {
-            box = adapter.createView(container.context, id, attrs)
+            box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
                 parentTextViewRect.right - parentTextViewRect.left - 20,
@@ -145,10 +143,10 @@ class PlaceholderManager(
         box.layoutParams = params
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
-        positionToId.add(Placeholder(targetPosition, id, uuid))
+        positionToId.add(Placeholder(targetPosition, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
-            adapter.onViewCreated(box, id)
+            adapter.onViewCreated(box, uuid)
         }
     }
 
@@ -171,9 +169,8 @@ class PlaceholderManager(
                 adapters[attributes.getValue(TYPE_ATTRIBUTE)] != null
     }
 
-    private fun getAttributesForMedia(id: String, type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {
+    private fun getAttributesForMedia(type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {
         val attrs = AztecAttributes()
-        attrs.setValue(ID_ATTRIBUTE, id)
         attrs.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
         attrs.setValue(TYPE_ATTRIBUTE, type)
         attributes.forEach {
@@ -195,9 +192,8 @@ class PlaceholderManager(
     override fun onMediaDeleted(attrs: AztecAttributes) {
         if (validateAttributes(attrs)) {
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
-            val id = attrs.getValue(ID_ATTRIBUTE)
             val adapter = adapters[attrs.getValue(TYPE_ATTRIBUTE)]
-            adapter?.onPlaceholderDeleted(id)
+            adapter?.onPlaceholderDeleted(uuid)
             positionToId.removeAll { it.uuid == uuid }
             container.findViewWithTag<View>(uuid)?.let {
                 it.visibility = View.GONE
@@ -248,27 +244,12 @@ class PlaceholderManager(
             output.setSpan(clickableSpan, position, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             output.setSpan(span, position, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.applyInlineStyleAttributes(output, position, output.length)
-
-            // The delay here is necessary because we don't know the view width before it's drawn.
-//            aztecText.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-//                override fun onGlobalLayout() {
-//                    aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                    // At this point we know the editor width so we need to update the drawable.
-//                    val editorWidth = aztecText.width
-//                    span.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
-//                    aztecText.refreshText(false)
-//                    launch {
-//                        delay(100)
-//                        // Once the drawable and the placeholder are redrawn, we can finally insert the custom view over it.
-//                        insertInPosition(aztecAttributes, position)
-//                    }
-//                }
-//            })
         }
         return tag == HTML_TAG
     }
 
     override fun mediaLoadingStarted() {
+        clearAllViews()
         val spans = aztecText.editableText.getSpans(0, aztecText.editableText.length, AztecPlaceholderSpan::class.java)
 
         if (spans == null || spans.isEmpty()) {
@@ -282,6 +263,7 @@ class PlaceholderManager(
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
                     val editorWidth = aztecText.width
+                    if (it.drawable?.bounds?.right == editorWidth) return
                     it.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
                     aztecText.post {
                         aztecText.refreshText(false)
@@ -290,6 +272,16 @@ class PlaceholderManager(
                 }
             }
         })
+    }
+
+    private fun clearAllViews() {
+        for (placeholder in positionToId) {
+            container.findViewWithTag<View>(placeholder.uuid)?.let {
+                it.visibility = View.GONE
+                container.removeView(it)
+            }
+        }
+        positionToId.clear()
     }
 
     override fun onVisibility(visibility: Int) {
@@ -306,25 +298,25 @@ class PlaceholderManager(
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
          * @param context necessary to build custom views
-         * @param placeholderId the placeholder ID
+         * @param placeholderUuid the placeholder UUID
          * @param attrs aztec attributes of the view
          */
-        fun createView(context: Context, placeholderId: String, attrs: AztecAttributes): View
+        fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
 
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
          * draw your media.
          * @param view the frame layout wrapping the custom view
-         * @param placeholderId the placeholder ID
+         * @param placeholderUuid the placeholder ID
          */
-        fun onViewCreated(view: View, placeholderId: String) {}
+        fun onViewCreated(view: View, placeholderUuid: String) {}
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the
          * item is deleted (for example delete an image in your DB).
-         * @param placeholderId placeholder ID
+         * @param placeholderUuid placeholder UUID
          */
-        fun onPlaceholderDeleted(placeholderId: String) {}
+        fun onPlaceholderDeleted(placeholderUuid: String) {}
 
         /**
          * Override this field to set the height of the placeholder. It could be either a ratio of width to height or
@@ -355,11 +347,10 @@ class PlaceholderManager(
         }
     }
 
-    data class Placeholder(val elementPosition: Int, val id: String, val uuid: String)
+    data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
         private const val HTML_TAG = "placeholder"
-        private const val ID_ATTRIBUTE = "id"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
     }

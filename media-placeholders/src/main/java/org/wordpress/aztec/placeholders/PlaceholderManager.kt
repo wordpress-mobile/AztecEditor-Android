@@ -42,7 +42,7 @@ class PlaceholderManager(
     private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
-    private val drawers = mutableMapOf<String, PlaceholderAdapter>()
+    private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToId = mutableSetOf<Placeholder>()
 
     init {
@@ -52,28 +52,28 @@ class PlaceholderManager(
     fun onDestroy() {
         aztecText.contentChangeWatcher.unregisterObserver(this)
         job.cancel()
-        drawers.clear()
+        adapters.clear()
     }
 
     /**
-     * Register a custom drawer to draw a custom view over a placeholder.
+     * Register a custom adapter to draw a custom view over a placeholder.
      */
-    fun registerDrawer(placeholderAdapter: PlaceholderAdapter) {
-        drawers[placeholderAdapter.type] = placeholderAdapter
+    fun registerAdapter(placeholderAdapter: PlaceholderAdapter) {
+        adapters[placeholderAdapter.type] = placeholderAdapter
     }
 
     /**
-     * Call this method to manually insert a new item into the aztec text. There has to be a drawer associated with the
+     * Call this method to manually insert a new item into the aztec text. There has to be a adapter associated with the
      * item type.
      * @param id placeholder ID
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
     fun insertItem(id: String, type: String, vararg attributes: Pair<String, String>) {
-        if (drawers[type] == null) throw IllegalArgumentException("Drawer for inserted type not found. Register it with `registerDrawer` method")
+        if (adapters[type] == null) throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerDrawer` method")
         val attrs = getAttributesForMedia(id, type, attributes)
-        val drawer = drawers[type] ?: return
-        val drawable = buildPlaceholderDrawable(drawer)
+        val adapter = adapters[type] ?: return
+        val drawable = buildPlaceholderDrawable(adapter)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
@@ -137,9 +137,9 @@ class PlaceholderManager(
 
         var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
-        val drawer = drawers[type]!!
+        val adapter = adapters[type]!!
         if (!exists) {
-            box = drawer.createView(container.context, id, attrs)
+            box = adapter.createView(container.context, id, attrs)
         }
         val params = FrameLayout.LayoutParams(
                 parentTextViewRect.right - parentTextViewRect.left - 20,
@@ -153,7 +153,7 @@ class PlaceholderManager(
         positionToId.add(Placeholder(targetPosition, id, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
-            drawer.onViewCreated(box, id)
+            adapter.onViewCreated(box, id)
         }
     }
 
@@ -174,7 +174,7 @@ class PlaceholderManager(
         if (!attributes.hasAttribute(UUID_ATTRIBUTE)) return false
         if (!attributes.hasAttribute(TYPE_ATTRIBUTE)) return false
         val type = attributes.getValue(TYPE_ATTRIBUTE)
-        return drawers[type] != null
+        return adapters[type] != null
     }
 
     private fun getAttributesForMedia(id: String, type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {
@@ -202,8 +202,8 @@ class PlaceholderManager(
         if (validateAttributes(attrs)) {
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
             val id = attrs.getValue(ID_ATTRIBUTE)
-            val drawer = drawers[attrs.getValue(TYPE_ATTRIBUTE)]
-            drawer?.onPlaceholderDeleted(id)
+            val adapter = adapters[attrs.getValue(TYPE_ATTRIBUTE)]
+            adapter?.onPlaceholderDeleted(id)
             positionToId.removeAll { it.uuid == uuid }
             container.findViewWithTag<View>(uuid)?.let {
                 it.visibility = View.GONE
@@ -235,8 +235,8 @@ class PlaceholderManager(
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
-            val drawer = drawers[type] ?: return false
-            val drawable = buildPlaceholderDrawable(drawer)
+            val adapter = adapters[type] ?: return false
+            val drawable = buildPlaceholderDrawable(adapter)
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
             val span = AztecPlaceholderSpan(
@@ -260,7 +260,7 @@ class PlaceholderManager(
                 delay(100)
                 // At this point we know the editor width so we need to update the drawable.
                 val editorWidth = aztecText.width
-                span.drawable?.setBounds(0, 0, editorWidth, drawer.getHeight(editorWidth))
+                span.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
                 aztecText.refreshText(false)
                 delay(100)
                 // Once the drawable and the placeholder are redrawn, we can finally insert the custom view over it.
@@ -271,7 +271,7 @@ class PlaceholderManager(
     }
 
     /**
-     * A drawer for a custom view drawn over the placeholder in the Aztec text.
+     * A adapter for a custom view drawn over the placeholder in the Aztec text.
      */
     interface PlaceholderAdapter {
         /**
@@ -305,7 +305,7 @@ class PlaceholderManager(
         val placeholderHeight: PlaceholderHeight
 
         /**
-         * Define unique string type here in order to differentiate between the drawers drawing the custom views.
+         * Define unique string type here in order to differentiate between the adapters drawing the custom views.
          */
         val type: String
 

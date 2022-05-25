@@ -11,8 +11,8 @@ import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.PlaceholderHeight
 
 /**
- * A sample drawer which draws a custom layout over the placeholder. Treat this as an example of what can be done.
- * This drawer draws an image with a caption under it
+ * A sample adapter which creates a custom layout over the placeholder. Treat this as an example of what can be done.
+ * This adapter creates an image with a caption under it
  */
 class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f), override val type: String = "image_with_caption") : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
@@ -74,12 +74,12 @@ class ImageWithCaptionAdapter(override val placeholderHeight: PlaceholderHeight 
     data class ImageWithCaptionObject(val id: String, val src: String, val layoutId: Int)
 
     companion object {
-        private const val DRAWER_TYPE = "image_with_caption"
+        private const val ADAPTER_TYPE = "image_with_caption"
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
 
         fun insertImageWithCaption(placeholderManager: PlaceholderManager, id: String, src: String, caption: String) {
-            placeholderManager.insertItem(id, DRAWER_TYPE, SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
+            placeholderManager.insertItem(id, ADAPTER_TYPE, SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
         }
     }
 }

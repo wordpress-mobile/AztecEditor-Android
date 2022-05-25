@@ -399,7 +399,7 @@ open class MainActivity : AppCompatActivity(),
         })
 
         placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
-        placeholderManager.registerDrawer(ImageWithCaptionAdapter())
+        placeholderManager.registerAdapter(ImageWithCaptionAdapter())
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))

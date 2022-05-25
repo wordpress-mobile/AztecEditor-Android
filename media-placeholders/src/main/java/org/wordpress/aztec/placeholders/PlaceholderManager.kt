@@ -70,9 +70,9 @@ class PlaceholderManager(
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
     fun insertItem(id: String, type: String, vararg attributes: Pair<String, String>) {
-        if (adapters[type] == null) throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerDrawer` method")
+        val adapter = adapters[type]
+                ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerDrawer` method")
         val attrs = getAttributesForMedia(id, type, attributes)
-        val adapter = adapters[type] ?: return
         val drawable = buildPlaceholderDrawable(adapter)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText))

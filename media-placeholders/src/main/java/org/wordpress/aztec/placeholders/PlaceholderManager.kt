@@ -171,10 +171,9 @@ class PlaceholderManager(
     }
 
     private fun validateAttributes(attributes: AztecAttributes): Boolean {
-        if (!attributes.hasAttribute(UUID_ATTRIBUTE)) return false
-        if (!attributes.hasAttribute(TYPE_ATTRIBUTE)) return false
-        val type = attributes.getValue(TYPE_ATTRIBUTE)
-        return adapters[type] != null
+        return attributes.hasAttribute(UUID_ATTRIBUTE) &&
+                attributes.hasAttribute(TYPE_ATTRIBUTE) &&
+                adapters[attributes.getValue(TYPE_ATTRIBUTE)] != null
     }
 
     private fun getAttributesForMedia(id: String, type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {

@@ -242,6 +242,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
+    private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -344,6 +345,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnLinkTappedListener {
         fun onLinkTapped(widget: View, url: String)
+    }
+
+    interface OnVisibilityChangeListener {
+        fun onVisibility(visibility: Int)
     }
 
     constructor(context: Context) : super(context) {
@@ -1026,6 +1031,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setLinkTapEnabled(isLinkTapEnabled: Boolean) {
         EnhancedMovementMethod.isLinkTapEnabled = isLinkTapEnabled
+    }
+
+    fun setOnVisibilityChangeListener(listener: OnVisibilityChangeListener) {
+        this.onVisibilityChangeListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1850,7 +1859,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
-
+        onVisibilityChangeListener?.onVisibility(visibility)
         if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }

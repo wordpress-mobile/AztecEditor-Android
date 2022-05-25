@@ -33,12 +33,14 @@ class PlaceholderManager(
         private val container: FrameLayout
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
+        Html.MediaCallback,
         AztecText.OnMediaDeletedListener,
-        Html.MediaCallback {
+        AztecText.OnVisibilityChangeListener {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToId = mutableSetOf<Placeholder>()
 
     init {
+        aztecText.setOnVisibilityChangeListener(this)
         aztecText.mediaCallback = this
         aztecText.contentChangeWatcher.registerObserver(this)
     }
@@ -288,6 +290,12 @@ class PlaceholderManager(
                 }
             }
         })
+    }
+
+    override fun onVisibility(visibility: Int) {
+        for (placeholder in positionToId) {
+            container.findViewWithTag<View>(placeholder.uuid)?.visibility = visibility
+        }
     }
 
     /**

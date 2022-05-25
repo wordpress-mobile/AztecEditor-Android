@@ -18,6 +18,7 @@ open class Aztec private constructor(
         toolbarClickListener: IAztecToolbarClickListener) {
     private var imageGetter: Html.ImageGetter? = null
     private var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    private var mediaCallback: Html.MediaCallback? = null
     private var imeBackListener: AztecText.OnImeBackListener? = null
     private var onAztecKeyListener: AztecText.OnAztecKeyListener? = null
     private var onTouchListener: View.OnTouchListener? = null
@@ -85,6 +86,12 @@ open class Aztec private constructor(
     fun setVideoThumbnailGetter(videoThumbnailGetter: Html.VideoThumbnailGetter): Aztec {
         this.videoThumbnailGetter = videoThumbnailGetter
         initVideoGetter()
+        return this
+    }
+
+    fun setMediaCallback(mediaCallback: Html.MediaCallback): Aztec {
+        this.mediaCallback = mediaCallback
+        initMediaCallback()
         return this
     }
 
@@ -197,6 +204,12 @@ open class Aztec private constructor(
     private fun initVideoGetter() {
         if (videoThumbnailGetter != null) {
             visualEditor.videoThumbnailGetter = videoThumbnailGetter
+        }
+    }
+
+    private fun initMediaCallback() {
+        if (mediaCallback != null) {
+            visualEditor.mediaCallback = mediaCallback
         }
     }
 

@@ -182,8 +182,9 @@ open class MainActivity : AppCompatActivity(),
         private val EXAMPLE =
                 """
                     <br>
-                    <placeholder id="123" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image"/>
+                    <placeholder id="1" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image 1"/>
                     <br>
+                    <placeholder id="2" type="image_with_caption" src="https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg" caption="caption of image 2"/>
                 """.trimIndent()
 
         private val isRunningTest: Boolean by lazy {

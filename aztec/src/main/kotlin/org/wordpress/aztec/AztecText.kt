@@ -282,6 +282,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    var mediaCallback: Html.MediaCallback? = null
 
     var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
@@ -1367,6 +1368,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         loadImages()
         loadVideos()
+        mediaCallback?.mediaLoadingStarted()
     }
 
     private fun loadImages() {

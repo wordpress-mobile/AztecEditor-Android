@@ -8,22 +8,18 @@ import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
+import org.wordpress.aztec.Html
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
 import java.util.UUID
-import kotlin.coroutines.CoroutineContext
 
 /**
  * This class handles the "Placeholders". Placeholders are custom spans which are drawn in the Aztec text and the user
@@ -38,20 +34,17 @@ class PlaceholderManager(
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
         AztecText.OnMediaDeletedListener,
-        CoroutineScope {
-    private val job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        Html.MediaCallback {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToId = mutableSetOf<Placeholder>()
 
     init {
+        aztecText.mediaCallback = this
         aztecText.contentChangeWatcher.registerObserver(this)
     }
 
     fun onDestroy() {
         aztecText.contentChangeWatcher.unregisterObserver(this)
-        job.cancel()
         adapters.clear()
     }
 
@@ -255,18 +248,46 @@ class PlaceholderManager(
             span.applyInlineStyleAttributes(output, position, output.length)
 
             // The delay here is necessary because we don't know the view width before it's drawn.
-            launch {
-                delay(100)
-                // At this point we know the editor width so we need to update the drawable.
-                val editorWidth = aztecText.width
-                span.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
-                aztecText.refreshText(false)
-                delay(100)
-                // Once the drawable and the placeholder are redrawn, we can finally insert the custom view over it.
-                insertInPosition(aztecAttributes, position)
-            }
+//            aztecText.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+//                override fun onGlobalLayout() {
+//                    aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                    // At this point we know the editor width so we need to update the drawable.
+//                    val editorWidth = aztecText.width
+//                    span.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
+//                    aztecText.refreshText(false)
+//                    launch {
+//                        delay(100)
+//                        // Once the drawable and the placeholder are redrawn, we can finally insert the custom view over it.
+//                        insertInPosition(aztecAttributes, position)
+//                    }
+//                }
+//            })
         }
         return tag == HTML_TAG
+    }
+
+    override fun mediaLoadingStarted() {
+        val spans = aztecText.editableText.getSpans(0, aztecText.editableText.length, AztecPlaceholderSpan::class.java)
+
+        if (spans == null || spans.isEmpty()) {
+            return
+        }
+
+        aztecText.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                spans.forEach {
+                    val type = it.attributes.getValue(TYPE_ATTRIBUTE)
+                    val adapter = adapters[type] ?: return
+                    val editorWidth = aztecText.width
+                    it.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
+                    aztecText.post {
+                        aztecText.refreshText(false)
+                        insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
+                    }
+                }
+            }
+        })
     }
 
     /**
@@ -276,7 +297,7 @@ class PlaceholderManager(
         /**
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
-         * @param context necessary to build custoom views
+         * @param context necessary to build custom views
          * @param placeholderId the placeholder ID
          * @param attrs aztec attributes of the view
          */

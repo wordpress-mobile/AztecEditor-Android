@@ -31,7 +31,8 @@ import java.util.UUID
  */
 class PlaceholderManager(
         private val aztecText: AztecText,
-        private val container: FrameLayout
+        private val container: FrameLayout,
+        private val htmlTag: String = DEFAULT_HTML_TAG
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
         Html.MediaCallback,
@@ -220,7 +221,7 @@ class PlaceholderManager(
     }
 
     override fun canHandleTag(tag: String): Boolean {
-        return tag == HTML_TAG
+        return tag == htmlTag
     }
 
     /**
@@ -249,7 +250,7 @@ class PlaceholderManager(
             output.setSpan(span, position, output.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.applyInlineStyleAttributes(output, position, output.length)
         }
-        return tag == HTML_TAG
+        return tag == htmlTag
     }
 
     override fun mediaLoadingStarted() {
@@ -362,7 +363,7 @@ class PlaceholderManager(
     data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
-        private const val HTML_TAG = "placeholder"
+        private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
     }

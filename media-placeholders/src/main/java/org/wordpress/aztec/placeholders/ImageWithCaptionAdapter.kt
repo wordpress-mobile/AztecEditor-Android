@@ -8,14 +8,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import org.wordpress.aztec.AztecAttributes
-import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.PlaceholderHeight
+import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.PlaceholderSize
 
 /**
  * A sample adapter which creates a custom layout over the placeholder. Treat this as an example of what can be done.
  * This adapter creates an image with a caption under it
  */
 class ImageWithCaptionAdapter(
-        override val placeholderHeight: PlaceholderHeight = PlaceholderHeight.Ratio(0.5f),
+        override val placeholderSize: PlaceholderSize = PlaceholderSize(height = PlaceholderSize.Proportion.Ratio(0.5f)),
         override val type: String = "image_with_caption"
 ) : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
@@ -30,7 +30,7 @@ class ImageWithCaptionAdapter(
 
         val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT)
+                LinearLayout.LayoutParams.MATCH_PARENT)
         linearLayout.layoutParams = layoutParams
         val image = ImageView(context)
         image.id = imageLayoutId

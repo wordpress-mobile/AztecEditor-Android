@@ -21,6 +21,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
 import java.util.UUID
+import kotlin.math.min
 
 /**
  * This class handles the "Placeholders". Placeholders are custom spans which are drawn in the Aztec text and the user
@@ -71,13 +72,13 @@ class PlaceholderManager(
         val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                this, aztecText))
+                this, aztecText, adapter))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
     private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        drawable.setBounds(0, 0, aztecText.maxImagesWidth, adapter.getHeight(aztecText.maxImagesWidth))
+        drawable.setBounds(0, 0, adapter.getWidth(aztecText.maxImagesWidth), adapter.getHeight(aztecText.maxImagesWidth))
         return drawable
     }
 
@@ -239,7 +240,8 @@ class PlaceholderManager(
                     drawable = drawable,
                     nestingLevel = nestingLevel,
                     attributes = aztecAttributes,
-                    onMediaDeletedListener = this
+                    onMediaDeletedListener = this,
+                    adapter = adapter
             )
             val clickableSpan = AztecMediaClickableSpan(span)
             val position = output.length
@@ -268,8 +270,9 @@ class PlaceholderManager(
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
                     val editorWidth = aztecText.width
-                    if (it.drawable?.bounds?.right == editorWidth) return
-                    it.drawable?.setBounds(0, 0, editorWidth, adapter.getHeight(editorWidth))
+                    if (it.drawable?.bounds?.right != editorWidth) {
+                        it.drawable?.setBounds(0, 0, adapter.getWidth(editorWidth), adapter.getHeight(editorWidth))
+                    }
                     aztecText.post {
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
@@ -332,10 +335,10 @@ class PlaceholderManager(
         }
 
         /**
-         * Override this field to set the height of the placeholder. It could be either a ratio of width to height or
+         * Override this field to set the width of the placeholder. It could be either a ratio of window width or
          * a fixed size.
          */
-        val placeholderHeight: PlaceholderHeight
+        val placeholderSize: PlaceholderSize
 
         /**
          * Define unique string type here in order to differentiate between the adapters drawing the custom views.
@@ -345,18 +348,32 @@ class PlaceholderManager(
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun getHeight(width: Int): Int {
-            return placeholderHeight.let {
-                when (it) {
-                    is PlaceholderHeight.Fixed -> it.height
-                    is PlaceholderHeight.Ratio -> (it.ratio * width).toInt()
+        fun getHeight(windowWidth: Int): Int {
+            return placeholderSize.height.let { height ->
+                when (height) {
+                    is PlaceholderSize.Proportion.Fixed -> height.value
+                    is PlaceholderSize.Proportion.Ratio -> (height.ratio * getWidth(windowWidth)).toInt()
                 }
             }
         }
 
-        sealed class PlaceholderHeight {
-            data class Fixed(val height: Int) : PlaceholderHeight()
-            data class Ratio(val ratio: Float) : PlaceholderHeight()
+        /**
+         * Returns height of the view based on the width and the placeholder height.
+         */
+        fun getWidth(windowWidth: Int): Int {
+            return placeholderSize.width.let { width ->
+                when (width) {
+                    is PlaceholderSize.Proportion.Fixed -> min(windowWidth, width.value)
+                    is PlaceholderSize.Proportion.Ratio -> (width.ratio * windowWidth).toInt()
+                }
+            }
+        }
+
+        data class PlaceholderSize(val height: Proportion, val width: Proportion = Proportion.Ratio(1.0f)) {
+            sealed class Proportion {
+                data class Fixed(val value: Int): Proportion()
+                data class Ratio(val ratio: Float): Proportion()
+            }
         }
     }
 

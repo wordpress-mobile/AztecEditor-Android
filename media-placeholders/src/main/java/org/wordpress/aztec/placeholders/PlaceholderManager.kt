@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
@@ -143,6 +144,7 @@ class PlaceholderManager(
         box.layoutParams = params
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
+        box.setOnTouchListener(adapter)
         positionToId.add(Placeholder(targetPosition, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
@@ -293,7 +295,7 @@ class PlaceholderManager(
     /**
      * A adapter for a custom view drawn over the placeholder in the Aztec text.
      */
-    interface PlaceholderAdapter {
+    interface PlaceholderAdapter: View.OnTouchListener {
         /**
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
@@ -317,6 +319,12 @@ class PlaceholderManager(
          * @param placeholderUuid placeholder UUID
          */
         fun onPlaceholderDeleted(placeholderUuid: String) {}
+
+        /**
+         * Override this method if you want to handle view touches. To handle clicks on subviews just use
+         * `setOnClickListener` on the view that you want to handle the click.
+         */
+        override fun onTouch(v: View, event: MotionEvent): Boolean { return false }
 
         /**
          * Override this field to set the height of the placeholder. It could be either a ratio of width to height or

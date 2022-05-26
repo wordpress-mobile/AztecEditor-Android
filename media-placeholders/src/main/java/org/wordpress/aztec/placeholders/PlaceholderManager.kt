@@ -66,7 +66,7 @@ class PlaceholderManager(
      */
     fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
-                ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerDrawer` method")
+                ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
@@ -105,7 +105,9 @@ class PlaceholderManager(
     }
 
     private fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
-        validateAttributes(attrs)
+        if (!validateAttributes(attrs)) {
+            return
+        }
         val uuid = attrs.getValue(UUID_ATTRIBUTE)
         val type = attrs.getValue(TYPE_ATTRIBUTE)
         val textViewLayout: Layout = aztecText.layout

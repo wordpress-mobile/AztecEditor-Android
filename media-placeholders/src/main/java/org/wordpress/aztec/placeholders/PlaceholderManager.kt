@@ -371,8 +371,8 @@ class PlaceholderManager(
 
         data class PlaceholderSize(val height: Proportion, val width: Proportion = Proportion.Ratio(1.0f)) {
             sealed class Proportion {
-                data class Fixed(val value: Int): Proportion()
-                data class Ratio(val ratio: Float): Proportion()
+                data class Fixed(val value: Int) : Proportion()
+                data class Ratio(val ratio: Float) : Proportion()
             }
         }
     }

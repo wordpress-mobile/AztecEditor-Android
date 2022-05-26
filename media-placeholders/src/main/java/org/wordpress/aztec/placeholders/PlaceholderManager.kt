@@ -140,7 +140,7 @@ class PlaceholderManager(
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                parentTextViewRect.right - parentTextViewRect.left - 20,
+                adapter.getWidth(parentTextViewRect.right - parentTextViewRect.left - 20),
                 parentTextViewRect.bottom - parentTextViewRect.top - 20
         )
         val padding = 10

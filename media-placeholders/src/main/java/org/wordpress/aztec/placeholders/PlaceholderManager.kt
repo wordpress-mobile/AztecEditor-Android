@@ -78,7 +78,7 @@ class PlaceholderManager(
 
     private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        drawable.setBounds(0, 0, adapter.getWidth(aztecText.maxImagesWidth), adapter.getHeight(aztecText.maxImagesWidth))
+        updateDrawableBounds(adapter, drawable)
         return drawable
     }
 
@@ -269,10 +269,7 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
-                    val editorWidth = aztecText.width
-                    if (it.drawable?.bounds?.right != editorWidth) {
-                        it.drawable?.setBounds(0, 0, adapter.getWidth(editorWidth), adapter.getHeight(editorWidth))
-                    }
+                    updateDrawableBounds(adapter, it.drawable)
                     aztecText.post {
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
@@ -280,6 +277,13 @@ class PlaceholderManager(
                 }
             }
         })
+    }
+
+    private fun updateDrawableBounds(adapter: PlaceholderAdapter, drawable: Drawable?) {
+        val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
+        if (drawable?.bounds?.right != editorWidth) {
+            drawable?.setBounds(0, 0, adapter.getWidth(editorWidth), adapter.getHeight(editorWidth))
+        }
     }
 
     private fun clearAllViews() {

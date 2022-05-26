@@ -352,7 +352,14 @@ class PlaceholderManager(
             return placeholderSize.height.let { height ->
                 when (height) {
                     is PlaceholderSize.Proportion.Fixed -> height.value
-                    is PlaceholderSize.Proportion.Ratio -> (height.ratio * getWidth(windowWidth)).toInt()
+                    is PlaceholderSize.Proportion.Ratio -> {
+                        val ratio = if (height.ratio < 0.1) {
+                            0.1f
+                        } else {
+                            height.ratio
+                        }
+                        (ratio * getWidth(windowWidth)).toInt()
+                    }
                 }
             }
         }
@@ -364,7 +371,14 @@ class PlaceholderManager(
             return placeholderSize.width.let { width ->
                 when (width) {
                     is PlaceholderSize.Proportion.Fixed -> min(windowWidth, width.value)
-                    is PlaceholderSize.Proportion.Ratio -> (width.ratio * windowWidth).toInt()
+                    is PlaceholderSize.Proportion.Ratio -> {
+                        val safeRatio: Float = when {
+                            width.ratio < 0.1 -> 0.1f
+                            width.ratio > 1.0 -> 1.0f
+                            else -> width.ratio
+                        }
+                        (safeRatio * windowWidth).toInt()
+                    }
                 }
             }
         }

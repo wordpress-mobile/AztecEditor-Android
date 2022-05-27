@@ -52,3 +52,12 @@ steps:
       - *publish-android-artifacts-docker-container
     command: |
       .buildkite/publish-wordpress-comments.sh
+
+  - label: "Publish :media-placeholders"
+    key: "publish-media-placeholders"
+    depends_on:
+      - "publish-aztec"
+    plugins:
+      - *publish-android-artifacts-docker-container
+    command: |
+      .buildkite/publish-media-placeholders.sh

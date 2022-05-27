@@ -128,6 +128,10 @@ public class Html {
         }
     }
 
+    public interface MediaCallback {
+        void mediaLoadingStarted();
+    }
+
     /**
      * Is notified when HTML tags are encountered that the parser does
      * not know how to interpret.

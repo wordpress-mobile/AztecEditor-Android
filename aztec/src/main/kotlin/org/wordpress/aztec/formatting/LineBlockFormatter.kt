@@ -127,11 +127,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
         val span = AztecVideoSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onVideoTappedListener,
                 onMediaDeletedListener, editor)
-        if (inline) {
-            insertMediaInline(span)
-        } else {
-            insertMediaAfterBlock(span)
-        }
+        insertMediaSpan(inline, span)
     }
 
     fun insertImage(inline: Boolean, drawable: Drawable?, attributes: Attributes, onImageTappedListener: AztecText.OnImageTappedListener?,
@@ -139,6 +135,13 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
         val span = AztecImageSpan(editor.context, drawable, nestingLevel, AztecAttributes(attributes), onImageTappedListener,
                 onMediaDeletedListener, editor)
+        insertMediaSpan(inline, span)
+    }
+
+    fun insertMediaSpan(inline: Boolean, span: AztecMediaSpan) {
+        if (span is IAztecNestable) {
+            span.nestingLevel = if (inline) IAztecNestable.getNestingLevelAt(editableText, selectionStart) else 0
+        }
         if (inline) {
             insertMediaInline(span)
         } else {
@@ -171,7 +174,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val position = getEndOfBlock()
         // We need to be sure the cursor is placed correctly after media insertion
         // Note that media has '\n' around them when needed
-        val isLastItem = position == EndOfBufferMarkerAdder.safeLength(editor)
+        val isLastItem = position >= EndOfBufferMarkerAdder.safeLength(editor)
         if (isLastItem) {
             editableText.getSpans(position, editableText.length, IAztecBlockSpan::class.java).filter {
                 it !is AztecMediaSpan && editableText.getSpanEnd(it) == editableText.length

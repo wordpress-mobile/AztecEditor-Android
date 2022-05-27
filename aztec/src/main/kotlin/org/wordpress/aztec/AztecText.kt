@@ -242,6 +242,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
+    private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -282,6 +283,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    var mediaCallback: Html.MediaCallback? = null
 
     var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
@@ -329,6 +331,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+        fun beforeMediaDeleted(attrs: AztecAttributes) {}
     }
 
     interface OnVideoInfoRequestedListener {
@@ -342,6 +345,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnLinkTappedListener {
         fun onLinkTapped(widget: View, url: String)
+    }
+
+    interface OnVisibilityChangeListener {
+        fun onVisibility(visibility: Int)
     }
 
     constructor(context: Context) : super(context) {
@@ -1026,6 +1033,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         EnhancedMovementMethod.isLinkTapEnabled = isLinkTapEnabled
     }
 
+    fun setOnVisibilityChangeListener(listener: OnVisibilityChangeListener) {
+        this.onVisibilityChangeListener = listener
+    }
+
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             onImeBackListener?.onImeBack()
@@ -1366,6 +1377,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         loadImages()
         loadVideos()
+        mediaCallback?.mediaLoadingStarted()
     }
 
     private fun loadImages() {
@@ -1847,7 +1859,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
-
+        onVisibilityChangeListener?.onVisibility(visibility)
         if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }
@@ -1996,6 +2008,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
     }
 
+    /**
+     * Use this method to insert a custom AztecMediaSpan at the cursor position
+     */
+    fun insertMediaSpan(span: AztecMediaSpan) {
+        span.onMediaDeletedListener = onMediaDeletedListener
+        lineBlockFormatter.insertMediaSpan(shouldAddMediaInline, span)
+    }
+
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
@@ -2029,6 +2049,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
             attributePredicate.matches(it.attributes)
         }?.attributes = attrs
+    }
+
+    fun getElementPosition(attributePredicate: AttributePredicate): Int? {
+        return text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let {
+            editableText.getSpanStart(it)
+        }
     }
 
     fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {

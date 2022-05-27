@@ -104,8 +104,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         val line = layout.getLineForOffset(start)
 
-        val maxWidth = layout.getParagraphRight(line) - layout.getParagraphLeft(line)
-
+        val maxWidth = getMaxWidth(layout.getParagraphRight(line) - layout.getParagraphLeft(line))
         // use the original bounds if non-zero, otherwise try the intrinsic sizes. If those are not available then
         //  just assume maximum size.
         var width = if ((imageDrawable?.intrinsicWidth ?: -1) > -1) imageDrawable?.intrinsicWidth ?: -1
@@ -121,6 +120,10 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
         imageDrawable?.bounds = Rect(0, 0, width, height)
 
         return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
+    }
+
+    open fun getMaxWidth(editorWidth: Int): Int {
+        return editorWidth
     }
 
     override fun getDrawable(): Drawable? {

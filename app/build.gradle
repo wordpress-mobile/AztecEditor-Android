@@ -39,8 +39,11 @@ dependencies {
     implementation project(':picasso-loader')
     implementation project(':wordpress-comments')
     implementation project(':wordpress-shortcodes')
+    implementation project(':media-placeholders')
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"

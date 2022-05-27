@@ -1,3 +1,8 @@
+buildscript {
+    ext.commonTargetSdkVersion = 30
+    ext.commonMinSdkVersion = 21
+}
+
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"

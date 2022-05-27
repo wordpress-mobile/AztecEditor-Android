@@ -13,6 +13,7 @@
     </org.wordpress.aztec.toolbar.AztecToolbar>
 
     <ScrollView
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/formatting_toolbar"
@@ -21,7 +22,8 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:id="@+id/container_frame_layout">
 
             <org.wordpress.aztec.AztecText
                 android:id="@+id/aztec"
@@ -29,6 +31,7 @@
                 android:layout_height="match_parent"
                 android:gravity="top|start"
                 android:hint="@string/edit_hint"
+                android:inputType="textCapSentences|textMultiLine"
                 android:paddingEnd="16dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"

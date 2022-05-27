@@ -437,7 +437,7 @@ open class MainActivity : AppCompatActivity(),
                 .setOnImageTappedListener(this)
                 .setOnVideoTappedListener(this)
                 .setOnAudioTappedListener(this)
-                .setOnMediaDeletedListener(this)
+                .addOnMediaDeletedListener(this)
                 .setOnVideoInfoRequestedListener(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))

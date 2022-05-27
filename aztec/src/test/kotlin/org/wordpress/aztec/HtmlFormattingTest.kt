@@ -15,7 +15,7 @@ import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
+@Config(sdk = [23])
 class HtmlFormattingTest : AndroidTestCase() {
 
     private var parser = AztecParser(AlignmentRendering.SPAN_LEVEL)

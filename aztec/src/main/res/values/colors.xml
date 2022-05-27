@@ -44,6 +44,8 @@
     <color name="grey_e">#ffeeeeee</color>
     <color name="white">#ffffffff</color>
     <color name="almost_black">#ff11181D</color>
+    <color name="test_color_1">#80FF0000</color>
+    <color name="test_color_2">#8000FF00</color>
 
     <!-- WORDPRESS -->
     <color name="blue_dark">#005082</color>

@@ -19,6 +19,7 @@ import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.ParagraphSpan
 import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
 import org.xml.sax.Attributes
 
@@ -177,7 +178,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val isLastItem = position >= EndOfBufferMarkerAdder.safeLength(editor)
         if (isLastItem) {
             editableText.getSpans(position, editableText.length, IAztecBlockSpan::class.java).filter {
-                it !is AztecMediaSpan && editableText.getSpanEnd(it) == editableText.length
+                it !is AztecMediaSpan && it !is ParagraphSpan && editableText.getSpanEnd(it) == editableText.length
             }.map {
                 SpanData(it, editableText.getSpanStart(it), position + 1, editableText.getSpanFlags(it))
             }.applyWithRemovedSpans {
@@ -187,7 +188,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             ssb.append("\n")
             val ssbLength = ssb.length
             editableText.getSpans(position, position + ssbLength, IAztecBlockSpan::class.java).filter {
-                it !is AztecMediaSpan && editableText.getSpanStart(it) == position
+                it !is AztecMediaSpan && it !is ParagraphSpan && editableText.getSpanStart(it) == position
             }.map {
                 SpanData(it, editableText.getSpanStart(it) + ssbLength, editableText.getSpanEnd(it) + ssbLength, editableText.getSpanFlags(it))
             }.applyWithRemovedSpans {
@@ -238,12 +239,13 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return 0
         }
         var position = 0
-        editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).forEach {
-            val spanEnd = editableText.getSpanEnd(it)
-            if (spanEnd > position) {
-                position = spanEnd
-            }
-        }
+        editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).filter { it !is ParagraphSpan }
+                .forEach {
+                    val spanEnd = editableText.getSpanEnd(it)
+                    if (spanEnd > position) {
+                        position = spanEnd
+                    }
+                }
         if (position <= 0 && selectionEnd != 0) {
             // If the text contains "\n" return that as the position, else set the position to the end of the text
             position = editableText.indexOf("\n", selectionEnd).takeIf { it >= 0 } ?: editableText.length

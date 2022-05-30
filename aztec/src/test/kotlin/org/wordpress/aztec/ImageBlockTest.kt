@@ -105,6 +105,32 @@ class ImageBlockTest {
 
     @Test
     @Throws(Exception::class)
+    fun addImageInTheLastParagraph() {
+        editText.fromHtml("<p>Line 1<br>Line 2</p>")
+
+        editText.setSelection(editText.editableText.indexOf("1"))
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<p>Line 1<img id=\"1234\" /><br>Line 2</p>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addImageInTheParagraph() {
+        editText.fromHtml("<p>Line 1<br>Line 2</p><p>Line 3</p>")
+
+        editText.setSelection(editText.editableText.indexOf("1"))
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<p>Line 1<img id=\"1234\" /><br>Line 2</p><p>Line 3</p>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun addHRAfterHeadline() {
         editText.fromHtml("<h1>Headline 1</h1>")
 
@@ -112,6 +138,17 @@ class ImageBlockTest {
         editText.lineBlockFormatter.applyHorizontalRule(false)
 
         Assert.assertEquals("<h1>Headline 1</h1><hr />", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addHRAfterHeadlineBeforeParagraph() {
+        editText.fromHtml("<h1>Headline 1</h1><p>Test</p>")
+
+        editText.setSelection(editText.editableText.indexOf("1"))
+        editText.lineBlockFormatter.applyHorizontalRule(false)
+
+        Assert.assertEquals("<h1>Headline 1</h1><hr /><p>Test</p>", editText.toHtml())
     }
 
     @Test

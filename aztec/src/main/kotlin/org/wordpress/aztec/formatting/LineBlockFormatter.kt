@@ -188,7 +188,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             ssb.append("\n")
             val ssbLength = ssb.length
             editableText.getSpans(position, position + ssbLength, IAztecBlockSpan::class.java).filter {
-                it !is AztecMediaSpan && it !is ParagraphSpan && editableText.getSpanStart(it) == position
+                it !is AztecMediaSpan && editableText.getSpanStart(it) == position
             }.map {
                 SpanData(it, editableText.getSpanStart(it) + ssbLength, editableText.getSpanEnd(it) + ssbLength, editableText.getSpanFlags(it))
             }.applyWithRemovedSpans {

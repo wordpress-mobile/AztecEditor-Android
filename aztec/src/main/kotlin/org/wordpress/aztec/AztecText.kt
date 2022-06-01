@@ -1816,7 +1816,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val length = text.length
             if (min == 0 &&
                     (max == length || (length == 1 && text.toString() == Constants.END_OF_BUFFER_MARKER_STRING))) {
-                setText(Constants.REPLACEMENT_MARKER_STRING)
+                editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
             } else {
                 // prevent changes here from triggering the crash preventer
                 disableCrashPreventerInputFilter()

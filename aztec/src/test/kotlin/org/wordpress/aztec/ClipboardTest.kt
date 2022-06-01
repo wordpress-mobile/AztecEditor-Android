@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.Context
-import android.text.Editable
-import android.text.Spannable
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test

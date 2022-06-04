@@ -2,6 +2,8 @@ package org.wordpress.aztec
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.Context
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -337,5 +339,19 @@ class ClipboardTest {
         TestUtils.pasteFromClipboardAsPlainText(editText)
 
         Assert.assertEquals(LONG_TEXT_EXPECTED, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun pasteIntoEmptyTextPreservesFormatting() {
+        editText.fromHtml("<h1></h1>")
+
+        editText.setSelection(0)
+        val clipboard = editText.context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        clipboard.primaryClip = ClipData.newPlainText("aztec", "Heading")
+
+        TestUtils.pasteFromClipboard(editText)
+
+        Assert.assertEquals("<h1>Heading</h1>", editText.toHtml())
     }
 }

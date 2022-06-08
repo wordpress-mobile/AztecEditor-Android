@@ -15,14 +15,14 @@ class AztecPlaceholderSpan(
         attributes: AztecAttributes = AztecAttributes(),
         onMediaDeletedListener: AztecText.OnMediaDeletedListener? = null,
         editor: AztecText? = null,
-        private val adapter: PlaceholderManager.PlaceholderAdapter) :
+        private val adapter: PlaceholderManager.PlaceholderAdapter,
+        override val TAG: String) :
         AztecMediaSpan(context, drawable, attributes, onMediaDeletedListener, editor), IAztecFullWidthImageSpan, IAztecSpan {
-    override val TAG: String = "placeholder"
     override fun onClick() {
 
     }
 
     override fun getMaxWidth(editorWidth: Int): Int {
-        return adapter.getWidth(editorWidth)
+        return adapter.calculateWidth(attributes, editorWidth)
     }
 }

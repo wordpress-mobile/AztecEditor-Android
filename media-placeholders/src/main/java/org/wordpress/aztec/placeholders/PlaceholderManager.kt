@@ -50,6 +50,7 @@ class PlaceholderManager(
 
     fun onDestroy() {
         aztecText.contentChangeWatcher.unregisterObserver(this)
+        adapters.values.forEach { it.onDestroy() }
         adapters.clear()
     }
 
@@ -70,15 +71,15 @@ class PlaceholderManager(
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
-        val drawable = buildPlaceholderDrawable(adapter)
+        val drawable = buildPlaceholderDrawable(adapter, attrs)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                this, aztecText, adapter))
+                this, aztecText, adapter, TAG = htmlTag))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
-    private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter): Drawable {
+    private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        updateDrawableBounds(adapter, drawable)
+        updateDrawableBounds(adapter, attrs, drawable)
         return drawable
     }
 
@@ -140,7 +141,7 @@ class PlaceholderManager(
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                adapter.getWidth(parentTextViewRect.right - parentTextViewRect.left - 20),
+                adapter.calculateWidth(attrs, parentTextViewRect.right - parentTextViewRect.left - 20),
                 parentTextViewRect.bottom - parentTextViewRect.top - 20
         )
         val padding = 10
@@ -232,16 +233,17 @@ class PlaceholderManager(
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
             val adapter = adapters[type] ?: return false
-            val drawable = buildPlaceholderDrawable(adapter)
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
+            val drawable = buildPlaceholderDrawable(adapter, aztecAttributes)
             val span = AztecPlaceholderSpan(
                     context = aztecText.context,
                     drawable = drawable,
                     nestingLevel = nestingLevel,
                     attributes = aztecAttributes,
                     onMediaDeletedListener = this,
-                    adapter = adapter
+                    adapter = adapter,
+                    TAG = htmlTag
             )
             val clickableSpan = AztecMediaClickableSpan(span)
             val position = output.length
@@ -269,7 +271,7 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
-                    updateDrawableBounds(adapter, it.drawable)
+                    updateDrawableBounds(adapter, it.attributes, it.drawable)
                     aztecText.post {
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
@@ -279,10 +281,10 @@ class PlaceholderManager(
         })
     }
 
-    private fun updateDrawableBounds(adapter: PlaceholderAdapter, drawable: Drawable?) {
+    private fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
         val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
         if (drawable?.bounds?.right != editorWidth) {
-            drawable?.setBounds(0, 0, adapter.getWidth(editorWidth), adapter.getHeight(editorWidth))
+            drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         }
     }
 
@@ -331,6 +333,11 @@ class PlaceholderManager(
         fun onPlaceholderDeleted(placeholderUuid: String) {}
 
         /**
+         * This method is called when the placeholders are destroyed
+         */
+        fun onDestroy() {}
+
+        /**
          * Override this method if you want to handle view touches. To handle clicks on subviews just use
          * `setOnClickListener` on the view that you want to handle the click.
          */
@@ -339,30 +346,36 @@ class PlaceholderManager(
         }
 
         /**
-         * Override this field to set the width of the placeholder. It could be either a ratio of window width or
-         * a fixed size.
-         */
-        val placeholderSize: PlaceholderSize
-
-        /**
          * Define unique string type here in order to differentiate between the adapters drawing the custom views.
          */
         val type: String
 
         /**
+         * Returns width of the view based on the HTML attributes. Use this method to either set fixed width or to
+         * calculate width based on the view.
+         */
+        fun getWidth(attrs: AztecAttributes): Proportion = Proportion.Ratio(1.0f)
+
+        /**
+         * Returns height of the view based on the HTML attributes. Use this method to either set fixed height or to
+         * calculate width based on the view.
+         */
+        fun getHeight(attrs: AztecAttributes): Proportion
+
+        /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun getHeight(windowWidth: Int): Int {
-            return placeholderSize.height.let { height ->
+        fun calculateHeight(attrs: AztecAttributes, windowWidth: Int): Int {
+            return getHeight(attrs).let { height ->
                 when (height) {
-                    is PlaceholderSize.Proportion.Fixed -> height.value
-                    is PlaceholderSize.Proportion.Ratio -> {
+                    is Proportion.Fixed -> height.value
+                    is Proportion.Ratio -> {
                         val ratio = if (height.ratio < 0.1) {
                             0.1f
                         } else {
                             height.ratio
                         }
-                        (ratio * getWidth(windowWidth)).toInt()
+                        (ratio * calculateWidth(attrs, windowWidth)).toInt()
                     }
                 }
             }
@@ -371,11 +384,11 @@ class PlaceholderManager(
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun getWidth(windowWidth: Int): Int {
-            return placeholderSize.width.let { width ->
+        fun calculateWidth(attrs: AztecAttributes, windowWidth: Int): Int {
+            return getWidth(attrs).let { width ->
                 when (width) {
-                    is PlaceholderSize.Proportion.Fixed -> min(windowWidth, width.value)
-                    is PlaceholderSize.Proportion.Ratio -> {
+                    is Proportion.Fixed -> min(windowWidth, width.value)
+                    is Proportion.Ratio -> {
                         val safeRatio: Float = when {
                             width.ratio < 0.1 -> 0.1f
                             width.ratio > 1.0 -> 1.0f
@@ -387,11 +400,9 @@ class PlaceholderManager(
             }
         }
 
-        data class PlaceholderSize(val height: Proportion, val width: Proportion = Proportion.Ratio(1.0f)) {
-            sealed class Proportion {
-                data class Fixed(val value: Int) : Proportion()
-                data class Ratio(val ratio: Float) : Proportion()
-            }
+        sealed class Proportion {
+            data class Fixed(val value: Int) : Proportion()
+            data class Ratio(val ratio: Float) : Proportion()
         }
     }
 

@@ -77,6 +77,26 @@ class PlaceholderManager(
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
     }
 
+    /**
+     * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
+     * @param predicate determines whether a span should be removed
+     */
+    fun removeItem(predicate: (AztecAttributes) -> Boolean) {
+        aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).filter {
+            predicate(it.attributes)
+        }.forEach { placeholderSpan ->
+            val startIndex = aztecText.editableText.getSpanStart(placeholderSpan)
+            val endIndex = aztecText.editableText.getSpanEnd(placeholderSpan)
+            aztecText.editableText.getSpans(startIndex, endIndex, AztecMediaClickableSpan::class.java).forEach {
+                aztecText.editableText.removeSpan(it)
+            }
+            aztecText.editableText.removeSpan(placeholderSpan)
+            aztecText.editableText.delete(startIndex, endIndex)
+            onMediaDeleted(placeholderSpan.attributes)
+        }
+        aztecText.refreshText(false)
+    }
+
     private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
         updateDrawableBounds(adapter, attrs, drawable)

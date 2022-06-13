@@ -21,7 +21,7 @@ class ImageWithCaptionAdapter(
     override fun getHeight(attrs: AztecAttributes): Proportion {
         return Proportion.Ratio(0.5f)
     }
-    override fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View {
+    override suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View {
         val imageWithCaptionObject = media[placeholderUuid] ?: ImageWithCaptionObject(placeholderUuid, attrs.getValue(SRC_ATTRIBUTE), View.generateViewId()).apply {
             media[placeholderUuid] = this
         }
@@ -61,7 +61,7 @@ class ImageWithCaptionAdapter(
         return linearLayout
     }
 
-    override fun onViewCreated(view: View, placeholderUuid: String) {
+    override suspend fun onViewCreated(view: View, placeholderUuid: String) {
         val image = media[placeholderUuid]!!
         val imageView = view.findViewById<ImageView>(image.layoutId)
         Glide.with(view).load(image.src).into(imageView)
@@ -79,7 +79,7 @@ class ImageWithCaptionAdapter(
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
 
-        fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String) {
+        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String) {
             placeholderManager.insertItem(ADAPTER_TYPE, SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
         }
     }

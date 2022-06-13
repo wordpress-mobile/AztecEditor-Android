@@ -135,7 +135,7 @@ class PlaceholderManager(
         val type = attrs.getValue(TYPE_ATTRIBUTE)
         val textViewLayout: Layout = aztecText.layout
         val parentTextViewRect = Rect()
-        val targetLineOffset = getLineForOffset(targetPosition)
+        val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
         if (currentPosition != null) {
             if (targetLineOffset != 0 && currentPosition == targetPosition) {
                 return
@@ -175,19 +175,6 @@ class PlaceholderManager(
             container.addView(box)
             adapter.onViewCreated(box, uuid)
         }
-    }
-
-    private fun getLineForOffset(offset: Int): Int {
-        var counter = 0
-        var index = 0
-        for (line in aztecText.text.split("\n")) {
-            counter += line.length + 1
-            if (counter > offset) {
-                break
-            }
-            index += 1
-        }
-        return index
     }
 
     private fun validateAttributes(attributes: AztecAttributes): Boolean {

@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -100,7 +101,7 @@ class PlaceholderManager(
         aztecText.refreshText(false)
     }
 
-    private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
+    private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
         updateDrawableBounds(adapter, attrs, drawable)
         return drawable
@@ -247,7 +248,7 @@ class PlaceholderManager(
             val adapter = adapters[type] ?: return false
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
-            val drawable = buildPlaceholderDrawable(adapter, aztecAttributes)
+            val drawable = runBlocking { buildPlaceholderDrawable(adapter, aztecAttributes) }
             val span = AztecPlaceholderSpan(
                     context = aztecText.context,
                     drawable = drawable,
@@ -283,8 +284,8 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
-                    updateDrawableBounds(adapter, it.attributes, it.drawable)
                     coroutineScope.launch {
+                        updateDrawableBounds(adapter, it.attributes, it.drawable)
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                     }
@@ -293,7 +294,7 @@ class PlaceholderManager(
         })
     }
 
-    private fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
+    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
         val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
         if (drawable?.bounds?.right != editorWidth) {
             drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
@@ -366,18 +367,18 @@ class PlaceholderManager(
          * Returns width of the view based on the HTML attributes. Use this method to either set fixed width or to
          * calculate width based on the view.
          */
-        fun getWidth(attrs: AztecAttributes): Proportion = Proportion.Ratio(1.0f)
+        suspend fun getWidth(attrs: AztecAttributes): Proportion = Proportion.Ratio(1.0f)
 
         /**
          * Returns height of the view based on the HTML attributes. Use this method to either set fixed height or to
          * calculate width based on the view.
          */
-        fun getHeight(attrs: AztecAttributes): Proportion
+        suspend fun getHeight(attrs: AztecAttributes): Proportion
 
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun calculateHeight(attrs: AztecAttributes, windowWidth: Int): Int {
+        suspend fun calculateHeight(attrs: AztecAttributes, windowWidth: Int): Int {
             return getHeight(attrs).let { height ->
                 when (height) {
                     is Proportion.Fixed -> height.value
@@ -396,7 +397,7 @@ class PlaceholderManager(
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun calculateWidth(attrs: AztecAttributes, windowWidth: Int): Int {
+        suspend fun calculateWidth(attrs: AztecAttributes, windowWidth: Int): Int {
             return getWidth(attrs).let { width ->
                 when (width) {
                     is Proportion.Fixed -> min(windowWidth, width.value)

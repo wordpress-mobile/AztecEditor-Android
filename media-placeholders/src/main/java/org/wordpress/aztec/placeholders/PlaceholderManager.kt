@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -33,6 +35,7 @@ import kotlin.math.min
 class PlaceholderManager(
         private val aztecText: AztecText,
         private val container: FrameLayout,
+        private val coroutineScope: CoroutineScope,
         private val htmlTag: String = DEFAULT_HTML_TAG
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
@@ -67,7 +70,7 @@ class PlaceholderManager(
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
-    fun insertItem(type: String, vararg attributes: Pair<String, String>) {
+    suspend fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
@@ -103,7 +106,7 @@ class PlaceholderManager(
         return drawable
     }
 
-    private fun updateAllBelowSelection(selectionStart: Int) {
+    private suspend fun updateAllBelowSelection(selectionStart: Int) {
         positionToId.filter {
             it.elementPosition >= selectionStart - 1
         }.forEach {
@@ -111,7 +114,7 @@ class PlaceholderManager(
         }
     }
 
-    private fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
+    private suspend fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -127,7 +130,7 @@ class PlaceholderManager(
         insertInPosition(aztecAttributes ?: return, targetPosition, currentPosition)
     }
 
-    private fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
+    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
         if (!validateAttributes(attrs)) {
             return
         }
@@ -197,7 +200,9 @@ class PlaceholderManager(
      * Called when the aztec text content changes.
      */
     override fun onContentChanged() {
-        updateAllBelowSelection(aztecText.selectionStart)
+        coroutineScope.launch {
+            updateAllBelowSelection(aztecText.selectionStart)
+        }
     }
 
     /**
@@ -279,7 +284,7 @@ class PlaceholderManager(
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
                     updateDrawableBounds(adapter, it.attributes, it.drawable)
-                    aztecText.post {
+                    coroutineScope.launch {
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                     }
@@ -322,7 +327,7 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder UUID
          * @param attrs aztec attributes of the view
          */
-        fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
+        suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
 
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
@@ -330,7 +335,7 @@ class PlaceholderManager(
          * @param view the frame layout wrapping the custom view
          * @param placeholderUuid the placeholder ID
          */
-        fun onViewCreated(view: View, placeholderUuid: String) {}
+        suspend fun onViewCreated(view: View, placeholderUuid: String) {}
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the

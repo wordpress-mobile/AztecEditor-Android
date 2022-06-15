@@ -2,6 +2,7 @@ package org.wordpress.aztec.placeholders
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.spans.AztecMediaSpan
@@ -23,6 +24,6 @@ class AztecPlaceholderSpan(
     }
 
     override fun getMaxWidth(editorWidth: Int): Int {
-        return adapter.calculateWidth(attributes, editorWidth)
+        return runBlocking { adapter.calculateWidth(attributes, editorWidth) }
     }
 }

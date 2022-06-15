@@ -2017,6 +2017,24 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertMediaSpan(shouldAddMediaInline, span)
     }
 
+    /**
+     * Use this method to remove a media span
+     */
+    fun removeMediaSpan(span: AztecMediaSpan) {
+        history.beforeTextChanged(this@AztecText)
+        disableTextChangedListener()
+        val startIndex = editableText.getSpanStart(span)
+        val endIndex = editableText.getSpanEnd(span)
+        editableText.getSpans(startIndex, endIndex, AztecMediaClickableSpan::class.java).forEach {
+            editableText.removeSpan(it)
+        }
+        editableText.removeSpan(span)
+        editableText.delete(startIndex, endIndex)
+        onMediaDeletedListener?.onMediaDeleted(span.attributes)
+        enableTextChangedListener()
+        contentChangeWatcher.notifyContentChanged()
+    }
+
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }

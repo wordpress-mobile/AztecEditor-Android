@@ -12,8 +12,8 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -39,7 +39,6 @@ import kotlin.math.min
 class PlaceholderManager(
         private val aztecText: AztecText,
         private val container: FrameLayout,
-        private val mainThreadDispatcher: CoroutineDispatcher,
         private val htmlTag: String = DEFAULT_HTML_TAG
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
@@ -51,7 +50,7 @@ class PlaceholderManager(
     private val positionToId = mutableSetOf<Placeholder>()
     private val job = Job()
     override val coroutineContext: CoroutineContext
-        get() = mainThreadDispatcher + job
+        get() = Dispatchers.Main + job
 
     init {
         aztecText.setOnVisibilityChangeListener(this)

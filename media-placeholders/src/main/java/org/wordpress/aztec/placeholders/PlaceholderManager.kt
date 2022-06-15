@@ -13,6 +13,8 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
@@ -24,6 +26,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
 /**
@@ -36,15 +39,18 @@ import kotlin.math.min
 class PlaceholderManager(
         private val aztecText: AztecText,
         private val container: FrameLayout,
-        private val coroutineScope: CoroutineScope,
         private val htmlTag: String = DEFAULT_HTML_TAG
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
         Html.MediaCallback,
         AztecText.OnMediaDeletedListener,
-        AztecText.OnVisibilityChangeListener {
+        AztecText.OnVisibilityChangeListener,
+        CoroutineScope {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToId = mutableSetOf<Placeholder>()
+    private val job = Job()
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     init {
         aztecText.setOnVisibilityChangeListener(this)
@@ -56,6 +62,7 @@ class PlaceholderManager(
         aztecText.contentChangeWatcher.unregisterObserver(this)
         adapters.values.forEach { it.onDestroy() }
         adapters.clear()
+        job.cancel()
     }
 
     /**
@@ -89,16 +96,8 @@ class PlaceholderManager(
         aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).filter {
             predicate(it.attributes)
         }.forEach { placeholderSpan ->
-            val startIndex = aztecText.editableText.getSpanStart(placeholderSpan)
-            val endIndex = aztecText.editableText.getSpanEnd(placeholderSpan)
-            aztecText.editableText.getSpans(startIndex, endIndex, AztecMediaClickableSpan::class.java).forEach {
-                aztecText.editableText.removeSpan(it)
-            }
-            aztecText.editableText.removeSpan(placeholderSpan)
-            aztecText.editableText.delete(startIndex, endIndex)
-            onMediaDeleted(placeholderSpan.attributes)
+            aztecText.removeMediaSpan(placeholderSpan)
         }
-        aztecText.refreshText(false)
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
@@ -201,7 +200,7 @@ class PlaceholderManager(
      * Called when the aztec text content changes.
      */
     override fun onContentChanged() {
-        coroutineScope.launch {
+        launch {
             updateAllBelowSelection(aztecText.selectionStart)
         }
     }
@@ -284,7 +283,7 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
-                    coroutineScope.launch {
+                    launch {
                         updateDrawableBounds(adapter, it.attributes, it.drawable)
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))

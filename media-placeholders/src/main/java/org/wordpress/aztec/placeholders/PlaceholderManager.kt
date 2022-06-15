@@ -12,6 +12,9 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -33,6 +36,7 @@ import kotlin.math.min
 class PlaceholderManager(
         private val aztecText: AztecText,
         private val container: FrameLayout,
+        private val coroutineScope: CoroutineScope,
         private val htmlTag: String = DEFAULT_HTML_TAG
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
@@ -67,7 +71,7 @@ class PlaceholderManager(
      * @param type placeholder type
      * @param attributes other attributes passed to the view. For example a `src` for an image.
      */
-    fun insertItem(type: String, vararg attributes: Pair<String, String>) {
+    suspend fun insertItem(type: String, vararg attributes: Pair<String, String>) {
         val adapter = adapters[type]
                 ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
         val attrs = getAttributesForMedia(type, attributes)
@@ -97,13 +101,13 @@ class PlaceholderManager(
         aztecText.refreshText(false)
     }
 
-    private fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
+    private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
         updateDrawableBounds(adapter, attrs, drawable)
         return drawable
     }
 
-    private fun updateAllBelowSelection(selectionStart: Int) {
+    private suspend fun updateAllBelowSelection(selectionStart: Int) {
         positionToId.filter {
             it.elementPosition >= selectionStart - 1
         }.forEach {
@@ -111,7 +115,7 @@ class PlaceholderManager(
         }
     }
 
-    private fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
+    private suspend fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -127,7 +131,7 @@ class PlaceholderManager(
         insertInPosition(aztecAttributes ?: return, targetPosition, currentPosition)
     }
 
-    private fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
+    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
         if (!validateAttributes(attrs)) {
             return
         }
@@ -135,7 +139,7 @@ class PlaceholderManager(
         val type = attrs.getValue(TYPE_ATTRIBUTE)
         val textViewLayout: Layout = aztecText.layout
         val parentTextViewRect = Rect()
-        val targetLineOffset = getLineForOffset(targetPosition)
+        val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
         if (currentPosition != null) {
             if (targetLineOffset != 0 && currentPosition == targetPosition) {
                 return
@@ -177,19 +181,6 @@ class PlaceholderManager(
         }
     }
 
-    private fun getLineForOffset(offset: Int): Int {
-        var counter = 0
-        var index = 0
-        for (line in aztecText.text.split("\n")) {
-            counter += line.length + 1
-            if (counter > offset) {
-                break
-            }
-            index += 1
-        }
-        return index
-    }
-
     private fun validateAttributes(attributes: AztecAttributes): Boolean {
         return attributes.hasAttribute(UUID_ATTRIBUTE) &&
                 attributes.hasAttribute(TYPE_ATTRIBUTE) &&
@@ -210,7 +201,9 @@ class PlaceholderManager(
      * Called when the aztec text content changes.
      */
     override fun onContentChanged() {
-        updateAllBelowSelection(aztecText.selectionStart)
+        coroutineScope.launch {
+            updateAllBelowSelection(aztecText.selectionStart)
+        }
     }
 
     /**
@@ -255,7 +248,7 @@ class PlaceholderManager(
             val adapter = adapters[type] ?: return false
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
-            val drawable = buildPlaceholderDrawable(adapter, aztecAttributes)
+            val drawable = runBlocking { buildPlaceholderDrawable(adapter, aztecAttributes) }
             val span = AztecPlaceholderSpan(
                     context = aztecText.context,
                     drawable = drawable,
@@ -291,8 +284,8 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return
-                    updateDrawableBounds(adapter, it.attributes, it.drawable)
-                    aztecText.post {
+                    coroutineScope.launch {
+                        updateDrawableBounds(adapter, it.attributes, it.drawable)
                         aztecText.refreshText(false)
                         insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                     }
@@ -301,7 +294,7 @@ class PlaceholderManager(
         })
     }
 
-    private fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
+    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
         val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
         if (drawable?.bounds?.right != editorWidth) {
             drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
@@ -335,7 +328,7 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder UUID
          * @param attrs aztec attributes of the view
          */
-        fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
+        suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
 
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
@@ -343,7 +336,7 @@ class PlaceholderManager(
          * @param view the frame layout wrapping the custom view
          * @param placeholderUuid the placeholder ID
          */
-        fun onViewCreated(view: View, placeholderUuid: String) {}
+        suspend fun onViewCreated(view: View, placeholderUuid: String) {}
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the
@@ -374,18 +367,18 @@ class PlaceholderManager(
          * Returns width of the view based on the HTML attributes. Use this method to either set fixed width or to
          * calculate width based on the view.
          */
-        fun getWidth(attrs: AztecAttributes): Proportion = Proportion.Ratio(1.0f)
+        suspend fun getWidth(attrs: AztecAttributes): Proportion = Proportion.Ratio(1.0f)
 
         /**
          * Returns height of the view based on the HTML attributes. Use this method to either set fixed height or to
          * calculate width based on the view.
          */
-        fun getHeight(attrs: AztecAttributes): Proportion
+        suspend fun getHeight(attrs: AztecAttributes): Proportion
 
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun calculateHeight(attrs: AztecAttributes, windowWidth: Int): Int {
+        suspend fun calculateHeight(attrs: AztecAttributes, windowWidth: Int): Int {
             return getHeight(attrs).let { height ->
                 when (height) {
                     is Proportion.Fixed -> height.value
@@ -404,7 +397,7 @@ class PlaceholderManager(
         /**
          * Returns height of the view based on the width and the placeholder height.
          */
-        fun calculateWidth(attrs: AztecAttributes, windowWidth: Int): Int {
+        suspend fun calculateWidth(attrs: AztecAttributes, windowWidth: Int): Int {
             return getWidth(attrs).let { width ->
                 when (width) {
                     is Proportion.Fixed -> min(windowWidth, width.value)

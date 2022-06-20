@@ -152,6 +152,42 @@ When switched, this editor will always add media and horizontal rule after the c
 aztecText.addMediaAfterBlocks()
 ```
 
+### Placeholder API
+
+Aztec now supports placeholders to draw views which are not natively supported by the EditText and Spannable API. 
+The functionality creates a span in the visual editor and draws an Android view over it. 
+The view is moved around when the user changes anything in the editor and allows you to draw things like video that can be played inline in the editor.
+In order to use the API you have to create an instance of `PlaceholderManager` and initialize it in your `onCreate` call like this: 
+
+```kotlin
+private lateinit var placeholderManager: PlaceholderManager
+override fun onCreate(savedInstanceState: Bundle?) {
+    placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
+    aztec.addPlugin(placeholderManager)
+    aztec.addOnMediaDeletedListener(placeholderManager)
+}
+override fun onDestroy() {
+    placeholderManager.onDestroy()
+}
+```
+
+You can create a custom `PlaceholderAdapter` to prepare and draw your view. 
+You can check the sample `ImageWithCaptionAdapter` which draws a simple Android view with an image and a caption. 
+However, you can implement things like `YouTube` view or `Video` view with playback controls.
+Don't forget to register your `PlaceholderAdapter` like this: 
+
+```kotlin
+placeholderManager.registerAdapter(ImageWithCaptionAdapter())
+```
+
+Once you have initialized both the manager and the adapter, you can use the manager methods to insert or remove placeholders.
+
+```kotlin
+placeholderManager.insertItem(adapterType, attributes)
+placeholderManager.removeItem(predicate)
+```
+
+
 ## Code formatting
 
 We use [ktlint](https://github.com/shyiko/ktlint) for Kotlin linting. You can run ktlint using `./gradlew ktlint`, and you can also run `./gradlew ktlintFormat` for auto-formatting. There is no IDEA plugin (like Checkstyle's) at this time.

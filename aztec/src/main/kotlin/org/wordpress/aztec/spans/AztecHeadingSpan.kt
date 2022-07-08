@@ -207,8 +207,8 @@ open class AztecHeadingSpan(
     }
 
     sealed class HeadingSize {
-        data class Scale(val value: Float): HeadingSize()
-        data class Size(val value: Int): HeadingSize()
+        data class Scale(val value: Float) : HeadingSize()
+        data class Size(val value: Int) : HeadingSize()
     }
 
     override fun toString() = "AztecHeadingSpan : $TAG"

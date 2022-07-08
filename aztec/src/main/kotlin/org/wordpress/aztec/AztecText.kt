@@ -452,7 +452,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
                         verticalParagraphPadding),
-                headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin,mapOf(
+                headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
                                 styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)

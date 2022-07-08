@@ -5,6 +5,7 @@
     <declare-styleable name="AztecText">
         <attr name="backgroundColor" format="reference|color" />
         <attr name="blockVerticalPadding" format="reference|dimension" />
+        <attr name="paragraphVerticalMargin" format="reference|dimension" />
         <attr name="headingVerticalPadding" format="reference|dimension" />
         <attr name="bulletColor" format="reference|color" />
         <attr name="bulletMargin" format="reference|dimension" />
@@ -35,6 +36,18 @@
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
         <attr name="exclusiveBlocks" format="reference|boolean" />
+        <attr name="headingOneFontSize" format="reference|dimension" />
+        <attr name="headingTwoFontSize" format="reference|dimension" />
+        <attr name="headingThreeFontSize" format="reference|dimension" />
+        <attr name="headingFourFontSize" format="reference|dimension" />
+        <attr name="headingFiveFontSize" format="reference|dimension" />
+        <attr name="headingSixFontSize" format="reference|dimension" />
+        <attr name="headingOneFontColor" format="reference|color" />
+        <attr name="headingTwoFontColor" format="reference|color" />
+        <attr name="headingThreeFontColor" format="reference|color" />
+        <attr name="headingFourFontColor" format="reference|color" />
+        <attr name="headingFiveFontColor" format="reference|color" />
+        <attr name="headingSixFontColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">

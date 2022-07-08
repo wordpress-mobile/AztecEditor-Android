@@ -168,7 +168,12 @@ class PlaceholderManager(
                 parentTextViewRect.bottom - parentTextViewRect.top - 20
         )
         val padding = 10
-        params.setMargins(parentTextViewRect.left + padding, parentTextViewRect.top + padding, parentTextViewRect.right - padding, 0)
+        params.setMargins(
+                parentTextViewRect.left + padding + aztecText.paddingStart,
+                parentTextViewRect.top + padding,
+                parentTextViewRect.right - padding - aztecText.paddingEnd,
+                0
+        )
         box.layoutParams = params
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)

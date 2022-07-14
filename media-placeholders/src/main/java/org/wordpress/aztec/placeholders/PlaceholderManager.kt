@@ -392,7 +392,12 @@ class PlaceholderManager(
                         } else {
                             height.ratio
                         }
-                        (ratio * calculateWidth(attrs, windowWidth)).toInt()
+                        val result = (ratio * calculateWidth(attrs, windowWidth)).toInt()
+                        if (height.limit != null && height.limit < result) {
+                            height.limit
+                        } else {
+                            result
+                        }
                     }
                 }
             }
@@ -411,15 +416,20 @@ class PlaceholderManager(
                             width.ratio > 1.0 -> 1.0f
                             else -> width.ratio
                         }
-                        (safeRatio * windowWidth).toInt()
+                        val result = (safeRatio * windowWidth).toInt()
+                        if (width.limit != null && result > width.limit) {
+                            width.limit
+                        } else {
+                            result
+                        }
                     }
                 }
             }
         }
 
         sealed class Proportion {
-            data class Fixed(val value: Int) : Proportion()
-            data class Ratio(val ratio: Float) : Proportion()
+            data class Fixed(val value: Int, val limit: Int? = null) : Proportion()
+            data class Ratio(val ratio: Float, val limit: Int? = null) : Proportion()
         }
     }
 

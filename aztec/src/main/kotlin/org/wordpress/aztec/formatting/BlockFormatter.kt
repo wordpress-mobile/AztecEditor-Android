@@ -165,8 +165,6 @@ class BlockFormatter(editor: AztecText,
 
                 if (span != null) {
                     removeBlockStyle(span.textFormat)
-                    editableText.insert(selectionEnd, "\n")
-                    editableText.delete(selectionEnd, selectionEnd+1)
                 }
 
                 removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
@@ -433,6 +431,11 @@ class BlockFormatter(editor: AztecText,
                     IAztecNestable.pullUp(editableText, editableText.getSpanStart(span), editableText.getSpanEnd(span), span.nestingLevel)
 
                     editableText.removeSpan(span)
+
+                    if (span is AztecHeadingSpan) {
+                        editableText.insert(spanEnd, "\n")
+                        editableText.delete(spanEnd, spanEnd+1)
+                    }
                 }
             }
         }
@@ -751,8 +754,7 @@ class BlockFormatter(editor: AztecText,
                 // no similar blocks before us so, don't expand
             } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
                 // other block is at a different nesting level so, don't expand
-            } else if (spansOnPreviousLine is AztecHeadingSpan
-                    && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+            } else if (spansOnPreviousLine is AztecHeadingSpan && spanToApply is AztecHeadingSpan) {
                 // Heading span is of different style so, don't expand
             } else if (!isWithinList) {
                 // expand the start
@@ -773,8 +775,7 @@ class BlockFormatter(editor: AztecText,
                 // no similar blocks after us so, don't expand
             } else if (spanOnNextLine.nestingLevel != nestingLevel) {
                 // other block is at a different nesting level so, don't expand
-            } else if (spanOnNextLine is AztecHeadingSpan
-                    && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+            } else if (spanOnNextLine is AztecHeadingSpan && spanToApply is AztecHeadingSpan) {
                 // Heading span is of different style so, don't expand
             } else if (!isWithinList) {
                 // expand the end

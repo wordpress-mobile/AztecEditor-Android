@@ -165,6 +165,8 @@ class BlockFormatter(editor: AztecText,
 
                 if (span != null) {
                     removeBlockStyle(span.textFormat)
+                    editableText.insert(selectionEnd, "\n")
+                    editableText.delete(selectionEnd, selectionEnd+1)
                 }
 
                 removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT)
@@ -857,6 +859,8 @@ class BlockFormatter(editor: AztecText,
 
             HeadingHandler.cloneHeading(editableText, headingSpan, alignmentRendering, lineStart, lineEnd)
         }
+        editableText.insert(end, "\n")
+        editableText.delete(end, end+1)
     }
 
     private fun liftBlock(textFormat: ITextFormat, start: Int, end: Int) {

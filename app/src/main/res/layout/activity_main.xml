@@ -39,11 +39,7 @@
                 android:scrollbars="vertical"
                 android:imeOptions="flagNoExtractUi"
                 aztec:historyEnable="true"
-                aztec:historySize="10"
-                aztec:headingOneFontSize="24sp"
-                aztec:headingOneFontColor="@color/blue_light"
-                aztec:headingThreeFontSize="16sp"
-                aztec:headingThreeFontColor="#F09389"/>
+                aztec:historySize="10"/>
 
             <org.wordpress.aztec.source.SourceViewEditText
                 android:id="@+id/source"

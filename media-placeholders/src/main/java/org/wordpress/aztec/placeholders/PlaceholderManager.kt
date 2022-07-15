@@ -110,11 +110,11 @@ class PlaceholderManager(
         positionToId.filter {
             it.elementPosition >= selectionStart - 1
         }.forEach {
-            insertContentOverSpanWithId(it.uuid, it.elementPosition)
+            insertContentOverSpanWithId(it.uuid, it.elementTopOffset)
         }
     }
 
-    private suspend fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
+    private suspend fun insertContentOverSpanWithId(uuid: String, currentTopOffset: Int? = null) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -127,10 +127,10 @@ class PlaceholderManager(
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
 
-        insertInPosition(aztecAttributes ?: return, targetPosition, currentPosition)
+        insertInPosition(aztecAttributes ?: return, targetPosition, currentTopOffset)
     }
 
-    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
+    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentTopOffset: Int? = null) {
         if (!validateAttributes(attrs)) {
             return
         }
@@ -139,15 +139,6 @@ class PlaceholderManager(
         val textViewLayout: Layout = aztecText.layout
         val parentTextViewRect = Rect()
         val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
-        if (currentPosition != null) {
-            if (targetLineOffset != 0 && currentPosition == targetPosition) {
-                return
-            } else {
-                positionToId.removeAll {
-                    it.uuid == uuid
-                }
-            }
-        }
         textViewLayout.getLineBounds(targetLineOffset, parentTextViewRect)
 
         val parentTextViewLocation = intArrayOf(0, 0)
@@ -156,6 +147,16 @@ class PlaceholderManager(
 
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
+
+        if (currentTopOffset != null) {
+            if (targetLineOffset != 0 && currentTopOffset == parentTextViewRect.top) {
+                return
+            } else {
+                positionToId.removeAll {
+                    it.uuid == uuid
+                }
+            }
+        }
 
         var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
@@ -178,7 +179,7 @@ class PlaceholderManager(
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
         box.setOnTouchListener(adapter)
-        positionToId.add(Placeholder(targetPosition, uuid))
+        positionToId.add(Placeholder(targetPosition, parentTextViewRect.top, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
             adapter.onViewCreated(box, uuid)
@@ -433,7 +434,7 @@ class PlaceholderManager(
         }
     }
 
-    data class Placeholder(val elementPosition: Int, val uuid: String)
+    data class Placeholder(val elementPosition: Int, val elementTopOffset: Int, val uuid: String)
 
     companion object {
         private const val DEFAULT_HTML_TAG = "placeholder"

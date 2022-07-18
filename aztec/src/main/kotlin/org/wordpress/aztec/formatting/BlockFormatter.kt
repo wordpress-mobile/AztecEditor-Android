@@ -431,14 +431,6 @@ class BlockFormatter(editor: AztecText,
                     IAztecNestable.pullUp(editableText, editableText.getSpanStart(span), editableText.getSpanEnd(span), span.nestingLevel)
 
                     editableText.removeSpan(span)
-
-                    // When a span with a different line height is replaced by a paragraph, the editor doesn't redraw
-                    // correctly. This is a hack to force it to redraw by adding and removing a new line after the
-                    // element.
-                    if (span is AztecHeadingSpan) {
-                        editableText.insert(spanEnd, "\n")
-                        editableText.delete(spanEnd, spanEnd+1)
-                    }
                 }
             }
         }
@@ -863,10 +855,6 @@ class BlockFormatter(editor: AztecText,
 
             HeadingHandler.cloneHeading(editableText, headingSpan, alignmentRendering, lineStart, lineEnd)
         }
-        // When a span with a different line height is attached, the editor doesn't redraw correctly. This is a hack to
-        // force it to redraw by adding and removing a new line after the element.
-        editableText.insert(end, "\n")
-        editableText.delete(end, end+1)
     }
 
     private fun liftBlock(textFormat: ITextFormat, start: Int, end: Int) {

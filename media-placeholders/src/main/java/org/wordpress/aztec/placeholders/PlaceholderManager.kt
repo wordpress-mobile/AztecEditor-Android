@@ -85,7 +85,7 @@ class PlaceholderManager(
         val drawable = buildPlaceholderDrawable(adapter, attrs)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText, adapter, TAG = htmlTag))
-        insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
+        insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE))
     }
 
     /**
@@ -110,11 +110,11 @@ class PlaceholderManager(
         positionToId.filter {
             it.elementPosition >= selectionStart - 1
         }.forEach {
-            insertContentOverSpanWithId(it.uuid, it.elementTopOffset)
+            insertContentOverSpanWithId(it.uuid)
         }
     }
 
-    private suspend fun insertContentOverSpanWithId(uuid: String, currentTopOffset: Int? = null) {
+    private suspend fun insertContentOverSpanWithId(uuid: String) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -127,10 +127,10 @@ class PlaceholderManager(
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
 
-        insertInPosition(aztecAttributes ?: return, targetPosition, currentTopOffset)
+        insertInPosition(aztecAttributes ?: return, targetPosition)
     }
 
-    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentTopOffset: Int? = null) {
+    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int) {
         if (!validateAttributes(attrs)) {
             return
         }
@@ -148,14 +148,8 @@ class PlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
 
-        if (currentTopOffset != null) {
-            if (targetLineOffset != 0 && currentTopOffset == parentTextViewRect.top) {
-                return
-            } else {
-                positionToId.removeAll {
-                    it.uuid == uuid
-                }
-            }
+        positionToId.removeAll {
+            it.uuid == uuid
         }
 
         var box = container.findViewWithTag<View>(uuid)
@@ -179,7 +173,7 @@ class PlaceholderManager(
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
         box.setOnTouchListener(adapter)
-        positionToId.add(Placeholder(targetPosition, parentTextViewRect.top, uuid))
+        positionToId.add(Placeholder(targetPosition, uuid))
         if (!exists && box.parent == null) {
             container.addView(box)
             adapter.onViewCreated(box, uuid)
@@ -434,7 +428,7 @@ class PlaceholderManager(
         }
     }
 
-    data class Placeholder(val elementPosition: Int, val elementTopOffset: Int, val uuid: String)
+    data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
         private const val DEFAULT_HTML_TAG = "placeholder"

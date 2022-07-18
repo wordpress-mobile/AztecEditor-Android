@@ -59,6 +59,12 @@ class PlaceholderManager(
     }
 
     fun onDestroy() {
+        positionToId.forEach {
+            container.findViewWithTag<View>(it.uuid)?.let { placeholder ->
+                container.removeView(placeholder)
+            }
+        }
+        positionToId.clear()
         aztecText.contentChangeWatcher.unregisterObserver(this)
         adapters.values.forEach { it.onDestroy() }
         adapters.clear()

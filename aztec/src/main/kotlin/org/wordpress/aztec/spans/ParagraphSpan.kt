@@ -45,8 +45,18 @@ open class ParagraphSpan(
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
-        val isFirstLine = start <= spanStart
-        val isLastLine = spanEnd <= end
+        val previousLineBreak = if (start > 1) {
+            text.substring(start-1, start) == "\n"
+        } else {
+            false
+        }
+        val followingLineBreak = if (end < text.length) {
+            text.substring(end, end + 1) == "\n"
+        } else {
+            false
+        }
+        val isFirstLine = start <= spanStart || previousLineBreak
+        val isLastLine = spanEnd <= end || followingLineBreak
         if (isFirstLine) {
             removeTopPadding = true
             fm.ascent -= paragraphStyle.verticalMargin

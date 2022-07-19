@@ -1096,51 +1096,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        val list = ArrayList<Int>()
-
-        for (i in lines.indices) {
-            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
-            val lineEnd = lineStart + lines[i].length
-
-            if (lineStart >= lineEnd) {
-                continue
-            }
-
-            /**
-             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
-             *                                                  multiple lines (before and/or after), current entirely selected
-             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (after), current partially or entirely selected
-             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (before), current partially or entirely selected
-             */
-            if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (selEnd in lineStart..lineEnd)
-                    || (selStart in lineStart..lineEnd)) {
-                list.add(i)
-            }
-        }
-
-        if (list.isEmpty()) return false
-
-        return list.any { containsPreformat(it) }
-    }
-
-    fun containsPreformat(index: Int): Boolean {
-        val lines = TextUtils.split(editableText.toString(), "\n")
-        if (index < 0 || index >= lines.size) {
-            return false
-        }
-
-        val start = (0 until index).sumBy { lines[it].length + 1 }
-        val end = start + lines[index].length
-
-        if (start >= end) {
-            return false
-        }
-
-        val spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        val spans = editableText.getSpans(selStart, selEnd, AztecPreformatSpan::class.java)
         return spans.isNotEmpty()
     }
 

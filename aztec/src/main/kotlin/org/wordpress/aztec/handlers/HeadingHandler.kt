@@ -65,7 +65,7 @@ class HeadingHandler(private val alignmentRendering: AlignmentRendering) : Block
 
     companion object {
         fun cloneHeading(text: Spannable, block: AztecHeadingSpan, alignmentRendering: AlignmentRendering, start: Int, end: Int) {
-            set(text, createHeadingSpan(block.nestingLevel, block.textFormat, block.attributes, alignmentRendering), start, end)
+            set(text, createHeadingSpan(block.nestingLevel, block.textFormat, block.attributes, alignmentRendering, block.headerStyle), start, end)
         }
     }
 }

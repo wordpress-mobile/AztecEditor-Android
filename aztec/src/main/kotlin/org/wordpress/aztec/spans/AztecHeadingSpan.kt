@@ -18,8 +18,8 @@ fun createHeadingSpan(nestingLevel: Int,
                       tag: String,
                       attributes: AztecAttributes,
                       alignmentRendering: AlignmentRendering,
-                      headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
-) : AztecHeadingSpan {
+                      headerStyle: BlockFormatter.HeaderStyles = BlockFormatter.HeaderStyles(0, emptyMap())
+): AztecHeadingSpan {
     val textFormat = when (tag.toLowerCase(Locale.getDefault())) {
         "h1" -> AztecTextFormat.FORMAT_HEADING_1
         "h2" -> AztecTextFormat.FORMAT_HEADING_2
@@ -36,8 +36,8 @@ fun createHeadingSpan(nestingLevel: Int,
                       textFormat: ITextFormat,
                       attributes: AztecAttributes,
                       alignmentRendering: AlignmentRendering,
-                      headerStyle: BlockFormatter.HeaderStyle = BlockFormatter.HeaderStyle(0)
-) : AztecHeadingSpan =
+                      headerStyle: BlockFormatter.HeaderStyles = BlockFormatter.HeaderStyles(0, emptyMap())
+): AztecHeadingSpan =
         when (alignmentRendering) {
             AlignmentRendering.SPAN_LEVEL -> AztecHeadingSpanAligned(nestingLevel, textFormat, attributes, headerStyle)
             AlignmentRendering.VIEW_LEVEL -> AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle)
@@ -55,7 +55,7 @@ class AztecHeadingSpanAligned(
         override var nestingLevel: Int,
         textFormat: ITextFormat,
         override var attributes: AztecAttributes,
-        override var headerStyle: BlockFormatter.HeaderStyle,
+        override var headerStyle: BlockFormatter.HeaderStyles,
         override var align: Layout.Alignment? = null
 ) : AztecHeadingSpan(nestingLevel, textFormat, attributes, headerStyle), IAztecAlignmentSpan
 
@@ -63,7 +63,7 @@ open class AztecHeadingSpan(
         override var nestingLevel: Int,
         textFormat: ITextFormat,
         override var attributes: AztecAttributes,
-        open var headerStyle: BlockFormatter.HeaderStyle
+        open var headerStyle: BlockFormatter.HeaderStyles
 ) : MetricAffectingSpan(), IAztecLineBlockSpan, LineHeightSpan, UpdateLayout {
     override val TAG: String
         get() = heading.tag
@@ -80,7 +80,7 @@ open class AztecHeadingSpan(
     lateinit var heading: Heading
 
     var previousFontMetrics: Paint.FontMetricsInt? = null
-    var previousTextScale: Float = 1.0f
+    private var previousHeadingSize: HeadingSize = HeadingSize.Scale(1.0f)
     var previousSpacing: Float? = null
 
     enum class Heading constructor(internal val scale: Float, internal val tag: String) {
@@ -93,22 +93,24 @@ open class AztecHeadingSpan(
     }
 
     companion object {
-        private val SCALE_H1: Float = 1.73f
-        private val SCALE_H2: Float = 1.32f
-        private val SCALE_H3: Float = 1.02f
-        private val SCALE_H4: Float = 0.87f
-        private val SCALE_H5: Float = 0.72f
-        private val SCALE_H6: Float = 0.60f
+        private const val SCALE_H1: Float = 1.73f
+        private const val SCALE_H2: Float = 1.32f
+        private const val SCALE_H3: Float = 1.02f
+        private const val SCALE_H4: Float = 0.87f
+        private const val SCALE_H5: Float = 0.72f
+        private const val SCALE_H6: Float = 0.60f
 
         fun textFormatToHeading(textFormat: ITextFormat): Heading {
-            when (textFormat) {
-                AztecTextFormat.FORMAT_HEADING_1 -> return AztecHeadingSpan.Heading.H1
-                AztecTextFormat.FORMAT_HEADING_2 -> return AztecHeadingSpan.Heading.H2
-                AztecTextFormat.FORMAT_HEADING_3 -> return AztecHeadingSpan.Heading.H3
-                AztecTextFormat.FORMAT_HEADING_4 -> return AztecHeadingSpan.Heading.H4
-                AztecTextFormat.FORMAT_HEADING_5 -> return AztecHeadingSpan.Heading.H5
-                AztecTextFormat.FORMAT_HEADING_6 -> return AztecHeadingSpan.Heading.H6
-                else -> { return AztecHeadingSpan.Heading.H1 }
+            return when (textFormat) {
+                AztecTextFormat.FORMAT_HEADING_1 -> Heading.H1
+                AztecTextFormat.FORMAT_HEADING_2 -> Heading.H2
+                AztecTextFormat.FORMAT_HEADING_3 -> Heading.H3
+                AztecTextFormat.FORMAT_HEADING_4 -> Heading.H4
+                AztecTextFormat.FORMAT_HEADING_5 -> Heading.H5
+                AztecTextFormat.FORMAT_HEADING_6 -> Heading.H6
+                else -> {
+                    Heading.H1
+                }
             }
         }
     }
@@ -134,14 +136,16 @@ open class AztecHeadingSpan(
         var addedTopPadding = false
         var addedBottomPadding = false
 
+        val verticalPadding = headerStyle.verticalPadding
+
         if (start == spanStart || start < spanStart) {
-            fm.ascent -= headerStyle.verticalPadding
-            fm.top -= headerStyle.verticalPadding
+            fm.ascent -= verticalPadding
+            fm.top -= verticalPadding
             addedTopPadding = true
         }
         if (end == spanEnd || spanEnd < end) {
-            fm.descent += headerStyle.verticalPadding
-            fm.bottom += headerStyle.verticalPadding
+            fm.descent += verticalPadding
+            fm.bottom += verticalPadding
             addedBottomPadding = true
         }
 
@@ -158,19 +162,53 @@ open class AztecHeadingSpan(
     }
 
     override fun updateDrawState(textPaint: TextPaint) {
-        textPaint.textSize *= heading.scale
+        when (val headingSize = getHeadingSize()) {
+            is HeadingSize.Scale -> {
+                textPaint.textSize *= heading.scale
+            }
+            is HeadingSize.Size -> {
+                textPaint.textSize = headingSize.value.toFloat()
+            }
+        }
         textPaint.isFakeBoldText = true
+        getHeadingColor()?.let {
+            textPaint.color = it
+        }
     }
 
-    override fun updateMeasureState(textPaint: TextPaint) {
+    override fun updateMeasureState(paint: TextPaint) {
+        val headingSize = getHeadingSize()
         // when font size changes - reset cached font metrics to reapply vertical padding
-        if (previousTextScale != heading.scale || previousSpacing != textPaint.fontSpacing) {
+        if (headingSize != previousHeadingSize || previousSpacing != paint.fontSpacing) {
             previousFontMetrics = null
         }
-        previousTextScale = heading.scale
-        previousSpacing = textPaint.fontSpacing
+        previousHeadingSize = headingSize
+        previousSpacing = paint.fontSpacing
+        when (headingSize) {
+            is HeadingSize.Scale -> {
+                paint.textSize *= heading.scale
+            }
+            is HeadingSize.Size -> {
+                paint.textSize = headingSize.value.toFloat()
+            }
+        }
+        getHeadingColor()?.let {
+            paint.color = it
+        }
+    }
 
-        textPaint.textSize *= heading.scale
+    private fun getHeadingSize(): HeadingSize {
+        return headerStyle.styles[heading]?.fontSize?.takeIf { it > 0 }?.let { HeadingSize.Size(it) }
+                ?: HeadingSize.Scale(heading.scale)
+    }
+
+    private fun getHeadingColor(): Int? {
+        return headerStyle.styles[heading]?.fontColor?.takeIf { it != 0 }
+    }
+
+    sealed class HeadingSize {
+        data class Scale(val value: Float) : HeadingSize()
+        data class Size(val value: Int) : HeadingSize()
     }
 
     override fun toString() = "AztecHeadingSpan : $TAG"

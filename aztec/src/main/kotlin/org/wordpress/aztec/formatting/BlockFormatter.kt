@@ -40,16 +40,16 @@ import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.SpanWrapper
-import java.util.Arrays
 import kotlin.reflect.KClass
 
 class BlockFormatter(editor: AztecText,
                      private val listStyle: ListStyle,
                      private val quoteStyle: QuoteStyle,
-                     private val headerStyle: HeaderStyle,
+                     private val headerStyle: HeaderStyles,
                      private val preformatStyle: PreformatStyle,
                      private val alignmentRendering: AlignmentRendering,
-                     private val exclusiveBlockStyles: ExclusiveBlockStyles
+                     private val exclusiveBlockStyles: ExclusiveBlockStyles,
+                     private val paragraphStyle: ParagraphStyle
 ) : AztecFormatter(editor) {
     private val listFormatter = ListFormatter(editor)
     private val indentFormatter = IndentFormatter(editor)
@@ -62,8 +62,11 @@ class BlockFormatter(editor: AztecText,
 
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int)
-    data class HeaderStyle(val verticalPadding: Int)
-    data class ExclusiveBlockStyles(val enabled: Boolean = false)
+    data class HeaderStyles(val verticalPadding: Int, val styles: Map<AztecHeadingSpan.Heading, HeadingStyle>) {
+        data class HeadingStyle(val fontSize: Int, val fontColor: Int)
+    }
+    data class ExclusiveBlockStyles(val enabled: Boolean = false, val verticalParagraphMargin: Int)
+    data class ParagraphStyle(val verticalMargin: Int)
 
     fun indent() {
         listFormatter.indentList()
@@ -208,7 +211,7 @@ class BlockFormatter(editor: AztecText,
         var changed = false
 
         // try to remove block styling when pressing backspace at the beginning of the text
-        editableText.getSpans(0, 0, IAztecBlockSpan::class.java).forEach {
+        editableText.getSpans(0, 0, IAztecBlockSpan::class.java).forEach { it ->
             val spanEnd = editableText.getSpanEnd(it)
 
             val indexOfNewline = editableText.indexOf('\n').let { if (it != -1) it else editableText.length }
@@ -318,7 +321,7 @@ class BlockFormatter(editor: AztecText,
             }
 
     fun removeBlockStyle(textFormat: ITextFormat) {
-        removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it -> it.javaClass })
+        removeBlockStyle(textFormat, selectionStart, selectionEnd, makeBlock(textFormat, 0).map { it.javaClass })
     }
 
     fun <T : IAztecBlockSpan> removeEntireBlock(type: Class<T>) {
@@ -329,7 +332,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun removeBlockStyle(textFormat: ITextFormat, originalStart: Int, originalEnd: Int,
-                         spanTypes: List<Class<IAztecBlockSpan>> = Arrays.asList(IAztecBlockSpan::class.java),
+                         spanTypes: List<Class<IAztecBlockSpan>> = listOf(IAztecBlockSpan::class.java),
                          ignoreLineBounds: Boolean = false) {
         var start = originalStart
         var end = originalEnd
@@ -341,8 +344,8 @@ class BlockFormatter(editor: AztecText,
             getBoundsOfText(editableText, start, end)
         }
 
-        var startOfBounds = boundsOfSelectedText.start
-        var endOfBounds = boundsOfSelectedText.endInclusive
+        var startOfBounds = boundsOfSelectedText.first
+        var endOfBounds = boundsOfSelectedText.last
 
         if (ignoreLineBounds) {
             val hasPrecedingSpans = spanTypes.any { spanType ->
@@ -447,7 +450,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> listOf(createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle))
             AztecTextFormat.FORMAT_PREFORMAT -> listOf(createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle))
-            else -> listOf(createParagraphSpan(nestingLevel, alignmentRendering, attrs))
+            else -> listOf(createParagraphSpan(nestingLevel, alignmentRendering, attrs, paragraphStyle))
         }
     }
 
@@ -476,7 +479,7 @@ class BlockFormatter(editor: AztecText,
             AztecTextFormat.FORMAT_HEADING_5,
             AztecTextFormat.FORMAT_HEADING_6 -> makeBlockSpan(AztecHeadingSpan::class, textFormat, nestingLevel, attrs)
             AztecTextFormat.FORMAT_PREFORMAT -> makeBlockSpan(AztecPreformatSpan::class, textFormat, nestingLevel, attrs)
-            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs)
+            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs, paragraphStyle)
         }
     }
 
@@ -490,7 +493,7 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle)
             typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle)
-            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs)
+            else -> createParagraphSpan(nestingLevel, alignmentRendering, attrs, paragraphStyle)
         }
     }
 
@@ -500,6 +503,7 @@ class BlockFormatter(editor: AztecText,
             is AztecUnorderedListSpan -> blockElement.listStyle = listStyle
             is AztecTaskListSpan -> blockElement.listStyle = listStyle
             is AztecQuoteSpan -> blockElement.quoteStyle = quoteStyle
+            is ParagraphSpan -> blockElement.paragraphStyle = paragraphStyle
             is AztecPreformatSpan -> blockElement.preformatStyle = preformatStyle
             is AztecHeadingSpan -> blockElement.headerStyle = headerStyle
         }
@@ -603,10 +607,10 @@ class BlockFormatter(editor: AztecText,
         } else if (selectionStartIsOnTheNewLine) {
             val isSingleCharacterLine = (selectionStart > 1 && editableText[selectionStart - 1] != '\n' && editableText[selectionStart - 2] == '\n') || selectionStart == 1
 
-            if (isSingleCharacterLine) {
-                indexOfFirstLineBreak = selectionStart - 1
+            indexOfFirstLineBreak = if (isSingleCharacterLine) {
+                selectionStart - 1
             } else {
-                indexOfFirstLineBreak = editable.lastIndexOf("\n", selectionStart - 1) + 1
+                editable.lastIndexOf("\n", selectionStart - 1) + 1
             }
             if (isTrailingNewlineAtTheEndOfSelection) {
                 indexOfLastLineBreak = editable.indexOf("\n", selectionEnd - 1)
@@ -636,12 +640,12 @@ class BlockFormatter(editor: AztecText,
         }
 
         val boundsOfSelectedText = getBoundsOfText(editableText, start, end)
-        var spans = getAlignedSpans(null, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+        var spans = getAlignedSpans(null, boundsOfSelectedText.first, boundsOfSelectedText.last)
 
         if (start == end) {
-            if (start == boundsOfSelectedText.start && spans.size > 1) {
+            if (start == boundsOfSelectedText.first && spans.size > 1) {
                 spans = spans.filter { editableText.getSpanEnd(it) != start }
-            } else if (start == boundsOfSelectedText.endInclusive && spans.size > 1) {
+            } else if (start == boundsOfSelectedText.last && spans.size > 1) {
                 spans = spans.filter { editableText.getSpanStart(it) != start }
             }
         }
@@ -649,12 +653,12 @@ class BlockFormatter(editor: AztecText,
         if (spans.isNotEmpty()) {
             spans.filter { it !is AztecListSpan }.forEach { changeAlignment(it, textFormat) }
         } else {
-            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.start)
+            val nestingLevel = IAztecNestable.getNestingLevelAt(editableText, boundsOfSelectedText.first)
 
             val alignment = getAlignment(textFormat,
-                    editableText.subSequence(boundsOfSelectedText.start until boundsOfSelectedText.endInclusive))
-            editableText.setSpan(createParagraphSpan(nestingLevel, alignment),
-                    boundsOfSelectedText.start, boundsOfSelectedText.endInclusive, Spanned.SPAN_PARAGRAPH)
+                    editableText.subSequence(boundsOfSelectedText.first until boundsOfSelectedText.last))
+            editableText.setSpan(createParagraphSpan(nestingLevel, alignment, paragraphStyle = paragraphStyle),
+                    boundsOfSelectedText.first, boundsOfSelectedText.last, Spanned.SPAN_PARAGRAPH)
         }
     }
 
@@ -678,9 +682,9 @@ class BlockFormatter(editor: AztecText,
         if (start != end) {
             // we want to push line blocks as deep as possible, because they can't contain other block elements (e.g. headings)
             if (spanToApply is IAztecLineBlockSpan) {
-                applyLineBlock(blockElementType, boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+                applyLineBlock(blockElementType, boundsOfSelectedText.first, boundsOfSelectedText.last)
             } else {
-                val delimiters = getTopBlockDelimiters(boundsOfSelectedText.start, boundsOfSelectedText.endInclusive)
+                val delimiters = getTopBlockDelimiters(boundsOfSelectedText.first, boundsOfSelectedText.last)
                 for (i in 0 until delimiters.size - 1) {
                     pushNewBlock(delimiters[i], delimiters[i + 1], blockElementType)
                 }
@@ -688,12 +692,12 @@ class BlockFormatter(editor: AztecText,
 
             editor.setSelection(editor.selectionStart)
         } else {
-            val startOfLine = boundsOfSelectedText.start
-            val endOfLine = boundsOfSelectedText.endInclusive
+            val startOfLine = boundsOfSelectedText.first
+            val endOfLine = boundsOfSelectedText.last
 
             // we can't add blocks around partial block elements (i.e. list items), everything must go inside
-            val isWithinPartialBlock = editableText.getSpans(boundsOfSelectedText.start,
-                    boundsOfSelectedText.endInclusive, IAztecCompositeBlockSpan::class.java)
+            val isWithinPartialBlock = editableText.getSpans(boundsOfSelectedText.first,
+                    boundsOfSelectedText.last, IAztecCompositeBlockSpan::class.java)
                     .any { it.nestingLevel == nestingLevel - 1 }
 
             val startOfBlock = mergeWithBlockAbove(startOfLine, endOfLine, spanToApply, nestingLevel, isWithinPartialBlock, blockElementType)
@@ -745,8 +749,7 @@ class BlockFormatter(editor: AztecText,
                 // no similar blocks before us so, don't expand
             } else if (spansOnPreviousLine.nestingLevel != nestingLevel) {
                 // other block is at a different nesting level so, don't expand
-            } else if (spansOnPreviousLine is AztecHeadingSpan
-                    && spansOnPreviousLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+            } else if (spansOnPreviousLine is AztecHeadingSpan && spanToApply is AztecHeadingSpan) {
                 // Heading span is of different style so, don't expand
             } else if (!isWithinList) {
                 // expand the start
@@ -767,8 +770,7 @@ class BlockFormatter(editor: AztecText,
                 // no similar blocks after us so, don't expand
             } else if (spanOnNextLine.nestingLevel != nestingLevel) {
                 // other block is at a different nesting level so, don't expand
-            } else if (spanOnNextLine is AztecHeadingSpan
-                    && spanOnNextLine.heading != (spanToApply as AztecHeadingSpan).heading) {
+            } else if (spanOnNextLine is AztecHeadingSpan && spanToApply is AztecHeadingSpan) {
                 // Heading span is of different style so, don't expand
             } else if (!isWithinList) {
                 // expand the end
@@ -808,7 +810,7 @@ class BlockFormatter(editor: AztecText,
             for (i in lines.indices) {
                 val lineLength = lines[i].length
 
-                val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+                val lineStart = (0 until i).sumBy { lines[it].length + 1 }
 
                 val lineEnd = (lineStart + lineLength).let {
                     if ((start + it) != editableText.length) it + 1 else it // include the newline or not
@@ -829,7 +831,7 @@ class BlockFormatter(editor: AztecText,
             val splitLength = lines[i].length
 
             val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
-            val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
+            val lineEnd = (lineStart + splitLength + 1).coerceAtMost(end) // +1 to include the newline
 
             val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
@@ -846,7 +848,7 @@ class BlockFormatter(editor: AztecText,
             val splitLength = lines[i].length
 
             val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
-            val lineEnd = Math.min(lineStart + splitLength + 1, end) // +1 to include the newline
+            val lineEnd = (lineStart + splitLength + 1).coerceAtMost(end) // +1 to include the newline
 
             val lineLength = lineEnd - lineStart
             if (lineLength == 0) continue
@@ -872,7 +874,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     private fun liftListBlock(listSpan: Class<out AztecListSpan>, start: Int, end: Int) {
-        editableText.getSpans(start, end, listSpan).forEach {
+        editableText.getSpans(start, end, listSpan).forEach { it ->
             val wrapper = SpanWrapper(editableText, it)
             editableText.getSpans(wrapper.start, wrapper.end, AztecListItemSpan::class.java).forEach { editableText.removeSpan(it) }
 
@@ -968,7 +970,7 @@ class BlockFormatter(editor: AztecText,
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -984,8 +986,8 @@ class BlockFormatter(editor: AztecText,
              *                                                  multiple lines (before), current partially or entirely selected
              */
             if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                    || (selEnd in lineStart..lineEnd)
+                    || (selStart in lineStart..lineEnd)) {
                 list.add(i)
             }
         }
@@ -1002,7 +1004,7 @@ class BlockFormatter(editor: AztecText,
             return false
         }
 
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -1012,20 +1014,20 @@ class BlockFormatter(editor: AztecText,
         val spans = editableText.getSpans(start, end, AztecHeadingSpan::class.java)
 
         for (span in spans) {
-            when (textFormat) {
+            return when (textFormat) {
                 AztecTextFormat.FORMAT_HEADING_1 ->
-                    return span.heading == AztecHeadingSpan.Heading.H1
+                    span.heading == AztecHeadingSpan.Heading.H1
                 AztecTextFormat.FORMAT_HEADING_2 ->
-                    return span.heading == AztecHeadingSpan.Heading.H2
+                    span.heading == AztecHeadingSpan.Heading.H2
                 AztecTextFormat.FORMAT_HEADING_3 ->
-                    return span.heading == AztecHeadingSpan.Heading.H3
+                    span.heading == AztecHeadingSpan.Heading.H3
                 AztecTextFormat.FORMAT_HEADING_4 ->
-                    return span.heading == AztecHeadingSpan.Heading.H4
+                    span.heading == AztecHeadingSpan.Heading.H4
                 AztecTextFormat.FORMAT_HEADING_5 ->
-                    return span.heading == AztecHeadingSpan.Heading.H5
+                    span.heading == AztecHeadingSpan.Heading.H5
                 AztecTextFormat.FORMAT_HEADING_6 ->
-                    return span.heading == AztecHeadingSpan.Heading.H6
-                else -> return false
+                    span.heading == AztecHeadingSpan.Heading.H6
+                else -> false
             }
         }
 
@@ -1098,7 +1100,7 @@ class BlockFormatter(editor: AztecText,
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -1114,8 +1116,8 @@ class BlockFormatter(editor: AztecText,
              *                                                  multiple lines (before), current partially or entirely selected
              */
             if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (lineStart <= selEnd && selEnd <= lineEnd)
-                    || (lineStart <= selStart && selStart <= lineEnd)) {
+                    || (selEnd in lineStart..lineEnd)
+                    || (selStart in lineStart..lineEnd)) {
                 list.add(i)
             }
         }
@@ -1131,7 +1133,7 @@ class BlockFormatter(editor: AztecText,
             return false
         }
 
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumBy { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -1209,7 +1211,7 @@ class BlockFormatter(editor: AztecText,
                 val spanStart = editableText.getSpanStart(heading)
                 val spanEnd = editableText.getSpanEnd(heading)
                 val spanFlags = editableText.getSpanFlags(heading)
-                val spanType = makeBlock(heading.textFormat, 0).map { it -> it.javaClass }
+                val spanType = makeBlock(heading.textFormat, 0).map { it.javaClass }
 
                 removeBlockStyle(heading.textFormat, spanStart, spanEnd, spanType)
                 editableText.setSpan(AztecPreformatSpan(heading.nestingLevel, heading.attributes, preformatStyle), spanStart, spanEnd, spanFlags)
@@ -1229,7 +1231,7 @@ class BlockFormatter(editor: AztecText,
                 val spanStart = editableText.getSpanStart(preformat)
                 val spanEnd = editableText.getSpanEnd(preformat)
                 val spanFlags = editableText.getSpanFlags(preformat)
-                val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it -> it.javaClass }
+                val spanType = makeBlock(AztecTextFormat.FORMAT_PREFORMAT, 0).map { it.javaClass }
 
                 removeBlockStyle(AztecTextFormat.FORMAT_PREFORMAT, spanStart, spanEnd, spanType)
                 val headingSpan = createHeadingSpan(

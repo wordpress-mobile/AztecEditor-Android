@@ -59,6 +59,12 @@ class PlaceholderManager(
     }
 
     fun onDestroy() {
+        positionToId.forEach {
+            container.findViewWithTag<View>(it.uuid)?.let { placeholder ->
+                container.removeView(placeholder)
+            }
+        }
+        positionToId.clear()
         aztecText.contentChangeWatcher.unregisterObserver(this)
         adapters.values.forEach { it.onDestroy() }
         adapters.clear()
@@ -85,7 +91,7 @@ class PlaceholderManager(
         val drawable = buildPlaceholderDrawable(adapter, attrs)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
                 this, aztecText, adapter, TAG = htmlTag))
-        insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE), null)
+        insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE))
     }
 
     /**
@@ -110,11 +116,11 @@ class PlaceholderManager(
         positionToId.filter {
             it.elementPosition >= selectionStart - 1
         }.forEach {
-            insertContentOverSpanWithId(it.uuid, it.elementPosition)
+            insertContentOverSpanWithId(it.uuid)
         }
     }
 
-    private suspend fun insertContentOverSpanWithId(uuid: String, currentPosition: Int? = null) {
+    private suspend fun insertContentOverSpanWithId(uuid: String) {
         var aztecAttributes: AztecAttributes? = null
         val predicate = object : AztecText.AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
@@ -127,10 +133,10 @@ class PlaceholderManager(
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
 
-        insertInPosition(aztecAttributes ?: return, targetPosition, currentPosition)
+        insertInPosition(aztecAttributes ?: return, targetPosition)
     }
 
-    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int, currentPosition: Int? = null) {
+    private suspend fun insertInPosition(attrs: AztecAttributes, targetPosition: Int) {
         if (!validateAttributes(attrs)) {
             return
         }
@@ -139,15 +145,6 @@ class PlaceholderManager(
         val textViewLayout: Layout = aztecText.layout
         val parentTextViewRect = Rect()
         val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
-        if (currentPosition != null) {
-            if (targetLineOffset != 0 && currentPosition == targetPosition) {
-                return
-            } else {
-                positionToId.removeAll {
-                    it.uuid == uuid
-                }
-            }
-        }
         textViewLayout.getLineBounds(targetLineOffset, parentTextViewRect)
 
         val parentTextViewLocation = intArrayOf(0, 0)
@@ -156,6 +153,10 @@ class PlaceholderManager(
 
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
+
+        positionToId.removeAll {
+            it.uuid == uuid
+        }
 
         var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
@@ -168,7 +169,12 @@ class PlaceholderManager(
                 parentTextViewRect.bottom - parentTextViewRect.top - 20
         )
         val padding = 10
-        params.setMargins(parentTextViewRect.left + padding, parentTextViewRect.top + padding, parentTextViewRect.right - padding, parentTextViewRect.bottom - padding)
+        params.setMargins(
+                parentTextViewRect.left + padding + aztecText.paddingStart,
+                parentTextViewRect.top + padding,
+                parentTextViewRect.right - padding - aztecText.paddingEnd,
+                0
+        )
         box.layoutParams = params
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
@@ -387,7 +393,12 @@ class PlaceholderManager(
                         } else {
                             height.ratio
                         }
-                        (ratio * calculateWidth(attrs, windowWidth)).toInt()
+                        val result = (ratio * calculateWidth(attrs, windowWidth)).toInt()
+                        if (height.limit != null && height.limit < result) {
+                            height.limit
+                        } else {
+                            result
+                        }
                     }
                 }
             }
@@ -406,15 +417,20 @@ class PlaceholderManager(
                             width.ratio > 1.0 -> 1.0f
                             else -> width.ratio
                         }
-                        (safeRatio * windowWidth).toInt()
+                        val result = (safeRatio * windowWidth).toInt()
+                        if (width.limit != null && result > width.limit) {
+                            width.limit
+                        } else {
+                            result
+                        }
                     }
                 }
             }
         }
 
         sealed class Proportion {
-            data class Fixed(val value: Int) : Proportion()
-            data class Ratio(val ratio: Float) : Proportion()
+            data class Fixed(val value: Int, val limit: Int? = null) : Proportion()
+            data class Ratio(val ratio: Float, val limit: Int? = null) : Proportion()
         }
     }
 

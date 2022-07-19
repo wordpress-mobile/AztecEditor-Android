@@ -81,6 +81,7 @@ import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecDynamicImageSpan
+import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
@@ -289,6 +290,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var widthMeasureSpec: Int = 0
 
+    var verticalParagraphPadding: Int = 0
     var verticalParagraphMargin: Int = 0
     var verticalHeadingMargin: Int = 0
 
@@ -420,8 +422,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
-        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
+        verticalParagraphPadding = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
                         resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_paragraphVerticalMargin,
+                        resources.getDimensionPixelSize(R.dimen.block_vertical_margin))
         verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding,
                         resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
 
@@ -437,25 +441,51 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                verticalParagraphMargin)
-        blockFormatter = BlockFormatter(this,
-                listStyle,
-                BlockFormatter.QuoteStyle(
+                verticalParagraphPadding)
+        blockFormatter = BlockFormatter(editor = this,
+                listStyle = listStyle,
+                quoteStyle = BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
                         styles.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        verticalParagraphMargin),
-                BlockFormatter.HeaderStyle(verticalHeadingMargin),
-                BlockFormatter.PreformatStyle(
+                        verticalParagraphPadding),
+                headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
+                        AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H2 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H3 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H4 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFourFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingFourFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H5 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H6 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingSixFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingSixFontColor, 0)
+                        )
+                )),
+                preformatStyle = BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        verticalParagraphMargin),
-                alignmentRendering,
-                BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false))
+                        verticalParagraphPadding),
+                alignmentRendering = alignmentRendering,
+                exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),
+                paragraphStyle = BlockFormatter.ParagraphStyle(verticalParagraphMargin)
         )
         EnhancedMovementMethod.taskListClickHandler = TaskListClickHandler(listStyle)
 
@@ -727,7 +757,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
-        EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
+        EndOfParagraphMarkerAdder.install(this, verticalParagraphPadding)
 
         SuggestionWatcher.install(this)
 
@@ -1547,7 +1577,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, IAztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
-        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
+        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphPadding }
         editable.getSpans(start, end, AztecURLSpan::class.java).forEach { it.linkStyle = linkFormatter.linkStyle }
         editable.getSpans(start, end, AztecCodeSpan::class.java).forEach { it.codeStyle = inlineFormatter.codeStyle }
 

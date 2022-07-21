@@ -59,9 +59,9 @@ fun AztecText.hasImageCaption(attributePredicate: AztecText.AttributePredicate):
 }
 
 fun AztecImageSpan.getCaption(): String {
-    textView?.text?.let {
-        val wrapper = SpanWrapper(textView!!.text, this)
-        textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
+    textView?.get()?.text?.let { editable ->
+        val wrapper = SpanWrapper(editable, this)
+        editable.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.caption
         }
     }
@@ -69,9 +69,9 @@ fun AztecImageSpan.getCaption(): String {
 }
 
 fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
-    textView?.text?.let {
-        val wrapper = SpanWrapper(textView!!.text, this)
-        textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
+    textView?.get()?.text?.let { editable ->
+        val wrapper = SpanWrapper(editable, this)
+        editable.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.let {
             return it.attributes
         }
     }
@@ -80,17 +80,17 @@ fun AztecImageSpan.getCaptionAttributes(): AztecAttributes {
 
 @JvmOverloads
 fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
-    textView?.text?.let {
-        val wrapper = SpanWrapper(textView!!.text, this)
+    textView?.get()?.text?.let { editable ->
+        val wrapper = SpanWrapper(editable, this)
 
-        var captionSpan = textView?.text?.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
+        var captionSpan = editable.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java)?.firstOrNull()
         if (captionSpan == null) {
             captionSpan = createCaptionShortcodeSpan(
                     AztecAttributes(),
                     CaptionShortcodePlugin.HTML_TAG,
-                    IAztecNestable.getNestingLevelAt(textView!!.text, wrapper.start),
-                    textView!!)
-            textView!!.text.setSpan(captionSpan, wrapper.start, wrapper.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    IAztecNestable.getNestingLevelAt(editable, wrapper.start),
+                    textView?.get()!!)
+            editable.setSpan(captionSpan, wrapper.start, wrapper.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         captionSpan.caption = value
@@ -114,8 +114,8 @@ fun AztecImageSpan.setCaption(value: String, attrs: AztecAttributes? = null) {
 }
 
 fun AztecImageSpan.removeCaption() {
-    textView?.text?.let {
-        val wrapper = SpanWrapper(textView!!.text, this)
-        textView!!.text.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.remove()
+    textView?.get()?.text?.let { editable ->
+        val wrapper = SpanWrapper(editable, this)
+        editable.getSpans(wrapper.start, wrapper.end, CaptionShortcodeSpan::class.java).firstOrNull()?.remove()
     }
 }

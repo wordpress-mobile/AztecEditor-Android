@@ -7,7 +7,7 @@ import org.wordpress.aztec.exceptions.DynamicLayoutGetBlockIndexOutOfBoundsExcep
 import org.wordpress.aztec.util.AztecLog
 import java.lang.Thread.UncaughtExceptionHandler
 
-class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, private val visualEditor: AztecText) : UncaughtExceptionHandler {
+class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, private var visualEditor: AztecText?) : UncaughtExceptionHandler {
 
     interface ExceptionHandlerHelper {
         fun shouldLog(ex: Throwable) : Boolean
@@ -34,12 +34,14 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
             // Try to report the HTML code of the content, the spans details, but do not report exceptions that can occur logging the content
             try {
                 AppLog.e(AppLog.T.EDITOR, "HTML content of Aztec Editor before the crash:")
-                AppLog.e(AppLog.T.EDITOR, visualEditor.toPlainHtml(false))
+                AppLog.e(AppLog.T.EDITOR, visualEditor?.toPlainHtml(false) ?: "Editor was cleared")
             } catch (e: Throwable) {
                 AppLog.e(AppLog.T.EDITOR, "Oops! There was an error logging the HTML code.")
             }
             try {
-                AztecLog.logContentDetails(visualEditor)
+                visualEditor?.let {
+                    AztecLog.logContentDetails(it)
+                }
             } catch (e: Throwable) {
                 // nop
             }
@@ -58,7 +60,7 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
                 detected = true
             }
             if (detected) {
-                visualEditor.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
+                visualEditor?.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
             }
         }
 
@@ -66,6 +68,8 @@ class AztecExceptionHandler(private val logHelper: ExceptionHandlerHelper?, priv
     }
 
     fun restoreDefaultHandler() {
+        visualEditor = null
+        logHelper = null
         Thread.setDefaultUncaughtExceptionHandler(rootHandler)
     }
 }

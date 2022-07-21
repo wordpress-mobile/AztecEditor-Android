@@ -6,8 +6,10 @@ import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.exceptions.DynamicLayoutGetBlockIndexOutOfBoundsException
 import org.wordpress.aztec.util.AztecLog
 import java.lang.Thread.UncaughtExceptionHandler
+import java.lang.ref.WeakReference
 
-class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, private var visualEditor: AztecText?) : UncaughtExceptionHandler {
+class AztecExceptionHandler(private var logHelper: WeakReference<ExceptionHandlerHelper>, private var visualEditor: WeakReference<AztecText>) : UncaughtExceptionHandler {
+    constructor(logHelper: ExceptionHandlerHelper, visualEditor: AztecText): this(WeakReference(logHelper), WeakReference(visualEditor))
 
     interface ExceptionHandlerHelper {
         fun shouldLog(ex: Throwable) : Boolean
@@ -25,7 +27,7 @@ class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, priv
         // Check if we should log the content or not
         var shouldLog = true
         try {
-            shouldLog = logHelper?.shouldLog(ex) ?: true
+            shouldLog = logHelper.get()?.shouldLog(ex) ?: true
         } catch (e: Throwable) {
             AppLog.w(AppLog.T.EDITOR, "There was an exception in the Logger Helper. Set the logging to true")
         }
@@ -34,12 +36,12 @@ class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, priv
             // Try to report the HTML code of the content, the spans details, but do not report exceptions that can occur logging the content
             try {
                 AppLog.e(AppLog.T.EDITOR, "HTML content of Aztec Editor before the crash:")
-                AppLog.e(AppLog.T.EDITOR, visualEditor?.toPlainHtml(false) ?: "Editor was cleared")
+                AppLog.e(AppLog.T.EDITOR, visualEditor.get()?.toPlainHtml(false) ?: "Editor was cleared")
             } catch (e: Throwable) {
                 AppLog.e(AppLog.T.EDITOR, "Oops! There was an error logging the HTML code.")
             }
             try {
-                visualEditor?.let {
+                visualEditor.get()?.let {
                     AztecLog.logContentDetails(it)
                 }
             } catch (e: Throwable) {
@@ -60,7 +62,7 @@ class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, priv
                 detected = true
             }
             if (detected) {
-                visualEditor?.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
+                visualEditor.get()?.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
             }
         }
 
@@ -68,8 +70,8 @@ class AztecExceptionHandler(private var logHelper: ExceptionHandlerHelper?, priv
     }
 
     fun restoreDefaultHandler() {
-        visualEditor = null
-        logHelper = null
+        visualEditor.clear()
+        logHelper.clear()
         Thread.setDefaultUncaughtExceptionHandler(rootHandler)
     }
 }

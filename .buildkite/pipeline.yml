@@ -14,8 +14,7 @@ steps:
     key: "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-aztec.sh
+    command: .buildkite/commands/publish-aztec.sh
 
   - label: "Publish :glide-loader"
     key: "publish-glide-loader"
@@ -23,8 +22,7 @@ steps:
       - "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-glide-loader.sh
+    command: .buildkite/commands/publish-glide-loader.sh
 
   - label: "Publish :picasso-loader"
     key: "publish-picasso-loader"
@@ -32,8 +30,7 @@ steps:
       - "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-picasso-loader.sh
+    command: .buildkite/commands/publish-picasso-loader.sh
 
   - label: "Publish :wordpress-shortcodes"
     key: "publish-wordpress-shortcodes"
@@ -41,8 +38,7 @@ steps:
       - "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-wordpress-shortcodes.sh
+    command: .buildkite/commands/publish-wordpress-shortcodes.sh
 
   - label: "Publish :wordpress-comments"
     key: "publish-wordpress-comments"
@@ -50,8 +46,7 @@ steps:
       - "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-wordpress-comments.sh
+    command: .buildkite/commands/publish-wordpress-comments.sh
 
   - label: "Publish :media-placeholders"
     key: "publish-media-placeholders"
@@ -59,5 +54,4 @@ steps:
       - "publish-aztec"
     plugins:
       - *publish-android-artifacts-docker-container
-    command: |
-      .buildkite/publish-media-placeholders.sh
+    command: .buildkite/commands/publish-media-placeholders.sh

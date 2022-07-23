@@ -9,6 +9,27 @@ common_params:
     - automattic/bash-cache#2.6.0
 
 steps:
+  - label: "Lint"
+    key: "lint"
+    command: .buildkite/commands/lint.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/reports/*"
+
+  - label: "Unit Tests"
+    key: "test"
+    command: .buildkite/commands/unit-test.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/test-results/**/*.xml"
+
+  - label: "Connected Tests"
+    key: "connected-test"
+    command: .buildkite/commands/connected-tests.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/test-results/**/*.xml"
+
   - label: "Publish :aztec"
     key: "publish-aztec"
     command: .buildkite/commands/publish-aztec.sh

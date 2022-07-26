@@ -125,6 +125,7 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.Arrays
@@ -1390,7 +1391,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         disableTextChangedListener()
 
         builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
-            it.textView = this
+            it.textView = WeakReference(this)
         }
 
         val cursorPosition = consumeCursorPosition(builder)

@@ -25,6 +25,7 @@ import org.wordpress.aztec.Html
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
@@ -90,7 +91,7 @@ class PlaceholderManager(
         val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter, attrs)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                this, aztecText, adapter, TAG = htmlTag))
+                this, aztecText, WeakReference(adapter), TAG = htmlTag))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE))
     }
 
@@ -260,7 +261,7 @@ class PlaceholderManager(
                     nestingLevel = nestingLevel,
                     attributes = aztecAttributes,
                     onMediaDeletedListener = this,
-                    adapter = adapter,
+                    adapter = WeakReference(adapter),
                     TAG = htmlTag
             )
             val clickableSpan = AztecMediaClickableSpan(span)

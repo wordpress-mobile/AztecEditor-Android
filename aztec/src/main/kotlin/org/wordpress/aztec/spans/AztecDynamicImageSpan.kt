@@ -7,9 +7,10 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.text.style.DynamicDrawableSpan
 import org.wordpress.aztec.AztecText
+import java.lang.ref.WeakReference
 
 abstract class AztecDynamicImageSpan(val context: Context, protected var imageDrawable: Drawable?) : DynamicDrawableSpan() {
-    var textView: AztecText? = null
+    var textView: WeakReference<AztecText>? = null
     var aspectRatio: Double = 1.0
 
     private var measuring = false
@@ -88,11 +89,11 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
     }
 
     fun adjustBounds(start: Int): Rect {
-        if (textView == null || textView?.widthMeasureSpec == 0) {
+        if (textView == null || textView?.get()?.widthMeasureSpec == 0) {
             return Rect(imageDrawable?.bounds ?: Rect(0, 0, 0, 0))
         }
 
-        val layout = textView?.layout
+        val layout = textView?.get()?.layout
 
         if (measuring || layout == null) {
             // if we're in pre-layout phase, just return an empty rect
@@ -143,7 +144,7 @@ abstract class AztecDynamicImageSpan(val context: Context, protected var imageDr
 
         if (imageDrawable != null) {
             var transY = top
-            if (mVerticalAlignment == DynamicDrawableSpan.ALIGN_BASELINE) {
+            if (mVerticalAlignment == ALIGN_BASELINE) {
                 transY -= paint.fontMetricsInt.descent
             }
 

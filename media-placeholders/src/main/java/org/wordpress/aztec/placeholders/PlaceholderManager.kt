@@ -160,8 +160,11 @@ class PlaceholderManager(
         aztecText.getLocationOnScreen(parentTextViewLocation)
         val parentTextViewTopAndBottomOffset = aztecText.scrollY + aztecText.compoundPaddingTop
 
+        val adapter = adapters[type]!!
+        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - 20
+        val height = adapter.calculateHeight(attrs, windowWidth)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
-        parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
+        parentTextViewRect.bottom = parentTextViewRect.top + height
 
         positionToId.removeAll {
             it.uuid == uuid
@@ -169,19 +172,18 @@ class PlaceholderManager(
 
         var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
-        val adapter = adapters[type]!!
         if (!exists) {
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, parentTextViewRect.right - parentTextViewRect.left - 20),
-                parentTextViewRect.bottom - parentTextViewRect.top - 20
+                adapter.calculateWidth(attrs, windowWidth) - 20,
+                height - 20
         )
         val padding = 10
         params.setMargins(
                 parentTextViewRect.left + padding + aztecText.paddingStart,
                 parentTextViewRect.top + padding,
-                parentTextViewRect.right - padding - aztecText.paddingEnd,
+                0,
                 0
         )
         box.layoutParams = params

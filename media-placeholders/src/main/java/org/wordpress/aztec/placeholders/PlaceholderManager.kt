@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
@@ -143,7 +144,14 @@ class PlaceholderManager(
         }
         val uuid = attrs.getValue(UUID_ATTRIBUTE)
         val type = attrs.getValue(TYPE_ATTRIBUTE)
-        val textViewLayout: Layout = aztecText.layout
+        // At this point we can get to a race condition where the aztec text layout is not yet initialized.
+        // We want to wait a bit and make sure it's properly loaded.
+        var counter = 0
+        while (aztecText.layout == null && counter < 10) {
+            delay(50)
+            counter += 1
+        }
+        val textViewLayout: Layout = aztecText.layout ?: return
         val parentTextViewRect = Rect()
         val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
         textViewLayout.getLineBounds(targetLineOffset, parentTextViewRect)

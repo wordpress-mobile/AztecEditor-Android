@@ -100,6 +100,6 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
         onMediaDeletedListener?.onMediaDeleted(attributes)
     }
     fun beforeMediaDeleted() {
-        onMediaDeletedListener?.onMediaDeleted(attributes)
+        onMediaDeletedListener?.beforeMediaDeleted(attributes)
     }
 }

@@ -160,7 +160,6 @@ class PlaceholderManager(
         aztecText.getLocationOnScreen(parentTextViewLocation)
         val parentTextViewTopAndBottomOffset = aztecText.scrollY + aztecText.compoundPaddingTop
 
-
         val adapter = adapters[type]!!
         val height = adapter.calculateHeight(attrs, parentTextViewRect.right - parentTextViewRect.left - 20)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset

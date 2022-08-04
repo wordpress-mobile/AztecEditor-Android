@@ -3,7 +3,6 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:tint="?attr/toolbarIconHighlightColor"
     android:viewportWidth="24"
     android:viewportHeight="24">
 
@@ -13,7 +12,7 @@
         android:scaleX="0.6"
         android:scaleY="0.6">
         <path
-            android:fillColor="@color/white"
+            android:fillColor="?attr/toolbarIconHighlightColor"
             android:pathData="M7.57622 11.4801L12.5762 5.48014L11.4239 4.51987L6.94966 9.88895L4.53039 7.46968L3.46973 8.53034L6.46973 11.5303L7.05046 12.1111L7.57622 11.4801ZM20.0001 16H4.00006V14.5H20.0001V16ZM13.0001 20H4.00006V18.5H13.0001V20Z" />
     </group>
 

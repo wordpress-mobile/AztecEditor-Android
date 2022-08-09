@@ -74,6 +74,7 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.ITextPastePlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
@@ -1845,11 +1846,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             disableTextChangedListener()
 
             val length = text.length
+            var selectedText: String? = null
             if (min == 0 && max == 0 && length == 1 && text.toString() == Constants.END_OF_BUFFER_MARKER_STRING) {
                 editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
             } else if (min == 0 && max == length) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
+                selectedText = editable.substring(min, max)
                 // prevent changes here from triggering the crash preventer
                 disableCrashPreventerInputFilter()
                 editable.delete(min, max)
@@ -1875,7 +1878,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
 
                 val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
+                val pastedHtmlText = plugins.filterIsInstance<ITextPastePlugin>().fold(textToPaste) { acc, plugin ->
+                    if (selectedText.isNullOrEmpty()) {
+                        plugin.toHtml(acc)
+                    } else {
+                        plugin.toHtml(selectedText, acc)
+                    }
+                }
+                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, pastedHtmlText + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
 
                 fromHtml(newHtml, false)
                 inlineFormatter.joinStyleSpans(0, length())

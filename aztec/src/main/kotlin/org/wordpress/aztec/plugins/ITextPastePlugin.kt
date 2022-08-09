@@ -4,7 +4,7 @@ package org.wordpress.aztec.plugins
  * Use this plugin in order to override the default text paste behaviour. An example is overriding the paste so that
  * you can handle pasted URLs as links over the selected text.
  */
-interface ITextPastePlugin: IAztecPlugin {
+interface ITextPastePlugin : IAztecPlugin {
     /**
      * This method is called when the cursor is placed into the editor, no text is selected and the user pastes text
      * into the editor. This method should return HTML (plain text is OK if you don't apply any changes to the pasted

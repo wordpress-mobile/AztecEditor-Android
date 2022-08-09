@@ -17,6 +17,7 @@ class UrlPastePlugin : ITextPastePlugin {
             pastedText
         }
     }
+
     /**
      * If the pasted text is a link, make sure the selected text is wrapped with `a` tag and not removed.
      */

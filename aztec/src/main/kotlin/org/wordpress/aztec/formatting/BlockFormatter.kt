@@ -245,8 +245,19 @@ class BlockFormatter(editor: AztecText,
         }
         val selectionStart = editor.selectionStart
 
+        var newSelStart = if (selectionStart > selectionEnd) selectionEnd else selectionStart
+        var newSelEnd = selectionEnd
+
+        if (newSelStart == 0 && newSelEnd == 0) {
+            newSelEnd++
+        } else if (newSelStart == newSelEnd && editableText.length > selectionStart && editableText[selectionStart - 1] == Constants.NEWLINE) {
+            newSelEnd++
+        } else if (newSelStart > 0 && !editor.isTextSelected()) {
+            newSelStart--
+        }
+
         // try to remove block styling when pressing backspace at the beginning of the text
-        editableText.getSpans(selectionStart, selectionEnd, IAztecBlockSpan::class.java).forEach {
+        editableText.getSpans(newSelStart, newSelEnd, IAztecBlockSpan::class.java).forEach {
             // We want to remove any list item span that's being converted to another block
             if (it is AztecListItemSpan) {
                 editableText.removeSpan(it)
@@ -267,15 +278,15 @@ class BlockFormatter(editor: AztecText,
             val spanFlags = editableText.getSpanFlags(it)
             val nextLineLength = "\n".length
             // Defines end of a line in a block
-            val previousLineBreak = editableText.indexOf("\n", selectionEnd)
+            val previousLineBreak = editableText.indexOf("\n", newSelEnd)
             val lineEnd = if (previousLineBreak > -1) {
                 previousLineBreak + nextLineLength
             } else spanEnd
             // Defines start of a line in a block
-            val nextLineBreak = if (lineEnd == selectionStart + nextLineLength) {
-                editableText.lastIndexOf("\n", selectionStart - 1)
+            val nextLineBreak = if (lineEnd == newSelStart + nextLineLength) {
+                editableText.lastIndexOf("\n", newSelStart - 1)
             } else {
-                editableText.lastIndexOf("\n", selectionStart)
+                editableText.lastIndexOf("\n", newSelStart)
             }
             val lineStart = if (nextLineBreak > -1) {
                 nextLineBreak + nextLineLength

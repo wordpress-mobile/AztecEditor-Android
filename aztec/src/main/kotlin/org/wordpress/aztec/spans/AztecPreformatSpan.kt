@@ -2,7 +2,9 @@ package org.wordpress.aztec.spans
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.CornerPathEffect
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Rect
 import android.text.Layout
 import android.text.Spanned
@@ -20,7 +22,7 @@ fun createPreformatSpan(
         nestingLevel: Int,
         alignmentRendering: AlignmentRendering,
         attributes: AztecAttributes = AztecAttributes(),
-        preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0)
+        preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0, 0, 0, 0, 0)
 ): AztecPreformatSpan =
         when (alignmentRendering) {
             AlignmentRendering.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
@@ -58,9 +60,8 @@ open class AztecPreformatSpan(
 
     val rect = Rect()
 
-    private val MARGIN = 16
-
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
+                              fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
@@ -76,35 +77,95 @@ open class AztecPreformatSpan(
         }
     }
 
-    override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
+    private val strokePaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+    }
+
+    private val fillPaint = Paint().apply {
+        isAntiAlias = true
+        strokeCap = Paint.Cap.ROUND
+    }
+
+    private var borderPath = Path()
+    private var fillPath = Path()
+
+    override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int,
+                                bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
         val color = paint.color
         val alpha: Int = (preformatStyle.preformatBackgroundAlpha * 255).toInt()
-        paint.color = Color.argb(
+
+        fillPaint.color = Color.argb(
                 alpha,
                 Color.red(preformatStyle.preformatBackground),
                 Color.green(preformatStyle.preformatBackground),
                 Color.blue(preformatStyle.preformatBackground)
         )
-        rect.set(left, top, right, bottom)
-        canvas.drawRect(rect, paint)
+        paint.color = fillPaint.color
+
+        fillPaint.pathEffect = CornerPathEffect(preformatStyle.preformatBorderRadius.toFloat())
+        strokePaint.pathEffect = CornerPathEffect(preformatStyle.preformatBorderRadius.toFloat())
+
+        strokePaint.color = preformatStyle.preformatBorderColor
+        strokePaint.strokeWidth = preformatStyle.preformatBorderThickness.toFloat()
+
+        val isFirstLine = top == 0
+
+        val isLastLine = text?.length == end
+
+        fillPath = Path().apply {
+            if (isFirstLine) {
+                moveTo(left.toFloat(), bottom.toFloat())
+                lineTo(left.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+            } else if (isLastLine) {
+                moveTo(left.toFloat(), top.toFloat())
+                lineTo(left.toFloat(), bottom.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+                lineTo(right.toFloat(), top.toFloat())
+            } else {
+                fillPaint.pathEffect = null
+                moveTo(left.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+                lineTo(left.toFloat(), bottom.toFloat())
+                lineTo(left.toFloat(), top.toFloat())
+
+            }
+        }
+
+        canvas.drawPath(fillPath, fillPaint)
+
+        borderPath = Path().apply {
+            if (isFirstLine) {
+                moveTo(left.toFloat(), bottom.toFloat())
+                lineTo(left.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+            } else if (isLastLine) {
+                moveTo(left.toFloat(), top.toFloat())
+                lineTo(left.toFloat(), bottom.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+                lineTo(right.toFloat(), top.toFloat())
+            } else {
+                moveTo(left.toFloat(), top.toFloat())
+                lineTo(left.toFloat(), bottom.toFloat())
+                moveTo(right.toFloat(), top.toFloat())
+                lineTo(right.toFloat(), bottom.toFloat())
+            }
+        }
+
+        canvas.drawPath(borderPath, strokePaint)
         paint.color = color
     }
 
-    override fun drawLeadingMargin(canvas: Canvas, paint: Paint, x: Int, dir: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int, first: Boolean, layout: Layout) {
-        val style = paint.style
-        val color = paint.color
-
-        paint.style = Paint.Style.FILL
-        paint.color = preformatStyle.preformatColor
-
-        canvas.drawRect(x.toFloat() + MARGIN, top.toFloat(), (x + MARGIN).toFloat(), bottom.toFloat(), paint)
-
-        paint.style = style
-        paint.color = color
-    }
+    override fun drawLeadingMargin(canvas: Canvas, paint: Paint, x: Int, dir: Int, top: Int, baseline: Int,
+                                   bottom: Int, text: CharSequence, start: Int, end: Int, first: Boolean,
+                                   layout: Layout) = Unit
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return MARGIN
+        return preformatStyle.leadingMargin
     }
 
     override val textFormat: ITextFormat = AztecTextFormat.FORMAT_PREFORMAT

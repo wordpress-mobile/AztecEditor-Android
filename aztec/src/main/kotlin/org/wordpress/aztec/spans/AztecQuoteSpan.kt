@@ -28,9 +28,12 @@ import androidx.core.view.ViewCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
-import android.text.style.QuoteSpan
+import android.text.style.UpdateAppearance
 import android.text.style.UpdateLayout
 import androidx.collection.ArrayMap
 import org.wordpress.aztec.AlignmentRendering
@@ -44,7 +47,7 @@ fun createAztecQuoteSpan(
         nestingLevel: Int,
         attributes: AztecAttributes = AztecAttributes(),
         alignmentRendering: AlignmentRendering,
-        quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
+        quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0, 0f, 0, 0, 0, 0)
 ) = when (alignmentRendering) {
     AlignmentRendering.SPAN_LEVEL -> AztecQuoteSpanAligned(nestingLevel, attributes, quoteStyle, null)
     AlignmentRendering.VIEW_LEVEL -> AztecQuoteSpan(nestingLevel, attributes, quoteStyle)
@@ -69,11 +72,12 @@ open class AztecQuoteSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes,
         var quoteStyle: BlockFormatter.QuoteStyle
-) : QuoteSpan(),
+) : CharacterStyle(), LeadingMarginSpan,
         LineBackgroundSpan,
         IAztecBlockSpan,
         LineHeightSpan,
-        UpdateLayout {
+        UpdateLayout,
+        UpdateAppearance {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
@@ -199,4 +203,8 @@ open class AztecQuoteSpan(
     }
 
     override val textFormat: ITextFormat = AztecTextFormat.FORMAT_QUOTE
+
+    override fun updateDrawState(tp: TextPaint?) {
+        tp?.color = quoteStyle.quoteTextColor
+    }
 }

@@ -25,30 +25,42 @@
     </style>
 
     <style name="AztecTextStyle">
-        <item name="android:textCursorDrawable">?attr/textColor</item>
-        <item name="backgroundColor">@android:color/transparent</item>
+        <!-- Unordered list -->
         <item name="bulletColor">@color/blue_medium</item>
         <item name="bulletMargin">@dimen/bullet_margin</item>
         <item name="bulletPadding">@dimen/bullet_padding</item>
         <item name="bulletWidth">@dimen/bullet_width</item>
+        <!-- Code -->
         <item name="codeBackground">@color/code_background</item>
         <item name="codeBackgroundAlpha">75%</item>
         <item name="codeColor">@color/code</item>
-        <item name="lineSpacingExtra">@dimen/spacing_extra</item>
-        <item name="lineSpacingMultiplier">@dimen/spacing_multiplier</item>
+        <!-- Link -->
         <item name="linkColor">@color/blue_wordpress</item>
         <item name="linkUnderline">false</item>
+        <!-- Preformatted -->
         <item name="preformatBackground">@color/code_background</item>
         <item name="preformatBackgroundAlpha">75%</item>
         <item name="preformatColor">@color/white</item>
+        <item name="preformatBorderColor">#1AFFFFFF</item>
+        <item name="preformatBorderRadius">2dp</item>
+        <item name="preformatBorderThickness">1dp</item>
+        <item name="preformatLeadingMargin">@dimen/preformat_leading_margin</item>
+        <!-- Quote -->
         <item name="quoteBackground">@color/blue_wordpress</item>
         <item name="quoteBackgroundAlpha">75%</item>
         <item name="quoteColor">@color/blue_medium</item>
+        <item name="quoteTextColor">@android:color/white</item>
         <item name="quoteMargin">@dimen/quote_margin</item>
         <item name="quotePadding">@dimen/quote_padding</item>
         <item name="quoteWidth">@dimen/quote_width</item>
+        <!-- General Text -->
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>
+        <!-- Other -->
+        <item name="lineSpacingExtra">@dimen/spacing_extra</item>
+        <item name="lineSpacingMultiplier">@dimen/spacing_multiplier</item>
+        <item name="android:textCursorDrawable">?attr/textColor</item>
+        <item name="backgroundColor">@android:color/transparent</item>
     </style>
 
     <style name="AztecToolbarStyle">

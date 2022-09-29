@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.CornerPathEffect
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Rect
 import android.text.Layout
 import android.text.Spanned
 import android.text.style.LeadingMarginSpan
@@ -58,8 +57,6 @@ open class AztecPreformatSpan(
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
-    val rect = Rect()
-
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
                               fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
@@ -87,12 +84,14 @@ open class AztecPreformatSpan(
         strokeCap = Paint.Cap.ROUND
     }
 
-    private var borderPath = Path()
-    private var fillPath = Path()
+
 
     override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int,
                                 bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
-        val color = paint.color
+
+        val spanned = text as Spanned
+        val spanEnd = spanned.getSpanEnd(this)
+
         val alpha: Int = (preformatStyle.preformatBackgroundAlpha * 255).toInt()
 
         fillPaint.color = Color.argb(
@@ -101,7 +100,6 @@ open class AztecPreformatSpan(
                 Color.green(preformatStyle.preformatBackground),
                 Color.blue(preformatStyle.preformatBackground)
         )
-        paint.color = fillPaint.color
 
         fillPaint.pathEffect = CornerPathEffect(preformatStyle.preformatBorderRadius.toFloat())
         strokePaint.pathEffect = CornerPathEffect(preformatStyle.preformatBorderRadius.toFloat())
@@ -111,9 +109,9 @@ open class AztecPreformatSpan(
 
         val isFirstLine = top == 0
 
-        val isLastLine = text?.length == end
+        val isLastLine = spanEnd == end
 
-        fillPath = Path().apply {
+        val fillPath = Path().apply {
             if (isFirstLine) {
                 moveTo(left.toFloat(), bottom.toFloat())
                 lineTo(left.toFloat(), top.toFloat())
@@ -137,12 +135,15 @@ open class AztecPreformatSpan(
 
         canvas.drawPath(fillPath, fillPaint)
 
-        borderPath = Path().apply {
+        val borderPath = Path().apply {
             if (isFirstLine) {
                 moveTo(left.toFloat(), bottom.toFloat())
                 lineTo(left.toFloat(), top.toFloat())
                 lineTo(right.toFloat(), top.toFloat())
                 lineTo(right.toFloat(), bottom.toFloat())
+                if (isLastLine) {
+                    lineTo(left.toFloat(), bottom.toFloat())
+                }
             } else if (isLastLine) {
                 moveTo(left.toFloat(), top.toFloat())
                 lineTo(left.toFloat(), bottom.toFloat())
@@ -157,7 +158,6 @@ open class AztecPreformatSpan(
         }
 
         canvas.drawPath(borderPath, strokePaint)
-        paint.color = color
     }
 
     override fun drawLeadingMargin(canvas: Canvas, paint: Paint, x: Int, dir: Int, top: Int, baseline: Int,

@@ -41,7 +41,7 @@
         <item name="preformatBackground">@color/code_background</item>
         <item name="preformatBackgroundAlpha">75%</item>
         <item name="preformatColor">@color/white</item>
-        <item name="preformatBorderColor">#1AFFFFFF</item>
+        <item name="preformatBorderColor">@android:color/darker_gray</item>
         <item name="preformatBorderRadius">2dp</item>
         <item name="preformatBorderThickness">1dp</item>
         <item name="preformatLeadingMargin">@dimen/preformat_leading_margin</item>

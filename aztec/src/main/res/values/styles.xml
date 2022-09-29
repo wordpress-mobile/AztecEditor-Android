@@ -45,6 +45,7 @@
         <item name="preformatBorderRadius">2dp</item>
         <item name="preformatBorderThickness">1dp</item>
         <item name="preformatLeadingMargin">@dimen/preformat_leading_margin</item>
+        <item name="preformatTextSize">@dimen/preformat_text_size</item>
         <!-- Quote -->
         <item name="quoteBackground">@color/blue_wordpress</item>
         <item name="quoteBackgroundAlpha">75%</item>

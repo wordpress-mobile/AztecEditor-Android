@@ -31,6 +31,7 @@
         <attr name="preformatBorderRadius" format="reference|dimension" />
         <attr name="preformatBorderThickness" format="reference|dimension" />
         <attr name="preformatLeadingMargin" format="reference|dimension" />
+        <attr name="preformatTextSize" format="reference|dimension" />
         <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />
         <attr name="quoteColor" format="reference|color" />

@@ -491,7 +491,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                 resources.getDimensionPixelSize(R.dimen.preformat_leading_margin)),
                         styles.getColor(R.styleable.AztecText_preformatBorderColor, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderRadius, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderThickness, 0)
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderThickness, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatTextSize, textSize.toInt())
                 ),
                 alignmentRendering = alignmentRendering,
                 exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),

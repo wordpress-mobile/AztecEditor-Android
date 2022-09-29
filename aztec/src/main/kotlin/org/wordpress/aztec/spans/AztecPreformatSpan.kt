@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.AbsoluteSizeSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
@@ -21,7 +23,7 @@ fun createPreformatSpan(
         nestingLevel: Int,
         alignmentRendering: AlignmentRendering,
         attributes: AztecAttributes = AztecAttributes(),
-        preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0, 0, 0, 0, 0)
+        preformatStyle: BlockFormatter.PreformatStyle = BlockFormatter.PreformatStyle(0, 0f, 0, 0, 0, 0, 0, 0, 0)
 ): AztecPreformatSpan =
         when (alignmentRendering) {
             AlignmentRendering.SPAN_LEVEL -> AztecPreformatSpanAligned(nestingLevel, attributes, preformatStyle)
@@ -72,6 +74,16 @@ open class AztecPreformatSpan(
             fm.descent += preformatStyle.verticalPadding
             fm.bottom += preformatStyle.verticalPadding
         }
+    }
+
+    override fun updateDrawState(ds: TextPaint) {
+        super.updateDrawState(ds)
+        ds.textSize = preformatStyle.preformatTextSize.toFloat()
+    }
+
+    override fun updateMeasureState(paint: TextPaint) {
+        super.updateMeasureState(paint)
+        paint.textSize = preformatStyle.preformatTextSize.toFloat()
     }
 
     private val strokePaint = Paint().apply {

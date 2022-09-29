@@ -61,7 +61,7 @@ class BlockFormatter(editor: AztecText,
     }
 
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteTextColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
-    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int )
+    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int, val preformatTextSize: Int)
     data class HeaderStyles(val verticalPadding: Int, val styles: Map<AztecHeadingSpan.Heading, HeadingStyle>) {
         data class HeadingStyle(val fontSize: Int, val fontColor: Int)
     }

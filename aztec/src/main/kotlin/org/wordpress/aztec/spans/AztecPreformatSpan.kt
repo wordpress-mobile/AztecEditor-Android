@@ -8,7 +8,6 @@ import android.graphics.Path
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextPaint
-import android.text.style.AbsoluteSizeSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan

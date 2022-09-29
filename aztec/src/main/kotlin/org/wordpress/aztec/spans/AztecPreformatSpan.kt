@@ -97,12 +97,14 @@ open class AztecPreformatSpan(
 
     override fun drawBackground(canvas: Canvas, paint: Paint, left: Int, right: Int, top: Int, baseline: Int,
                                 bottom: Int, text: CharSequence?, start: Int, end: Int, lnum: Int) {
-
         val spanned = text as Spanned
+        val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
-        val alpha: Int = (preformatStyle.preformatBackgroundAlpha * 255).toInt()
+        val isFirstLine = spanStart == start
+        val isLastLine = spanEnd == end
 
+        val alpha: Int = (preformatStyle.preformatBackgroundAlpha * 255).toInt()
         fillPaint.color = Color.argb(
                 alpha,
                 Color.red(preformatStyle.preformatBackground),
@@ -115,10 +117,6 @@ open class AztecPreformatSpan(
 
         strokePaint.color = preformatStyle.preformatBorderColor
         strokePaint.strokeWidth = preformatStyle.preformatBorderThickness.toFloat()
-
-        val isFirstLine = top == 0
-
-        val isLastLine = spanEnd == end
 
         val fillPath = Path().apply {
             if (isFirstLine) {

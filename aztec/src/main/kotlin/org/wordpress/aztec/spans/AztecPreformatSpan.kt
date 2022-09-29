@@ -58,20 +58,48 @@ open class AztecPreformatSpan(
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
+    var originalAscent: Int = 0
+    var originalTop: Int = 0
+    var originalDescent: Int = 0
+    var originalBottom: Int = 0
+
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
                               fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
+        val isFirstLine = start <= spanStart
+        val isLastLine = spanEnd <= end
 
-        if (start == spanStart || start < spanStart) {
+        if (isFirstLine) {
+            originalAscent = fm.ascent
+            originalTop = fm.top
+            originalDescent = fm.descent
+            originalBottom = fm.bottom
+
             fm.ascent -= preformatStyle.verticalPadding
             fm.top -= preformatStyle.verticalPadding
-        }
 
-        if (end == spanEnd || spanEnd < end) {
+            if(!isLastLine){
+                fm.descent = originalDescent
+                fm.bottom = originalBottom
+            }
+        }
+        if (isLastLine) {
             fm.descent += preformatStyle.verticalPadding
             fm.bottom += preformatStyle.verticalPadding
+
+            if(!isFirstLine){
+                fm.ascent = originalAscent
+                fm.top = originalTop
+            }
+        }
+
+        if (!isFirstLine && !isLastLine) {
+            fm.ascent = originalAscent
+            fm.top = originalTop
+            fm.descent = originalDescent
+            fm.bottom = originalBottom
         }
     }
 

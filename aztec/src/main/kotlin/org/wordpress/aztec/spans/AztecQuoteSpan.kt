@@ -88,18 +88,48 @@ open class AztecQuoteSpan(
 
     override val TAG: String = "blockquote"
 
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+    var originalAscent: Int = 0
+    var originalTop: Int = 0
+    var originalDescent: Int = 0
+    var originalBottom: Int = 0
+
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
+                              fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
+        val isFirstLine = start <= spanStart
+        val isLastLine = spanEnd <= end
 
-        if (start == spanStart || start < spanStart) {
+        if (isFirstLine) {
+            originalAscent = fm.ascent
+            originalTop = fm.top
+            originalDescent = fm.descent
+            originalBottom = fm.bottom
+
             fm.ascent -= quoteStyle.verticalPadding
             fm.top -= quoteStyle.verticalPadding
+
+            if(!isLastLine){
+                fm.descent = originalDescent
+                fm.bottom = originalBottom
+            }
         }
-        if (end == spanEnd || spanEnd < end) {
+        if (isLastLine) {
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
+
+            if(!isFirstLine){
+                fm.ascent = originalAscent
+                fm.top = originalTop
+            }
+        }
+
+        if (!isFirstLine && !isLastLine) {
+            fm.ascent = originalAscent
+            fm.top = originalTop
+            fm.descent = originalDescent
+            fm.bottom = originalBottom
         }
     }
 

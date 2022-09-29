@@ -80,7 +80,7 @@ open class AztecPreformatSpan(
             fm.ascent -= preformatStyle.verticalPadding
             fm.top -= preformatStyle.verticalPadding
 
-            if(!isLastLine){
+            if (!isLastLine) {
                 fm.descent = originalDescent
                 fm.bottom = originalBottom
             }
@@ -89,7 +89,7 @@ open class AztecPreformatSpan(
             fm.descent += preformatStyle.verticalPadding
             fm.bottom += preformatStyle.verticalPadding
 
-            if(!isFirstLine){
+            if (!isFirstLine) {
                 fm.ascent = originalAscent
                 fm.top = originalTop
             }

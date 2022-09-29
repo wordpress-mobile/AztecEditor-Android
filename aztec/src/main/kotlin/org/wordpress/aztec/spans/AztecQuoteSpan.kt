@@ -110,7 +110,7 @@ open class AztecQuoteSpan(
             fm.ascent -= quoteStyle.verticalPadding
             fm.top -= quoteStyle.verticalPadding
 
-            if(!isLastLine){
+            if (!isLastLine) {
                 fm.descent = originalDescent
                 fm.bottom = originalBottom
             }
@@ -119,7 +119,7 @@ open class AztecQuoteSpan(
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
 
-            if(!isFirstLine){
+            if (!isFirstLine) {
                 fm.ascent = originalAscent
                 fm.top = originalTop
             }

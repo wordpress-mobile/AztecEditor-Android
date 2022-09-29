@@ -32,6 +32,7 @@
         <attr name="preformatBorderThickness" format="reference|dimension" />
         <attr name="preformatLeadingMargin" format="reference|dimension" />
         <attr name="preformatTextSize" format="reference|dimension" />
+        <attr name="preformatVerticalPadding" format="reference|dimension" />
         <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />
         <attr name="quoteColor" format="reference|color" />
@@ -39,6 +40,7 @@
         <attr name="quoteMargin" format="reference|dimension" />
         <attr name="quotePadding" format="reference|dimension" />
         <attr name="quoteWidth" format="reference|dimension" />
+        <attr name="quoteVerticalPadding" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
         <attr name="exclusiveBlocks" format="reference|boolean" />

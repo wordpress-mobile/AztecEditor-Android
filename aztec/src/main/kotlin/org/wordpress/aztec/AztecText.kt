@@ -455,7 +455,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        verticalParagraphPadding),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quoteVerticalPadding, verticalParagraphPadding)),
                 headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
@@ -486,7 +486,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        verticalParagraphPadding,
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatVerticalPadding, verticalParagraphPadding),
                         styles.getDimensionPixelSize(R.styleable.AztecText_preformatLeadingMargin,
                                 resources.getDimensionPixelSize(R.dimen.preformat_leading_margin)),
                         styles.getColor(R.styleable.AztecText_preformatBorderColor, 0),

@@ -46,6 +46,7 @@
         <item name="preformatBorderThickness">1dp</item>
         <item name="preformatLeadingMargin">@dimen/preformat_leading_margin</item>
         <item name="preformatTextSize">@dimen/preformat_text_size</item>
+        <item name="preformatVerticalPadding">@dimen/preformat_vertical_padding</item>
         <!-- Quote -->
         <item name="quoteBackground">@color/blue_wordpress</item>
         <item name="quoteBackgroundAlpha">75%</item>
@@ -54,6 +55,7 @@
         <item name="quoteMargin">@dimen/quote_margin</item>
         <item name="quotePadding">@dimen/quote_padding</item>
         <item name="quoteWidth">@dimen/quote_width</item>
+        <item name="quoteVerticalPadding">@dimen/block_vertical_padding</item>
         <!-- General Text -->
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>

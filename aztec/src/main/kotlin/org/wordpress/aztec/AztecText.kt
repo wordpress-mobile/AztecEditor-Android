@@ -315,10 +315,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var lastPressedYCoord: Int = 0
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
         plugins.filterIsInstance<IOnDrawPlugin>().forEach {
             it.onDraw(canvas)
         }
+        super.onDraw(canvas)
     }
 
     interface OnSelectionChangedListener {

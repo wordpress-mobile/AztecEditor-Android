@@ -201,7 +201,7 @@ open class AztecHeadingSpan(
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return headerStyle.styles[heading]?.leadingMargin?.takeIf { it != 0 } ?:0
+        return headerStyle.styles[heading]?.leadingMargin?.takeIf { it != 0 } ?: 0
     }
 
     override fun drawLeadingMargin(c: Canvas?, p: Paint?, x: Int, dir: Int, top: Int, baseline: Int, bottom: Int,

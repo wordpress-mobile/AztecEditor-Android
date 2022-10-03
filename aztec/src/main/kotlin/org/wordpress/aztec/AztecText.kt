@@ -467,27 +467,33 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingOneFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingOneLeadingMargin, 0)
                         ),
                         AztecHeadingSpan.Heading.H2 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoLeadingMargin, 0)
                         ),
                         AztecHeadingSpan.Heading.H3 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeLeadingMargin, 0)
                         ),
                         AztecHeadingSpan.Heading.H4 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFourFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingFourFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingFourFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFourLeadingMargin, 0)
                         ),
                         AztecHeadingSpan.Heading.H5 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveLeadingMargin, 0)
                         ),
                         AztecHeadingSpan.Heading.H6 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingSixFontSize, 0),
-                                styles.getColor(R.styleable.AztecText_headingSixFontColor, 0)
+                                styles.getColor(R.styleable.AztecText_headingSixFontColor, 0),
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingSixLeadingMargin, 0)
                         )
                 )),
                 preformatStyle = BlockFormatter.PreformatStyle(

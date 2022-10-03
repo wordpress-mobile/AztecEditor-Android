@@ -7,9 +7,8 @@ import android.graphics.Canvas
  */
 interface IOnDrawPlugin : IAztecPlugin {
     /**
-     * This method is called when onDraw method of AztecText is called.
+     * This method is called when onDraw method of AztecText is called but before the super call.
      * @param canvas canvas of AztecText
-     * @return html of the result
      */
     fun onDraw(canvas: Canvas)
 }

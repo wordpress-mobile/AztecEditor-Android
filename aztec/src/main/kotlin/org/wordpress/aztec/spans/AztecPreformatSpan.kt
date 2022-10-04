@@ -58,11 +58,12 @@ open class AztecPreformatSpan(
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
 
-    var originalAscent: Int = 0
-    var originalTop: Int = 0
-    var originalDescent: Int = 0
-    var originalBottom: Int = 0
+    private var originalAscent: Int = 0
+    private var originalTop: Int = 0
+    private var originalDescent: Int = 0
+    private var originalBottom: Int = 0
 
+    // this method adds extra padding to the top and bottom lines of the text while removing it from middle lines
     override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
                               fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned

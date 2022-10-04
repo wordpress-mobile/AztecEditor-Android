@@ -449,11 +449,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 quoteStyle = BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
+                        styles.getColor(R.styleable.AztecText_quoteTextColor,
+                                ContextCompat.getColor(context, R.color.text)),
                         styles.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        verticalParagraphPadding),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quoteVerticalPadding, verticalParagraphPadding)),
                 headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
@@ -484,7 +486,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        verticalParagraphPadding),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatVerticalPadding, verticalParagraphPadding),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatLeadingMargin,
+                                resources.getDimensionPixelSize(R.dimen.preformat_leading_margin)),
+                        styles.getColor(R.styleable.AztecText_preformatBorderColor, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderRadius, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderThickness, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatTextSize, textSize.toInt())
+                ),
                 alignmentRendering = alignmentRendering,
                 exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),
                 paragraphStyle = BlockFormatter.ParagraphStyle(verticalParagraphMargin)

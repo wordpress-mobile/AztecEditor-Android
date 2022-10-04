@@ -45,17 +45,11 @@
         <attr name="textColorHint" format="reference|color" />
         <attr name="exclusiveBlocks" format="reference|boolean" />
         <attr name="headingOneFontSize" format="reference|dimension" />
-        <attr name="headingOneLeadingMargin" format="reference|dimension" />
         <attr name="headingTwoFontSize" format="reference|dimension" />
-        <attr name="headingTwoLeadingMargin" format="reference|dimension" />
         <attr name="headingThreeFontSize" format="reference|dimension" />
-        <attr name="headingThreeLeadingMargin" format="reference|dimension" />
         <attr name="headingFourFontSize" format="reference|dimension" />
-        <attr name="headingFourLeadingMargin" format="reference|dimension" />
         <attr name="headingFiveFontSize" format="reference|dimension" />
-        <attr name="headingFiveLeadingMargin" format="reference|dimension" />
         <attr name="headingSixFontSize" format="reference|dimension" />
-        <attr name="headingSixLeadingMargin" format="reference|dimension" />
         <attr name="headingOneFontColor" format="reference|color" />
         <attr name="headingTwoFontColor" format="reference|color" />
         <attr name="headingThreeFontColor" format="reference|color" />

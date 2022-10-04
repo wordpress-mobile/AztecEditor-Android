@@ -1,11 +1,9 @@
 package org.wordpress.aztec.spans
 
-import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextPaint
-import android.text.style.LeadingMarginSpan
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
@@ -66,7 +64,7 @@ open class AztecHeadingSpan(
         textFormat: ITextFormat,
         override var attributes: AztecAttributes,
         open var headerStyle: BlockFormatter.HeaderStyles
-) : MetricAffectingSpan(), IAztecLineBlockSpan, LineHeightSpan, LeadingMarginSpan, UpdateLayout {
+) : MetricAffectingSpan(), IAztecLineBlockSpan, LineHeightSpan, UpdateLayout {
     override val TAG: String
         get() = heading.tag
 
@@ -186,7 +184,6 @@ open class AztecHeadingSpan(
         }
         previousHeadingSize = headingSize
         previousSpacing = paint.fontSpacing
-        paint.fontFeatureSettings
         when (headingSize) {
             is HeadingSize.Scale -> {
                 paint.textSize *= heading.scale
@@ -199,13 +196,6 @@ open class AztecHeadingSpan(
             paint.color = it
         }
     }
-
-    override fun getLeadingMargin(first: Boolean): Int {
-        return headerStyle.styles[heading]?.leadingMargin?.takeIf { it != 0 } ?: 0
-    }
-
-    override fun drawLeadingMargin(c: Canvas?, p: Paint?, x: Int, dir: Int, top: Int, baseline: Int, bottom: Int,
-                                   text: CharSequence?, start: Int, end: Int, first: Boolean, layout: Layout?) = Unit
 
     private fun getHeadingSize(): HeadingSize {
         return headerStyle.styles[heading]?.fontSize?.takeIf { it > 0 }?.let { HeadingSize.Size(it) }

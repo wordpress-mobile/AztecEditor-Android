@@ -74,6 +74,7 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IOnDrawPlugin
 import org.wordpress.aztec.plugins.ITextPastePlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -312,6 +313,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var lastPressedXCoord: Int = 0
     var lastPressedYCoord: Int = 0
+
+    override fun onDraw(canvas: Canvas) {
+        plugins.filterIsInstance<IOnDrawPlugin>().forEach {
+            it.onDraw(canvas)
+        }
+        super.onDraw(canvas)
+    }
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)

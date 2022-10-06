@@ -45,6 +45,10 @@
     <dimen name="margin_large">12dp</dimen>
     <dimen name="margin_extra_large">16dp</dimen>
 
+    <dimen name="preformat_leading_margin">8dp</dimen>
+    <dimen name="preformat_text_size">16sp</dimen>
+    <dimen name="preformat_vertical_padding">12dp</dimen>
+
     <dimen name="text_dialog">14sp</dimen>
 
 </resources>

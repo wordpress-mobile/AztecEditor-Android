@@ -1,17 +1,22 @@
 package org.wordpress.aztec.spans
 
 import android.text.Layout
+import android.text.TextPaint
+import android.text.style.CharacterStyle
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.ITextFormat
+import org.wordpress.aztec.formatting.BlockFormatter
 import java.lang.StringBuilder
 
 fun createListItemSpan(nestingLevel: Int,
                        alignmentRendering: AlignmentRendering,
-                       attributes: AztecAttributes = AztecAttributes()) : IAztecBlockSpan =
+                       attributes: AztecAttributes = AztecAttributes(),
+                       listItemStyle: BlockFormatter.ListItemStyle = BlockFormatter.ListItemStyle(
+                               false, 0)): IAztecBlockSpan =
         when (alignmentRendering) {
-            AlignmentRendering.SPAN_LEVEL -> AztecListItemSpanAligned(nestingLevel, attributes, null)
-            AlignmentRendering.VIEW_LEVEL -> AztecListItemSpan(nestingLevel, attributes)
+            AlignmentRendering.SPAN_LEVEL -> AztecListItemSpanAligned(nestingLevel, attributes, null, listItemStyle)
+            AlignmentRendering.VIEW_LEVEL -> AztecListItemSpan(nestingLevel, attributes, listItemStyle)
         }
 
 /**
@@ -24,7 +29,9 @@ fun createListItemSpan(nestingLevel: Int,
  */
 open class AztecListItemSpan(
         override var nestingLevel: Int,
-        override var attributes: AztecAttributes) : IAztecCompositeBlockSpan {
+        override var attributes: AztecAttributes,
+        var listItemStyle: BlockFormatter.ListItemStyle = BlockFormatter.ListItemStyle(
+                false, 0)) : CharacterStyle(), IAztecCompositeBlockSpan {
     fun toggleCheck() {
         if (attributes.getValue(CHECKED) == "true") {
             attributes.setValue(CHECKED, "false")
@@ -74,13 +81,27 @@ open class AztecListItemSpan(
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
+
     companion object {
         const val CHECKED = "checked"
+    }
+
+    override fun updateDrawState(tp: TextPaint) {
+        val isChecked = attributes.getValue(CHECKED) == "true"
+
+        if (listItemStyle.strikeThroughCheckedItems) {
+            tp.isStrikeThruText = isChecked
+        }
+
+        if (listItemStyle.checkedItemsTextColor != 0 && isChecked) {
+            tp.color = listItemStyle.checkedItemsTextColor
+        }
     }
 }
 
 class AztecListItemSpanAligned(
         nestingLevel: Int,
         attributes: AztecAttributes,
-        override var align: Layout.Alignment?
-) : AztecListItemSpan(nestingLevel, attributes), IAztecAlignmentSpan
+        override var align: Layout.Alignment?,
+        listItemStyle: BlockFormatter.ListItemStyle = BlockFormatter.ListItemStyle(false, 0)
+) : AztecListItemSpan(nestingLevel, attributes, listItemStyle), IAztecAlignmentSpan

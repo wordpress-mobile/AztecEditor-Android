@@ -313,6 +313,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var lastPressedXCoord: Int = 0
     var lastPressedYCoord: Int = 0
 
+    private lateinit var listItemStyle: BlockFormatter.ListItemStyle
+
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
     }
@@ -444,8 +446,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
                 verticalParagraphPadding)
+
+         listItemStyle = BlockFormatter.ListItemStyle(
+                styles.getBoolean(R.styleable.AztecText_taskListStrikethroughChecked, false),
+                styles.getColor(R.styleable.AztecText_taskListCheckedTextColor, 0))
+
         blockFormatter = BlockFormatter(editor = this,
                 listStyle = listStyle,
+                listItemStyle = listItemStyle,
                 quoteStyle = BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
@@ -771,7 +779,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         BlockElementWatcher(this)
                 .add(HeadingHandler(alignmentRendering))
                 .add(ListHandler())
-                .add(ListItemHandler(alignmentRendering))
+                .add(ListItemHandler(alignmentRendering, listItemStyle))
                 .add(QuoteHandler())
                 .add(PreformatHandler())
                 .install(this)
@@ -1582,6 +1590,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphPadding }
         editable.getSpans(start, end, AztecURLSpan::class.java).forEach { it.linkStyle = linkFormatter.linkStyle }
         editable.getSpans(start, end, AztecCodeSpan::class.java).forEach { it.codeStyle = inlineFormatter.codeStyle }
+        editable.getSpans(start, end, AztecListItemSpan::class.java).forEach { it.listItemStyle = listItemStyle }
 
         val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
         imageSpans.forEach {

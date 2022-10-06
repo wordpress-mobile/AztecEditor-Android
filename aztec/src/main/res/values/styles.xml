@@ -49,6 +49,8 @@
         <item name="quoteWidth">@dimen/quote_width</item>
         <item name="textColor">@android:color/white</item>
         <item name="textColorHint">@android:color/darker_gray</item>
+        <item name="taskListCheckedTextColor">@android:color/darker_gray</item>
+        <item name="taskListStrikethroughChecked">true</item>
     </style>
 
     <style name="AztecToolbarStyle">

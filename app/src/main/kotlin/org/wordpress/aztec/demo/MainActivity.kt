@@ -59,6 +59,8 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.toolbar.ToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarItems
 import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
@@ -90,6 +92,10 @@ open class MainActivity : AppCompatActivity(),
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
+        private val TASK_LIST = "<ul type=\"task-list\">\n" +
+                " <li><input type=\"checkbox\" class=\"task-list-item-checkbox\">Unchecked</li>\n" +
+                " <li><input type=\"checkbox\" class=\"task-list-item-checkbox\" checked>Checked</li>\n" +
+                "</ul>"
         private val ORDERED_WITH_START = "<h4>Start in 10 List:</h4>" +
                 "<ol start=\"10\">\n" +
                 "    <li>Ten</li>\n" +
@@ -186,6 +192,7 @@ open class MainActivity : AppCompatActivity(),
                         ITALIC +
                         UNDERLINE +
                         STRIKETHROUGH +
+                        TASK_LIST +
                         ORDERED +
                         ORDERED_WITH_START +
                         ORDERED_REVERSED +

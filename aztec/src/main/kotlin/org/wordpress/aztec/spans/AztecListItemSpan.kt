@@ -12,12 +12,10 @@ import java.lang.StringBuilder
 fun createListItemSpan(nestingLevel: Int,
                        alignmentRendering: AlignmentRendering,
                        attributes: AztecAttributes = AztecAttributes(),
-                       listItemStyle: BlockFormatter.ListItemStyle = BlockFormatter.ListItemStyle(
-                               false, 0)): IAztecBlockSpan =
-        when (alignmentRendering) {
-            AlignmentRendering.SPAN_LEVEL -> AztecListItemSpanAligned(nestingLevel, attributes, null, listItemStyle)
-            AlignmentRendering.VIEW_LEVEL -> AztecListItemSpan(nestingLevel, attributes, listItemStyle)
-        }
+                       listItemStyle: BlockFormatter.ListItemStyle = BlockFormatter.ListItemStyle(false, 0)): IAztecBlockSpan = when (alignmentRendering) {
+    AlignmentRendering.SPAN_LEVEL -> AztecListItemSpanAligned(nestingLevel, attributes, null, listItemStyle)
+    AlignmentRendering.VIEW_LEVEL -> AztecListItemSpan(nestingLevel, attributes, listItemStyle)
+}
 
 /**
  * We need to have two classes for handling alignment at either the Span-level (ListItemSpanAligned)

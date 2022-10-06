@@ -447,7 +447,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
                 verticalParagraphPadding)
 
-         listItemStyle = BlockFormatter.ListItemStyle(
+        listItemStyle = BlockFormatter.ListItemStyle(
                 styles.getBoolean(R.styleable.AztecText_taskListStrikethroughChecked, false),
                 styles.getColor(R.styleable.AztecText_taskListCheckedTextColor, 0))
 

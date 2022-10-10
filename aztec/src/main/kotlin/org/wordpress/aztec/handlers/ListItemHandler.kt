@@ -2,6 +2,7 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import org.wordpress.aztec.AlignmentRendering
+import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecTaskListSpan
@@ -10,12 +11,13 @@ import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.watchers.TextDeleter
 
 class ListItemHandler(
-        val alignmentRendering: AlignmentRendering
+        val alignmentRendering: AlignmentRendering,
+        val listItemStyle: BlockFormatter.ListItemStyle
 ) : BlockHandler<AztecListItemSpan>(AztecListItemSpan::class.java) {
 
     override fun handleNewlineAtStartOfBlock() {
         // newline added at start of bullet so, add a new bullet
-        newListItem(text, newlineIndex, newlineIndex + 1, block.span.nestingLevel, alignmentRendering)
+        newListItem(text, newlineIndex, newlineIndex + 1, block.span.nestingLevel, alignmentRendering, listItemStyle)
 
         // push current bullet forward
         block.start = newlineIndex + 1
@@ -58,7 +60,7 @@ class ListItemHandler(
             newListItemStart = newlineIndex
         }
 
-        newListItem(text, newListItemStart, block.end, block.span.nestingLevel, alignmentRendering)
+        newListItem(text, newListItemStart, block.end, block.span.nestingLevel, alignmentRendering, listItemStyle)
         block.end = newListItemStart
     }
 
@@ -69,7 +71,7 @@ class ListItemHandler(
         }
 
         // attach a new bullet around the end-of-text marker
-        newListItem(text, markerIndex, markerIndex + 1, block.span.nestingLevel, alignmentRendering)
+        newListItem(text, markerIndex, markerIndex + 1, block.span.nestingLevel, alignmentRendering, listItemStyle)
 
         // the current list item has bled over to the marker so, let's adjust its range to just before the marker.
         //  There's a newline there hopefully :)
@@ -82,10 +84,11 @@ class ListItemHandler(
                 start: Int,
                 end: Int,
                 nestingLevel: Int,
-                alignmentRendering: AlignmentRendering
+                alignmentRendering: AlignmentRendering,
+                listItemStyle: BlockFormatter.ListItemStyle
         ) {
             val isInTaskList = !text.getSpans(start, end, AztecTaskListSpan::class.java).isNullOrEmpty()
-            set(text, createListItemSpan(nestingLevel, alignmentRendering).apply {
+            set(text, createListItemSpan(nestingLevel, alignmentRendering, listItemStyle = listItemStyle).apply {
                 if (isInTaskList) {
                     this.attributes.setValue(CHECKED, "false")
                 }

@@ -30,6 +30,9 @@
         <item name="bulletMargin">@dimen/bullet_margin</item>
         <item name="bulletPadding">@dimen/bullet_padding</item>
         <item name="bulletWidth">@dimen/bullet_width</item>
+        <!-- Task list -->
+        <item name="taskListCheckedTextColor">@android:color/darker_gray</item>
+        <item name="taskListStrikethroughChecked">true</item>
         <!-- Code -->
         <item name="codeBackground">@color/code_background</item>
         <item name="codeBackgroundAlpha">75%</item>

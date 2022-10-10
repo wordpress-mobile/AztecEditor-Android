@@ -44,6 +44,7 @@ import kotlin.reflect.KClass
 
 class BlockFormatter(editor: AztecText,
                      private val listStyle: ListStyle,
+                     private val listItemStyle: ListItemStyle,
                      private val quoteStyle: QuoteStyle,
                      private val headerStyle: HeaderStyles,
                      private val preformatStyle: PreformatStyle,
@@ -62,6 +63,7 @@ class BlockFormatter(editor: AztecText,
 
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteTextColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int, val preformatTextSize: Int)
+    data class ListItemStyle(val strikeThroughCheckedItems: Boolean, val checkedItemsTextColor: Int)
     data class HeaderStyles(val verticalPadding: Int, val styles: Map<AztecHeadingSpan.Heading, HeadingStyle>) {
         data class HeadingStyle(val fontSize: Int, val fontColor: Int)
     }
@@ -452,7 +454,7 @@ class BlockFormatter(editor: AztecText,
         return when (textFormat) {
             AztecTextFormat.FORMAT_ORDERED_LIST -> listOf(createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
             AztecTextFormat.FORMAT_UNORDERED_LIST -> listOf(createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
-            AztecTextFormat.FORMAT_TASK_LIST -> listOf(createTaskListSpan(nestingLevel, alignmentRendering, attrs, editor.context, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering))
+            AztecTextFormat.FORMAT_TASK_LIST -> listOf(createTaskListSpan(nestingLevel, alignmentRendering, attrs, editor.context, listStyle), createListItemSpan(nestingLevel + 1, alignmentRendering, listItemStyle = listItemStyle))
             AztecTextFormat.FORMAT_QUOTE -> listOf(createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle))
             AztecTextFormat.FORMAT_HEADING_1,
             AztecTextFormat.FORMAT_HEADING_2,
@@ -500,7 +502,7 @@ class BlockFormatter(editor: AztecText,
             typeIsAssignableTo(AztecOrderedListSpan::class) -> createOrderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
             typeIsAssignableTo(AztecUnorderedListSpan::class) -> createUnorderedListSpan(nestingLevel, alignmentRendering, attrs, listStyle)
             typeIsAssignableTo(AztecTaskListSpan::class) -> createTaskListSpan(nestingLevel, alignmentRendering, attrs, editor.context, listStyle)
-            typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentRendering, attrs)
+            typeIsAssignableTo(AztecListItemSpan::class) -> createListItemSpan(nestingLevel, alignmentRendering, attrs, listItemStyle)
             typeIsAssignableTo(AztecQuoteSpan::class) -> createAztecQuoteSpan(nestingLevel, attrs, alignmentRendering, quoteStyle)
             typeIsAssignableTo(AztecHeadingSpan::class) -> createHeadingSpan(nestingLevel, textFormat, attrs, alignmentRendering, headerStyle)
             typeIsAssignableTo(AztecPreformatSpan::class) -> createPreformatSpan(nestingLevel, alignmentRendering, attrs, preformatStyle)
@@ -812,7 +814,7 @@ class BlockFormatter(editor: AztecText,
         BlockHandler.set(editableText, listSpan, start, end)
         // special case for styling single empty lines
         if (end - start == 1 && (editableText[end - 1] == '\n' || editableText[end - 1] == Constants.END_OF_BUFFER_MARKER)) {
-            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1, alignmentRendering)
+            ListItemHandler.newListItem(editableText, start, end, listSpan.nestingLevel + 1, alignmentRendering, listItemStyle)
         } else {
             val listEnd = if (end == editableText.length) end else end - 1
             val listContent = editableText.substring(start, listEnd)
@@ -831,7 +833,7 @@ class BlockFormatter(editor: AztecText,
                         start + lineStart,
                         start + lineEnd,
                         listSpan.nestingLevel + 1,
-                        alignmentRendering)
+                        alignmentRendering, listItemStyle)
             }
         }
     }

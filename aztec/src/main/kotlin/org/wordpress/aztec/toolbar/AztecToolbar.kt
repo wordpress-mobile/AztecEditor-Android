@@ -721,8 +721,6 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         headingMenu?.menu?.findItem(R.id.heading_4)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_4
         headingMenu?.menu?.findItem(R.id.heading_5)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_5
         headingMenu?.menu?.findItem(R.id.heading_6)?.isChecked == true -> AztecTextFormat.FORMAT_HEADING_6
-        //        TODO: Uncomment when Preformat is to be added back as a feature
-        //        else if (headingMenu?.menu?.findItem(R.id.preformat)?.isChecked!!) return AztecTextFormat.FORMAT_PREFORMAT
         else -> null
     }
 

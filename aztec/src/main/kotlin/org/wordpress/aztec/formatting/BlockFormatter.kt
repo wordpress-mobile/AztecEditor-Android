@@ -1109,8 +1109,45 @@ class BlockFormatter(editor: AztecText,
     }
 
     fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
-        val spans = editableText.getSpans(selStart, selEnd, AztecPreformatSpan::class.java)
-        return spans.isNotEmpty()
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        val list = ArrayList<Int>()
+
+        for (i in lines.indices) {
+            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
+            val lineEnd = lineStart + lines[i].length
+
+            if (lineStart > lineEnd) {
+                continue
+            }
+
+            if (lineStart <= selectionEnd && lineEnd >= selectionStart) {
+                list.add(i)
+            }
+        }
+
+        if (list.isEmpty()) return false
+
+        return list.any { containsPreformat(it) }
+    }
+
+    fun containsPreformat(index: Int): Boolean {
+        val lines = TextUtils.split(editableText.toString(), "\n")
+        if (index < 0 || index >= lines.size) {
+            return false
+        }
+
+        val start = (0 until index).sumBy { lines[it].length + 1 }
+        val end = start + lines[index].length
+
+        if (start > end) {
+            return false
+        }
+
+        val spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
+        return spans.any {
+            val spanEnd = editableText.getSpanEnd(it)
+            spanEnd != start || editableText[spanEnd] != '\n'
+        }
     }
 
     private fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {

@@ -55,6 +55,12 @@ enum class ToolbarAction constructor(
             ToolbarActionType.BLOCK_STYLE,
             setOf(AztecTextFormat.FORMAT_ORDERED_LIST),
             R.layout.format_bar_button_list_ordered),
+    TASK_LIST(
+            R.id.format_bar_button_list_task,
+            R.drawable.format_bar_button_tasklist_selector,
+            ToolbarActionType.BLOCK_STYLE,
+            setOf(AztecTextFormat.FORMAT_TASK_LIST),
+            R.layout.format_bar_button_list_task),
     INDENT(
             R.id.format_bar_button_indent,
             R.drawable.format_bar_button_indent_selector,

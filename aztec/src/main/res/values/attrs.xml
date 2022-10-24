@@ -27,12 +27,20 @@
         <attr name="preformatBackground" format="reference|color" />
         <attr name="preformatBackgroundAlpha" format="reference|fraction" />
         <attr name="preformatColor" format="reference|color" />
+        <attr name="preformatBorderColor" format="reference|color" />
+        <attr name="preformatBorderRadius" format="reference|dimension" />
+        <attr name="preformatBorderThickness" format="reference|dimension" />
+        <attr name="preformatLeadingMargin" format="reference|dimension" />
+        <attr name="preformatTextSize" format="reference|dimension" />
+        <attr name="preformatVerticalPadding" format="reference|dimension" />
         <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />
         <attr name="quoteColor" format="reference|color" />
+        <attr name="quoteTextColor" format="reference|color" />
         <attr name="quoteMargin" format="reference|dimension" />
         <attr name="quotePadding" format="reference|dimension" />
         <attr name="quoteWidth" format="reference|dimension" />
+        <attr name="quoteVerticalPadding" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
         <attr name="exclusiveBlocks" format="reference|boolean" />
@@ -48,6 +56,8 @@
         <attr name="headingFourFontColor" format="reference|color" />
         <attr name="headingFiveFontColor" format="reference|color" />
         <attr name="headingSixFontColor" format="reference|color" />
+        <attr name="taskListStrikethroughChecked" format="reference|boolean" />
+        <attr name="taskListCheckedTextColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">

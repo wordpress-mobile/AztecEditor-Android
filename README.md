@@ -104,7 +104,7 @@ repositories {
 ```
 ```gradle
 dependencies {
-    api "org.wordpress:aztec:v1.5.4"
+    api "org.wordpress:aztec:v1.6.0"
 }
 ```
 

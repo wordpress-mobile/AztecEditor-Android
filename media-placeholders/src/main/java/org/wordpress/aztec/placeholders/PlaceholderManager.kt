@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.wordpress.aztec.AztecAttributes
@@ -25,6 +26,7 @@ import org.wordpress.aztec.Html
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
@@ -90,7 +92,7 @@ class PlaceholderManager(
         val attrs = getAttributesForMedia(type, attributes)
         val drawable = buildPlaceholderDrawable(adapter, attrs)
         aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                this, aztecText, adapter, TAG = htmlTag))
+                this, aztecText, WeakReference(adapter), TAG = htmlTag))
         insertContentOverSpanWithId(attrs.getValue(UUID_ATTRIBUTE))
     }
 
@@ -142,7 +144,14 @@ class PlaceholderManager(
         }
         val uuid = attrs.getValue(UUID_ATTRIBUTE)
         val type = attrs.getValue(TYPE_ATTRIBUTE)
-        val textViewLayout: Layout = aztecText.layout
+        // At this point we can get to a race condition where the aztec text layout is not yet initialized.
+        // We want to wait a bit and make sure it's properly loaded.
+        var counter = 0
+        while (aztecText.layout == null && counter < 10) {
+            delay(50)
+            counter += 1
+        }
+        val textViewLayout: Layout = aztecText.layout ?: return
         val parentTextViewRect = Rect()
         val targetLineOffset = textViewLayout.getLineForOffset(targetPosition)
         textViewLayout.getLineBounds(targetLineOffset, parentTextViewRect)
@@ -151,8 +160,11 @@ class PlaceholderManager(
         aztecText.getLocationOnScreen(parentTextViewLocation)
         val parentTextViewTopAndBottomOffset = aztecText.scrollY + aztecText.compoundPaddingTop
 
+        val adapter = adapters[type]!!
+        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - 20
+        val height = adapter.calculateHeight(attrs, windowWidth)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
-        parentTextViewRect.bottom += parentTextViewTopAndBottomOffset
+        parentTextViewRect.bottom = parentTextViewRect.top + height
 
         positionToId.removeAll {
             it.uuid == uuid
@@ -160,19 +172,18 @@ class PlaceholderManager(
 
         var box = container.findViewWithTag<View>(uuid)
         val exists = box != null
-        val adapter = adapters[type]!!
         if (!exists) {
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, parentTextViewRect.right - parentTextViewRect.left - 20),
-                parentTextViewRect.bottom - parentTextViewRect.top - 20
+                adapter.calculateWidth(attrs, windowWidth) - 20,
+                height - 20
         )
         val padding = 10
         params.setMargins(
                 parentTextViewRect.left + padding + aztecText.paddingStart,
                 parentTextViewRect.top + padding,
-                parentTextViewRect.right - padding - aztecText.paddingEnd,
+                0,
                 0
         )
         box.layoutParams = params
@@ -260,7 +271,7 @@ class PlaceholderManager(
                     nestingLevel = nestingLevel,
                     attributes = aztecAttributes,
                     onMediaDeletedListener = this,
-                    adapter = adapter,
+                    adapter = WeakReference(adapter),
                     TAG = htmlTag
             )
             val clickableSpan = AztecMediaClickableSpan(span)

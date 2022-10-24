@@ -28,9 +28,12 @@ import androidx.core.view.ViewCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.LeadingMarginSpan
 import android.text.style.LineBackgroundSpan
 import android.text.style.LineHeightSpan
-import android.text.style.QuoteSpan
+import android.text.style.UpdateAppearance
 import android.text.style.UpdateLayout
 import androidx.collection.ArrayMap
 import org.wordpress.aztec.AlignmentRendering
@@ -44,7 +47,7 @@ fun createAztecQuoteSpan(
         nestingLevel: Int,
         attributes: AztecAttributes = AztecAttributes(),
         alignmentRendering: AlignmentRendering,
-        quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0f, 0, 0, 0, 0)
+        quoteStyle: BlockFormatter.QuoteStyle = BlockFormatter.QuoteStyle(0, 0, 0, 0f, 0, 0, 0, 0)
 ) = when (alignmentRendering) {
     AlignmentRendering.SPAN_LEVEL -> AztecQuoteSpanAligned(nestingLevel, attributes, quoteStyle, null)
     AlignmentRendering.VIEW_LEVEL -> AztecQuoteSpan(nestingLevel, attributes, quoteStyle)
@@ -69,11 +72,12 @@ open class AztecQuoteSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes,
         var quoteStyle: BlockFormatter.QuoteStyle
-) : QuoteSpan(),
+) : CharacterStyle(), LeadingMarginSpan,
         LineBackgroundSpan,
         IAztecBlockSpan,
         LineHeightSpan,
-        UpdateLayout {
+        UpdateLayout,
+        UpdateAppearance {
 
     override var endBeforeBleed: Int = -1
     override var startBeforeCollapse: Int = -1
@@ -84,18 +88,49 @@ open class AztecQuoteSpan(
 
     override val TAG: String = "blockquote"
 
-    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int, fm: Paint.FontMetricsInt) {
+    private var originalAscent: Int = 0
+    private var originalTop: Int = 0
+    private var originalDescent: Int = 0
+    private var originalBottom: Int = 0
+
+    // this method adds extra padding to the top and bottom lines of the text while removing it from middle lines
+    override fun chooseHeight(text: CharSequence, start: Int, end: Int, spanstartv: Int, v: Int,
+                              fm: Paint.FontMetricsInt) {
         val spanned = text as Spanned
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
+        val isFirstLine = start <= spanStart
+        val isLastLine = spanEnd <= end
 
-        if (start == spanStart || start < spanStart) {
+        if (isFirstLine) {
+            originalAscent = fm.ascent
+            originalTop = fm.top
+            originalDescent = fm.descent
+            originalBottom = fm.bottom
+
             fm.ascent -= quoteStyle.verticalPadding
             fm.top -= quoteStyle.verticalPadding
+
+            if (!isLastLine) {
+                fm.descent = originalDescent
+                fm.bottom = originalBottom
+            }
         }
-        if (end == spanEnd || spanEnd < end) {
+        if (isLastLine) {
             fm.descent += quoteStyle.verticalPadding
             fm.bottom += quoteStyle.verticalPadding
+
+            if (!isFirstLine) {
+                fm.ascent = originalAscent
+                fm.top = originalTop
+            }
+        }
+
+        if (!isFirstLine && !isLastLine) {
+            fm.ascent = originalAscent
+            fm.top = originalTop
+            fm.descent = originalDescent
+            fm.bottom = originalBottom
         }
     }
 
@@ -199,4 +234,8 @@ open class AztecQuoteSpan(
     }
 
     override val textFormat: ITextFormat = AztecTextFormat.FORMAT_QUOTE
+
+    override fun updateDrawState(tp: TextPaint?) {
+        tp?.color = quoteStyle.quoteTextColor
+    }
 }

@@ -50,3 +50,16 @@ annotations/
 
 # Kotlin lint
 ktlint
+
+# Dependencies
+vendor
+
+# Currently, the configure tool stores the encrypted files under
+# .configure-files. Everything in that folder without a .enc extension should
+# be ignored.
+.configure-files/*
+!.configure-files/*.enc
+
+# Secrets files that should never be committed, regardless of location
+firebase.secrets.json
+

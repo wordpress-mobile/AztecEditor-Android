@@ -57,7 +57,7 @@ object Format {
             val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
             return doc.body().html()
         } else {
-            return if (isGutenbergMode) { html } else { replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>") }
+            return if (isGutenbergMode) { html } else { replaceAll(html, "\\s*<(/?($block)(.*?))>[ \\r\\n\\f]*", "<$1>") }
         }
     }
 

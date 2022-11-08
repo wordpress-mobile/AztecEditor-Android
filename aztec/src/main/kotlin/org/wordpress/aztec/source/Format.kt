@@ -3,15 +3,12 @@ package org.wordpress.aztec.source
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.wordpress.aztec.spans.AztecQuoteSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
 import org.wordpress.aztec.spans.EndOfParagraphMarker
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecParagraphStyle
 import org.wordpress.aztec.spans.ParagraphSpan
-import org.wordpress.aztec.util.CleaningUtils
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -20,46 +17,6 @@ object Format {
     private val block = "div|br|blockquote|ul|ol|li|p|pre|h1|h2|h3|h4|h5|h6|iframe|hr"
 
     private val iframePlaceholder = "iframe-replacement-0x0"
-
-    @JvmStatic
-    fun addSourceEditorFormatting(content: String, isCalypsoFormat: Boolean = false): String {
-        var html = replaceAll(content, "iframe", iframePlaceholder)
-        html = html.replace("<aztec_cursor>", "")
-
-        val doc = Jsoup.parseBodyFragment(html).outputSettings(Document.OutputSettings().prettyPrint(!isCalypsoFormat))
-        CleaningUtils.cleanNestedBoldTags(doc)
-        if (isCalypsoFormat) {
-            // remove empty span tags
-            doc.select("*")
-                    .filter { !it.hasText() && it.tagName() == "span" && it.childNodes().size == 0 }
-                    .forEach { it.remove() }
-
-            html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
-
-            html = replaceAll(html, "<p>(?:<br ?/?>|\u00a0|\uFEFF| )*</p>", "<p>&nbsp;</p>")
-            html = toCalypsoSourceEditorFormat(html)
-        } else {
-            html = replaceAll(doc.body().html(), iframePlaceholder, "iframe")
-
-            val newlineToTheLeft = replaceAll(html, "(?<!</?($block)>)\n<((?!/?($block)).*?)>", "<$2>")
-            val newlineToTheRight = replaceAll(newlineToTheLeft, "<(/?(?!$block).)>\n(?!</?($block)>)", "<$1>")
-            val fixBrNewlines = replaceAll(newlineToTheRight, "([\t ]*)(<br>)(?!\n)", "$1$2\n$1")
-            html = replaceAll(fixBrNewlines, ">([\t ]*)(<br>)", ">\n$1$2")
-        }
-
-        return html.trim()
-    }
-
-    @JvmStatic
-    fun removeSourceEditorFormatting(html: String, isCalypsoFormat: Boolean = false, isGutenbergMode: Boolean = false): String {
-        if (isCalypsoFormat) {
-            val htmlWithoutSourceFormatting = toCalypsoHtml(html)
-            val doc = Jsoup.parseBodyFragment(htmlWithoutSourceFormatting.replace("\n", "")).outputSettings(Document.OutputSettings().prettyPrint(false))
-            return doc.body().html()
-        } else {
-            return if (isGutenbergMode) { html } else { replaceAll(html, "\\s*<(/?($block)(.*?))>\\s*", "<$1>") }
-        }
-    }
 
     private fun replaceAll(content: String, pattern: String, replacement: String): String {
         val p = Pattern.compile(pattern)

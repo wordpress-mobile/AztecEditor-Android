@@ -5,8 +5,8 @@ import android.text.Layout
 import android.text.Spanned
 import android.text.TextUtils
 import androidx.core.text.TextDirectionHeuristicsCompat
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.AlignmentRendering
+import org.wordpress.aztec.AppLog
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecTextFormat

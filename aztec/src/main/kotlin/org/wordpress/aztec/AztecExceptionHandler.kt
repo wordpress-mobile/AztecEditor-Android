@@ -2,7 +2,6 @@ package org.wordpress.aztec
 
 import android.os.Build
 import android.util.Log
-import org.wordpress.android.util.AppLog
 import org.wordpress.aztec.exceptions.DynamicLayoutGetBlockIndexOutOfBoundsException
 import org.wordpress.aztec.util.AztecLog
 import java.lang.Thread.UncaughtExceptionHandler

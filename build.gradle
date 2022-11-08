@@ -1,33 +1,14 @@
-buildscript {
-    repositories {
-        maven { url "https://a8c-libs.s3.amazonaws.com/android" }
-    }
-    dependencies {
-        classpath 'com.automattic.android:configure:0.6.3'
-    }
-}
-
 plugins {
     id "com.android.application" apply false
     id "org.jetbrains.kotlin.android" apply false
-    id "com.automattic.android.publish-to-s3" apply false
 }
 
 allprojects {
     repositories {
-        maven {
-            url "https://a8c-libs.s3.amazonaws.com/android"
-            content {
-                includeGroup "org.wordpress"
-                includeGroup "org.wordpress.aztec"
-            }
-        }
         google()
         mavenCentral()
     }
 }
-
-apply plugin: 'com.automattic.android.configure'
 
 task clean(type: Delete) {
     delete rootProject.buildDir
@@ -56,18 +37,6 @@ subprojects {
 }
 
 ext {
-    gradlePluginVersion = '3.3.1'
-    kotlinCoroutinesVersion = '1.3.8'
-    tagSoupVersion = '1.2.1'
-    glideVersion = '4.12.0'
-    picassoVersion = '2.5.2'
     robolectricVersion = '4.6.1'
     jUnitVersion = '4.13.2'
-    jSoupVersion = '1.13.1'
-    wordpressUtilsVersion = 'trunk-1ed207c03d2242b6fc3d74f9e388e9163cbc82a6'
-    espressoVersion = '3.0.1'
-    commonTargetSdkVersion = 31
-    commonMinSdkVersion = 21
-
-    aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")
 }

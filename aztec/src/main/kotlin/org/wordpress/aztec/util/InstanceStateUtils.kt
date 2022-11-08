@@ -3,7 +3,7 @@ package org.wordpress.aztec.util
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space
 
-import org.apache.commons.lang3.StringUtils
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
@@ -86,7 +85,7 @@ class API26PrependNewLineOnStyledTextEvent : UserOperationEvent() {
 
         val (oldText) = firstEvent.beforeEventData
 
-        val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
+        val differenceIndex = indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
         oldText?.insert(differenceIndex, Constants.NEWLINE_STRING)
 
         builder.afterEventData = AfterTextChangedEventData(oldText)

@@ -2,7 +2,7 @@ package org.wordpress.aztec.util
 
 import android.text.Spanned
 import android.text.TextUtils
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 import org.wordpress.aztec.AztecText
 import java.util.Arrays
 import java.util.Collections

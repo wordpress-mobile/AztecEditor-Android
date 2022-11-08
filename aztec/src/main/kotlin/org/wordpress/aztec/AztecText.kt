@@ -62,8 +62,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.wordpress.android.util.AppLog
-import org.wordpress.android.util.ImageUtils
 import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
@@ -102,7 +100,6 @@ import org.wordpress.aztec.spans.UnknownHtmlSpan
 import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.util.AztecLog
-import org.wordpress.aztec.util.CleaningUtils
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
@@ -168,7 +165,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             var bitmap: Bitmap
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap
-                bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
+                bitmap = TODO()
             } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
                 bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap)
@@ -1411,8 +1408,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val builder = SpannableStringBuilder()
         val parser = AztecParser(alignmentRendering, plugins)
 
-        var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
-        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
+        var cleanSource = source
         builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
@@ -1543,7 +1539,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         if (isInCalypsoMode) {
             // calypso format is a mix of newline characters and html
             // paragraphs and line breaks are added on server, from newline characters
-            return Format.addSourceEditorFormatting(html, true)
+            return html
         } else {
             return html
         }
@@ -1603,7 +1599,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     // general function accepts any Spannable and converts it to formatted HTML
     fun toFormattedHtml(content: Spannable): String {
-        return Format.addSourceEditorFormatting(toHtml(content), isInCalypsoMode)
+        return toHtml(content)
     }
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
@@ -1859,7 +1855,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                 }
 
-        val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
+        val html = parser.toHtml(output)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))

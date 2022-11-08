@@ -1,6 +1,5 @@
 package org.wordpress.aztec
 
-import org.wordpress.android.util.AppLog
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.AttributesImpl
 

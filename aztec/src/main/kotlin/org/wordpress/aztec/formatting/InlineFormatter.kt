@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import androidx.annotation.ColorRes
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecPart
 import org.wordpress.aztec.AztecText

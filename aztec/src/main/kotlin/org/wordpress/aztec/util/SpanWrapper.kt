@@ -1,7 +1,7 @@
 package org.wordpress.aztec.util
 
 import android.text.Spannable
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 
 class SpanWrapper<T>(var spannable: Spannable, var span: T) {
 

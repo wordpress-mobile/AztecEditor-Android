@@ -23,7 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.text.TextUtilsCompat
 import androidx.core.view.ViewCompat
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.AztecText.EditorHasChanges.NO_CHANGES
 import org.wordpress.aztec.AztecTextFormat

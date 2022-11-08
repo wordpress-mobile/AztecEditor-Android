@@ -1,7 +1,6 @@
 plugins {
     id "com.android.library"
     id "org.jetbrains.kotlin.android"
-    id "com.automattic.android.publish-to-s3"
 }
 
 android {
@@ -53,14 +52,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
-
-    implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
-    implementation "org.jsoup:jsoup:$jSoupVersion"
-
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.8.0-alpha02'
-
-    implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
@@ -72,24 +64,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
-
-    implementation 'org.apache.commons:commons-lang3:3.8.1'
-}
-
-project.afterEvaluate {
-    publishing {
-        publications {
-            AztecPublication(MavenPublication) {
-                from components.release
-
-                groupId "org.wordpress"
-                artifactId "aztec"
-                artifact tasks.named("androidSourcesJar")
-                // version is set by 'publish-to-s3' plugin
-            }
-        }
-   }
 }

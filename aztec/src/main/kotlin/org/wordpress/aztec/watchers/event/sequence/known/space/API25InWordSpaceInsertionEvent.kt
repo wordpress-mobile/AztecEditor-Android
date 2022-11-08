@@ -1,6 +1,5 @@
 package org.wordpress.aztec.watchers.event.sequence.known.space
 
-import org.apache.commons.lang3.StringUtils
 import org.wordpress.aztec.watchers.event.sequence.EventSequence
 import org.wordpress.aztec.watchers.event.sequence.UserOperationEvent
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventDeleteText
@@ -91,7 +90,7 @@ class API25InWordSpaceInsertionEvent : UserOperationEvent() {
 
         val (oldText) = firstEvent.beforeEventData
 
-        val differenceIndex = StringUtils.indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
+        val differenceIndex = indexOfDifference(oldText, lastEvent.afterEventData.textAfter)
         oldText?.insert(differenceIndex, SPACE_STRING)
 
         builder.afterEventData = AfterTextChangedEventData(oldText)
@@ -100,5 +99,26 @@ class API25InWordSpaceInsertionEvent : UserOperationEvent() {
         replacementEvent.insertionLength = 1
 
         return replacementEvent
+    }
+}
+
+fun indexOfDifference(cs1: CharSequence?, cs2: CharSequence?): Int {
+    if (cs1 === cs2) {
+        return -1
+    }
+    if (cs1 == null || cs2 == null) {
+        return 0
+    }
+    var i = 0
+    while (i < cs1.length && i < cs2.length) {
+        if (cs1[i] != cs2[i]) {
+            break
+        }
+        ++i
+    }
+    return if (i < cs2.length || i < cs1.length) {
+        i
+    } else {
+        -1
     }
 }

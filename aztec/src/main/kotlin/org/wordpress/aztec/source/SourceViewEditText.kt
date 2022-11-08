@@ -195,7 +195,7 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
     }
 
     fun displayStyledAndFormattedHtml(source: String) {
-        val styledHtml = styleHtml(Format.addSourceEditorFormatting(source, isInCalypsoMode))
+        val styledHtml = styleHtml(source)
 
         disableTextChangedListener()
         val cursorPosition = consumeCursorTag(styledHtml)
@@ -281,7 +281,7 @@ open class SourceViewEditText : AppCompatEditText, TextWatcher {
             str = text.toString()
         }
 
-        return Format.removeSourceEditorFormatting(str, isInCalypsoMode)
+        return str
     }
 
     fun disableTextChangedListener() {

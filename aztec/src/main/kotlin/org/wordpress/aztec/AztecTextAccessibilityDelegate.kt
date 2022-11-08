@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import android.widget.EditText
-import org.apache.commons.lang3.StringUtils
 
 /**
  * Delegate which adds support for ExploreByTouch to an EditText. TalkBack reads each line as the user hovers over them.
@@ -89,6 +88,6 @@ class AztecTextAccessibilityDelegate(private val aztecText: EditText) {
     }
 
     private fun isLineBlank(lineOffset: Int): Boolean {
-        return StringUtils.isBlank(getTextAtLine(lineOffset).replace(Constants.MAGIC_STRING, ""))
+        return getTextAtLine(lineOffset).replace(Constants.MAGIC_STRING, "").isBlank()
     }
 }

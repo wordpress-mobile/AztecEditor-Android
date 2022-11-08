@@ -2,7 +2,7 @@ package org.wordpress.aztec.handlers
 
 import android.text.Spannable
 import android.text.Spanned
-import org.wordpress.android.util.AppLog
+import org.wordpress.aztec.AppLog
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.spans.IAztecNestable

@@ -5,7 +5,14 @@
 Aztec (which extends EditText) is a rich-text editor component for writing HTML
 documents in Android.
 
-Supports Android 4.1+ (API 16 - Jelly Bean)
+## storypark/AztecEditor-Android notes
+
+This fork is a WIP that attempts to add missing functionality for our use case whilst also removing a lot of the upstream
+code that we do not need as well. The main goal is to create the bare minimum amount of code required to get rich text 
+editor with behaviours users expect. It does not provide an html parser or serializer anymore and they're considered 
+BYO. 
+
+It also removes all linked GPL code. 
 
 <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/visual_editor.png" alt="Visual Editor"/> <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/code_editor.png" alt="Visual Editor"/>
 
@@ -99,23 +106,12 @@ $ ./gradlew cAT
 
 ```gradle
 repositories {
-    maven { url "https://a8c-libs.s3.amazonaws.com/android" }
+    maven { url 'https://jitpack.io' }
 }
 ```
 ```gradle
 dependencies {
-    api "org.wordpress:aztec:v1.6.2"
-}
-```
-
-Brave developers can either use the project as a source distribution
-or have fun with the latest snapshot at their own risk:
-
-```gradle
-dependencies {
-    api "org.wordpress:aztec:trunk-{commit_sha1}"
-    // As an example, for '3f004c8c8cd4b53ab9748f42f373cf00a30e9d86' commit sha1, this would look like:
-    // api "org.wordpress:aztec:trunk-3f004c8c8cd4b53ab9748f42f373cf00a30e9d86"
+    implementation "com.github.storypark:AztecEditor-Android:trunk-SNAPSHOT"
 }
 ```
 

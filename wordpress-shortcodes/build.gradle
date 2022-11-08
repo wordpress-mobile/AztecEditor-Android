@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion commonMinSdkVersion
@@ -38,7 +38,7 @@ dependencies {
 
     implementation aztecProjectDependency
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"

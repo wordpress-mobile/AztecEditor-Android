@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "org.wordpress.aztec"
@@ -45,7 +45,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation "org.wordpress:utils:$wordpressUtilsVersion"
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0', {

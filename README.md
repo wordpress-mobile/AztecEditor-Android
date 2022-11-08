@@ -8,7 +8,7 @@ documents in Android.
 ## storypark/AztecEditor-Android notes
 
 This fork is a WIP that attempts to add missing functionality for our use case whilst also removing a lot of the upstream
-code that we do not need as well. The main goal is to create the bare minimum amount of code required to get rich text 
+code that we do not need as well. The main goal is to create the bare minimum amount of code required to get a rich text 
 editor with behaviours users expect. It does not provide an html parser or serializer anymore and they're considered 
 BYO. 
 

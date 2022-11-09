@@ -75,7 +75,6 @@ import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IClipboardPastePlugin
-import org.wordpress.aztec.plugins.IClipboardPastePlugin.*
 import org.wordpress.aztec.plugins.IOnDrawPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
@@ -1908,13 +1907,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     firstItem.text.isNotBlank() -> {
                         val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
                         else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
-                        PastedItem.HtmlText(textToPaste)
+                        IClipboardPastePlugin.PastedItem.HtmlText(textToPaste)
                     }
                     firstItem.uri != null -> {
-                        PastedItem.Url(firstItem.uri)
+                        IClipboardPastePlugin.PastedItem.Url(firstItem.uri)
                     }
                     firstItem.intent != null -> {
-                        PastedItem.PastedIntent(firstItem.intent)
+                        IClipboardPastePlugin.PastedItem.PastedIntent(firstItem.intent)
                     }
                     else -> {
                         null
@@ -1926,9 +1925,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                             .fold(null as? String?) { acc, plugin ->
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
-                        is PastedItem.HtmlText -> itemToPaste.text
-                        is PastedItem.Url -> itemToPaste.uri.path
-                        is PastedItem.PastedIntent -> itemToPaste.intent.toString()
+                        is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
                     }
 
                     val newHtml = oldHtml.replace(

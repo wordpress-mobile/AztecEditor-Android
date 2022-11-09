@@ -1904,7 +1904,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             if (clip.itemCount > 0) {
                 val firstItem = clip.getItemAt(0)
                 val itemToPaste = when {
-                    firstItem.text.isNotBlank() -> {
+                    !firstItem.text.isNullOrEmpty() -> {
                         val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
                         else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
                         IClipboardPastePlugin.PastedItem.HtmlText(textToPaste)

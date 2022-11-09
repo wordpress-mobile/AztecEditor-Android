@@ -4,12 +4,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
 import org.wordpress.aztec.AztecText
-import org.wordpress.aztec.spans.AztecCodeSpan
-import org.wordpress.aztec.spans.AztecHeadingSpan
-import org.wordpress.aztec.spans.AztecListItemSpan
-import org.wordpress.aztec.spans.AztecPreformatSpan
-import org.wordpress.aztec.spans.EndOfParagraphMarker
-import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.*
 import java.lang.ref.WeakReference
 
 class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargin: Int) : TextWatcher {
@@ -27,7 +22,7 @@ class EndOfParagraphMarkerAdder(aztecText: AztecText, val verticalParagraphMargi
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
 
-        if (!textChangedEventDetails.isNewLine()) return
+        if (!textChangedEventDetails.isNewLine() || aztecTextRef.get()?.newlineTerminatesInlineSpans == false) return
 
         val aztecText = aztecTextRef.get()
         if (aztecText != null && !aztecText.isTextChangedListenerDisabled() && aztecText.isInCalypsoMode) {

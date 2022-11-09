@@ -28,27 +28,13 @@ import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
-import android.os.Build
-import android.os.Bundle
-import android.os.Looper
-import android.os.Parcel
-import android.os.Parcelable
-import android.text.Editable
-import android.text.InputFilter
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextUtils
-import android.text.TextWatcher
+import android.os.*
+import android.text.*
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import android.view.View.OnLongClickListener
-import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.widget.CheckBox
 import android.widget.EditText
@@ -66,56 +52,21 @@ import org.wordpress.aztec.formatting.BlockFormatter
 import org.wordpress.aztec.formatting.InlineFormatter
 import org.wordpress.aztec.formatting.LineBlockFormatter
 import org.wordpress.aztec.formatting.LinkFormatter
-import org.wordpress.aztec.handlers.HeadingHandler
-import org.wordpress.aztec.handlers.ListHandler
-import org.wordpress.aztec.handlers.ListItemHandler
-import org.wordpress.aztec.handlers.PreformatHandler
-import org.wordpress.aztec.handlers.QuoteHandler
+import org.wordpress.aztec.handlers.*
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.IOnDrawPlugin
 import org.wordpress.aztec.plugins.ITextPastePlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
-import org.wordpress.aztec.spans.AztecAudioSpan
-import org.wordpress.aztec.spans.AztecCodeSpan
-import org.wordpress.aztec.spans.AztecCursorSpan
-import org.wordpress.aztec.spans.AztecDynamicImageSpan
-import org.wordpress.aztec.spans.AztecHeadingSpan
-import org.wordpress.aztec.spans.AztecImageSpan
-import org.wordpress.aztec.spans.AztecListItemSpan
-import org.wordpress.aztec.spans.AztecMediaClickableSpan
-import org.wordpress.aztec.spans.AztecMediaSpan
-import org.wordpress.aztec.spans.AztecTaskListSpan
-import org.wordpress.aztec.spans.AztecTaskListSpanAligned
-import org.wordpress.aztec.spans.AztecURLSpan
-import org.wordpress.aztec.spans.AztecVideoSpan
-import org.wordpress.aztec.spans.AztecVisualLinebreak
-import org.wordpress.aztec.spans.CommentSpan
-import org.wordpress.aztec.spans.EndOfParagraphMarker
-import org.wordpress.aztec.spans.IAztecAttributedSpan
-import org.wordpress.aztec.spans.IAztecBlockSpan
-import org.wordpress.aztec.spans.UnknownClickableSpan
-import org.wordpress.aztec.spans.UnknownHtmlSpan
+import org.wordpress.aztec.spans.*
 import org.wordpress.aztec.toolbar.IAztecToolbar
 import org.wordpress.aztec.toolbar.ToolbarAction
 import org.wordpress.aztec.util.AztecLog
 import org.wordpress.aztec.util.InstanceStateUtils
 import org.wordpress.aztec.util.SpanWrapper
 import org.wordpress.aztec.util.coerceToHtmlText
-import org.wordpress.aztec.watchers.BlockElementWatcher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcherAPI25AndHigher
-import org.wordpress.aztec.watchers.DeleteMediaElementWatcherPreAPI25
-import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
-import org.wordpress.aztec.watchers.EndOfParagraphMarkerAdder
-import org.wordpress.aztec.watchers.FullWidthImageElementWatcher
-import org.wordpress.aztec.watchers.InlineTextWatcher
-import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
-import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
-import org.wordpress.aztec.watchers.ParagraphCollapseRemover
-import org.wordpress.aztec.watchers.SuggestionWatcher
-import org.wordpress.aztec.watchers.TextDeleter
-import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
+import org.wordpress.aztec.watchers.*
 import org.wordpress.aztec.watchers.event.IEventInjector
 import org.wordpress.aztec.watchers.event.sequence.ObservationQueue
 import org.wordpress.aztec.watchers.event.sequence.known.space.steps.TextWatcherEventInsertText
@@ -127,8 +78,7 @@ import org.xml.sax.Attributes
 import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.Arrays
-import java.util.LinkedList
+import java.util.*
 
 @Suppress("UNUSED_PARAMETER")
 open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
@@ -261,6 +211,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var shouldAddMediaInline: Boolean = true
 
     var consumeHistoryEvent: Boolean = false
+
+    /** If true, newline characters will mark the end of all inline spans and clear all selected formats */
+    var newlineTerminatesInlineSpans = true
+
+    /** If true, the editor will maintain a trailing ZWJ. Leaving this true will nullify newlineTerminatesInlineSpans being false */
+    var useEndOfBufferMarker = true
 
     private var unknownBlockSpanStart = -1
 
@@ -727,10 +683,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
-        if ( isInGutenbergMode ) {
-            return (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
+        return if ( isInGutenbergMode ) {
+            (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
         } else {
-            return text.count() == 0
+            text.isEmpty()
         }
     }
 
@@ -1246,6 +1202,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_HIGHLIGHT,
+            AztecTextFormat.FORMAT_COLOR,
+            AztecTextFormat.FORMAT_TYPEFACE,
+            AztecTextFormat.FORMAT_ABSOLUTE_FONT_SIZE,
+            AztecTextFormat.FORMAT_ABSOLUTE_LINE_HEIGHT,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
@@ -1287,6 +1247,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_MARK,
             AztecTextFormat.FORMAT_HIGHLIGHT,
+            AztecTextFormat.FORMAT_COLOR,
+            AztecTextFormat.FORMAT_TYPEFACE,
+            AztecTextFormat.FORMAT_ABSOLUTE_FONT_SIZE,
+            AztecTextFormat.FORMAT_ABSOLUTE_LINE_HEIGHT,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
             AztecTextFormat.FORMAT_TASK_LIST,
@@ -1389,7 +1353,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     // Helper ======================================================================================
 
-    fun consumeCursorPosition(text: SpannableStringBuilder): Int {
+    fun consumeCursorPosition(text: Spannable): Int {
         var cursorPosition = Math.min(selectionStart, text.length)
 
         text.getSpans(0, text.length, AztecCursorSpan::class.java).forEach {

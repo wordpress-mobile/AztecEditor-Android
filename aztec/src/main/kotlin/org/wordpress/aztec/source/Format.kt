@@ -3,12 +3,7 @@ package org.wordpress.aztec.source
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
-import org.wordpress.aztec.spans.AztecQuoteSpan
-import org.wordpress.aztec.spans.AztecVisualLinebreak
-import org.wordpress.aztec.spans.EndOfParagraphMarker
-import org.wordpress.aztec.spans.IAztecAlignmentSpan
-import org.wordpress.aztec.spans.IAztecParagraphStyle
-import org.wordpress.aztec.spans.ParagraphSpan
+import org.wordpress.aztec.spans.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 

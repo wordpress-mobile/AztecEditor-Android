@@ -8,9 +8,9 @@ import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.spans.IAztecBlockSpan
 
-class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
+class EndOfBufferMarkerAdder(private val aztecText: AztecText, text: Editable) : TextWatcher {
     init {
-        ensureEndOfTextMarker(text)
+        ensureEndOfTextMarker(aztecText, text)
     }
 
     var deletedText = false
@@ -26,20 +26,23 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
         //  have been changed by other TextWatcher's afterTextChanged calls. This might introduce some inconsistency
         //  and "random" bugs.
 
-        ensureEndOfTextMarker(text, deletedText)
+        ensureEndOfTextMarker(aztecText, text, deletedText)
 
         // by the way, the cursor will be adjusted "automatically" by RichTextEditText's onSelectionChanged to before the marker
     }
 
     companion object {
         fun install(editText: AztecText) {
-            editText.addTextChangedListener(EndOfBufferMarkerAdder(editText.text))
+            editText.addTextChangedListener(EndOfBufferMarkerAdder(editText, editText.text))
         }
 
-        fun ensureEndOfTextMarker(text: Editable, deletedText: Boolean = false): Editable {
+        fun ensureEndOfTextMarker(aztecText: AztecText, text: Editable, deletedText: Boolean = false): Editable {
             // NOTE: According to the documentation, by the time this afterTextChanged have been called, the text might
             //  have been changed by other TextWatcher's afterTextChanged calls. This might introduce some inconsistency
             //  and "random" bugs.
+            if (!aztecText.useEndOfBufferMarker) {
+                return text
+            }
 
             if (text.isEmpty()) {
                 if (text.getSpans(0, 0, IAztecBlockSpan::class.java).isNotEmpty()) {
@@ -93,9 +96,12 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
             return text
         }
 
-        fun ensureEndOfTextMarker(text: String): String {
+        fun ensureEndOfTextMarker(aztecText: AztecText, text: String): String {
+            if (!aztecText.useEndOfBufferMarker) {
+                return text
+            }
             val sb = SpannableStringBuilder(text)
-            ensureEndOfTextMarker(sb)
+            ensureEndOfTextMarker(aztecText, sb)
             return sb.toString()
         }
 

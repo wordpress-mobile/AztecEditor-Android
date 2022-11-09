@@ -23,15 +23,16 @@ class ZeroIndexContentWatcher(aztecText: AztecText) : TextWatcher {
         textChangedEventDetails.start = start
         textChangedEventDetails.initialize()
 
-        if (textChangedEventDetails.isNewLine()) return
-
         val aztecText = aztecTextRef.get()
+
+        if (textChangedEventDetails.isNewLine() && aztecText?.newlineTerminatesInlineSpans != false) return
+
         // last character was removed
-        if (aztecText != null
-                && text.length == 0
+        if ((aztecText != null
+                && text.isEmpty()
                 && textChangedEventDetails.inputEnd == 0
-                && textChangedEventDetails.inputStart == 1) {
-            aztecText.disableOnSelectionListener()
+                && textChangedEventDetails.inputStart == 1) || textChangedEventDetails.isNewLine()) {
+            aztecText?.disableOnSelectionListener()
         }
     }
 

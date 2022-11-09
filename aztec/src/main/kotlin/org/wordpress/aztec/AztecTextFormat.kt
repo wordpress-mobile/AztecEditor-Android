@@ -37,5 +37,14 @@ enum class AztecTextFormat : ITextFormat {
     FORMAT_MONOSPACE,
     FORMAT_CODE,
     FORMAT_MARK,
-    FORMAT_HIGHLIGHT
+    FORMAT_HIGHLIGHT,
+
+    // note(alex): Storypark added default text formats. Now we could get this behavior through
+    //             the plugins API. However, a lot of the default formatters/watchers require
+    //             iterating through this enum. Making plugins, mostly in-extensible unless you
+    //             have a specific use case like the upstream comments plugin
+    FORMAT_COLOR, // Foreground text color
+    FORMAT_TYPEFACE, // Typeface based span instead of fontFamily based default
+    FORMAT_ABSOLUTE_FONT_SIZE, // Absolute size span
+    FORMAT_ABSOLUTE_LINE_HEIGHT // A metric affecting span adjusting line height, inline
 }

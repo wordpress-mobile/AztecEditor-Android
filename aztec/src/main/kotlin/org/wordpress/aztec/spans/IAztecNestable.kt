@@ -12,7 +12,7 @@ interface IAztecNestable {
         fun getNestingLevelAt(spanned: Spanned, index: Int, nextIndex: Int = index): Int {
             return spanned.getSpans(index, nextIndex, IAztecNestable::class.java)
                     .filter { spanned.getSpanEnd(it) != index || index == 0 || spanned[index - 1] != Constants.NEWLINE }
-                    .maxBy { it.nestingLevel }?.nestingLevel ?: 0
+                    .maxByOrNull { it.nestingLevel }?.nestingLevel ?: 0
         }
 
         fun getMinNestingLevelAt(spanned: Spanned, index: Int, nextIndex: Int = index): Int {
@@ -21,7 +21,7 @@ interface IAztecNestable {
                     .filter { spanned.getSpanStart(it) <= index && spanned.getSpanEnd(it) >= nextIndex &&
                             (spanned.getSpanStart(it) != index || spanned.getSpanEnd(it) != nextIndex) }
                     .filter { index != nextIndex || spanned.getSpanStart(it) != index && spanned.getSpanEnd(it) != index }
-                    .minBy { it.nestingLevel }?.nestingLevel ?: 0
+                    .minByOrNull { it.nestingLevel }?.nestingLevel ?: 0
         }
 
         fun pushDeeper(spannable: Spannable, start: Int, end: Int, fromLevel: Int = 0, pushBy: Int = 1): List<SpanWrapper<IAztecNestable>> {

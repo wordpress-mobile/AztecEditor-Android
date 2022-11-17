@@ -791,6 +791,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 when (toolbarAction) {
                     ToolbarAction.HEADING -> setHeadingMenu(it)
                     ToolbarAction.LIST -> setListMenu(it)
+                    else -> Unit // Do nothing
                 }
                 if (!hasCustomLayout) {
                     it.setBackgroundDrawableRes(toolbarAction.buttonDrawableRes)

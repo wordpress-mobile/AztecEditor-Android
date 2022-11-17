@@ -110,100 +110,100 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         aztecToolbarListener = listener
     }
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+    override fun onKeyUp(keyCode: Int, keyEvent: KeyEvent): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_1 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 1 = Alt + Ctrl + 1
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_1, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_1)
                     return true
                 }
             }
             KeyEvent.KEYCODE_2 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 2 = Alt + Ctrl + 2
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_2, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_2)
                     return true
                 }
             }
             KeyEvent.KEYCODE_3 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 3 = Alt + Ctrl + 3
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_3, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_3)
                     return true
                 }
             }
             KeyEvent.KEYCODE_4 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 4 = Alt + Ctrl + 4
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_4, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_4)
                     return true
                 }
             }
             KeyEvent.KEYCODE_5 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 5 = Alt + Ctrl + 5
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_5, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_5)
                     return true
                 }
             }
             KeyEvent.KEYCODE_6 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 6
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_HEADING_6, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_HEADING_6)
                     return true
                 }
             }
             KeyEvent.KEYCODE_7 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Heading 6 = Alt + Ctrl + 7
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PARAGRAPH, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_PARAGRAPH)
                     return true
                 }
             }
             KeyEvent.KEYCODE_8 -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Preformat = Alt + Ctrl + 8
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_PREFORMAT, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_PREFORMAT)
                     return true
                 }
             }
             KeyEvent.KEYCODE_B -> {
-                if (event.isCtrlPressed) { // Bold = Ctrl + B
+                if (keyEvent.isCtrlPressed) { // Bold = Ctrl + B
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRONG, true)
                     findViewById<ToggleButton>(ToolbarAction.BOLD.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_D -> {
-                if (event.isCtrlPressed) { // Strikethrough = Ctrl + D
+                if (keyEvent.isCtrlPressed) { // Strikethrough = Ctrl + D
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_STRIKETHROUGH, true)
                     findViewById<ToggleButton>(ToolbarAction.STRIKETHROUGH.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_H -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Shortcuts = Alt + Ctrl + H
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Shortcuts = Alt + Ctrl + H
                     showDialogShortcuts()
                     return true
                 }
             }
             KeyEvent.KEYCODE_I -> {
-                if (event.isCtrlPressed) { // Italic = Ctrl + I
+                if (keyEvent.isCtrlPressed) { // Italic = Ctrl + I
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_EMPHASIS, true)
                     findViewById<ToggleButton>(ToolbarAction.ITALIC.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_K -> {
-                if (event.isCtrlPressed) { // Link = Ctrl + K
+                if (keyEvent.isCtrlPressed) { // Link = Ctrl + K
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_LINK, true)
                     findViewById<ToggleButton>(ToolbarAction.LINK.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_M -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Media = Alt + Ctrl + M
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Media = Alt + Ctrl + M
                     if (aztecToolbarListener != null && aztecToolbarListener!!.onToolbarMediaButtonClicked()) {
                         //event is consumed by listener
                     } else {
@@ -214,59 +214,59 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
                 }
             }
             KeyEvent.KEYCODE_O -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Ordered List = Alt + Ctrl + O
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_ORDERED_LIST, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_ORDERED_LIST)
                     return true
                 }
             }
             KeyEvent.KEYCODE_Q -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Quote = Alt + Ctrl + Q
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Quote = Alt + Ctrl + Q
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_QUOTE, true)
                     findViewById<ToggleButton>(ToolbarAction.QUOTE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_U -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Unordered List = Alt + Ctrl + U
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNORDERED_LIST, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_UNORDERED_LIST)
                     return true
-                } else if (event.isCtrlPressed) { // Underline = Ctrl + U
+                } else if (keyEvent.isCtrlPressed) { // Underline = Ctrl + U
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_UNDERLINE, true)
                     findViewById<ToggleButton>(ToolbarAction.UNDERLINE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_T -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Task List = Alt + Ctrl + T
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Task List = Alt + Ctrl + T
                     aztecToolbarListener?.onToolbarFormatButtonClicked(AztecTextFormat.FORMAT_TASK_LIST, true)
                     editor?.toggleFormatting(AztecTextFormat.FORMAT_TASK_LIST)
                     return true
                 }
             }
             KeyEvent.KEYCODE_X -> {
-                if (event.isAltPressed && event.isCtrlPressed) { // Code = Alt + Ctrl + X
+                if (keyEvent.isAltPressed && keyEvent.isCtrlPressed) { // Code = Alt + Ctrl + X
 //                    TODO: Add Code action.
 //                    findViewById<ToggleButton>(ToolbarAction.CODE.buttonId).performClick()
                     return true
                 }
             }
             KeyEvent.KEYCODE_Y -> {
-                if (event.isCtrlPressed) { // Redo  = Ctrl + Y
+                if (keyEvent.isCtrlPressed) { // Redo  = Ctrl + Y
                     editor?.redo()
                     return true
                 }
             }
             KeyEvent.KEYCODE_Z -> {
-                if (event.isCtrlPressed) { // Undo  = Ctrl + Z
+                if (keyEvent.isCtrlPressed) { // Undo  = Ctrl + Z
                     editor?.undo()
                     return true
                 }
             }
             else -> {
                 toolbarButtonPlugins.forEach {
-                    if (it.matchesKeyShortcut(keyCode, event)) {
+                    if (it.matchesKeyShortcut(keyCode, keyEvent)) {
                         aztecToolbarListener?.onToolbarFormatButtonClicked(it.action.textFormats.first(), true)
                         it.toggle()
                         return true

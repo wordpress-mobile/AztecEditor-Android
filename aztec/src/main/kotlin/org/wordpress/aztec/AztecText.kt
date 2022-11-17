@@ -706,7 +706,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             temp
         }
 
-        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+        val emptyEditTextBackspaceDetector = InputFilter { source, start, _, _, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && start == 0
                     && dstart == 0 && dend == 0

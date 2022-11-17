@@ -64,7 +64,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
     fun toggleAny(textFormats: Set<ITextFormat>) {
         if (!textFormats
                 .filter { containsInlineStyle(it) }
-                .fold(false) { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
+                .fold(false) { _, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
             removeAllExclusiveFormats()
             applyInlineStyle(textFormats.first())
         }

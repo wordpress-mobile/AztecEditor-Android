@@ -211,7 +211,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         joinStyleSpans(start, end)
     }
 
-    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
+    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
         val previousSpans = editableText.getSpans(start, end, MarkSpan::class.java)
         previousSpans.forEach {
             it.applyInlineStyleAttributes(editableText, start, end)

@@ -60,7 +60,7 @@ class InstanceStateUtils {
                 return defaultValue
             }
 
-            var obj: T = defaultValue
+            @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var obj: T = defaultValue
 
             with(file) {
                 FileInputStream(this).use { input ->

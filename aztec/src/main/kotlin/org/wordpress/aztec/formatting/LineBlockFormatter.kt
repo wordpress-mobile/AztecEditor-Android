@@ -30,7 +30,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0..i - 1).sumBy { lines[it].length + 1 }
+            val lineStart = (0..i - 1).sumOf { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -64,7 +64,7 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
             return false
         }
 
-        val start = (0..index - 1).sumBy { lines[it].length + 1 }
+        val start = (0..index - 1).sumOf { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {

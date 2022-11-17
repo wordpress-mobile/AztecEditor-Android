@@ -378,13 +378,17 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         isMediaToolbarVisible = restoredState.getBoolean("isMediaToolbarVisible")
         setAdvancedState()
         setupMediaToolbar()
-        editorContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY)
-        sourceContentParsedSHA256LastSwitch = restoredState.getByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY)
+        restoredState.getByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY)?.let {
+            editorContentParsedSHA256LastSwitch = it
+        }
+        restoredState.getByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY)?.let {
+            sourceContentParsedSHA256LastSwitch = it
+        }
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val savedState = SourceViewEditText.SavedState(superState)
+        val savedState = superState?.let { SourceViewEditText.SavedState(it) }
         val bundle = Bundle()
         bundle.putBoolean("isSourceVisible", sourceEditor?.visibility == View.VISIBLE)
         bundle.putBoolean("isMediaMode", isMediaModeEnabled)
@@ -392,7 +396,7 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         bundle.putBoolean("isMediaToolbarVisible", isMediaToolbarVisible)
         bundle.putByteArray(RETAINED_EDITOR_HTML_PARSED_SHA256_KEY, editorContentParsedSHA256LastSwitch)
         bundle.putByteArray(RETAINED_SOURCE_HTML_PARSED_SHA256_KEY, sourceContentParsedSHA256LastSwitch)
-        savedState.state = bundle
+        savedState?.state = bundle
         return savedState
     }
 

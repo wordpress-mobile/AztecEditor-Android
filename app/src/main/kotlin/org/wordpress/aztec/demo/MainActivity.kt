@@ -525,7 +525,7 @@ open class MainActivity : AppCompatActivity(),
         super.onSaveInstanceState(outState)
 
         if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
-            outState?.putBoolean("isMediaUploadDialogVisible", true)
+            outState.putBoolean("isMediaUploadDialogVisible", true)
         }
     }
 

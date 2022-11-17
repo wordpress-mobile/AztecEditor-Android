@@ -9,6 +9,7 @@ import org.wordpress.aztec.Constants
 import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler
 import org.wordpress.aztec.plugins.visual2html.IInlineSpanHandler
 import org.wordpress.aztec.plugins.wpcomments.spans.WordPressCommentSpan
+import java.util.Locale
 
 class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpanHandler, IHtmlCommentHandler {
 
@@ -33,7 +34,8 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
 
         val spanStart = output.length
 
-        if (text.toLowerCase() == WordPressCommentSpan.Comment.MORE.html.toLowerCase()) {
+        if (text.lowercase(Locale.getDefault()) ==
+                WordPressCommentSpan.Comment.MORE.html.lowercase(Locale.getDefault())) {
 
             output.append(Constants.MAGIC_CHAR)
 
@@ -49,7 +51,8 @@ class WordPressCommentsPlugin(private val visualEditor: AztecText) : IInlineSpan
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             return true
-        } else if (text.toLowerCase() == WordPressCommentSpan.Comment.PAGE.html.toLowerCase()) {
+        } else if (text.lowercase(Locale.getDefault()) ==
+                WordPressCommentSpan.Comment.PAGE.html.lowercase(Locale.getDefault())) {
 
             output.append(Constants.MAGIC_CHAR)
 

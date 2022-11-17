@@ -132,6 +132,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.Arrays
 import java.util.LinkedList
+import java.util.Locale
 
 @Suppress("UNUSED_PARAMETER")
 open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
@@ -1818,7 +1819,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
-                        && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                        && Build.MANUFACTURER.lowercase(Locale.getDefault()).equals("samsung")) {
                     // Nope return true
                     Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {

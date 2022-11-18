@@ -49,6 +49,25 @@ class LinkTest {
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
         // Still valid, but order of b and del is switched here for some reason.
+        /**
+         * <b>
+         *     <s>
+         *         left
+         *     </s>
+         * </b>
+         * <b>
+         *     <s>
+         *         <a href="http://wordpress.com">
+         *             WordPress
+         *         </a>
+         *     </s>
+         * </b>
+         * <s>
+         *     <i>
+         *         right
+         *     </i>
+         * </s>
+         */
         Assert.assertEquals("<b><s>left</s></b><b><s><a href=\"http://wordpress.com\">WordPress</a></s></b><s><i>right</i></s>", editText.toHtml())
     }
 
@@ -160,6 +179,16 @@ class LinkTest {
         editText.setSelection(0, editText.length())
 
         editText.link("http://automattic.com", editText.getSelectedText())
+        /**
+         * <a href="http://automattic.com">
+         *     FirstUrl Hello
+         * </a>
+         * <a href="http://automattic.com">
+         *     <b>
+         *         SecondUrl
+         *     </b>
+         * </a>
+         */
         Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a>" +
                 "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
     }

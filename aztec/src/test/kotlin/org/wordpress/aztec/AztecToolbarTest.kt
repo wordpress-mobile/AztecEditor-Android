@@ -433,6 +433,16 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
         editText.append("bolditalic")
+        /**
+         * <strong>
+         *     bold
+         * </strong>
+         * <strong>
+         *     <em>
+         *         bolditalic
+         *     </em>
+         * </strong>
+         */
         Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong>", editText.toHtml())
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)

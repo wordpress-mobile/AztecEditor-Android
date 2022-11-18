@@ -45,16 +45,15 @@ class HeadingTest {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
-        toolbar.setEditor(editText, sourceText)
         toolbar.setToolbarItems(ToolbarItems.BasicLayout(
                 ToolbarAction.HEADING,
+                ToolbarAction.PREFORMAT,
                 ToolbarAction.LIST,
                 ToolbarAction.QUOTE,
                 ToolbarAction.BOLD,
                 ToolbarAction.ITALIC,
                 ToolbarAction.LINK,
                 ToolbarAction.UNDERLINE,
-                ToolbarAction.PREFORMAT,
                 ToolbarAction.STRIKETHROUGH,
                 ToolbarAction.ALIGN_LEFT,
                 ToolbarAction.ALIGN_CENTER,
@@ -62,6 +61,7 @@ class HeadingTest {
                 ToolbarAction.HORIZONTAL_RULE,
                 ToolbarAction.HTML
         ))
+        toolbar.setEditor(editText, sourceText)
         buttonQuote = toolbar.findViewById<ToggleButton>(R.id.format_bar_button_quote)
         menuHeading = toolbar.getHeadingMenu() as PopupMenu
         menuHeading1 = menuHeading.menu.getItem(1)

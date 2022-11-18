@@ -45,7 +45,6 @@ class PreformatTest {
         sourceText = SourceViewEditText(activity)
         sourceText.setCalypsoMode(false)
         toolbar = AztecToolbar(activity)
-        toolbar.setEditor(editText, sourceText)
         toolbar.setToolbarItems(ToolbarItems.BasicLayout(
                 ToolbarAction.HEADING,
                 ToolbarAction.PREFORMAT,
@@ -62,6 +61,7 @@ class PreformatTest {
                 ToolbarAction.HORIZONTAL_RULE,
                 ToolbarAction.HTML
         ))
+        toolbar.setEditor(editText, sourceText)
         menuHeading = toolbar.getHeadingMenu() as PopupMenu
         menuParagraph = menuHeading.menu.getItem(0)
         buttonPreformat = toolbar.findViewById<ToggleButton>(R.id.format_bar_button_pre)

@@ -74,8 +74,8 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IClipboardPastePlugin
 import org.wordpress.aztec.plugins.IOnDrawPlugin
-import org.wordpress.aztec.plugins.ITextPastePlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
@@ -259,6 +259,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var isInCalypsoMode = true
     var isInGutenbergMode: Boolean = false
     val alignmentRendering: AlignmentRendering
+
     // If this field is true, the media and horizontal line are added inline. If it's false, they are added after the
     // current block.
     var shouldAddMediaInline: Boolean = true
@@ -353,8 +354,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
-        fun onBackspaceKey() : Boolean
+        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int): Boolean
+        fun onBackspaceKey(): Boolean
     }
 
     interface OnLinkTappedListener {
@@ -435,11 +436,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
         verticalParagraphPadding = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
-                        resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+                resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
         verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_paragraphVerticalMargin,
-                        resources.getDimensionPixelSize(R.dimen.block_vertical_margin))
+                resources.getDimensionPixelSize(R.dimen.block_vertical_margin))
         verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding,
-                        resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
+                resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
@@ -597,7 +598,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-    private fun <T>selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
+    private fun <T> selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
         val spanFound: Array<T> = editableText.getSpans(
                 start,
                 end,
@@ -670,11 +671,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // problem is fixed at the Android OS level as described in the following url
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
-            var temp : CharSequence? = null
+            var temp: CharSequence? = null
             if (!bypassCrashPreventerInputFilter && dend < dest.length && source != Constants.NEWLINE_STRING) {
 
                 // if there are any images right after the destination position, hack the text
-                val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
+                val spans = dest.getSpans(dend, dend + 1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {
 
                     // prevent this filter from running recursively
@@ -730,7 +731,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
-        if ( isInGutenbergMode ) {
+        if (isInGutenbergMode) {
             return (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
         } else {
             return text.count() == 0
@@ -1045,7 +1046,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         this.onSelectionChangedListener = onSelectionChangedListener
     }
 
-    fun getAztecKeyListener() : OnAztecKeyListener? {
+    fun getAztecKeyListener(): OnAztecKeyListener? {
         return this.onAztecKeyListener
     }
 
@@ -1823,7 +1824,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 } else {
                     return super.onTextContextMenuItem(id)
                 }
-            } else -> return super.onTextContextMenuItem(id)
+            }
+            else -> return super.onTextContextMenuItem(id)
         }
 
         return true
@@ -1900,21 +1902,42 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
-                else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
-
-                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
-                val pastedHtmlText = plugins.filterIsInstance<ITextPastePlugin>().fold(textToPaste) { acc, plugin ->
-                    if (selectedText.isNullOrEmpty()) {
-                        plugin.toHtml(acc)
-                    } else {
-                        plugin.toHtml(selectedText, acc)
+                val firstItem = clip.getItemAt(0)
+                val itemToPaste = when {
+                    !firstItem.text.isNullOrEmpty() -> {
+                        val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
+                        else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
+                        IClipboardPastePlugin.PastedItem.HtmlText(textToPaste)
+                    }
+                    firstItem.uri != null -> {
+                        IClipboardPastePlugin.PastedItem.Url(firstItem.uri)
+                    }
+                    firstItem.intent != null -> {
+                        IClipboardPastePlugin.PastedItem.PastedIntent(firstItem.intent)
+                    }
+                    else -> {
+                        null
                     }
                 }
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, pastedHtmlText + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
+                if (itemToPaste != null) {
+                    val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
+                    val pastedHtmlText: String = plugins.filterIsInstance<IClipboardPastePlugin<*>>()
+                            .fold(null as? String?) { acc, plugin ->
+                                plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
+                            } ?: when (itemToPaste) {
+                        is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
+                    }
 
-                fromHtml(newHtml, false)
-                inlineFormatter.joinStyleSpans(0, length())
+                    val newHtml = oldHtml.replace(
+                            Constants.REPLACEMENT_MARKER_STRING,
+                            pastedHtmlText + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">"
+                    )
+
+                    fromHtml(newHtml, false)
+                    inlineFormatter.joinStyleSpans(0, length())
+                }
             }
             contentChangeWatcher.notifyContentChanged()
         }
@@ -1964,7 +1987,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     @SuppressLint("InflateParams")
-    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "" ) {
+    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "") {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl

@@ -17,7 +17,7 @@ import org.wordpress.aztec.plugins.shortcodes.TestUtils.safeEmpty
  * Tests for the video shortcode plugin
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(25))
+@Config(sdk = [25])
 class VideoShortcodeTest {
     lateinit var editText: AztecText
 

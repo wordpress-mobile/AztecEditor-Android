@@ -7,7 +7,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.TestUtils.safeLength
@@ -17,7 +16,6 @@ import org.wordpress.aztec.watchers.EndOfBufferMarkerAdder
  * Testing quote behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class QuoteTest {
 
     val formattingType = AztecTextFormat.FORMAT_QUOTE

@@ -12,11 +12,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class CalypsoFormattingTest : AndroidTestCase() {
     private var parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
 

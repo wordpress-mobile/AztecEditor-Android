@@ -10,7 +10,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeLength
 import org.wordpress.aztec.source.SourceViewEditText
@@ -20,7 +19,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * Testing heading behaviour.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class HeadingTest {
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText

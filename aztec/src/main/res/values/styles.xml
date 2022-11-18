@@ -13,7 +13,7 @@
     </style>
 
     <style name="ToolbarLayoutDirection">
-        <item name="android:layoutDirection" tools:targetApi="jelly_bean_mr1">ltr</item>
+        <item name="android:layoutDirection">ltr</item>
     </style>
 
     <style name="DividerVertical">

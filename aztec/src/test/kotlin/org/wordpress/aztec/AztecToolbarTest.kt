@@ -437,13 +437,13 @@ class AztecToolbarTest {
          * <strong>
          *     bold
          * </strong>
-         * <strong>
-         *     <em>
+         * <em>
+         *     <strong>
          *         bolditalic
-         *     </em>
-         * </strong>
+         *     </strong>
+         * </em>
          */
-        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong>", editText.toHtml())
+        Assert.assertEquals("<strong>bold</strong><em><strong>bolditalic</strong></em>", editText.toHtml())
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
 

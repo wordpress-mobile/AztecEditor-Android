@@ -55,20 +55,20 @@ class LinkTest {
          *         left
          *     </s>
          * </b>
-         * <b>
-         *     <s>
-         *         <a href="http://wordpress.com">
+         * <a href="http://wordpress.com">
+         *     <b>
+         *         <s>
          *             WordPress
-         *         </a>
-         *     </s>
-         * </b>
-         * <s>
-         *     <i>
+         *         </s>
+         *     </b>
+         * </a>
+         * <i>
+         *     <s>
          *         right
-         *     </i>
-         * </s>
+         *     </s>
+         * </i>
          */
-        Assert.assertEquals("<b><s>left</s></b><b><s><a href=\"http://wordpress.com\">WordPress</a></s></b><s><i>right</i></s>", editText.toHtml())
+        Assert.assertEquals("<b><s>left</s></b><a href=\"http://wordpress.com\"><b><s>WordPress</s></b></a><i><s>right</s></i>", editText.toHtml())
     }
 
     @Test
@@ -183,14 +183,14 @@ class LinkTest {
          * <a href="http://automattic.com">
          *     FirstUrl Hello
          * </a>
-         * <a href="http://automattic.com">
-         *     <b>
+         * <b>
+         *     <a href="http://automattic.com">
          *         SecondUrl
-         *     </b>
-         * </a>
+         *     </a>
+         * </b>
          */
-        Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a>" +
-                "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
+        Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a><b>" +
+                "<a href=\"http://automattic.com\">SecondUrl</a></b>", editText.toHtml())
     }
 
     @Test

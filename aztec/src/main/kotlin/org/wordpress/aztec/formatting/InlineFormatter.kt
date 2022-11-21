@@ -64,7 +64,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
     fun toggleAny(textFormats: Set<ITextFormat>) {
         if (!textFormats
                 .filter { containsInlineStyle(it) }
-                .fold(false) { found, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
+                .fold(false) { _, containedTextFormat -> removeInlineStyle(containedTextFormat); true }) {
             removeAllExclusiveFormats()
             applyInlineStyle(textFormats.first())
         }
@@ -211,7 +211,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         joinStyleSpans(start, end)
     }
 
-    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {
+    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
         val previousSpans = editableText.getSpans(start, end, MarkSpan::class.java)
         previousSpans.forEach {
             it.applyInlineStyleAttributes(editableText, start, end)

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     repositories {
         maven { url "https://a8c-libs.s3.amazonaws.com/android" }
@@ -24,6 +26,11 @@ allprojects {
         }
         google()
         jcenter()
+    }
+    tasks.withType(KotlinCompile).all {
+        kotlinOptions {
+            allWarningsAsErrors = true
+        }
     }
 }
 

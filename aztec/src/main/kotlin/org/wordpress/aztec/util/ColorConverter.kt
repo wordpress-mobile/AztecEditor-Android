@@ -209,6 +209,7 @@ class ColorConverter {
          * cannot be translated.
          */
         @ColorInt
+        @Suppress("DEPRECATION")
         fun getColorInt(colorText: String): Int {
             try {
                 if (isColorResource(colorText)) {

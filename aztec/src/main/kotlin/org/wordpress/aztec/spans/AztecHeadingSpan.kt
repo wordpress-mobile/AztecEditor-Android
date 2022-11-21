@@ -20,7 +20,7 @@ fun createHeadingSpan(nestingLevel: Int,
                       alignmentRendering: AlignmentRendering,
                       headerStyle: BlockFormatter.HeaderStyles = BlockFormatter.HeaderStyles(0, emptyMap())
 ): AztecHeadingSpan {
-    val textFormat = when (tag.toLowerCase(Locale.getDefault())) {
+    val textFormat = when (tag.lowercase(Locale.getDefault())) {
         "h1" -> AztecTextFormat.FORMAT_HEADING_1
         "h2" -> AztecTextFormat.FORMAT_HEADING_2
         "h3" -> AztecTextFormat.FORMAT_HEADING_3

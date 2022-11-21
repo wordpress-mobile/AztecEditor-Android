@@ -132,6 +132,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.util.Arrays
 import java.util.LinkedList
+import java.util.Locale
 
 @Suppress("UNUSED_PARAMETER")
 open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
@@ -705,7 +706,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             temp
         }
 
-        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+        val emptyEditTextBackspaceDetector = InputFilter { source, start, _, _, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && start == 0
                     && dstart == 0 && dend == 0
@@ -897,7 +898,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)?.let {
+            initialEditorContentParsedSHA256 = it
+        }
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -942,9 +945,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return false
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val savedState = SavedState(superState)
+        val savedState = superState?.let { SavedState(it) }
         val bundle = Bundle()
         InstanceStateUtils.writeTempInstance(context, externalLogger, HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
@@ -977,7 +980,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
-        savedState.state = bundle
+        savedState?.state = bundle
         return savedState
     }
 
@@ -987,7 +990,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
-            state = parcel.readBundle(javaClass.classLoader)
+            parcel.readBundle(javaClass.classLoader)?.let {
+                state = it
+            }
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
@@ -1818,7 +1823,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
-                        && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                        && Build.MANUFACTURER.lowercase(Locale.getDefault()).equals("samsung")) {
                     // Nope return true
                     Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
@@ -2078,8 +2083,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        blockEditorDialog!!.show()
+        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        blockEditorDialog?.show()
     }
 
     private fun deleteInlineStyleFromTheBeginning() {

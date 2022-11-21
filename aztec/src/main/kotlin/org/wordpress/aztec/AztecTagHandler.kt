@@ -53,6 +53,7 @@ import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
+import java.util.Locale
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
 ) : Html.TagHandler {
@@ -75,7 +76,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             return true
         }
 
-        when (tag.toLowerCase()) {
+        when (tag.lowercase(Locale.getDefault())) {
             LIST_LI -> {
                 val span = createListItemSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, span)

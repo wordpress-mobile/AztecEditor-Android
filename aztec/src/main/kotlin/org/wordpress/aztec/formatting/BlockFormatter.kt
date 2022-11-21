@@ -823,7 +823,7 @@ class BlockFormatter(editor: AztecText,
             for (i in lines.indices) {
                 val lineLength = lines[i].length
 
-                val lineStart = (0 until i).sumBy { lines[it].length + 1 }
+                val lineStart = (0 until i).sumOf { lines[it].length + 1 }
 
                 val lineEnd = (lineStart + lineLength).let {
                     if ((start + it) != editableText.length) it + 1 else it // include the newline or not
@@ -843,7 +843,7 @@ class BlockFormatter(editor: AztecText,
         for (i in lines.indices) {
             val splitLength = lines[i].length
 
-            val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
+            val lineStart = start + (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = (lineStart + splitLength + 1).coerceAtMost(end) // +1 to include the newline
 
             val lineLength = lineEnd - lineStart
@@ -860,7 +860,7 @@ class BlockFormatter(editor: AztecText,
         for (i in lines.indices) {
             val splitLength = lines[i].length
 
-            val lineStart = start + (0 until i).sumBy { lines[it].length + 1 }
+            val lineStart = start + (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = (lineStart + splitLength + 1).coerceAtMost(end) // +1 to include the newline
 
             val lineLength = lineEnd - lineStart
@@ -901,7 +901,7 @@ class BlockFormatter(editor: AztecText,
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart > lineEnd) {
@@ -947,7 +947,7 @@ class BlockFormatter(editor: AztecText,
             return emptyList()
         }
 
-        val start = (0 until index).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumOf { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start > end) {
@@ -983,7 +983,7 @@ class BlockFormatter(editor: AztecText,
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -1017,7 +1017,7 @@ class BlockFormatter(editor: AztecText,
             return false
         }
 
-        val start = (0 until index).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumOf { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {
@@ -1113,7 +1113,7 @@ class BlockFormatter(editor: AztecText,
         val list = ArrayList<Int>()
 
         for (i in lines.indices) {
-            val lineStart = (0 until i).sumBy { lines[it].length + 1 }
+            val lineStart = (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
             if (lineStart >= lineEnd) {
@@ -1146,7 +1146,7 @@ class BlockFormatter(editor: AztecText,
             return false
         }
 
-        val start = (0 until index).sumBy { lines[it].length + 1 }
+        val start = (0 until index).sumOf { lines[it].length + 1 }
         val end = start + lines[index].length
 
         if (start >= end) {

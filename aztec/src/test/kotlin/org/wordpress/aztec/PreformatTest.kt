@@ -4,7 +4,7 @@ import android.app.Activity
 import android.view.MenuItem
 import android.widget.PopupMenu
 import android.widget.ToggleButton
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

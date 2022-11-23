@@ -1116,21 +1116,11 @@ class BlockFormatter(editor: AztecText,
             val lineStart = (0 until i).sumOf { lines[it].length + 1 }
             val lineEnd = lineStart + lines[i].length
 
-            if (lineStart >= lineEnd) {
+            if (lineStart > lineEnd) {
                 continue
             }
 
-            /**
-             * lineStart  >= selStart && selEnd   >= lineEnd // single line, current entirely selected OR
-             *                                                  multiple lines (before and/or after), current entirely selected
-             * lineStart  <= selEnd   && selEnd   <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (after), current partially or entirely selected
-             * lineStart  <= selStart && selStart <= lineEnd // single line, current partially or entirely selected OR
-             *                                                  multiple lines (before), current partially or entirely selected
-             */
-            if ((lineStart >= selStart && selEnd >= lineEnd)
-                    || (selEnd in lineStart..lineEnd)
-                    || (selStart in lineStart..lineEnd)) {
+            if (lineStart <= selectionEnd && lineEnd >= selectionStart) {
                 list.add(i)
             }
         }
@@ -1149,12 +1139,15 @@ class BlockFormatter(editor: AztecText,
         val start = (0 until index).sumOf { lines[it].length + 1 }
         val end = start + lines[index].length
 
-        if (start >= end) {
+        if (start > end) {
             return false
         }
 
         val spans = editableText.getSpans(start, end, AztecPreformatSpan::class.java)
-        return spans.isNotEmpty()
+        return spans.any {
+            val spanEnd = editableText.getSpanEnd(it)
+            spanEnd != start || editableText[spanEnd] != '\n'
+        }
     }
 
     private fun switchListType(listTypeToSwitchTo: ITextFormat, start: Int = selectionStart, end: Int = selectionEnd, attrs: AztecAttributes = AztecAttributes()) {

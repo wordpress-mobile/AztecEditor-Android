@@ -1108,6 +1108,7 @@ class BlockFormatter(editor: AztecText,
                 }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun containsPreformat(selStart: Int = selectionStart, selEnd: Int = selectionEnd): Boolean {
         val lines = TextUtils.split(editableText.toString(), "\n")
         val list = ArrayList<Int>()

@@ -8,7 +8,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.Aztec
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.ITextFormat
@@ -24,7 +23,6 @@ import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class CommentsToolbarTest {
 
     lateinit var editText: AztecText

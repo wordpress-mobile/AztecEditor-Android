@@ -9,7 +9,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
@@ -19,7 +18,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * This test uses ParameterizedRobolectricTestRunner and runs twice - for ol and ul tags.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class ListToggleTest {
 
     lateinit var editText: AztecText

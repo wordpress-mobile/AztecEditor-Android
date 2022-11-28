@@ -13,13 +13,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 
 /**
  * Tests for [AztecParser].
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(sdk = [23])
 class AztecParserTest(alignmentRendering: AlignmentRendering) : AndroidTestCase() {
     private var mParser = AztecParser(alignmentRendering)
     private val HTML_BOLD = "<b>Bold</b><br><br>"

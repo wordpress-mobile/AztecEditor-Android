@@ -4,13 +4,12 @@ import android.app.Activity
 import android.view.MenuItem
 import android.widget.PopupMenu
 import android.widget.ToggleButton
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.TestUtils.safeAppend
 import org.wordpress.aztec.TestUtils.safeEmpty
 import org.wordpress.aztec.TestUtils.safeLength
@@ -23,7 +22,6 @@ import org.wordpress.aztec.toolbar.ToolbarItems
  * Testing preformat behavior.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class PreformatTest {
     val tag = "pre"
 

@@ -17,7 +17,7 @@ import org.wordpress.aztec.plugins.shortcodes.TestUtils.safeEmpty
  * Tests for the audio shortcode plugin
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(25))
+@Config(sdk = [25])
 class AudioShortcodeTest {
     lateinit var editText: AztecText
 

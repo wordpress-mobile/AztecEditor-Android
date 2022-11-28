@@ -7,7 +7,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecUnderlineSpan
@@ -16,7 +15,6 @@ import org.wordpress.aztec.spans.AztecUnderlineSpan
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class CssUnderlinePluginTest {
     lateinit var editText: AztecText
 

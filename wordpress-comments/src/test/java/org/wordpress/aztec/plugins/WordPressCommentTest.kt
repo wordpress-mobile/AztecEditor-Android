@@ -24,7 +24,7 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
  * Tests for special comments ([WordPressCommentSpan.Comment.MORE] and [WordPressCommentSpan.Comment.PAGE])
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(25))
+@Config(sdk = [25])
 class WordPressCommentTest {
     lateinit var editText: AztecText
 

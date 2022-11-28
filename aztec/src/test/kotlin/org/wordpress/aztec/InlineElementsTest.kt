@@ -7,14 +7,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecStyleStrongSpan
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class InlineElementsTest {
 
     lateinit var editText: AztecText

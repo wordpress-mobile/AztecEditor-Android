@@ -9,12 +9,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [23])
 class ImageBlockTest {
     lateinit var editText: AztecText
     lateinit var menuList: PopupMenu

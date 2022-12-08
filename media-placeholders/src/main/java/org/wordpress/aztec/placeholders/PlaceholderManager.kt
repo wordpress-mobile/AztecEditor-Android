@@ -287,27 +287,42 @@ class PlaceholderManager(
     }
 
     override fun mediaLoadingStarted() {
-        clearAllViews()
         val spans = aztecText.editableText.getSpans(0, aztecText.editableText.length, AztecPlaceholderSpan::class.java)
 
         if (spans == null || spans.isEmpty()) {
             return
         }
+        aztecText.viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener)
+        aztecText.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+    }
 
-        aztecText.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+    private val globalLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+        private var job: Job? = null
+        override fun onGlobalLayout() {
+            if (job?.isActive == true) {
+                return
+            }
+            aztecText.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            val spans = aztecText.editableText.getSpans(
+                    0,
+                    aztecText.editableText.length,
+                    AztecPlaceholderSpan::class.java
+            )
+
+            if (spans == null || spans.isEmpty()) {
+                return
+            }
+            job = launch {
+                clearAllViews()
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
-                    val adapter = adapters[type] ?: return
-                    launch {
-                        updateDrawableBounds(adapter, it.attributes, it.drawable)
-                        aztecText.refreshText(false)
-                        insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
-                    }
+                    val adapter = adapters[type] ?: return@forEach
+                    updateDrawableBounds(adapter, it.attributes, it.drawable)
+                    aztecText.refreshText(false)
+                    insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }
-        })
+        }
     }
 
     private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {

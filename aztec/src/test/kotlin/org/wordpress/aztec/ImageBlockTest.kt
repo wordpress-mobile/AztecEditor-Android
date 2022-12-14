@@ -198,4 +198,17 @@ class ImageBlockTest {
 
         Assert.assertEquals("Test 1<br>test 2<img id=\"1234\" /><br>test 3", editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun addImageInTheMiddleOfParagraphsWhenNoBlocksPresent() {
+        editText.fromHtml("<p>Line 1</p><p>Line 2</p><p>Line 3</p>")
+
+        editText.setSelection(editText.editableText.indexOf("1") + 2)
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<p>Line 1</p><img id=\"1234\" /><p>Line 2</p><p>Line 3</p>", editText.toHtml())
+    }
 }

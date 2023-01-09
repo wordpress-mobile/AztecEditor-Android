@@ -675,10 +675,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val equalStringValues = source.toString() == dest.toString()
                 val equalRange = start == 0 && dstart == 0 && end == source.length && dend == source.length
 
-
                 if (equalStringValues && equalRange) {
+                    // we can't just return a dest, so we need to copy it into a new spannable string
+                    // this will also strip all the internal "service" spans
                     temp = SpannableStringBuilder(dest)
-                    TextUtils.copySpansFrom(dest, 0, dest.length, Any::class.java, temp, 0)
+                    // copy all the suggestion spans from the source, so we can see underlines
                     if (source is Spanned) {
                         TextUtils.copySpansFrom(source, 0, dest.length, SuggestionSpan::class.java, temp, 0)
                     }

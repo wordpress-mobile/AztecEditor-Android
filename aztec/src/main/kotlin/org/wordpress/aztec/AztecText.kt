@@ -236,6 +236,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassObservationQueue: Boolean = false
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
+    private var overrideSamsungPredictiveBehavior: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -663,6 +664,29 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             handleBackspaceAndEnter(event)
         }
 
+        // This InputFilter is creating for fixing the issue with predictive text on Samsung devices with API 33
+        // (at least this time) https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
+        // We are detecting when content of the editor is replaced with identical content, by comparing string values
+        // and ranges of incoming and exiting content. When this happens, instead of using incoming source content
+        // we use original content, with SuggestionSpan from incoming content added to it.
+        val samsungContentReplacementPreventer = InputFilter { source, start, end, dest, dstart, dend ->
+            var temp: CharSequence? = null
+            if (overrideSamsungPredictiveBehavior) {
+                val equalStringValues = source.toString() == dest.toString()
+                val equalRange = start == 0 && dstart == 0 && end == source.length && dend == source.length
+
+
+                if (equalStringValues && equalRange) {
+                    temp = SpannableStringBuilder(dest)
+                    TextUtils.copySpansFrom(dest, 0, dest.length, Any::class.java, temp, 0)
+                    if (source is Spanned) {
+                        TextUtils.copySpansFrom(source, 0, dest.length, SuggestionSpan::class.java, temp, 0)
+                    }
+                }
+            }
+            temp
+        }
+
         // This InputFilter created only for the purpose of avoiding crash described here:
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         // https://github.com/wordpress-mobile/AztecEditor-Android/issues/729
@@ -723,11 +747,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+        filters = if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33) {
+            arrayOf(samsungContentReplacementPreventer, emptyEditTextBackspaceDetector)
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+            arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
         } else {
-            filters = arrayOf(emptyEditTextBackspaceDetector)
+            arrayOf(emptyEditTextBackspaceDetector)
         }
     }
 
@@ -1713,6 +1739,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bypassMediaDeletedListener = false
     }
 
+    fun enableSamsungPredictiveBehaviorOverride() {
+        overrideSamsungPredictiveBehavior = true
+    }
+
+    fun disableSamsungPredictiveBehaviorOverride() {
+        overrideSamsungPredictiveBehavior = false
+    }
+
     fun isMediaDeletedListenerDisabled(): Boolean {
         return bypassMediaDeletedListener
     }
@@ -1865,7 +1899,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
+        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
     }
 
     // copied from TextView with some changes
@@ -1926,14 +1960,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 }
                 if (itemToPaste != null) {
                     val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
-                    val pastedHtmlText: String = plugins.filterIsInstance<IClipboardPastePlugin<*>>()
+                    val pastedHtmlText: String = (plugins.filterIsInstance<IClipboardPastePlugin<*>>()
                             .fold(null as? String?) { acc, plugin ->
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
                         is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
                         is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
                         is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
-                    }
+                    })!!
 
                     val newHtml = oldHtml.replace(
                             Constants.REPLACEMENT_MARKER_STRING,
@@ -2083,7 +2117,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+//        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }
 

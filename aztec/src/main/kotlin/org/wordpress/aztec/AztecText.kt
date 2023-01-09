@@ -1900,7 +1900,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
+        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
     }
 
     // copied from TextView with some changes
@@ -1961,14 +1961,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 }
                 if (itemToPaste != null) {
                     val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
-                    val pastedHtmlText: String = (plugins.filterIsInstance<IClipboardPastePlugin<*>>()
+                    val pastedHtmlText: String = plugins.filterIsInstance<IClipboardPastePlugin<*>>()
                             .fold(null as? String?) { acc, plugin ->
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
                         is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
                         is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
                         is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
-                    })!!
+                    }
 
                     val newHtml = oldHtml.replace(
                             Constants.REPLACEMENT_MARKER_STRING,
@@ -2118,7 +2118,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-//        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }
 

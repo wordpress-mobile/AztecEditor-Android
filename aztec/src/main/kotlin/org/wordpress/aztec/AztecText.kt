@@ -35,6 +35,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
 import android.text.InputFilter
+import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -50,6 +51,8 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.CompletionInfo
+import android.view.inputmethod.CorrectionInfo
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -116,6 +119,7 @@ import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseRemover
+import org.wordpress.aztec.watchers.SamsungPredictiveEventsWatcher
 import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher
@@ -215,6 +219,30 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 return EditorHasChanges.UNKNOWN
             }
         }
+    }
+
+    override fun onBeginBatchEdit() {
+        super.onBeginBatchEdit()
+    }
+
+    override fun onEditorAction(actionCode: Int) {
+        super.onEditorAction(actionCode)
+    }
+
+    override fun onPrivateIMECommand(action: String?, data: Bundle?): Boolean {
+        return super.onPrivateIMECommand(action, data)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onCommitCorrection(info: CorrectionInfo?) {
+        super.onCommitCorrection(info)
+    }
+
+    override fun onCommitCompletion(text: CompletionInfo?) {
+        super.onCommitCompletion(text)
     }
 
     private val REGEXP_EMAIL = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$",
@@ -676,14 +704,41 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 val equalRange = start == 0 && dstart == 0 && end == source.length && dend == source.length
 
                 if (equalStringValues && equalRange) {
+                    overrideSamsungPredictiveBehavior = false
                     // we can't just return a dest, so we need to copy it into a new spannable string
                     // this will also strip all the internal "service" spans
                     temp = SpannableStringBuilder(dest)
-                    TextUtils.copySpansFrom(dest, 0, dest.length, Any::class.java, temp, 0)
+//                    TextUtils.copySpansFrom(dest, 0, dest.length, Any::class.java, temp, 0)
                     // copy all the suggestion spans from the source, so we can see underlines
+                    disableCrashPreventerInputFilter()
+                    disableTextChangedListener()
+                    disableMediaDeletedListener()
+
                     if (source is Spanned) {
                         TextUtils.copySpansFrom(source, 0, dest.length, SuggestionSpan::class.java, temp, 0)
                     }
+
+                    val selStart = Selection.getSelectionStart(text)
+                    val selEnd = Selection.getSelectionEnd(text)
+                    val len = text.length
+
+                    text.clearSpans()
+                    setTextKeepState(temp)
+
+                    if (selStart >= 0 || selEnd >= 0) {
+                            Selection.setSelection(text,
+                                    Math.max(0, Math.min(selStart, len)),
+                                    Math.max(0, Math.min(selEnd, len)))
+                        }
+
+
+                    contentChangeWatcher.notifyContentChanged()
+
+                    temp = null
+                    enableTextChangedListener()
+                    enableMediaDeletedListener()
+                    enableCrashPreventerInputFilter()
+                    overrideSamsungPredictiveBehavior = true
                 }
             }
             temp
@@ -749,14 +804,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        filters = if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33) {
-            arrayOf(samsungContentReplacementPreventer, emptyEditTextBackspaceDetector)
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-            arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
-        } else {
-            arrayOf(emptyEditTextBackspaceDetector)
-        }
+        filters =
+                if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33) {
+                    arrayOf(samsungContentReplacementPreventer, emptyEditTextBackspaceDetector)
+                } else
+                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+                        // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
+                        arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+                    } else {
+                        arrayOf(emptyEditTextBackspaceDetector)
+                    }
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
@@ -1901,7 +1958,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
+        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
     }
 
     // copied from TextView with some changes

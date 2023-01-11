@@ -659,7 +659,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
-        return if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33 && overrideSamsungPredictiveBehavior) {
+        return if (Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT == 33
+                && overrideSamsungPredictiveBehavior) {
+            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with API 33")
             SamsungInputConnection(this, baseInputConnection)
         } else {
             baseInputConnection

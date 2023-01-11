@@ -35,7 +35,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
 import android.text.InputFilter
-import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -51,8 +50,8 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
-import android.view.inputmethod.CompletionInfo
-import android.view.inputmethod.CorrectionInfo
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -218,30 +217,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 return EditorHasChanges.UNKNOWN
             }
         }
-    }
-
-    override fun onBeginBatchEdit() {
-        super.onBeginBatchEdit()
-    }
-
-    override fun onEditorAction(actionCode: Int) {
-        super.onEditorAction(actionCode)
-    }
-
-    override fun onPrivateIMECommand(action: String?, data: Bundle?): Boolean {
-        return super.onPrivateIMECommand(action, data)
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onCommitCorrection(info: CorrectionInfo?) {
-        super.onCommitCorrection(info)
-    }
-
-    override fun onCommitCompletion(text: CompletionInfo?) {
-        super.onCommitCompletion(text)
     }
 
     private val REGEXP_EMAIL = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$",
@@ -682,6 +657,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return super.onTouchEvent(event)
     }
 
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
+        return if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33 && overrideSamsungPredictiveBehavior) {
+            SamsungInputConnection(this, baseInputConnection)
+        } else {
+            baseInputConnection
+        }
+    }
+
     // Setup the keyListener(s) for Backspace and Enter key.
     // Backspace: If listener does return false we remove the style here
     // Enter: Ask the listener if we need to insert or not the char
@@ -689,58 +673,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         //hardware keyboard
         setOnKeyListener { _, _, event ->
             handleBackspaceAndEnter(event)
-        }
-
-        // This InputFilter is creating for fixing the issue with predictive text on Samsung devices with API 33
-        // (at least this time) https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
-        // We are detecting when content of the editor is replaced with identical content, by comparing string values
-        // and ranges of incoming and exiting content. When this happens, instead of using incoming source content
-        // we use original content, with SuggestionSpan from incoming content added to it.
-        val samsungContentReplacementPreventer = InputFilter { source, start, end, dest, dstart, dend ->
-            var temp: CharSequence? = null
-            if (overrideSamsungPredictiveBehavior) {
-                val equalStringValues = source.toString() == dest.toString()
-                val equalRange = start == 0 && dstart == 0 && end == source.length && dend == source.length
-
-                if (equalStringValues && equalRange) {
-                    overrideSamsungPredictiveBehavior = false
-                    // we can't just return a dest, so we need to copy it into a new spannable string
-                    // this will also strip all the internal "service" spans
-                    temp = SpannableStringBuilder(dest)
-//                    TextUtils.copySpansFrom(dest, 0, dest.length, Any::class.java, temp, 0)
-                    // copy all the suggestion spans from the source, so we can see underlines
-                    disableCrashPreventerInputFilter()
-                    disableTextChangedListener()
-                    disableMediaDeletedListener()
-
-                    if (source is Spanned) {
-                        TextUtils.copySpansFrom(source, 0, dest.length, SuggestionSpan::class.java, temp, 0)
-                    }
-
-                    val selStart = Selection.getSelectionStart(text)
-                    val selEnd = Selection.getSelectionEnd(text)
-                    val len = text.length
-
-                    text.clearSpans()
-                    setTextKeepState(temp)
-
-                    if (selStart >= 0 || selEnd >= 0) {
-                            Selection.setSelection(text,
-                                    Math.max(0, Math.min(selStart, len)),
-                                    Math.max(0, Math.min(selEnd, len)))
-                        }
-
-
-                    contentChangeWatcher.notifyContentChanged()
-
-                    temp = null
-                    enableTextChangedListener()
-                    enableMediaDeletedListener()
-                    enableCrashPreventerInputFilter()
-                    overrideSamsungPredictiveBehavior = true
-                }
-            }
-            temp
         }
 
         // This InputFilter created only for the purpose of avoiding crash described here:
@@ -803,16 +735,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             source
         }
 
-        filters =
-                if (Build.MANUFACTURER == "samsung" && Build.VERSION.SDK_INT == 33) {
-                    arrayOf(samsungContentReplacementPreventer, emptyEditTextBackspaceDetector)
-                } else
-                    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                        // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
-                        arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
-                    } else {
-                        arrayOf(emptyEditTextBackspaceDetector)
-                    }
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            // dynamicLayoutCrashPreventer needs to be first in array as these are going to be chained when processed
+            filters = arrayOf(dynamicLayoutCrashPreventer, emptyEditTextBackspaceDetector)
+        } else {
+            filters = arrayOf(emptyEditTextBackspaceDetector)
+        }
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
@@ -1797,12 +1725,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bypassMediaDeletedListener = false
     }
 
+    // removes Grammarly suggestions from default keyboard on Samsung devices on Android 13 (API 33)
+    // Grammarly implementation is often messing spans and cursor position, as described here:
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
     fun enableSamsungPredictiveBehaviorOverride() {
         overrideSamsungPredictiveBehavior = true
-    }
-
-    fun disableSamsungPredictiveBehaviorOverride() {
-        overrideSamsungPredictiveBehavior = false
     }
 
     fun isMediaDeletedListenerDisabled(): Boolean {

@@ -395,6 +395,8 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
+        visualEditor.enableSamsungPredictiveBehaviorOverride()
+
         visualEditor.externalLogger = object : AztecLog.ExternalLogger {
             override fun log(message: String) {
             }

@@ -119,7 +119,6 @@ import org.wordpress.aztec.watchers.InlineTextWatcher
 import org.wordpress.aztec.watchers.ParagraphBleedAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseAdjuster
 import org.wordpress.aztec.watchers.ParagraphCollapseRemover
-import org.wordpress.aztec.watchers.SamsungPredictiveEventsWatcher
 import org.wordpress.aztec.watchers.SuggestionWatcher
 import org.wordpress.aztec.watchers.TextDeleter
 import org.wordpress.aztec.watchers.ZeroIndexContentWatcher

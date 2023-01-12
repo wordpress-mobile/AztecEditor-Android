@@ -3,7 +3,7 @@ package org.wordpress.aztec
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
-import android.text.SpannableStringBuilder
+import android.text.Selection
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.SuggestionSpan
@@ -15,8 +15,6 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
-import org.wordpress.aztec.Constants.ZWJ_CHAR
-import org.wordpress.aztec.spans.IAztecSpan
 
 /**
  * Wrapper around proprietary Samsung InputConnection. Forwards all the calls to it, except for getExtractedText
@@ -78,34 +76,52 @@ class SamsungInputConnection(
     }
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
-        val isSameStringValue = text.toString().replace(ZWJ_CHAR.toString(), "", true) ==
-                editable.toString().replace(ZWJ_CHAR.toString(), "", true)
         val incomingTextHasSuggestions = text is Spanned &&
                 text.getSpans(0, text.length, SuggestionSpan::class.java).isNotEmpty()
 
-        // Despite returning null from getExtractedText, in some cases Grammarly still tries to replace content of the
-        // editor with own content containing suggestions. This mostly works ok, but Aztec spans are finicky, and tend
-        // to get messed when content of the editor is replaced. In this method we remove Aztec spans before committing
-        // the change, and reapply them afterward
-        if (isSameStringValue && incomingTextHasSuggestions) {
-            // create a clean spannable string from editable to temporarily hold spans
-            val tempString = SpannableStringBuilder(editable.toString())
+        // Sometime spellchecker tries to commit partial text with suggestions. This mostly works ok,
+        // but Aztec spans are finicky, and tend to get messed when content of the editor is replaced.
+        // In this method we do everything replaceText method of EditableInputConnection does, apart from actually
+        // replacing text. Instead we copy the suggestions from incoming text into editor directly.
+        if (incomingTextHasSuggestions) {
+            // delete composing text set previously.
+            var composingSpanStart = getComposingSpanStart(editable)
+            var composingSpanEnd = getComposingSpanEnd(editable)
 
-            // store Aztec and Suggestions spans in temp string
-            TextUtils.copySpansFrom(editable, 0, editable.length, IAztecSpan::class.java, tempString, 0)
-            TextUtils.copySpansFrom(text as Spanned, 0, editable.length, SuggestionSpan::class.java, tempString, 0)
+            if (composingSpanEnd < composingSpanStart) {
+                val tmp = composingSpanStart
+                composingSpanStart = composingSpanEnd
+                composingSpanEnd = tmp
+            }
 
-            // remove all the Aztec spans from the current content of editor
-            editable.getSpans(0, editable.length, IAztecSpan::class.java).forEach { editable.removeSpan(it) }
+            if (composingSpanStart != -1 && composingSpanEnd != -1) {
+                removeComposingSpans(editable)
+            } else {
+                composingSpanStart = Selection.getSelectionStart(editable)
+                composingSpanEnd = Selection.getSelectionEnd(editable)
+                if (composingSpanStart < 0) composingSpanStart = 0
+                if (composingSpanEnd < 0) composingSpanEnd = 0
+                if (composingSpanEnd < composingSpanStart) {
+                    val tmp = composingSpanStart
+                    composingSpanStart = composingSpanEnd
+                    composingSpanEnd = tmp
+                }
+            }
 
-            // commit the text
-            val result = baseInputConnection.commitText(text, newCursorPosition)
+            var cursorPosition = newCursorPosition
+            cursorPosition += if (cursorPosition > 0) {
+                composingSpanEnd - 1
+            } else {
+                composingSpanStart
+            }
+            if (newCursorPosition < 0) cursorPosition = 0
+            if (newCursorPosition > editable.length) cursorPosition = editable.length
+            Selection.setSelection(editable, cursorPosition)
 
-            // re-add the spans we removed before committing the text
-            TextUtils.copySpansFrom(tempString, 0, editable.length, IAztecSpan::class.java, editable, 0)
-            TextUtils.copySpansFrom(tempString, 0, editable.length, SuggestionSpan::class.java, editable, 0)
+            TextUtils.copySpansFrom(text as Spanned, 0, text.length, SuggestionSpan::class.java, editable,
+                    composingSpanStart)
 
-            return result
+            return true
         }
         return baseInputConnection.commitText(text, newCursorPosition)
     }

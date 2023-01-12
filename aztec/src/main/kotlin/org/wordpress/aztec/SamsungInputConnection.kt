@@ -118,8 +118,15 @@ class SamsungInputConnection(
             if (newCursorPosition > editable.length) cursorPosition = editable.length
             Selection.setSelection(editable, cursorPosition)
 
-            TextUtils.copySpansFrom(text as Spanned, 0, text.length, SuggestionSpan::class.java, editable,
-                    composingSpanStart)
+            (text as Spanned).getSpans(0, text.length, SuggestionSpan::class.java).forEach {
+                val st: Int = text.getSpanStart(it)
+                val en: Int = text.getSpanEnd(it)
+                val fl: Int = text.getSpanFlags(it)
+
+                if (editable.length > composingSpanStart + en) {
+                    editable.setSpan(it, composingSpanStart + st, composingSpanStart + en, fl)
+                }
+            }
 
             return true
         }

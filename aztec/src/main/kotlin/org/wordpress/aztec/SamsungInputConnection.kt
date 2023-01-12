@@ -15,6 +15,7 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import org.wordpress.aztec.Constants.ZWJ_CHAR
 import org.wordpress.aztec.spans.IAztecSpan
 
 /**
@@ -77,7 +78,8 @@ class SamsungInputConnection(
     }
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
-        val isSameStringValue = text.toString() == editable.toString()
+        val isSameStringValue = text.toString().replace(ZWJ_CHAR.toString(), "", true) ==
+                editable.toString().replace(ZWJ_CHAR.toString(), "", true)
         val incomingTextHasSuggestions = text is Spanned &&
                 text.getSpans(0, text.length, SuggestionSpan::class.java).isNotEmpty()
 

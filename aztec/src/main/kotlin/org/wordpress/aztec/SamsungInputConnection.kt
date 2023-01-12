@@ -17,7 +17,8 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 
 /**
- * Wrapper around proprietary Samsung InputConnection. Forwards all the calls to it, except for getExtractedText
+ * Wrapper around proprietary Samsung InputConnection. Forwards all the calls to it, except for getExtractedText and
+ * some custom logic in commitText
  */
 class SamsungInputConnection(
         private val mTextView: AztecText,

@@ -50,6 +50,8 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -236,6 +238,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassObservationQueue: Boolean = false
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
+    private var overrideSamsungPredictiveBehavior: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -652,6 +655,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             lastPressedYCoord = event.rawY.toInt()
         }
         return super.onTouchEvent(event)
+    }
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
+        return if (Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT == 33
+                && overrideSamsungPredictiveBehavior) {
+            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with API 33")
+            SamsungInputConnection(this, baseInputConnection)
+        } else {
+            baseInputConnection
+        }
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.
@@ -1711,6 +1725,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun enableMediaDeletedListener() {
         bypassMediaDeletedListener = false
+    }
+
+    // removes Grammarly suggestions from default keyboard on Samsung devices on Android 13 (API 33)
+    // Grammarly implementation is often messing spans and cursor position, as described here:
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
+    fun enableSamsungPredictiveBehaviorOverride() {
+        overrideSamsungPredictiveBehavior = true
     }
 
     fun isMediaDeletedListenerDisabled(): Boolean {

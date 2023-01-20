@@ -16,20 +16,6 @@ package org.wordpress.aztec;
  * limitations under the License.
  */
 
-//import android.content.Context;
-//import android.graphics.drawable.Drawable;
-//import android.text.Editable;
-//import android.text.Spanned;
-//
-//import org.ccil.cowan.tagsoup.HTMLSchema;
-//import org.ccil.cowan.tagsoup.Parser;
-//import org.wordpress.aztec.plugins.IAztecPlugin;
-//import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
-//import org.wordpress.aztec.util.CleaningUtils;
-//import org.xml.sax.Attributes;
-//
-//import java.util.List;
-
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -48,7 +34,6 @@ import android.text.style.TypefaceSpan;
 import org.ccil.cowan.tagsoup.HTMLSchema;
 import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
-import org.wordpress.aztec.plugins.html2visual.IHtmlCommentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlContentHandler;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
 import org.wordpress.aztec.plugins.html2visual.IHtmlTextHandler;
@@ -67,7 +52,6 @@ import org.wordpress.aztec.spans.AztecSuperscriptSpan;
 import org.wordpress.aztec.spans.AztecTypefaceMonospaceSpan;
 import org.wordpress.aztec.spans.AztecURLSpan;
 import org.wordpress.aztec.spans.AztecUnderlineSpan;
-import org.wordpress.aztec.spans.CommentSpan;
 import org.wordpress.aztec.spans.FontSpan;
 import org.wordpress.aztec.spans.HighlightSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
@@ -81,16 +65,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.ext.LexicalHandler;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 import static org.wordpress.aztec.util.ExtensionsKt.getLast;
 
@@ -249,7 +229,7 @@ public class Html {
     }
 }
 
-class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandler {
+class HtmlToSpannedConverter implements org.xml.sax.ContentHandler {
     private int nestingLevel = 0;
 
     private int contentHandlerLevel = 0;
@@ -822,79 +802,6 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     }
 
     public void skippedEntity(String name) throws SAXException {
-    }
-
-    @Override
-    public void startDTD(String s, String s1, String s2) throws SAXException {
-    }
-
-    @Override
-    public void endDTD() throws SAXException {
-    }
-
-    @Override
-    public void startEntity(String s) throws SAXException {
-    }
-
-    @Override
-    public void endEntity(String s) throws SAXException {
-    }
-
-    @Override
-    public void startCDATA() throws SAXException {
-    }
-
-    @Override
-    public void endCDATA() throws SAXException {
-    }
-
-    @Override
-    public void comment(char[] chars, int start, int length) throws SAXException {
-        if (contentHandlerLevel != 0) {
-            content.rawHtml.append("<!--");
-            for (int i = 0; i < length; i++) {
-                content.rawHtml.append(chars[i + start]);
-            }
-            content.rawHtml.append("-->");
-            return;
-        }
-
-        String comment = new String(chars, start, length);
-        int spanStart = spannableStringBuilder.length();
-
-        boolean wasCommentHandled = processCommentHandlerPlugins(comment);
-
-        if (!wasCommentHandled) {
-            spannableStringBuilder.append(comment);
-            spannableStringBuilder.setSpan(
-                    new CommentSpan(comment),
-                    spanStart,
-                    spannableStringBuilder.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            );
-        }
-    }
-
-    private boolean processCommentHandlerPlugins(String comment) {
-        boolean wasCommentHandled = false;
-        if (plugins != null) {
-            for (IAztecPlugin plugin : plugins) {
-                if (plugin instanceof IHtmlCommentHandler) {
-                    wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder,
-                            nestingLevel, new Function1<Integer, Unit>() {
-                                @Override
-                                public Unit invoke(Integer newNesting) {
-                                    nestingLevel = newNesting;
-                                    return Unit.INSTANCE;
-                                }
-                            });
-                    if (wasCommentHandled) {
-                        break;
-                    }
-                }
-            }
-        }
-        return wasCommentHandled;
     }
 
     private static class ContentHandler {

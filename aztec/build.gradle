@@ -54,6 +54,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$gradle.ext.kotlinVersion"
     implementation 'androidx.appcompat:appcompat:1.5.1'
 
+    implementation "org.ccil.cowan.tagsoup:tagsoup:$tagSoupVersion"
+    implementation "org.jsoup:jsoup:$jSoupVersion"
+
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
     testImplementation 'androidx.test:core:1.4.0'

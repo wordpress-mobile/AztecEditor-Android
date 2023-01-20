@@ -39,4 +39,6 @@ subprojects {
 ext {
     robolectricVersion = '4.6.1'
     jUnitVersion = '4.13.2'
+    tagSoupVersion = '1.2.1'
+    jSoupVersion = '1.13.1'
 }

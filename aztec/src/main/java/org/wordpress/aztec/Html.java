@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Spanned;
 
+import org.ccil.cowan.tagsoup.Parser;
 import org.wordpress.aztec.plugins.IAztecPlugin;
 import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor;
 import org.xml.sax.Attributes;
@@ -123,7 +124,33 @@ public class Html {
                                    Context context, List<IAztecPlugin> plugins,
                                    List<String> ignoredTags, boolean shouldIgnoreWhitespace) {
 
-        throw new UnsupportedOperationException("fromHtml not supported in fork");
+
+        Parser parser = new Parser();
+        try {
+            parser.setProperty(Parser.schemaProperty, HtmlParser.schema);
+            parser.setFeature(Parser.rootBogonsFeature, false); // allows the unknown tags to exist without root element
+        } catch (org.xml.sax.SAXNotRecognizedException e) {
+            // Should not happen.
+            throw new RuntimeException(e);
+        } catch (org.xml.sax.SAXNotSupportedException e) {
+            // Should not happen.
+            throw new RuntimeException(e);
+        }
+
+        source = CleaningUtils.cleanNestedBoldTags(source);
+
+        source = preprocessSource(source, plugins);
+
+        HtmlToSpannedConverter converter =
+                new HtmlToSpannedConverter(source,
+                        tagHandler,
+                        parser,
+                        context,
+                        plugins,
+                        ignoredTags,
+                        shouldIgnoreWhitespace);
+
+        return converter.convert();
     }
 
     private static String preprocessSource(String source, List<IAztecPlugin> plugins) {

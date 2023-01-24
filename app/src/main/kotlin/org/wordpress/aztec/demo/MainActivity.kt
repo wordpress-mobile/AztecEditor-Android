@@ -30,6 +30,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
@@ -469,7 +470,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.visualEditor.setBackgroundSpanColor(resources.getColor(R.color.blue_dark))
+            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, R.color.blue_dark))
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 

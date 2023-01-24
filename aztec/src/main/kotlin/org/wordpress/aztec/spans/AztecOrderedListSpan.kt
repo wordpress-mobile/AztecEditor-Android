@@ -23,6 +23,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createOrderedListSpan(
@@ -81,7 +83,7 @@ open class AztecOrderedListSpan(
         p.color = listStyle.indicatorColor
         p.style = Paint.Style.FILL
 
-        val start = if (attributes.hasAttribute("start") == true) {
+        val startAttribute = if (attributes.hasAttribute("start") == true) {
             attributes.getValue("start").toInt()
         } else {
             0
@@ -90,9 +92,9 @@ open class AztecOrderedListSpan(
         var textToDraw = ""
         getIndexOfProcessedLine(text, end)?.let {
             val isReversed = attributes.hasAttribute("reversed")
-            val lineIndex = if (start > 0) {
-                if (isReversed) start - (it - 1)
-                else start + (it - 1)
+            val lineIndex = if (startAttribute > 0) {
+                if (isReversed) startAttribute - (it - 1)
+                else startAttribute + (it - 1)
             } else {
                 val number = getNumberOfItemsInProcessedLine(text)
                 if (isReversed) number - (it - 1)
@@ -125,4 +127,6 @@ open class AztecOrderedListSpan(
         p.color = oldColor
         p.style = style
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_ORDERED_LIST
 }

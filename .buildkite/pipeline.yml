@@ -1,0 +1,79 @@
+# Run everything on the `android` queue
+agents:
+  queue: android
+
+# Nodes with values to reuse in the pipeline.
+common_params:
+  # Common plugin settings to use with the `plugins` key.
+  - &common_plugins
+    - automattic/bash-cache#2.11.0
+
+steps:
+  - label: "Gradle Wrapper Validation"
+    command: |
+      validate_gradle_wrapper
+    plugins: *common_plugins
+
+  # Wait for Gradle Wrapper to be validated before running any other jobs
+  - wait
+
+  - label: "Lint"
+    key: "lint"
+    command: .buildkite/commands/lint.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/reports/*"
+
+  - label: "Unit Tests"
+    key: "test"
+    command: .buildkite/commands/unit-test.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/test-results/**/*.xml"
+
+  - label: "Connected Tests"
+    key: "connected-test"
+    command: .buildkite/commands/connected-tests.sh
+    plugins: *common_plugins
+    artifact_paths:
+      - "aztec/build/test-results/**/*.xml"
+
+  - label: "Publish :aztec"
+    key: "publish-aztec"
+    command: .buildkite/commands/publish-aztec.sh
+    plugins: *common_plugins
+
+  - label: "Publish :glide-loader"
+    key: "publish-glide-loader"
+    depends_on:
+      - "publish-aztec"
+    command: .buildkite/commands/publish-glide-loader.sh
+    plugins: *common_plugins
+
+  - label: "Publish :picasso-loader"
+    key: "publish-picasso-loader"
+    depends_on:
+      - "publish-aztec"
+    command: .buildkite/commands/publish-picasso-loader.sh
+    plugins: *common_plugins
+
+  - label: "Publish :wordpress-shortcodes"
+    key: "publish-wordpress-shortcodes"
+    depends_on:
+      - "publish-aztec"
+    command: .buildkite/commands/publish-wordpress-shortcodes.sh
+    plugins: *common_plugins
+
+  - label: "Publish :wordpress-comments"
+    key: "publish-wordpress-comments"
+    depends_on:
+      - "publish-aztec"
+    command: .buildkite/commands/publish-wordpress-comments.sh
+    plugins: *common_plugins
+
+  - label: "Publish :media-placeholders"
+    key: "publish-media-placeholders"
+    depends_on:
+      - "publish-aztec"
+    command: .buildkite/commands/publish-media-placeholders.sh
+    plugins: *common_plugins

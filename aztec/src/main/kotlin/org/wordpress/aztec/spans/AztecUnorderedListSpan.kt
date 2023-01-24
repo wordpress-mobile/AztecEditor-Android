@@ -23,6 +23,8 @@ import android.text.Layout
 import android.text.Spanned
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.AztecTextFormat
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.formatting.BlockFormatter
 
 fun createUnorderedListSpan(
@@ -54,7 +56,7 @@ open class AztecUnorderedListSpan(
         override var nestingLevel: Int,
         override var attributes: AztecAttributes = AztecAttributes(),
         var listStyle: BlockFormatter.ListStyle = BlockFormatter.ListStyle(0, 0, 0, 0, 0)
-    ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
+) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     override val TAG = "ul"
 
     override fun getLeadingMargin(first: Boolean): Int {
@@ -93,4 +95,6 @@ open class AztecUnorderedListSpan(
         p.color = oldColor
         p.style = style
     }
+
+    override val textFormat: ITextFormat = AztecTextFormat.FORMAT_UNORDERED_LIST
 }

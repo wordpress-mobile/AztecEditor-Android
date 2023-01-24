@@ -23,7 +23,7 @@ class InstanceStateUtils {
             externalLogger?.logException(e, "Error trying to write cache for $varName.")
         }
 
-        open fun writeTempInstance(context: Context, externalLogger: AztecLog.ExternalLogger?, varName: String, obj: Any?, bundle: Bundle) {
+        fun writeTempInstance(context: Context, externalLogger: AztecLog.ExternalLogger?, varName: String, obj: Any?, bundle: Bundle) {
             try {
                 with(File.createTempFile(varName, ".inst", context.getCacheDir())) {
                     deleteOnExit() // just make sure if we miss deleting this cache file the VM will eventually do it
@@ -46,7 +46,7 @@ class InstanceStateUtils {
             }
         }
 
-        open fun <T> readAndPurgeTempInstance(varName: String, defaultValue: T, bundle: Bundle): T {
+        fun <T> readAndPurgeTempInstance(varName: String, defaultValue: T, bundle: Bundle): T {
             // the full path is kept in the bundle so, get it from there
             val filename = bundle.getString(cacheFilenameKey(varName))
 
@@ -60,7 +60,7 @@ class InstanceStateUtils {
                 return defaultValue
             }
 
-            var obj: T = defaultValue
+            @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var obj: T = defaultValue
 
             with(file) {
                 FileInputStream(this).use { input ->

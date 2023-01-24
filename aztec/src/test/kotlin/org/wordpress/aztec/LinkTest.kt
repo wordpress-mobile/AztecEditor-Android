@@ -7,10 +7,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
 class LinkTest {
 
     lateinit var editText: AztecText
@@ -51,7 +49,26 @@ class LinkTest {
         editText.setSelection(4)
         editText.link("http://wordpress.com", "WordPress")
         // Still valid, but order of b and del is switched here for some reason.
-        Assert.assertEquals("<b><s>left</s></b><b><s><a href=\"http://wordpress.com\">WordPress</a></s></b><s><i>right</i></s>", editText.toHtml())
+        /**
+         * <b>
+         *     <s>
+         *         left
+         *     </s>
+         * </b>
+         * <a href="http://wordpress.com">
+         *     <b>
+         *         <s>
+         *             WordPress
+         *         </s>
+         *     </b>
+         * </a>
+         * <i>
+         *     <s>
+         *         right
+         *     </s>
+         * </i>
+         */
+        Assert.assertEquals("<b><s>left</s></b><a href=\"http://wordpress.com\"><b><s>WordPress</s></b></a><i><s>right</s></i>", editText.toHtml())
     }
 
     @Test
@@ -162,8 +179,18 @@ class LinkTest {
         editText.setSelection(0, editText.length())
 
         editText.link("http://automattic.com", editText.getSelectedText())
-        Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a>" +
-                "<a href=\"http://automattic.com\"><b>SecondUrl</b></a>", editText.toHtml())
+        /**
+         * <a href="http://automattic.com">
+         *     FirstUrl Hello
+         * </a>
+         * <b>
+         *     <a href="http://automattic.com">
+         *         SecondUrl
+         *     </a>
+         * </b>
+         */
+        Assert.assertEquals("<a href=\"http://automattic.com\">FirstUrl Hello </a><b>" +
+                "<a href=\"http://automattic.com\">SecondUrl</a></b>", editText.toHtml())
     }
 
     @Test

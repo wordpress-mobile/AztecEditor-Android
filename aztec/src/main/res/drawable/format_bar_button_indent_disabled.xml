@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/toolbarIconDisabledColor"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+        <path
+            android:fillColor="@color/white"
+            android:pathData="M4 7.2v1.5h16V7.2H4zm8 8.6h8v-1.5h-8v1.5zm-8-3.5l3 3-3 3 1 1 4-4-4-4-1 1z" />
+    </group>
+
+</vector>

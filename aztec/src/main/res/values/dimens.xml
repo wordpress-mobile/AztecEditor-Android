@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
     <!-- SHORTCUTS -->
     <dimen name="height_header">48dp</dimen>
@@ -21,6 +21,7 @@
     <dimen name="quote_margin">16dp</dimen>
     <dimen name="quote_width">2dp</dimen>
     <dimen name="block_vertical_padding">8dp</dimen>
+    <dimen name="block_vertical_margin">8dp</dimen>
     <dimen name="heading_vertical_padding">8dp</dimen>
     <dimen name="spacing_extra">0dp</dimen>
     <item type="dimen" format="string" name="spacing_multiplier">1.0</item>
@@ -43,6 +44,10 @@
     <dimen name="margin_medium">8dp</dimen>
     <dimen name="margin_large">12dp</dimen>
     <dimen name="margin_extra_large">16dp</dimen>
+
+    <dimen name="preformat_leading_margin">8dp</dimen>
+    <dimen name="preformat_text_size">16sp</dimen>
+    <dimen name="preformat_vertical_padding">12dp</dimen>
 
     <dimen name="text_dialog">14sp</dimen>
 

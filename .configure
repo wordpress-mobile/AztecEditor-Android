@@ -1,0 +1,11 @@
+{
+  "project_name": "aztec-android",
+  "branch": "trunk",
+  "pinned_hash": "f1a61c572902401898e7e1c060b86d9da7baf8fa",
+  "files_to_copy": [
+    {
+      "file": "android/WPAndroid/firebase.secrets.json",
+      "destination": ".configure-files/firebase.secrets.json"
+    }
+  ]
+}

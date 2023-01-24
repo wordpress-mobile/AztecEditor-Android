@@ -7,7 +7,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
-import org.robolectric.annotation.Config
 
 import org.wordpress.aztec.TestUtils.backspaceAt
 import org.wordpress.aztec.TestUtils.safeAppend
@@ -18,7 +17,6 @@ import org.wordpress.aztec.TestUtils.safeLength
  * Testing interactions of multiple block elements
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
 class BlockElementsTest(val alignmentRendering: AlignmentRendering) {
     lateinit var editText: AztecText
 

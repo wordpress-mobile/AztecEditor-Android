@@ -14,7 +14,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
@@ -94,6 +93,10 @@ open class MainActivity : AppCompatActivity(),
         private val BACKGROUND = "<span style=\"background-color:#005082\">BACK<b>GROUND</b></span><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
+        private val TASK_LIST = "<ul type=\"task-list\">\n" +
+                " <li><input type=\"checkbox\" class=\"task-list-item-checkbox\">Unchecked</li>\n" +
+                " <li><input type=\"checkbox\" class=\"task-list-item-checkbox\" checked>Checked</li>\n" +
+                "</ul>"
         private val ORDERED_WITH_START = "<h4>Start in 10 List:</h4>" +
                 "<ol start=\"10\">\n" +
                 "    <li>Ten</li>\n" +
@@ -181,6 +184,7 @@ open class MainActivity : AppCompatActivity(),
         private val VIDEOPRESS = "[wpvideo OcobLTqC]"
         private val VIDEOPRESS_2 = "[wpvideo OcobLTqC w=640 h=400 autoplay=true html5only=true3]"
         private val QUOTE_RTL = "<blockquote>לְצַטֵט<br>same quote but LTR</blockquote>"
+        private val MARK = "<p>Donec ipsum dolor, <mark style=\"color:#ff0000\">tempor sed</mark> bibendum <mark style=\"color:#1100ff\">vita</mark>.</p>"
 
         private val EXAMPLE =
                 IMG +
@@ -190,6 +194,7 @@ open class MainActivity : AppCompatActivity(),
                         UNDERLINE +
                         BACKGROUND +
                         STRIKETHROUGH +
+                        TASK_LIST +
                         ORDERED +
                         ORDERED_WITH_START +
                         ORDERED_REVERSED +
@@ -215,7 +220,8 @@ open class MainActivity : AppCompatActivity(),
                         VIDEOPRESS_2 +
                         AUDIO +
                         GUTENBERG_CODE_BLOCK +
-                        QUOTE_RTL
+                        QUOTE_RTL +
+                        MARK
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -251,15 +257,13 @@ open class MainActivity : AppCompatActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            var bitmap: Bitmap
-
             when (requestCode) {
                 REQUEST_MEDIA_CAMERA_PHOTO -> {
                     // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
                     //  to correctly set the input density to 160 ourselves.
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
-                    bitmap = BitmapFactory.decodeFile(mediaPath, options)
+                    val bitmap = BitmapFactory.decodeFile(mediaPath, options)
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
@@ -269,7 +273,7 @@ open class MainActivity : AppCompatActivity(),
                     //  to correctly set the input density to 160 ourselves.
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
-                    bitmap = BitmapFactory.decodeStream(stream, null, options)
+                    val bitmap = BitmapFactory.decodeStream(stream, null, options)
 
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
@@ -285,7 +289,7 @@ open class MainActivity : AppCompatActivity(),
 
                         override fun onThumbnailLoaded(drawable: Drawable?) {
                             val conf = Bitmap.Config.ARGB_8888 // see other conf types
-                            bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
+                            val bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
                             val canvas = Canvas(bitmap)
                             drawable.setBounds(0, 0, canvas.width, canvas.height)
                             drawable.draw(canvas)
@@ -395,6 +399,8 @@ open class MainActivity : AppCompatActivity(),
         val sourceEditor = findViewById<SourceViewEditText>(R.id.source)
         val toolbar = findViewById<AztecToolbar>(R.id.formatting_toolbar)
 
+        visualEditor.enableSamsungPredictiveBehaviorOverride()
+
         visualEditor.externalLogger = object : AztecLog.ExternalLogger {
             override fun log(message: String) {
             }
@@ -441,7 +447,7 @@ open class MainActivity : AppCompatActivity(),
                 .setOnImageTappedListener(this)
                 .setOnVideoTappedListener(this)
                 .setOnAudioTappedListener(this)
-                .setOnMediaDeletedListener(this)
+                .addOnMediaDeletedListener(this)
                 .setOnVideoInfoRequestedListener(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))
@@ -525,11 +531,11 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
         if (mediaUploadDialog != null && mediaUploadDialog!!.isShowing) {
-            outState?.putBoolean("isMediaUploadDialogVisible", true)
+            outState.putBoolean("isMediaUploadDialogVisible", true)
         }
     }
 
@@ -668,12 +674,7 @@ open class MainActivity : AppCompatActivity(),
 
     private fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                Intent(Intent.ACTION_OPEN_DOCUMENT)
-            } else {
-                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_photo))
-            }
-
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "image/*"
 
@@ -688,12 +689,7 @@ open class MainActivity : AppCompatActivity(),
 
     private fun onVideosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                Intent(Intent.ACTION_OPEN_DOCUMENT)
-            } else {
-                Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT), getString(R.string.title_select_video))
-            }
-
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "video/*"
 

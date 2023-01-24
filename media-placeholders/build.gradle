@@ -1,0 +1,57 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id "com.automattic.android.publish-to-s3"
+}
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+dependencies {
+    implementation aztecProjectDependency
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+    testImplementation "junit:junit:$jUnitVersion"
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            WordPressShortcodesPublication(MavenPublication) {
+                from components.release
+
+                groupId "org.wordpress.aztec"
+                artifactId "media-placeholders"
+                artifact tasks.named("androidSourcesJar")
+                // version is set by 'publish-to-s3' plugin
+            }
+        }
+    }
+}

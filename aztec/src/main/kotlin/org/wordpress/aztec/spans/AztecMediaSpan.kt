@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
+import java.lang.ref.WeakReference
 import java.util.ArrayList
 
 abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override var attributes: AztecAttributes = AztecAttributes(),
@@ -18,7 +19,7 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
     private val overlays: ArrayList<Pair<Drawable?, Int>> = ArrayList()
 
     init {
-        textView = editor
+        textView = editor?.let { WeakReference(editor) }
     }
 
     fun setOverlay(index: Int, newDrawable: Drawable?, gravity: Int) {
@@ -97,5 +98,8 @@ abstract class AztecMediaSpan(context: Context, drawable: Drawable?, override va
 
     fun onMediaDeleted() {
         onMediaDeletedListener?.onMediaDeleted(attributes)
+    }
+    fun beforeMediaDeleted() {
+        onMediaDeletedListener?.beforeMediaDeleted(attributes)
     }
 }

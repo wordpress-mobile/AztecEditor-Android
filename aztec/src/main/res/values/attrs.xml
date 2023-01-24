@@ -5,6 +5,7 @@
     <declare-styleable name="AztecText">
         <attr name="backgroundColor" format="reference|color" />
         <attr name="blockVerticalPadding" format="reference|dimension" />
+        <attr name="paragraphVerticalMargin" format="reference|dimension" />
         <attr name="headingVerticalPadding" format="reference|dimension" />
         <attr name="bulletColor" format="reference|color" />
         <attr name="bulletMargin" format="reference|dimension" />
@@ -13,6 +14,7 @@
         <attr name="codeBackground" format="reference|color" />
         <attr name="codeBackgroundAlpha" format="reference|fraction" />
         <attr name="codeColor" format="reference|color" />
+        <attr name="highlightColor" format="reference|color" />
         <attr name="drawableFailed" format="reference" />
         <attr name="drawableLoading" format="reference" />
         <attr name="historyEnable" format="reference|boolean" />
@@ -25,14 +27,37 @@
         <attr name="preformatBackground" format="reference|color" />
         <attr name="preformatBackgroundAlpha" format="reference|fraction" />
         <attr name="preformatColor" format="reference|color" />
+        <attr name="preformatBorderColor" format="reference|color" />
+        <attr name="preformatBorderRadius" format="reference|dimension" />
+        <attr name="preformatBorderThickness" format="reference|dimension" />
+        <attr name="preformatLeadingMargin" format="reference|dimension" />
+        <attr name="preformatTextSize" format="reference|dimension" />
+        <attr name="preformatVerticalPadding" format="reference|dimension" />
         <attr name="quoteBackground" format="reference|color" />
         <attr name="quoteBackgroundAlpha" format="reference|fraction" />
         <attr name="quoteColor" format="reference|color" />
+        <attr name="quoteTextColor" format="reference|color" />
         <attr name="quoteMargin" format="reference|dimension" />
         <attr name="quotePadding" format="reference|dimension" />
         <attr name="quoteWidth" format="reference|dimension" />
+        <attr name="quoteVerticalPadding" format="reference|dimension" />
         <attr name="textColor" format="reference|color" />
         <attr name="textColorHint" format="reference|color" />
+        <attr name="exclusiveBlocks" format="reference|boolean" />
+        <attr name="headingOneFontSize" format="reference|dimension" />
+        <attr name="headingTwoFontSize" format="reference|dimension" />
+        <attr name="headingThreeFontSize" format="reference|dimension" />
+        <attr name="headingFourFontSize" format="reference|dimension" />
+        <attr name="headingFiveFontSize" format="reference|dimension" />
+        <attr name="headingSixFontSize" format="reference|dimension" />
+        <attr name="headingOneFontColor" format="reference|color" />
+        <attr name="headingTwoFontColor" format="reference|color" />
+        <attr name="headingThreeFontColor" format="reference|color" />
+        <attr name="headingFourFontColor" format="reference|color" />
+        <attr name="headingFiveFontColor" format="reference|color" />
+        <attr name="headingSixFontColor" format="reference|color" />
+        <attr name="taskListStrikethroughChecked" format="reference|boolean" />
+        <attr name="taskListCheckedTextColor" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">
@@ -43,6 +68,7 @@
         <attr name="toolbarIconNormalColor" format="reference|color" />
         <attr name="toolbarIconHighlightColor" format="reference|color" />
         <attr name="toolbarIconDisabledColor" format="reference|color" />
+        <attr name="customLayout" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="SourceViewEditText">

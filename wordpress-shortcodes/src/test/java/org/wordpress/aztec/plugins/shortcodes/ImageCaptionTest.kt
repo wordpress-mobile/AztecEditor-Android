@@ -25,7 +25,7 @@ import org.xml.sax.Attributes
  * Tests for the caption shortcode plugin
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(25))
+@Config(sdk = [25])
 class ImageCaptionTest {
     lateinit var editText: AztecText
 

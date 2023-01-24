@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<animated-selector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:targetApi="lollipop">
+<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:drawable="@drawable/ic_action_redo_white_30_24dp" android:state_enabled="false" />
     <item android:drawable="@drawable/ic_action_redo_white_24dp" />

@@ -8,6 +8,7 @@ import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
+import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecBlockSpan
 import org.wordpress.aztec.util.SpanWrapper
@@ -115,4 +116,6 @@ open class CaptionShortcodeSpan(
         }
         return end
     }
+
+    override val textFormat: ITextFormat? = null
 }

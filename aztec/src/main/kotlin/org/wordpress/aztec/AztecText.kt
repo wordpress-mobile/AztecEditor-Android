@@ -35,7 +35,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
 import android.text.InputFilter
-import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -51,6 +50,8 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
@@ -75,6 +76,8 @@ import org.wordpress.aztec.handlers.ListItemHandler
 import org.wordpress.aztec.handlers.PreformatHandler
 import org.wordpress.aztec.handlers.QuoteHandler
 import org.wordpress.aztec.plugins.IAztecPlugin
+import org.wordpress.aztec.plugins.IClipboardPastePlugin
+import org.wordpress.aztec.plugins.IOnDrawPlugin
 import org.wordpress.aztec.plugins.IToolbarButton
 import org.wordpress.aztec.source.Format
 import org.wordpress.aztec.source.SourceViewEditText
@@ -82,10 +85,13 @@ import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecCodeSpan
 import org.wordpress.aztec.spans.AztecCursorSpan
 import org.wordpress.aztec.spans.AztecDynamicImageSpan
+import org.wordpress.aztec.spans.AztecHeadingSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecTaskListSpan
+import org.wordpress.aztec.spans.AztecTaskListSpanAligned
 import org.wordpress.aztec.spans.AztecURLSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.AztecVisualLinebreak
@@ -123,11 +129,12 @@ import org.wordpress.aztec.watchers.event.text.BeforeTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.OnTextChangedEventData
 import org.wordpress.aztec.watchers.event.text.TextWatcherEvent
 import org.xml.sax.Attributes
+import java.lang.ref.WeakReference
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.ArrayList
 import java.util.Arrays
 import java.util.LinkedList
+import java.util.Locale
 
 @Suppress("UNUSED_PARAMETER")
 open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknownHtmlTappedListener, IEventInjector {
@@ -165,8 +172,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             if (drawable is BitmapDrawable) {
                 bitmap = drawable.bitmap
                 bitmap = ImageUtils.getScaledBitmapAtLongestSide(bitmap, maxImageWidthForVisualEditor)
-            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && (drawable is VectorDrawableCompat || drawable is VectorDrawable) ) ||
-                    drawable is VectorDrawableCompat) {
+            } else if (drawable is VectorDrawableCompat || drawable is VectorDrawable) {
                 bitmap = Bitmap.createBitmap(maxImageWidthForVisualEditor, maxImageWidthForVisualEditor, Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -232,6 +238,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassObservationQueue: Boolean = false
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
+    private var overrideSamsungPredictiveBehavior: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -243,6 +250,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
+    private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
     var externalLogger: AztecLog.ExternalLogger? = null
 
     private var isViewInitialized = false
@@ -255,6 +263,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     var isInCalypsoMode = true
     var isInGutenbergMode: Boolean = false
     val alignmentRendering: AlignmentRendering
+
+    // If this field is true, the media and horizontal line are added inline. If it's false, they are added after the
+    // current block.
+    var shouldAddMediaInline: Boolean = true
 
     var consumeHistoryEvent: Boolean = false
 
@@ -280,11 +292,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var imageGetter: Html.ImageGetter? = null
     var videoThumbnailGetter: Html.VideoThumbnailGetter? = null
+    var mediaCallback: Html.MediaCallback? = null
 
     var plugins: ArrayList<IAztecPlugin> = ArrayList()
 
     var widthMeasureSpec: Int = 0
 
+    var verticalParagraphPadding: Int = 0
     var verticalParagraphMargin: Int = 0
     var verticalHeadingMargin: Int = 0
 
@@ -304,6 +318,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var lastPressedXCoord: Int = 0
     var lastPressedYCoord: Int = 0
+
+    private lateinit var listItemStyle: BlockFormatter.ListItemStyle
+
+    override fun onDraw(canvas: Canvas) {
+        plugins.filterIsInstance<IOnDrawPlugin>().forEach {
+            it.onDraw(canvas)
+        }
+        super.onDraw(canvas)
+    }
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
@@ -327,6 +350,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
+        fun beforeMediaDeleted(attrs: AztecAttributes) {}
     }
 
     interface OnVideoInfoRequestedListener {
@@ -334,12 +358,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     interface OnAztecKeyListener {
-        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int) : Boolean
-        fun onBackspaceKey() : Boolean
+        fun onEnterKey(text: Spannable, firedAfterTextChanged: Boolean, selStart: Int, selEnd: Int): Boolean
+        fun onBackspaceKey(): Boolean
     }
 
     interface OnLinkTappedListener {
         fun onLinkTapped(widget: View, url: String)
+    }
+
+    interface OnVisibilityChangeListener {
+        fun onVisibility(visibility: Int)
     }
 
     constructor(context: Context) : super(context) {
@@ -374,6 +402,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isInGutenbergMode = isCompatibleWithGutenberg
     }
 
+    /**
+     * Default behaviour is to add media and horizontal rule inline. They could be added inside lists and quotes.
+     * If you call this method, this behaviour will be disabled and the media and horizontal rule will be automatically
+     * added after the currently selected block. For example after the list in which you have your cursor.
+     */
+    fun addMediaAfterBlocks() {
+        this.shouldAddMediaInline = false
+    }
+
     // Newer AppCompatEditText returns Editable?, and using that would require changing all of Aztec to not use `text.`
     override fun getText(): Editable {
         return super.getText()!!
@@ -406,40 +443,87 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         commentsVisible = styles.getBoolean(R.styleable.AztecText_commentsVisible, commentsVisible)
 
-        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
-                        resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+        verticalParagraphPadding = styles.getDimensionPixelSize(R.styleable.AztecText_blockVerticalPadding,
+                resources.getDimensionPixelSize(R.dimen.block_vertical_padding))
+        verticalParagraphMargin = styles.getDimensionPixelSize(R.styleable.AztecText_paragraphVerticalMargin,
+                resources.getDimensionPixelSize(R.dimen.block_vertical_margin))
         verticalHeadingMargin = styles.getDimensionPixelSize(R.styleable.AztecText_headingVerticalPadding,
-                        resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
+                resources.getDimensionPixelSize(R.dimen.heading_vertical_padding))
 
         inlineFormatter = InlineFormatter(this,
                 InlineFormatter.CodeStyle(
                         styles.getColor(R.styleable.AztecText_codeBackground, 0),
                         styles.getFraction(R.styleable.AztecText_codeBackgroundAlpha, 1, 1, 0f),
-                        styles.getColor(R.styleable.AztecText_codeColor, 0)))
+                        styles.getColor(R.styleable.AztecText_codeColor, 0)),
+                InlineFormatter.HighlightStyle(styles.getResourceId(R.styleable.AztecText_highlightColor, R.color.grey_lighten_10)))
 
-        blockFormatter = BlockFormatter(this,
-                BlockFormatter.ListStyle(
-                        styles.getColor(R.styleable.AztecText_bulletColor, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
-                        verticalParagraphMargin),
-                BlockFormatter.QuoteStyle(
+        val listStyle = BlockFormatter.ListStyle(
+                styles.getColor(R.styleable.AztecText_bulletColor, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletMargin, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletPadding, 0),
+                styles.getDimensionPixelSize(R.styleable.AztecText_bulletWidth, 0),
+                verticalParagraphPadding)
+
+        listItemStyle = BlockFormatter.ListItemStyle(
+                styles.getBoolean(R.styleable.AztecText_taskListStrikethroughChecked, false),
+                styles.getColor(R.styleable.AztecText_taskListCheckedTextColor, 0))
+
+        blockFormatter = BlockFormatter(editor = this,
+                listStyle = listStyle,
+                listItemStyle = listItemStyle,
+                quoteStyle = BlockFormatter.QuoteStyle(
                         styles.getColor(R.styleable.AztecText_quoteBackground, 0),
                         styles.getColor(R.styleable.AztecText_quoteColor, 0),
+                        styles.getColor(R.styleable.AztecText_quoteTextColor,
+                                ContextCompat.getColor(context, R.color.text)),
                         styles.getFraction(R.styleable.AztecText_quoteBackgroundAlpha, 1, 1, 0f),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteMargin, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quotePadding, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_quoteWidth, 0),
-                        verticalParagraphMargin),
-                BlockFormatter.HeaderStyle(verticalHeadingMargin),
-                BlockFormatter.PreformatStyle(
+                        styles.getDimensionPixelSize(R.styleable.AztecText_quoteVerticalPadding, verticalParagraphPadding)),
+                headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
+                        AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H2 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H3 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H4 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFourFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingFourFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H5 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0)
+                        ),
+                        AztecHeadingSpan.Heading.H6 to BlockFormatter.HeaderStyles.HeadingStyle(
+                                styles.getDimensionPixelSize(R.styleable.AztecText_headingSixFontSize, 0),
+                                styles.getColor(R.styleable.AztecText_headingSixFontColor, 0)
+                        )
+                )),
+                preformatStyle = BlockFormatter.PreformatStyle(
                         styles.getColor(R.styleable.AztecText_preformatBackground, 0),
                         getPreformatBackgroundAlpha(styles),
                         styles.getColor(R.styleable.AztecText_preformatColor, 0),
-                        verticalParagraphMargin),
-                alignmentRendering
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatVerticalPadding, verticalParagraphPadding),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatLeadingMargin,
+                                resources.getDimensionPixelSize(R.dimen.preformat_leading_margin)),
+                        styles.getColor(R.styleable.AztecText_preformatBorderColor, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderRadius, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderThickness, 0),
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatTextSize, textSize.toInt())
+                ),
+                alignmentRendering = alignmentRendering,
+                exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),
+                paragraphStyle = BlockFormatter.ParagraphStyle(verticalParagraphMargin)
         )
+        EnhancedMovementMethod.taskListClickHandler = TaskListClickHandler(listStyle)
 
         linkFormatter = LinkFormatter(this, LinkFormatter.LinkStyle(styles.getColor(
                 R.styleable.AztecText_linkColor, 0),
@@ -465,11 +549,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         movementMethod = EnhancedMovementMethod
 
         setupKeyListenersAndInputFilters()
-
-        //disable auto suggestions/correct for older devices
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
 
         install()
 
@@ -527,7 +606,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
-    private fun <T>selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
+    private fun <T> selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
         val spanFound: Array<T> = editableText.getSpans(
                 start,
                 end,
@@ -582,6 +661,17 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return super.onTouchEvent(event)
     }
 
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
+        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
+        return if (Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT == 33
+                && overrideSamsungPredictiveBehavior) {
+            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with API 33")
+            SamsungInputConnection(this, baseInputConnection)
+        } else {
+            baseInputConnection
+        }
+    }
+
     // Setup the keyListener(s) for Backspace and Enter key.
     // Backspace: If listener does return false we remove the style here
     // Enter: Ask the listener if we need to insert or not the char
@@ -600,11 +690,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         // problem is fixed at the Android OS level as described in the following url
         // https://android-review.googlesource.com/c/platform/frameworks/base/+/634929
         val dynamicLayoutCrashPreventer = InputFilter { source, start, end, dest, dstart, dend ->
-            var temp : CharSequence? = null
+            var temp: CharSequence? = null
             if (!bypassCrashPreventerInputFilter && dend < dest.length && source != Constants.NEWLINE_STRING) {
 
                 // if there are any images right after the destination position, hack the text
-                val spans = dest.getSpans(dend, dend+1, AztecImageSpan::class.java)
+                val spans = dest.getSpans(dend, dend + 1, AztecImageSpan::class.java)
                 if (spans.isNotEmpty()) {
 
                     // prevent this filter from running recursively
@@ -634,7 +724,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             temp
         }
 
-        val emptyEditTextBackspaceDetector = InputFilter { source, start, end, dest, dstart, dend ->
+        val emptyEditTextBackspaceDetector = InputFilter { source, start, _, _, dstart, dend ->
             if (selectionStart == 0 && selectionEnd == 0
                     && start == 0
                     && dstart == 0 && dend == 0
@@ -660,7 +750,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     private fun isCleanStringEmpty(text: CharSequence): Boolean {
-        if ( isInGutenbergMode ) {
+        if (isInGutenbergMode) {
             return (text.count() == 1 && text[0] == Constants.END_OF_BUFFER_MARKER)
         } else {
             return text.count() == 0
@@ -691,6 +781,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 history.beforeTextChanged(this@AztecText)
             }
             wasStyleRemoved = blockFormatter.tryRemoveBlockStyleFromFirstLine()
+            if (!shouldAddMediaInline) {
+                blockFormatter.moveSelectionIfImageSelected()
+            }
 
             if (selectionStart == 0 || selectionEnd == 0) {
                 deleteInlineStyleFromTheBeginning()
@@ -711,11 +804,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         ParagraphBleedAdjuster.install(this)
         ParagraphCollapseAdjuster.install(this)
 
-        EndOfParagraphMarkerAdder.install(this, verticalParagraphMargin)
+        EndOfParagraphMarkerAdder.install(this, verticalParagraphPadding)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            SuggestionWatcher.install(this)
-        }
+        SuggestionWatcher.install(this)
 
         InlineTextWatcher.install(inlineFormatter, this)
 
@@ -725,7 +816,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         BlockElementWatcher(this)
                 .add(HeadingHandler(alignmentRendering))
                 .add(ListHandler())
-                .add(ListItemHandler(alignmentRendering))
+                .add(ListItemHandler(alignmentRendering, listItemStyle))
                 .add(QuoteHandler())
                 .add(PreformatHandler())
                 .install(this)
@@ -825,7 +916,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
-        initialEditorContentParsedSHA256 = customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)
+        customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)?.let {
+            initialEditorContentParsedSHA256 = it
+        }
         val retainedHtml = InstanceStateUtils.readAndPurgeTempInstance<String>(RETAINED_HTML_KEY, "", savedState.state)
         fromHtml(retainedHtml)
 
@@ -870,9 +963,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return false
     }
 
-    override fun onSaveInstanceState(): Parcelable {
+    override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
-        val savedState = SavedState(superState)
+        val savedState = superState?.let { SavedState(it) }
         val bundle = Bundle()
         InstanceStateUtils.writeTempInstance(context, externalLogger, HISTORY_LIST_KEY, ArrayList<String>(history.historyList), bundle)
         bundle.putInt(HISTORY_CURSOR_KEY, history.historyCursor)
@@ -905,7 +998,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         bundle.putBoolean(IS_MEDIA_ADDED_KEY, isMediaAdded)
 
-        savedState.state = bundle
+        savedState?.state = bundle
         return savedState
     }
 
@@ -915,7 +1008,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         constructor(superState: Parcelable) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
-            state = parcel.readBundle(javaClass.classLoader)
+            parcel.readBundle(javaClass.classLoader)?.let {
+                state = it
+            }
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
@@ -950,11 +1045,31 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         selectedStyles.addAll(styles)
     }
 
+    fun indent() {
+        history.beforeTextChanged(this@AztecText)
+        blockFormatter.indent()
+        contentChangeWatcher.notifyContentChanged()
+    }
+
+    fun outdent() {
+        history.beforeTextChanged(this@AztecText)
+        blockFormatter.outdent()
+        contentChangeWatcher.notifyContentChanged()
+    }
+
+    fun isIndentAvailable(): Boolean {
+        return blockFormatter.isIndentAvailable()
+    }
+
+    fun isOutdentAvailable(): Boolean {
+        return blockFormatter.isOutdentAvailable()
+    }
+
     fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
         this.onSelectionChangedListener = onSelectionChangedListener
     }
 
-    fun getAztecKeyListener() : OnAztecKeyListener? {
+    fun getAztecKeyListener(): OnAztecKeyListener? {
         return this.onAztecKeyListener
     }
 
@@ -997,6 +1112,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setLinkTapEnabled(isLinkTapEnabled: Boolean) {
         EnhancedMovementMethod.isLinkTapEnabled = isLinkTapEnabled
+    }
+
+    fun setOnVisibilityChangeListener(listener: OnVisibilityChangeListener) {
+        this.onVisibilityChangeListener = listener
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
@@ -1052,7 +1171,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
-        setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        // Gutenberg controls the selected styles so we need to prevent Aztec to modify them
+        if (!isInGutenbergMode) {
+            setSelectedStyles(getAppliedStyles(selStart, selEnd))
+        }
 
         isLeadingStyleRemoved = false
     }
@@ -1140,24 +1262,28 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_HEADING_3,
             AztecTextFormat.FORMAT_HEADING_4,
             AztecTextFormat.FORMAT_HEADING_5,
-            AztecTextFormat.FORMAT_HEADING_6,
-            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.toggleHeading(textFormat)
+            AztecTextFormat.FORMAT_HEADING_6 -> blockFormatter.toggleHeading(textFormat)
             AztecTextFormat.FORMAT_ITALIC,
             AztecTextFormat.FORMAT_EMPHASIS,
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_BACKGROUND,
+            AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
+            AztecTextFormat.FORMAT_TASK_LIST -> blockFormatter.toggleTaskList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
             AztecTextFormat.FORMAT_ALIGN_RIGHT -> return blockFormatter.toggleTextAlignment(textFormat)
+            AztecTextFormat.FORMAT_PREFORMAT -> blockFormatter.togglePreformat()
             AztecTextFormat.FORMAT_QUOTE -> blockFormatter.toggleQuote()
-            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> lineBlockFormatter.applyHorizontalRule()
+            AztecTextFormat.FORMAT_HORIZONTAL_RULE -> {
+                lineBlockFormatter.applyHorizontalRule(shouldAddMediaInline)
+            }
             else -> {
                 plugins.filter { it is IToolbarButton && it.action.textFormats.contains(textFormat) }
                         .map { it as IToolbarButton }
@@ -1184,8 +1310,11 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
             AztecTextFormat.FORMAT_BACKGROUND,
+            AztecTextFormat.FORMAT_MARK,
+            AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
             AztecTextFormat.FORMAT_UNORDERED_LIST,
+            AztecTextFormat.FORMAT_TASK_LIST,
             AztecTextFormat.FORMAT_ORDERED_LIST -> return blockFormatter.containsList(format, selStart, selEnd)
             AztecTextFormat.FORMAT_ALIGN_LEFT,
             AztecTextFormat.FORMAT_ALIGN_CENTER,
@@ -1314,7 +1443,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         disableTextChangedListener()
 
         builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
-            it.textView = this
+            it.textView = WeakReference(this)
         }
 
         val cursorPosition = consumeCursorPosition(builder)
@@ -1331,11 +1460,19 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         loadImages()
         loadVideos()
+        mediaCallback?.mediaLoadingStarted()
     }
 
     private fun loadImages() {
         val spans = this.text.getSpans(0, text.length, AztecImageSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+
+        // Avoid the work of getting placeholder drawable if there are no images. This becomes a big
+        // on screens that have many AztecText views
+        if (spans.isEmpty()) {
+            return
+        }
+
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
         // the wrong value when used in 3rd party app
@@ -1344,7 +1481,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             val callbacks = object : Html.ImageGetter.Callbacks {
                 override fun onImageFailed() {
                     replaceImage(
-                            AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
+                            getPlaceholderDrawableFromResID(context, drawableFailed, maxImagesWidth)
                     )
                 }
 
@@ -1369,7 +1506,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun loadVideos() {
         val spans = this.text.getSpans(0, text.length, AztecVideoSpan::class.java)
-        val loadingDrawable = AztecText.getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
+
+        // Avoid the work of getting placeholder drawable if there are no videos. This becomes a big
+        // on screens that have many AztecText views
+        if (spans.isEmpty()) {
+            return
+        }
+
+        val loadingDrawable = getPlaceholderDrawableFromResID(context, drawableLoading, maxImagesWidth)
         val videoListenerRef = this.onVideoInfoRequestedListener
 
         // Make sure to keep a reference to the maxWidth, otherwise in the Callbacks there is
@@ -1378,7 +1522,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         spans.forEach {
             val callbacks = object : Html.VideoThumbnailGetter.Callbacks {
                 override fun onThumbnailFailed() {
-                    AztecText.getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
+                    getPlaceholderDrawableFromResID(context, drawableFailed, maxDimension)
                 }
 
                 override fun onThumbnailLoaded(drawable: Drawable?) {
@@ -1486,23 +1630,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private fun switchToAztecStyle(editable: Editable, start: Int, end: Int) {
         editable.getSpans(start, end, IAztecBlockSpan::class.java).forEach { blockFormatter.setBlockStyle(it) }
-        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphMargin }
-
-        val urlSpans = editable.getSpans(start, end, AztecURLSpan::class.java)
-        for (span in urlSpans) {
-            val spanStart = editable.getSpanStart(span)
-            val spanEnd = editable.getSpanEnd(span)
-            editable.removeSpan(span)
-            editable.setSpan(linkFormatter.makeUrlSpan(span.url, span.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-
-        val codeSpans = editable.getSpans(start, end, AztecCodeSpan::class.java)
-        codeSpans.forEach {
-            val spanStart = editable.getSpanStart(it)
-            val spanEnd = editable.getSpanEnd(it)
-            editable.removeSpan(it)
-            editable.setSpan(inlineFormatter.makeInlineSpan(it.javaClass, it.attributes), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        editable.getSpans(start, end, EndOfParagraphMarker::class.java).forEach { it.verticalPadding = verticalParagraphPadding }
+        editable.getSpans(start, end, AztecURLSpan::class.java).forEach { it.linkStyle = linkFormatter.linkStyle }
+        editable.getSpans(start, end, AztecCodeSpan::class.java).forEach { it.codeStyle = inlineFormatter.codeStyle }
+        editable.getSpans(start, end, AztecListItemSpan::class.java).forEach { it.listItemStyle = listItemStyle }
 
         val imageSpans = editable.getSpans(start, end, AztecImageSpan::class.java)
         imageSpans.forEach {
@@ -1527,6 +1658,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             it.onUnknownHtmlTappedListener = this
         }
 
+        addRefreshListenersToTaskLists(editable, start, end)
+
         if (!commentsVisible) {
             val commentSpans = editable.getSpans(start, end, CommentSpan::class.java)
             commentSpans.forEach {
@@ -1535,6 +1668,37 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 editable.replace(wrapper.start, wrapper.end, Constants.MAGIC_STRING)
             }
         }
+    }
+
+    fun addRefreshListenersToTaskLists(editable: Editable, start: Int, end: Int) {
+        val taskLists = editable.getSpans(start, end, AztecTaskListSpan::class.java)
+        taskLists.forEach { taskList ->
+            if (taskList.onRefresh == null) {
+                taskList.onRefresh = {
+                    refreshTaskListSpan(it)
+                }
+            }
+        }
+    }
+
+    private fun refreshTaskListSpan(taskList: AztecTaskListSpan) {
+        val selStart = selectionStart
+        val selEnd = selectionEnd
+        val spanStart = this.editableText.getSpanStart(taskList)
+        val spanEnd = this.editableText.getSpanEnd(taskList)
+        val flags = this.editableText.getSpanFlags(taskList)
+        taskList.onRefresh = null
+        this.editableText.removeSpan(taskList)
+        val newSpan = if (taskList is AztecTaskListSpanAligned) {
+            AztecTaskListSpanAligned(taskList.nestingLevel, taskList.attributes, taskList.context, taskList.listStyle, taskList.align)
+        } else {
+            AztecTaskListSpan(taskList.nestingLevel, taskList.attributes, taskList.context, taskList.listStyle)
+        }
+        newSpan.onRefresh = {
+            refreshTaskListSpan(it)
+        }
+        this.editableText.setSpan(newSpan, spanStart, spanEnd, flags)
+        setSelection(selStart, selEnd)
     }
 
     fun disableTextChangedListener() {
@@ -1567,6 +1731,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun enableMediaDeletedListener() {
         bypassMediaDeletedListener = false
+    }
+
+    // removes Grammarly suggestions from default keyboard on Samsung devices on Android 13 (API 33)
+    // Grammarly implementation is often messing spans and cursor position, as described here:
+    // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
+    fun enableSamsungPredictiveBehaviorOverride() {
+        overrideSamsungPredictiveBehavior = true
     }
 
     fun isMediaDeletedListenerDisabled(): Boolean {
@@ -1640,6 +1811,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BACKGROUND, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_MARK, start, end)
     }
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {
@@ -1678,14 +1850,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             // Android 7 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/10872
             // Android 8 Ref: https://github.com/wordpress-mobile/WordPress-Android/issues/8827
             clipboardIdentifier -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.VERSION.SDK_INT < Build.VERSION_CODES.P
-                        && Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                        && Build.MANUFACTURER.lowercase(Locale.getDefault()).equals("samsung")) {
                     // Nope return true
                     Toast.makeText(context, context.getString(R.string.samsung_disabled_custom_clipboard, Build.VERSION.RELEASE), Toast.LENGTH_LONG).show()
                 } else {
                     return super.onTextContextMenuItem(id)
                 }
-            } else -> return super.onTextContextMenuItem(id)
+            }
+            else -> return super.onTextContextMenuItem(id)
         }
 
         return true
@@ -1734,10 +1907,13 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             disableTextChangedListener()
 
             val length = text.length
-            if (min == 0 &&
-                    (max == length || (length == 1 && text.toString() == Constants.END_OF_BUFFER_MARKER_STRING))) {
+            var selectedText: String? = null
+            if (min == 0 && max == 0 && length == 1 && text.toString() == Constants.END_OF_BUFFER_MARKER_STRING) {
+                editable.insert(min, Constants.REPLACEMENT_MARKER_STRING)
+            } else if (min == 0 && max == length) {
                 setText(Constants.REPLACEMENT_MARKER_STRING)
             } else {
+                selectedText = editable.substring(min, max)
                 // prevent changes here from triggering the crash preventer
                 disableCrashPreventerInputFilter()
                 editable.delete(min, max)
@@ -1759,14 +1935,42 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             if (clip.itemCount > 0) {
-                val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
-                else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
+                val firstItem = clip.getItemAt(0)
+                val itemToPaste = when {
+                    !firstItem.text.isNullOrEmpty() -> {
+                        val textToPaste = if (asPlainText) clip.getItemAt(0).coerceToText(context).toString()
+                        else clip.getItemAt(0).coerceToHtmlText(AztecParser(alignmentRendering, plugins))
+                        IClipboardPastePlugin.PastedItem.HtmlText(textToPaste)
+                    }
+                    firstItem.uri != null -> {
+                        IClipboardPastePlugin.PastedItem.Url(firstItem.uri)
+                    }
+                    firstItem.intent != null -> {
+                        IClipboardPastePlugin.PastedItem.PastedIntent(firstItem.intent)
+                    }
+                    else -> {
+                        null
+                    }
+                }
+                if (itemToPaste != null) {
+                    val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
+                    val pastedHtmlText: String = plugins.filterIsInstance<IClipboardPastePlugin<*>>()
+                            .fold(null as? String?) { acc, plugin ->
+                                plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
+                            } ?: when (itemToPaste) {
+                        is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
+                    }
 
-                val oldHtml = toPlainHtml().replace("<aztec_cursor>", "")
-                val newHtml = oldHtml.replace(Constants.REPLACEMENT_MARKER_STRING, textToPaste + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">")
+                    val newHtml = oldHtml.replace(
+                            Constants.REPLACEMENT_MARKER_STRING,
+                            pastedHtmlText + "<" + AztecCursorSpan.AZTEC_CURSOR_TAG + ">"
+                    )
 
-                fromHtml(newHtml, false)
-                inlineFormatter.joinStyleSpans(0, length())
+                    fromHtml(newHtml, false)
+                    inlineFormatter.joinStyleSpans(0, length())
+                }
             }
             contentChangeWatcher.notifyContentChanged()
         }
@@ -1779,7 +1983,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     override fun setVisibility(visibility: Int) {
         super.setVisibility(visibility)
-
+        onVisibilityChangeListener?.onVisibility(visibility)
         if (visibility == View.VISIBLE && focusOnVisible) {
             requestFocus()
         }
@@ -1816,7 +2020,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     @SuppressLint("InflateParams")
-    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "" ) {
+    fun showLinkDialog(presetUrl: String = "", presetAnchor: String = "", presetOpenInNewWindow: String = "") {
         val urlAndAnchor = linkFormatter.getSelectedUrlWithAnchor()
 
         val url = if (TextUtils.isEmpty(presetUrl)) urlAndAnchor.first else presetUrl
@@ -1907,8 +2111,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        blockEditorDialog!!.show()
+        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        blockEditorDialog?.show()
     }
 
     private fun deleteInlineStyleFromTheBeginning() {
@@ -1925,11 +2129,37 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun insertImage(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertImage(drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertImage(shouldAddMediaInline, drawable, attributes, onImageTappedListener, onMediaDeletedListener)
+    }
+
+    /**
+     * Use this method to insert a custom AztecMediaSpan at the cursor position
+     */
+    fun insertMediaSpan(span: AztecMediaSpan) {
+        span.onMediaDeletedListener = onMediaDeletedListener
+        lineBlockFormatter.insertMediaSpan(shouldAddMediaInline, span)
+    }
+
+    /**
+     * Use this method to remove a media span
+     */
+    fun removeMediaSpan(span: AztecMediaSpan) {
+        history.beforeTextChanged(this@AztecText)
+        disableTextChangedListener()
+        val startIndex = editableText.getSpanStart(span)
+        val endIndex = editableText.getSpanEnd(span)
+        editableText.getSpans(startIndex, endIndex, AztecMediaClickableSpan::class.java).forEach {
+            editableText.removeSpan(it)
+        }
+        editableText.removeSpan(span)
+        editableText.delete(startIndex, endIndex)
+        onMediaDeletedListener?.onMediaDeleted(span.attributes)
+        enableTextChangedListener()
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun insertVideo(drawable: Drawable?, attributes: Attributes) {
-        lineBlockFormatter.insertVideo(drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
+        lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
@@ -1961,6 +2191,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
             attributePredicate.matches(it.attributes)
         }?.attributes = attrs
+    }
+
+    fun getElementPosition(attributePredicate: AttributePredicate): Int? {
+        return text.getSpans(0, text.length, IAztecAttributedSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let {
+            editableText.getSpanStart(it)
+        }
     }
 
     fun resetAttributedMediaSpan(attributePredicate: AttributePredicate) {

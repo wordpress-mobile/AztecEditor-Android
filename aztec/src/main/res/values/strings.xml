@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
 
     <!-- GENERAL -->
     <string name="cursor_moved">Cursor moved</string>
@@ -20,6 +20,7 @@
     <string name="format_bar_description_heading">Heading</string>
     <string name="format_bar_description_bold">Bold</string>
     <string name="format_bar_description_background">Background Color</string>
+    <string name="format_bar_description_highlight">Highlight</string>
     <string name="format_bar_description_italic">Italic</string>
     <string name="format_bar_description_underline">Underline</string>
     <string name="format_bar_description_strike">Strikethrough</string>
@@ -27,6 +28,8 @@
     <string name="format_bar_description_align_right">Align Right</string>
     <string name="format_bar_description_align_center">Align Center</string>
     <string name="format_bar_description_quote">Block quote</string>
+    <string name="format_bar_description_code">Code</string>
+    <string name="format_bar_description_pre">Preformatted code</string>
     <string name="format_bar_description_link">Link</string>
     <string name="format_bar_description_horizontal_rule">Horizontal Rule</string>
     <string name="format_bar_description_media_normal">Show Media Options</string>
@@ -92,6 +95,9 @@
     <string name="item_format_list_no">No List</string>
     <string name="item_format_list_ordered">Ordered List</string>
     <string name="item_format_list_unordered">Unordered List</string>
+    <string name="item_format_task_list">Task List</string>
+    <string name="item_format_indent">Indent</string>
+    <string name="item_format_outdent">Outdent</string>
     <string name="item_format_paragraph">Paragraph</string>
     <string name="item_format_preformatted">Preformatted</string>
     <string name="item_format_quote">Quote</string>
@@ -128,5 +134,6 @@
     <string name="key_single_x">X</string>
     <string name="key_single_y">Y</string>
     <string name="key_single_z">Z</string>
+    <string name="format_bar_button_highlight_path" translatable="false">M12.9 6h-2l-4 11h1.9l1.1-3h4.2l1.1 3h1.9L12.9 6zm-2.5 6.5l1.5-4.9 1.7 4.9h-3.2z</string>
 
 </resources>

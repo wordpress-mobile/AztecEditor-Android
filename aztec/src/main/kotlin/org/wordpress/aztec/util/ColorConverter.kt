@@ -2,7 +2,6 @@ package org.wordpress.aztec.util
 
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
 import android.text.TextUtils
 import androidx.annotation.ColorInt
 import org.wordpress.aztec.util.ColorConverter.Companion.COLOR_NOT_FOUND
@@ -216,11 +215,7 @@ class ColorConverter {
                     val name = colorText.substring(1)
                     val colorRes = res.getIdentifier(name, "color", "android")
                     if (colorRes != 0) {
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                            return res.getColor(colorRes)
-                        } else {
-                            return res.getColor(colorRes, null)
-                        }
+                        return res.getColor(colorRes, null)
                     }
                 }
                 //

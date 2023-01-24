@@ -17,7 +17,6 @@ import org.wordpress.aztec.toolbar.AztecToolbar
  * Combined test for toolbar and inline styles.
  */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = intArrayOf(23))
 class AztecToolbarTest {
     lateinit var editText: AztecText
     lateinit var sourceText: SourceViewEditText
@@ -480,7 +479,17 @@ class AztecToolbarTest {
         italicButton.performClick()
         Assert.assertTrue(boldButton.isChecked)
         editText.append("bolditalic")
-        Assert.assertEquals("<strong>bold</strong><strong><em>bolditalic</em></strong>", editText.toHtml())
+        /**
+         * <strong>
+         *     bold
+         * </strong>
+         * <em>
+         *     <strong>
+         *         bolditalic
+         *     </strong>
+         * </em>
+         */
+        Assert.assertEquals("<strong>bold</strong><em><strong>bolditalic</strong></em>", editText.toHtml())
         boldButton.performClick()
         Assert.assertFalse(boldButton.isChecked)
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+        <path
+            android:fillColor="?attr/toolbarIconNormalColor"
+            android:pathData="M20.8 10.7l-4.3-4.3-1.1 1.1 4.3 4.3c0.1 0.1 0.1 0.3 0 0.4l-4.3 4.3 1.1 1.1 4.3-4.3c0.7-0.8 0.7-1.9 0-2.6zM4.2 11.8l4.3-4.3-1-1-4.3 4.3c-0.7 0.7-0.7 1.8 0 2.5l4.3 4.3 1.1-1.1-4.3-4.3c-0.2-0.1-0.2-0.3-0.1-0.4z" />
+    </group>
+
+</vector>

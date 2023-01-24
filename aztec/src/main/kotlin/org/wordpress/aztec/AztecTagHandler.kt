@@ -33,9 +33,12 @@ import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecBackgroundColorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
+import org.wordpress.aztec.spans.AztecListItemSpan
+import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
+import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -49,11 +52,12 @@ import org.wordpress.aztec.spans.createListItemSpan
 import org.wordpress.aztec.spans.createOrderedListSpan
 import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
+import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
 import org.wordpress.aztec.util.ColorConverter
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
-import java.util.ArrayList
+import java.util.Locale
 
 class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = ArrayList(), private val alignmentRendering: AlignmentRendering
 ) : Html.TagHandler {
@@ -76,7 +80,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             return true
         }
 
-        when (tag.toLowerCase()) {
+        when (tag.lowercase(Locale.getDefault())) {
             LIST_LI -> {
                 val span = createListItemSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
                 handleElement(output, opening, span)
@@ -97,7 +101,13 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             LIST_UL -> {
-                handleElement(output, opening, createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes)))
+                val lastSpan = tagStack.lastOrNull()
+                val element = if (attributes.isTaskList() || !opening && lastSpan is AztecTaskListSpan) {
+                    createTaskListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes), context)
+                } else {
+                    createUnorderedListSpan(nestingLevel, alignmentRendering, AztecAttributes(attributes))
+                }
+                handleElement(output, opening, element)
                 return true
             }
             LIST_OL -> {
@@ -148,6 +158,12 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 handleElement(output, opening, preformatSpan)
                 return true
             }
+            INPUT -> {
+                if (opening && attributes.getValue("type") == "checkbox") {
+                    return handleCheckboxInput(attributes)
+                }
+                return false
+            }
             else -> {
                 if (tag.length == 2 && Character.toLowerCase(tag[0]) == 'h' && tag[1] >= '1' && tag[1] <= '6') {
                     handleElement(output, opening, createHeadingSpan(nestingLevel, tag, AztecAttributes(attributes), alignmentRendering))
@@ -160,13 +176,31 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
     private fun handleBackgroundColorSpanTag(attributes: Attributes, tag: String, nestingLevel: Int): IAztecSpan {
         val attrs = AztecAttributes(attributes)
-        return if (CssStyleFormatter.containsStyleAttribute(attrs, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE) || (tagStack.isNotEmpty() && tagStack.last() is AztecBackgroundColorSpan)) {
+        return if (CssStyleFormatter.containsStyleAttribute(
+                attrs,
+                CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE
+            ) || (tagStack.isNotEmpty() && tagStack.last() is AztecBackgroundColorSpan)
+        ) {
             val att = CssStyleFormatter.getStyleAttribute(attrs, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE)
             val color = ColorConverter.getColorInt(att)
             AztecBackgroundColorSpan(color)
         } else {
             createHiddenHtmlSpan(tag, attrs, nestingLevel, alignmentRendering)
         }
+    }
+
+    /**
+     * This method takes the checkbox input inside a list item and applies a parameter to the parent list item.
+     * We convert <li><input type=checkbox checked />Test</li>
+     * into something like this: <li checked="true">Test</li>
+     * We convert this back when we generate HTML
+     */
+    private fun handleCheckboxInput(attributes: Attributes): Boolean {
+        val wrappingListItem = tagStack.lastOrNull() as? AztecListItemSpan ?: return false
+        val checkedAttribute = attributes.getValue("checked")
+        val isChecked = checkedAttribute != null && checkedAttribute != "false"
+        wrappingListItem.attributes.setValue(CHECKED, isChecked.toString())
+        return true
     }
 
     private fun processTagHandlerPlugins(tag: String, opening: Boolean, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
@@ -256,9 +290,11 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
         private val BLOCKQUOTE = "blockquote"
         private val PARAGRAPH = "p"
         private val PREFORMAT = "pre"
+        private val INPUT = "input"
         private val IMAGE = "img"
         private val VIDEO = "video"
         private val AUDIO = "audio"
         private val LINE = "hr"
+        private val MARK = "mark"
     }
 }

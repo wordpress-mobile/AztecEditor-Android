@@ -14,6 +14,7 @@ import org.wordpress.aztec.spans.UnknownClickableSpan
  * http://stackoverflow.com/a/23566268/569430
  */
 object EnhancedMovementMethod : ArrowKeyMovementMethod() {
+    var taskListClickHandler: TaskListClickHandler? = null
     var isLinkTapEnabled = false
     var linkTappedListener: AztecText.OnLinkTappedListener? = null
 
@@ -36,6 +37,9 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             val line = layout.getLineForVertical(y)
             val off = layout.getOffsetForHorizontal(line, x.toFloat())
 
+            // This handles the case when the task list checkbox is clicked
+            if (taskListClickHandler?.handleTaskListClick(text, off, x, widget.totalPaddingStart) == true) return true
+
             // get the character's position. This may be the left or the right edge of the character so, find the
             //  other edge by inspecting nearby characters (if they exist)
             val charX = layout.getPrimaryHorizontal(off)
@@ -46,8 +50,8 @@ object EnhancedMovementMethod : ArrowKeyMovementMethod() {
             layout.getLineBounds(line, lineRect)
 
             val clickedWithinLineHeight = y >= lineRect.top && y <= lineRect.bottom
-            val clickedOnSpanToTheLeftOfCursor = x in charPrevX..charX
-            val clickedOnSpanToTheRightOfCursor = x in charX..charNextX
+            val clickedOnSpanToTheLeftOfCursor = x.toFloat() in charPrevX..charX
+            val clickedOnSpanToTheRightOfCursor = x.toFloat() in charX..charNextX
 
             val clickedOnSpan = clickedWithinLineHeight &&
                     (clickedOnSpanToTheLeftOfCursor || clickedOnSpanToTheRightOfCursor)

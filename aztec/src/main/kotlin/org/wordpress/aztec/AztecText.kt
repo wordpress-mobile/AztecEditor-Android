@@ -33,6 +33,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
+import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
 import android.text.Spannable
@@ -659,13 +660,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
-        return if (Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT == 33
-                && overrideSamsungPredictiveBehavior) {
-            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with API 33")
+        return if (shouldOverridePredictiveTextBehavior()) {
+            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with Samsung Keyboard with API 33")
             SamsungInputConnection(this, baseInputConnection)
         } else {
             baseInputConnection
         }
+    }
+
+    private fun shouldOverridePredictiveTextBehavior(): Boolean {
+        val currentKeyboard = Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
+        return Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT >= 33 &&
+                (currentKeyboard !== null && currentKeyboard.startsWith("com.samsung.android.honeyboard")) && overrideSamsungPredictiveBehavior
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.

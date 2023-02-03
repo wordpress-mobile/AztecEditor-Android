@@ -161,7 +161,7 @@ class PlaceholderManager(
         val parentTextViewTopAndBottomOffset = aztecText.scrollY + aztecText.compoundPaddingTop
 
         val adapter = adapters[type]!!
-        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - 20
+        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - EDITOR_INNER_PADDING
         val height = adapter.calculateHeight(attrs, windowWidth)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
@@ -176,8 +176,8 @@ class PlaceholderManager(
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, windowWidth) - 20,
-                height - 20
+                adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING,
+                height - EDITOR_INNER_PADDING
         )
         val padding = 10
         params.setMargins(
@@ -326,7 +326,9 @@ class PlaceholderManager(
     }
 
     private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
-        val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
+        val editorWidth = if (aztecText.width > 0) {
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd - EDITOR_INNER_PADDING
+        } else aztecText.maxImagesWidth
         if (drawable?.bounds?.right != editorWidth) {
             drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         }
@@ -466,5 +468,6 @@ class PlaceholderManager(
         private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
+        private const val EDITOR_INNER_PADDING = 20
     }
 }

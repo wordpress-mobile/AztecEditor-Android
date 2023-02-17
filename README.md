@@ -5,7 +5,9 @@
 Aztec (which extends EditText) is a rich-text editor component for writing HTML
 documents in Android.
 
-Supports Android 4.1+ (API 16 - Jelly Bean)
+## Minimum Android Supported Version
+
+You can check the minimum Android version supported by looking at the `minSdkVersion` configuration within [build.gradle](https://github.com/wordpress-mobile/AztecEditor-Android/blob/trunk/build.gradle).
 
 <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/visual_editor.png" alt="Visual Editor"/> <img align="center" width=360px height=640px src="https://github.com/wordpress-mobile/AztecEditor-Android/raw/trunk/code_editor.png" alt="Visual Editor"/>
 

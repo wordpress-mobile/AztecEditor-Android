@@ -2174,8 +2174,38 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
                     text.removeSpan(clickableSpan)
                     text.removeSpan(it)
+                    val endPlus1 = (end + 1).coerceAtMost(text.length - 1)
+                    if (text.length > end + 2 && text[end] == '\n') {
+                        data class TemporarySpan(
+                                val span: IAztecBlockSpan,
+                                val start: Int,
+                                val end: Int,
+                                val flags: Int
+                        )
 
-                    text.delete(start, end)
+                        val spans = text.getSpans(end, end + 2, IAztecBlockSpan::class.java).map { blockSpan ->
+                            TemporarySpan(
+                                    blockSpan,
+                                    text.getSpanStart(blockSpan),
+                                    text.getSpanEnd(blockSpan),
+                                    text.getSpanFlags(blockSpan)
+                            )
+                        }
+                        spans.forEach { temporarySpan ->
+                            text.removeSpan(temporarySpan)
+                        }
+                        text.delete(start, endPlus1)
+                        spans.forEach { temporarySpan ->
+                            text.setSpan(
+                                    temporarySpan.span,
+                                    temporarySpan.start - 2,
+                                    temporarySpan.end - 2,
+                                    temporarySpan.flags
+                            )
+                        }
+                    } else {
+                        text.delete(start, end)
+                    }
                 }
     }
 

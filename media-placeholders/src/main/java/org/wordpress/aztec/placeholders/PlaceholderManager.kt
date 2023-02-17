@@ -100,9 +100,10 @@ class PlaceholderManager(
      * Call this method to insert an item with an option to merge it with the previous item. This could be used to
      * build a gallery of images on adding a new image.
      * @param type placeholder type
+     * @param shouldMergeItem this method should return true when the previous type is compatible and should be updated
      * @param updateItem function to update current parameters with new params
      */
-    suspend fun insertOrUpdateItem(type: String, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
+    suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
         val from = (aztecText.selectionStart - 1).coerceAtLeast(0)
         val editableText = aztecText.editableText
         val currentItem = editableText.getSpans(
@@ -110,12 +111,12 @@ class PlaceholderManager(
                 aztecText.selectionStart,
                 AztecPlaceholderSpan::class.java
         ).lastOrNull()
-        if (currentItem != null) {
+        val currentType = currentItem?.attributes?.getValue(TYPE_ATTRIBUTE)
+        if (currentType != null && shouldMergeItem(currentType)) {
             val adapter = adapters[type]
                     ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
             val currentAttributes = mutableMapOf<String, String>()
             val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
-            val currentType = currentItem.attributes.getValue(TYPE_ATTRIBUTE)
             for (i in 0 until currentItem.attributes.length) {
                 val name = currentItem.attributes.getQName(i)
                 val value = currentItem.attributes.getValue(name)

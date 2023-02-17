@@ -97,6 +97,51 @@ class PlaceholderManager(
     }
 
     /**
+     * Call this method to insert an item with an option to merge it with the previous item. This could be used to
+     * build a gallery of images on adding a new image.
+     * @param type placeholder type
+     * @param updateItem function to update current parameters with new params
+     */
+    suspend fun insertOrUpdateItem(type: String, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
+        val from = (aztecText.selectionStart - 1).coerceAtLeast(0)
+        val editableText = aztecText.editableText
+        val currentItem = editableText.getSpans(
+                from,
+                aztecText.selectionStart,
+                AztecPlaceholderSpan::class.java
+        ).lastOrNull()
+        if (currentItem != null) {
+            val adapter = adapters[type]
+                    ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
+            val currentAttributes = mutableMapOf<String, String>()
+            val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
+            val currentType = currentItem.attributes.getValue(TYPE_ATTRIBUTE)
+            for (i in 0 until currentItem.attributes.length) {
+                val name = currentItem.attributes.getQName(i)
+                val value = currentItem.attributes.getValue(name)
+                currentAttributes[name] = value
+            }
+            val updatedAttributes = updateItem(currentAttributes, currentType)
+            removeItem { aztecAttributes ->
+                aztecAttributes.getValue(UUID_ATTRIBUTE) == uuid
+            }
+            val attrs = AztecAttributes().apply {
+                updatedAttributes.forEach { (key, value) ->
+                    setValue(key, value)
+                }
+            }
+            attrs.setValue(UUID_ATTRIBUTE, uuid)
+            attrs.setValue(TYPE_ATTRIBUTE, type)
+            val drawable = buildPlaceholderDrawable(adapter, attrs)
+            aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+                    this, aztecText, WeakReference(adapter), TAG = htmlTag))
+            insertContentOverSpanWithId(uuid)
+        } else {
+            insertItem(type, *updateItem(null, null).toList().toTypedArray())
+        }
+    }
+
+    /**
      * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
      * @param predicate determines whether a span should be removed
      */

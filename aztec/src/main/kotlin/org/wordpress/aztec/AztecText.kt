@@ -2161,6 +2161,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
+    fun removeMedia(predicate: (Attributes) -> Boolean) {
+        removeMedia(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        })
+    }
+
     fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
@@ -2198,8 +2206,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         spans.forEach { temporarySpan ->
                             text.setSpan(
                                     temporarySpan.span,
-                                    temporarySpan.start - 2,
-                                    temporarySpan.end - 2,
+                                    (temporarySpan.start - 2).coerceAtLeast(0),
+                                    (temporarySpan.end - 2).coerceAtMost(text.length),
                                     temporarySpan.flags
                             )
                         }

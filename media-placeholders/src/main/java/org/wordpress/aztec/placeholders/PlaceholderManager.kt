@@ -41,7 +41,10 @@ import kotlin.math.min
 class PlaceholderManager(
         private val aztecText: AztecText,
         private val container: FrameLayout,
-        private val htmlTag: String = DEFAULT_HTML_TAG
+        private val htmlTag: String = DEFAULT_HTML_TAG,
+        private val generateUuid: () -> String = {
+            UUID.randomUUID().toString()
+        }
 ) : AztecContentChangeWatcher.AztecTextChangeObserver,
         IHtmlTagHandler,
         Html.MediaCallback,
@@ -146,12 +149,8 @@ class PlaceholderManager(
      * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
      * @param predicate determines whether a span should be removed
      */
-    fun removeItem(predicate: (AztecAttributes) -> Boolean) {
-        aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).filter {
-            predicate(it.attributes)
-        }.forEach { placeholderSpan ->
-            aztecText.removeMediaSpan(placeholderSpan)
-        }
+    fun removeItem(predicate: (Attributes) -> Boolean) {
+        aztecText.removeMedia { predicate(it) }
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
@@ -251,7 +250,7 @@ class PlaceholderManager(
 
     private fun getAttributesForMedia(type: String, attributes: Array<out Pair<String, String>>): AztecAttributes {
         val attrs = AztecAttributes()
-        attrs.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
+        attrs.setValue(UUID_ATTRIBUTE, generateUuid())
         attrs.setValue(TYPE_ATTRIBUTE, type)
         attributes.forEach {
             attrs.setValue(it.first, it.second)
@@ -309,7 +308,7 @@ class PlaceholderManager(
             val type = attributes.getValue(TYPE_ATTRIBUTE)
             val adapter = adapters[type] ?: return false
             val aztecAttributes = AztecAttributes(attributes)
-            aztecAttributes.setValue(UUID_ATTRIBUTE, UUID.randomUUID().toString())
+            aztecAttributes.setValue(UUID_ATTRIBUTE, generateUuid())
             val drawable = runBlocking { buildPlaceholderDrawable(adapter, aztecAttributes) }
             val span = AztecPlaceholderSpan(
                     context = aztecText.context,

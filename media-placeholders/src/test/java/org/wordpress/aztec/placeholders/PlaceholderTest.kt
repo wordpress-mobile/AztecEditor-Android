@@ -1,11 +1,7 @@
 package org.wordpress.aztec.placeholders
 
 import android.app.Activity
-import android.text.BoringLayout
-import android.text.Layout
-import android.text.TextPaint
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import android.widget.PopupMenu

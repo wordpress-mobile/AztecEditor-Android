@@ -114,12 +114,20 @@ class PlaceholderManager(
         return drawable
     }
 
-    private suspend fun updateAllBelowSelection(selectionStart: Int) {
-        positionToId.filter {
-            it.elementPosition >= selectionStart - 1
-        }.forEach {
+    /**
+     * Call this method to reload all the placeholders
+     */
+    suspend fun refresh() {
+        positionToId.forEach {
             insertContentOverSpanWithId(it.uuid)
         }
+    }
+
+    /**
+     * Call this method to relaod a placeholder with UUID
+     */
+    suspend fun refreshWithUuid(uuid: String) {
+        insertContentOverSpanWithId(uuid)
     }
 
     private suspend fun insertContentOverSpanWithId(uuid: String) {
@@ -218,7 +226,7 @@ class PlaceholderManager(
      */
     override fun onContentChanged() {
         launch {
-            updateAllBelowSelection(aztecText.selectionStart)
+            refresh()
         }
     }
 

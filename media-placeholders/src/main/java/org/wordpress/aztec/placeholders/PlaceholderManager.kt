@@ -327,7 +327,7 @@ class PlaceholderManager(
 
     private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
         val editorWidth = if (aztecText.width > 0) {
-            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd - EDITOR_INNER_PADDING
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
         } else aztecText.maxImagesWidth
         if (drawable?.bounds?.right != editorWidth) {
             drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))

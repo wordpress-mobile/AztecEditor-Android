@@ -318,7 +318,12 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return@forEach
+                    val start = aztecText.editableText.getSpanStart(it)
+                    val end = aztecText.editableText.getSpanEnd(it)
+                    val flags = aztecText.editableText.getSpanFlags(it)
+                    aztecText.editableText.removeSpan(it)
                     updateDrawableBounds(adapter, it.attributes, it.drawable)
+                    aztecText.editableText.setSpan(it, start, end, flags)
                     aztecText.refreshText(false)
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }

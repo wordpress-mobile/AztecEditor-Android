@@ -117,7 +117,7 @@ class PlaceholderManager(
     /**
      * Call this method to reload all the placeholders
      */
-    suspend fun refresh() {
+    suspend fun reloadAllPlaceholders() {
         positionToId.forEach {
             insertContentOverSpanWithId(it.uuid)
         }
@@ -226,7 +226,7 @@ class PlaceholderManager(
      */
     override fun onContentChanged() {
         launch {
-            refresh()
+            reloadAllPlaceholders()
         }
     }
 

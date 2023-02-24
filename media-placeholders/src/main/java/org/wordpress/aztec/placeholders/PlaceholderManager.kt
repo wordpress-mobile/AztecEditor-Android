@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -329,8 +330,11 @@ class PlaceholderManager(
         val editorWidth = if (aztecText.width > 0) {
             aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
         } else aztecText.maxImagesWidth
+        Log.d(TAG, "Updating drawable bounds - editor width: $editorWidth")
         if (drawable?.bounds?.right != editorWidth) {
+            Log.d(TAG, "Bounds before - right - ${drawable?.bounds?.right} - bottom - ${drawable?.bounds?.bottom}")
             drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
+            Log.d(TAG, "Bounds after - right - ${drawable?.bounds?.right} - bottom - ${drawable?.bounds?.bottom}")
         }
     }
 
@@ -465,6 +469,7 @@ class PlaceholderManager(
     data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
+        private const val TAG = "PlaceholderManager"
         private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"

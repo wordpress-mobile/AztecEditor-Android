@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -111,7 +110,10 @@ class PlaceholderManager(
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        updateDrawableBounds(adapter, attrs, drawable)
+        val editorWidth = if (aztecText.width > 0) {
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
+        } else aztecText.maxImagesWidth
+        drawable.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         return drawable
     }
 
@@ -318,28 +320,11 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return@forEach
-                    val start = aztecText.editableText.getSpanStart(it)
-                    val end = aztecText.editableText.getSpanEnd(it)
-                    val flags = aztecText.editableText.getSpanFlags(it)
-                    aztecText.editableText.removeSpan(it)
                     it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
-                    aztecText.editableText.setSpan(it, start, end, flags)
                     aztecText.refreshText(false)
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }
-        }
-    }
-
-    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
-        val editorWidth = if (aztecText.width > 0) {
-            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
-        } else aztecText.maxImagesWidth
-        Log.d(TAG, "Updating drawable bounds - editor width: $editorWidth")
-        if (drawable?.bounds?.right != editorWidth) {
-            Log.d(TAG, "Bounds before - right - ${drawable?.bounds?.right} - bottom - ${drawable?.bounds?.bottom}")
-            drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
-            Log.d(TAG, "Bounds after - right - ${drawable?.bounds?.right} - bottom - ${drawable?.bounds?.bottom}")
         }
     }
 

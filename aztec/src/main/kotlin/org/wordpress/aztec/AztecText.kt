@@ -249,6 +249,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
+    private var beforeBackSpaceListener: BeforeBackSpaceListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
     private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
@@ -352,6 +353,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
         fun beforeMediaDeleted(attrs: AztecAttributes) {}
+    }
+
+    /**
+     * Listens to keyboard events and calls the `shouldOverrideBackSpace` before each backspace event.
+     */
+    interface BeforeBackSpaceListener {
+        /**
+         * Return true if you want to not process backspace event in the given position.
+         */
+        fun shouldOverrideBackSpace(position: Int): Boolean
     }
 
     interface OnVideoInfoRequestedListener {
@@ -659,12 +670,32 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
+        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
         return if (shouldOverridePredictiveTextBehavior()) {
             AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with Samsung Keyboard with API 33")
             SamsungInputConnection(this, baseInputConnection)
         } else {
             baseInputConnection
+        }
+    }
+
+    private fun InputConnection.wrapWithBackSpaceHandler(): InputConnection {
+        return DeleteOverrideInputConnection(this) { beforeLength, afterLength ->
+            val triggerDelete = beforeBackSpaceListener?.let { listener ->
+                if (beforeLength == 1 && afterLength == 0 && selectionStart > 0) {
+                    val isLinebreak = editableText[(selectionStart - 1).coerceAtLeast(0)] == '\n'
+                    val from = if (isLinebreak) {
+                        selectionStart - 2
+                    } else {
+                        selectionStart - 1
+                    }
+                    val isImg = editableText[(from).coerceAtLeast(0)] == Constants.IMG_CHAR
+                    !(isImg && listener.shouldOverrideBackSpace(from))
+                } else {
+                    true
+                }
+            }
+            triggerDelete ?: true
         }
     }
 
@@ -1102,6 +1133,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
         this.onMediaDeletedListener = listener
+    }
+
+    fun setBeforeBackSpaceListener(listener: BeforeBackSpaceListener) {
+        this.beforeBackSpaceListener = listener
     }
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {

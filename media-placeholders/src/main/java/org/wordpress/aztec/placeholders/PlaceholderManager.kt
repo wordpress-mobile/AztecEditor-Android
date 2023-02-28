@@ -169,7 +169,7 @@ class PlaceholderManager(
         if (shouldUpdateItem(currentItem.attributes)) {
             val type = currentItem.attributes.getValue(TYPE_ATTRIBUTE)
             updateSpan(type, currentItem, updateItem = { attributes, _ ->
-                 updateItem(attributes)
+                updateItem(attributes)
             }, type)
         } else {
             removeItem(uuid)

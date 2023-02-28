@@ -2209,14 +2209,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
-                .forEach {
-                    val start = text.getSpanStart(it)
-                    val end = text.getSpanEnd(it)
+                .forEach { mediaSpan ->
+                    mediaSpan.beforeMediaDeleted()
+                    val start = text.getSpanStart(mediaSpan)
+                    val end = text.getSpanEnd(mediaSpan)
 
                     val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
 
                     text.removeSpan(clickableSpan)
-                    text.removeSpan(it)
+                    text.removeSpan(mediaSpan)
                     val endPlus1 = (end + 1).coerceAtMost(text.length - 1)
                     if (text.length > end + 2 && text[end] == '\n') {
                         data class TemporarySpan(
@@ -2249,6 +2250,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     } else {
                         text.delete(start, end)
                     }
+                    mediaSpan.onMediaDeleted()
                 }
     }
 

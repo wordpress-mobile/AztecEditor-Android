@@ -122,4 +122,44 @@ class PlaceholderTest {
             Assert.assertEquals(initialHtml, editText.toHtml())
         }
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun updatePlaceholderWhenItShouldBe() {
+        runBlocking {
+            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            editText.fromHtml(initialHtml)
+
+            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+                true
+            }) { currentAttributes ->
+                val result = mutableMapOf<String, String>()
+                result["src"] = currentAttributes["src"]?.split(";")?.firstOrNull() ?: ""
+                result["caption"] = "Updated caption"
+                result
+            }
+
+            Assert.assertEquals("<placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Line</p>", editText.toHtml())
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removePlaceholderWhenItShouldNotBeUpdated() {
+        runBlocking {
+            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            editText.fromHtml(initialHtml)
+
+            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+                false
+            }) { currentAttributes ->
+                val result = mutableMapOf<String, String>()
+                result["src"] = currentAttributes["src"]?.split(";")?.firstOrNull() ?: ""
+                result["caption"] = "Updated caption"
+                result
+            }
+
+            Assert.assertEquals("<p>Line</p>", editText.toHtml())
+        }
+    }
 }

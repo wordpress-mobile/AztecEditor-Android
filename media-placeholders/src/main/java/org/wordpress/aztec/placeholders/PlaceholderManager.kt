@@ -116,41 +116,81 @@ class PlaceholderManager(
         ).lastOrNull()
         val currentType = currentItem?.attributes?.getValue(TYPE_ATTRIBUTE)
         if (currentType != null && shouldMergeItem(currentType)) {
-            val adapter = adapters[type]
-                    ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
-            val currentAttributes = mutableMapOf<String, String>()
-            val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
-            for (i in 0 until currentItem.attributes.length) {
-                val name = currentItem.attributes.getQName(i)
-                val value = currentItem.attributes.getValue(name)
-                currentAttributes[name] = value
-            }
-            val updatedAttributes = updateItem(currentAttributes, currentType)
-            removeItem { aztecAttributes ->
-                aztecAttributes.getValue(UUID_ATTRIBUTE) == uuid
-            }
-            val attrs = AztecAttributes().apply {
-                updatedAttributes.forEach { (key, value) ->
-                    setValue(key, value)
-                }
-            }
-            attrs.setValue(UUID_ATTRIBUTE, uuid)
-            attrs.setValue(TYPE_ATTRIBUTE, type)
-            val drawable = buildPlaceholderDrawable(adapter, attrs)
-            aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                    this, aztecText, WeakReference(adapter), TAG = htmlTag))
-            insertContentOverSpanWithId(uuid)
+            updateSpan(type, currentItem, updateItem, currentType)
         } else {
             insertItem(type, *updateItem(null, null).toList().toTypedArray())
         }
     }
 
+    private suspend fun updateSpan(
+            type: String,
+            currentItem: AztecPlaceholderSpan,
+            updateItem: (currentAttributes: Map<String, String>, currentType: String) -> Map<String, String>,
+            currentType: String
+    ) {
+        val adapter = adapters[type]
+                ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
+        val currentAttributes = mutableMapOf<String, String>()
+        val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
+        for (i in 0 until currentItem.attributes.length) {
+            val name = currentItem.attributes.getQName(i)
+            val value = currentItem.attributes.getValue(name)
+            currentAttributes[name] = value
+        }
+        val updatedAttributes = updateItem(currentAttributes, currentType)
+        removeItem(uuid)
+        val attrs = AztecAttributes().apply {
+            updatedAttributes.forEach { (key, value) ->
+                setValue(key, value)
+            }
+        }
+        attrs.setValue(UUID_ATTRIBUTE, uuid)
+        attrs.setValue(TYPE_ATTRIBUTE, type)
+        val drawable = buildPlaceholderDrawable(adapter, attrs)
+        aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+                this, aztecText, WeakReference(adapter), TAG = htmlTag))
+        insertContentOverSpanWithId(uuid)
+    }
+
     /**
-     * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
+     * Use this function to either update or remove an item. The decision whether to remove or update will be made
+     * based upon the results of the parameter functions. An example of usage is a gallery of images. If the user wants
+     * to remove one image in the gallery, they would call this method. If the removed image is one of many, they might
+     * want to update the current parameters instead of removing the entire gallery. However, if the removed image is
+     * the last one in the gallery, they will probably want to remove the entire gallery.
+     * @param uuid UUID of the span we want to remove or update
+     * @param shouldUpdateItem This function should return true if the span can be updated, false if it should be removed
+     * @param updateItem Function that updates the selected item
+     */
+    suspend fun removeOrUpdate(uuid: String, shouldUpdateItem: (Attributes) -> Boolean, updateItem: (currentAttributes: Map<String, String>) -> Map<String, String>): Boolean {
+        val currentItem = aztecText.editableText.getSpans(0, aztecText.length(), AztecPlaceholderSpan::class.java).find {
+            it.attributes.getValue(UUID_ATTRIBUTE) == uuid
+        } ?: return false
+        if (shouldUpdateItem(currentItem.attributes)) {
+            val type = currentItem.attributes.getValue(TYPE_ATTRIBUTE)
+            updateSpan(type, currentItem, updateItem = { attributes, _ ->
+                 updateItem(attributes)
+            }, type)
+        } else {
+            removeItem(uuid)
+        }
+        return true
+    }
+
+    /**
+     * Call this method to remove a placeholder from both the AztecText and the overlaying layer programmatically.
      * @param predicate determines whether a span should be removed
      */
     fun removeItem(predicate: (Attributes) -> Boolean) {
         aztecText.removeMedia { predicate(it) }
+    }
+
+    /**
+     * Call this method to remove a placeholder from both the AztecText and the overlaying layer programmatically.
+     * @param uuid of the removed item
+     */
+    fun removeItem(uuid: String) {
+        aztecText.removeMedia { it.getValue(UUID_ATTRIBUTE) == uuid }
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {

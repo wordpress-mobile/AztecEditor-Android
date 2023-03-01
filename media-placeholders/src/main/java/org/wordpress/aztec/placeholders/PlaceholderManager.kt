@@ -18,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -52,6 +54,7 @@ class PlaceholderManager(
         AztecText.OnVisibilityChangeListener,
         CoroutineScope {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
+    private val positionToIdMutex = Mutex()
     private val positionToId = mutableSetOf<Placeholder>()
     private val job = Job()
     override val coroutineContext: CoroutineContext
@@ -207,8 +210,10 @@ class PlaceholderManager(
      * Call this method to reload all the placeholders
      */
     suspend fun reloadAllPlaceholders() {
-        positionToId.forEach {
-            insertContentOverSpanWithId(it.uuid)
+        positionToIdMutex.withLock {
+            positionToId.forEach {
+                insertContentOverSpanWithId(it.uuid)
+            }
         }
     }
 
@@ -263,8 +268,10 @@ class PlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        positionToId.removeAll {
-            it.uuid == uuid
+        positionToIdMutex.withLock {
+            positionToId.removeAll {
+                it.uuid == uuid
+            }
         }
 
         var box = container.findViewWithTag<View>(uuid)
@@ -287,7 +294,9 @@ class PlaceholderManager(
         box.tag = uuid
         box.setBackgroundColor(Color.TRANSPARENT)
         box.setOnTouchListener(adapter)
-        positionToId.add(Placeholder(targetPosition, uuid))
+        positionToIdMutex.withLock {
+            positionToId.add(Placeholder(targetPosition, uuid))
+        }
         if (!exists && box.parent == null) {
             container.addView(box)
             adapter.onViewCreated(box, uuid)
@@ -327,7 +336,11 @@ class PlaceholderManager(
             val uuid = attrs.getValue(UUID_ATTRIBUTE)
             val adapter = adapters[attrs.getValue(TYPE_ATTRIBUTE)]
             adapter?.onPlaceholderDeleted(uuid)
-            positionToId.removeAll { it.uuid == uuid }
+            launch {
+                positionToIdMutex.withLock {
+                    positionToId.removeAll { it.uuid == uuid }
+                }
+            }
             container.findViewWithTag<View>(uuid)?.let {
                 it.visibility = View.GONE
                 container.removeView(it)
@@ -431,19 +444,25 @@ class PlaceholderManager(
         }
     }
 
-    private fun clearAllViews() {
-        for (placeholder in positionToId) {
-            container.findViewWithTag<View>(placeholder.uuid)?.let {
-                it.visibility = View.GONE
-                container.removeView(it)
+    private suspend fun clearAllViews() {
+        positionToIdMutex.withLock {
+            for (placeholder in positionToId) {
+                container.findViewWithTag<View>(placeholder.uuid)?.let {
+                    it.visibility = View.GONE
+                    container.removeView(it)
+                }
             }
+            positionToId.clear()
         }
-        positionToId.clear()
     }
 
     override fun onVisibility(visibility: Int) {
-        for (placeholder in positionToId) {
-            container.findViewWithTag<View>(placeholder.uuid)?.visibility = visibility
+        launch {
+            positionToIdMutex.withLock {
+                for (placeholder in positionToId) {
+                    container.findViewWithTag<View>(placeholder.uuid)?.visibility = visibility
+                }
+            }
         }
     }
 

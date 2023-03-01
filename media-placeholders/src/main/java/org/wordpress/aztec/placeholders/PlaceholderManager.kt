@@ -168,9 +168,13 @@ class PlaceholderManager(
         } ?: return false
         if (shouldUpdateItem(currentItem.attributes)) {
             val type = currentItem.attributes.getValue(TYPE_ATTRIBUTE)
+            val selectionStart = aztecText.selectionStart
+            val selectionEnd = aztecText.selectionEnd
+            aztecText.setSelection(aztecText.editableText.getSpanStart(currentItem))
             updateSpan(type, currentItem, updateItem = { attributes, _ ->
                 updateItem(attributes)
             }, type)
+            aztecText.setSelection(selectionStart, selectionEnd)
         } else {
             removeItem(uuid)
         }

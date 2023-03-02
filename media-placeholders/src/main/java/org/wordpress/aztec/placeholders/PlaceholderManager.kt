@@ -112,9 +112,9 @@ class PlaceholderManager(
     suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
         val previousIndex = (aztecText.selectionStart - 1).coerceAtLeast(0)
         val indexBeforePrevious = (aztecText.selectionStart - 2).coerceAtLeast(0)
-        val from = if (aztecText.editableText[previousIndex] == Constants.IMG_CHAR) {
+        val from = if (aztecText.editableText.length > previousIndex && aztecText.editableText[previousIndex] == Constants.IMG_CHAR) {
             previousIndex
-        } else if (aztecText.editableText[previousIndex] == '\n') {
+        } else if (aztecText.editableText.length > previousIndex && aztecText.editableText[previousIndex] == '\n') {
             indexBeforePrevious
         } else {
             aztecText.selectionStart

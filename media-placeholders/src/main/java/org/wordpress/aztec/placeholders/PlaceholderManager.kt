@@ -110,7 +110,10 @@ class PlaceholderManager(
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        updateDrawableBounds(adapter, attrs, drawable)
+        val editorWidth = if (aztecText.width > 0) {
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
+        } else aztecText.maxImagesWidth
+        drawable.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         return drawable
     }
 
@@ -169,7 +172,7 @@ class PlaceholderManager(
         val parentTextViewTopAndBottomOffset = aztecText.scrollY + aztecText.compoundPaddingTop
 
         val adapter = adapters[type]!!
-        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - 20
+        val windowWidth = parentTextViewRect.right - parentTextViewRect.left - EDITOR_INNER_PADDING
         val height = adapter.calculateHeight(attrs, windowWidth)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
@@ -184,8 +187,8 @@ class PlaceholderManager(
             box = adapter.createView(container.context, uuid, attrs)
         }
         val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, windowWidth) - 20,
-                height - 20
+                adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING,
+                height - EDITOR_INNER_PADDING
         )
         val padding = 10
         params.setMargins(
@@ -325,18 +328,11 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return@forEach
-                    updateDrawableBounds(adapter, it.attributes, it.drawable)
+                    it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
                     aztecText.refreshText(false)
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }
-        }
-    }
-
-    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
-        val editorWidth = if (aztecText.width > 0) aztecText.width else aztecText.maxImagesWidth
-        if (drawable?.bounds?.right != editorWidth) {
-            drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         }
     }
 
@@ -471,8 +467,10 @@ class PlaceholderManager(
     data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
+        private const val TAG = "PlaceholderManager"
         private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
+        private const val EDITOR_INNER_PADDING = 20
     }
 }

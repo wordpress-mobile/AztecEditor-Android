@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -414,9 +413,7 @@ class PlaceholderManager(
     }
 
     private suspend fun clearAllViews() {
-        Log.d("vojta", "Before clearing all with lock")
         positionToIdMutex.withLock {
-            Log.d("vojta", "Clearing all with lock")
             for (placeholder in positionToId) {
                 container.findViewWithTag<View>(placeholder.uuid)?.let {
                     it.visibility = View.GONE
@@ -424,7 +421,6 @@ class PlaceholderManager(
                 }
             }
             positionToId.clear()
-            Log.d("vojta", "Cleared all with lock")
         }
     }
 

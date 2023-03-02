@@ -166,7 +166,10 @@ class PlaceholderManager(
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        updateDrawableBounds(adapter, attrs, drawable)
+        val editorWidth = if (aztecText.width > 0) {
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
+        } else aztecText.maxImagesWidth
+        drawable.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         return drawable
     }
 
@@ -395,20 +398,11 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return@forEach
-                    updateDrawableBounds(adapter, it.attributes, it.drawable)
+                    it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
                     aztecText.refreshText(false)
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }
-        }
-    }
-
-    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
-        val editorWidth = if (aztecText.width > 0) {
-            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd - EDITOR_INNER_PADDING
-        } else aztecText.maxImagesWidth
-        if (drawable?.bounds?.right != editorWidth) {
-            drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         }
     }
 
@@ -549,6 +543,7 @@ class PlaceholderManager(
     data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
+        private const val TAG = "PlaceholderManager"
         private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"

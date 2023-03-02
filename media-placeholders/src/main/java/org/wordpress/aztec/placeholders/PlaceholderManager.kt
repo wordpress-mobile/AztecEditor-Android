@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -110,7 +111,15 @@ class PlaceholderManager(
      * @param updateItem function to update current parameters with new params
      */
     suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
-        val from = (aztecText.selectionStart - 1).coerceAtLeast(0)
+        val previousIndex = (aztecText.selectionStart - 1).coerceAtLeast(0)
+        val indexBeforePrevious = (aztecText.selectionStart - 2).coerceAtLeast(0)
+        val from = if (aztecText.editableText[previousIndex] == Constants.IMG_CHAR) {
+            previousIndex
+        } else if (aztecText.editableText[previousIndex] == '\n') {
+            indexBeforePrevious
+        } else {
+            aztecText.selectionStart
+        }
         val editableText = aztecText.editableText
         val currentItem = editableText.getSpans(
                 from,
@@ -129,7 +138,7 @@ class PlaceholderManager(
                 currentAttributes[name] = value
             }
             val updatedAttributes = updateItem(currentAttributes, currentType)
-            removeItem { aztecAttributes ->
+            removeItem(false) { aztecAttributes ->
                 aztecAttributes.getValue(UUID_ATTRIBUTE) == uuid
             }
             val attrs = AztecAttributes().apply {
@@ -152,8 +161,8 @@ class PlaceholderManager(
      * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
      * @param predicate determines whether a span should be removed
      */
-    fun removeItem(predicate: (Attributes) -> Boolean) {
-        aztecText.removeMedia { predicate(it) }
+    fun removeItem(notifyContentChange: Boolean = true, predicate: (Attributes) -> Boolean) {
+        aztecText.removeMedia(notifyContentChange) { predicate(it) }
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
@@ -166,9 +175,13 @@ class PlaceholderManager(
      * Call this method to reload all the placeholders
      */
     suspend fun reloadAllPlaceholders() {
-        positionToIdMutex.withLock {
-            positionToId.forEach {
-                insertContentOverSpanWithId(it.uuid)
+        val tempPositionToId = positionToId.toList()
+        tempPositionToId.forEach { placeholder ->
+            val isValid = positionToIdMutex.withLock {
+                positionToId.contains(placeholder)
+            }
+            if (isValid) {
+                insertContentOverSpanWithId(placeholder.uuid)
             }
         }
     }
@@ -401,7 +414,9 @@ class PlaceholderManager(
     }
 
     private suspend fun clearAllViews() {
+        Log.d("vojta", "Before clearing all with lock")
         positionToIdMutex.withLock {
+            Log.d("vojta", "Clearing all with lock")
             for (placeholder in positionToId) {
                 container.findViewWithTag<View>(placeholder.uuid)?.let {
                     it.visibility = View.GONE
@@ -409,6 +424,7 @@ class PlaceholderManager(
                 }
             }
             positionToId.clear()
+            Log.d("vojta", "Cleared all with lock")
         }
     }
 

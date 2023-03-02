@@ -2196,15 +2196,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
-    fun removeMedia(predicate: (Attributes) -> Boolean) {
+    fun removeMedia(notifyContentChange: Boolean = true, predicate: (Attributes) -> Boolean) {
         removeMedia(object : AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return predicate(attrs)
             }
-        })
+        }, notifyContentChange)
     }
 
-    fun removeMedia(attributePredicate: AttributePredicate) {
+    fun removeMedia(attributePredicate: AttributePredicate, notifyContentChange: Boolean = true) {
+        if (!notifyContentChange) {
+            disableTextChangedListener()
+        }
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
@@ -2252,6 +2255,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                     mediaSpan.onMediaDeleted()
                 }
+        if (!notifyContentChange) {
+            enableTextChangedListener()
+        }
     }
 
     interface AttributePredicate {

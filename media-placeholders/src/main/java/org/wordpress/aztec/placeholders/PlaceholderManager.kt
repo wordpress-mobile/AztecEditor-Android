@@ -157,12 +157,13 @@ class PlaceholderManager(
         if (aztecText.length() == 0) {
             return null
         }
+        val limitLength = aztecText.length() - 1
         val selectionStart = aztecText.selectionStart
-        val selectionStartMinusOne = (selectionStart - 1).coerceAtLeast(0)
-        val selectionStartMinusTwo = (selectionStart - 2).coerceAtLeast(0)
+        val selectionStartMinusOne = (selectionStart - 1).coerceIn(0, limitLength)
+        val selectionStartMinusTwo = (selectionStart - 2).coerceIn(0, limitLength)
         val selectionEnd = aztecText.selectionEnd
-        val selectionEndPlusOne = (selectionStart + 1).coerceAtMost(aztecText.length())
-        val selectionEndPlusTwo = (selectionStart + 2).coerceAtMost(aztecText.length())
+        val selectionEndPlusOne = (selectionStart + 1).coerceIn(0, limitLength)
+        val selectionEndPlusTwo = (selectionStart + 2).coerceIn(0, limitLength)
         val editableText = aztecText.editableText
         var placeAtStart = false
         val (from, to) = if (editableText[selectionStartMinusOne] == Constants.IMG_CHAR) {
@@ -171,10 +172,10 @@ class PlaceholderManager(
             selectionStartMinusTwo to selectionStart
         } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR) {
             placeAtStart = true
-            selectionEndPlusOne to (selectionEndPlusOne + 1).coerceAtMost(aztecText.length())
+            selectionEndPlusOne to (selectionEndPlusOne + 1).coerceIn(0, limitLength)
         } else if (editableText[selectionEndPlusOne] == '\n' && editableText[selectionEndPlusTwo] == Constants.IMG_CHAR) {
             placeAtStart = true
-            selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceAtMost(aztecText.length())
+            selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceIn(0, limitLength)
         } else {
             selectionStart to selectionEnd
         }

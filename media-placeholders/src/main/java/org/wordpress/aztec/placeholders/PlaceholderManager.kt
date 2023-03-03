@@ -110,21 +110,7 @@ class PlaceholderManager(
      * @param updateItem function to update current parameters with new params
      */
     suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
-        val previousIndex = (aztecText.selectionStart - 1).coerceAtLeast(0)
-        val indexBeforePrevious = (aztecText.selectionStart - 2).coerceAtLeast(0)
-        val from = if (aztecText.editableText.length > previousIndex && aztecText.editableText[previousIndex] == Constants.IMG_CHAR) {
-            previousIndex
-        } else if (aztecText.editableText.length > previousIndex && aztecText.editableText[previousIndex] == '\n') {
-            indexBeforePrevious
-        } else {
-            aztecText.selectionStart
-        }
-        val editableText = aztecText.editableText
-        val currentItem = editableText.getSpans(
-                from,
-                aztecText.selectionStart,
-                AztecPlaceholderSpan::class.java
-        ).lastOrNull()
+        val currentItem = getTargetItem()
         val currentType = currentItem?.attributes?.getValue(TYPE_ATTRIBUTE)
         if (currentType != null && shouldMergeItem(currentType)) {
             val adapter = adapters[type]
@@ -154,6 +140,35 @@ class PlaceholderManager(
         } else {
             insertItem(type, *updateItem(null, null).toList().toTypedArray())
         }
+    }
+
+    private fun getTargetItem(): AztecPlaceholderSpan? {
+        if (aztecText.length() == 0) {
+            return null
+        }
+        val selectionStart = aztecText.selectionStart
+        val selectionStartMinusOne = (selectionStart - 1).coerceAtLeast(0)
+        val selectionStartMinusTwo = (selectionStart - 2).coerceAtLeast(0)
+        val selectionEnd = aztecText.selectionEnd
+        val selectionEndPlusOne = (selectionStart + 1).coerceAtMost(aztecText.length())
+        val selectionEndPlusTwo = (selectionStart + 2).coerceAtMost(aztecText.length())
+        val editableText = aztecText.editableText
+        val (from, to) = if (editableText[selectionStartMinusOne] == Constants.IMG_CHAR) {
+            selectionStartMinusOne to selectionStart
+        } else if (editableText[selectionStartMinusOne] == '\n' && editableText[selectionStartMinusTwo] == Constants.IMG_CHAR) {
+            selectionStartMinusTwo to selectionStart
+        } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR){
+            selectionEndPlusOne to (selectionEndPlusOne + 1).coerceAtMost(aztecText.length())
+        } else if (editableText[selectionEndPlusOne] == '\n' && editableText[selectionEndPlusTwo] == Constants.IMG_CHAR) {
+            selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceAtMost(aztecText.length())
+        } else {
+            selectionStart to selectionEnd
+        }
+        return editableText.getSpans(
+                from,
+                to,
+                AztecPlaceholderSpan::class.java
+        ).lastOrNull()
     }
 
     /**

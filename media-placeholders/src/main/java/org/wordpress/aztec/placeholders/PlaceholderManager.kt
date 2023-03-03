@@ -25,6 +25,7 @@ import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
+import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
@@ -52,7 +53,8 @@ class PlaceholderManager(
         Html.MediaCallback,
         AztecText.OnMediaDeletedListener,
         AztecText.OnVisibilityChangeListener,
-        CoroutineScope {
+        CoroutineScope,
+        IHtmlPreprocessor {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToIdMutex = Mutex()
     private val positionToId = mutableSetOf<Placeholder>()
@@ -584,5 +586,12 @@ class PlaceholderManager(
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
         private const val EDITOR_INNER_PADDING = 20
+    }
+
+    override fun beforeHtmlProcessed(source: String): String {
+        runBlocking {
+            clearAllViews()
+        }
+        return source
     }
 }

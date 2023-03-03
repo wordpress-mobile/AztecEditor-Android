@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -26,6 +25,7 @@ import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.Constants
 import org.wordpress.aztec.Html
+import org.wordpress.aztec.plugins.html2visual.IHtmlPreprocessor
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.xml.sax.Attributes
@@ -53,7 +53,8 @@ class PlaceholderManager(
         Html.MediaCallback,
         AztecText.OnMediaDeletedListener,
         AztecText.OnVisibilityChangeListener,
-        CoroutineScope {
+        CoroutineScope,
+        IHtmlPreprocessor {
     private val adapters = mutableMapOf<String, PlaceholderAdapter>()
     private val positionToIdMutex = Mutex()
     private val positionToId = mutableSetOf<Placeholder>()
@@ -110,37 +111,29 @@ class PlaceholderManager(
      * @param shouldMergeItem this method should return true when the previous type is compatible and should be updated
      * @param updateItem function to update current parameters with new params
      */
-    suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
-        val previousIndex = (aztecText.selectionStart - 1).coerceAtLeast(0)
-        val indexBeforePrevious = (aztecText.selectionStart - 2).coerceAtLeast(0)
-        val from = if (aztecText.editableText[previousIndex] == Constants.IMG_CHAR) {
-            previousIndex
-        } else if (aztecText.editableText[previousIndex] == '\n') {
-            indexBeforePrevious
-        } else {
-            aztecText.selectionStart
-        }
-        val editableText = aztecText.editableText
-        val currentItem = editableText.getSpans(
-                from,
-                aztecText.selectionStart,
-                AztecPlaceholderSpan::class.java
-        ).lastOrNull()
-        val currentType = currentItem?.attributes?.getValue(TYPE_ATTRIBUTE)
+    suspend fun insertOrUpdateItem(
+            type: String,
+            shouldMergeItem: (currentItemType: String) -> Boolean = { true },
+            updateItem: (
+                    currentAttributes: Map<String, String>?,
+                    currentType: String?,
+                    placeAtStart: Boolean
+            ) -> Map<String, String>
+    ) {
+        val targetItem = getTargetItem()
+        val targetSpan = targetItem?.span
+        val currentType = targetSpan?.attributes?.getValue(TYPE_ATTRIBUTE)
         if (currentType != null && shouldMergeItem(currentType)) {
             val adapter = adapters[type]
                     ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
             val currentAttributes = mutableMapOf<String, String>()
-            val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
-            for (i in 0 until currentItem.attributes.length) {
-                val name = currentItem.attributes.getQName(i)
-                val value = currentItem.attributes.getValue(name)
+            val uuid = targetSpan.attributes.getValue(UUID_ATTRIBUTE)
+            for (i in 0 until targetSpan.attributes.length) {
+                val name = targetSpan.attributes.getQName(i)
+                val value = targetSpan.attributes.getValue(name)
                 currentAttributes[name] = value
             }
-            val updatedAttributes = updateItem(currentAttributes, currentType)
-            removeItem(false) { aztecAttributes ->
-                aztecAttributes.getValue(UUID_ATTRIBUTE) == uuid
-            }
+            val updatedAttributes = updateItem(currentAttributes, currentType, targetItem.placeAtStart)
             val attrs = AztecAttributes().apply {
                 updatedAttributes.forEach { (key, value) ->
                     setValue(key, value)
@@ -149,25 +142,66 @@ class PlaceholderManager(
             attrs.setValue(UUID_ATTRIBUTE, uuid)
             attrs.setValue(TYPE_ATTRIBUTE, type)
             val drawable = buildPlaceholderDrawable(adapter, attrs)
-            aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                    this, aztecText, WeakReference(adapter), TAG = htmlTag))
+            val span = AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+                    this, aztecText, WeakReference(adapter), TAG = htmlTag)
+            aztecText.replaceMediaSpan(span) { attributes ->
+                attributes.getValue(UUID_ATTRIBUTE) == uuid
+            }
             insertContentOverSpanWithId(uuid)
         } else {
-            insertItem(type, *updateItem(null, null).toList().toTypedArray())
+            insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
         }
+    }
+
+    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean)
+
+    private fun getTargetItem(): TargetItem? {
+        if (aztecText.length() == 0) {
+            return null
+        }
+        val limitLength = aztecText.length() - 1
+        val selectionStart = aztecText.selectionStart
+        val selectionStartMinusOne = (selectionStart - 1).coerceIn(0, limitLength)
+        val selectionStartMinusTwo = (selectionStart - 2).coerceIn(0, limitLength)
+        val selectionEnd = aztecText.selectionEnd
+        val selectionEndPlusOne = (selectionStart + 1).coerceIn(0, limitLength)
+        val selectionEndPlusTwo = (selectionStart + 2).coerceIn(0, limitLength)
+        val editableText = aztecText.editableText
+        var placeAtStart = false
+        val (from, to) = if (editableText[selectionStartMinusOne] == Constants.IMG_CHAR) {
+            selectionStartMinusOne to selectionStart
+        } else if (editableText[selectionStartMinusOne] == '\n' && editableText[selectionStartMinusTwo] == Constants.IMG_CHAR) {
+            selectionStartMinusTwo to selectionStart
+        } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR) {
+            placeAtStart = true
+            selectionEndPlusOne to (selectionEndPlusOne + 1).coerceIn(0, limitLength)
+        } else if (editableText[selectionEndPlusOne] == '\n' && editableText[selectionEndPlusTwo] == Constants.IMG_CHAR) {
+            placeAtStart = true
+            selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceIn(0, limitLength)
+        } else {
+            selectionStart to selectionEnd
+        }
+        return editableText.getSpans(
+                from,
+                to,
+                AztecPlaceholderSpan::class.java
+        ).map { TargetItem(it, placeAtStart) }.lastOrNull()
     }
 
     /**
      * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
      * @param predicate determines whether a span should be removed
      */
-    fun removeItem(notifyContentChange: Boolean = true, predicate: (Attributes) -> Boolean) {
-        aztecText.removeMedia(notifyContentChange) { predicate(it) }
+    fun removeItem(predicate: (Attributes) -> Boolean) {
+        aztecText.removeMedia { predicate(it) }
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
         val drawable = ContextCompat.getDrawable(aztecText.context, android.R.color.transparent)!!
-        updateDrawableBounds(adapter, attrs, drawable)
+        val editorWidth = if (aztecText.width > 0) {
+            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
+        } else aztecText.maxImagesWidth
+        drawable.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
         return drawable
     }
 
@@ -340,6 +374,12 @@ class PlaceholderManager(
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
+            attributes.getValue(UUID_ATTRIBUTE)?.also { uuid ->
+                container.findViewWithTag<View>(uuid)?.let {
+                    it.visibility = View.GONE
+                    container.removeView(it)
+                }
+            }
             val adapter = adapters[type] ?: return false
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, generateUuid())
@@ -396,7 +436,7 @@ class PlaceholderManager(
                 spans.forEach {
                     val type = it.attributes.getValue(TYPE_ATTRIBUTE)
                     val adapter = adapters[type] ?: return@forEach
-                    updateDrawableBounds(adapter, it.attributes, it.drawable)
+                    it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
                     aztecText.refreshText(false)
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
@@ -404,19 +444,8 @@ class PlaceholderManager(
         }
     }
 
-    private suspend fun updateDrawableBounds(adapter: PlaceholderAdapter, attrs: AztecAttributes, drawable: Drawable?) {
-        val editorWidth = if (aztecText.width > 0) {
-            aztecText.width - aztecText.paddingStart - aztecText.paddingEnd - EDITOR_INNER_PADDING
-        } else aztecText.maxImagesWidth
-        if (drawable?.bounds?.right != editorWidth) {
-            drawable?.setBounds(0, 0, adapter.calculateWidth(attrs, editorWidth), adapter.calculateHeight(attrs, editorWidth))
-        }
-    }
-
     private suspend fun clearAllViews() {
-        Log.d("vojta", "Before clearing all with lock")
         positionToIdMutex.withLock {
-            Log.d("vojta", "Clearing all with lock")
             for (placeholder in positionToId) {
                 container.findViewWithTag<View>(placeholder.uuid)?.let {
                     it.visibility = View.GONE
@@ -424,7 +453,6 @@ class PlaceholderManager(
                 }
             }
             positionToId.clear()
-            Log.d("vojta", "Cleared all with lock")
         }
     }
 
@@ -553,9 +581,17 @@ class PlaceholderManager(
     data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
+        private const val TAG = "PlaceholderManager"
         private const val DEFAULT_HTML_TAG = "placeholder"
         private const val UUID_ATTRIBUTE = "uuid"
         private const val TYPE_ATTRIBUTE = "type"
         private const val EDITOR_INNER_PADDING = 20
+    }
+
+    override fun beforeHtmlProcessed(source: String): String {
+        runBlocking {
+            clearAllViews()
+        }
+        return source
     }
 }

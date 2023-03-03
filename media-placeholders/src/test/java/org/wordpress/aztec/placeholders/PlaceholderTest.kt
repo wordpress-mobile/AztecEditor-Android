@@ -12,7 +12,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecText
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
@@ -64,8 +63,6 @@ class PlaceholderTest {
             editText.fromHtml(initialHtml)
 
             editText.setSelection(0)
-            val attributes = AztecAttributes()
-            attributes.setValue("id", "1234")
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 123")
 
             Assert.assertEquals("<placeholder uuid=\"$uuid\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /><p>Line 1</p>", editText.toHtml())
@@ -86,8 +83,6 @@ class PlaceholderTest {
             editText.fromHtml(initialHtml)
 
             editText.setSelection(editText.editableText.indexOf("1"))
-            val attributes = AztecAttributes()
-            attributes.setValue("id", "1234")
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 123")
 
             Assert.assertEquals("<p>Line 123<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /></p><p>Line 2</p>", editText.toHtml())
@@ -108,12 +103,10 @@ class PlaceholderTest {
             editText.fromHtml(initialHtml)
 
             editText.setSelection(0)
-            val attributes = AztecAttributes()
-            attributes.setValue("id", "1234")
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 1")
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 2")
 
-            Assert.assertEquals("<placeholder src=\"image.jpg\" caption=\"Caption 2 - Caption 1\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Line 1</p>", editText.toHtml())
+            Assert.assertEquals("${placeholderWithCaption("Caption 1 - Caption 2")}<p>Line 1</p>", editText.toHtml())
 
             placeholderManager.removeItem {
                 it.getValue("uuid") == uuid
@@ -121,5 +114,37 @@ class PlaceholderTest {
 
             Assert.assertEquals(initialHtml, editText.toHtml())
         }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun insertOrUpdateAPlaceholderWhenInsertingBeforeNewLine() {
+        runBlocking {
+            val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
+            editText.fromHtml(initialHtml)
+
+            editText.setSelection(editText.editableText.indexOf("1"))
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second")
+
+            Assert.assertEquals("<p>Line 1</p>${placeholderWithCaption("Second - First")}<p>Line 2</p>", editText.toHtml())
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun insertOrUpdateAPlaceholderWhenInsertingRightBefore() {
+        runBlocking {
+            val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
+            editText.fromHtml(initialHtml)
+
+            editText.setSelection(editText.editableText.indexOf("1") + 1)
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second")
+
+            Assert.assertEquals("<p>Line 1</p>${placeholderWithCaption("Second - First")}<p>Line 2</p>", editText.toHtml())
+        }
+    }
+
+    private fun placeholderWithCaption(caption: String): String {
+        return "<placeholder src=\"image.jpg\" caption=\"$caption\" uuid=\"uuid123\" type=\"image_with_caption\" />"
     }
 }

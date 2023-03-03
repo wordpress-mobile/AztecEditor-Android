@@ -2161,22 +2161,90 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
+    fun removeMedia(predicate: (Attributes) -> Boolean) {
+        removeMedia(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        })
+    }
+
     fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
-                .forEach {
-                    val start = text.getSpanStart(it)
-                    val end = text.getSpanEnd(it)
+                .forEach { mediaSpan ->
+                    mediaSpan.beforeMediaDeleted()
+                    val start = text.getSpanStart(mediaSpan)
+                    val end = text.getSpanEnd(mediaSpan)
 
                     val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
 
                     text.removeSpan(clickableSpan)
-                    text.removeSpan(it)
+                    text.removeSpan(mediaSpan)
+                    val endPlus1 = (end + 1).coerceAtMost(text.length - 1)
+                    if (text.length > end + 2 && text[end] == '\n') {
+                        data class TemporarySpan(
+                                val span: IAztecBlockSpan,
+                                val start: Int,
+                                val end: Int,
+                                val flags: Int
+                        )
 
-                    text.delete(start, end)
+                        val spans = text.getSpans(end, end + 2, IAztecBlockSpan::class.java).map { blockSpan ->
+                            TemporarySpan(
+                                    blockSpan,
+                                    text.getSpanStart(blockSpan),
+                                    text.getSpanEnd(blockSpan),
+                                    text.getSpanFlags(blockSpan)
+                            )
+                        }
+                        spans.forEach { temporarySpan ->
+                            text.removeSpan(temporarySpan)
+                        }
+                        text.delete(start, endPlus1)
+                        spans.forEach { temporarySpan ->
+                            text.setSpan(
+                                    temporarySpan.span,
+                                    (temporarySpan.start - 2).coerceAtLeast(0),
+                                    (temporarySpan.end - 2).coerceAtMost(text.length),
+                                    temporarySpan.flags
+                            )
+                        }
+                    } else {
+                        text.delete(start, end)
+                    }
+                    mediaSpan.onMediaDeleted()
                 }
+    }
+
+    fun replaceMediaSpan(aztecMediaSpan: AztecMediaSpan, predicate: (Attributes) -> Boolean) {
+        replaceMediaSpan(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        }, aztecMediaSpan)
+    }
+
+    fun replaceMediaSpan(attributePredicate: AttributePredicate, aztecMediaSpan: AztecMediaSpan) {
+        history.beforeTextChanged(this@AztecText)
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let { mediaSpan ->
+            mediaSpan.beforeMediaDeleted()
+            val start = text.getSpanStart(mediaSpan)
+            val end = text.getSpanEnd(mediaSpan)
+
+            val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+            text.removeSpan(clickableSpan)
+            text.removeSpan(mediaSpan)
+            mediaSpan.onMediaDeleted()
+            aztecMediaSpan.onMediaDeletedListener = onMediaDeletedListener
+            lineBlockFormatter.insertMediaSpanOverCurrentChar(aztecMediaSpan, start)
+            contentChangeWatcher.notifyContentChanged()
+        }
     }
 
     interface AttributePredicate {

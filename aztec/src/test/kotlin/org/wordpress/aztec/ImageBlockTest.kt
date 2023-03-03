@@ -11,6 +11,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
+import org.xml.sax.Attributes
 
 @RunWith(RobolectricTestRunner::class)
 class ImageBlockTest {
@@ -210,5 +211,71 @@ class ImageBlockTest {
         editText.insertImage(null, attributes)
 
         Assert.assertEquals("<p>Line 1</p><img id=\"1234\" /><p>Line 2</p><p>Line 3</p>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addAndRemoveImage() {
+        val initialHtml = "<p>Line 1</p><p>Line 2</p>"
+        editText.fromHtml(initialHtml)
+
+        editText.setSelection(editText.editableText.indexOf("1") + 2)
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<p>Line 1</p><img id=\"1234\" /><p>Line 2</p>", editText.toHtml())
+
+        editText.removeMedia(object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == "1234"
+            }
+        })
+
+        Assert.assertEquals(initialHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addAndRemoveImageAtTheBeginning() {
+        val initialHtml = "Line 1"
+        editText.fromHtml(initialHtml)
+
+        editText.setSelection(0)
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<img id=\"1234\" />Line 1", editText.toHtml())
+
+        editText.removeMedia(object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == "1234"
+            }
+        })
+
+        Assert.assertEquals(initialHtml, editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun addAndRemoveImageAtTheBeginningOfPlaceholder() {
+        val initialHtml = "<p>Line 1</p>"
+        editText.fromHtml(initialHtml)
+
+        editText.setSelection(0)
+        val attributes = AztecAttributes()
+        attributes.setValue("id", "1234")
+        editText.insertImage(null, attributes)
+
+        Assert.assertEquals("<img id=\"1234\" /><p>Line 1</p>", editText.toHtml())
+
+        editText.removeMedia(object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == "1234"
+            }
+        })
+
+        Assert.assertEquals(initialHtml, editText.toHtml())
     }
 }

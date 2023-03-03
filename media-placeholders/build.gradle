@@ -39,6 +39,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
     testImplementation "junit:junit:$jUnitVersion"
+    testImplementation "org.robolectric:robolectric:$robolectricVersion"
 }
 
 project.afterEvaluate {

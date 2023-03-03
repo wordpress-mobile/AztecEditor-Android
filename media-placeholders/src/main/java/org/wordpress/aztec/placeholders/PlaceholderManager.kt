@@ -137,9 +137,6 @@ class PlaceholderManager(
                 currentAttributes[name] = value
             }
             val updatedAttributes = updateItem(currentAttributes, currentType)
-            removeItem(false) { aztecAttributes ->
-                aztecAttributes.getValue(UUID_ATTRIBUTE) == uuid
-            }
             val attrs = AztecAttributes().apply {
                 updatedAttributes.forEach { (key, value) ->
                     setValue(key, value)
@@ -148,8 +145,11 @@ class PlaceholderManager(
             attrs.setValue(UUID_ATTRIBUTE, uuid)
             attrs.setValue(TYPE_ATTRIBUTE, type)
             val drawable = buildPlaceholderDrawable(adapter, attrs)
-            aztecText.insertMediaSpan(AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
-                    this, aztecText, WeakReference(adapter), TAG = htmlTag))
+            val span = AztecPlaceholderSpan(aztecText.context, drawable, 0, attrs,
+                    this, aztecText, WeakReference(adapter), TAG = htmlTag)
+            aztecText.replaceMediaSpan(span) { attributes ->
+                attributes.getValue(UUID_ATTRIBUTE) == uuid
+            }
             insertContentOverSpanWithId(uuid)
         } else {
             insertItem(type, *updateItem(null, null).toList().toTypedArray())
@@ -160,8 +160,8 @@ class PlaceholderManager(
      * Call this method to remove a placeholder from both the AztecText and the overlaying layer programatically.
      * @param predicate determines whether a span should be removed
      */
-    fun removeItem(notifyContentChange: Boolean = true, predicate: (Attributes) -> Boolean) {
-        aztecText.removeMedia(notifyContentChange) { predicate(it) }
+    fun removeItem(predicate: (Attributes) -> Boolean) {
+        aztecText.removeMedia { predicate(it) }
     }
 
     private suspend fun buildPlaceholderDrawable(adapter: PlaceholderAdapter, attrs: AztecAttributes): Drawable {
@@ -342,6 +342,12 @@ class PlaceholderManager(
     override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
+            attributes.getValue(UUID_ATTRIBUTE)?.also { uuid ->
+                container.findViewWithTag<View>(uuid)?.let {
+                    it.visibility = View.GONE
+                    container.removeView(it)
+                }
+            }
             val adapter = adapters[type] ?: return false
             val aztecAttributes = AztecAttributes(attributes)
             aztecAttributes.setValue(UUID_ATTRIBUTE, generateUuid())

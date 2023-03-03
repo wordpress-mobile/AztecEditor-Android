@@ -2161,18 +2161,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
-    fun removeMedia(notifyContentChange: Boolean = true, predicate: (Attributes) -> Boolean) {
+    fun removeMedia(predicate: (Attributes) -> Boolean) {
         removeMedia(object : AttributePredicate {
             override fun matches(attrs: Attributes): Boolean {
                 return predicate(attrs)
             }
-        }, notifyContentChange)
+        })
     }
 
-    fun removeMedia(attributePredicate: AttributePredicate, notifyContentChange: Boolean = true) {
-        if (!notifyContentChange) {
-            disableTextChangedListener()
-        }
+    fun removeMedia(attributePredicate: AttributePredicate) {
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
@@ -2220,8 +2217,33 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                     mediaSpan.onMediaDeleted()
                 }
-        if (!notifyContentChange) {
-            enableTextChangedListener()
+    }
+
+    fun replaceMediaSpan(aztecMediaSpan: AztecMediaSpan, predicate: (Attributes) -> Boolean) {
+        replaceMediaSpan(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        }, aztecMediaSpan)
+    }
+
+    fun replaceMediaSpan(attributePredicate: AttributePredicate, aztecMediaSpan: AztecMediaSpan) {
+        history.beforeTextChanged(this@AztecText)
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let { mediaSpan ->
+            mediaSpan.beforeMediaDeleted()
+            val start = text.getSpanStart(mediaSpan)
+            val end = text.getSpanEnd(mediaSpan)
+
+            val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+            text.removeSpan(clickableSpan)
+            text.removeSpan(mediaSpan)
+            mediaSpan.onMediaDeleted()
+            aztecMediaSpan.onMediaDeletedListener = onMediaDeletedListener
+            lineBlockFormatter.insertMediaSpanOverCurrentChar(aztecMediaSpan, start)
+            contentChangeWatcher.notifyContentChanged()
         }
     }
 

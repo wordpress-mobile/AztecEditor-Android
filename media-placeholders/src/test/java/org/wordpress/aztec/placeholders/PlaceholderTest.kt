@@ -106,7 +106,7 @@ class PlaceholderTest {
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 1")
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 2")
 
-            Assert.assertEquals("${placeholderWithCaption("Caption 2 - Caption 1")}<p>Line 1</p>", editText.toHtml())
+            Assert.assertEquals("${placeholderWithCaption("Caption 1 - Caption 2")}<p>Line 1</p>", editText.toHtml())
 
             placeholderManager.removeItem {
                 it.getValue("uuid") == uuid

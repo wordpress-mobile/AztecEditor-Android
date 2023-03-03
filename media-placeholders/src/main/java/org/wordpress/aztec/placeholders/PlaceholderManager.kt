@@ -109,20 +109,29 @@ class PlaceholderManager(
      * @param shouldMergeItem this method should return true when the previous type is compatible and should be updated
      * @param updateItem function to update current parameters with new params
      */
-    suspend fun insertOrUpdateItem(type: String, shouldMergeItem: (currentItemType: String) -> Boolean = { true }, updateItem: (currentAttributes: Map<String, String>?, currentType: String?) -> Map<String, String>) {
-        val currentItem = getTargetItem()
-        val currentType = currentItem?.attributes?.getValue(TYPE_ATTRIBUTE)
+    suspend fun insertOrUpdateItem(
+            type: String,
+            shouldMergeItem: (currentItemType: String) -> Boolean = { true },
+            updateItem: (
+                    currentAttributes: Map<String, String>?,
+                    currentType: String?,
+                    placeAtStart: Boolean
+            ) -> Map<String, String>
+    ) {
+        val targetItem = getTargetItem()
+        val targetSpan = targetItem?.span
+        val currentType = targetSpan?.attributes?.getValue(TYPE_ATTRIBUTE)
         if (currentType != null && shouldMergeItem(currentType)) {
             val adapter = adapters[type]
                     ?: throw IllegalArgumentException("Adapter for inserted type not found. Register it with `registerAdapter` method")
             val currentAttributes = mutableMapOf<String, String>()
-            val uuid = currentItem.attributes.getValue(UUID_ATTRIBUTE)
-            for (i in 0 until currentItem.attributes.length) {
-                val name = currentItem.attributes.getQName(i)
-                val value = currentItem.attributes.getValue(name)
+            val uuid = targetSpan.attributes.getValue(UUID_ATTRIBUTE)
+            for (i in 0 until targetSpan.attributes.length) {
+                val name = targetSpan.attributes.getQName(i)
+                val value = targetSpan.attributes.getValue(name)
                 currentAttributes[name] = value
             }
-            val updatedAttributes = updateItem(currentAttributes, currentType)
+            val updatedAttributes = updateItem(currentAttributes, currentType, targetItem.placeAtStart)
             val attrs = AztecAttributes().apply {
                 updatedAttributes.forEach { (key, value) ->
                     setValue(key, value)
@@ -138,11 +147,13 @@ class PlaceholderManager(
             }
             insertContentOverSpanWithId(uuid)
         } else {
-            insertItem(type, *updateItem(null, null).toList().toTypedArray())
+            insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
         }
     }
 
-    private fun getTargetItem(): AztecPlaceholderSpan? {
+    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean)
+
+    private fun getTargetItem(): TargetItem? {
         if (aztecText.length() == 0) {
             return null
         }
@@ -153,13 +164,16 @@ class PlaceholderManager(
         val selectionEndPlusOne = (selectionStart + 1).coerceAtMost(aztecText.length())
         val selectionEndPlusTwo = (selectionStart + 2).coerceAtMost(aztecText.length())
         val editableText = aztecText.editableText
+        var placeAtStart = false
         val (from, to) = if (editableText[selectionStartMinusOne] == Constants.IMG_CHAR) {
             selectionStartMinusOne to selectionStart
         } else if (editableText[selectionStartMinusOne] == '\n' && editableText[selectionStartMinusTwo] == Constants.IMG_CHAR) {
             selectionStartMinusTwo to selectionStart
         } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR) {
+            placeAtStart = true
             selectionEndPlusOne to (selectionEndPlusOne + 1).coerceAtMost(aztecText.length())
         } else if (editableText[selectionEndPlusOne] == '\n' && editableText[selectionEndPlusTwo] == Constants.IMG_CHAR) {
+            placeAtStart = true
             selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceAtMost(aztecText.length())
         } else {
             selectionStart to selectionEnd
@@ -168,7 +182,7 @@ class PlaceholderManager(
                 from,
                 to,
                 AztecPlaceholderSpan::class.java
-        ).lastOrNull()
+        ).map { TargetItem(it, placeAtStart) }.lastOrNull()
     }
 
     /**

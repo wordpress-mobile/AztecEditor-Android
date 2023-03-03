@@ -157,7 +157,7 @@ class PlaceholderManager(
             selectionStartMinusOne to selectionStart
         } else if (editableText[selectionStartMinusOne] == '\n' && editableText[selectionStartMinusTwo] == Constants.IMG_CHAR) {
             selectionStartMinusTwo to selectionStart
-        } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR){
+        } else if (editableText[selectionEndPlusOne] == Constants.IMG_CHAR) {
             selectionEndPlusOne to (selectionEndPlusOne + 1).coerceAtMost(aztecText.length())
         } else if (editableText[selectionEndPlusOne] == '\n' && editableText[selectionEndPlusTwo] == Constants.IMG_CHAR) {
             selectionEndPlusTwo to (selectionEndPlusTwo + 1).coerceAtMost(aztecText.length())

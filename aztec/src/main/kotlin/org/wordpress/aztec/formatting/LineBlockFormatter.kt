@@ -150,6 +150,24 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         }
     }
 
+    fun insertMediaSpanOverCurrentChar(span: AztecMediaSpan, position: Int) {
+        editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
+
+        editor.editableText.setSpan(
+                span,
+                position,
+                position + 1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        editor.editableText.setSpan(
+                AztecMediaClickableSpan(span),
+                position,
+                position + 1,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
     private fun insertMediaInline(span: AztecMediaSpan) {
         editor.removeInlineStylesFromRange(selectionStart, selectionEnd)
 

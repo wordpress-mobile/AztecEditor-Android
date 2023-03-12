@@ -1993,7 +1993,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
                         is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
-                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path.toString()
                         is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
                     }
 

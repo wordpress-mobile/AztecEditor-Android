@@ -2,7 +2,6 @@ package org.wordpress.aztec.util
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import org.wordpress.android.util.AppLog
 import java.io.File
 import java.io.FileInputStream
@@ -50,7 +49,7 @@ class InstanceStateUtils {
             // the full path is kept in the bundle so, get it from there
             val filename = bundle.getString(cacheFilenameKey(varName))
 
-            if (TextUtils.isEmpty(filename)) {
+            if (filename.isNullOrEmpty()) {
                 return defaultValue
             }
 

@@ -39,7 +39,7 @@ class DeleteMediaElementWatcherAPI25AndHigher(aztecText: AztecText) : TextWatche
             // real user deletions.
             aztecTextRef.get()?.postDelayed({
                 while (!queueHasBeenPopulatedInThisTimeframe && deletedSpans.isNotEmpty()) {
-                    deletedSpans.poll().onMediaDeleted()
+                    deletedSpans.poll()?.onMediaDeleted()
                 }
                 queueHasBeenPopulatedInThisTimeframe = false
             }, 500)

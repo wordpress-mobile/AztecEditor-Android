@@ -106,11 +106,11 @@ abstract class InputConnectionWrapper(private val inputConnection: InputConnecti
         return inputConnection.getSelectedText(flags)
     }
 
-    override fun getTextAfterCursor(length: Int, flags: Int): CharSequence {
+    override fun getTextAfterCursor(length: Int, flags: Int): CharSequence? {
         return inputConnection.getTextAfterCursor(length, flags)
     }
 
-    override fun getTextBeforeCursor(length: Int, flags: Int): CharSequence {
+    override fun getTextBeforeCursor(length: Int, flags: Int): CharSequence? {
         return inputConnection.getTextBeforeCursor(length, flags)
     }
 

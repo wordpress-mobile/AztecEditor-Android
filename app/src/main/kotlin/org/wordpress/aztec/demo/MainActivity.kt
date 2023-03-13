@@ -642,6 +642,7 @@ open class MainActivity : AppCompatActivity(),
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
             mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
+            @Suppress("DEPRECATION")
             mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
                     File.separator + "Camera" + File.separator + mediaFile
             intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,

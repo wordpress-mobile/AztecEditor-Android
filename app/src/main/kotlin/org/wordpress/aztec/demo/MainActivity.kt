@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.Gravity
@@ -372,11 +373,11 @@ open class MainActivity : AppCompatActivity(),
             }
         }
 
-        Handler().post(runnable)
-        Handler().postDelayed(runnable, 2000)
-        Handler().postDelayed(runnable, 4000)
-        Handler().postDelayed(runnable, 6000)
-        Handler().postDelayed(runnable, 8000)
+        Handler(Looper.getMainLooper()).post(runnable)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 2000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 4000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 6000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 8000)
 
         aztec.visualEditor.refreshText()
     }
@@ -477,7 +478,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.initSourceEditorHistory()
         }
 
-        invalidateOptionsHandler = Handler()
+        invalidateOptionsHandler = Handler(Looper.getMainLooper())
         invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
     }
 

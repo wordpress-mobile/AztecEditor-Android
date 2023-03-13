@@ -27,6 +27,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.ToggleButton
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -386,6 +387,20 @@ open class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mIsKeyboardOpen = false
+                showActionBarIfNeeded()
+
+                // Disable the callback temporarily to allow the system to handle the back pressed event. This usage
+                // breaks predictive back gesture behavior and should be reviewed before enabling the predictive back
+                // gesture feature.
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
+
         // Setup hiding the action bar when the soft keyboard is displayed for narrow viewports
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                 && !resources.getBoolean(R.bool.is_large_tablet_landscape)) {
@@ -574,13 +589,6 @@ open class MainActivity : AppCompatActivity(),
             hideActionBarIfNeeded()
         }
         return false
-    }
-
-    override fun onBackPressed() {
-        mIsKeyboardOpen = false
-        showActionBarIfNeeded()
-
-        return super.onBackPressed()
     }
 
     /**

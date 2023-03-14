@@ -49,7 +49,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLongClickListener
-import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -2099,7 +2098,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     @SuppressLint("InflateParams")
     fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.ResizableDialogTheme)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
         val source = dialogView.findViewById<SourceViewEditText>(R.id.source)
@@ -2145,8 +2144,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        @Suppress("DEPRECATION")
-        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }
 

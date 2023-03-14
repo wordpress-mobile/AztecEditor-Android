@@ -2112,7 +2112,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
-        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save) { _, _ ->
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
@@ -2137,14 +2137,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             inlineFormatter.joinStyleSpans(0, text.length)
-        })
+        }
 
-        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, _ ->
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel) { dialogInterface, _ ->
             dialogInterface.dismiss()
-        })
+        }
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
+        @Suppress("DEPRECATION")
         blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }

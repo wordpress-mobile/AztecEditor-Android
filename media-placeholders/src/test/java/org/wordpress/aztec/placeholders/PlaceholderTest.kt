@@ -147,4 +147,69 @@ class PlaceholderTest {
     private fun placeholderWithCaption(caption: String): String {
         return "<placeholder src=\"image.jpg\" caption=\"$caption\" uuid=\"uuid123\" type=\"image_with_caption\" />"
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun updatePlaceholderWhenItShouldBe() {
+        runBlocking {
+            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            editText.fromHtml(initialHtml)
+
+            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+                true
+            }) { currentAttributes ->
+                val result = mutableMapOf<String, String>()
+                result["src"] = currentAttributes["src"]?.split(";")?.firstOrNull() ?: ""
+                result["caption"] = "Updated caption"
+                result
+            }
+
+            Assert.assertEquals("<placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Line</p>", editText.toHtml())
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updatePlaceholderAtTheEnd() {
+        runBlocking {
+            val initialHtml = "<p>First Line</p><placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Second Line</p>"
+            editText.fromHtml(initialHtml)
+            editText.setSelection(editText.editableText.indexOf("First") + 1)
+            val initialSelectionStart = editText.selectionStart
+            val initialSelectionEnd = editText.selectionEnd
+
+            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+                true
+            }) { currentAttributes ->
+                val result = mutableMapOf<String, String>()
+                result["src"] = currentAttributes["src"]?.split(";")?.firstOrNull() ?: ""
+                result["caption"] = "Updated caption"
+                result
+            }
+
+            Assert.assertEquals("<p>First Line</p><placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Second Line</p>", editText.toHtml())
+            Assert.assertEquals(initialSelectionStart, editText.selectionStart)
+            Assert.assertEquals(initialSelectionEnd, editText.selectionEnd)
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removePlaceholderWhenItShouldNotBeUpdated() {
+        runBlocking {
+            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            editText.fromHtml(initialHtml)
+
+            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+                false
+            }) { currentAttributes ->
+                val result = mutableMapOf<String, String>()
+                result["src"] = currentAttributes["src"]?.split(";")?.firstOrNull() ?: ""
+                result["caption"] = "Updated caption"
+                result
+            }
+
+            Assert.assertEquals("<p>Line</p>", editText.toHtml())
+        }
+    }
 }

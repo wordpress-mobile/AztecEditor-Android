@@ -2205,6 +2205,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     fun removeMedia(attributePredicate: AttributePredicate) {
+        history.beforeTextChanged(this@AztecText)
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
@@ -2252,6 +2253,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     }
                     mediaSpan.onMediaDeleted()
                 }
+        contentChangeWatcher.notifyContentChanged()
     }
 
     fun replaceMediaSpan(aztecMediaSpan: AztecMediaSpan, predicate: (Attributes) -> Boolean) {

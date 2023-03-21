@@ -17,6 +17,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.Gravity
@@ -26,6 +27,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.ToggleButton
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -372,11 +374,11 @@ open class MainActivity : AppCompatActivity(),
             }
         }
 
-        Handler().post(runnable)
-        Handler().postDelayed(runnable, 2000)
-        Handler().postDelayed(runnable, 4000)
-        Handler().postDelayed(runnable, 6000)
-        Handler().postDelayed(runnable, 8000)
+        Handler(Looper.getMainLooper()).post(runnable)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 2000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 4000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 6000)
+        Handler(Looper.getMainLooper()).postDelayed(runnable, 8000)
 
         aztec.visualEditor.refreshText()
     }
@@ -384,6 +386,20 @@ open class MainActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mIsKeyboardOpen = false
+                showActionBarIfNeeded()
+
+                // Disable the callback temporarily to allow the system to handle the back pressed event. This usage
+                // breaks predictive back gesture behavior and should be reviewed before enabling the predictive back
+                // gesture feature.
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
 
         // Setup hiding the action bar when the soft keyboard is displayed for narrow viewports
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -477,7 +493,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.initSourceEditorHistory()
         }
 
-        invalidateOptionsHandler = Handler()
+        invalidateOptionsHandler = Handler(Looper.getMainLooper())
         invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
     }
 
@@ -511,15 +527,13 @@ open class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
 
         aztec.initSourceEditorHistory()
 
-        savedInstanceState?.let {
-            if (savedInstanceState.getBoolean("isMediaUploadDialogVisible")) {
-                showMediaUploadDialog()
-            }
+        if (savedInstanceState.getBoolean("isMediaUploadDialogVisible")) {
+            showMediaUploadDialog()
         }
     }
 
@@ -575,13 +589,6 @@ open class MainActivity : AppCompatActivity(),
             hideActionBarIfNeeded()
         }
         return false
-    }
-
-    override fun onBackPressed() {
-        mIsKeyboardOpen = false
-        showActionBarIfNeeded()
-
-        return super.onBackPressed()
     }
 
     /**
@@ -643,6 +650,7 @@ open class MainActivity : AppCompatActivity(),
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
             mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
+            @Suppress("DEPRECATION")
             mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
                     File.separator + "Camera" + File.separator + mediaFile
             intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,

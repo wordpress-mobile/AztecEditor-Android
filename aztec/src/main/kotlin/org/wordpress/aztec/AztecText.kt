@@ -49,7 +49,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLongClickListener
-import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -1926,8 +1925,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
     }
 
     // copied from TextView with some changes
@@ -1993,7 +1992,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
                         is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
-                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path.toString()
                         is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
                     }
 
@@ -2099,7 +2098,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     @SuppressLint("InflateParams")
     fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.ResizableDialogTheme)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
         val source = dialogView.findViewById<SourceViewEditText>(R.id.source)
@@ -2112,7 +2111,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
-        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save) { _, _ ->
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
@@ -2137,15 +2136,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             inlineFormatter.joinStyleSpans(0, text.length)
-        })
+        }
 
-        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, _ ->
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel) { dialogInterface, _ ->
             dialogInterface.dismiss()
-        })
+        }
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }
 

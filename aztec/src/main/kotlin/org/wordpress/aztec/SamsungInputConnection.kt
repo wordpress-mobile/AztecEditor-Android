@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.Selection
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.style.SuggestionSpan
 import android.view.KeyEvent
 import android.view.inputmethod.BaseInputConnection
@@ -22,7 +21,7 @@ import android.view.inputmethod.InputContentInfo
  */
 class SamsungInputConnection(
         private val mTextView: AztecText,
-        private val baseInputConnection: InputConnection,
+        private val baseInputConnection: InputConnection
 ) : BaseInputConnection(mTextView, true) {
 
     override fun getEditable(): Editable {
@@ -178,11 +177,11 @@ class SamsungInputConnection(
         return baseInputConnection.getSelectedText(flags)
     }
 
-    override fun getTextAfterCursor(length: Int, flags: Int): CharSequence {
+    override fun getTextAfterCursor(length: Int, flags: Int): CharSequence? {
         return baseInputConnection.getTextAfterCursor(length, flags)
     }
 
-    override fun getTextBeforeCursor(length: Int, flags: Int): CharSequence {
+    override fun getTextBeforeCursor(length: Int, flags: Int): CharSequence? {
         return baseInputConnection.getTextBeforeCursor(length, flags)
     }
 }

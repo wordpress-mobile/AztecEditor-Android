@@ -1,11 +1,11 @@
 package org.wordpress.aztec.source
 
-import androidx.core.text.TextDirectionHeuristicsCompat
 import android.text.Editable
 import android.text.Layout
 import android.text.Spannable
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
+import androidx.core.text.TextDirectionHeuristicsCompat
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.spans.IAztecAlignmentSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
@@ -121,7 +121,7 @@ class CssStyleFormatter {
 
             var styleAttributeValue = ""
             if (m.find()) {
-                styleAttributeValue = m.group(1)
+                m.group(1)?.let { styleAttributeValue = it }
             }
             return styleAttributeValue
         }

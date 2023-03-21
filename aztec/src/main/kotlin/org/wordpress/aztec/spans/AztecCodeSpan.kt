@@ -33,22 +33,22 @@ class AztecCodeSpan(override var attributes: AztecAttributes = AztecAttributes()
         this.codeStyle = codeStyle
     }
 
-    override fun updateDrawState(tp: TextPaint?) {
+    override fun updateDrawState(tp: TextPaint) {
         configureTextPaint(tp)
     }
 
-    override fun updateMeasureState(tp: TextPaint?) {
+    override fun updateMeasureState(tp: TextPaint) {
         configureTextPaint(tp)
     }
 
-    private fun configureTextPaint(tp: TextPaint?) {
+    private fun configureTextPaint(tp: TextPaint) {
         val alpha: Int = (codeStyle.codeBackgroundAlpha * 255).toInt()
-        tp?.typeface = Typeface.MONOSPACE
-        tp?.bgColor = Color.argb(
+        tp.typeface = Typeface.MONOSPACE
+        tp.bgColor = Color.argb(
                 alpha,
                 Color.red(codeStyle.codeBackground),
                 Color.green(codeStyle.codeBackground),
                 Color.blue(codeStyle.codeBackground))
-        tp?.color = codeStyle.codeColor
+        tp.color = codeStyle.codeColor
     }
 }

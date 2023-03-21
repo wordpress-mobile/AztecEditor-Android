@@ -346,7 +346,7 @@ class ClipboardTest {
 
         editText.setSelection(0)
         val clipboard = editText.context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText("aztec", "Heading")
+        clipboard.setPrimaryClip(ClipData.newPlainText("aztec", "Heading"))
 
         TestUtils.pasteFromClipboard(editText)
 

@@ -119,4 +119,7 @@
         <item name="android:layout_alignParentLeft">true</item>
     </style>
 
+    <style name="ResizableDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
 </resources>

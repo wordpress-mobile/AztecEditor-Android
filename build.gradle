@@ -25,7 +25,7 @@ allprojects {
             }
         }
         google()
-        jcenter()
+        mavenCentral()
     }
     tasks.withType(KotlinCompile).all {
         kotlinOptions {

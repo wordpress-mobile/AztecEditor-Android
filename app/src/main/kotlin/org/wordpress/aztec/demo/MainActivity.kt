@@ -14,12 +14,14 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -262,6 +264,7 @@ open class MainActivity : AppCompatActivity(),
                     val options = BitmapFactory.Options()
                     options.inDensity = DisplayMetrics.DENSITY_DEFAULT
                     val bitmap = BitmapFactory.decodeFile(mediaPath, options)
+                    Log.d("MediaPath", mediaPath)
                     insertImageAndSimulateUpload(bitmap, mediaPath)
                 }
                 REQUEST_MEDIA_PHOTO -> {
@@ -649,10 +652,20 @@ open class MainActivity : AppCompatActivity(),
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
 
-            mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
-            @Suppress("DEPRECATION")
-            mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
-                    File.separator + "Camera" + File.separator + mediaFile
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                mediaFile = "wp-" + System.currentTimeMillis()
+                mediaPath = File.createTempFile(
+                        mediaFile,
+                        ".jpg",
+                        getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                ).absolutePath
+
+            } else {
+                mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
+                @Suppress("DEPRECATION")
+                mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
+                        File.separator + "Camera" + File.separator + mediaFile
+            }
             intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID + ".provider", File(mediaPath)))
 

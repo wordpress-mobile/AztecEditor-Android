@@ -2,12 +2,9 @@
 
 package org.wordpress.aztec
 
-import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
-import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -15,7 +12,7 @@ import org.robolectric.RuntimeEnvironment
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-class CalypsoFormattingTest : AndroidTestCase() {
+class CalypsoFormattingTest {
     private var parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
 
     private val HTML_LINE_BREAKS = "HI<br><br><br><br><br><br>BYE"
@@ -96,14 +93,6 @@ class CalypsoFormattingTest : AndroidTestCase() {
                     "<a href=\"https://github.com/wordpress-mobile/Word\\Press-Aztec-Android\">Link</a>\n" +
                     "<div class=\"sec $8 ond\"></div>\n" +
                     "</div>"
-
-    /**
-     * Initialize variables.
-     */
-    @Before
-    fun init() {
-        context = ApplicationProvider.getApplicationContext()
-    }
 
     /**
      * Test the conversion from HTML to visual mode with nested HTML (Calypso format)

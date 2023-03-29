@@ -2,11 +2,8 @@
 
 package org.wordpress.aztec
 
-import android.test.AndroidTestCase
 import android.text.SpannableString
-import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -14,7 +11,7 @@ import org.robolectric.RuntimeEnvironment
 import org.wordpress.aztec.source.Format
 
 @RunWith(RobolectricTestRunner::class)
-class HtmlFormattingTest : AndroidTestCase() {
+class HtmlFormattingTest {
 
     private var parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
 
@@ -165,14 +162,6 @@ class HtmlFormattingTest : AndroidTestCase() {
             "<b>Test post</b><b> </b><br><br>Our room with a view[/caption] Test end"
     private val HTML_NESTED_BOLD_TAGS_HTML_PROCESSING_OUTPUT =
             "<b>Test post</b> <b></b><br><br>Our room with a view[/caption] Test end"
-
-    /**
-     * Initialize variables.
-     */
-    @Before
-    fun init() {
-        context = ApplicationProvider.getApplicationContext()
-    }
 
     /**
      * Test the conversion from HTML to visual mode with nested HTML

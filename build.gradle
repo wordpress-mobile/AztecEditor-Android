@@ -77,7 +77,7 @@ ext {
     robolectricVersion = '4.9'
     jUnitVersion = '4.12'
     jSoupVersion = '1.11.3'
-    wordpressUtilsVersion = '3.4.0'
+    wordpressUtilsVersion = '3.5.0'
     espressoVersion = '3.0.1'
 
     aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")

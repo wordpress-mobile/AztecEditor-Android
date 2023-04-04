@@ -2,9 +2,7 @@
 
 package org.wordpress.aztec
 
-import android.test.AndroidTestCase
 import android.text.SpannableString
-import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
@@ -17,7 +15,7 @@ import org.wordpress.aztec.spans.AztecStyleBoldSpan
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24, 25])
-class CssStyleAttributeTest : AndroidTestCase() {
+class CssStyleAttributeTest {
 
     private val EMPTY_STYLE_HTML = "<b>bold</b>"
     private val HTML = "<b style=\"name:value;\">bold</b>"
@@ -27,7 +25,6 @@ class CssStyleAttributeTest : AndroidTestCase() {
 
     @Before
     fun init() {
-        context = ApplicationProvider.getApplicationContext()
         parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
     }
 

@@ -36,6 +36,12 @@ open class Aztec private constructor(
             onMediaDeletedListeners.forEach { it.beforeMediaDeleted(attrs) }
         }
     }
+    private var beforeBackSpaceListeners: MutableList<AztecText.BeforeBackSpaceListener> = mutableListOf()
+    private val beforeBackSpaceListener = object : AztecText.BeforeBackSpaceListener {
+        override fun shouldOverrideBackSpace(position: Int): Boolean {
+            return beforeBackSpaceListeners.any { it.shouldOverrideBackSpace(position) }
+        }
+    }
     private var onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener? = null
     private var onLinkTappedListener: AztecText.OnLinkTappedListener? = null
     private var isLinkTapEnabled: Boolean = false
@@ -145,6 +151,12 @@ open class Aztec private constructor(
         return this
     }
 
+    fun addBeforeBackSpaceListener(beforeBackSpaceListener: AztecText.BeforeBackSpaceListener): Aztec {
+        this.beforeBackSpaceListeners.add(beforeBackSpaceListener)
+        initBeforeBackSpaceListener()
+        return this
+    }
+
     fun setOnVideoInfoRequestedListener(onVideoInfoRequestedListener: AztecText.OnVideoInfoRequestedListener): Aztec {
         this.onVideoInfoRequestedListener = onVideoInfoRequestedListener
         initVideoInfoRequestedListener()
@@ -251,6 +263,10 @@ open class Aztec private constructor(
 
     private fun initMediaDeletedListener() {
         visualEditor.setOnMediaDeletedListener(onMediaDeletedListener)
+    }
+
+    private fun initBeforeBackSpaceListener() {
+        visualEditor.setBeforeBackSpaceListener(beforeBackSpaceListener)
     }
 
     private fun initVideoInfoRequestedListener() {

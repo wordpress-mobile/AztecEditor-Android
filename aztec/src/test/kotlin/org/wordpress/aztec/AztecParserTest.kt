@@ -2,12 +2,9 @@
 
 package org.wordpress.aztec
 
-import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
-import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,7 +15,7 @@ import org.robolectric.RuntimeEnvironment
  * Tests for [AztecParser].
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
-class AztecParserTest(alignmentRendering: AlignmentRendering) : AndroidTestCase() {
+class AztecParserTest(alignmentRendering: AlignmentRendering) {
     private var mParser = AztecParser(alignmentRendering)
     private val HTML_BOLD = "<b>Bold</b><br><br>"
     private val HTML_LIST_ORDERED = "<ol><li>Ordered</li></ol>"
@@ -94,14 +91,6 @@ class AztecParserTest(alignmentRendering: AlignmentRendering) : AndroidTestCase(
                     arrayOf(AlignmentRendering.VIEW_LEVEL)
             )
         }
-    }
-
-    /**
-     * Initialize variables.
-     */
-    @Before
-    fun init() {
-        context = ApplicationProvider.getApplicationContext()
     }
 
     /**

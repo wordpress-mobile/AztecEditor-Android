@@ -2,10 +2,8 @@
 
 package org.wordpress.aztec
 
-import android.test.AndroidTestCase
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import androidx.test.core.app.ApplicationProvider
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Test
@@ -30,7 +28,7 @@ import org.wordpress.aztec.spans.IAztecAttributedSpan
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [24, 25])
-class HtmlAttributeStyleColorTest : AndroidTestCase() {
+class HtmlAttributeStyleColorTest {
 
     private val HTML_BOLD_STYLE_COLOR = "<b style=\"color:blue;\">Blue</b>"
     private val HTML_BOLD_STYLE_INVALID = "<b style=\"color:@java;\">Blue</b>"
@@ -45,7 +43,6 @@ class HtmlAttributeStyleColorTest : AndroidTestCase() {
 
     @Before
     fun init() {
-        context = ApplicationProvider.getApplicationContext()
         parser = AztecParser(AlignmentRendering.SPAN_LEVEL)
     }
 

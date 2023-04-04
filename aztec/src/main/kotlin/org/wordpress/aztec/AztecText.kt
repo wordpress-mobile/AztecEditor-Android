@@ -33,6 +33,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.Parcel
 import android.os.Parcelable
+import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
 import android.text.Spannable
@@ -48,7 +49,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLongClickListener
-import android.view.WindowManager
 import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -248,6 +248,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var onVideoTappedListener: OnVideoTappedListener? = null
     private var onAudioTappedListener: OnAudioTappedListener? = null
     private var onMediaDeletedListener: OnMediaDeletedListener? = null
+    private var beforeBackSpaceListener: BeforeBackSpaceListener? = null
     private var onVideoInfoRequestedListener: OnVideoInfoRequestedListener? = null
     private var onAztecKeyListener: OnAztecKeyListener? = null
     private var onVisibilityChangeListener: OnVisibilityChangeListener? = null
@@ -351,6 +352,16 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     interface OnMediaDeletedListener {
         fun onMediaDeleted(attrs: AztecAttributes)
         fun beforeMediaDeleted(attrs: AztecAttributes) {}
+    }
+
+    /**
+     * Listens to keyboard events and calls the `shouldOverrideBackSpace` before each backspace event.
+     */
+    interface BeforeBackSpaceListener {
+        /**
+         * Return true if you want to not process backspace event in the given position.
+         */
+        fun shouldOverrideBackSpace(position: Int): Boolean
     }
 
     interface OnVideoInfoRequestedListener {
@@ -662,14 +673,39 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs))
-        return if (Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT == 33
-                && overrideSamsungPredictiveBehavior) {
-            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with API 33")
+        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
+        return if (shouldOverridePredictiveTextBehavior()) {
+            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with Samsung Keyboard with API 33")
             SamsungInputConnection(this, baseInputConnection)
         } else {
             baseInputConnection
         }
+    }
+
+    private fun InputConnection.wrapWithBackSpaceHandler(): InputConnection {
+        return DeleteOverrideInputConnection(this) { beforeLength, afterLength ->
+            val triggerDelete = beforeBackSpaceListener?.let { listener ->
+                if (beforeLength == 1 && afterLength == 0 && selectionStart > 0) {
+                    val isLinebreak = editableText[(selectionStart - 1).coerceAtLeast(0)] == '\n'
+                    val from = if (isLinebreak) {
+                        selectionStart - 2
+                    } else {
+                        selectionStart - 1
+                    }
+                    val isImg = editableText[(from).coerceAtLeast(0)] == Constants.IMG_CHAR
+                    !(isImg && listener.shouldOverrideBackSpace(from))
+                } else {
+                    true
+                }
+            }
+            triggerDelete ?: true
+        }
+    }
+
+    private fun shouldOverridePredictiveTextBehavior(): Boolean {
+        val currentKeyboard = Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
+        return Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT >= 33 &&
+                (currentKeyboard !== null && currentKeyboard.startsWith("com.samsung.android.honeyboard")) && overrideSamsungPredictiveBehavior
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.
@@ -1100,6 +1136,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     fun setOnMediaDeletedListener(listener: OnMediaDeletedListener) {
         this.onMediaDeletedListener = listener
+    }
+
+    fun setBeforeBackSpaceListener(listener: BeforeBackSpaceListener) {
+        this.beforeBackSpaceListener = listener
     }
 
     fun setOnVideoInfoRequestedListener(listener: OnVideoInfoRequestedListener) {
@@ -1892,8 +1932,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         val html = Format.removeSourceEditorFormatting(parser.toHtml(output), isInCalypsoMode, isInGutenbergMode)
 
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        clipboard.primaryClip = ClipData.newHtmlText("aztec", output.toString(), html)
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newHtmlText("aztec", output.toString(), html))
     }
 
     // copied from TextView with some changes
@@ -1959,7 +1999,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                 plugin.itemToHtml(itemToPaste, acc ?: selectedText?.takeIf { it.isNotBlank() }) ?: acc
                             } ?: when (itemToPaste) {
                         is IClipboardPastePlugin.PastedItem.HtmlText -> itemToPaste.text
-                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path
+                        is IClipboardPastePlugin.PastedItem.Url -> itemToPaste.uri.path.toString()
                         is IClipboardPastePlugin.PastedItem.PastedIntent -> itemToPaste.intent.toString()
                     }
 
@@ -2065,7 +2105,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     @SuppressLint("InflateParams")
     fun showBlockEditorDialog(unknownHtmlSpan: UnknownHtmlSpan, html: String = "") {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.ResizableDialogTheme)
 
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_block_editor, null)
         val source = dialogView.findViewById<SourceViewEditText>(R.id.source)
@@ -2078,7 +2118,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         source.displayStyledAndFormattedHtml(editHtml)
         builder.setView(dialogView)
 
-        builder.setPositiveButton(R.string.block_editor_dialog_button_save, { _, _ ->
+        builder.setPositiveButton(R.string.block_editor_dialog_button_save) { _, _ ->
             val spanStart = text.getSpanStart(unknownHtmlSpan)
 
             val textBuilder = SpannableStringBuilder()
@@ -2103,15 +2143,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             enableTextChangedListener()
 
             inlineFormatter.joinStyleSpans(0, text.length)
-        })
+        }
 
-        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel, { dialogInterface, _ ->
+        builder.setNegativeButton(R.string.block_editor_dialog_button_cancel) { dialogInterface, _ ->
             dialogInterface.dismiss()
-        })
+        }
 
         unknownBlockSpanStart = text.getSpanStart(unknownHtmlSpan)
         blockEditorDialog = builder.create()
-        blockEditorDialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         blockEditorDialog?.show()
     }
 
@@ -2162,22 +2201,92 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         lineBlockFormatter.insertVideo(shouldAddMediaInline, drawable, attributes, onVideoTappedListener, onMediaDeletedListener)
     }
 
+    fun removeMedia(predicate: (Attributes) -> Boolean) {
+        removeMedia(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        })
+    }
+
     fun removeMedia(attributePredicate: AttributePredicate) {
+        history.beforeTextChanged(this@AztecText)
         text.getSpans(0, text.length, AztecMediaSpan::class.java)
                 .filter {
                     attributePredicate.matches(it.attributes)
                 }
-                .forEach {
-                    val start = text.getSpanStart(it)
-                    val end = text.getSpanEnd(it)
+                .forEach { mediaSpan ->
+                    mediaSpan.beforeMediaDeleted()
+                    val start = text.getSpanStart(mediaSpan)
+                    val end = text.getSpanEnd(mediaSpan)
 
                     val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
 
                     text.removeSpan(clickableSpan)
-                    text.removeSpan(it)
+                    text.removeSpan(mediaSpan)
+                    val endPlus1 = (end + 1).coerceAtMost(text.length - 1)
+                    if (text.length > end + 2 && text[end] == '\n') {
+                        data class TemporarySpan(
+                                val span: IAztecBlockSpan,
+                                val start: Int,
+                                val end: Int,
+                                val flags: Int
+                        )
 
-                    text.delete(start, end)
+                        val spans = text.getSpans(end, end + 2, IAztecBlockSpan::class.java).map { blockSpan ->
+                            TemporarySpan(
+                                    blockSpan,
+                                    text.getSpanStart(blockSpan),
+                                    text.getSpanEnd(blockSpan),
+                                    text.getSpanFlags(blockSpan)
+                            )
+                        }
+                        spans.forEach { temporarySpan ->
+                            text.removeSpan(temporarySpan)
+                        }
+                        text.delete(start, endPlus1)
+                        spans.forEach { temporarySpan ->
+                            text.setSpan(
+                                    temporarySpan.span,
+                                    (temporarySpan.start - 2).coerceAtLeast(0),
+                                    (temporarySpan.end - 2).coerceAtMost(text.length),
+                                    temporarySpan.flags
+                            )
+                        }
+                    } else {
+                        text.delete(start, end)
+                    }
+                    mediaSpan.onMediaDeleted()
                 }
+        contentChangeWatcher.notifyContentChanged()
+    }
+
+    fun replaceMediaSpan(aztecMediaSpan: AztecMediaSpan, predicate: (Attributes) -> Boolean) {
+        replaceMediaSpan(object : AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return predicate(attrs)
+            }
+        }, aztecMediaSpan)
+    }
+
+    fun replaceMediaSpan(attributePredicate: AttributePredicate, aztecMediaSpan: AztecMediaSpan) {
+        history.beforeTextChanged(this@AztecText)
+        text.getSpans(0, text.length, AztecMediaSpan::class.java).firstOrNull {
+            attributePredicate.matches(it.attributes)
+        }?.let { mediaSpan ->
+            mediaSpan.beforeMediaDeleted()
+            val start = text.getSpanStart(mediaSpan)
+            val end = text.getSpanEnd(mediaSpan)
+
+            val clickableSpan = text.getSpans(start, end, AztecMediaClickableSpan::class.java).firstOrNull()
+
+            text.removeSpan(clickableSpan)
+            text.removeSpan(mediaSpan)
+            mediaSpan.onMediaDeleted()
+            aztecMediaSpan.onMediaDeletedListener = onMediaDeletedListener
+            lineBlockFormatter.insertMediaSpanOverCurrentChar(aztecMediaSpan, start)
+            contentChangeWatcher.notifyContentChanged()
+        }
     }
 
     interface AttributePredicate {

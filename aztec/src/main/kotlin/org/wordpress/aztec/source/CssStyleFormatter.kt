@@ -121,7 +121,7 @@ class CssStyleFormatter {
 
             var styleAttributeValue = ""
             if (m.find()) {
-                styleAttributeValue = m.group(1)
+                m.group(1)?.let { styleAttributeValue = it }
             }
             return styleAttributeValue
         }

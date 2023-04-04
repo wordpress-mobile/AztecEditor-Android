@@ -60,10 +60,13 @@ class SamsungInputConnection(
         return baseInputConnection.performContextMenuAction(id)
     }
 
-    // Extracted text on Samsung devices on Android 13 is somehow used for Grammarly suggestions which causes a lot of
-    // issues with spans and cursors. We do not use extracted text, so returning null
-    // (default behavior of BaseInputConnection) prevents Grammarly from messing up content most of the time
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText? {
+        val et = ExtractedText()
+        if (mTextView.extractText(request, et)) {
+            et.text
+            return et
+        }
+
         return null
     }
 
@@ -79,11 +82,16 @@ class SamsungInputConnection(
         val incomingTextHasSuggestions = text is Spanned &&
                 text.getSpans(0, text.length, SuggestionSpan::class.java).isNotEmpty()
 
+
+        // full text replacement without changes indicates erroneous Grammarly commit
+        val isReplacingWholeContent = text.toString() == editable.toString()
+
+
         // Sometime spellchecker tries to commit partial text with suggestions. This mostly works ok,
         // but Aztec spans are finicky, and tend to get messed when content of the editor is replaced.
         // In this method we do everything replaceText method of EditableInputConnection does, apart from actually
         // replacing text. Instead we copy the suggestions from incoming text into editor directly.
-        if (incomingTextHasSuggestions) {
+        if (incomingTextHasSuggestions || isReplacingWholeContent) {
             // delete composing text set previously.
             var composingSpanStart = getComposingSpanStart(editable)
             var composingSpanEnd = getComposingSpanEnd(editable)

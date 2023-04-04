@@ -28,7 +28,6 @@ import org.wordpress.aztec.spans.IAztecExclusiveInlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
 import org.wordpress.aztec.spans.MarkSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
-import java.util.ArrayList
 
 /**
  * <b>Important</b> - use [applySpan] to add new spans to the editor. This method will
@@ -217,6 +216,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
 
             applySpan(spanToApply, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+
         joinStyleSpans(start, end)
     }
 
@@ -304,6 +304,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             }
         }
 
+        // remove the CSS style span
         removeInlineCssStyle()
 
         list.forEach {
@@ -346,7 +347,6 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
 
     // TODO: Check if there is more efficient way to tidy spans
     fun joinStyleSpans(start: Int, end: Int) {
-
         // joins spans on the left
         if (start > 1) {
             val spansInSelection = editableText.getSpans(start, end, IAztecInlineSpan::class.java)

@@ -602,7 +602,7 @@ class AztecToolbarTest {
         Assert.assertFalse(italicButton.isChecked)
 
         italicButton.performClick()
-        Assert.assertEquals("<b>bol</b><b><em>ditalic</em></b>", editText.toHtml())
+        Assert.assertEquals("<b>bol</b><b><i>ditalic</i></b>", editText.toHtml())
     }
 
     /**

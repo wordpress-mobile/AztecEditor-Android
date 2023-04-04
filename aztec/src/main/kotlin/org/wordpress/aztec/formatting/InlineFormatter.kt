@@ -174,10 +174,10 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
 
                 if (spanEnd > start) {
                     // ensure css style is applied
-                    spanToApply.applyInlineStyleAttributes(editableText, start, end)
+                    (precedingSpan as IAztecInlineSpan).applyInlineStyleAttributes(editableText, start, end)
                     return // we are adding text inside span - no need to do anything special
                 } else {
-                    applySpan(spanToApply, spanStart, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    applySpan(precedingSpan as IAztecInlineSpan, spanStart, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
             }
         }
@@ -193,7 +193,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
 
             if (followingSpan != null) {
                 val spanEnd = editableText.getSpanEnd(followingSpan)
-                applySpan(spanToApply, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                applySpan(followingSpan as IAztecInlineSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                editableText.setSpan(followingSpan, start, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
 

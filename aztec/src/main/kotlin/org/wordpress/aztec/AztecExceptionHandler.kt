@@ -65,9 +65,7 @@ class AztecExceptionHandler(private var logHelper: WeakReference<ExceptionHandle
                 visualEditor.get()?.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
             }
         // See: https://github.com/wordpress-mobile/AztecEditor-Android/issues/880
-        } else if (ex is java.lang.IllegalArgumentException &&
-                Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU &&
-                ex.message?.contains("Center point is not inside any of the rectangles") == true) {
+        } else if (ex is java.lang.IllegalArgumentException && ex.message?.contains("Center point is not inside any of the rectangles") == true) {
             visualEditor.get()?.externalLogger?.logException(ex)
             return
         }

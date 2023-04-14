@@ -207,6 +207,9 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
 
         fun hasChanges(initialEditorContentParsedSHA256: ByteArray, newContent: String): EditorHasChanges {
+            if (initialEditorContentParsedSHA256.isEmpty() && newContent.isEmpty()) {
+                return EditorHasChanges.NO_CHANGES
+            }
             try {
                 if (Arrays.equals(initialEditorContentParsedSHA256, calculateSHA256(newContent))) {
                     return EditorHasChanges.NO_CHANGES

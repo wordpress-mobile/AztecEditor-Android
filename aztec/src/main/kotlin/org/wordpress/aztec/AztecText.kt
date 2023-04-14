@@ -1891,6 +1891,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                     return super.onTextContextMenuItem(id)
                 }
             }
+            android.R.id.selectAll -> {
+                return if (text.toString() == Constants.END_OF_BUFFER_MARKER.toString()) {
+                    deleteInlineStyleFromTheBeginning()
+                    return true
+                } else {
+                    super.onTextContextMenuItem(id)
+                }
+            }
             else -> return super.onTextContextMenuItem(id)
         }
 

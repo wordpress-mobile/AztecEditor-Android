@@ -70,7 +70,7 @@ ext {
 
 ext {
     gradlePluginVersion = '3.3.1'
-    kotlinCoroutinesVersion = '1.1.0'
+    kotlinCoroutinesVersion = '1.6.4'
     tagSoupVersion = '1.2.1'
     glideVersion = '4.10.0'
     picassoVersion = '2.5.2'

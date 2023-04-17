@@ -7,6 +7,8 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
+import android.transition.TransitionManager
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -123,9 +125,23 @@ class PlaceholderManager(
         val targetItem = getTargetItem()
         val targetSpan = targetItem?.span
         val currentType = targetSpan?.attributes?.getValue(TYPE_ATTRIBUTE)
-        if (currentType != null && shouldMergeItem(currentType)) {
-            updateSpan(type, targetItem.span, targetItem.placeAtStart, updateItem, currentType)
+        if (currentType != null) {
+            Log.d("vojta", "Item found: $currentType")
+            if (shouldMergeItem(currentType)) {
+                Log.d("vojta", "Updating item: $currentType")
+                updateSpan(type, targetItem.span, targetItem.placeAtStart, updateItem, currentType)
+            } else {
+                val (newLinePosition, targetSelection) = if (targetItem.placeAtStart) {
+                    targetItem.spanStart to targetItem.spanStart
+                } else {
+                    targetItem.spanEnd to targetItem.spanEnd + 2
+                }
+                aztecText.text.insert(newLinePosition, Constants.NEWLINE_STRING)
+                aztecText.setSelection(targetSelection)
+                insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
+            }
         } else {
+            Log.d("vojta", "Inserting item: $type")
             insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
         }
     }
@@ -192,7 +208,7 @@ class PlaceholderManager(
         return true
     }
 
-    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean)
+    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean, val spanStart: Int, val spanEnd: Int)
 
     private fun getTargetItem(): TargetItem? {
         if (aztecText.length() == 0) {
@@ -224,7 +240,7 @@ class PlaceholderManager(
                 from,
                 to,
                 AztecPlaceholderSpan::class.java
-        ).map { TargetItem(it, placeAtStart) }.lastOrNull()
+        ).map { TargetItem(it, placeAtStart, editableText.getSpanStart(it), editableText.getSpanEnd(it)) }.lastOrNull()
     }
 
     /**
@@ -258,10 +274,12 @@ class PlaceholderManager(
     suspend fun reloadAllPlaceholders() {
         val tempPositionToId = positionToId.toList()
         tempPositionToId.forEach { placeholder ->
+            Log.d("vojta", "Looking up position to ID")
             val isValid = positionToIdMutex.withLock {
                 positionToId.contains(placeholder)
             }
             if (isValid) {
+                Log.d("vojta", "Reloading all placeholders")
                 insertContentOverSpanWithId(placeholder.uuid)
             }
         }
@@ -286,7 +304,7 @@ class PlaceholderManager(
             }
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
-
+        Log.d("vojta", "Inserting in position")
         insertInPosition(aztecAttributes ?: return, targetPosition)
     }
 
@@ -318,39 +336,63 @@ class PlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        positionToIdMutex.withLock {
-            positionToId.removeAll {
-                it.uuid == uuid
+        Log.d("vojta", "Looking for a view with tag $uuid")
+        var box = container.findViewWithTag<View>(uuid)?.apply {
+            id = uuid.hashCode()
+        }
+        val newWidth = adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING
+        val newHeight = height - EDITOR_INNER_PADDING
+        val padding = 10
+        val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
+        val newTopPadding = parentTextViewRect.top + padding
+        Log.d("vojta", "Redrawing: top padding $newTopPadding, left padding $newLeftPadding, width $newWidth, height $newHeight")
+        box?.let { existingView ->
+            val currentParams = existingView.layoutParams as FrameLayout.LayoutParams
+            val widthSame = currentParams.width == newWidth
+            val heightSame = currentParams.height == newHeight
+            val topMarginSame = currentParams.topMargin == newTopPadding
+            val leftMarginSame = currentParams.leftMargin == newLeftPadding
+            Log.d("vojta", "Same: $widthSame, $heightSame, $topMarginSame, $leftMarginSame")
+            if (widthSame && heightSame && topMarginSame && leftMarginSame) {
+                Log.d("vojta", "Not redrawing")
+                return
+            }
+            Log.d("vojta", "Redrawing")
+            if (!widthSame || !heightSame) {
+                TransitionManager.beginDelayedTransition(container)
+            }
+                
+            container.removeView(box)
+            positionToIdMutex.withLock {
+                positionToId.removeAll {
+                    it.uuid == uuid
+                }
             }
         }
 
-        var box = container.findViewWithTag<View>(uuid)
-        val exists = box != null
-        if (!exists) {
-            box = adapter.createView(container.context, uuid, attrs)
-        }
+        box = adapter.createView(container.context, uuid, attrs)
+        box.id = uuid.hashCode()
+        Log.d("vojta", "Creating a new view with id: ${box.id}")
+        box.setBackgroundColor(Color.TRANSPARENT)
+        box.setOnTouchListener(adapter)
+        box.tag = uuid
         val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING,
-                height - EDITOR_INNER_PADDING
+                newWidth,
+                newHeight
         )
-        val padding = 10
         params.setMargins(
-                parentTextViewRect.left + padding + aztecText.paddingStart,
-                parentTextViewRect.top + padding,
+                newLeftPadding,
+                newTopPadding,
                 0,
                 0
         )
         box.layoutParams = params
-        box.tag = uuid
-        box.setBackgroundColor(Color.TRANSPARENT)
-        box.setOnTouchListener(adapter)
+
         positionToIdMutex.withLock {
             positionToId.add(Placeholder(targetPosition, uuid))
         }
-        if (!exists && box.parent == null) {
-            container.addView(box)
-            adapter.onViewCreated(box, uuid)
-        }
+        container.addView(box)
+        adapter.onViewCreated(box, uuid)
     }
 
     private fun validateAttributes(attributes: AztecAttributes): Boolean {
@@ -485,6 +527,7 @@ class PlaceholderManager(
                     val adapter = adapters[type] ?: return@forEach
                     it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
                     aztecText.refreshText(false)
+                    Log.d("vojta", "Building view on global layout")
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }

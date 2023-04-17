@@ -35,6 +35,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
 import org.wordpress.android.util.PermissionUtils
@@ -48,6 +51,8 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.placeholders.ImageWithCaptionAdapter
+import org.wordpress.aztec.placeholders.PlaceholderManager
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -188,40 +193,10 @@ open class MainActivity : AppCompatActivity(),
         private val MARK = "<p>Donec ipsum dolor, <mark style=\"color:#ff0000\">tempor sed</mark> bibendum <mark style=\"color:#1100ff\">vita</mark>.</p>"
 
         private val EXAMPLE =
-                IMG +
-                        HEADING +
-                        BOLD +
-                        ITALIC +
-                        UNDERLINE +
-                        STRIKETHROUGH +
-                        TASK_LIST +
-                        ORDERED +
-                        ORDERED_WITH_START +
-                        ORDERED_REVERSED +
-                        ORDERED_REVERSED_WITH_START +
-                        ORDERED_REVERSED_NEGATIVE_WITH_START +
-                        ORDERED_REVERSED_WITH_START_IDENT +
-                        LINE +
-                        UNORDERED +
-                        QUOTE +
-                        PREFORMAT +
-                        LINK +
-                        HIDDEN +
-                        COMMENT +
-                        COMMENT_MORE +
-                        COMMENT_PAGE +
-                        CODE +
-                        UNKNOWN +
-                        EMOJI +
-                        NON_LATIN_TEXT +
-                        LONG_TEXT +
-                        VIDEO +
-                        VIDEOPRESS +
-                        VIDEOPRESS_2 +
-                        AUDIO +
-                        GUTENBERG_CODE_BLOCK +
-                        QUOTE_RTL +
-                        MARK
+                """<p>Line 1</p>
+                    <placeholder height="0.5f" type="image_with_caption" caption="Image 1" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Six_eggs_views_from_the_top_on_a_white_background.jpg/440px-Six_eggs_views_from_the_top_on_a_white_background.jpg" />
+                    <p>Line 2</p>
+                """.trimIndent()
 
         private val isRunningTest: Boolean by lazy {
             try {
@@ -254,6 +229,7 @@ open class MainActivity : AppCompatActivity(),
 
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
+    private lateinit var placeholderManager: PlaceholderManager
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
@@ -427,15 +403,14 @@ open class MainActivity : AppCompatActivity(),
             }
         }
 
+        placeholderManager = PlaceholderManager(visualEditor, findViewById(R.id.container_frame_layout))
+        placeholderManager.registerAdapter(ImageWithCaptionAdapter())
+
         val galleryButton = MediaToolbarGalleryButton(toolbar)
         galleryButton.setMediaToolbarButtonClickListener(object : IMediaToolbarButton.IMediaToolbarClickListener {
             override fun onClick(view: View) {
-                mediaMenu = PopupMenu(this@MainActivity, view)
-                mediaMenu?.setOnMenuItemClickListener(this@MainActivity)
-                mediaMenu?.inflate(R.menu.menu_gallery)
-                mediaMenu?.show()
-                if (view is ToggleButton) {
-                    view.isChecked = false
+                GlobalScope.launch(Dispatchers.Main) {
+                    ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "https://sample-videos.com/img/Sample-png-image-100kb.png", "Image 2")
                 }
             }
         })
@@ -463,6 +438,7 @@ open class MainActivity : AppCompatActivity(),
                 .setOnVideoTappedListener(this)
                 .setOnAudioTappedListener(this)
                 .addOnMediaDeletedListener(this)
+                .addOnMediaDeletedListener(placeholderManager)
                 .setOnVideoInfoRequestedListener(this)
                 .addPlugin(WordPressCommentsPlugin(visualEditor))
                 .addPlugin(MoreToolbarButton(visualEditor))
@@ -473,6 +449,7 @@ open class MainActivity : AppCompatActivity(),
                 .addPlugin(HiddenGutenbergPlugin(visualEditor))
                 .addPlugin(galleryButton)
                 .addPlugin(cameraButton)
+                .addPlugin(placeholderManager)
 
         // initialize the plugins, text & HTML
         if (!isRunningTest) {

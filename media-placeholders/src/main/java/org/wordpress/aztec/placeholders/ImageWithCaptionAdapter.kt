@@ -19,12 +19,11 @@ class ImageWithCaptionAdapter(
 ) : PlaceholderManager.PlaceholderAdapter {
     private val media = mutableMapOf<String, ImageWithCaptionObject>()
     suspend override fun getHeight(attrs: AztecAttributes): Proportion {
-        return Proportion.Ratio(0.5f)
+        return Proportion.Ratio(attrs.getValue(HEIGHT).toFloatOrNull() ?: 0.5f)
     }
 
     suspend override fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View {
-        val imageWithCaptionObject = media[placeholderUuid]
-                ?: ImageWithCaptionObject(placeholderUuid, attrs.getValue(SRC_ATTRIBUTE), View.generateViewId()).apply {
+        val imageWithCaptionObject = ImageWithCaptionObject(placeholderUuid, attrs.getValue(SRC_ATTRIBUTE), View.generateViewId()).apply {
                     media[placeholderUuid] = this
                 }
         val captionLayoutId = View.generateViewId()
@@ -32,10 +31,6 @@ class ImageWithCaptionAdapter(
         val linearLayout = LinearLayout(context)
         linearLayout.orientation = LinearLayout.VERTICAL
 
-        val layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT)
-        linearLayout.layoutParams = layoutParams
         val image = ImageView(context)
         image.id = imageLayoutId
         val imageParams = LinearLayout.LayoutParams(
@@ -80,11 +75,14 @@ class ImageWithCaptionAdapter(
         private const val ADAPTER_TYPE = "image_with_caption"
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
+        private const val HEIGHT = "height"
 
-        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String) {
-            placeholderManager.insertOrUpdateItem(ADAPTER_TYPE) { currentAttributes, type, placeAtStart ->
+        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String, height: Float = 0.5f, shouldMergePlaceholders: Boolean = true) {
+            placeholderManager.insertOrUpdateItem(ADAPTER_TYPE, {
+                shouldMergePlaceholders
+            }) { currentAttributes, type, placeAtStart ->
                 if (currentAttributes == null || type != ADAPTER_TYPE) {
-                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
+                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption, HEIGHT to height.toString())
                 } else {
                     val currentCaption = currentAttributes[CAPTION_ATTRIBUTE]
                     val newCaption = if (placeAtStart) {
@@ -92,7 +90,7 @@ class ImageWithCaptionAdapter(
                     } else {
                         "$currentCaption - $caption"
                     }
-                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to newCaption)
+                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to newCaption, HEIGHT to height.toString())
                 }
             }
         }

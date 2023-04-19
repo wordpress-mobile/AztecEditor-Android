@@ -65,7 +65,6 @@ class AztecExceptionHandler(private var logHelper: WeakReference<ExceptionHandle
                 visualEditor.get()?.externalLogger?.logException(DynamicLayoutGetBlockIndexOutOfBoundsException("Error #8828", ex))
             }
         }
-
         rootHandler?.uncaughtException(thread, ex)
     }
 

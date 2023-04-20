@@ -163,7 +163,7 @@ class PlaceholderTest {
             editText.setSelection(editText.editableText.indexOf("1"))
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second", shouldMergePlaceholders = false)
 
-            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br><placeholder src=\"image.jpg\" caption=\"First\" uuid=\"uuid1\" type=\"image_with_caption\" /><p>Line 2</p>", editText.toHtml())
+            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br><placeholder src=\"image.jpg\" caption=\"First\" uuid=\"uuid1\" type=\"image_with_caption\" /><p>Line 2</p>", editText.toHtml())
         }
     }
 
@@ -191,7 +191,7 @@ class PlaceholderTest {
             editText.setSelection(editText.editableText.indexOf("1") + 1)
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second", shouldMergePlaceholders = false)
 
-            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br>${placeholderWithCaption("First")}<p>Line 2</p>", editText.toHtml())
+            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br>${placeholderWithCaption("First")}<p>Line 2</p>", editText.toHtml())
         }
     }
 

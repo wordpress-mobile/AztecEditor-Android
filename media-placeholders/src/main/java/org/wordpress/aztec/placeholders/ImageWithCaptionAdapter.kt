@@ -31,7 +31,7 @@ class ImageWithCaptionAdapter(
     private val media = mutableMapOf<String, StateFlow<ImageWithCaptionObject>>()
     private val scope = CoroutineScope(Dispatchers.Main)
     suspend override fun getHeight(attrs: AztecAttributes): Proportion {
-        return Proportion.Ratio(attrs.getValue(HEIGHT).toFloatOrNull() ?: 0.5f)
+        return Proportion.Ratio(0.5f)
     }
 
     suspend override fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<PlaceholderManager.Placeholder.ViewParams>): View {
@@ -126,14 +126,13 @@ class ImageWithCaptionAdapter(
         private const val ADAPTER_TYPE = "image_with_caption"
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
-        private const val HEIGHT = "height"
 
-        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String, height: Float = 0.5f, shouldMergePlaceholders: Boolean = true) {
+        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String, shouldMergePlaceholders: Boolean = true) {
             placeholderManager.insertOrUpdateItem(ADAPTER_TYPE, {
                 shouldMergePlaceholders
             }) { currentAttributes, type, placeAtStart ->
                 if (currentAttributes == null || type != ADAPTER_TYPE) {
-                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption, HEIGHT to height.toString())
+                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
                 } else {
                     val currentCaption = currentAttributes[CAPTION_ATTRIBUTE]
                     val newCaption = if (placeAtStart) {
@@ -141,7 +140,7 @@ class ImageWithCaptionAdapter(
                     } else {
                         "$currentCaption - $caption"
                     }
-                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to newCaption, HEIGHT to height.toString())
+                    mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to newCaption)
                 }
             }
         }

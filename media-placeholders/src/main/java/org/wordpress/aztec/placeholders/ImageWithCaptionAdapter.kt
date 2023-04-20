@@ -1,7 +1,6 @@
 package org.wordpress.aztec.placeholders
 
 import android.content.Context
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.animation.Animation
@@ -42,7 +41,6 @@ class ImageWithCaptionAdapter(
         }.stateIn(scope)
         media[placeholderUuid] = stateFlow
         val imageWithCaptionObject = stateFlow.value
-        Log.d("vojta2", "Drawing image with caption ${imageWithCaptionObject.src}")
         val captionLayoutId = View.generateViewId()
         val imageLayoutId = imageWithCaptionObject.layoutId
         val linearLayout = LinearLayout(context)
@@ -75,10 +73,6 @@ class ImageWithCaptionAdapter(
         return linearLayout
     }
 
-    override fun animateLayoutChanges(): Boolean {
-        return true
-    }
-
     suspend override fun onViewCreated(view: View, placeholderUuid: String) {
         val image = media[placeholderUuid]!!
         scope.launch {
@@ -107,7 +101,6 @@ class ImageWithCaptionAdapter(
                 width = startWidth + ((newWidth - startWidth) * interpolatedTime).toInt()
                 height = startHeight + ((newHeight - startHeight) * interpolatedTime).toInt()
             }
-            Log.d("vojta", "Changing height to ${view.layoutParams.height} and width to ${view.layoutParams.width}")
             view.requestLayout()
         }
 

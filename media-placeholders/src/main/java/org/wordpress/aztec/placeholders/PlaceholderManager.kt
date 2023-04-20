@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
@@ -351,7 +350,7 @@ class PlaceholderManager(
                 return
             }
             val propertiesChanged = !widthSame || !heightSame
-            recreateView = !propertiesChanged || !adapter.animateLayoutChanges()
+            recreateView = !propertiesChanged || adapter is StaticPlaceholderAdapter
             if (recreateView) {
                 container.removeView(box)
                 positionToIdMutex.withLock {
@@ -365,7 +364,6 @@ class PlaceholderManager(
             it.uuid == uuid
         }?.viewParams ?: MutableStateFlow(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = true))
         if (box == null || recreateView) {
-            Log.d("vojta", "Creating new view")
             box = adapter.createView(container.context, uuid, paramsFlow)
             box.id = uuid.hashCode()
             box.setBackgroundColor(Color.TRANSPARENT)
@@ -376,10 +374,8 @@ class PlaceholderManager(
                     newHeight
             )
         } else {
-            Log.d("vojta", "Updating params")
             paramsFlow.emit(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = false))
         }
-        Log.d("vojta", "Creating view with $newWidth x $newHeight")
 
         box.updateLayoutParams<FrameLayout.LayoutParams> {
             leftMargin = newLeftPadding
@@ -390,7 +386,6 @@ class PlaceholderManager(
             positionToId.add(Placeholder(targetPosition, uuid, paramsFlow))
         }
         if (recreateView) {
-            Log.d("vojta", "Adding view with $newWidth x $newHeight")
             container.addView(box)
         }
         adapter.onViewCreated(box, uuid)
@@ -528,7 +523,6 @@ class PlaceholderManager(
                     val adapter = adapters[type] ?: return@forEach
                     it.drawable = buildPlaceholderDrawable(adapter, it.attributes)
                     aztecText.refreshText(false)
-                    Log.d("vojta", "Building view on global layout")
                     insertInPosition(it.attributes, aztecText.editableText.getSpanStart(it))
                 }
             }
@@ -558,9 +552,12 @@ class PlaceholderManager(
     }
 
     /**
-     * A adapter for a custom view drawn over the placeholder in the Aztec text.
+     * Use this method if you want your placeholders to be recreated on each size change.
      */
-    interface PlaceholderAdapter : View.OnTouchListener {
+    interface StaticPlaceholderAdapter : PlaceholderAdapter {
+        override suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View {
+            return createView(context, placeholderUuid, attrs = viewParamsUpdate.value.attrs)
+        }
         /**
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
@@ -568,8 +565,23 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder UUID
          * @param attrs aztec attributes of the view
          */
-        suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View
+        suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
+    }
 
+    /**
+     * A adapter for a custom view drawn over the placeholder in the Aztec text. The default implementation propagates
+     * media size changes through the flow. If you want your views to be recreated automatically, use
+     * the StaticPlaceholderAdapter.
+     */
+    interface PlaceholderAdapter : View.OnTouchListener {
+        /**
+         * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
+         * the `onViewCreated` method where the view is already present in its correct size.
+         * @param context necessary to build custom views
+         * @param placeholderUuid the placeholder UUID
+         * @param viewParamsUpdate flow of attribute changes used to update the current view instead of redrawing it
+         */
+        suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
          * draw your media.
@@ -577,8 +589,6 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder ID
          */
         suspend fun onViewCreated(view: View, placeholderUuid: String) {}
-
-        fun animateLayoutChanges() = false
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the

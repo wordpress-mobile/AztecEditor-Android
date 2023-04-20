@@ -5,10 +5,10 @@ import android.view.Gravity
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.Transformation
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import kotlinx.coroutines.CoroutineScope
@@ -97,7 +97,7 @@ class ImageWithCaptionAdapter(
         private val startHeight: Int = view.height
 
         override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
-            view.updateLayoutParams {
+            (view.layoutParams as FrameLayout.LayoutParams).apply {
                 width = startWidth + ((newWidth - startWidth) * interpolatedTime).toInt()
                 height = startHeight + ((newHeight - startHeight) * interpolatedTime).toInt()
             }

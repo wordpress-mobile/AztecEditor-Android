@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.updateLayoutParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -377,9 +376,9 @@ class PlaceholderManager(
             paramsFlow.emit(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = false))
         }
 
-        box.updateLayoutParams<FrameLayout.LayoutParams> {
+        (box.layoutParams as FrameLayout.LayoutParams).apply {
             leftMargin = newLeftPadding
-            topMargin = newTopPadding
+            topMargin = newLeftPadding
         }
 
         positionToIdMutex.withLock {
@@ -456,7 +455,13 @@ class PlaceholderManager(
     /**
      * This method handled a `placeholder` tag found in the HTML. It creates a placeholder and inserts a view over it.
      */
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
+    override fun handleTag(
+            opening: Boolean,
+            tag: String,
+            output: Editable,
+            attributes: Attributes,
+            nestingLevel: Int
+    ): Boolean {
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
             attributes.getValue(UUID_ATTRIBUTE)?.also { uuid ->

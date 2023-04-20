@@ -363,7 +363,7 @@ class PlaceholderManager(
                 newHeight
         ).apply {
             leftMargin = newLeftPadding
-            topMargin = newLeftPadding
+            topMargin = newTopPadding
         }
 
         positionToIdMutex.withLock {

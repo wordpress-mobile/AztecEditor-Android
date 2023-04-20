@@ -74,11 +74,11 @@ fun ClipData.Item.coerceToHtmlText(parser: AztecParser): String {
  */
 fun ToggleButton.convertToButtonAccessibilityProperties() {
     ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
-        override fun onInitializeAccessibilityNodeInfo(host: View?, info: AccessibilityNodeInfoCompat?) {
+        override fun onInitializeAccessibilityNodeInfo(host: View, info: AccessibilityNodeInfoCompat) {
             super.onInitializeAccessibilityNodeInfo(host, info)
-            info?.className = Button::class.java.name
-            info?.isCheckable = false
-            info?.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(ACTION_CLICK, context.getString(R.string.accessibility_action_click_label)))
+            info.className = Button::class.java.name
+            info.isCheckable = false
+            info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(ACTION_CLICK, context.getString(R.string.accessibility_action_click_label)))
         }
     })
 }

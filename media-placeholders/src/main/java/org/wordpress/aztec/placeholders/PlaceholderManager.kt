@@ -361,7 +361,7 @@ class PlaceholderManager(
             if (!widthSame || !heightSame) {
                 TransitionManager.beginDelayedTransition(container)
             }
-                
+
             container.removeView(box)
             positionToIdMutex.withLock {
                 positionToId.removeAll {

@@ -27,9 +27,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.PopupMenu
 import android.widget.ToggleButton
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -237,10 +240,6 @@ open class MainActivity : AppCompatActivity(),
     private val MEDIA_CAMERA_VIDEO_PERMISSION_REQUEST_CODE: Int = 1002
     private val MEDIA_PHOTOS_PERMISSION_REQUEST_CODE: Int = 1003
     private val MEDIA_VIDEOS_PERMISSION_REQUEST_CODE: Int = 1004
-    private val REQUEST_MEDIA_CAMERA_PHOTO: Int = 2001
-    private val REQUEST_MEDIA_CAMERA_VIDEO: Int = 2002
-    private val REQUEST_MEDIA_PHOTO: Int = 2003
-    private val REQUEST_MEDIA_VIDEO: Int = 2004
 
     protected lateinit var aztec: Aztec
     private lateinit var mediaFile: String
@@ -255,58 +254,10 @@ open class MainActivity : AppCompatActivity(),
     private var mIsKeyboardOpen = false
     private var mHideActionBarOnSoftKeyboardUp = false
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                REQUEST_MEDIA_CAMERA_PHOTO -> {
-                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
-                    //  to correctly set the input density to 160 ourselves.
-                    val options = BitmapFactory.Options()
-                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
-                    val bitmap = BitmapFactory.decodeFile(mediaPath, options)
-                    Log.d("MediaPath", mediaPath)
-                    insertImageAndSimulateUpload(bitmap, mediaPath)
-                }
-                REQUEST_MEDIA_PHOTO -> {
-                    mediaPath = data?.data.toString()
-                    val stream = contentResolver.openInputStream(Uri.parse(mediaPath))
-                    // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
-                    //  to correctly set the input density to 160 ourselves.
-                    val options = BitmapFactory.Options()
-                    options.inDensity = DisplayMetrics.DENSITY_DEFAULT
-                    val bitmap = BitmapFactory.decodeStream(stream, null, options)
-
-                    insertImageAndSimulateUpload(bitmap, mediaPath)
-                }
-                REQUEST_MEDIA_CAMERA_VIDEO -> {
-                    mediaPath = data?.data.toString()
-                }
-                REQUEST_MEDIA_VIDEO -> {
-                    mediaPath = data?.data.toString()
-
-                    aztec.visualEditor.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
-                        override fun onThumbnailFailed() {
-                        }
-
-                        override fun onThumbnailLoaded(drawable: Drawable?) {
-                            val conf = Bitmap.Config.ARGB_8888 // see other conf types
-                            val bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
-                            val canvas = Canvas(bitmap)
-                            drawable.setBounds(0, 0, canvas.width, canvas.height)
-                            drawable.draw(canvas)
-
-                            insertVideoAndSimulateUpload(bitmap, mediaPath)
-                        }
-
-                        override fun onThumbnailLoading(drawable: Drawable?) {
-                        }
-                    }, this.resources.displayMetrics.widthPixels)
-                }
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data)
-    }
+    private lateinit var requestMediaPhoto: ActivityResultLauncher<Intent>
+    private lateinit var requestMediaCameraPhoto: ActivityResultLauncher<Uri>
+    private lateinit var requestMediaVideo: ActivityResultLauncher<Intent>
+    private lateinit var requestMediaCameraVideo: ActivityResultLauncher<Uri>
 
     private fun insertImageAndSimulateUpload(bitmap: Bitmap?, mediaPath: String) {
         val bitmapResized = ImageUtils.getScaledBitmapAtLongestSide(bitmap, aztec.visualEditor.maxImagesWidth)
@@ -498,6 +449,79 @@ open class MainActivity : AppCompatActivity(),
 
         invalidateOptionsHandler = Handler(Looper.getMainLooper())
         invalidateOptionsRunnable = Runnable { invalidateOptionsMenu() }
+
+        requestMediaPhoto = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val uri = result?.data?.data
+            if (result.resultCode == Activity.RESULT_OK && uri != null) {
+                mediaPath = result.data.toString()
+                val stream = contentResolver.openInputStream(uri)
+                // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                //  to correctly set the input density to 160 ourselves.
+                val options = BitmapFactory.Options()
+                options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                val bitmap = BitmapFactory.decodeStream(stream, null, options)
+
+                insertImageAndSimulateUpload(bitmap, mediaPath)
+            }
+        }
+
+        requestMediaCameraPhoto = registerForActivityResult(
+                ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success) {
+                // By default, BitmapFactory.decodeFile sets the bitmap's density to the device default so, we need
+                //  to correctly set the input density to 160 ourselves.
+                val options = BitmapFactory.Options()
+                options.inDensity = DisplayMetrics.DENSITY_DEFAULT
+                val bitmap = BitmapFactory.decodeFile(mediaPath, options)
+                Log.d("MediaPath", mediaPath)
+                insertImageAndSimulateUpload(bitmap, mediaPath)
+            }
+        }
+
+        requestMediaVideo = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val uri = result?.data?.data
+            if (result.resultCode == Activity.RESULT_OK && uri != null) {
+                val type = contentResolver?.getType(uri) ?: return@registerForActivityResult
+                val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(type)
+
+                mediaFile = "wp-" + System.currentTimeMillis()
+                val file = File.createTempFile(
+                        mediaFile,
+                        extension,
+                        getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                )
+                mediaPath = file.absolutePath
+                file.outputStream().use { outputStream ->
+                    contentResolver.openInputStream(uri).use { inputStream ->
+                        inputStream?.copyTo(outputStream)
+                    }
+                }
+                aztec.visualEditor.videoThumbnailGetter?.loadVideoThumbnail(mediaPath, object : Html.VideoThumbnailGetter.Callbacks {
+                    override fun onThumbnailFailed() {
+                    }
+
+                    override fun onThumbnailLoaded(drawable: Drawable?) {
+                        val conf = Bitmap.Config.ARGB_8888 // see other conf types
+                        val bitmap = Bitmap.createBitmap(drawable!!.intrinsicWidth, drawable.intrinsicHeight, conf)
+                        val canvas = Canvas(bitmap)
+                        drawable.setBounds(0, 0, canvas.width, canvas.height)
+                        drawable.draw(canvas)
+
+                        insertVideoAndSimulateUpload(bitmap, mediaPath)
+                    }
+
+                    override fun onThumbnailLoading(drawable: Drawable?) {
+                    }
+                }, this.resources.displayMetrics.widthPixels)
+            }
+        }
+
+        requestMediaCameraVideo = registerForActivityResult(
+                ActivityResultContracts.CaptureVideo()
+        ) {
+            // do nothing
+        }
     }
 
     override fun onPause() {
@@ -628,9 +652,9 @@ open class MainActivity : AppCompatActivity(),
         return true
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        menu?.findItem(R.id.redo)?.isEnabled = aztec.visualEditor.history.redoValid()
-        menu?.findItem(R.id.undo)?.isEnabled = aztec.visualEditor.history.undoValid()
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.redo)?.isEnabled = aztec.visualEditor.history.redoValid()
+        menu.findItem(R.id.undo)?.isEnabled = aztec.visualEditor.history.undoValid()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -650,49 +674,54 @@ open class MainActivity : AppCompatActivity(),
 
     private fun onCameraPhotoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                mediaFile = "wp-" + System.currentTimeMillis()
-                mediaPath = File.createTempFile(
-                        mediaFile,
-                        ".jpg",
-                        getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-                ).absolutePath
-
-            } else {
-                mediaFile = "wp-" + System.currentTimeMillis() + ".jpg"
-                @Suppress("DEPRECATION")
-                mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
-                        File.separator + "Camera" + File.separator + mediaFile
-            }
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(this,
-                    BuildConfig.APPLICATION_ID + ".provider", File(mediaPath)))
+            val uriForFile = createTempMediaFile(".jpg")
 
             if (intent.resolveActivity(packageManager) != null) {
-                startActivityForResult(intent, REQUEST_MEDIA_CAMERA_PHOTO)
+                requestMediaCameraPhoto.launch(uriForFile)
             }
         }
     }
 
+    private fun createTempMediaFile(suffix: String): Uri {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mediaFile = "wp-" + System.currentTimeMillis()
+            mediaPath = File.createTempFile(
+                    mediaFile,
+                    suffix,
+                    getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            ).absolutePath
+
+        } else {
+            mediaFile = "wp-" + System.currentTimeMillis() + suffix
+            @Suppress("DEPRECATION")
+            mediaPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() +
+                    File.separator + "Camera" + File.separator + mediaFile
+        }
+        return FileProvider.getUriForFile(this,
+                BuildConfig.APPLICATION_ID + ".provider", File(mediaPath))
+    }
+
     private fun onCameraVideoMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestCameraAndStoragePermissions(this, MEDIA_CAMERA_PHOTO_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent(MediaStore.INTENT_ACTION_VIDEO_CAMERA)
+            val uriForFile = createTempMediaFile(".mp4")
 
             if (intent.resolveActivity(packageManager) != null) {
-                startActivityForResult(intent, REQUEST_MEDIA_CAMERA_VIDEO)
+                requestMediaCameraVideo.launch(uriForFile)
             }
         }
     }
 
     private fun onPhotosMediaOptionSelected() {
         if (PermissionUtils.checkAndRequestStoragePermission(this, MEDIA_PHOTOS_PERMISSION_REQUEST_CODE)) {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "image/*"
+            val intent = Intent(
+                    Intent.ACTION_PICK
+            ).setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+                    .apply {
+                        putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/jpeg", "image/jpg"))
+                    }
 
             try {
-                startActivityForResult(intent, REQUEST_MEDIA_PHOTO)
+                requestMediaPhoto.launch(intent)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
                 ToastUtils.showToast(this, getString(R.string.error_chooser_photo), ToastUtils.Duration.LONG)
@@ -707,7 +736,7 @@ open class MainActivity : AppCompatActivity(),
             intent.type = "video/*"
 
             try {
-                startActivityForResult(intent, REQUEST_MEDIA_VIDEO)
+                requestMediaVideo.launch(intent)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
                 ToastUtils.showToast(this, getString(R.string.error_chooser_video), ToastUtils.Duration.LONG)

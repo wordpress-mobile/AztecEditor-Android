@@ -45,8 +45,8 @@ import org.wordpress.aztec.spans.AztecRelativeSizeBigSpan;
 import org.wordpress.aztec.spans.AztecRelativeSizeSmallSpan;
 import org.wordpress.aztec.spans.AztecStyleBoldSpan;
 import org.wordpress.aztec.spans.AztecStyleCiteSpan;
-import org.wordpress.aztec.spans.AztecStyleItalicSpan;
 import org.wordpress.aztec.spans.AztecStyleEmphasisSpan;
+import org.wordpress.aztec.spans.AztecStyleItalicSpan;
 import org.wordpress.aztec.spans.AztecStyleStrongSpan;
 import org.wordpress.aztec.spans.AztecSubscriptSpan;
 import org.wordpress.aztec.spans.AztecSuperscriptSpan;
@@ -58,9 +58,9 @@ import org.wordpress.aztec.spans.FontSpan;
 import org.wordpress.aztec.spans.HighlightSpan;
 import org.wordpress.aztec.spans.IAztecInlineSpan;
 import org.wordpress.aztec.spans.IAztecParagraphStyle;
+import org.wordpress.aztec.spans.MarkSpan;
 import org.wordpress.aztec.spans.UnknownClickableSpan;
 import org.wordpress.aztec.spans.UnknownHtmlSpan;
-import org.wordpress.aztec.spans.MarkSpan;
 import org.wordpress.aztec.util.CleaningUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -76,7 +76,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 import static org.wordpress.aztec.util.ExtensionsKt.getLast;
 
@@ -244,14 +243,14 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
     private boolean insidePreTag = false;
     private boolean insideCodeTag = false;
 
-    private String source;
-    private List<IAztecPlugin> plugins;
-    private XMLReader reader;
-    private SpannableStringBuilder spannableStringBuilder;
-    private Html.TagHandler tagHandler;
-    private Context context;
-    private List<String> ignoredTags;
-    private boolean shouldIgnoreWhitespace;
+    private final String source;
+    private final List<IAztecPlugin> plugins;
+    private final XMLReader reader;
+    private final SpannableStringBuilder spannableStringBuilder;
+    private final Html.TagHandler tagHandler;
+    private final Context context;
+    private final List<String> ignoredTags;
+    private final boolean shouldIgnoreWhitespace;
 
     public HtmlToSpannedConverter(
             String source, Html.TagHandler tagHandler,
@@ -644,7 +643,7 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                     String name = color.substring(1);
                     int colorRes = res.getIdentifier(name, "color", "android");
                     if (colorRes != 0) {
-                        ColorStateList colors = res.getColorStateList(colorRes);
+                        ColorStateList colors = res.getColorStateList(colorRes, res.newTheme());
                         text.setSpan(new TextAppearanceSpan(null, 0, 0, colors, null),
                                 where, len,
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -867,13 +866,10 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             for (IAztecPlugin plugin : plugins) {
                 if (plugin instanceof IHtmlCommentHandler) {
                     wasCommentHandled = ((IHtmlCommentHandler) plugin).handleComment(comment, spannableStringBuilder,
-                            nestingLevel, new Function1<Integer, Unit>() {
-                        @Override
-                        public Unit invoke(Integer newNesting) {
-                            nestingLevel = newNesting;
-                            return Unit.INSTANCE;
-                        }
-                    });
+                            nestingLevel, newNesting -> {
+                                nestingLevel = newNesting;
+                                return Unit.INSTANCE;
+                            });
                     if (wasCommentHandled) {
                         break;
                     }

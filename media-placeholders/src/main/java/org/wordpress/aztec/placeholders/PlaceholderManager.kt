@@ -16,8 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -338,7 +336,6 @@ class PlaceholderManager(
         val padding = 10
         val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
         val newTopPadding = parentTextViewRect.top + padding
-        var recreateView = box == null
         box?.let { existingView ->
             val currentParams = existingView.layoutParams as FrameLayout.LayoutParams
             val widthSame = currentParams.width == newWidth
@@ -348,43 +345,31 @@ class PlaceholderManager(
             if (widthSame && heightSame && topMarginSame && leftMarginSame) {
                 return
             }
-            val propertiesChanged = !widthSame || !heightSame
-            recreateView = !propertiesChanged || adapter is StaticPlaceholderAdapter
-            if (recreateView) {
-                container.removeView(box)
-                positionToIdMutex.withLock {
-                    positionToId.removeAll {
-                        it.uuid == uuid
-                    }
+            container.removeView(box)
+            positionToIdMutex.withLock {
+                positionToId.removeAll {
+                    it.uuid == uuid
                 }
             }
         }
-        val paramsFlow = positionToId.find {
-            it.uuid == uuid
-        }?.viewParams ?: MutableStateFlow(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = true))
-        if (box == null || recreateView) {
-            box = adapter.createView(container.context, uuid, paramsFlow)
-            box.id = uuid.hashCode()
-            box.setBackgroundColor(Color.TRANSPARENT)
-            box.setOnTouchListener(adapter)
-            box.tag = uuid
-            box.layoutParams = FrameLayout.LayoutParams(
-                    newWidth,
-                    newHeight
-            )
-        } else {
-            paramsFlow.emit(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = false))
-        }
+        box = adapter.createView(container.context, uuid, attrs)
 
-        (box.layoutParams as FrameLayout.LayoutParams).apply {
+        box.id = uuid.hashCode()
+        box.setBackgroundColor(Color.TRANSPARENT)
+        box.setOnTouchListener(adapter)
+        box.tag = uuid
+        box.layoutParams = FrameLayout.LayoutParams(
+                newWidth,
+                newHeight
+        ).apply {
             leftMargin = newLeftPadding
             topMargin = newLeftPadding
         }
 
         positionToIdMutex.withLock {
-            positionToId.add(Placeholder(targetPosition, uuid, paramsFlow))
+            positionToId.add(Placeholder(targetPosition, uuid))
         }
-        if (recreateView) {
+        if (box.parent == null) {
             container.addView(box)
         }
         adapter.onViewCreated(box, uuid)
@@ -557,12 +542,9 @@ class PlaceholderManager(
     }
 
     /**
-     * Use this method if you want your placeholders to be recreated on each size change.
+     * A adapter for a custom view drawn over the placeholder in the Aztec text.
      */
-    interface StaticPlaceholderAdapter : PlaceholderAdapter {
-        suspend override fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View {
-            return createView(context, placeholderUuid, attrs = viewParamsUpdate.value.attrs)
-        }
+    interface PlaceholderAdapter : View.OnTouchListener {
         /**
          * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
          * the `onViewCreated` method where the view is already present in its correct size.
@@ -571,22 +553,7 @@ class PlaceholderManager(
          * @param attrs aztec attributes of the view
          */
         suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
-    }
 
-    /**
-     * A adapter for a custom view drawn over the placeholder in the Aztec text. The default implementation propagates
-     * media size changes through the flow. If you want your views to be recreated automatically, use
-     * the StaticPlaceholderAdapter.
-     */
-    interface PlaceholderAdapter : View.OnTouchListener {
-        /**
-         * Creates the view but it's called before the view is measured. If you need the actual width and height. Use
-         * the `onViewCreated` method where the view is already present in its correct size.
-         * @param context necessary to build custom views
-         * @param placeholderUuid the placeholder UUID
-         * @param viewParamsUpdate flow of attribute changes used to update the current view instead of redrawing it
-         */
-        suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
          * draw your media.
@@ -686,9 +653,7 @@ class PlaceholderManager(
         }
     }
 
-    data class Placeholder(val elementPosition: Int, val uuid: String, val viewParams: MutableStateFlow<ViewParams>) {
-        data class ViewParams(val width: Int, val height: Int, val attrs: AztecAttributes, val initial: Boolean = false)
-    }
+    data class Placeholder(val elementPosition: Int, val uuid: String)
 
     companion object {
         private const val TAG = "PlaceholderManager"

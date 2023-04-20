@@ -7,17 +7,19 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
-import android.transition.TransitionManager
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.updateLayoutParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -126,9 +128,7 @@ class PlaceholderManager(
         val targetSpan = targetItem?.span
         val currentType = targetSpan?.attributes?.getValue(TYPE_ATTRIBUTE)
         if (currentType != null) {
-            Log.d("vojta", "Item found: $currentType")
             if (shouldMergeItem(currentType)) {
-                Log.d("vojta", "Updating item: $currentType")
                 updateSpan(type, targetItem.span, targetItem.placeAtStart, updateItem, currentType)
             } else {
                 val (newLinePosition, targetSelection) = if (targetItem.placeAtStart) {
@@ -141,7 +141,6 @@ class PlaceholderManager(
                 insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
             }
         } else {
-            Log.d("vojta", "Inserting item: $type")
             insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
         }
     }
@@ -274,12 +273,10 @@ class PlaceholderManager(
     suspend fun reloadAllPlaceholders() {
         val tempPositionToId = positionToId.toList()
         tempPositionToId.forEach { placeholder ->
-            Log.d("vojta", "Looking up position to ID")
             val isValid = positionToIdMutex.withLock {
                 positionToId.contains(placeholder)
             }
             if (isValid) {
-                Log.d("vojta", "Reloading all placeholders")
                 insertContentOverSpanWithId(placeholder.uuid)
             }
         }
@@ -304,7 +301,6 @@ class PlaceholderManager(
             }
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
-        Log.d("vojta", "Inserting in position")
         insertInPosition(aztecAttributes ?: return, targetPosition)
     }
 
@@ -336,7 +332,6 @@ class PlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        Log.d("vojta", "Looking for a view with tag $uuid")
         var box = container.findViewWithTag<View>(uuid)?.apply {
             id = uuid.hashCode()
         }
@@ -345,53 +340,59 @@ class PlaceholderManager(
         val padding = 10
         val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
         val newTopPadding = parentTextViewRect.top + padding
-        Log.d("vojta", "Redrawing: top padding $newTopPadding, left padding $newLeftPadding, width $newWidth, height $newHeight")
+        var recreateView = box == null
         box?.let { existingView ->
             val currentParams = existingView.layoutParams as FrameLayout.LayoutParams
             val widthSame = currentParams.width == newWidth
             val heightSame = currentParams.height == newHeight
             val topMarginSame = currentParams.topMargin == newTopPadding
             val leftMarginSame = currentParams.leftMargin == newLeftPadding
-            Log.d("vojta", "Same: $widthSame, $heightSame, $topMarginSame, $leftMarginSame")
             if (widthSame && heightSame && topMarginSame && leftMarginSame) {
-                Log.d("vojta", "Not redrawing")
                 return
             }
-            Log.d("vojta", "Redrawing")
-            if (!widthSame || !heightSame) {
-                TransitionManager.beginDelayedTransition(container)
-            }
-
-            container.removeView(box)
-            positionToIdMutex.withLock {
-                positionToId.removeAll {
-                    it.uuid == uuid
+            val propertiesChanged = !widthSame || !heightSame
+            recreateView = !propertiesChanged || !adapter.animateLayoutChanges()
+            if (recreateView) {
+                container.removeView(box)
+                positionToIdMutex.withLock {
+                    positionToId.removeAll {
+                        it.uuid == uuid
+                    }
                 }
             }
         }
+        val paramsFlow = positionToId.find {
+            it.uuid == uuid
+        }?.viewParams ?: MutableStateFlow(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = true))
+        if (box == null || recreateView) {
+            Log.d("vojta", "Creating new view")
+            box = adapter.createView(container.context, uuid, paramsFlow)
+            box.id = uuid.hashCode()
+            box.setBackgroundColor(Color.TRANSPARENT)
+            box.setOnTouchListener(adapter)
+            box.tag = uuid
+            box.layoutParams = FrameLayout.LayoutParams(
+                    newWidth,
+                    newHeight
+            )
+        } else {
+            Log.d("vojta", "Updating params")
+            paramsFlow.emit(Placeholder.ViewParams(newWidth, newHeight, attrs, initial = false))
+        }
+        Log.d("vojta", "Creating view with $newWidth x $newHeight")
 
-        box = adapter.createView(container.context, uuid, attrs)
-        box.id = uuid.hashCode()
-        Log.d("vojta", "Creating a new view with id: ${box.id}")
-        box.setBackgroundColor(Color.TRANSPARENT)
-        box.setOnTouchListener(adapter)
-        box.tag = uuid
-        val params = FrameLayout.LayoutParams(
-                newWidth,
-                newHeight
-        )
-        params.setMargins(
-                newLeftPadding,
-                newTopPadding,
-                0,
-                0
-        )
-        box.layoutParams = params
+        box.updateLayoutParams<FrameLayout.LayoutParams> {
+            leftMargin = newLeftPadding
+            topMargin = newTopPadding
+        }
 
         positionToIdMutex.withLock {
-            positionToId.add(Placeholder(targetPosition, uuid))
+            positionToId.add(Placeholder(targetPosition, uuid, paramsFlow))
         }
-        container.addView(box)
+        if (recreateView) {
+            Log.d("vojta", "Adding view with $newWidth x $newHeight")
+            container.addView(box)
+        }
         adapter.onViewCreated(box, uuid)
     }
 
@@ -567,7 +568,7 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder UUID
          * @param attrs aztec attributes of the view
          */
-        suspend fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View
+        suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View
 
         /**
          * Called after the view is measured. Use this method if you need the actual width and height of the view to
@@ -576,6 +577,8 @@ class PlaceholderManager(
          * @param placeholderUuid the placeholder ID
          */
         suspend fun onViewCreated(view: View, placeholderUuid: String) {}
+
+        fun animateLayoutChanges() = false
 
         /**
          * Called when the placeholder is deleted by the user. Use this method if you need to clear your data when the
@@ -668,7 +671,9 @@ class PlaceholderManager(
         }
     }
 
-    data class Placeholder(val elementPosition: Int, val uuid: String)
+    data class Placeholder(val elementPosition: Int, val uuid: String, val viewParams: MutableStateFlow<ViewParams>) {
+        data class ViewParams(val width: Int, val height: Int, val attrs: AztecAttributes, val initial: Boolean = false)
+    }
 
     companion object {
         private const val TAG = "PlaceholderManager"

@@ -1,12 +1,23 @@
 package org.wordpress.aztec.placeholders
 
 import android.content.Context
+import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.Transformation
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.Proportion
 
@@ -17,15 +28,21 @@ import org.wordpress.aztec.placeholders.PlaceholderManager.PlaceholderAdapter.Pr
 class ImageWithCaptionAdapter(
         override val type: String = "image_with_caption"
 ) : PlaceholderManager.PlaceholderAdapter {
-    private val media = mutableMapOf<String, ImageWithCaptionObject>()
+    private val media = mutableMapOf<String, StateFlow<ImageWithCaptionObject>>()
+    private val scope = CoroutineScope(Dispatchers.Main)
     suspend override fun getHeight(attrs: AztecAttributes): Proportion {
         return Proportion.Ratio(attrs.getValue(HEIGHT).toFloatOrNull() ?: 0.5f)
     }
 
-    suspend override fun createView(context: Context, placeholderUuid: String, attrs: AztecAttributes): View {
-        val imageWithCaptionObject = ImageWithCaptionObject(placeholderUuid, attrs.getValue(SRC_ATTRIBUTE), View.generateViewId()).apply {
-                    media[placeholderUuid] = this
-                }
+    suspend override fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<PlaceholderManager.Placeholder.ViewParams>): View {
+        val attrs = viewParamsUpdate.value.attrs
+        val imageViewId = View.generateViewId()
+        val stateFlow = viewParamsUpdate.map {
+            ImageWithCaptionObject(placeholderUuid, it.attrs.getValue(SRC_ATTRIBUTE), imageViewId, it.width, it.height, it.initial)
+        }.stateIn(scope)
+        media[placeholderUuid] = stateFlow
+        val imageWithCaptionObject = stateFlow.value
+        Log.d("vojta2", "Drawing image with caption ${imageWithCaptionObject.src}")
         val captionLayoutId = View.generateViewId()
         val imageLayoutId = imageWithCaptionObject.layoutId
         val linearLayout = LinearLayout(context)
@@ -58,18 +75,52 @@ class ImageWithCaptionAdapter(
         return linearLayout
     }
 
+    override fun animateLayoutChanges(): Boolean {
+        return true
+    }
+
     suspend override fun onViewCreated(view: View, placeholderUuid: String) {
         val image = media[placeholderUuid]!!
-        val imageView = view.findViewById<ImageView>(image.layoutId)
-        Glide.with(view).load(image.src).into(imageView)
+        scope.launch {
+            image.collect {
+                val imageView = view.findViewById<ImageView>(it.layoutId)
+                ResizeAnimation(view, it.width, it.height).apply {
+                    duration = if (it.initialLoad) {
+                        0
+                    } else {
+                        200
+                    }
+                    view.startAnimation(this)
+                }
+                Glide.with(view).load(it.src).transition(DrawableTransitionOptions.withCrossFade()).into(imageView)
+            }
+        }
         super.onViewCreated(view, placeholderUuid)
+    }
+
+    class ResizeAnimation(private val view: View, private val newWidth: Int, private val newHeight: Int) : Animation() {
+        private val startWidth: Int = view.width
+        private val startHeight: Int = view.height
+
+        override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
+            view.updateLayoutParams {
+                width = startWidth + ((newWidth - startWidth) * interpolatedTime).toInt()
+                height = startHeight + ((newHeight - startHeight) * interpolatedTime).toInt()
+            }
+            Log.d("vojta", "Changing height to ${view.layoutParams.height} and width to ${view.layoutParams.width}")
+            view.requestLayout()
+        }
+
+        override fun willChangeBounds(): Boolean {
+            return true
+        }
     }
 
     override fun onPlaceholderDeleted(placeholderUuid: String) {
         media.remove(placeholderUuid)
     }
 
-    data class ImageWithCaptionObject(val id: String, val src: String, val layoutId: Int)
+    data class ImageWithCaptionObject(val id: String, val src: String, val layoutId: Int, val width: Int, val height: Int, val initialLoad: Boolean)
 
     companion object {
         private const val ADAPTER_TYPE = "image_with_caption"

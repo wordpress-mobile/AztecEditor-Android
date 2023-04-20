@@ -560,7 +560,7 @@ class PlaceholderManager(
      * Use this method if you want your placeholders to be recreated on each size change.
      */
     interface StaticPlaceholderAdapter : PlaceholderAdapter {
-        override suspend fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View {
+        suspend override fun createView(context: Context, placeholderUuid: String, viewParamsUpdate: StateFlow<Placeholder.ViewParams>): View {
             return createView(context, placeholderUuid, attrs = viewParamsUpdate.value.attrs)
         }
         /**

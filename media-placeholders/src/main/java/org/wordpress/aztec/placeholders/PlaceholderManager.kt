@@ -123,8 +123,19 @@ class PlaceholderManager(
         val targetItem = getTargetItem()
         val targetSpan = targetItem?.span
         val currentType = targetSpan?.attributes?.getValue(TYPE_ATTRIBUTE)
-        if (currentType != null && shouldMergeItem(currentType)) {
-            updateSpan(type, targetItem.span, targetItem.placeAtStart, updateItem, currentType)
+        if (currentType != null) {
+            if (shouldMergeItem(currentType)) {
+                updateSpan(type, targetItem.span, targetItem.placeAtStart, updateItem, currentType)
+            } else {
+                val (newLinePosition, targetSelection) = if (targetItem.placeAtStart) {
+                    targetItem.spanStart to targetItem.spanStart
+                } else {
+                    targetItem.spanEnd to targetItem.spanEnd + 2
+                }
+                aztecText.text.insert(newLinePosition, Constants.NEWLINE_STRING)
+                aztecText.setSelection(targetSelection)
+                insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
+            }
         } else {
             insertItem(type, *updateItem(null, null, false).toList().toTypedArray())
         }
@@ -192,7 +203,7 @@ class PlaceholderManager(
         return true
     }
 
-    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean)
+    private data class TargetItem(val span: AztecPlaceholderSpan, val placeAtStart: Boolean, val spanStart: Int, val spanEnd: Int)
 
     private fun getTargetItem(): TargetItem? {
         if (aztecText.length() == 0) {
@@ -224,7 +235,7 @@ class PlaceholderManager(
                 from,
                 to,
                 AztecPlaceholderSpan::class.java
-        ).map { TargetItem(it, placeAtStart) }.lastOrNull()
+        ).map { TargetItem(it, placeAtStart, editableText.getSpanStart(it), editableText.getSpanEnd(it)) }.lastOrNull()
     }
 
     /**
@@ -286,7 +297,6 @@ class PlaceholderManager(
             }
         }
         val targetPosition = aztecText.getElementPosition(predicate) ?: return
-
         insertInPosition(aztecAttributes ?: return, targetPosition)
     }
 
@@ -318,39 +328,51 @@ class PlaceholderManager(
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        positionToIdMutex.withLock {
-            positionToId.removeAll {
-                it.uuid == uuid
+        var box = container.findViewWithTag<View>(uuid)?.apply {
+            id = uuid.hashCode()
+        }
+        val newWidth = adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING
+        val newHeight = height - EDITOR_INNER_PADDING
+        val padding = 10
+        val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
+        val newTopPadding = parentTextViewRect.top + padding
+        box?.let { existingView ->
+            val currentParams = existingView.layoutParams as FrameLayout.LayoutParams
+            val widthSame = currentParams.width == newWidth
+            val heightSame = currentParams.height == newHeight
+            val topMarginSame = currentParams.topMargin == newTopPadding
+            val leftMarginSame = currentParams.leftMargin == newLeftPadding
+            if (widthSame && heightSame && topMarginSame && leftMarginSame) {
+                return
+            }
+            container.removeView(box)
+            positionToIdMutex.withLock {
+                positionToId.removeAll {
+                    it.uuid == uuid
+                }
             }
         }
+        box = adapter.createView(container.context, uuid, attrs)
 
-        var box = container.findViewWithTag<View>(uuid)
-        val exists = box != null
-        if (!exists) {
-            box = adapter.createView(container.context, uuid, attrs)
-        }
-        val params = FrameLayout.LayoutParams(
-                adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING,
-                height - EDITOR_INNER_PADDING
-        )
-        val padding = 10
-        params.setMargins(
-                parentTextViewRect.left + padding + aztecText.paddingStart,
-                parentTextViewRect.top + padding,
-                0,
-                0
-        )
-        box.layoutParams = params
-        box.tag = uuid
+        box.id = uuid.hashCode()
         box.setBackgroundColor(Color.TRANSPARENT)
         box.setOnTouchListener(adapter)
+        box.tag = uuid
+        box.layoutParams = FrameLayout.LayoutParams(
+                newWidth,
+                newHeight
+        ).apply {
+            leftMargin = newLeftPadding
+            topMargin = newTopPadding
+        }
+
         positionToIdMutex.withLock {
             positionToId.add(Placeholder(targetPosition, uuid))
         }
-        if (!exists && box.parent == null) {
+        if (box.parent == null) {
             container.addView(box)
-            adapter.onViewCreated(box, uuid)
         }
+        adapter.onViewCreated(box, uuid)
     }
 
     private fun validateAttributes(attributes: AztecAttributes): Boolean {
@@ -418,7 +440,13 @@ class PlaceholderManager(
     /**
      * This method handled a `placeholder` tag found in the HTML. It creates a placeholder and inserts a view over it.
      */
-    override fun handleTag(opening: Boolean, tag: String, output: Editable, attributes: Attributes, nestingLevel: Int): Boolean {
+    override fun handleTag(
+            opening: Boolean,
+            tag: String,
+            output: Editable,
+            attributes: Attributes,
+            nestingLevel: Int
+    ): Boolean {
         if (opening) {
             val type = attributes.getValue(TYPE_ATTRIBUTE)
             attributes.getValue(UUID_ATTRIBUTE)?.also { uuid ->

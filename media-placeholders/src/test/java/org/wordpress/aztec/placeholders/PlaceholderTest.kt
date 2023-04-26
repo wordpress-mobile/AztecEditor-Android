@@ -27,7 +27,8 @@ class PlaceholderTest {
     lateinit var toolbar: AztecToolbar
     lateinit var placeholderManager: PlaceholderManager
 
-    private val uuid: String = "uuid123"
+    private val uuid1: String = "uuid1"
+    private val uuid2: String = "uuid2"
 
     /**
      * Initialize variables.
@@ -38,8 +39,9 @@ class PlaceholderTest {
         container = FrameLayout(activity)
         editText = AztecText(activity)
         container.addView(editText, FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        var counter = 0
         placeholderManager = PlaceholderManager(editText, container, generateUuid = {
-            uuid
+            listOf(uuid1, uuid2)[counter++]
         })
         placeholderManager.registerAdapter(ImageWithCaptionAdapter())
         editText.setCalypsoMode(false)
@@ -65,10 +67,10 @@ class PlaceholderTest {
             editText.setSelection(0)
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 123")
 
-            Assert.assertEquals("<placeholder uuid=\"$uuid\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /><p>Line 1</p>", editText.toHtml())
+            Assert.assertEquals("<placeholder uuid=\"$uuid1\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /><p>Line 1</p>", editText.toHtml())
 
             placeholderManager.removeItem {
-                it.getValue("uuid") == uuid
+                it.getValue("uuid") == uuid1
             }
 
             Assert.assertEquals(initialHtml, editText.toHtml())
@@ -85,10 +87,10 @@ class PlaceholderTest {
             editText.setSelection(editText.editableText.indexOf("1"))
             ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 123")
 
-            Assert.assertEquals("<p>Line 123<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /></p><p>Line 2</p>", editText.toHtml())
+            Assert.assertEquals("<p>Line 123<placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 123\" /></p><p>Line 2</p>", editText.toHtml())
 
             placeholderManager.removeItem {
-                it.getValue("uuid") == uuid
+                it.getValue("uuid") == uuid1
             }
 
             Assert.assertEquals(initialHtml, editText.toHtml())
@@ -97,7 +99,7 @@ class PlaceholderTest {
 
     @Test
     @Throws(Exception::class)
-    fun insertOrUpdateAPlaceholderAtTheBeginning() {
+    fun updatePlaceholderAtTheBeginning() {
         runBlocking {
             val initialHtml = "<p>Line 1</p>"
             editText.fromHtml(initialHtml)
@@ -109,7 +111,7 @@ class PlaceholderTest {
             Assert.assertEquals("${placeholderWithCaption("Caption 1 - Caption 2")}<p>Line 1</p>", editText.toHtml())
 
             placeholderManager.removeItem {
-                it.getValue("uuid") == uuid
+                it.getValue("uuid") == uuid1
             }
 
             Assert.assertEquals(initialHtml, editText.toHtml())
@@ -118,7 +120,28 @@ class PlaceholderTest {
 
     @Test
     @Throws(Exception::class)
-    fun insertOrUpdateAPlaceholderWhenInsertingBeforeNewLine() {
+    fun doNotUpdatePlaceholderAtTheBeginningWhenMergeDisabled() {
+        runBlocking {
+            val initialHtml = "<p>Line 1</p>"
+            editText.fromHtml(initialHtml)
+
+            editText.setSelection(0)
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 1")
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Caption 2", shouldMergePlaceholders = false)
+
+            Assert.assertEquals("<placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 1\" /><br><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 2\" /><p>Line 1</p>", editText.toHtml())
+
+            placeholderManager.removeItem {
+                it.getValue("uuid") == uuid1
+            }
+
+            Assert.assertEquals("<br><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Caption 2\" /><p>Line 1</p>", editText.toHtml())
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updatePlaceholderWhenInsertingBeforeNewLine() {
         runBlocking {
             val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
             editText.fromHtml(initialHtml)
@@ -132,7 +155,21 @@ class PlaceholderTest {
 
     @Test
     @Throws(Exception::class)
-    fun insertOrUpdateAPlaceholderWhenInsertingRightBefore() {
+    fun doNotUpdatePlaceholderWhenInsertingBeforeNewLineAndMergeDisabled() {
+        runBlocking {
+            val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
+            editText.fromHtml(initialHtml)
+
+            editText.setSelection(editText.editableText.indexOf("1"))
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second", shouldMergePlaceholders = false)
+
+            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br><placeholder src=\"image.jpg\" caption=\"First\" uuid=\"uuid1\" type=\"image_with_caption\" /><p>Line 2</p>", editText.toHtml())
+        }
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun updatePlaceholderWhenInsertingRightBefore() {
         runBlocking {
             val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
             editText.fromHtml(initialHtml)
@@ -144,18 +181,32 @@ class PlaceholderTest {
         }
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun doNotUpdatePlaceholderWhenInsertingRightBeforeAndMergeDisabled() {
+        runBlocking {
+            val initialHtml = "<p>Line 1</p>${placeholderWithCaption("First")}<p>Line 2</p>"
+            editText.fromHtml(initialHtml)
+
+            editText.setSelection(editText.editableText.indexOf("1") + 1)
+            ImageWithCaptionAdapter.insertImageWithCaption(placeholderManager, "image.jpg", "Second", shouldMergePlaceholders = false)
+
+            Assert.assertEquals("<p>Line 1</p><placeholder uuid=\"uuid2\" type=\"image_with_caption\" src=\"image.jpg\" caption=\"Second\" /><br>${placeholderWithCaption("First")}<p>Line 2</p>", editText.toHtml())
+        }
+    }
+
     private fun placeholderWithCaption(caption: String): String {
-        return "<placeholder src=\"image.jpg\" caption=\"$caption\" uuid=\"uuid123\" type=\"image_with_caption\" />"
+        return "<placeholder src=\"image.jpg\" caption=\"$caption\" uuid=\"uuid1\" type=\"image_with_caption\" />"
     }
 
     @Test
     @Throws(Exception::class)
     fun updatePlaceholderWhenItShouldBe() {
         runBlocking {
-            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            val initialHtml = "<placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
             editText.fromHtml(initialHtml)
 
-            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+            placeholderManager.removeOrUpdate("uuid1", shouldUpdateItem = {
                 true
             }) { currentAttributes ->
                 val result = mutableMapOf<String, String>()
@@ -164,7 +215,7 @@ class PlaceholderTest {
                 result
             }
 
-            Assert.assertEquals("<placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Line</p>", editText.toHtml())
+            Assert.assertEquals("<placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid1\" type=\"image_with_caption\" /><p>Line</p>", editText.toHtml())
         }
     }
 
@@ -172,13 +223,13 @@ class PlaceholderTest {
     @Throws(Exception::class)
     fun updatePlaceholderAtTheEnd() {
         runBlocking {
-            val initialHtml = "<p>First Line</p><placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Second Line</p>"
+            val initialHtml = "<p>First Line</p><placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Second Line</p>"
             editText.fromHtml(initialHtml)
             editText.setSelection(editText.editableText.indexOf("First") + 1)
             val initialSelectionStart = editText.selectionStart
             val initialSelectionEnd = editText.selectionEnd
 
-            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+            placeholderManager.removeOrUpdate("uuid1", shouldUpdateItem = {
                 true
             }) { currentAttributes ->
                 val result = mutableMapOf<String, String>()
@@ -187,7 +238,7 @@ class PlaceholderTest {
                 result
             }
 
-            Assert.assertEquals("<p>First Line</p><placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid123\" type=\"image_with_caption\" /><p>Second Line</p>", editText.toHtml())
+            Assert.assertEquals("<p>First Line</p><placeholder src=\"image.jpg\" caption=\"Updated caption\" uuid=\"uuid1\" type=\"image_with_caption\" /><p>Second Line</p>", editText.toHtml())
             Assert.assertEquals(initialSelectionStart, editText.selectionStart)
             Assert.assertEquals(initialSelectionEnd, editText.selectionEnd)
         }
@@ -197,10 +248,10 @@ class PlaceholderTest {
     @Throws(Exception::class)
     fun removePlaceholderWhenItShouldNotBeUpdated() {
         runBlocking {
-            val initialHtml = "<placeholder uuid=\"uuid123\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
+            val initialHtml = "<placeholder uuid=\"uuid1\" type=\"image_with_caption\" src=\"image.jpg;image2.jpg\" caption=\"Caption - 1, 2\" /><p>Line</p>"
             editText.fromHtml(initialHtml)
 
-            placeholderManager.removeOrUpdate("uuid123", shouldUpdateItem = {
+            placeholderManager.removeOrUpdate("uuid1", shouldUpdateItem = {
                 false
             }) { currentAttributes ->
                 val result = mutableMapOf<String, String>()

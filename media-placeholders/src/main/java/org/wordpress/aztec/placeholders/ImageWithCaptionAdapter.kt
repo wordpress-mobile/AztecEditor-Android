@@ -81,8 +81,10 @@ class ImageWithCaptionAdapter(
         private const val CAPTION_ATTRIBUTE = "caption"
         private const val SRC_ATTRIBUTE = "src"
 
-        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String) {
-            placeholderManager.insertOrUpdateItem(ADAPTER_TYPE) { currentAttributes, type, placeAtStart ->
+        suspend fun insertImageWithCaption(placeholderManager: PlaceholderManager, src: String, caption: String, shouldMergePlaceholders: Boolean = true) {
+            placeholderManager.insertOrUpdateItem(ADAPTER_TYPE, {
+                shouldMergePlaceholders
+            }) { currentAttributes, type, placeAtStart ->
                 if (currentAttributes == null || type != ADAPTER_TYPE) {
                     mapOf(SRC_ATTRIBUTE to src, CAPTION_ATTRIBUTE to caption)
                 } else {

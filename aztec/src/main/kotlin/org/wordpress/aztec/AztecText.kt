@@ -2275,7 +2275,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         text.getSpans(0, text.length, AztecMediaSpan::class.java).firstOrNull {
             attributePredicate.matches(it.attributes)
         }?.let { mediaSpan ->
-            mediaSpan.beforeMediaDeleted()
             val start = text.getSpanStart(mediaSpan)
             val end = text.getSpanEnd(mediaSpan)
 
@@ -2283,7 +2282,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
             text.removeSpan(clickableSpan)
             text.removeSpan(mediaSpan)
-            mediaSpan.onMediaDeleted()
             aztecMediaSpan.onMediaDeletedListener = onMediaDeletedListener
             lineBlockFormatter.insertMediaSpanOverCurrentChar(aztecMediaSpan, start)
             contentChangeWatcher.notifyContentChanged()

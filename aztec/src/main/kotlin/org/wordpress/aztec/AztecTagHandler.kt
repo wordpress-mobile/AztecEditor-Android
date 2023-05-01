@@ -28,7 +28,9 @@ import android.text.Spanned
 import androidx.appcompat.content.res.AppCompatResources
 import org.wordpress.aztec.plugins.IAztecPlugin
 import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
+import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecAudioSpan
+import org.wordpress.aztec.spans.AztecBackgroundColorSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -41,6 +43,7 @@ import org.wordpress.aztec.spans.AztecVideoSpan
 import org.wordpress.aztec.spans.HiddenHtmlSpan
 import org.wordpress.aztec.spans.IAztecAttributedSpan
 import org.wordpress.aztec.spans.IAztecNestable
+import org.wordpress.aztec.spans.IAztecSpan
 import org.wordpress.aztec.spans.createAztecQuoteSpan
 import org.wordpress.aztec.spans.createHeadingSpan
 import org.wordpress.aztec.spans.createHiddenHtmlBlockSpan
@@ -51,6 +54,7 @@ import org.wordpress.aztec.spans.createParagraphSpan
 import org.wordpress.aztec.spans.createPreformatSpan
 import org.wordpress.aztec.spans.createTaskListSpan
 import org.wordpress.aztec.spans.createUnorderedListSpan
+import org.wordpress.aztec.util.ColorConverter
 import org.wordpress.aztec.util.getLast
 import org.xml.sax.Attributes
 import java.util.Locale
@@ -87,7 +91,7 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             SPAN -> {
-                val span = createHiddenHtmlSpan(tag, AztecAttributes(attributes), nestingLevel, alignmentRendering)
+                val span = handleBackgroundColorSpanTag(attributes, tag, nestingLevel)
                 handleElement(output, opening, span)
                 return true
             }
@@ -168,6 +172,21 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
             }
         }
         return false
+    }
+
+    private fun handleBackgroundColorSpanTag(attributes: Attributes, tag: String, nestingLevel: Int): IAztecSpan {
+        val attrs = AztecAttributes(attributes)
+        return if (CssStyleFormatter.containsStyleAttribute(
+                attrs,
+                CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE
+            ) || (tagStack.isNotEmpty() && tagStack.last() is AztecBackgroundColorSpan)
+        ) {
+            val att = CssStyleFormatter.getStyleAttribute(attrs, CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE)
+            val color = ColorConverter.getColorInt(att)
+            AztecBackgroundColorSpan(color)
+        } else {
+            createHiddenHtmlSpan(tag, attrs, nestingLevel, alignmentRendering)
+        }
     }
 
     /**

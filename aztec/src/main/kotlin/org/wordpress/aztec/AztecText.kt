@@ -405,6 +405,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isInCalypsoMode = isCompatibleWithCalypso
     }
 
+    fun setBackgroundSpanColor(color: Int) {
+        inlineFormatter.backgroundSpanColor = color
+    }
+
     fun setGutenbergMode(isCompatibleWithGutenberg: Boolean) {
         isInGutenbergMode = isCompatibleWithGutenberg
     }
@@ -1304,6 +1308,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_BACKGROUND,
             AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
@@ -1344,6 +1349,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_BACKGROUND,
             AztecTextFormat.FORMAT_MARK,
             AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> return inlineFormatter.containsInlineStyle(format, selStart, selEnd)
@@ -1360,7 +1366,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
-    fun setToolbar(toolbar: IAztecToolbar) {
+    fun setToolbar(toolbar: IAztecToolbar?) {
         formatToolbar = toolbar
     }
 
@@ -1844,6 +1850,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_STRIKETHROUGH, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_UNDERLINE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BACKGROUND, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_MARK, start, end)
     }
 

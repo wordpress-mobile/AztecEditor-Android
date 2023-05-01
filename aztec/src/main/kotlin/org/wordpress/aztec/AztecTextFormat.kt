@@ -36,6 +36,7 @@ enum class AztecTextFormat : ITextFormat {
     FORMAT_FONT,
     FORMAT_MONOSPACE,
     FORMAT_CODE,
+    FORMAT_BACKGROUND,
     FORMAT_MARK,
     FORMAT_HIGHLIGHT
 }

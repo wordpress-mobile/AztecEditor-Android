@@ -16,6 +16,12 @@ enum class ToolbarAction constructor(
         override val layout: Int? = null)
     : IToolbarAction, ToolbarItems.IToolbarItem {
 
+    BACKGROUND(
+            R.id.format_bar_button_background_color,
+            R.drawable.format_bar_button_background_selector,
+            ToolbarActionType.INLINE_STYLE,
+            setOf(AztecTextFormat.FORMAT_BACKGROUND)
+    ),
     ADD_MEDIA_COLLAPSE(
             R.id.format_bar_button_media_collapsed,
             R.drawable.format_bar_button_media_expanded_selector,

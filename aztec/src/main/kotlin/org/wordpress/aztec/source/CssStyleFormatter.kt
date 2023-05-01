@@ -31,7 +31,7 @@ class CssStyleFormatter {
 
         /**
          * Check the provided [attributedSpan] for the *style* attribute. If found, parse out the
-         * supported CSS style properties and use the results to create a [ForegroundColorSpan],
+         * supported CSS style properties and use the results to create a [ForegroundColorSpan] and/or [BackgroundColorSpan]
          * then add it to the provided [text].
          *
          * Must be called immediately after the base [IAztecAttributedSpan] has been processed.

@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import org.wordpress.android.util.AppLog
 import org.wordpress.android.util.ImageUtils
@@ -48,6 +49,8 @@ import org.wordpress.aztec.IHistoryListener
 import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.glideloader.GlideImageLoader
 import org.wordpress.aztec.glideloader.GlideVideoThumbnailLoader
+import org.wordpress.aztec.plugins.BackgroundColorButton
+import org.wordpress.aztec.plugins.CssBackgroundColorPlugin
 import org.wordpress.aztec.plugins.CssUnderlinePlugin
 import org.wordpress.aztec.plugins.IMediaToolbarButton
 import org.wordpress.aztec.plugins.shortcodes.AudioShortcodePlugin
@@ -92,6 +95,7 @@ open class MainActivity : AppCompatActivity(),
         private val BOLD = "<b>Bold</b><br>"
         private val ITALIC = "<i style=\"color:darkred\">Italic</i><br>"
         private val UNDERLINE = "<u style=\"color:lime\">Underline</u><br>"
+        private val BACKGROUND = "<span style=\"background-color:#005082\">BACK<b>GROUND</b></span><br>"
         private val STRIKETHROUGH = "<s style=\"color:#ff666666\" class=\"test\">Strikethrough</s><br>" // <s> or <strike> or <del>
         private val ORDERED = "<ol style=\"color:green\"><li>Ordered</li><li>should have color</li></ol>"
         private val TASK_LIST = "<ul type=\"task-list\">\n" +
@@ -193,6 +197,7 @@ open class MainActivity : AppCompatActivity(),
                         BOLD +
                         ITALIC +
                         UNDERLINE +
+                        BACKGROUND +
                         STRIKETHROUGH +
                         TASK_LIST +
                         ORDERED +
@@ -484,9 +489,13 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
+            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, R.color.blue_dark))
+
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
             aztec.addPlugin(CssUnderlinePlugin())
+            aztec.addPlugin(CssBackgroundColorPlugin())
+            aztec.addPlugin(BackgroundColorButton(visualEditor))
         }
 
         if (savedInstanceState == null) {

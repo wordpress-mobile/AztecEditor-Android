@@ -489,7 +489,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, R.color.blue_dark))
+            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, org.wordpress.aztec.R.color.blue_dark))
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
@@ -704,7 +704,7 @@ open class MainActivity : AppCompatActivity(),
                 startActivityForResult(intent, REQUEST_MEDIA_PHOTO)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
-                ToastUtils.showToast(this, getString(R.string.error_chooser_photo), ToastUtils.Duration.LONG)
+                ToastUtils.showToast(this, getString(org.wordpress.aztec.R.string.error_chooser_photo), ToastUtils.Duration.LONG)
             }
         }
     }
@@ -719,7 +719,7 @@ open class MainActivity : AppCompatActivity(),
                 startActivityForResult(intent, REQUEST_MEDIA_VIDEO)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
-                ToastUtils.showToast(this, getString(R.string.error_chooser_video), ToastUtils.Duration.LONG)
+                ToastUtils.showToast(this, getString(org.wordpress.aztec.R.string.error_chooser_video), ToastUtils.Duration.LONG)
             }
         }
     }
@@ -819,7 +819,7 @@ open class MainActivity : AppCompatActivity(),
         val mediaPending = aztec.visualEditor.getAllElementAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
-            ToastUtils.showToast(this, R.string.media_upload_dialog_message)
+            ToastUtils.showToast(this, org.wordpress.aztec.R.string.media_upload_dialog_message)
         } else {
             aztec.toolbar.toggleEditorMode()
         }

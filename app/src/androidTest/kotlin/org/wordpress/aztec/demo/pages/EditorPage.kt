@@ -1,5 +1,7 @@
 package org.wordpress.aztec.demo.pages
 
+import android.view.KeyEvent
+import android.view.View
 import androidx.test.espresso.DataInteraction
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
@@ -12,8 +14,6 @@ import androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import android.view.KeyEvent
-import android.view.View
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
@@ -22,6 +22,7 @@ import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
+import org.wordpress.aztec.R as AztecR
 
 class EditorPage : BasePage() {
     private var editor: ViewInteraction
@@ -58,20 +59,20 @@ class EditorPage : BasePage() {
         undoButton = onView(withId(R.id.undo))
         redoButton = onView(withId(R.id.redo))
 
-        openMediaToolbarButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_media_collapsed))
-        closeMediaToolbarButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_media_expanded))
-        headingButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_heading))
-        listButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_list))
-        quoteButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_quote))
-        boldButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_bold))
-        italicsButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_italic))
-        linkButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_link))
-        underlineButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_underline))
-        strikethroughButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_strikethrough))
-        horizontalRuleButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_horizontal_rule))
+        openMediaToolbarButton = onView(withId(AztecR.id.format_bar_button_media_collapsed))
+        closeMediaToolbarButton = onView(withId(AztecR.id.format_bar_button_media_expanded))
+        headingButton = onView(withId(AztecR.id.format_bar_button_heading))
+        listButton = onView(withId(AztecR.id.format_bar_button_list))
+        quoteButton = onView(withId(AztecR.id.format_bar_button_quote))
+        boldButton = onView(withId(AztecR.id.format_bar_button_bold))
+        italicsButton = onView(withId(AztecR.id.format_bar_button_italic))
+        linkButton = onView(withId(AztecR.id.format_bar_button_link))
+        underlineButton = onView(withId(AztecR.id.format_bar_button_underline))
+        strikethroughButton = onView(withId(AztecR.id.format_bar_button_strikethrough))
+        horizontalRuleButton = onView(withId(AztecR.id.format_bar_button_horizontal_rule))
         moreRuleButton = onView(withId(org.wordpress.aztec.plugins.wpcomments.R.id.format_bar_button_more))
         pageButton = onView(withId(org.wordpress.aztec.plugins.wpcomments.R.id.format_bar_button_page))
-        htmlButton = onView(withId(org.wordpress.aztec.R.id.format_bar_button_html))
+        htmlButton = onView(withId(AztecR.id.format_bar_button_html))
 
         photoButton = onView(allOf(withId(android.R.id.title), withText("Photo from device")))
         galleryButton = onView(withId(R.id.media_bar_button_gallery))

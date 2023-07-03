@@ -23,6 +23,7 @@ import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
 import org.wordpress.aztec.R as AztecR
+import org.wordpress.aztec.plugins.wpcomments.R as WPCommentsR
 
 class EditorPage : BasePage() {
     private var editor: ViewInteraction
@@ -70,8 +71,8 @@ class EditorPage : BasePage() {
         underlineButton = onView(withId(AztecR.id.format_bar_button_underline))
         strikethroughButton = onView(withId(AztecR.id.format_bar_button_strikethrough))
         horizontalRuleButton = onView(withId(AztecR.id.format_bar_button_horizontal_rule))
-        moreRuleButton = onView(withId(org.wordpress.aztec.plugins.wpcomments.R.id.format_bar_button_more))
-        pageButton = onView(withId(org.wordpress.aztec.plugins.wpcomments.R.id.format_bar_button_page))
+        moreRuleButton = onView(withId(WPCommentsR.id.format_bar_button_more))
+        pageButton = onView(withId(WPCommentsR.id.format_bar_button_page))
         htmlButton = onView(withId(AztecR.id.format_bar_button_html))
 
         photoButton = onView(allOf(withId(android.R.id.title), withText("Photo from device")))

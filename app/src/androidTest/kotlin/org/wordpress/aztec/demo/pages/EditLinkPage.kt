@@ -9,7 +9,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import org.wordpress.aztec.demo.BasePage
-import org.wordpress.aztec.demo.R
+import org.wordpress.aztec.R as AztecR
 
 class EditLinkPage : BasePage() {
 
@@ -24,9 +24,9 @@ class EditLinkPage : BasePage() {
         get() = onView(withText("Insert link"))
 
     init {
-        urlField = onView(withId(R.id.linkURL))
-        nameField = onView(withId(R.id.linkText))
-        openInNewWindowCheckbox = onView(withId(R.id.openInNewWindow))
+        urlField = onView(withId(AztecR.id.linkURL))
+        nameField = onView(withId(AztecR.id.linkText))
+        openInNewWindowCheckbox = onView(withId(AztecR.id.openInNewWindow))
         okButton = onView(withId(android.R.id.button1))
         cancelButton = onView(withId(android.R.id.button2))
         removeButton = onView(withId(android.R.id.button3))

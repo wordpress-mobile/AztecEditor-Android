@@ -1,5 +1,7 @@
 package org.wordpress.aztec.demo.pages
 
+import android.view.KeyEvent
+import android.view.View
 import androidx.test.espresso.DataInteraction
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
@@ -12,8 +14,6 @@ import androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
-import android.view.KeyEvent
-import android.view.View
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.hasToString
@@ -22,6 +22,8 @@ import org.wordpress.aztec.demo.Actions
 import org.wordpress.aztec.demo.BasePage
 import org.wordpress.aztec.demo.Matchers
 import org.wordpress.aztec.demo.R
+import org.wordpress.aztec.R as AztecR
+import org.wordpress.aztec.plugins.wpcomments.R as WPCommentsR
 
 class EditorPage : BasePage() {
     private var editor: ViewInteraction
@@ -58,20 +60,20 @@ class EditorPage : BasePage() {
         undoButton = onView(withId(R.id.undo))
         redoButton = onView(withId(R.id.redo))
 
-        openMediaToolbarButton = onView(withId(R.id.format_bar_button_media_collapsed))
-        closeMediaToolbarButton = onView(withId(R.id.format_bar_button_media_expanded))
-        headingButton = onView(withId(R.id.format_bar_button_heading))
-        listButton = onView(withId(R.id.format_bar_button_list))
-        quoteButton = onView(withId(R.id.format_bar_button_quote))
-        boldButton = onView(withId(R.id.format_bar_button_bold))
-        italicsButton = onView(withId(R.id.format_bar_button_italic))
-        linkButton = onView(withId(R.id.format_bar_button_link))
-        underlineButton = onView(withId(R.id.format_bar_button_underline))
-        strikethroughButton = onView(withId(R.id.format_bar_button_strikethrough))
-        horizontalRuleButton = onView(withId(R.id.format_bar_button_horizontal_rule))
-        moreRuleButton = onView(withId(R.id.format_bar_button_more))
-        pageButton = onView(withId(R.id.format_bar_button_page))
-        htmlButton = onView(withId(R.id.format_bar_button_html))
+        openMediaToolbarButton = onView(withId(AztecR.id.format_bar_button_media_collapsed))
+        closeMediaToolbarButton = onView(withId(AztecR.id.format_bar_button_media_expanded))
+        headingButton = onView(withId(AztecR.id.format_bar_button_heading))
+        listButton = onView(withId(AztecR.id.format_bar_button_list))
+        quoteButton = onView(withId(AztecR.id.format_bar_button_quote))
+        boldButton = onView(withId(AztecR.id.format_bar_button_bold))
+        italicsButton = onView(withId(AztecR.id.format_bar_button_italic))
+        linkButton = onView(withId(AztecR.id.format_bar_button_link))
+        underlineButton = onView(withId(AztecR.id.format_bar_button_underline))
+        strikethroughButton = onView(withId(AztecR.id.format_bar_button_strikethrough))
+        horizontalRuleButton = onView(withId(AztecR.id.format_bar_button_horizontal_rule))
+        moreRuleButton = onView(withId(WPCommentsR.id.format_bar_button_more))
+        pageButton = onView(withId(WPCommentsR.id.format_bar_button_page))
+        htmlButton = onView(withId(AztecR.id.format_bar_button_html))
 
         photoButton = onView(allOf(withId(android.R.id.title), withText("Photo from device")))
         galleryButton = onView(withId(R.id.media_bar_button_gallery))

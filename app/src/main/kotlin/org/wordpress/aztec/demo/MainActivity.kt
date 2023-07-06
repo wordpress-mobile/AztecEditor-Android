@@ -70,6 +70,7 @@ import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
 import java.util.Random
+import org.wordpress.aztec.R as AztecR
 
 open class MainActivity : AppCompatActivity(),
         AztecText.OnImeBackListener,
@@ -489,7 +490,7 @@ open class MainActivity : AppCompatActivity(),
             aztec.visualEditor.setCalypsoMode(false)
             aztec.sourceEditor?.setCalypsoMode(false)
 
-            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, R.color.blue_dark))
+            aztec.visualEditor.setBackgroundSpanColor(ContextCompat.getColor(this, AztecR.color.blue_dark))
 
             aztec.sourceEditor?.displayStyledAndFormattedHtml(EXAMPLE)
 
@@ -704,7 +705,7 @@ open class MainActivity : AppCompatActivity(),
                 startActivityForResult(intent, REQUEST_MEDIA_PHOTO)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
-                ToastUtils.showToast(this, getString(R.string.error_chooser_photo), ToastUtils.Duration.LONG)
+                ToastUtils.showToast(this, getString(AztecR.string.error_chooser_photo), ToastUtils.Duration.LONG)
             }
         }
     }
@@ -719,7 +720,7 @@ open class MainActivity : AppCompatActivity(),
                 startActivityForResult(intent, REQUEST_MEDIA_VIDEO)
             } catch (exception: ActivityNotFoundException) {
                 AppLog.e(AppLog.T.EDITOR, exception.message)
-                ToastUtils.showToast(this, getString(R.string.error_chooser_video), ToastUtils.Duration.LONG)
+                ToastUtils.showToast(this, getString(AztecR.string.error_chooser_video), ToastUtils.Duration.LONG)
             }
         }
     }
@@ -819,7 +820,7 @@ open class MainActivity : AppCompatActivity(),
         val mediaPending = aztec.visualEditor.getAllElementAttributes(uploadingPredicate).isNotEmpty()
 
         if (mediaPending) {
-            ToastUtils.showToast(this, R.string.media_upload_dialog_message)
+            ToastUtils.showToast(this, AztecR.string.media_upload_dialog_message)
         } else {
             aztec.toolbar.toggleEditorMode()
         }
@@ -858,8 +859,8 @@ open class MainActivity : AppCompatActivity(),
 
     private fun showMediaUploadDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage(getString(org.wordpress.aztec.R.string.media_upload_dialog_message))
-        builder.setPositiveButton(getString(org.wordpress.aztec.R.string.media_upload_dialog_positive), null)
+        builder.setMessage(getString(AztecR.string.media_upload_dialog_message))
+        builder.setPositiveButton(getString(AztecR.string.media_upload_dialog_positive), null)
         mediaUploadDialog = builder.create()
         mediaUploadDialog!!.show()
     }

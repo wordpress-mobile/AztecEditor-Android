@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.picassoloader"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {

@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.glideloader"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {

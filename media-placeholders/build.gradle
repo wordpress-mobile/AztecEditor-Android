@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.placeholders"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {

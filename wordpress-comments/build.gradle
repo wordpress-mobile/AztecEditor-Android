@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.plugins.wpcomments"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {

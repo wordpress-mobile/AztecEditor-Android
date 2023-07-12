@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.demo"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {

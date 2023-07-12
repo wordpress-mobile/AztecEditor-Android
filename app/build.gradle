@@ -29,7 +29,7 @@ android {
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 
-    lintOptions {
+    lint {
         disable 'GradleCompatible'
     }
 

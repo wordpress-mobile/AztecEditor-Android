@@ -32,6 +32,10 @@ android {
     lintOptions {
         disable 'GradleCompatible'
     }
+
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {

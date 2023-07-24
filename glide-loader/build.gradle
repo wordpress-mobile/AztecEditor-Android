@@ -35,7 +35,6 @@ project.afterEvaluate {
 
                 groupId "org.wordpress.aztec"
                 artifactId "glide-loader"
-                artifact tasks.named("androidSourcesJar")
                 // version is set by 'publish-to-s3' plugin
             }
         }

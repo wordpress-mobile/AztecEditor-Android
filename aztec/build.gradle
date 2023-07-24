@@ -82,7 +82,6 @@ project.afterEvaluate {
 
                 groupId "org.wordpress"
                 artifactId "aztec"
-                artifact tasks.named("androidSourcesJar")
                 // version is set by 'publish-to-s3' plugin
             }
         }

@@ -4,6 +4,8 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.demo"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {
@@ -27,8 +29,12 @@ android {
         androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
 
-    lintOptions {
+    lint {
         disable 'GradleCompatible'
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 }
 

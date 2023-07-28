@@ -5,12 +5,13 @@ plugins {
 }
 
 android {
+    namespace "org.wordpress.aztec.plugins.wpcomments"
+
     compileSdkVersion rootProject.compileSdkVersion
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
-        versionName "1.0"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -53,7 +54,6 @@ project.afterEvaluate {
 
                 groupId "org.wordpress.aztec"
                 artifactId "wordpress-comments"
-                artifact tasks.named("androidSourcesJar")
                 // version is set by 'publish-to-s3' plugin
             }
         }

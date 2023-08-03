@@ -946,10 +946,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         val list = LinkedList<String>()
 
         list += array
+        val historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
+        // if cursor does not match the number of history entries, it means the temp file with history has been deleted
+        if (historyCursor == list.size) {
+            history.historyList = list
+            history.historyCursor = historyCursor
+            history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(
+                INPUT_LAST_KEY,
+                "",
+                savedState.state
+            )
+        }
 
-        history.historyList = list
-        history.historyCursor = customState.getInt(HISTORY_CURSOR_KEY)
-        history.inputLast = InstanceStateUtils.readAndPurgeTempInstance<String>(INPUT_LAST_KEY, "", savedState.state)
         visibility = customState.getInt(VISIBILITY_KEY)
 
         customState.getByteArray(RETAINED_INITIAL_HTML_PARSED_SHA256_KEY)?.let {

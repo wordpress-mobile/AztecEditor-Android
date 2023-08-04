@@ -567,8 +567,8 @@ class AztecParser @JvmOverloads constructor(private val alignmentRendering: Alig
             i = next
         }
 
-        for (z in 0..nl - 1) {
-            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + 1 + z } ?: false
+        for (z in 0 until nl) {
+            val parentSharesEnd = parents?.any { text.getSpanEnd(it) == end + z } ?: false
             if (parentSharesEnd) {
                 continue
             }

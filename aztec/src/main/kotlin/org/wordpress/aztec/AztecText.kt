@@ -1857,6 +1857,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_CODE, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_BACKGROUND, start, end)
         inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_MARK, start, end)
+        inlineFormatter.removeInlineStyle(AztecTextFormat.FORMAT_HIGHLIGHT, start, end)
     }
 
     fun removeBlockStylesFromRange(start: Int, end: Int, ignoreLineBounds: Boolean = false) {

@@ -13,8 +13,6 @@ class HighlightSpan(
         override var attributes: AztecAttributes = AztecAttributes(),
         val colorHex: Int
 ) : BackgroundColorSpan(colorHex), IAztecInlineSpan {
-    var alpha: Int = 220
-
     override var TAG = HIGHLIGHT_TAG
 
     companion object {

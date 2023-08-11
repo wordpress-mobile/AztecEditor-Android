@@ -6,16 +6,40 @@ import androidx.core.content.ContextCompat
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.R
 import org.wordpress.aztec.formatting.InlineFormatter
+import org.wordpress.aztec.source.CssStyleFormatter
+import org.wordpress.aztec.util.ColorConverter
 
 class HighlightSpan(
         override var attributes: AztecAttributes = AztecAttributes(),
-        highlightStyle: InlineFormatter.HighlightStyle = InlineFormatter.HighlightStyle(R.color.grey_lighten_10),
-        context: Context
-) : BackgroundColorSpan(ContextCompat.getColor(context, highlightStyle.color)), IAztecInlineSpan {
+        val colorHex: Int
+) : BackgroundColorSpan(colorHex), IAztecInlineSpan {
+    override var TAG = HIGHLIGHT_TAG
 
-    override var TAG = "highlight"
     companion object {
+        const val HIGHLIGHT_TAG = "highlight"
+
         @JvmStatic
-        fun create(attributes: AztecAttributes, context: Context) = HighlightSpan(attributes = attributes, context = context)
+        @JvmOverloads
+        fun create(attributes: AztecAttributes = AztecAttributes(),
+                   context: Context,
+                   defaultStyle: InlineFormatter.HighlightStyle? = null
+        ) = HighlightSpan(attributes = attributes,
+                colorHex = buildColor(context, attributes, defaultStyle))
+
+        private fun buildColor(context: Context, attrs: AztecAttributes, defaultStyle: InlineFormatter.HighlightStyle?): Int {
+            return if (CssStyleFormatter.containsStyleAttribute(
+                            attrs,
+                            CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE
+                    )
+            ) {
+                val att = CssStyleFormatter.getStyleAttribute(attrs,
+                        CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE)
+                return ColorConverter.getColorInt(att)
+            } else if (defaultStyle != null) {
+                ContextCompat.getColor(context, defaultStyle.color)
+            } else {
+                ContextCompat.getColor(context, R.color.grey_lighten_10)
+            }
+        }
     }
 }

@@ -442,7 +442,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecTextFormat.FORMAT_CODE -> AztecCodeSpan(codeStyle)
             AztecTextFormat.FORMAT_BACKGROUND -> AztecBackgroundColorSpan(backgroundSpanColor ?: R.color.background)
             AztecTextFormat.FORMAT_HIGHLIGHT -> {
-                HighlightSpan(highlightStyle = highlightStyle, context = editor.context)
+                HighlightSpan.create(context = editor.context, defaultStyle = highlightStyle)
             }
             AztecTextFormat.FORMAT_MARK -> MarkSpan()
             else -> AztecStyleSpan(Typeface.NORMAL)

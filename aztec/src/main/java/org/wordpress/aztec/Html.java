@@ -363,6 +363,8 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             start(spannableStringBuilder, AztecTextFormat.FORMAT_CODE, attributes);
         } else if (tag.equalsIgnoreCase("mark")) {
             start(spannableStringBuilder, AztecTextFormat.FORMAT_MARK, attributes);
+        } else if (tag.equalsIgnoreCase("highlight")) {
+            start(spannableStringBuilder, AztecTextFormat.FORMAT_HIGHLIGHT, attributes);
         } else if (!UnknownHtmlSpan.Companion.getKNOWN_TAGS().contains(tag.toLowerCase())) {
             // Initialize a new "Unknown" node
             if (contentHandlerLevel == 0) {
@@ -458,6 +460,8 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
             end(spannableStringBuilder, AztecTextFormat.FORMAT_CODE);
         } else if (tag.equalsIgnoreCase("mark")) {
             end(spannableStringBuilder, AztecTextFormat.FORMAT_MARK);
+        } else if (tag.equalsIgnoreCase("highlight")) {
+            end(spannableStringBuilder, AztecTextFormat.FORMAT_HIGHLIGHT);
         }
     }
 
@@ -615,6 +619,9 @@ class HtmlToSpannedConverter implements org.xml.sax.ContentHandler, LexicalHandl
                 break;
             case FORMAT_MARK:
                 span = (MarkSpan) getLast(text, MarkSpan.class);
+                break;
+            case FORMAT_HIGHLIGHT:
+                span = (HighlightSpan) getLast(text, HighlightSpan.class);
                 break;
             default:
                 throw new IllegalArgumentException("Style not supported");

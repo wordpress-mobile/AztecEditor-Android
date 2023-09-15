@@ -278,4 +278,38 @@ class ImageBlockTest {
 
         Assert.assertEquals(initialHtml, editText.toHtml())
     }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeImageInSpanBeforeBlankLine() {
+        val initialHtml = "<p>Line 1</p><p>Line 2<img id=\"1234\" /><br>Line 3</p><p>Line 4</p>"
+        editText.fromHtml(initialHtml)
+
+        editText.setSelection(1)
+
+        editText.removeMedia(object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == "1234"
+            }
+        })
+
+        Assert.assertEquals("<p>Line 1</p><p>Line 2<br><br>Line 3</p><p>Line 4</p>", editText.toHtml())
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun removeImageInSpanAfterBlankLine() {
+        val initialHtml = "<p>Line 1</p><p>Line 2<br><img id=\"1234\" />Line 3</p><p>Line 4</p>"
+        editText.fromHtml(initialHtml)
+
+        editText.setSelection(1)
+
+        editText.removeMedia(object : AztecText.AttributePredicate {
+            override fun matches(attrs: Attributes): Boolean {
+                return attrs.getValue("id") == "1234"
+            }
+        })
+
+        Assert.assertEquals("<p>Line 1</p><p>Line 2<br>Line 3</p><p>Line 4</p>", editText.toHtml())
+    }
 }

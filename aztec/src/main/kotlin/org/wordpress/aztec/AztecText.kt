@@ -2254,16 +2254,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                     text.getSpanEnd(blockSpan),
                                     text.getSpanFlags(blockSpan)
                             )
-                        }
+                        }.filter { it.start >= start }
                         spans.forEach { temporarySpan ->
                             text.removeSpan(temporarySpan)
                         }
                         text.delete(start, endPlus1)
                         spans.forEach { temporarySpan ->
-                            val newStart = if (temporarySpan.start >= start) temporarySpan.start - 2 else temporarySpan.start
                             text.setSpan(
                                     temporarySpan.span,
-                                    newStart.coerceAtLeast(0),
+                                    (temporarySpan.start - 2).coerceAtLeast(0),
                                     (temporarySpan.end - 2).coerceAtMost(text.length),
                                     temporarySpan.flags
                             )

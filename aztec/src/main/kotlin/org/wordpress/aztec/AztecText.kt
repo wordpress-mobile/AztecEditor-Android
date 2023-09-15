@@ -2254,7 +2254,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                                     text.getSpanEnd(blockSpan),
                                     text.getSpanFlags(blockSpan)
                             )
-                        }
+                        }.filter { it.start >= start }
                         spans.forEach { temporarySpan ->
                             text.removeSpan(temporarySpan)
                         }

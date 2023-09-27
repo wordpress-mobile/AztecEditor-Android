@@ -67,6 +67,7 @@
         <item name="lineSpacingMultiplier">@dimen/spacing_multiplier</item>
         <item name="android:textCursorDrawable">?attr/textColor</item>
         <item name="backgroundColor">@android:color/transparent</item>
+        <item name="textSizeModifier">0sp</item>
     </style>
 
     <style name="AztecToolbarStyle">

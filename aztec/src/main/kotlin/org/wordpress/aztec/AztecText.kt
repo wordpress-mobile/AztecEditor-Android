@@ -632,6 +632,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         isViewInitialized = true
     }
 
+    fun setTextSizeModifier(textSizeModifierPx: Int) {
+        blockFormatter.setTextSizeModifier(textSizeModifierPx)
+        if (textSize + textSizeModifierPx >= 0) {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize + textSizeModifierPx)
+        } else {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, 0f)
+        }
+    }
+
     private fun <T> selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
         val spanFound: Array<T> = editableText.getSpans(
                 start,

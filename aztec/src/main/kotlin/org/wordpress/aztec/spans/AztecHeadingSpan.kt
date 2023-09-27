@@ -172,7 +172,7 @@ open class AztecHeadingSpan(
                 }
             }
             is HeadingSize.Size -> {
-                textPaint.textSize = headingSize.value.toFloat() + getSizeModifier()
+                textPaint.textSize = headingSize.value.toFloat()
             }
         }
         textPaint.isFakeBoldText = true
@@ -192,6 +192,11 @@ open class AztecHeadingSpan(
         when (headingSize) {
             is HeadingSize.Scale -> {
                 paint.textSize *= heading.scale
+                if (paint.textSize + getSizeModifier() >= 0) {
+                    paint.textSize += getSizeModifier()
+                } else {
+                    paint.textSize = 0f
+                }
             }
             is HeadingSize.Size -> {
                 paint.textSize = headingSize.value.toFloat()
@@ -203,7 +208,7 @@ open class AztecHeadingSpan(
     }
 
     private fun getHeadingSize(): HeadingSize {
-        return headerStyle.styles[heading]?.fontSize?.takeIf { it > 0 }?.let { HeadingSize.Size(it) }
+        return headerStyle.styles[heading]?.fontSize?.takeIf { it > 0 }?.let { HeadingSize.Size(it + getSizeModifier()) }
                 ?: HeadingSize.Scale(heading.scale)
     }
 

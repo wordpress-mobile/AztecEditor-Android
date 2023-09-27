@@ -480,8 +480,6 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 styles.getBoolean(R.styleable.AztecText_taskListStrikethroughChecked, false),
                 styles.getColor(R.styleable.AztecText_taskListCheckedTextColor, 0))
 
-        val textSizeModifier = styles.getDimensionPixelSize(R.styleable.AztecText_textSizeModifier, 0)
-
         blockFormatter = BlockFormatter(editor = this,
                 listStyle = listStyle,
                 listItemStyle = listItemStyle,
@@ -498,32 +496,32 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H2 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H3 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H4 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFourFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingFourFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H5 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H6 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingSixFontSize, 0),
-                                textSizeModifier,
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingSixFontColor, 0)
                         )
                 )),
@@ -537,7 +535,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                         styles.getColor(R.styleable.AztecText_preformatBorderColor, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderRadius, 0),
                         styles.getDimensionPixelSize(R.styleable.AztecText_preformatBorderThickness, 0),
-                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatTextSize, textSize.toInt()) + textSizeModifier
+                        styles.getDimensionPixelSize(R.styleable.AztecText_preformatTextSize, textSize.toInt())
                 ),
                 alignmentRendering = alignmentRendering,
                 exclusiveBlockStyles = BlockFormatter.ExclusiveBlockStyles(styles.getBoolean(R.styleable.AztecText_exclusiveBlocks, false), verticalParagraphPadding),
@@ -623,15 +621,15 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         enableTextChangedListener()
 
-        if (textSize + textSizeModifier >= 0) {
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize + textSizeModifier)
-        } else {
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, 0f)
-        }
-
         isViewInitialized = true
     }
 
+    /**
+    Sets the modifier that will be added to the base text size.
+    This is useful for situations where you have specified heading font size, instead or relying on default scaling.
+
+    Params: – textSizeModifierPx: the modifier in pixels
+     */
     fun setTextSizeModifier(textSizeModifierPx: Int) {
         blockFormatter.setTextSizeModifier(textSizeModifierPx)
         if (textSize + textSizeModifierPx >= 0) {

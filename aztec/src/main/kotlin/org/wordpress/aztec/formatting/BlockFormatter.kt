@@ -65,7 +65,7 @@ class BlockFormatter(editor: AztecText,
     data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int, val preformatTextSize: Int)
     data class ListItemStyle(val strikeThroughCheckedItems: Boolean, val checkedItemsTextColor: Int)
     data class HeaderStyles(val verticalPadding: Int, val styles: Map<AztecHeadingSpan.Heading, HeadingStyle>) {
-        data class HeadingStyle(val fontSize: Int, val fontColor: Int)
+        data class HeadingStyle(val fontSize: Int, val fontSizeModifier: Int, val fontColor: Int)
     }
     data class ExclusiveBlockStyles(val enabled: Boolean = false, val verticalParagraphMargin: Int)
     data class ParagraphStyle(val verticalMargin: Int)

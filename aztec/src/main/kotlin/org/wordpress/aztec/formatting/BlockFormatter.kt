@@ -1252,7 +1252,7 @@ class BlockFormatter(editor: AztecText,
         }
     }
 
-    fun setTextSizeModifier(modifier: Int){
+    fun setTextSizeModifier(modifier: Int) {
         headerStyle.styles.forEach {
             it.value.fontSizeModifier = modifier
         }

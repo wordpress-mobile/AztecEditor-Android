@@ -58,7 +58,6 @@
         <attr name="headingSixFontColor" format="reference|color" />
         <attr name="taskListStrikethroughChecked" format="reference|boolean" />
         <attr name="taskListCheckedTextColor" format="reference|color" />
-        <attr name="textSizeModifier" format="reference|dimension" />
     </declare-styleable>
 
     <declare-styleable name="AztecToolbar">

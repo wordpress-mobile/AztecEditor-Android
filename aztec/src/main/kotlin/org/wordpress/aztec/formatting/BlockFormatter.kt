@@ -62,10 +62,10 @@ class BlockFormatter(editor: AztecText,
     }
 
     data class QuoteStyle(val quoteBackground: Int, val quoteColor: Int, val quoteTextColor: Int, val quoteBackgroundAlpha: Float, val quoteMargin: Int, val quotePadding: Int, val quoteWidth: Int, val verticalPadding: Int)
-    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int, val preformatTextSize: Int)
+    data class PreformatStyle(val preformatBackground: Int, val preformatBackgroundAlpha: Float, val preformatColor: Int, val verticalPadding: Int, val leadingMargin: Int, val preformatBorderColor: Int, val preformatBorderRadius: Int, val preformatBorderThickness: Int, var preformatTextSize: Int)
     data class ListItemStyle(val strikeThroughCheckedItems: Boolean, val checkedItemsTextColor: Int)
     data class HeaderStyles(val verticalPadding: Int, val styles: Map<AztecHeadingSpan.Heading, HeadingStyle>) {
-        data class HeadingStyle(val fontSize: Int, val fontColor: Int)
+        data class HeadingStyle(val fontSize: Int, var fontSizeModifier: Int, val fontColor: Int)
     }
     data class ExclusiveBlockStyles(val enabled: Boolean = false, val verticalParagraphMargin: Int)
     data class ParagraphStyle(val verticalMargin: Int)
@@ -1250,5 +1250,12 @@ class BlockFormatter(editor: AztecText,
                 editor.onSelectionChanged(start, end)
             }
         }
+    }
+
+    fun setTextSizeModifier(modifier: Int) {
+        headerStyle.styles.forEach {
+            it.value.fontSizeModifier = modifier
+        }
+        preformatStyle.preformatTextSize += modifier
     }
 }

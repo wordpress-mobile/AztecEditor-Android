@@ -45,6 +45,7 @@ import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -496,26 +497,32 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
                 headerStyle = BlockFormatter.HeaderStyles(verticalHeadingMargin, mapOf(
                         AztecHeadingSpan.Heading.H1 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingOneFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingOneFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H2 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingTwoFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingTwoFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H3 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingThreeFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingThreeFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H4 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFourFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingFourFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H5 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingFiveFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingFiveFontColor, 0)
                         ),
                         AztecHeadingSpan.Heading.H6 to BlockFormatter.HeaderStyles.HeadingStyle(
                                 styles.getDimensionPixelSize(R.styleable.AztecText_headingSixFontSize, 0),
+                                0,
                                 styles.getColor(R.styleable.AztecText_headingSixFontColor, 0)
                         )
                 )),
@@ -616,6 +623,21 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         enableTextChangedListener()
 
         isViewInitialized = true
+    }
+
+    /**
+    Sets the modifier that will be added to the base text size.
+    This is useful for situations where you have specified heading font size, instead or relying on default scaling.
+
+    Params: – textSizeModifierPx: the modifier in pixels
+     */
+    fun setTextSizeModifier(textSizeModifierPx: Int) {
+        blockFormatter.setTextSizeModifier(textSizeModifierPx)
+        if (textSize + textSizeModifierPx >= 0) {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize + textSizeModifierPx)
+        } else {
+            setTextSize(TypedValue.COMPLEX_UNIT_PX, 0f)
+        }
     }
 
     private fun <T> selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {

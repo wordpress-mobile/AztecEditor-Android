@@ -239,6 +239,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private var bypassObservationQueue: Boolean = false
     private var bypassMediaDeletedListener: Boolean = false
     private var bypassCrashPreventerInputFilter: Boolean = false
+    private var overrideSamsungPredictiveBehavior: Boolean = false
 
     var initialEditorContentParsedSHA256: ByteArray = ByteArray(0)
 
@@ -673,7 +674,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        return requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
+        val inputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
+
+        if (shouldOverridePredictiveTextBehavior()) {
+            AppLog.d(AppLog.T.EDITOR, "Disabling autocorrect on Samsung device with Samsung Keyboard with API 33")
+            outAttrs.inputType = outAttrs.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        }
+
+        return inputConnection
     }
 
     private fun InputConnection.wrapWithBackSpaceHandler(): InputConnection {
@@ -699,7 +707,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     private fun shouldOverridePredictiveTextBehavior(): Boolean {
         val currentKeyboard = Settings.Secure.getString(context.contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
         return Build.MANUFACTURER.lowercase(Locale.US) == "samsung" && Build.VERSION.SDK_INT >= 33 &&
-                (currentKeyboard !== null && currentKeyboard.startsWith("com.samsung.android.honeyboard"))
+                (currentKeyboard !== null && currentKeyboard.startsWith("com.samsung.android.honeyboard")) && overrideSamsungPredictiveBehavior
     }
 
     // Setup the keyListener(s) for Backspace and Enter key.
@@ -1776,9 +1784,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     // Grammarly implementation is often messing spans and cursor position, as described here:
     // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
     fun enableSamsungPredictiveBehaviorOverride() {
-       if(shouldOverridePredictiveTextBehavior()){
-           inputType = inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-       }
+        overrideSamsungPredictiveBehavior = true
     }
 
     fun isMediaDeletedListenerDisabled(): Boolean {

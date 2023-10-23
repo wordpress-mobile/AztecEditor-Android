@@ -44,6 +44,7 @@ import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -1497,12 +1498,65 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     open fun fromHtml(source: String, isInit: Boolean = true) {
+        val builder = getBuilderFromHtml(source)
+        setupCursorPosition(builder)
+        calculateSha(isInit)
+        loadMedia()
+    }
+
+    open suspend fun fromHtmlAsync(source: String, isInit: Boolean = true) = withContext(Dispatchers.Default) {
+        val builder = getBuilderFromHtml(source)
+        withContext(Dispatchers.Main) {
+            setupCursorPosition(builder)
+        }
+
+        calculateSha(isInit)
+        loadMedia()
+    }
+
+    private fun loadMedia() {
+        loadImages()
+        loadVideos()
+        mediaCallback?.mediaLoadingStarted()
+    }
+
+    private fun calculateSha(isInit: Boolean) {
+        if (isInit) {
+            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(
+                toPlainHtml(false),
+                initialEditorContentParsedSHA256
+            )
+        }
+    }
+
+    private fun setupCursorPosition(builder: SpannableStringBuilder) {
+        val cursorPosition = consumeCursorPosition(builder)
+        setSelection(0)
+
+        setTextKeepState(builder)
+        enableTextChangedListener()
+
+        setSelection(cursorPosition)
+    }
+
+    private fun getBuilderFromHtml(source: String): SpannableStringBuilder {
         val builder = SpannableStringBuilder()
         val parser = AztecParser(alignmentRendering, plugins)
 
         var cleanSource = CleaningUtils.cleanNestedBoldTags(source)
-        cleanSource = Format.removeSourceEditorFormatting(cleanSource, isInCalypsoMode, isInGutenbergMode)
-        builder.append(parser.fromHtml(cleanSource, context, shouldSkipTidying(), shouldIgnoreWhitespace()))
+        cleanSource = Format.removeSourceEditorFormatting(
+            cleanSource,
+            isInCalypsoMode,
+            isInGutenbergMode
+        )
+        builder.append(
+            parser.fromHtml(
+                cleanSource,
+                context,
+                shouldSkipTidying(),
+                shouldIgnoreWhitespace()
+            )
+        )
 
         Format.preProcessSpannedText(builder, isInCalypsoMode)
 
@@ -1512,22 +1566,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         builder.getSpans(0, builder.length, AztecDynamicImageSpan::class.java).forEach {
             it.textView = WeakReference(this)
         }
-
-        val cursorPosition = consumeCursorPosition(builder)
-        setSelection(0)
-
-        setTextKeepState(builder)
-        enableTextChangedListener()
-
-        setSelection(cursorPosition)
-
-        if (isInit) {
-            initialEditorContentParsedSHA256 = calculateInitialHTMLSHA(toPlainHtml(false), initialEditorContentParsedSHA256)
-        }
-
-        loadImages()
-        loadVideos()
-        mediaCallback?.mediaLoadingStarted()
+        return builder
     }
 
     private fun loadImages() {

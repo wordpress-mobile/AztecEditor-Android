@@ -44,7 +44,6 @@ import android.text.TextWatcher
 import android.text.style.SuggestionSpan
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.LayoutInflater

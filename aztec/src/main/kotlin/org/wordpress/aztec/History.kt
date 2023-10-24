@@ -61,7 +61,7 @@ class History(val historyEnabled: Boolean, val historySize: Int) {
             return
         }
 
-        while (historyCursor != historyList.size && historyCursor >= 0) {
+        while (historyCursor in 0 until historyList.size) {
             historyList.removeAt(historyCursor)
         }
 

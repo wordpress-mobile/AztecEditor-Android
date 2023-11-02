@@ -36,6 +36,7 @@ import android.os.Parcelable
 import android.provider.Settings
 import android.text.Editable
 import android.text.InputFilter
+import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -695,13 +696,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     }
 
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
-        val baseInputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
-        return if (shouldOverridePredictiveTextBehavior()) {
-            AppLog.d(AppLog.T.EDITOR, "Overriding predictive text behavior on Samsung device with Samsung Keyboard with API 33")
-            SamsungInputConnection(this, baseInputConnection)
-        } else {
-            baseInputConnection
+        val inputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
+
+        if (shouldOverridePredictiveTextBehavior()) {
+            AppLog.d(AppLog.T.EDITOR, "Disabling autocorrect on Samsung device with Samsung Keyboard with API 33")
+            outAttrs.inputType = outAttrs.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }
+
+        return inputConnection
     }
 
     private fun InputConnection.wrapWithBackSpaceHandler(): InputConnection {
@@ -1838,7 +1840,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         bypassMediaDeletedListener = false
     }
 
-    // removes Grammarly suggestions from default keyboard on Samsung devices on Android 13 (API 33)
+    // removes auto-correct from default keyboard on Samsung devices on Android 13 (API 33)
     // Grammarly implementation is often messing spans and cursor position, as described here:
     // https://github.com/wordpress-mobile/AztecEditor-Android/issues/1023
     fun enableSamsungPredictiveBehaviorOverride() {

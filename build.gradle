@@ -69,6 +69,7 @@ ext {
 }
 
 ext {
+    // mixed
     gradlePluginVersion = '3.3.1'
     kotlinCoroutinesVersion = '1.6.4'
     tagSoupVersion = '1.2.1'
@@ -80,5 +81,9 @@ ext {
     wordpressUtilsVersion = '3.5.0'
     espressoVersion = '3.0.1'
 
+    // other
+    wordpressLintVersion = '2.0.0'
+
+    // project
     aztecProjectDependency = project.hasProperty("aztecVersion") ? "org.wordpress:aztec:${project.getProperty("aztecVersion")}" : project(":aztec")
 }

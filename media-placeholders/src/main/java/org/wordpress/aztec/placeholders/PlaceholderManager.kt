@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecContentChangeWatcher
 import org.wordpress.aztec.AztecText
@@ -519,7 +520,7 @@ class PlaceholderManager(
         }
     }
 
-    private suspend fun clearAllViews() {
+    private suspend fun clearAllViews() = withContext(Dispatchers.Main){
         positionToIdMutex.withLock {
             for (placeholder in positionToId) {
                 container.findViewWithTag<View>(placeholder.uuid)?.let {
@@ -664,7 +665,7 @@ class PlaceholderManager(
     }
 
     override fun beforeHtmlProcessed(source: String): String {
-        runBlocking {
+        launch {
             clearAllViews()
         }
         return source

@@ -72,6 +72,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
     implementation 'org.apache.commons:commons-lang3:3.8.1'
+
+    lintChecks "org.wordpress:lint:$wordpressLintVersion"
 }
 
 project.afterEvaluate {

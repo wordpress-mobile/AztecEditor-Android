@@ -698,12 +698,14 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection {
         val inputConnection = requireNotNull(super.onCreateInputConnection(outAttrs)).wrapWithBackSpaceHandler()
 
-        if (shouldOverridePredictiveTextBehavior()) {
+        return if (shouldOverridePredictiveTextBehavior()) {
             AppLog.d(AppLog.T.EDITOR, "Disabling autocorrect on Samsung device with Samsung Keyboard with API 33")
             outAttrs.inputType = outAttrs.inputType or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-        }
 
-        return inputConnection
+            SamsungInputConnection(this, inputConnection)
+        } else {
+            inputConnection
+        }
     }
 
     private fun InputConnection.wrapWithBackSpaceHandler(): InputConnection {

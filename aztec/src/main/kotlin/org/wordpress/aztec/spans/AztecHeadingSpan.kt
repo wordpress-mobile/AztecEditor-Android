@@ -7,6 +7,7 @@ import android.text.TextPaint
 import android.text.style.LineHeightSpan
 import android.text.style.MetricAffectingSpan
 import android.text.style.UpdateLayout
+import android.util.Log
 import org.wordpress.aztec.AlignmentRendering
 import org.wordpress.aztec.AztecAttributes
 import org.wordpress.aztec.AztecTextFormat
@@ -124,8 +125,10 @@ open class AztecHeadingSpan(
         val spanStart = spanned.getSpanStart(this)
         val spanEnd = spanned.getSpanEnd(this)
 
+        Log.d("TESTING 101", "chooseHeight is called")
         // save original font metrics
         if (previousFontMetrics == null) {
+            Log.d("TESTING 101", "chooseHeight is called, inside previousFontMetrics null check")
             previousFontMetrics = Paint.FontMetricsInt()
             previousFontMetrics!!.top = fm.top
             previousFontMetrics!!.ascent = fm.ascent
@@ -153,11 +156,13 @@ open class AztecHeadingSpan(
         if (!addedTopPadding) {
             fm.ascent = previousFontMetrics!!.ascent
             fm.top = previousFontMetrics!!.top
+            Log.d("TESTING 101", "chooseHeight is called, addedTopPadding")
         }
 
         if (!addedBottomPadding) {
             fm.descent = previousFontMetrics!!.descent
             fm.bottom = previousFontMetrics!!.bottom
+            Log.d("TESTING 101", "chooseHeight is called, addedBottomPadding")
         }
     }
 
@@ -184,9 +189,12 @@ open class AztecHeadingSpan(
     override fun updateMeasureState(paint: TextPaint) {
         val headingSize = getHeadingSize()
         // when font size changes - reset cached font metrics to reapply vertical padding
-        if (headingSize != previousHeadingSize || previousSpacing != paint.fontSpacing) {
+        /* if (headingSize != previousHeadingSize || previousSpacing != paint.fontSpacing) {
             previousFontMetrics = null
         }
+        */
+        previousFontMetrics = null
+        Log.d("TESTING 101", "updateMeasureState is called and previousFontMetrics set to null")
         previousHeadingSize = headingSize
         previousSpacing = paint.fontSpacing
         when (headingSize) {

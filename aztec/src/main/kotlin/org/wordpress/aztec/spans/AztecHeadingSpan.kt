@@ -156,15 +156,27 @@ open class AztecHeadingSpan(
 
         // apply original font metrics to lines that should not have vertical padding
         if (!addedTopPadding) {
-            fm.ascent = previousFontMetrics!!.ascent
-            fm.top = previousFontMetrics!!.top
-            Log.d("TESTING 101", "chooseHeight is called, addedTopPadding")
+            previousFontMetrics?.let {
+                fm.ascent = it.ascent
+                fm.top = it.top
+            } ?: run {
+                // Handle the case where previousFontMetrics is null
+                Log.e("TESTING 101", "previousFontMetrics is null when processing top padding")
+                // Optionally, initialize previousFontMetrics here or take other corrective action
+                return
+            }
         }
 
         if (!addedBottomPadding) {
-            fm.descent = previousFontMetrics!!.descent
-            fm.bottom = previousFontMetrics!!.bottom
-            Log.d("TESTING 101", "chooseHeight is called, addedBottomPadding")
+            previousFontMetrics?.let {
+                fm.descent = it.descent
+                fm.bottom = it.bottom
+            } ?: run {
+                // Handle the case where previousFontMetrics is null
+                Log.e("TESTING 101", "previousFontMetrics is null when processing bottom padding")
+                // Optionally, initialize previousFontMetrics here or take other corrective action
+                return
+            }
         }
     }
 

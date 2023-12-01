@@ -136,6 +136,8 @@ open class AztecHeadingSpan(
             previousFontMetrics!!.descent = fm.descent
         }
 
+        previousFontMetrics = null
+
         var addedTopPadding = false
         var addedBottomPadding = false
 

@@ -40,6 +40,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
     data class HighlightStyle(@ColorRes val color: Int)
+    var markStyleColor: String? = null
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {
@@ -107,12 +108,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     AztecTextFormat.FORMAT_MARK -> {
-                        // For cases of an empty mark tag, either at the beginning of the text or in between
-                        if (textChangedEvent.inputStart == 0 && textChangedEvent.inputEnd == 1) {
-                            applyMarkInlineStyle(textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                        } else {
-                            applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                        }
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
                         // do nothing
@@ -250,10 +246,28 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         }
     }
 
-    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
-        val previousSpans = editableText.getSpans(start, end, MarkSpan::class.java)
-        previousSpans.forEach {
-            it.applyInlineStyleAttributes(editableText, start, end)
+    public fun updateMarkStyle(start: Int = selectionStart, end: Int = selectionEnd) {
+        val spans = editableText.getSpans(start, end, MarkSpan::class.java)
+        spans.forEach { span ->
+            if (span != null) {
+                val currentSpanStart = editableText.getSpanStart(span)
+                val currentSpanEnd = editableText.getSpanEnd(span)
+                val color = span.getTextColor()
+
+                editableText.removeSpan(span)
+                editableText.setSpan(
+                    MarkSpan(AztecAttributes(), color),
+                    currentSpanStart,
+                    currentSpanEnd,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                editableText.setSpan(
+                    MarkSpan(AztecAttributes(), markStyleColor),
+                    start,
+                    end,
+                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                )
+            }
         }
     }
 
@@ -444,7 +458,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecTextFormat.FORMAT_HIGHLIGHT -> {
                 HighlightSpan.create(context = editor.context, defaultStyle = highlightStyle)
             }
-            AztecTextFormat.FORMAT_MARK -> MarkSpan()
+            AztecTextFormat.FORMAT_MARK -> MarkSpan(AztecAttributes(), markStyleColor)
             else -> AztecStyleSpan(Typeface.NORMAL)
         }
     }

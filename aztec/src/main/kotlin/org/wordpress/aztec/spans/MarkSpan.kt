@@ -5,7 +5,6 @@ import android.text.TextPaint
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
 
-
 class MarkSpan : CharacterStyle, IAztecInlineSpan {
     override var TAG = "mark"
 
@@ -35,6 +34,6 @@ class MarkSpan : CharacterStyle, IAztecInlineSpan {
     }
 
     fun getTextColor(): String {
-        return java.lang.String.format("#%06X", 0xFFFFFF and textColor!!);
+        return java.lang.String.format("#%06X", 0xFFFFFF and textColor!!)
     }
 }

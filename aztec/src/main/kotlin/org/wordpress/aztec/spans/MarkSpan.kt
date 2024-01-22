@@ -34,6 +34,7 @@ class MarkSpan : CharacterStyle, IAztecInlineSpan {
     }
 
     fun getTextColor(): String {
-        return java.lang.String.format("#%06X", 0xFFFFFF and textColor!!)
+        val currentColor = textColor ?: 0
+        return String.format("#%06X", 0xFFFFFF and currentColor)
     }
 }

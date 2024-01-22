@@ -109,6 +109,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                     }
                     AztecTextFormat.FORMAT_MARK -> {
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                        applyAfterMarkInlineStyle(textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
                         // do nothing
@@ -246,27 +247,32 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         }
     }
 
-    public fun updateMarkStyle(start: Int = selectionStart, end: Int = selectionEnd) {
+    private fun applyAfterMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
+        // If there's no new mark style color to update, it skips applying the style updates.
+        if (markStyleColor == null) {
+            return
+        }
+
         val spans = editableText.getSpans(start, end, MarkSpan::class.java)
         spans.forEach { span ->
             if (span != null) {
-                val currentSpanStart = editableText.getSpanStart(span)
-                val currentSpanEnd = editableText.getSpanEnd(span)
                 val color = span.getTextColor()
+                val currentSpanStart = editableText.getSpanStart(span)
 
                 editableText.removeSpan(span)
                 editableText.setSpan(
                     MarkSpan(AztecAttributes(), color),
                     currentSpanStart,
-                    currentSpanEnd,
+                    start,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
                 editableText.setSpan(
                     MarkSpan(AztecAttributes(), markStyleColor),
                     start,
                     end,
-                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
+                markStyleColor = null;
             }
         }
     }

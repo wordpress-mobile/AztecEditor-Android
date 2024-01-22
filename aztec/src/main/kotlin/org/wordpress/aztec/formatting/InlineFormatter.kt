@@ -272,7 +272,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                markStyleColor = null;
+                markStyleColor = null
             }
         }
     }

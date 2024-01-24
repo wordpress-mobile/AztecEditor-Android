@@ -127,10 +127,10 @@ open class AztecHeadingSpan(
         // save original font metrics
         if (previousFontMetrics == null) {
             previousFontMetrics = Paint.FontMetricsInt()
-            previousFontMetrics!!.top = fm.top
-            previousFontMetrics!!.ascent = fm.ascent
-            previousFontMetrics!!.bottom = fm.bottom
-            previousFontMetrics!!.descent = fm.descent
+            previousFontMetrics?.top = fm.top
+            previousFontMetrics?.ascent = fm.ascent
+            previousFontMetrics?.bottom = fm.bottom
+            previousFontMetrics?.descent = fm.descent
         }
 
         var addedTopPadding = false
@@ -151,13 +151,17 @@ open class AztecHeadingSpan(
 
         // apply original font metrics to lines that should not have vertical padding
         if (!addedTopPadding) {
-            fm.ascent = previousFontMetrics!!.ascent
-            fm.top = previousFontMetrics!!.top
+            previousFontMetrics?.let {
+                fm.ascent = it.ascent
+                fm.top = it.top
+            }
         }
 
         if (!addedBottomPadding) {
-            fm.descent = previousFontMetrics!!.descent
-            fm.bottom = previousFontMetrics!!.bottom
+            previousFontMetrics?.let {
+                fm.descent = it.descent
+                fm.bottom = it.bottom
+            }
         }
     }
 

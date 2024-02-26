@@ -167,6 +167,9 @@ class IndentFormatter(editor: AztecText) : AztecFormatter(editor) {
      * Checks whether any line of the selection can be outdented
      */
     fun isOutdentAvailable(): Boolean {
+        if (selectionStart == -1) {
+            return false
+        }
         val previousLineBreak = editableText.substring(0, selectionStart).lastIndexOf("\n")
         if (previousLineBreak > 0 && selectionCanBeOutdented(previousLineBreak + 1, selectionStart)) {
             return true

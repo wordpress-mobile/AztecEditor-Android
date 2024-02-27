@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 import org.wordpress.aztec.AztecAttributes
+import org.wordpress.aztec.source.CssStyleFormatter
 
 class MarkSpan : CharacterStyle, IAztecInlineSpan {
     override var TAG = "mark"
@@ -13,6 +14,12 @@ class MarkSpan : CharacterStyle, IAztecInlineSpan {
 
     constructor(attributes: AztecAttributes = AztecAttributes()) : super() {
         this.attributes = attributes
+
+        val color = CssStyleFormatter.getStyleAttribute(attributes,
+            CssStyleFormatter.CSS_COLOR_ATTRIBUTE)
+        if (color.isNotEmpty()) {
+            textColor = Color.parseColor(color)
+        }
     }
 
     constructor(attributes: AztecAttributes = AztecAttributes(), colorString: String?) : super() {

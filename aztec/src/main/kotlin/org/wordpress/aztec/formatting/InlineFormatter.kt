@@ -133,6 +133,14 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             return
         }
 
+        // Remove leading Mark formatting styles if the format is not active
+        if (!editor.selectedStyles.contains(AztecTextFormat.FORMAT_MARK) && newStart >=1 && end > 1) {
+            val markSpan = editableText.getSpans(newStart - 1, newStart, MarkSpan::class.java);
+            if (markSpan.isNotEmpty()) {
+                removeInlineCssStyle(newStart, end)
+            }
+        }
+
         editableText.getSpans(newStart, end, IAztecInlineSpan::class.java).forEach {
             if (!editor.selectedStyles.contains(spanToTextFormat(it)) || ignoreSelectedStyles || (newStart == 0 && end == 0) ||
                     (newStart > end && editableText.length > end && editableText[end] == '\n')) {

@@ -125,20 +125,22 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         val newStart = if (start > end) end else start
         // if there is END_OF_BUFFER_MARKER at the end of or range, extend the range to include it
 
+        // Clear Mark formatting styles
+        if (!editor.selectedStyles.contains(AztecTextFormat.FORMAT_MARK) && start >= 1 && end > 1 ) {
+            val previousMarkSpan = editableText.getSpans(start - 1, start, MarkSpan::class.java);
+            val markSpan = editableText.getSpans(start, end, MarkSpan::class.java);
+            if (markSpan.isNotEmpty() || (previousMarkSpan.isNotEmpty() && markStyleColor == null)) {
+                removeInlineCssStyle(start, end)
+                return
+            }
+        }
+
         // remove lingering empty spans when removing characters
         if (start > end) {
             editableText.getSpans(newStart, end, IAztecInlineSpan::class.java)
                     .filter { editableText.getSpanStart(it) == editableText.getSpanEnd(it) }
                     .forEach { editableText.removeSpan(it) }
             return
-        }
-
-        // Remove leading Mark formatting styles if the format is not active
-        if (!editor.selectedStyles.contains(AztecTextFormat.FORMAT_MARK) && newStart >=1 && end > 1) {
-            val markSpan = editableText.getSpans(newStart - 1, newStart, MarkSpan::class.java);
-            if (markSpan.isNotEmpty()) {
-                removeInlineCssStyle(newStart, end)
-            }
         }
 
         editableText.getSpans(newStart, end, IAztecInlineSpan::class.java).forEach {
@@ -266,21 +268,28 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             if (span != null) {
                 val color = span.getTextColor()
                 val currentSpanStart = editableText.getSpanStart(span)
+                val currentSpanEnd = editableText.getSpanEnd(span)
 
-                editableText.removeSpan(span)
-                editableText.setSpan(
-                    MarkSpan(AztecAttributes(), color),
-                    currentSpanStart,
-                    start,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                editableText.setSpan(
-                    MarkSpan(AztecAttributes(), markStyleColor),
-                    start,
-                    end,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                markStyleColor = null
+                if (end < currentSpanEnd) {
+                    markStyleColor = null
+                    return
+                }
+
+                if (!color.equals(markStyleColor, ignoreCase = true)) {
+                    editableText.removeSpan(span)
+                    editableText.setSpan(
+                        MarkSpan(AztecAttributes(), color),
+                        currentSpanStart,
+                        start,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    editableText.setSpan(
+                        MarkSpan(AztecAttributes(), markStyleColor),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
             }
         }
     }

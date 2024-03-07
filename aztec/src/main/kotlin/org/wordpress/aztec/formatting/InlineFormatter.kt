@@ -129,7 +129,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         if (!editor.selectedStyles.contains(AztecTextFormat.FORMAT_MARK) && start >= 1 && end > 1 ) {
             val previousMarkSpan = editableText.getSpans(start - 1, start, MarkSpan::class.java)
             val markSpan = editableText.getSpans(start, end, MarkSpan::class.java)
-            if (markSpan.isNotEmpty() || (previousMarkSpan.isNotEmpty() && markStyleColor == null)) {
+            if (markSpan.isNotEmpty() || previousMarkSpan.isNotEmpty()) {
                 removeInlineCssStyle(start, end)
                 return
             }

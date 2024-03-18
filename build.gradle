@@ -65,7 +65,7 @@ subprojects {
 ext {
     minSdkVersion = 24
     compileSdkVersion = 34
-    targetSdkVersion = 33
+    targetSdkVersion = 34
 }
 
 ext {
@@ -75,7 +75,7 @@ ext {
     tagSoupVersion = '1.2.1'
     glideVersion = '4.10.0'
     picassoVersion = '2.5.2'
-    robolectricVersion = '4.9'
+    robolectricVersion = '4.11'
     jUnitVersion = '4.12'
     jSoupVersion = '1.11.3'
     wordpressUtilsVersion = '3.5.0'

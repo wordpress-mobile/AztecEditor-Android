@@ -37,10 +37,10 @@ import org.wordpress.aztec.watchers.TextChangedEvent
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val highlightStyle: HighlightStyle) : AztecFormatter(editor) {
 
     var backgroundSpanColor: Int? = null
+    var markStyleColor: String? = null
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
     data class HighlightStyle(@ColorRes val color: Int)
-    var markStyleColor: String? = null
 
     fun toggle(textFormat: ITextFormat) {
         if (!containsInlineStyle(textFormat)) {

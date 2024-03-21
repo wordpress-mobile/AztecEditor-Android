@@ -143,7 +143,18 @@ class SuggestionWatcher(aztecText: AztecText) : TextWatcher {
     private fun reapplyCarriedOverInlineSpans(editableText: Spannable) {
         carryOverSpans.forEach {
             if (it.start >= 0 && it.end <= editableText.length && it.start < it.end) {
-                editableText.setSpan(it.span, it.start, it.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                try {
+                    editableText.setSpan(
+                        it.span,
+                        it.start,
+                        it.end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                } catch (e: IndexOutOfBoundsException) {
+                    // This is a workaround for a possible bug in the Android framework
+                    // https://github.com/wordpress-mobile/WordPress-Android/issues/20481
+                    e.printStackTrace()
+                }
             }
         }
     }

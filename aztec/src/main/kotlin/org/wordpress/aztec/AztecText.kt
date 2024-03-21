@@ -2438,6 +2438,18 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         this.uncaughtExceptionHandler = null
     }
 
+    override fun setSelection(index: Int) {
+        if (index in 0..this.length()) {
+            super.setSelection(index)
+        } else if (index < 0) {
+            AppLog.e(AppLog.T.EDITOR, "Attempted to set selection to incorrect value $index")
+            setSelection(0)
+        } else if (index > this.length()) {
+            AppLog.e(AppLog.T.EDITOR, "Attempted to set selection to incorrect value $index")
+            setSelection(this.length())
+        }
+    }
+
     override fun dispatchHoverEvent(event: MotionEvent): Boolean {
         return if (accessibilityDelegate.onHoverEvent(event)) true else super.dispatchHoverEvent(event)
     }

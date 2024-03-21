@@ -10,38 +10,36 @@ class MarkSpan : CharacterStyle, IAztecInlineSpan {
     override var TAG = "mark"
 
     override var attributes: AztecAttributes = AztecAttributes()
-    var textColor: Int? = null
+    private val textColorValue: Int?
 
     constructor(attributes: AztecAttributes = AztecAttributes()) : super() {
         this.attributes = attributes
 
         val color = CssStyleFormatter.getStyleAttribute(attributes,
             CssStyleFormatter.CSS_COLOR_ATTRIBUTE)
-        if (color.isNotEmpty()) {
-            textColor = Color.parseColor(color)
+        textColorValue = if (color.isNotEmpty()) {
+            Color.parseColor(color)
+        } else {
+            null
         }
     }
 
     constructor(attributes: AztecAttributes = AztecAttributes(), colorString: String?) : super() {
         this.attributes = attributes
 
-        if (colorString != null) {
-            textColor = Color.parseColor(colorString)
+        textColorValue = if (colorString != null) {
+            Color.parseColor(colorString)
+        } else {
+            null
         }
     }
 
     override fun updateDrawState(tp: TextPaint) {
-        configureTextPaint(tp)
-    }
-
-    private fun configureTextPaint(tp: TextPaint) {
-        if (textColor != null) {
-            tp.color = textColor as Int
-        }
+        textColorValue?.let { tp.color = it }
     }
 
     fun getTextColor(): String {
-        val currentColor = textColor ?: 0
+        val currentColor = textColorValue ?: 0
         return String.format("#%06X", 0xFFFFFF and currentColor)
     }
 }

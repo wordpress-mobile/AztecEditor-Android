@@ -37,6 +37,7 @@ import org.wordpress.aztec.watchers.TextChangedEvent
 class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val highlightStyle: HighlightStyle) : AztecFormatter(editor) {
 
     var backgroundSpanColor: Int? = null
+    var markStyleColor: String? = null
 
     data class CodeStyle(val codeBackground: Int, val codeBackgroundAlpha: Float, val codeColor: Int)
     data class HighlightStyle(@ColorRes val color: Int)
@@ -107,12 +108,8 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                         applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     AztecTextFormat.FORMAT_MARK -> {
-                        // For cases of an empty mark tag, either at the beginning of the text or in between
-                        if (textChangedEvent.inputStart == 0 && textChangedEvent.inputEnd == 1) {
-                            applyMarkInlineStyle(textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                        } else {
-                            applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
-                        }
+                        applyInlineStyle(item, textChangedEvent.inputStart, textChangedEvent.inputEnd)
+                        applyAfterMarkInlineStyle(textChangedEvent.inputStart, textChangedEvent.inputEnd)
                     }
                     else -> {
                         // do nothing
@@ -127,6 +124,16 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
     private fun clearInlineStyles(start: Int, end: Int, ignoreSelectedStyles: Boolean) {
         val newStart = if (start > end) end else start
         // if there is END_OF_BUFFER_MARKER at the end of or range, extend the range to include it
+
+        // Clear Mark formatting styles
+        if (!editor.selectedStyles.contains(AztecTextFormat.FORMAT_MARK) && start >= 1 && end > 1 ) {
+            val previousMarkSpan = editableText.getSpans(start - 1, start, MarkSpan::class.java)
+            val markSpan = editableText.getSpans(start, end, MarkSpan::class.java)
+            if (markSpan.isNotEmpty() || previousMarkSpan.isNotEmpty()) {
+                removeInlineCssStyle(start, end)
+                return
+            }
+        }
 
         // remove lingering empty spans when removing characters
         if (start > end) {
@@ -250,10 +257,40 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
         }
     }
 
-    private fun applyMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
-        val previousSpans = editableText.getSpans(start, end, MarkSpan::class.java)
-        previousSpans.forEach {
-            it.applyInlineStyleAttributes(editableText, start, end)
+    private fun applyAfterMarkInlineStyle(start: Int = selectionStart, end: Int = selectionEnd) {
+        // If there's no new mark style color to update, it skips applying the style updates.
+        if (markStyleColor == null) {
+            return
+        }
+
+        val spans = editableText.getSpans(start, end, MarkSpan::class.java)
+        spans.forEach { span ->
+            if (span != null) {
+                val color = span.getTextColor()
+                val currentSpanStart = editableText.getSpanStart(span)
+                val currentSpanEnd = editableText.getSpanEnd(span)
+
+                if (end < currentSpanEnd) {
+                    markStyleColor = null
+                    return
+                }
+
+                if (!color.equals(markStyleColor, ignoreCase = true)) {
+                    editableText.removeSpan(span)
+                    editableText.setSpan(
+                        MarkSpan(AztecAttributes(), color),
+                        currentSpanStart,
+                        start,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    editableText.setSpan(
+                        MarkSpan(AztecAttributes(), markStyleColor),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
         }
     }
 
@@ -444,7 +481,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecTextFormat.FORMAT_HIGHLIGHT -> {
                 HighlightSpan.create(context = editor.context, defaultStyle = highlightStyle)
             }
-            AztecTextFormat.FORMAT_MARK -> MarkSpan()
+            AztecTextFormat.FORMAT_MARK -> MarkSpan(AztecAttributes(), markStyleColor)
             else -> AztecStyleSpan(Typeface.NORMAL)
         }
     }

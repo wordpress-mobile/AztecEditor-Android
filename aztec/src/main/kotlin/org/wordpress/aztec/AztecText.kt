@@ -839,6 +839,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+            if (isInGutenbergMode && (selectionStart == 0 && isTextSelected())) {
+                return false
+            }
+
             if (!consumeHistoryEvent) {
                 history.beforeTextChanged(this@AztecText)
             }

@@ -1344,6 +1344,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_BOLD,
             AztecTextFormat.FORMAT_STRONG -> inlineFormatter.toggleAny(ToolbarAction.BOLD.textFormats)
+            AztecTextFormat.FORMAT_MARK -> inlineFormatter.toggle(textFormat)
             AztecTextFormat.FORMAT_UNORDERED_LIST -> blockFormatter.toggleUnorderedList()
             AztecTextFormat.FORMAT_TASK_LIST -> blockFormatter.toggleTaskList()
             AztecTextFormat.FORMAT_ORDERED_LIST -> blockFormatter.toggleOrderedList()

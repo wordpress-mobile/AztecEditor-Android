@@ -17,5 +17,5 @@ gcloud firebase test android run \
 	--type instrumentation \
 	--app app/build/outputs/apk/debug/app-debug.apk \
 	--test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
-	--device model=Nexus5X,version=26,locale=en,orientation=portrait \
+	--device model=Pixel9a,version=35,locale=en,orientation=portrait \
 	--verbosity info

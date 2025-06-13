@@ -94,6 +94,8 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
     private var toolbarItems: ToolbarItems? = null
     private var tasklistEnabled: Boolean = false
 
+    private var editorSelectionListener: AztecText.OnSelectionChangedListener? = null
+
     constructor(context: Context) : super(context) {
         initView(null)
     }
@@ -408,12 +410,14 @@ class AztecToolbar : FrameLayout, IAztecToolbar, OnMenuItemClickListener {
         this.sourceEditor = sourceEditor
         this.editor = editor
 
-        // highlight toolbar buttons based on what styles are applied to the text beneath cursor
-        this.editor!!.setOnSelectionChangedListener(object : AztecText.OnSelectionChangedListener {
+        editorSelectionListener?.let { this.editor?.removeOnSelectionChangedListener(it) }
+        editorSelectionListener = object : AztecText.OnSelectionChangedListener {
             override fun onSelectionChanged(selStart: Int, selEnd: Int) {
                 highlightAppliedStyles(selStart, selEnd)
             }
-        })
+        }
+        this.editor?.setOnSelectionChangedListener(editorSelectionListener!!)
+
         setupToolbarItems()
 
         if (sourceEditor == null) {

@@ -327,6 +327,8 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     private lateinit var listItemStyle: BlockFormatter.ListItemStyle
 
+    private var selectionChangedListeners = CompositeSelectionChangedListener()
+
     override fun onDraw(canvas: Canvas) {
         plugins.filterIsInstance<IOnDrawPlugin>().forEach {
             it.onDraw(canvas)
@@ -336,6 +338,19 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     interface OnSelectionChangedListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
+    }
+
+    private class CompositeSelectionChangedListener : OnSelectionChangedListener {
+        private val listeners = mutableListOf<OnSelectionChangedListener>()
+
+        fun addListener(listener: OnSelectionChangedListener) {
+            if (!listeners.contains(listener)) listeners.add(listener)
+        }
+
+        fun removeListener(listener: OnSelectionChangedListener) = listeners.remove(listener)
+
+        override fun onSelectionChanged(selStart: Int, selEnd: Int) =
+            listeners.forEach { it.onSelectionChanged(selStart, selEnd) }
     }
 
     interface OnImeBackListener {
@@ -1211,8 +1226,12 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         return blockFormatter.isOutdentAvailable()
     }
 
-    fun setOnSelectionChangedListener(onSelectionChangedListener: OnSelectionChangedListener) {
-        this.onSelectionChangedListener = onSelectionChangedListener
+    fun setOnSelectionChangedListener(listener: OnSelectionChangedListener) {
+        selectionChangedListeners.addListener(listener)
+    }
+
+    fun removeOnSelectionChangedListener(listener: OnSelectionChangedListener) {
+        selectionChangedListeners.removeListener(listener)
     }
 
     fun getAztecKeyListener(): OnAztecKeyListener? {
@@ -1324,7 +1343,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             return
         }
 
-        onSelectionChangedListener?.onSelectionChanged(selStart, selEnd)
+        selectionChangedListeners.onSelectionChanged(selStart, selEnd)
         // Gutenberg controls the selected styles so we need to prevent Aztec to modify them
         if (!isInGutenbergMode) {
             setSelectedStyles(getAppliedStyles(selStart, selEnd))

@@ -204,11 +204,14 @@ class LinkHistoryTests : BaseHistoryTest() {
      */
     private fun addLinkAndVerify(editorPage: EditorPage, link: String, expected: String, name: String? = null) {
         editorPage.makeLink()
-        EditLinkPage().updateURL(link)
+        editorPage.threadSleep(throttleTime)
+
+        val editLinkPage = EditLinkPage()
+        editLinkPage.updateURL(link)
         name?.let {
-            EditLinkPage().updateName(it)
+            editLinkPage.updateName(it)
         }
-        EditLinkPage().ok()
+        editLinkPage.ok()
 
         editorPage
                 .toggleHtml()

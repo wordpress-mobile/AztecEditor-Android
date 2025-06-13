@@ -37,7 +37,7 @@ class EditLinkPage : BasePage() {
         try {
             urlField.perform(click())
             urlField.perform(replaceText(url), ViewActions.closeSoftKeyboard())
-        } catch (e: RuntimeException){
+        } catch (e: RuntimeException) {
             // If the URL field is not visible, it might be because the keyboard is open.
             // Close the keyboard and try again.
             urlField.perform(ViewActions.closeSoftKeyboard())

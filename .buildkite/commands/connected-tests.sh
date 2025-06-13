@@ -17,6 +17,5 @@ gcloud firebase test android run \
 	--type instrumentation \
 	--app app/build/outputs/apk/debug/app-debug.apk \
 	--test app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
-	# tegu = Pixel 9a
-	--device model=tegu,version=35,locale=en,orientation=portrait \
+	--device model=redfin,version=30 \
 	--verbosity info

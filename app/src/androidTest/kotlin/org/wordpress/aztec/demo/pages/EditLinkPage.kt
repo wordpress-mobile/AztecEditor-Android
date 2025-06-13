@@ -42,6 +42,7 @@ class EditLinkPage : BasePage() {
             // Close the keyboard and try again.
             urlField.perform(ViewActions.closeSoftKeyboard())
             urlField.perform(replaceText(url), ViewActions.closeSoftKeyboard())
+            e.printStackTrace()
         }
         label("Entered url")
 

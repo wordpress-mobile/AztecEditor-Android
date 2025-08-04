@@ -36,6 +36,16 @@ class SpanWrapper<T>(var spannable: Spannable, var span: T) {
         set(flags) { setSpanOrLogError(span, start, end, flags) }
 
     private fun setSpanOrLogError(span: T, start: Int, end: Int, flags: Int) {
+        if (start < 0 || end < 0) {
+            AppLog.w(AppLog.T.EDITOR, "span starts/ends before 0")
+            return
+        }
+
+        if (end < start) {
+            AppLog.w(AppLog.T.EDITOR, "span end is before start")
+            return
+        }
+
         // Silently ignore invalid PARAGRAPH spans that don't start or end at paragraph boundary
         if (isInvalidParagraph(spannable, start, end, flags)) return
 

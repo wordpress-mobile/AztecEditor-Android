@@ -4,10 +4,13 @@ package org.wordpress.aztec.placeholders
 
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Looper
 import android.text.Editable
 import android.text.Layout
 import android.text.Spanned
 import android.view.View
+import android.view.View.MeasureSpec
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
@@ -17,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.zIndex
 import androidx.core.content.ContextCompat
@@ -339,12 +343,23 @@ class ComposePlaceholderManager(
         val editorWidth = if (aztecText.width > 0) {
             aztecText.width - aztecText.paddingStart - aztecText.paddingEnd
         } else aztecText.maxImagesWidth
-        drawable.setBounds(
-            0,
-            0,
-            adapter.calculateWidth(attrs, editorWidth),
-            adapter.calculateHeight(attrs, editorWidth)
-        )
+
+        if (adapter.sizingPolicy(attrs) != ComposePlaceholderAdapter.SizingPolicy.Unknown) {
+            // New behavior with enhanced measuring
+            val widthPx = adapter.calculateWidth(attrs, editorWidth)
+            val heightPx = computeHeightPx(adapter, attrs, editorWidth, widthPx)
+            // Reserve additional flow space after the placeholder to visually separate following blocks
+            val flowHeight = heightPx + (adapter.bottomSpacingPx(attrs))
+            drawable.setBounds(0, 0, widthPx, flowHeight)
+        } else {
+            // Legacy behavior
+            drawable.setBounds(
+                0,
+                0,
+                adapter.calculateWidth(attrs, editorWidth),
+                adapter.calculateHeight(attrs, editorWidth)
+            )
+        }
         return drawable
     }
 
@@ -409,40 +424,160 @@ class ComposePlaceholderManager(
 
         val adapter = adapters[type]!!
         val windowWidth = parentTextViewRect.right - parentTextViewRect.left - EDITOR_INNER_PADDING
+
+        // Check if using new sizing policy or legacy behavior
+        val newComposeView = if (adapter.sizingPolicy(attrs) != ComposePlaceholderAdapter.SizingPolicy.Unknown) {
+            createComposeViewWithSizingPolicy(
+                adapter, attrs, uuid, windowWidth, parentTextViewRect, parentTextViewTopAndBottomOffset
+            )
+        } else {
+            createComposeViewWithLegacy(
+                adapter, attrs, uuid, windowWidth, parentTextViewRect, parentTextViewTopAndBottomOffset
+            )
+        }
+
+        // Check if view needs updating
+        val existingView = _composeViewState.value[uuid]
+        if (existingView != null &&
+            existingView.width == newComposeView.width &&
+            existingView.height == newComposeView.height &&
+            existingView.topMargin == newComposeView.topMargin &&
+            existingView.leftMargin == newComposeView.leftMargin &&
+            existingView.attrs == attrs
+        ) {
+            return
+        }
+
+        // Update compose view state
+        _composeViewState.value = _composeViewState.value.toMutableMap().apply {
+            this[uuid] = newComposeView
+        }
+    }
+
+    private suspend fun createComposeViewWithSizingPolicy(
+        adapter: ComposePlaceholderAdapter,
+        attrs: AztecAttributes,
+        uuid: String,
+        windowWidth: Int,
+        parentTextViewRect: Rect,
+        parentTextViewTopAndBottomOffset: Int
+    ): ComposeView {
+        val targetWidth = adapter.calculateWidth(attrs, windowWidth)
+        val measuredHeight = computeHeightPx(adapter, attrs, windowWidth, targetWidth)
+        val extraBottom = adapter.bottomSpacingPx(attrs)
+        val height = measuredHeight + extraBottom
+        parentTextViewRect.top += parentTextViewTopAndBottomOffset
+        parentTextViewRect.bottom = parentTextViewRect.top + height
+
+        val overlayPad = adapter.overlayPaddingPx(attrs)
+        val newLeftPadding = parentTextViewRect.left + overlayPad.left + aztecText.paddingStart
+        val newTopPadding = parentTextViewRect.top + overlayPad.top
+        val adjustedHeight = measuredHeight + adapter.contentHeightAdjustmentPx(attrs)
+
+        return ComposeView(
+            uuid = uuid,
+            width = targetWidth,
+            height = adjustedHeight,
+            topMargin = newTopPadding,
+            leftMargin = newLeftPadding,
+            visible = true,
+            adapterKey = adapter.type,
+            attrs = attrs
+        )
+    }
+
+    private suspend fun createComposeViewWithLegacy(
+        adapter: ComposePlaceholderAdapter,
+        attrs: AztecAttributes,
+        uuid: String,
+        windowWidth: Int,
+        parentTextViewRect: Rect,
+        parentTextViewTopAndBottomOffset: Int
+    ): ComposeView {
         val height = adapter.calculateHeight(attrs, windowWidth)
         parentTextViewRect.top += parentTextViewTopAndBottomOffset
         parentTextViewRect.bottom = parentTextViewRect.top + height
 
-        val box = _composeViewState.value[uuid]
         val newWidth = adapter.calculateWidth(attrs, windowWidth) - EDITOR_INNER_PADDING
         val newHeight = height - EDITOR_INNER_PADDING
         val padding = 10
         val newLeftPadding = parentTextViewRect.left + padding + aztecText.paddingStart
         val newTopPadding = parentTextViewRect.top + padding
-        box?.let { existingView ->
-            val widthSame = existingView.width == newWidth
-            val heightSame = existingView.height == newHeight
-            val topMarginSame = existingView.topMargin == newTopPadding
-            val leftMarginSame = existingView.leftMargin == newLeftPadding
-            val attrsSame = existingView.attrs == attrs
-            if (widthSame && heightSame && topMarginSame && leftMarginSame && attrsSame) {
-                return
+
+        return ComposeView(
+            uuid = uuid,
+            width = newWidth,
+            height = newHeight,
+            topMargin = newTopPadding,
+            leftMargin = newLeftPadding,
+            visible = true,
+            adapterKey = adapter.type,
+            attrs = attrs
+        )
+    }
+
+    private suspend fun computeHeightPx(
+        adapter: ComposePlaceholderAdapter,
+        attrs: AztecAttributes,
+        windowWidth: Int,
+        contentWidthPx: Int
+    ): Int =
+        when (val policy = adapter.sizingPolicy(attrs)) {
+            is ComposePlaceholderAdapter.SizingPolicy.FixedHeightPx -> policy.heightPx
+
+            is ComposePlaceholderAdapter.SizingPolicy.AspectRatio -> (policy.ratio * contentWidthPx).toInt()
+
+            ComposePlaceholderAdapter.SizingPolicy.MatchWidthWrapContentHeight ->
+                preMeasureHeight(adapter, attrs, contentWidthPx) ?: adapter.calculateHeight(attrs, windowWidth)
+
+            ComposePlaceholderAdapter.SizingPolicy.Unknown -> adapter.calculateHeight(attrs, windowWidth)
+        }
+
+    private suspend fun preMeasureHeight(
+        adapter: ComposePlaceholderAdapter,
+        attrs: AztecAttributes,
+        widthPx: Int
+    ): Int? {
+        // Pre-measure only on main thread. If not on main, fall back to legacy path
+        if (Looper.myLooper() != Looper.getMainLooper()) return null
+        val measurer = object : ComposePlaceholderAdapter.PlaceholderMeasurer {
+            override suspend fun measure(content: @Composable () -> Unit, widthPx: Int): Int {
+                if (!aztecText.isAttachedToWindow) return -1
+                val parent = aztecText.parent as? ViewGroup ?: return -1
+                val composeView = ComposeView(aztecText.context)
+                composeView.visibility = View.GONE
+                composeView.layoutParams = ViewGroup.LayoutParams(0, 0)
+                try {
+                    parent.addView(composeView)
+                    composeView.setContent {
+                        Box(
+                            Modifier
+                                .width(with(LocalDensity.current) { widthPx.toDp() })
+                        ) {
+                            content()
+                        }
+                    }
+                    val wSpec = MeasureSpec.makeMeasureSpec(widthPx, MeasureSpec.EXACTLY)
+                    val hSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    composeView.measure(wSpec, hSpec)
+                    return composeView.measuredHeight
+                } catch (_: IllegalStateException) {
+                    return -1
+                } finally {
+                    parent.removeView(composeView)
+                }
             }
         }
-        _composeViewState.value = _composeViewState.value.let { state ->
-            val mutableState = state.toMutableMap()
-            mutableState[uuid] = ComposeView(
-                uuid = uuid,
-                width = newWidth,
-                height = newHeight,
-                topMargin = newTopPadding,
-                leftMargin = newLeftPadding,
-                visible = true,
-                adapterKey = adapter.type,
-                attrs = attrs
-            )
-            mutableState
+        // Let adapter compute/measure if it wants to
+        val fromAdapter = adapter.preComposeMeasureHeight(attrs, widthPx, measurer)
+        if (fromAdapter != null && fromAdapter >= 0) return fromAdapter
+        // If adapter did not implement it but hinted wrap content policy, measure the actual content once
+        if (adapter.sizingPolicy(attrs) == ComposePlaceholderAdapter.SizingPolicy.MatchWidthWrapContentHeight) {
+            val uuid = attrs.getValue(UUID_ATTRIBUTE)
+            val h = measurer.measure(content = { adapter.Placeholder(uuid, attrs) }, widthPx = widthPx)
+            return if (h >= 0) h else null
         }
+        return null
     }
 
     private fun validateAttributes(attributes: AztecAttributes): Boolean {

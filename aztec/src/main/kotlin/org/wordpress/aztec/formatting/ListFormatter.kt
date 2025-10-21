@@ -5,6 +5,8 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpan
 import org.wordpress.aztec.spans.AztecOrderedListSpanAligned
+import org.wordpress.aztec.spans.AztecTaskListSpan
+import org.wordpress.aztec.spans.AztecTaskListSpanAligned
 import org.wordpress.aztec.spans.AztecUnorderedListSpan
 import org.wordpress.aztec.spans.AztecUnorderedListSpanAligned
 import org.wordpress.aztec.spans.IAztecBlockSpan
@@ -96,6 +98,14 @@ class ListFormatter(editor: AztecText) : AztecFormatter(editor) {
             is AztecOrderedListSpan -> AztecOrderedListSpan(updatedNestingLevel, attributes, listStyle)
             is AztecUnorderedListSpanAligned -> AztecUnorderedListSpanAligned(updatedNestingLevel, attributes, listStyle, alignment)
             is AztecUnorderedListSpan -> AztecUnorderedListSpan(updatedNestingLevel, attributes, listStyle)
+            is AztecTaskListSpanAligned -> {
+                val context = getContext() ?: return null
+                AztecTaskListSpanAligned(updatedNestingLevel, attributes, context, listStyle, alignment)
+            }
+            is AztecTaskListSpan -> {
+                val context = getContext() ?: return null
+                AztecTaskListSpan(updatedNestingLevel, attributes, context, listStyle)
+            }
             else -> null
         }
     }

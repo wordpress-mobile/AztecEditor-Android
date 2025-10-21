@@ -68,6 +68,8 @@ open class AztecTaskListSpan(
 ) : AztecListSpan(nestingLevel, listStyle.verticalPadding) {
     private var toggled: Boolean = false
         private var contextRef: WeakReference<Context> = WeakReference(context)
+
+    internal fun getContext(): Context? = contextRef.get()
     override val TAG = "ul"
 
     override val startTag: String

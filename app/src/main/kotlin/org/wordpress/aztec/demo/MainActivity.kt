@@ -66,6 +66,8 @@ import org.wordpress.aztec.plugins.wpcomments.toolbar.PageToolbarButton
 import org.wordpress.aztec.source.SourceViewEditText
 import org.wordpress.aztec.toolbar.AztecToolbar
 import org.wordpress.aztec.toolbar.IAztecToolbarClickListener
+import org.wordpress.aztec.toolbar.ToolbarAction
+import org.wordpress.aztec.toolbar.ToolbarItems
 import org.wordpress.aztec.util.AztecLog
 import org.xml.sax.Attributes
 import java.io.File
@@ -458,6 +460,28 @@ open class MainActivity : AppCompatActivity(),
                 }
             }
         })
+
+        toolbar.enableTaskList()
+
+        toolbar.setToolbarItems(
+            ToolbarItems.BasicLayout(
+                ToolbarAction.HEADING,
+                ToolbarAction.LIST,
+                ToolbarAction.INDENT,
+                ToolbarAction.OUTDENT,
+                ToolbarAction.QUOTE,
+                ToolbarAction.BOLD,
+                ToolbarAction.ITALIC,
+                ToolbarAction.LINK,
+                ToolbarAction.UNDERLINE,
+                ToolbarAction.STRIKETHROUGH,
+                ToolbarAction.ALIGN_LEFT,
+                ToolbarAction.ALIGN_CENTER,
+                ToolbarAction.ALIGN_RIGHT,
+                ToolbarAction.HORIZONTAL_RULE,
+                ToolbarItems.PLUGINS,
+                ToolbarAction.HTML
+        ))
 
         aztec = Aztec.with(visualEditor, sourceEditor, toolbar, this)
                 .setImageGetter(GlideImageLoader(this))

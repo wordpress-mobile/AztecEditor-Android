@@ -38,9 +38,23 @@ abstract class AztecListSpan(override var nestingLevel: Int,
         val listText = text.subSequence(spanStart, spanEnd) as Spanned
 
         if (end - spanStart - 1 >= 0 && end - spanStart <= listText.length) {
-            val hasSublist = listText.getSpans(end - spanStart - 1, end - spanStart, AztecListSpan::class.java)
-                    .any { it.nestingLevel > nestingLevel }
-            if (hasSublist) {
+            // When outdenting an empty list item, a nested list span may begin at the
+            // exact start of this line due to span boundary updates. That should not
+            // suppress the indicator for the current line. Ignore sublists whose start
+            // coincides with the current line start.
+            val potentialSublists = listText.getSpans(end - spanStart - 1, end - spanStart, AztecListSpan::class.java)
+            val hasBlockingSublist = potentialSublists.any { sub ->
+                if (sub.nestingLevel <= nestingLevel) return@any false
+                val subStart = listText.getSpanStart(sub)
+                val lineStart = (listText.subSequence(0, end - spanStart) as Spanned)
+                        .lastIndexOf('\n') + 1
+                // Only treat as blocking if the nested list actually starts after the line start
+                // (i.e., the next line belongs to a deeper list). If it starts exactly at the
+                // line start, we are at the first character of that nested block, which should
+                // still show the current line indicator.
+                subStart > lineStart
+            }
+            if (hasBlockingSublist) {
                 return null
             }
         }

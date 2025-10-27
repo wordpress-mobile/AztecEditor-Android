@@ -30,7 +30,6 @@ allprojects {
     }
     tasks.withType(KotlinCompile).all {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8
             allWarningsAsErrors = true
         }
     }
@@ -43,6 +42,30 @@ task clean(type: Delete) {
 }
 
 subprojects {
+    plugins.withId("com.android.application") {
+        android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+        }
+    }
+    plugins.withId("com.android.library") {
+        android {
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+        }
+    }
+    plugins.withId("org.jetbrains.kotlin.android") {
+        tasks.withType(KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
+
     configurations {
         ktlint
     }

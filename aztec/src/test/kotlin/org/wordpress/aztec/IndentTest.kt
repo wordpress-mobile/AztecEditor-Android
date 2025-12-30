@@ -250,6 +250,27 @@ class IndentTest {
 
     @Test
     @Throws(Exception::class)
+    fun testOutdentAtStartOfDocumentDoesNotCrashAndClampsSelection() {
+        // Regression test:
+        // Outdenting when the caret is at position 0 and the first character is a tab used to compute
+        // selection = -1 and crash inside EditText.setSelection (setSpan(-1...-1)).
+        editText.fromHtml("\t123")
+
+        // Place caret at the very beginning (this matches the crash repro from the app).
+        editText.setSelection(0)
+        Assert.assertTrue(editText.isOutdentAvailable())
+
+        // Should not throw.
+        editText.outdent()
+
+        // Verify text was outdented and selection remained valid.
+        Assert.assertEquals("123", editText.toHtml())
+        Assert.assertEquals(0, editText.selectionStart)
+        Assert.assertEquals(0, editText.selectionEnd)
+    }
+
+    @Test
+    @Throws(Exception::class)
     fun doesNotIndentMedia() {
         editText.fromHtml("<h1>Heading 1</h1><img src=\"test.jpg\" /><h1>Heading 2</h1>")
 

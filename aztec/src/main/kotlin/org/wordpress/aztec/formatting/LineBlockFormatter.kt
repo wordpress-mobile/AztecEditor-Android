@@ -219,7 +219,22 @@ class LineBlockFormatter(editor: AztecText) : AztecFormatter(editor) {
         this.onEach { editableText.removeSpan(it.span) }
         action()
         this.onEach {
-            editableText.setSpan(it.span, it.spanStart, it.spanEnd, it.spanFlags)
+            val len = editableText.length
+            if (len <= 0) return@onEach
+
+            val start = it.spanStart.coerceIn(0, len)
+            val end = it.spanEnd.coerceIn(0, len)
+            if (start >= end) return@onEach
+
+            try {
+                editableText.setSpan(it.span, start, end, it.spanFlags)
+            } catch (_: IndexOutOfBoundsException) {
+                // Defensive: text may have been modified by other watchers by the time we restore spans.
+            } catch (_: IllegalArgumentException) {
+                // Defensive: some framework builds throw IllegalArgumentException on invalid ranges.
+            } catch (_: RuntimeException) {
+                // Defensive: SpannableStringBuilder.setSpan can throw RuntimeException for invalid ranges.
+            }
         }
     }
 

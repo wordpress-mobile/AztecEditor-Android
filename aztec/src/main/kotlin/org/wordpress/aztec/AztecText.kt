@@ -1588,6 +1588,31 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     // Helper ======================================================================================
 
+    /**
+     * Some Android versions/framework builds are very strict about selection offsets and will crash
+     * when selection handles try to position at an invalid cursor offset (e.g. -1 or > text length).
+     *
+     * Aztec can temporarily compute such offsets while mutating text (indent/outdent, span re-application, etc),
+     * so we clamp selection to a valid range here to avoid framework crashes.
+     *
+     * NOTE: We clamp to [0, safeLength] to avoid placing selection on the end-of-buffer marker.
+     */
+    override fun setSelection(index: Int) {
+        val max = EndOfBufferMarkerAdder.safeLength(this)
+        super.setSelection(index.coerceIn(0, max))
+    }
+
+    override fun setSelection(start: Int, stop: Int) {
+        val max = EndOfBufferMarkerAdder.safeLength(this)
+        val s = start.coerceIn(0, max)
+        val e = stop.coerceIn(0, max)
+        if (s <= e) {
+            super.setSelection(s, e)
+        } else {
+            super.setSelection(e, s)
+        }
+    }
+
     fun consumeCursorPosition(text: SpannableStringBuilder): Int {
         var cursorPosition = Math.min(selectionStart, text.length)
 

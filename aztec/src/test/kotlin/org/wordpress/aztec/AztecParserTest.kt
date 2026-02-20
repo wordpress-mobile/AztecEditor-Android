@@ -39,6 +39,7 @@ class AztecParserTest(alignmentRendering: AlignmentRendering) {
     private val HTML_QUOTE_WITH_LIST_UNORDERED = "<blockquote><ul><li>Unordered</li></ul></blockquote>"
     private val HTML_QUOTE_WITH_WHITE_SPACE = "<blockquote>Quote<br><br></br></blockquote>"
     private val HTML_STRIKETHROUGH = "<s>Strikethrough</s>" // <s> or <strike> or <del>
+    private val HTML_REDACTED = "<del class=\"redacted\">Redacted</del>"
     private val HTML_UNDERLINE = "<u>Underline</u><br><br>"
     private val HTML_UNKNOWN = "<iframe class=\"classic\">Menu</iframe><br><br>"
     private val HTML_COMMENT_INSIDE_UNKNOWN = "<unknown><!--more--></unknown>"
@@ -548,6 +549,21 @@ class AztecParserTest(alignmentRendering: AlignmentRendering) {
     @Throws(Exception::class)
     fun parseHtmlToSpanToHtmlStrikethrough_isEqual() {
         val input = HTML_STRIKETHROUGH
+        val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
+        val output = mParser.toHtml(span)
+        Assert.assertEquals(input, output)
+    }
+
+    /**
+     * Parse redacted text from HTML to span to HTML.  If input and output are equal with
+     * the same length and corresponding characters, [AztecParser] is correct.
+     *
+     * @throws Exception
+     */
+    @Test
+    @Throws(Exception::class)
+    fun parseHtmlToSpanToHtmlRedacted_isEqual() {
+        val input = HTML_REDACTED
         val span = SpannableString(mParser.fromHtml(input, RuntimeEnvironment.application.applicationContext))
         val output = mParser.toHtml(span)
         Assert.assertEquals(input, output)

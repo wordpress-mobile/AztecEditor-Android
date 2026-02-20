@@ -16,6 +16,7 @@ import org.wordpress.aztec.ITextFormat
 import org.wordpress.aztec.R
 import org.wordpress.aztec.spans.AztecBackgroundColorSpan
 import org.wordpress.aztec.spans.AztecCodeSpan
+import org.wordpress.aztec.spans.AztecRedactedSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecStyleBoldSpan
 import org.wordpress.aztec.spans.AztecStyleCiteSpan
@@ -99,6 +100,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                     AztecTextFormat.FORMAT_EMPHASIS,
                     AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
+                    AztecTextFormat.FORMAT_REDACTED,
                     AztecTextFormat.FORMAT_BACKGROUND,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
@@ -325,6 +327,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecCodeSpan::class.java -> AztecTextFormat.FORMAT_CODE
             AztecBackgroundColorSpan::class.java -> return AztecTextFormat.FORMAT_BACKGROUND
             MarkSpan::class.java -> AztecTextFormat.FORMAT_MARK
+            AztecRedactedSpan::class.java -> AztecTextFormat.FORMAT_REDACTED
             HighlightSpan::class.java -> AztecTextFormat.FORMAT_HIGHLIGHT
             else -> null
         }
@@ -478,6 +481,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecTextFormat.FORMAT_UNDERLINE -> AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> AztecCodeSpan(codeStyle)
             AztecTextFormat.FORMAT_BACKGROUND -> AztecBackgroundColorSpan(backgroundSpanColor ?: R.color.background)
+            AztecTextFormat.FORMAT_REDACTED -> AztecRedactedSpan()
             AztecTextFormat.FORMAT_HIGHLIGHT -> {
                 HighlightSpan.create(context = editor.context, defaultStyle = highlightStyle)
             }

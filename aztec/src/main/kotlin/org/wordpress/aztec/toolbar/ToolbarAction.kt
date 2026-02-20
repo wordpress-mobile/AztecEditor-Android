@@ -97,6 +97,12 @@ enum class ToolbarAction constructor(
             ToolbarActionType.INLINE_STYLE,
             setOf(AztecTextFormat.FORMAT_STRIKETHROUGH),
             R.layout.format_bar_button_strikethrough),
+    REDACTED(
+            R.id.format_bar_button_redacted,
+            R.drawable.format_bar_button_redacted_selector,
+            ToolbarActionType.INLINE_STYLE,
+            setOf(AztecTextFormat.FORMAT_REDACTED),
+            R.layout.format_bar_button_redacted),
     ALIGN_LEFT(R.id.format_bar_button_align_left,
             R.drawable.format_bar_button_align_left_selector,
             ToolbarActionType.BLOCK_STYLE,

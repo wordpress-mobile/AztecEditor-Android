@@ -1441,6 +1441,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
             AztecTextFormat.FORMAT_CITE,
             AztecTextFormat.FORMAT_UNDERLINE,
             AztecTextFormat.FORMAT_STRIKETHROUGH,
+            AztecTextFormat.FORMAT_REDACTED,
             AztecTextFormat.FORMAT_BACKGROUND,
             AztecTextFormat.FORMAT_HIGHLIGHT,
             AztecTextFormat.FORMAT_CODE -> inlineFormatter.toggle(textFormat)

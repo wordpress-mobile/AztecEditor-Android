@@ -37,6 +37,7 @@ import org.wordpress.aztec.spans.AztecListItemSpan
 import org.wordpress.aztec.spans.AztecListItemSpan.Companion.CHECKED
 import org.wordpress.aztec.spans.AztecMediaClickableSpan
 import org.wordpress.aztec.spans.AztecMediaSpan
+import org.wordpress.aztec.spans.AztecRedactedSpan
 import org.wordpress.aztec.spans.AztecStrikethroughSpan
 import org.wordpress.aztec.spans.AztecTaskListSpan
 import org.wordpress.aztec.spans.AztecVideoSpan
@@ -87,7 +88,16 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
                 return true
             }
             STRIKETHROUGH_S, STRIKETHROUGH_STRIKE, STRIKETHROUGH_DEL -> {
-                handleElement(output, opening, AztecStrikethroughSpan(tag, AztecAttributes(attributes)))
+                val span = if (opening && tag == STRIKETHROUGH_DEL &&
+                    AztecAttributes(attributes).getValue("class") == "redacted"
+                ) {
+                    AztecRedactedSpan(AztecAttributes(attributes))
+                } else if (!opening && tagStack.isNotEmpty() && tagStack.last() is AztecRedactedSpan) {
+                    AztecRedactedSpan()
+                } else {
+                    AztecStrikethroughSpan(tag, AztecAttributes(attributes))
+                }
+                handleElement(output, opening, span)
                 return true
             }
             SPAN -> {

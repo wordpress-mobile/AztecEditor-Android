@@ -27,6 +27,7 @@ Execute the approved plan:
 - Keep changes minimal and focused — don't refactor unrelated code
 - Kotlin warnings are treated as errors (`allWarningsAsErrors = true`) — write clean code
 - Use `org.wordpress.aztec` package conventions
+- **Unit tests**: Add or update tests covering new/changed logic. Follow existing test patterns in the repo. If writing meaningful tests would require disproportionate effort (e.g., complex setup, heavy mocking of framework internals), skip but notify the developer explaining why.
 
 ## Phase 3: Verify
 

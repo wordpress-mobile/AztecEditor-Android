@@ -77,7 +77,10 @@ All plugin/loader modules depend on `:aztec`. Published independently to Automat
 ## Build Commands
 
 ```bash
-# Build the demo app
+# Build and run the demo app
+./gradlew :app:installDebug && adb shell am start -n org.wordpress.aztec/org.wordpress.aztec.demo.MainActivity
+
+# Build the demo app (without installing)
 ./gradlew :app:assembleDebug
 
 # Build the library

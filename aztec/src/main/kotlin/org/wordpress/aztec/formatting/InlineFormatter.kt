@@ -27,6 +27,7 @@ import org.wordpress.aztec.spans.AztecUnderlineSpan
 import org.wordpress.aztec.spans.HighlightSpan
 import org.wordpress.aztec.spans.IAztecExclusiveInlineSpan
 import org.wordpress.aztec.spans.IAztecInlineSpan
+import org.wordpress.aztec.spans.AztecRedactedSpan
 import org.wordpress.aztec.spans.MarkSpan
 import org.wordpress.aztec.watchers.TextChangedEvent
 
@@ -99,6 +100,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
                     AztecTextFormat.FORMAT_EMPHASIS,
                     AztecTextFormat.FORMAT_CITE,
                     AztecTextFormat.FORMAT_STRIKETHROUGH,
+                    AztecTextFormat.FORMAT_REDACTED,
                     AztecTextFormat.FORMAT_BACKGROUND,
                     AztecTextFormat.FORMAT_UNDERLINE,
                     AztecTextFormat.FORMAT_CODE -> {
@@ -321,6 +323,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecStyleEmphasisSpan::class.java -> AztecTextFormat.FORMAT_EMPHASIS
             AztecStyleCiteSpan::class.java -> AztecTextFormat.FORMAT_CITE
             AztecStrikethroughSpan::class.java -> AztecTextFormat.FORMAT_STRIKETHROUGH
+            AztecRedactedSpan::class.java -> AztecTextFormat.FORMAT_REDACTED
             AztecUnderlineSpan::class.java -> AztecTextFormat.FORMAT_UNDERLINE
             AztecCodeSpan::class.java -> AztecTextFormat.FORMAT_CODE
             AztecBackgroundColorSpan::class.java -> return AztecTextFormat.FORMAT_BACKGROUND
@@ -475,6 +478,7 @@ class InlineFormatter(editor: AztecText, val codeStyle: CodeStyle, private val h
             AztecTextFormat.FORMAT_EMPHASIS -> AztecStyleEmphasisSpan()
             AztecTextFormat.FORMAT_CITE -> AztecStyleCiteSpan()
             AztecTextFormat.FORMAT_STRIKETHROUGH -> AztecStrikethroughSpan()
+            AztecTextFormat.FORMAT_REDACTED -> AztecRedactedSpan()
             AztecTextFormat.FORMAT_UNDERLINE -> AztecUnderlineSpan()
             AztecTextFormat.FORMAT_CODE -> AztecCodeSpan(codeStyle)
             AztecTextFormat.FORMAT_BACKGROUND -> AztecBackgroundColorSpan(backgroundSpanColor ?: R.color.background)

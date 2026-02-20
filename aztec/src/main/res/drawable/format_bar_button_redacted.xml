@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="48dp"
+    android:width="48dp"
+    android:viewportHeight="48"
+    android:viewportWidth="48" >
+
+    <path
+        android:fillColor="?attr/toolbarIconNormalColor"
+        android:pathData="M14,20h20v8H14V20z" />
+
+    <path
+        android:strokeColor="?attr/toolbarIconNormalColor"
+        android:strokeWidth="2"
+        android:pathData="M10,24L38,24" />
+
+</vector>

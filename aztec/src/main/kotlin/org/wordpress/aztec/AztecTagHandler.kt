@@ -31,6 +31,7 @@ import org.wordpress.aztec.plugins.html2visual.IHtmlTagHandler
 import org.wordpress.aztec.source.CssStyleFormatter
 import org.wordpress.aztec.spans.AztecAudioSpan
 import org.wordpress.aztec.spans.AztecBackgroundColorSpan
+import org.wordpress.aztec.spans.AztecRedactedSpan
 import org.wordpress.aztec.spans.AztecHorizontalRuleSpan
 import org.wordpress.aztec.spans.AztecImageSpan
 import org.wordpress.aztec.spans.AztecListItemSpan
@@ -176,6 +177,10 @@ class AztecTagHandler(val context: Context, val plugins: List<IAztecPlugin> = Ar
 
     private fun handleBackgroundColorSpanTag(attributes: Attributes, tag: String, nestingLevel: Int): IAztecSpan {
         val attrs = AztecAttributes(attributes)
+        val classAttr = attrs.getValue("class") ?: ""
+        if (classAttr.contains("redacted") || (tagStack.isNotEmpty() && tagStack.last() is AztecRedactedSpan)) {
+            return AztecRedactedSpan(attrs)
+        }
         return if (CssStyleFormatter.containsStyleAttribute(
                 attrs,
                 CssStyleFormatter.CSS_BACKGROUND_COLOR_ATTRIBUTE

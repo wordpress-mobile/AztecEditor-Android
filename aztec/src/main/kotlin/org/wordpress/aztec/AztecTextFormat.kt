@@ -38,5 +38,6 @@ enum class AztecTextFormat : ITextFormat {
     FORMAT_CODE,
     FORMAT_BACKGROUND,
     FORMAT_MARK,
-    FORMAT_HIGHLIGHT
+    FORMAT_HIGHLIGHT,
+    FORMAT_REDACTED
 }

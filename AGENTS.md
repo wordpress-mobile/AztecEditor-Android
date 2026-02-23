@@ -73,6 +73,7 @@ All plugin/loader modules depend on `:aztec`. Published independently to Automat
 - **NEVER create a PR without explicit permission**
 - When asked to "fix" or "update" something, that does NOT imply permission to commit/push
 - Always wait for explicit "commit", "push", or "create PR" commands
+- Do not create branches, rebase, or modify git history unless explicitly asked
 
 ## Build Commands
 

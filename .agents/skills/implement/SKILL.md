@@ -56,7 +56,7 @@ If other modules were changed, compile those too:
 ### 3c: Unit Tests
 
 ```bash
-./gradlew aztec:testRelease
+./gradlew :aztec:testRelease
 ```
 
 Or run specific tests related to the changes:
@@ -66,7 +66,7 @@ Or run specific tests related to the changes:
 
 **Test rules:**
 - NEVER weaken or remove assertions to make tests pass
-- NEVER modify production code just to pass a test without permission
+- Don't make unrelated or incorrect changes to production code solely to appease a test. If a test reveals a real issue, fix it properly.
 - Tests that pass only by not crashing are invalid — every test needs meaningful assertions
 - If a test won't pass after reasonable attempts: stop and ask
 

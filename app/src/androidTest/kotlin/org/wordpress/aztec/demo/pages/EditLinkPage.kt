@@ -33,7 +33,17 @@ class EditLinkPage : BasePage() {
     }
 
     fun updateURL(url: String): EditLinkPage {
-        urlField.perform(replaceText(url), ViewActions.closeSoftKeyboard())
+        threadSleep(2000L) // Wait for the page to load
+        try {
+            urlField.perform(click())
+            urlField.perform(replaceText(url), ViewActions.closeSoftKeyboard())
+        } catch (e: RuntimeException) {
+            // If the URL field is not visible, it might be because the keyboard is open.
+            // Close the keyboard and try again.
+            urlField.perform(ViewActions.closeSoftKeyboard())
+            urlField.perform(replaceText(url), ViewActions.closeSoftKeyboard())
+            e.printStackTrace()
+        }
         label("Entered url")
 
         return this
@@ -79,5 +89,10 @@ class EditLinkPage : BasePage() {
     fun cancel() {
         cancelButton.perform(click())
         label("Canceled")
+    }
+
+    fun threadSleep(millis: Long): EditLinkPage {
+        Thread.sleep(millis)
+        return this
     }
 }

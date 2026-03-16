@@ -139,9 +139,9 @@ open class AztecTaskListSpan(
     private fun isChecked(text: CharSequence, lineIndex: Int): Boolean {
         val spanStart = (text as Spanned).getSpanStart(this)
         val spanEnd = text.getSpanEnd(this)
-        val sortedSpans = text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java).sortedBy {
-            text.getSpanStart(it)
-        }
+        val sortedSpans = text.getSpans(spanStart, spanEnd, AztecListItemSpan::class.java)
+                .filter { it.nestingLevel == nestingLevel + 1 }
+                .sortedBy { text.getSpanStart(it) }
         return sortedSpans.getOrNull(lineIndex - 1)?.attributes?.getValue("checked") == "true"
     }
 

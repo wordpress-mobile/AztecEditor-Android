@@ -105,7 +105,7 @@ ext {
     robolectricVersion = '4.13'
     jUnitVersion = '4.13.2'
     jSoupVersion = '1.15.3'
-    wordpressUtilsVersion = '3.5.0'
+    wordpressUtilsVersion = '3.15.0'
     espressoVersion = '3.0.1'
 
     // other

@@ -31,9 +31,24 @@ class EndOfBufferMarkerAdder(text: Editable) : TextWatcher {
         // by the way, the cursor will be adjusted "automatically" by RichTextEditText's onSelectionChanged to before the marker
     }
 
+    fun uninstallEndOfBuffer(aztecText: AztecText) {
+        uninstall(aztecText)
+    }
+
     companion object {
-        fun install(editText: AztecText) {
-            editText.addTextChangedListener(EndOfBufferMarkerAdder(editText.text))
+        private var watcherRef: EndOfBufferMarkerAdder? = null
+
+        fun install(editText: AztecText): EndOfBufferMarkerAdder {
+            var watcher = EndOfBufferMarkerAdder(editText.text)
+            editText.addTextChangedListener(watcher)
+            watcherRef = watcher
+            return watcher
+        }
+
+        fun uninstall(editText: AztecText) {
+            if (watcherRef != null) {
+                editText.removeTextChangedListener(watcherRef)
+            }
         }
 
         fun ensureEndOfTextMarker(text: Editable, deletedText: Boolean = false): Editable {

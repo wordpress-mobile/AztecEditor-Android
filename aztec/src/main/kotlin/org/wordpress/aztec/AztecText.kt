@@ -313,6 +313,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
     var observationQueue: ObservationQueue = ObservationQueue(this)
     var textWatcherEventBuilder: TextWatcherEvent.Builder = TextWatcherEvent.Builder()
+    var endOfBufferMarkerAdderWatcher: EndOfBufferMarkerAdder? = null
 
     private var accessibilityDelegate = AztecTextAccessibilityDelegate(this)
 
@@ -692,6 +693,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
         }
     }
 
+    fun removeEndOfBufferMarkerAdder() {
+        endOfBufferMarkerAdderWatcher?.uninstallEndOfBuffer(this)
+    }
+
     private fun <T> selectionHasExactlyOneMarker(start: Int, end: Int, type: Class<T>): Boolean {
         val spanFound: Array<T> = editableText.getSpans(
                 start,
@@ -926,6 +931,10 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         var wasStyleRemoved = false
         if (event.action == KeyEvent.ACTION_DOWN && event.keyCode == KeyEvent.KEYCODE_DEL) {
+            if (isInGutenbergMode && (selectionStart == 0 && isTextSelected())) {
+                return false
+            }
+
             if (!consumeHistoryEvent) {
                 history.beforeTextChanged(this@AztecText)
             }
@@ -974,7 +983,7 @@ open class AztecText : AppCompatEditText, TextWatcher, UnknownHtmlSpan.OnUnknown
 
         FullWidthImageElementWatcher.install(this)
 
-        EndOfBufferMarkerAdder.install(this)
+        endOfBufferMarkerAdderWatcher = EndOfBufferMarkerAdder.install(this)
         ZeroIndexContentWatcher.install(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {

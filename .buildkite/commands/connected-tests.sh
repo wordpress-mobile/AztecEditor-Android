@@ -14,7 +14,7 @@ ln -s "$BUILD_SDK/platform-tools" "$EMULATOR_SDK/platform-tools"
 ln -s "$BUILD_SDK/platforms" "$EMULATOR_SDK/platforms"
 export ANDROID_HOME="$EMULATOR_SDK"
 export ANDROID_SDK_ROOT="$EMULATOR_SDK"
-export PATH="$EMULATOR_SDK/emulator:$EMULATOR_SDK/platform-tools:$PATH"
+export PATH="$EMULATOR_SDK/cmdline-tools/latest/bin:$EMULATOR_SDK/emulator:$EMULATOR_SDK/platform-tools:$PATH"
 
 stop_emulator() {
 	adb emu kill || true
@@ -23,7 +23,8 @@ stop_emulator() {
 }
 
 echo "--- :package: Installing emulator and system image"
-sdkmanager --sdk_root="$EMULATOR_SDK" "emulator" "$SYSTEM_IMAGE" > /dev/null
+# `avdmanager` resolves the SDK from its own location, ignoring `ANDROID_HOME`, so it has to live in this SDK too.
+sdkmanager --sdk_root="$EMULATOR_SDK" "cmdline-tools;latest" "emulator" "$SYSTEM_IMAGE" > /dev/null
 
 echo "--- :mag: Checking hardware acceleration"
 ls -la /dev/kvm

@@ -6,15 +6,24 @@ SYSTEM_IMAGE="system-images;android-34;google_apis;x86_64"
 AVD_NAME="aztec-connected-tests"
 EMULATOR_LOG="build/emulator.log"
 
-export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
+BUILD_SDK="$ANDROID_HOME"
+# The agent user cannot write to the image's SDK, and Gradle still needs it.
+EMULATOR_SDK="$(mktemp -d)"
+ln -s "$BUILD_SDK/licenses" "$EMULATOR_SDK/licenses"
+ln -s "$BUILD_SDK/platform-tools" "$EMULATOR_SDK/platform-tools"
+ln -s "$BUILD_SDK/platforms" "$EMULATOR_SDK/platforms"
+export ANDROID_HOME="$EMULATOR_SDK"
+export ANDROID_SDK_ROOT="$EMULATOR_SDK"
+export PATH="$EMULATOR_SDK/emulator:$EMULATOR_SDK/platform-tools:$PATH"
 
 stop_emulator() {
 	adb emu kill || true
 	avdmanager delete avd --name "$AVD_NAME" || true
+	rm -rf "$EMULATOR_SDK"
 }
 
 echo "--- :package: Installing emulator and system image"
-sdkmanager "emulator" "platform-tools" "$SYSTEM_IMAGE" > /dev/null
+sdkmanager --sdk_root="$EMULATOR_SDK" "emulator" "$SYSTEM_IMAGE" > /dev/null
 
 echo "--- :mag: Checking hardware acceleration"
 ls -la /dev/kvm
@@ -37,4 +46,4 @@ adb shell settings put secure long_press_timeout 1800
 adb shell input keyevent 82
 
 echo "--- :android: Running connected tests"
-./gradlew --stacktrace :app:connectedDebugAndroidTest
+ANDROID_HOME="$BUILD_SDK" ANDROID_SDK_ROOT="$BUILD_SDK" ./gradlew --stacktrace :app:connectedDebugAndroidTest

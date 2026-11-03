@@ -1,0 +1,8 @@
+name: Aztec connected tests
+outputDir: ../build/marathon
+vendorConfiguration:
+  type: Android
+  applicationApk: ../app/build/outputs/apk/debug/app-debug.apk
+  testApplicationApk: ../app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+analyticsTracking: false
+bugsnagReporting: false

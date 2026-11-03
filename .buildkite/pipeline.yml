@@ -28,15 +28,23 @@ steps:
     artifact_paths:
       - "aztec/build/test-results/**/*.xml"
 
+  - label: "Build Connected Tests"
+    key: "build-connected-tests"
+    command: .buildkite/commands/build-connected-tests.sh
+    plugins: [$CI_TOOLKIT]
+    artifact_paths:
+      - "app/build/outputs/apk/debug/app-debug.apk"
+      - "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+
   - label: "Connected Tests"
     key: "connected-test"
+    depends_on: "build-connected-tests"
     command: .buildkite/commands/connected-tests.sh
     agents:
       queue: mac-metal
     plugins: [$CI_TOOLKIT]
     artifact_paths:
-      - "app/build/reports/androidTests/connected/**/*"
-      - "app/build/outputs/androidTest-results/connected/**/*"
+      - "build/marathon/**/*"
 
   - label: "Publish :aztec"
     key: "publish-aztec"

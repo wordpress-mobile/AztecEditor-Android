@@ -30,6 +30,7 @@ steps:
 
   - label: "Connected Tests"
     key: "connected-test"
+    parallelism: 3
     command: .buildkite/commands/connected-tests.sh
     agents:
       queue: mac-metal

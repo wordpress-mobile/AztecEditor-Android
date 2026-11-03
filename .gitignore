@@ -54,5 +54,6 @@ ktlint
 # Dependencies
 vendor
 
-# Secrets files that should never be committed, regardless of location
+# Legacy: nothing uses this secret anymore, but devs may still have a decrypted copy locally.
+# Remove once they've had time to clean up: https://linear.app/a8c/issue/AINFRA-3580
 firebase.secrets.json

@@ -33,7 +33,9 @@ steps:
     command: .buildkite/commands/connected-tests.sh
     plugins: [$CI_TOOLKIT]
     artifact_paths:
-      - "aztec/build/test-results/**/*.xml"
+      - "app/build/reports/androidTests/connected/**/*"
+      - "app/build/outputs/androidTest-results/connected/**/*"
+      - "build/emulator.log"
 
   - label: "Publish :aztec"
     key: "publish-aztec"

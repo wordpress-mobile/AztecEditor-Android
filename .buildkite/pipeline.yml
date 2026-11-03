@@ -33,6 +33,7 @@ steps:
     command: .buildkite/commands/connected-tests.sh
     agents:
       queue: mac-metal
+    timeout_in_minutes: 30
     plugins: [$CI_TOOLKIT]
     artifact_paths:
       - "app/build/reports/androidTests/connected/**/*"

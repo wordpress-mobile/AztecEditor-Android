@@ -54,12 +54,6 @@ ktlint
 # Dependencies
 vendor
 
-# Currently, the configure tool stores the encrypted files under
-# .configure-files. Everything in that folder without a .enc extension should
-# be ignored.
-.configure-files/*
-!.configure-files/*.enc
-
-# Secrets files that should never be committed, regardless of location
+# Legacy: nothing uses this secret anymore, but devs may still have a decrypted copy locally.
+# Remove once they've had time to clean up: https://linear.app/a8c/issue/AINFRA-3580
 firebase.secrets.json
-

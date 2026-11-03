@@ -2,6 +2,7 @@
 
 package org.wordpress.aztec.demo
 
+import android.os.Build
 import android.util.Log
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
@@ -12,8 +13,11 @@ import org.junit.runner.RunWith
 abstract class BaseTest {
     @Rule
     @JvmField
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val grantPermissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+        GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    } else {
+        GrantPermissionRule.grant(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
 
     companion object {
         fun label(label: String) {

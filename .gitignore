@@ -53,3 +53,6 @@ ktlint
 
 # Dependencies
 vendor
+
+# Secrets files that should never be committed, regardless of location
+firebase.secrets.json

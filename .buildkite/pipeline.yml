@@ -38,6 +38,7 @@ steps:
     artifact_paths:
       - "app/build/reports/androidTests/connected/**/*"
       - "app/build/outputs/androidTest-results/connected/**/*"
+      - "build/emulator-logs/**/*"
 
   - label: "Publish :aztec"
     key: "publish-aztec"

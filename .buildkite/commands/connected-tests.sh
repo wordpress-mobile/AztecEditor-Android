@@ -27,7 +27,10 @@ echo "--- :package: Installing emulator and system image"
 sdkmanager --sdk_root="$EMULATOR_SDK" "cmdline-tools;latest" "emulator" "$SYSTEM_IMAGE" > /dev/null
 
 # The image lacks this library, and the emulator segfaults without it, even with `-no-window`.
-sudo -n dnf install -y libX11-xcb > /dev/null
+EMULATOR_LIBS="$EMULATOR_SDK/extra-libs"
+mkdir -p "$EMULATOR_LIBS"
+dnf download --destdir "$EMULATOR_LIBS" libX11-xcb > /dev/null
+rpm2cpio "$EMULATOR_LIBS"/*.rpm | (cd "$EMULATOR_LIBS" && cpio -idm --quiet)
 
 echo "--- :mag: Checking hardware acceleration"
 ls -la /dev/kvm
@@ -38,7 +41,7 @@ avdmanager create avd --force --name "$AVD_NAME" --package "$SYSTEM_IMAGE" --dev
 trap stop_emulator EXIT
 
 mkdir -p "$(dirname "$EMULATOR_LOG")"
-emulator -avd "$AVD_NAME" -no-window -no-audio -no-boot-anim -no-snapshot -no-metrics -gpu swiftshader_indirect > "$EMULATOR_LOG" 2>&1 &
+LD_LIBRARY_PATH="$EMULATOR_LIBS/usr/lib64" emulator -avd "$AVD_NAME" -no-window -no-audio -no-boot-anim -no-snapshot -no-metrics -gpu swiftshader_indirect > "$EMULATOR_LOG" 2>&1 &
 
 timeout 300 adb wait-for-device
 timeout 300 bash -c 'until [[ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d "\r")" == "1" ]]; do sleep 5; done'

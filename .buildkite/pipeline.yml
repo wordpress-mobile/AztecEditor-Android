@@ -31,9 +31,12 @@ steps:
   - label: "Connected Tests"
     key: "connected-test"
     command: .buildkite/commands/connected-tests.sh
+    agents:
+      queue: mac-metal
     plugins: [$CI_TOOLKIT]
     artifact_paths:
-      - "aztec/build/test-results/**/*.xml"
+      - "app/build/reports/androidTests/connected/**/*"
+      - "app/build/outputs/androidTest-results/connected/**/*"
 
   - label: "Publish :aztec"
     key: "publish-aztec"

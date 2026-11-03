@@ -30,6 +30,7 @@ steps:
 
   - label: "Connected Tests"
     key: "connected-test"
+    parallelism: 5
     command: .buildkite/commands/connected-tests.sh
     plugins: [$CI_TOOLKIT]
     artifact_paths:
